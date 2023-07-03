@@ -5,15 +5,32 @@ from contextlib import contextmanager
 import os
 import os.path
 import logging
-from typing import List, Optional, Iterator, Tuple, Any, Dict, Deque
+from typing import List, Optional, Iterator, Tuple, Any, Dict, Deque, Union
 
 from dataclasses import dataclass
 
 from dbt.version import get_installed_version
+from dbt.config import read_user_config
 from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
 from dbt.adapters.factory import register_adapter, get_adapter
 from dbt.compilation import Compiler as DbtCompiler
-from dbt.cli.resolvers import default_profiles_dir
+
+# From dbt 1.3 onwards, the default_profiles_dir resolver is
+# available. Before that version we use the flags module
+try:
+    from dbt.cli.resolvers import default_profiles_dir
+except ImportError:
+    default_profiles_dir = None
+
+# After this PR on dbt-core, we need to inject context variables
+# directly. This change was backported and so exists in some versions
+# but not others. When not present, no additional action is needed.
+# https://github.com/dbt-labs/dbt-core/pull/7949
+# On the 1.5.x branch this was between 1.5.1 and 1.5.2
+try:
+    from dbt.task.contextvars import cv_project_root
+except ImportError:
+    cv_project_root = None
 
 try:
     from dbt.exceptions import (
@@ -67,7 +84,8 @@ class DbtConfigArgs:
     target: Optional[str] = None
     threads: int = 1
     single_threaded: bool = False
-    vars: Optional[Dict] = None
+    # dict in 1.5.x onwards, json string before.
+    vars: Optional[Union[Dict, str]] = None if DBT_VERSION_TUPLE >= (1, 5) else ""
 
 
 class DbtTemplater(JinjaTemplater):
@@ -98,15 +116,30 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_config(self):
         """Loads the dbt config."""
+        if DBT_VERSION_TUPLE >= (1, 5):
+            user_config = None
+            # 1.5.x+ this is a dict.
+            cli_vars = self._get_cli_vars()
+        else:
+            # Here, we read flags.PROFILE_DIR directly, prior to calling
+            # set_from_args(). Apparently, set_from_args() sets PROFILES_DIR
+            # to a lowercase version of the value, and the profile wouldn't be
+            # found if the directory name contained uppercase letters. This fix
+            # was suggested and described here:
+            # https://github.com/sqlfluff/sqlfluff/issues/2253#issuecomment-1018722979
+            user_config = read_user_config(flags.PROFILES_DIR)
+            # Pre 1.5.x this is a string.
+            cli_vars = str(self._get_cli_vars())
+
         flags.set_from_args(
             DbtConfigArgs(
                 project_dir=self.project_dir,
                 profiles_dir=self.profiles_dir,
                 profile=self._get_profile(),
-                vars=self._get_cli_vars(),
+                vars=cli_vars,
                 threads=1,
             ),
-            None,
+            user_config,
         )
         self.dbt_config = DbtRuntimeConfig.from_args(
             DbtConfigArgs(
@@ -114,7 +147,7 @@ class DbtTemplater(JinjaTemplater):
                 profiles_dir=self.profiles_dir,
                 profile=self._get_profile(),
                 target=self._get_target(),
-                vars=self._get_cli_vars(),
+                vars=cli_vars,
                 threads=1,
             )
         )
@@ -145,12 +178,17 @@ class DbtTemplater(JinjaTemplater):
             # Changing cwd temporarily as dbt is not using project_dir to
             # read/write `target/partial_parse.msgpack`. This can be undone when
             # https://github.com/dbt-labs/dbt-core/issues/6055 is solved.
-            os.chdir(self.project_dir)
+            # For dbt 1.4+ this isn't necessary, but it is required for 1.3
+            # and before.
+            if DBT_VERSION_TUPLE < (1, 4):
+                os.chdir(self.project_dir)
             self.dbt_manifest = ManifestLoader.get_full_manifest(self.dbt_config)
         except DbtProjectError as err:  # pragma: no cover
             raise SQLFluffUserError(f"DbtProjectError: {err}")
         finally:
-            os.chdir(old_cwd)
+            if DBT_VERSION_TUPLE < (1, 4):
+                os.chdir(old_cwd)
+
         return self.dbt_manifest
 
     @cached_property
@@ -189,12 +227,21 @@ class DbtTemplater(JinjaTemplater):
         as to support the same overwriting mechanism as
         dbt (currently an environment variable).
         """
+        # Where default_profiles_dir is available, use it. For dbt 1.2 and
+        # earlier, it is not, so fall back to the flags option which should
+        # still be available in those versions.
+        default_dir = (
+            default_profiles_dir()
+            if default_profiles_dir is not None
+            else flags.PROFILES_DIR
+        )
+
         dbt_profiles_dir = os.path.abspath(
             os.path.expanduser(
                 self.sqlfluff_config.get_section(
                     (self.templater_selector, self.name, "profiles_dir")
                 )
-                or (os.getenv("DBT_PROFILES_DIR") or default_profiles_dir())
+                or (os.getenv("DBT_PROFILES_DIR") or default_dir)
             )
         )
 
@@ -463,6 +510,12 @@ class DbtTemplater(JinjaTemplater):
                             return env.from_string(in_str, globals=globals)
 
             return old_from_string(*args, **kwargs)
+
+        # NOTE: We need to inject the project root here in reaction to the
+        # breaking change upstream with dbt.
+        # https://github.com/dbt-labs/dbt-core/pull/7949
+        if cv_project_root is not None:
+            cv_project_root.set(self.project_dir)
 
         node = self._find_node(fname, config)
         templater_logger.debug(
