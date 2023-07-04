@@ -297,13 +297,13 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     )
 
 
-class EngineFunctionSegment(BaseSegment):
+class TableEngineFunctionSegment(BaseSegment):
     """A ClickHouse `ENGINE` clause function.
 
     With this segment we attempt to match all possible engines.
     """
 
-    type = "engine_function"
+    type = "table_engine_function"
     match_grammar: Matchable = Sequence(
         Sequence(
             Ref(
@@ -330,7 +330,7 @@ class EngineFunctionSegment(BaseSegment):
 class OnClusterClauseSegment(BaseSegment):
     """A `ON CLUSTER` clause."""
 
-    type = "on_cluster"
+    type = "on_cluster_clause"
     match_grammar = Sequence(
         "ON",
         "CLUSTER",
@@ -338,16 +338,101 @@ class OnClusterClauseSegment(BaseSegment):
     )
 
 
-class EngineSegment(BaseSegment):
+class TableEngineSegment(BaseSegment):
     """An `ENGINE` used in `CREATE TABLE`."""
 
     type = "engine"
+    match_grammar = Sequence(
+        "ENGINE",
+        Ref("EqualsSegment"),
+        Sequence(
+            Ref("TableEngineFunctionSegment"),
+            AnySetOf(
+                Sequence(
+                    "ORDER",
+                    "BY",
+                    OneOf(
+                        Ref("BracketedColumnReferenceListGrammar"),
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                ),
+                Sequence(
+                    "PARTITION",
+                    "BY",
+                    Ref("ExpressionSegment"),
+                ),
+                Sequence(
+                    "PRIMARY",
+                    "KEY",
+                    Ref("ExpressionSegment"),
+                ),
+                Sequence(
+                    "SAMPLE",
+                    "BY",
+                    Ref("ExpressionSegment"),
+                ),
+                Sequence(
+                    "SETTINGS",
+                    Delimited(
+                        Sequence(
+                            Ref("NakedIdentifierSegment"),
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                Ref("NumericLiteralSegment"),
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class DatabaseEngineFunctionSegment(BaseSegment):
+    """A ClickHouse `ENGINE` clause function.
+
+    With this segment we attempt to match all possible engines.
+    """
+
+    type = "engine_function"
+    match_grammar: Matchable = Sequence(
+        Sequence(
+            OneOf(
+                "ATOMIC",
+                "MYSQL",
+                "MATERIALIZEDMYSQL",
+                "LAZY",
+                "POSTGRESQL",
+                "MATERIALIZEDPOSTGRESQL",
+                "REPLICATED",
+                "SQLITE",
+            ),
+            Bracketed(
+                Ref(
+                    "FunctionContentsGrammar",
+                    # The brackets might be empty for some functions...
+                    optional=True,
+                    ephemeral_name="FunctionContentsGrammar",
+                ),
+                # Engine functions may omit brackets.
+                optional=True,
+            ),
+        ),
+    )
+
+
+class DatabaseEngineSegment(BaseSegment):
+    """An `ENGINE` used in `CREATE TABLE`."""
+
+    type = "database_engine"
 
     match_grammar = Sequence(
         "ENGINE",
         Ref("EqualsSegment"),
         Sequence(
-            Ref("EngineFunctionSegment"),
+            Ref("DatabaseEngineFunctionSegment"),
             AnySetOf(
                 Sequence(
                     "ORDER",
@@ -500,6 +585,63 @@ class ColumnConstraintSegment(BaseSegment):
     )
 
 
+class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
+    """A `CREATE DATABASE` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/create/database
+    """
+
+    type = "create_database_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "DATABASE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("DatabaseReferenceSegment"),
+        AnySetOf(
+            Ref("OnClusterClauseSegment", optional=True),
+            Ref("DatabaseEngineSegment", optional=True),
+            Sequence(
+                "COMMENT",
+                Ref("SingleIdentifierGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "SETTINGS",
+                Delimited(
+                    Sequence(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            Ref("NakedIdentifierSegment"),
+                            Ref("NumericLiteralSegment"),
+                            Ref("QuotedLiteralSegment"),
+                            Ref("BooleanLiteralGrammar"),
+                        ),
+                        optional=True,
+                    ),
+                ),
+                optional=True,
+            ),
+        ),
+        AnyNumberOf(
+            "TABLE",
+            "OVERRIDE",
+            Ref("TableReferenceSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("TableConstraintSegment"),
+                    Ref("ColumnDefinitionSegment"),
+                    Ref("ColumnConstraintSegment"),
+                ),
+                optional=True,
+            ),
+            optional=True,
+        ),
+    )
+
+
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """A `CREATE TABLE` statement.
 
@@ -534,7 +676,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                     # Column definition may be missing if using AS SELECT
                     optional=True,
                 ),
-                Ref("EngineSegment"),
+                Ref("TableEngineSegment"),
                 # CREATE TABLE (...) AS SELECT:
                 Sequence(
                     "AS",
@@ -546,7 +688,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             Sequence(
                 "AS",
                 Ref("TableReferenceSegment"),
-                Ref("EngineSegment", optional=True),
+                Ref("TableEngineSegment", optional=True),
             ),
             # CREATE TABLE AS table_function():
             Sequence(
@@ -557,7 +699,10 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         AnySetOf(
             Sequence(
                 "COMMENT",
-                Ref("SingleQuotedIdentifierSegment"),
+                OneOf(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("QuotedIdentifierSegment"),
+                ),
             ),
             Ref("TableTTLSegment"),
             optional=True,
@@ -585,10 +730,10 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
             Sequence(
                 "TO",
                 Ref("TableReferenceSegment"),
-                Ref("EngineSegment", optional=True),
+                Ref("TableEngineSegment", optional=True),
             ),
             Sequence(
-                Ref("EngineSegment", optional=True),
+                Ref("TableEngineSegment", optional=True),
                 Sequence("POPULATE", optional=True),
             ),
         ),
@@ -1073,7 +1218,6 @@ class StatementSegment(ansi.StatementSegment):
     match_grammar = ansi.StatementSegment.match_grammar
     parse_grammar = ansi.StatementSegment.parse_grammar.copy(
         insert=[
-            Ref("CreateTableStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
             Ref("DropDictionaryStatementSegment"),
             Ref("DropQuotaStatementSegment"),

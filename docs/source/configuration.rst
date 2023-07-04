@@ -11,7 +11,9 @@ must be done via a file, because it otherwise gets slightly complicated.
 For details of what's available on the command line check out
 the :ref:`cliref`.
 
-Configuration files
+.. _`config-files`:
+
+Configuration Files
 -------------------
 
 For file based configuration *SQLFluff* will look for the following
@@ -464,16 +466,20 @@ There are multiple, complementary ways of configuring the Jinja templater.
    * - Configuration
      - Variables
      - Macros
+     - Filters
      - Documentation
    * - Config file
      - ✅
      - ✅
+     - ❌
      - `Complex Jinja Variable Templating`_ and `Jinja Macro Templating (from config)`_
    * - Macro Path
      - ❌
      - ✅
+     - ❌
      - `Jinja Macro Templating (from file)`_
    * - Library
+     - ✅
      - ✅
      - ✅
      - `Library Templating`_
@@ -656,6 +662,8 @@ projects. In particular it provides mock objects for:
 .. _`dbt`: https://www.getdbt.com/
 .. _`github`: https://www.github.com/sqlfluff/sqlfluff
 
+.. _jinja_library_templating:
+
 Library Templating
 """"""""""""""""""
 
@@ -715,6 +723,35 @@ submodules found within the library path.
 
      def another_sum(a: str, b: str) -> str:
         return a + b
+
+Additionally, the library can be used to expose `Jinja Filters <https://jinja.palletsprojects.com/en/3.1.x/templates/#filters>`_
+to the Jinja environment used by SQLFluff.
+
+This is achieve by setting a global variable named ``SQLFLUFF_JINJA_FILTERS``.
+``SQLFLUFF_JINJA_FILTERS`` is a dictionary where
+
+* dictionary keys map to the Jinja filter name
+* dictionary values map to the Python callable
+
+For example, to make the Airflow filter ``ds`` available to SQLFLuff, add
+the following to the `__init__.py` of the library:
+
+.. code-block:: python
+
+     # https://github.com/apache/airflow/blob/main/airflow/templates.py#L50
+     def ds_filter(value: datetime.date | datetime.time | None) -> str | None:
+        """Date filter."""
+        if value is None:
+            return None
+        return value.strftime("%Y-%m-%d")
+
+     SQLFLUFF_JINJA_FILTERS = {"ds": ds_filter}
+
+Now, ``ds`` can be used in SQL
+
+.. code-block:: SQL+Jinja
+
+    SELECT "{{ "2000-01-01" | ds }}";
 
 Interaction with ``--ignore=templating``
 """"""""""""""""""""""""""""""""""""""""
