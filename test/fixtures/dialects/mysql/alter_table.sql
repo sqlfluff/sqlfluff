@@ -9,6 +9,8 @@ ALTER TABLE `user` RENAME AS `users`;
 
 ALTER TABLE `users` RENAME `user`;
 
+ALTER TABLE `users` RENAME COLUMN `col_1` TO `del_col_1`;
+
 ALTER TABLE `users`
 CHANGE COLUMN `birthday` `date_of_birth` INT(11) NULL DEFAULT NULL;
 
