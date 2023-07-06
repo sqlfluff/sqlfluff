@@ -61,7 +61,10 @@ jobs:
     name: Python ${{ matrix.python-version }} Tests
     strategy:
       matrix:
-        python-version: [ '3.7', '3.8', '3.9', '3.10' ]
+        # NOTE: The most _stable_ python version should be the
+        # one with coverage. Others are tested for convenience.
+        # Pre-release versions should also be added here.
+        python-version: [ '3.7', '3.8', '3.9', '3.10', '3.12' ]
     permissions:
       contents: read
       pull-requests: write
