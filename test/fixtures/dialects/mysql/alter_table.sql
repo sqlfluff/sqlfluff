@@ -50,4 +50,8 @@ KEY_BLOCK_SIZE 8 COMMENT 'index for col_1, col_2, col_3';
 
 ALTER TABLE `foo`.`bar` DROP INDEX `index_name`;
 
+ALTER TABLE `foo`.`bar` RENAME INDEX `index_name` to `new_index_name`;
+
+ALTER TABLE `foo`.`bar` RENAME KEY `key_name` to `new_key_name`;
+
 ALTER TABLE `x` ADD CONSTRAINT FOREIGN KEY(`xk`) REFERENCES `y`(`yk`);

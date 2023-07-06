@@ -1306,7 +1306,6 @@ class AlterTableStatementSegment(BaseSegment):
                         ),
                         # Rename index
                         Sequence(
-                            "RENAME",
                             OneOf("INDEX", "KEY"),
                             Ref("IndexReferenceSegment"),
                             "TO",
