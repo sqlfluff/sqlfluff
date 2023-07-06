@@ -1312,6 +1312,13 @@ class AlterTableStatementSegment(BaseSegment):
                             "TO",
                             Ref("IndexReferenceSegment"),
                         ),
+                        # Rename column
+                        Sequence(
+                            "COLUMN",
+                            Ref("ColumnReferenceSegment"),
+                            "TO",
+                            Ref("ColumnReferenceSegment"),
+                        ),
                     ),
                 ),
                 # Enable/Disable updating nonunique indexes
