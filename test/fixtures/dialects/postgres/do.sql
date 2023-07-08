@@ -51,4 +51,3 @@ DO U&'\0441\043B\043E\043D';
 
 DO 'SELECT foo'
 'bar';
-

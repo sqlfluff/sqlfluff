@@ -30,5 +30,3 @@ INSERT INTO s1.t1 (col1, col2) VALUES
     ('V1', 1),
     ('V2', 2)
 ;
-
-
