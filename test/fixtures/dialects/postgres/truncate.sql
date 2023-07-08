@@ -17,4 +17,3 @@ TRUNCATE TABLE
     fattable *,
     ONLY slimtable
 CONTINUE IDENTITY CASCADE;
-
