@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Update .github/labeler.yml for new dialects
-      - uses: github/issue-labeler@v3.1
+      - uses: github/issue-labeler@v3.2
         with:
           configuration-path: .github/labeler.yml
           include-title: 1
