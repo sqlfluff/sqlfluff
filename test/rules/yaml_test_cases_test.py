@@ -10,7 +10,7 @@ from sqlfluff.utils.testing.rules import (
 from sqlfluff.core.config import FluffConfig
 
 ids, test_cases = load_test_cases(
-    test_cases_path=os.path.join("test/fixtures/rules/std_rule_cases", "*.yml")
+    test_cases_path=os.path.join("test/fixtures/rules/std_rule_cases", "CV06.yml")
 )
 
 

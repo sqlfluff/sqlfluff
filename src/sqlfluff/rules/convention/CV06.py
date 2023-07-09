@@ -305,6 +305,7 @@ class Rule_CV06(BaseRule):
     def _ensure_final_semicolon(
         self, parent_segment: BaseSegment
     ) -> Optional[LintResult]:
+        self.logger.debug("parent_segment: %s", parent_segment.segments)
         # Iterate backwards over complete stack to find
         # if the final semi-colon is already present.
         anchor_segment = parent_segment.segments[-1]
@@ -314,6 +315,7 @@ class Rule_CV06(BaseRule):
         before_segment = []
         for segment in parent_segment.segments[::-1]:
             anchor_segment = segment
+            self.logger.debug("segment: %s", segment._class_types)
             if segment.is_type("statement_terminator"):
                 semi_colon_exist_flag = True
             elif segment.is_code:
@@ -388,6 +390,7 @@ class Rule_CV06(BaseRule):
         assert context.segment.is_type("file")
         results = []
         for idx, seg in enumerate(context.segment.segments):
+            self.logger.debug("Checking segment: %s", seg)
             res = None
             # First we can simply handle the case of existing semi-colon alignment.
             if seg.is_type("statement_terminator"):
@@ -396,6 +399,10 @@ class Rule_CV06(BaseRule):
                 self.logger.debug("Handling semi-colon: %s", seg)
                 res = self._handle_semicolon(seg, context.segment)
             # Otherwise handle the end of the file separately.
+            if seg.is_type("batch"):
+                self.logger.debug(
+                    "BATCH SEGMENT segments: %s", seg.segments[0].segments[0].segments
+                )
             elif (
                 self.require_final_semicolon
                 and idx == len(context.segment.segments) - 1
