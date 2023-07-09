@@ -361,7 +361,7 @@ ansi_dialect.add(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: OneOf(
             RegexParser(
-                r"[A-Z][A-Z0-9_]*",
+                r"[A-Z_][A-Z0-9_]*",
                 CodeSegment,
                 type="data_type_identifier",
                 anti_template=r"^(NOT)$",
