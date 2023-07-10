@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9e38069976c8e50e309bcde4100f40404f56cf5666b37253f6c7464344503792
+_hash: ee1c9bd2be40a1b3b1133e4b1c0e9a569b519ffe26d5ba228c80511b0bfb214a
 file:
 - statement:
     delete_statement:
@@ -15,6 +15,72 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: MY_TABLE
+      where_clause:
+        keyword: WHERE
+        expression:
+        - numeric_literal: '1'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: MY_TABLE
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: MY_COL
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: MY_TABLE
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: ID
+        - keyword: IN
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: ID
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: ANOTHER_TABLE
+            end_bracket: )
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: ID
+        - comparison_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: '>'
+        - numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     delete_statement:
@@ -26,4 +92,70 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: MY_TABLE
+      where_clause:
+        keyword: WHERE
+        expression:
+        - numeric_literal: '1'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DEL
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: MY_TABLE
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: MY_COL
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DEL
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: MY_TABLE
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: ID
+        - keyword: IN
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: ID
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: ANOTHER_TABLE
+            end_bracket: )
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: ID
+        - comparison_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: '>'
+        - numeric_literal: '5'
 - statement_terminator: ;
