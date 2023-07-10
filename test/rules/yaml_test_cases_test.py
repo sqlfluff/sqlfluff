@@ -9,14 +9,21 @@ from sqlfluff.utils.testing.rules import (
 )
 from sqlfluff.core.config import FluffConfig
 
-ids, test_cases = load_test_cases(
-    test_cases_path=os.path.join("test/fixtures/rules/std_rule_cases", "*.yml")
-)
+
+def pytest_generate_tests(metafunc):
+    """Generate tests, optionally by rule_id."""
+    rule_id = metafunc.config.getoption("rule_id")
+    ids, test_cases = load_test_cases(
+        test_cases_path=os.path.join(
+            "test/fixtures/rules/std_rule_cases", f"{rule_id}.yml"
+        )
+    )
+    if "test_case" in metafunc.fixturenames:
+        metafunc.parametrize("test_case", test_cases, ids=ids)
 
 
 @pytest.mark.integration
 @pytest.mark.rules_suite
-@pytest.mark.parametrize("test_case", test_cases, ids=ids)
 def test__rule_test_case(test_case, caplog):
     """Run the tests."""
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules"):
