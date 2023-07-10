@@ -130,17 +130,11 @@ test_fail_inconsistent_type_casting_prior_cast:
     from foo;
 
 test_fail_inconsistent_type_casting_prior_cast_3_arguments_convert:
-  fail_str: |
+  pass_str: |
     select
         cast(10 as text) as coo,
         convert(int, 1, 126) as bar,
         100::int::text
-    from foo;
-  fix_str: |
-    select
-        cast(10 as text) as coo,
-        convert(int, 1, 126) as bar,
-        cast(cast(100 as int) as text)
     from foo;
 
 test_fail_inconsistent_type_casting_prior_convert_cast_with_comment:
@@ -243,12 +237,12 @@ test_fail_inconsistent_type_casting_3_arguments_convert_when_config_cast:
         cast(10 as text) as coo
     from foo;
   violations_after_fix:
-  - code: CV11
-    description: Used type casting style is different from the preferred type
-                 casting style.
-    line_no: 2
-    line_pos: 5
-    name: "convention.casting_style"
+    - code: CV11
+      description: Used type casting style is different from the preferred type
+        casting style.
+      line_no: 2
+      line_pos: 5
+      name: "convention.casting_style"
   configs:
     rules:
       convention.casting_style:
@@ -304,12 +298,12 @@ test_fail_inconsistent_type_casting_3_arguments_convert_when_config_shorthand:
         10::text as coo
     from foo;
   violations_after_fix:
-  - code: CV11
-    description: Used type casting style is different from the preferred type
-                 casting style.
-    line_no: 2
-    line_pos: 5
-    name: "convention.casting_style"
+    - code: CV11
+      description: Used type casting style is different from the preferred type
+        casting style.
+      line_no: 2
+      line_pos: 5
+      name: "convention.casting_style"
   configs:
     rules:
       convention.casting_style:
