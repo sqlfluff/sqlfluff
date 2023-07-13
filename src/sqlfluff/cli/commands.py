@@ -161,7 +161,7 @@ def common_options(f: Callable) -> Callable:
 
     These are applied to all of the cli commands.
     """
-    f = click.version_option()(f)  # type: ignore
+    f = click.version_option()(f)
     f = click.option(
         "-v",
         "--verbose",
@@ -199,18 +199,14 @@ def core_options(f: Callable) -> Callable:
             default=None,
             help="The dialect of SQL to lint",
             shell_complete=dialect_shell_complete,
-        )(
-            f  # type: ignore
-        )
+        )(f)
     else:  # pragma: no cover
         f = click.option(
             "-d",
             "--dialect",
             default=None,
             help="The dialect of SQL to lint",
-        )(
-            f  # type: ignore
-        )
+        )(f)
     f = click.option(
         "-t",
         "--templater",
@@ -341,9 +337,7 @@ def lint_options(f: Callable) -> Callable:
             "expected. Zero and negative numbers will work as number_of_cpus - "
             "number. e.g  -1 means all cpus except one. 0 means all cpus."
         ),
-    )(
-        f  # type: ignore
-    )
+    )(f)
     f = click.option(
         "--disable_progress_bar",
         "--disable-progress-bar",
@@ -447,7 +441,7 @@ def get_linter_and_formatter(
     return Linter(config=cfg, formatter=formatter), formatter
 
 
-@click.group(  # type: ignore
+@click.group(
     context_settings={"help_option_names": ["-h", "--help"]},
     epilog="""\b\bExamples:\n
   sqlfluff lint --dialect postgres .\n
@@ -461,7 +455,7 @@ def cli():
     """SQLFluff is a modular SQL linter for humans."""  # noqa D403
 
 
-@cli.command()  # type: ignore
+@cli.command()
 @common_options
 def version(**kwargs) -> None:
     """Show the version of sqlfluff."""
@@ -476,7 +470,7 @@ def version(**kwargs) -> None:
         click.echo(get_package_version(), color=c.get("color"))
 
 
-@cli.command()  # type: ignore
+@cli.command()
 @common_options
 def rules(**kwargs) -> None:
     """Show the current rules in use."""
@@ -498,7 +492,7 @@ def rules(**kwargs) -> None:
         sys.exit(EXIT_ERROR)
 
 
-@cli.command()  # type: ignore
+@cli.command()
 @common_options
 def dialects(**kwargs) -> None:
     """Show the current dialects available."""
@@ -518,7 +512,7 @@ def dump_file_payload(filename: Optional[str], payload: str):
         click.echo(payload)
 
 
-@cli.command(cls=DeprecatedOptionsCommand)  # type: ignore
+@cli.command(cls=DeprecatedOptionsCommand)
 @common_options
 @core_options
 @lint_options
@@ -901,7 +895,7 @@ def _paths_fix(
     sys.exit(exit_code)
 
 
-@cli.command(cls=DeprecatedOptionsCommand)  # type: ignore
+@cli.command(cls=DeprecatedOptionsCommand)
 @common_options
 @core_options
 @lint_options
@@ -1023,7 +1017,7 @@ def fix(
         )
 
 
-@cli.command(name="format", cls=DeprecatedOptionsCommand)  # type: ignore
+@cli.command(name="format", cls=DeprecatedOptionsCommand)
 @common_options
 @core_options
 @lint_options
@@ -1130,7 +1124,7 @@ def quoted_presenter(dumper, data):
         return dumper.represent_scalar("tag:yaml.org,2002:str", data, style="")
 
 
-@cli.command()  # type: ignore
+@cli.command()
 @common_options
 @core_options
 @click.argument("path", nargs=1, type=click.Path(allow_dash=True))
@@ -1312,7 +1306,7 @@ def parse(
         sys.exit(EXIT_SUCCESS)
 
 
-@cli.command()  # type: ignore
+@cli.command()
 @common_options
 @core_options
 @click.argument("path", nargs=1, type=click.Path(allow_dash=True))
@@ -1378,4 +1372,4 @@ def render(
 # simplifies the use of cProfile, e.g.:
 # python -m cProfile -s cumtime -m sqlfluff.cli.commands lint slow_file.sql
 if __name__ == "__main__":
-    cli.main(sys.argv[1:])  # type: ignore # pragma: no cover
+    cli.main(sys.argv[1:])  # pragma: no cover
