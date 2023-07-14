@@ -7,10 +7,10 @@ from sqlfluff.utils.functional import Segments, sp, FunctionalContext
 
 
 class Rule_ST09(BaseRule):
-    """Joins should list the left (default)/right table first.
+    """Joins should list the left/right table first.
 
     Listing of tables in joins according to preference
-    (left table first is the default)
+    (left table first is the default).
 
     **Anti-pattern**
 
@@ -56,7 +56,7 @@ class Rule_ST09(BaseRule):
 
         0. Grab all table aliases into a table_aliases list.
         1. Grab all expressions from the different join_on_condition segments.
-        2. Break down expressions into elementary condition elements  .
+        2. Break down expressions into elementary condition elements.
         3. Keep condition elements that are made up of a column_reference,
         a comparison_operator and another column_reference segments.
         4. Check whether the table associated with the first column_reference segment
@@ -113,6 +113,7 @@ class Rule_ST09(BaseRule):
             sp.is_type("expression")
         )
 
+        # we exclude segments of type whitespace or newline
         for expression in join_on_condition__expressions:
             expression_group = []
             for element in Segments(expression).children():
@@ -124,7 +125,7 @@ class Rule_ST09(BaseRule):
         condition_elements: list[list[list[BaseSegment]]] = []
 
         # if we have a condition that can be broken down
-        # as multiple condition elements separated by "and" or "or"
+        # into multiple condition elements separated by "and" or "or"
         # we treat that condition as multiple condition elements
         for expression_group in conditions:
             condition_elements.append(
@@ -167,8 +168,8 @@ class Rule_ST09(BaseRule):
                 .raw_upper
             )
 
-            # if we swap the two column references around the raw comparison operator
-            # we may have to replace the raw comparison operator with a different one
+            # if we swap the two column references around the comparison operator
+            # we may have to replace the comparison operator with a different one
             raw_comparison_operator_opposites = {"<": ">", ">": "<"}
 
             if (
@@ -247,8 +248,8 @@ class Rule_ST09(BaseRule):
 
     @classmethod
     def _is_column_operator_column_sequence(cls, segment_list: list) -> bool:
-        # Check if list is made up of a column reference,
-        # a comparison operator and another column reference
+        # Check if list is made up of a column_reference seg,
+        # a comparison_operator seg and another column_reference seg
         if len(segment_list) != 3:
             return False
         if (
