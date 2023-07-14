@@ -24,7 +24,7 @@ class Rule_ST09(BaseRule):
             riders.rating as rider_rating
         from trips
         left join users as drivers
-            on drivers.user_ud = trips.driver_id
+            on drivers.user_id = trips.driver_id
         left join users as riders
             on riders.user_id = trips.rider_id
 
