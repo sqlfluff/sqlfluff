@@ -114,7 +114,7 @@ test_fail_right_table_first_multiple_fields:
 test_fail_right_table_first_multiple_comparison_operators:
   fail_str: |
     select
-        table_1.*.
+        table_1.*,
         table_2.*,
         table_3.*
     from table_1
@@ -129,7 +129,7 @@ test_fail_right_table_first_multiple_comparison_operators:
 
   fix_str: |
     select
-        table_1.*.
+        table_1.*,
         table_2.*,
         table_3.*
     from table_1
