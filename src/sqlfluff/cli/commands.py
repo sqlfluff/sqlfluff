@@ -199,18 +199,14 @@ def core_options(f: Callable) -> Callable:
             default=None,
             help="The dialect of SQL to lint",
             shell_complete=dialect_shell_complete,
-        )(
-            f
-        )
+        )(f)
     else:  # pragma: no cover
         f = click.option(
             "-d",
             "--dialect",
             default=None,
             help="The dialect of SQL to lint",
-        )(
-            f
-        )
+        )(f)
     f = click.option(
         "-t",
         "--templater",
@@ -341,9 +337,7 @@ def lint_options(f: Callable) -> Callable:
             "expected. Zero and negative numbers will work as number_of_cpus - "
             "number. e.g  -1 means all cpus except one. 0 means all cpus."
         ),
-    )(
-        f
-    )
+    )(f)
     f = click.option(
         "--disable_progress_bar",
         "--disable-progress-bar",
