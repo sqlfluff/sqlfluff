@@ -224,7 +224,7 @@ class Rule_ST09(BaseRule):
 
     @classmethod
     def _split_list_by_segment_type(
-        cls, segment_list: list, delimiter_type: str, delimiters: list
+        cls, segment_list: list[BaseSegment], delimiter_type: str, delimiters: list[str]
     ) -> list:
         # Treat certain elements from a list as delimiters and
         # split the list into a list of lists using those delimiters
@@ -247,7 +247,9 @@ class Rule_ST09(BaseRule):
         return new_list
 
     @classmethod
-    def _is_column_operator_column_sequence(cls, segment_list: list) -> bool:
+    def _is_column_operator_column_sequence(
+        cls, segment_list: list[BaseSegment]
+    ) -> bool:
         # Check if list is made up of a column_reference seg,
         # a comparison_operator seg and another column_reference seg
         if len(segment_list) != 3:
