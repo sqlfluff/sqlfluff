@@ -212,6 +212,13 @@ STANDARD_CONFIG_INFO_DICT = {
         "validation": ["consistent", "shorthand", "convert", "cast"],
         "definition": ("The expectation for using sql type casting"),
     },
+    "preferred_first_table_in_join_clause": {
+        "validation": ["left", "right"],
+        "definition": (
+            "Which table to list first when joining two tables."
+            "Default is left table first (i.e., the table you're joining data to)."
+        ),
+    },
 }
 
 

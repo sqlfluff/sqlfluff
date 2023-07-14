@@ -10,6 +10,7 @@ from sqlfluff.rules.structure.ST05 import Rule_ST05
 from sqlfluff.rules.structure.ST06 import Rule_ST06
 from sqlfluff.rules.structure.ST07 import Rule_ST07
 from sqlfluff.rules.structure.ST08 import Rule_ST08
+from sqlfluff.rules.structure.ST09 import Rule_ST09
 
 
 @hookimpl
@@ -24,4 +25,5 @@ def get_rules():
         Rule_ST06,
         Rule_ST07,
         Rule_ST08,
+        Rule_ST09,
     ]
