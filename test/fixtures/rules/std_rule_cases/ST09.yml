@@ -1,7 +1,16 @@
 rule: ST09
 
-test_pass_no_join_on_condition:
+test_pass_no_join_clauses:
   pass_str: select * from table
+
+test_pass_no_join_on_conditions:
+  pass_str:
+    select
+        table_1.*,
+        table_2.*
+    from table_1
+    left join table_2
+        using (field)
 
 test_pass_left_table_first:
   pass_str: |
@@ -15,7 +24,52 @@ test_pass_left_table_first:
     left join users as riders
         on trips.rider_id = riders.user_id
 
-test_fail_right_table_first_1:
+test_pass_right_table_first:
+  pass_str: |
+    select
+        trips.*,
+        drivers.rating as driver_rating,
+        riders.rating as rider_rating
+    from trips
+    left join users as drivers
+        on drivers.user_id = trips.driver_id
+    left join users as riders
+        on riders.user_id = trips.rider_id
+
+  configs:
+    rules:
+      structure.first_table:
+        preferred_first_table_in_join_clause: right
+
+test_fail_left_table_first:
+  fail_str: |
+    select
+        trips.*,
+        drivers.rating as driver_rating,
+        riders.rating as rider_rating
+    from trips
+    left join users as drivers
+        on trips.driver_id = drivers.user_id
+    left join users as riders
+        on trips.rider_id = riders.user_id
+
+  fix_str: |
+    select
+        trips.*,
+        drivers.rating as driver_rating,
+        riders.rating as rider_rating
+    from trips
+    left join users as drivers
+        on drivers.user_id = trips.driver_id
+    left join users as riders
+        on riders.user_id = trips.rider_id
+
+  configs:
+    rules:
+      structure.first_table:
+        preferred_first_table_in_join_clause: right
+
+test_fail_right_table_first:
   fail_str: |
     select
         trips.*,
@@ -38,7 +92,7 @@ test_fail_right_table_first_1:
     left join users as riders
         on trips.rider_id = riders.user_id
 
-test_fail_right_table_first_2:
+test_fail_right_table_first_multiple_fields:
   fail_str: |
     select
         table_1.*,
@@ -57,7 +111,7 @@ test_fail_right_table_first_2:
         on table_1.field_1 = table_2.field_1
         and table_1.field_2 = table_2.field_2
 
-test_fail_right_table_first_3:
+test_fail_right_table_first_multiple_comparison_operators:
   fail_str: |
     select
         table_1.*.
