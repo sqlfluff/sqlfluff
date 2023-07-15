@@ -161,7 +161,7 @@ def common_options(f: Callable) -> Callable:
 
     These are applied to all of the cli commands.
     """
-    f = click.version_option()(f)  # type: ignore
+    f = click.version_option()(f)
     f = click.option(
         "-v",
         "--verbose",
@@ -199,18 +199,14 @@ def core_options(f: Callable) -> Callable:
             default=None,
             help="The dialect of SQL to lint",
             shell_complete=dialect_shell_complete,
-        )(
-            f  # type: ignore
-        )
+        )(f)
     else:  # pragma: no cover
         f = click.option(
             "-d",
             "--dialect",
             default=None,
             help="The dialect of SQL to lint",
-        )(
-            f  # type: ignore
-        )
+        )(f)
     f = click.option(
         "-t",
         "--templater",
@@ -341,9 +337,7 @@ def lint_options(f: Callable) -> Callable:
             "expected. Zero and negative numbers will work as number_of_cpus - "
             "number. e.g  -1 means all cpus except one. 0 means all cpus."
         ),
-    )(
-        f  # type: ignore
-    )
+    )(f)
     f = click.option(
         "--disable_progress_bar",
         "--disable-progress-bar",
@@ -447,7 +441,7 @@ def get_linter_and_formatter(
     return Linter(config=cfg, formatter=formatter), formatter
 
 
-@click.group(  # type: ignore
+@click.group(
     context_settings={"help_option_names": ["-h", "--help"]},
     epilog="""\b\bExamples:\n
   sqlfluff lint --dialect postgres .\n
