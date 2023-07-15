@@ -9,24 +9,29 @@ from sqlfluff.utils.functional import Segments, sp, FunctionalContext
 class Rule_ST09(BaseRule):
     """Joins should list the left/right table first.
 
-    Listing of tables in joins according to preference
-    (left table first is the default).
+    This rule will break down conditions from join clauses into subconditions
+    using the "and" and "or" binary operators.
+    Subconditions that are made up of a column reference, a comparison operator
+    and another column reference are then evaluated to check whether they list
+    the left - or right, depending on the ``preferred_first_table_in_join_clause``
+    configuration - table first (default is left).
+    Subconditions that do not follow that pattern are ignored by this rule.
 
     **Anti-pattern**
 
-    In this example, the right tables are listed first.
+    In this example, the right tables are listed first
+    and ``preferred_first_table_in_join_clause = 'left'``.
 
     .. code-block:: sql
 
         select
-            trips.*,
-            drivers.rating as driver_rating,
-            riders.rating as rider_rating
-        from trips
-        left join users as drivers
-            on drivers.user_id = trips.driver_id
-        left join users as riders
-            on riders.user_id = trips.rider_id
+            foo.a,
+            foo.b,
+            bar.c
+        from foo
+        left join bar
+            on bar.a = foo.a -- This subcondition does not list the left table first.
+            and bar.b = foo.b -- Neither does this subcondition.
 
     **Best practice**
 
@@ -35,14 +40,13 @@ class Rule_ST09(BaseRule):
     .. code-block:: sql
 
         select
-            trips.*,
-            drivers.rating as driver_rating,
-            riders.rating as rider_rating
-        from trips
-        left join users as drivers
-            on trips.driver_id = drivers.user_id
-        left join users as riders
-            on trips.rider_id = riders.user_id
+            foo.a,
+            foo.b,
+            bar.c
+        from foo
+        left join bar
+            on foo.a = bar.a
+            and foo.b = bar.b
     """
 
     name = "structure.first_table"
@@ -55,9 +59,10 @@ class Rule_ST09(BaseRule):
         """Find rule violations and provide fixes.
 
         0. Grab all table aliases into a table_aliases list.
-        1. Grab all expressions from the different join_on_condition segments.
-        2. Break down expressions into elementary condition elements.
-        3. Keep condition elements that are made up of a column_reference,
+        1. Grab all conditions from the different join_on_condition segments.
+        2. Break down conditions into subconditions using the "and" and "or"
+        binary operators.
+        3. Keep subconditions that are made up of a column_reference,
         a comparison_operator and another column_reference segments.
         4. Check whether the table associated with the first column_reference segment
         has a greater index in table_aliases than the second column_reference segment.
@@ -81,7 +86,7 @@ class Rule_ST09(BaseRule):
             sp.is_type("join_on_condition")
         )
 
-        # we only care about join_on_conditions
+        # we only care about join_on_condition segments
         if len(join_on_conditions) == 0:
             return None
 
@@ -122,13 +127,10 @@ class Rule_ST09(BaseRule):
             conditions.append(expression_group)
 
         # PART 2.
-        condition_elements: list[list[list[BaseSegment]]] = []
+        subconditions: list[list[list[BaseSegment]]] = []
 
-        # if we have a condition that can be broken down
-        # into multiple condition elements separated by "and" or "or"
-        # we treat that condition as multiple condition elements
         for expression_group in conditions:
-            condition_elements.append(
+            subconditions.append(
                 self._split_list_by_segment_type(
                     segment_list=expression_group,
                     delimiter_type="binary_operator",
@@ -136,24 +138,24 @@ class Rule_ST09(BaseRule):
                 )
             )
 
-        condition_elements_flattened: list[list[BaseSegment]] = [
-            item for sublist in condition_elements for item in sublist
+        subconditions_flattened: list[list[BaseSegment]] = [
+            item for sublist in subconditions for item in sublist
         ]
 
         # PART 3.
-        condition_elements_filtered: list[list[BaseSegment]] = [
-            element
-            for element in condition_elements_flattened
-            if self._is_column_operator_column_sequence(element)
+        column_operator_column_subconditions: list[list[BaseSegment]] = [
+            subcondition
+            for subcondition in subconditions_flattened
+            if self._is_column_operator_column_sequence(subcondition)
         ]
 
         # PART 4.
         fixes: list[LintFix] = []
 
-        for condition_element in condition_elements_filtered:
-            comparison_operator = Segments(condition_element[1])
-            first_column_reference = Segments(condition_element[0])
-            second_column_reference = Segments(condition_element[2])
+        for subcondition in column_operator_column_subconditions:
+            comparison_operator = Segments(subcondition[1])
+            first_column_reference = Segments(subcondition[0])
+            second_column_reference = Segments(subcondition[2])
             raw_comparison_operators = comparison_operator.children().select(
                 sp.is_type("raw_comparison_operator")
             )
@@ -169,7 +171,7 @@ class Rule_ST09(BaseRule):
             )
 
             # if we swap the two column references around the comparison operator
-            # we may have to replace the comparison operator with a different one
+            # we might have to replace the comparison operator with a different one
             raw_comparison_operator_opposites = {"<": ">", ">": "<"}
 
             if (
@@ -226,8 +228,7 @@ class Rule_ST09(BaseRule):
     def _split_list_by_segment_type(
         segment_list: list[BaseSegment], delimiter_type: str, delimiters: list[str]
     ) -> list:
-        # Treat certain elements from a list as delimiters and
-        # split the list into a list of lists using those delimiters
+        # Break down a list into multiple sub-lists using a set of delimiters
         delimiters = [delimiter.upper() for delimiter in delimiters]
         new_list = []
         sub_list = []
@@ -248,8 +249,8 @@ class Rule_ST09(BaseRule):
 
     @staticmethod
     def _is_column_operator_column_sequence(segment_list: list[BaseSegment]) -> bool:
-        # Check if list is made up of a column_reference seg,
-        # a comparison_operator seg and another column_reference seg
+        # Check if list is made up of a column_reference segment,
+        # a comparison_operator segment and another column_reference segment
         if len(segment_list) != 3:
             return False
         if (
