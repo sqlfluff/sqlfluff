@@ -9,18 +9,21 @@ from sqlfluff.utils.functional import Segments, sp, FunctionalContext
 class Rule_ST09(BaseRule):
     """Joins should list the left/right table first.
 
-    This rule will break down conditions from join clauses into subconditions
+    This rule will break conditions from join clauses down into subconditions
     using the "and" and "or" binary operators.
+
     Subconditions that are made up of a column reference, a comparison operator
     and another column reference are then evaluated to check whether they list
     the left - or right, depending on the ``preferred_first_table_in_join_clause``
-    configuration - table first (default is left).
+    configuration - table first.
+
     Subconditions that do not follow that pattern are ignored by this rule.
 
     **Anti-pattern**
 
     In this example, the right tables are listed first
-    and ``preferred_first_table_in_join_clause = 'left'``.
+    and the ``preferred_first_table_in_join_clause`` configuration
+    is set to ``left``.
 
     .. code-block:: sql
 
@@ -30,8 +33,10 @@ class Rule_ST09(BaseRule):
             bar.c
         from foo
         left join bar
-            on bar.a = foo.a -- This subcondition does not list the left table first.
-            and bar.b = foo.b -- Neither does this subcondition.
+            -- This subcondition does not list the left table first:
+            on bar.a = foo.a
+            -- Neither does this subcondition:
+            and bar.b = foo.b
 
     **Best practice**
 
@@ -50,6 +55,7 @@ class Rule_ST09(BaseRule):
     """
 
     name = "structure.first_table"
+    aliases = ("L070",)
     groups: Tuple[str, ...] = ("all", "structure")
     config_keywords = ["preferred_first_table_in_join_clause"]
     crawl_behaviour = SegmentSeekerCrawler({"from_expression"})
@@ -60,7 +66,7 @@ class Rule_ST09(BaseRule):
 
         0. Grab all table aliases into a table_aliases list.
         1. Grab all conditions from the different join_on_condition segments.
-        2. Break down conditions into subconditions using the "and" and "or"
+        2. Break conditions down into subconditions using the "and" and "or"
         binary operators.
         3. Keep subconditions that are made up of a column_reference,
         a comparison_operator and another column_reference segments.
