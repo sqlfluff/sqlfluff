@@ -134,3 +134,115 @@ test_fail_right_table_first_multiple_comparison_operators:
         on foo.a <> baz.a
         and foo.b <= baz.b
         and foo.c > baz.c
+
+test_fail_right_table_first_subquery:
+  fail_str: |
+    select
+        foo.a,
+        bar.b
+    from (
+        select
+            baz.a,
+            qux.b
+        from baz
+        left join qux
+            on qux.a = baz.a
+    ) foo
+    left join bar
+        on bar.a = foo.a
+
+  fix_str: |
+    select
+        foo.a,
+        bar.b
+    from (
+        select
+            baz.a,
+            qux.b
+        from baz
+        left join qux
+            on baz.a = qux.a
+    ) foo
+    left join bar
+        on foo.a = bar.a
+
+test_fail_right_table_first_cte:
+  fail_str: |
+    with foo as (
+        select
+            baz.a,
+            qux.b
+        from baz
+        left join qux
+            on qux.a = baz.a
+    )
+    select
+        foo.a,
+        bar.b
+    from foo
+    left join bar
+        on bar.a = foo.a
+
+  fix_str: |
+    with foo as (
+        select
+            baz.a,
+            qux.b
+        from baz
+        left join qux
+            on baz.a = qux.a
+    )
+    select
+        foo.a,
+        bar.b
+    from foo
+    left join bar
+        on foo.a = bar.a
+
+test_fail_right_table_no_join_clause_in_cte:
+  fail_str: |
+    with foo as (
+        select * from bar
+    )
+    select
+        foo.a,
+        baz.b
+    from foo
+    left join baz
+        on baz.a = foo.a
+
+  fix_str: |
+    with foo as (
+        select * from bar
+    )
+    select
+        foo.a,
+        baz.b
+    from foo
+    left join baz
+        on foo.a = baz.a
+
+test_fail_right_table_no_join_clause_in_main_query:
+  fail_str: |
+    with foo as (
+        select
+            bar.b
+        from bar
+        left join baz
+            on baz.a = bar.a
+    )
+    select
+        b
+    from foo
+
+  fix_str: |
+    with foo as (
+        select
+            bar.b
+        from bar
+        left join baz
+            on bar.a = baz.a
+    )
+    select
+        b
+    from foo

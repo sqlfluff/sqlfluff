@@ -81,7 +81,7 @@ class Rule_ST09(BaseRule):
 
         assert context.segment.is_type("from_expression")
 
-        # PART 0.
+        # STEP 0.
         table_aliases: list[str] = []
 
         children = FunctionalContext(context).segment.children()
@@ -117,7 +117,7 @@ class Rule_ST09(BaseRule):
 
         table_aliases = [alias.upper() for alias in table_aliases]
 
-        # PART 1.
+        # STEP 1.
         conditions: list[list[BaseSegment]] = []
 
         join_on_condition__expressions = join_on_conditions.children().select(
@@ -132,7 +132,7 @@ class Rule_ST09(BaseRule):
                     expression_group.append(element)
             conditions.append(expression_group)
 
-        # PART 2.
+        # STEP 2.
         subconditions: list[list[list[BaseSegment]]] = []
 
         for expression_group in conditions:
@@ -148,14 +148,14 @@ class Rule_ST09(BaseRule):
             item for sublist in subconditions for item in sublist
         ]
 
-        # PART 3.
+        # STEP 3.
         column_operator_column_subconditions: list[list[BaseSegment]] = [
             subcondition
             for subcondition in subconditions_flattened
             if self._is_column_operator_column_sequence(subcondition)
         ]
 
-        # PART 4.
+        # STEP 4.
         fixes: list[LintFix] = []
 
         for subcondition in column_operator_column_subconditions:
@@ -222,11 +222,11 @@ class Rule_ST09(BaseRule):
                     )
                 )
 
-        # PART 5.a.
+        # STEP 5.a.
         if fixes == []:
             return None
 
-        # PART 5.b.
+        # STEP 5.b.
         else:
             return LintResult(anchor=context.segment, fixes=fixes)
 
