@@ -168,7 +168,6 @@ class AnyNumberOf(BaseGrammar):
                 available_options,
                 parse_context=ctx,
                 trim_noncode=False,
-                terminators=self.terminators,
             )
 
         return match, matched_option

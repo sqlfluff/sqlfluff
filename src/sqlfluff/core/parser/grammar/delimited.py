@@ -162,7 +162,6 @@ class Delimited(OneOf):
                         parse_context=ctx,
                         # We've already trimmed
                         trim_noncode=False,
-                        terminators=terminators,
                     )
 
                 if match:
