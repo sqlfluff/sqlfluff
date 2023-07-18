@@ -1940,9 +1940,20 @@ class LateralViewClauseSegment(BaseSegment):
         "VIEW",
         Ref.keyword("OUTER", optional=True),
         Ref("FunctionSegment"),
-        # This allows for a table name to precede the alias expression.
-        Ref("SingleIdentifierGrammar", optional=True),
-        Ref("AliasExpressionSegment", optional=True),
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Sequence(
+                    Ref.keyword("AS", optional=True),
+                    Delimited(Ref("SingleIdentifierGrammar")),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                Ref.keyword("AS", optional=True),
+                Delimited(Ref("SingleIdentifierGrammar")),
+            ),
+        ),
         Dedent,
     )
 
