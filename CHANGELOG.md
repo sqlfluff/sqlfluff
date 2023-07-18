@@ -14,6 +14,14 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This release is a fairly standard incremental release. Highlights include bugfixes
+to `RF05` and dialect improvements to Snowflake, Teradata, MySQL & Postgres.
+
+Internally, the last few weeks have brought several improvements to developer tooling.
+
+We've also moved over to GitHub sponsorships - so if you previously used the old
+flattr link, you can find our new profile page at https://github.com/sponsors/sqlfluff.
+
 ## What’s Changed
 
 * Snowflake: Parse column named cross [#4975](https://github.com/sqlfluff/sqlfluff/pull/4975) [@greg-finley](https://github.com/greg-finley)
