@@ -1974,7 +1974,10 @@ ansi_dialect.add(
         # whenever the repeating element in Expression_A_Grammar makes a recursive
         # call to itself at the _end_.  If it's in the middle then you still need
         # to recurse into Expression_A_Grammar normally.
-        AnyNumberOf(Ref("Expression_A_Unary_Operator_Grammar")),
+        AnyNumberOf(
+            Ref("Expression_A_Unary_Operator_Grammar"),
+            #terminators=[Ref("BinaryOperatorGrammar")],
+        ),
         Ref("Expression_C_Grammar"),
     ),
     Expression_A_Grammar=Sequence(
@@ -2096,7 +2099,7 @@ ansi_dialect.add(
             AnyNumberOf(Ref("TimeZoneGrammar"), optional=True),
         ),
         Ref("ShorthandCastSegment"),
-        terminators=[Ref("CommaSegment")],
+        terminators=[Ref("CommaSegment"), Ref("BinaryOperatorGrammar")],
     ),
     # Expression_D_Grammar
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#d_expr
