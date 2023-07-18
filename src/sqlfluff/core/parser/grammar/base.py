@@ -239,8 +239,14 @@ class BaseGrammar(Matchable):
         Returns:
             `tuple` of (match_object, matcher).
 
+        NOTE: This matching method is the workhorse of the parser. It's performance
+        can be monitored using the `parse_stats` object on the context.
         """
         terminated = False
+
+        parse_context.increment("ltm_calls")
+        if terminators:
+            parse_context.increment("ltm_calls_w_terminator")
 
         # Have we been passed an empty list?
         if len(segments) == 0:  # pragma: no cover
@@ -290,6 +296,7 @@ class BaseGrammar(Matchable):
 
             if res_match.is_complete():
                 # Just return it! (WITH THE RIGHT OTHER STUFF)
+                parse_context.increment("complete_match")
                 if trim_noncode:
                     return (
                         MatchResult.from_matched(
@@ -330,9 +337,26 @@ class BaseGrammar(Matchable):
             # Eventually there might be a performance gain from doing that sensibly
             # here.
 
+        if terminated:
+            parse_context.increment("terminated_match")
+        else:
+            parse_context.increment("unterminated_match")
+
         # If we get here, then there wasn't a complete match. If we
         # has a best_match, return that.
         if best_match_length > 0:
+            # If not terminated, keep track of what the next token would
+            # have been if we had been able to terminate using it.
+            if not terminated:
+                if best_match[0].unmatched_segments:
+                    for seg in best_match[0].unmatched_segments:
+                        if seg.is_code:
+                            break
+                    next_seg = seg.raw_segments[0].raw_upper
+                else:
+                    next_seg = "<NONE>"
+                parse_context.parse_stats["next_counts"][next_seg] += 1
+
             if trim_noncode:
                 return (
                     MatchResult(

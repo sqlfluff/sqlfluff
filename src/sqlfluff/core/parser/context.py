@@ -8,6 +8,7 @@ to common configuration and dialects, logging and also the parse
 and match depth of the current operation.
 """
 
+from collections import defaultdict
 import logging
 import uuid
 from typing import Optional, TYPE_CHECKING, Dict
@@ -47,6 +48,12 @@ class RootParseContext:
         # A dict for parse caching. This is reset for each file,
         # but persists for the duration of an individual file parse.
         self._parse_cache = {}
+        # A dictionary for keeping track of some statistics on parsing
+        # for performance optimisation.
+        # Focused around BaseGrammar._longest_trimmed_match().
+        # Initialise only with "next_counts", the rest will be int
+        # and are dealt with in .increment().
+        self.parse_stats = {"next_counts": defaultdict(int)}
 
     @classmethod
     def from_config(cls, config, **overrides: Dict[str, bool]) -> "RootParseContext":
@@ -189,6 +196,10 @@ class ParseContext:
     def put_parse_cache(self, loc_key: tuple, matcher_key: str, match: "MatchResult"):
         """Store a match in the cache for later retrieval."""
         self._root_ctx._parse_cache[(loc_key, matcher_key)] = match
+
+    def increment(self, key: str, default: int = 0) -> None:
+        """Increment one of the parse stats by name."""
+        self._root_ctx.parse_stats[key] = self._root_ctx.parse_stats.get(key, 0) + 1
 
 
 class ParseDenylist:

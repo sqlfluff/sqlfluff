@@ -24,6 +24,7 @@ class Parser:
         segments: Sequence["BaseSegment"],
         recurse=True,
         fname: Optional[str] = None,
+        parse_statistics: bool = False,
     ) -> Optional["BaseSegment"]:
         """Parse a series of lexed tokens using the current dialect."""
         if not segments:  # pragma: no cover
@@ -37,5 +38,24 @@ class Parser:
 
         with RootParseContext.from_config(config=self.config, recurse=recurse) as ctx:
             parsed = root_segment.parse(parse_context=ctx)
+
+            if parse_statistics:  # pragma: no cover
+                # NOTE: We use ctx.logger.warning here to output the statistics.
+                # It's not particularly beautiful, but for the users who do utilise
+                # this functionality, I don't think they mind. ¯\_(ツ)_/¯
+                # In the future, this clause might become unnecessary.
+                ctx.logger.warning("==== Parse Statistics ====")
+                for key in ctx.parse_stats:
+                    if key == "next_counts":
+                        continue
+                    ctx.logger.warning(f"{key}: {ctx.parse_stats[key]}")
+                ctx.logger.warning("next_counts:")
+                for key, val in sorted(
+                    ctx.parse_stats["next_counts"].items(),
+                    reverse=True,
+                    key=lambda item: item[1],
+                ):
+                    ctx.logger.warning(f"{val}: {key!r}")
+                ctx.logger.warning("==== End Parse Statistics ====")
 
         return parsed
