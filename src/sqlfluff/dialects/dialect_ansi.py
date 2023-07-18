@@ -1301,6 +1301,7 @@ ansi_dialect.add(
         Ref("IgnoreRespectNullsGrammar"),
         Ref("IndexColumnDefinitionSegment"),
         Ref("EmptyStructLiteralSegment"),
+        terminators=[Ref("CommaSegment")],
     ),
     PostFunctionGrammar=OneOf(
         # Optional OVER suffix for window functions.
@@ -1358,11 +1359,13 @@ class FunctionNameSegment(BaseSegment):
                 Ref("SingleIdentifierGrammar"),
                 Ref("DotSegment"),
             ),
+            terminators=[Ref("BracketedSegment")],
         ),
         # Base function name
         OneOf(
             Ref("FunctionNameIdentifierSegment"),
             Ref("QuotedIdentifierSegment"),
+            terminators=[Ref("BracketedSegment")],
         ),
         allow_gaps=False,
     )
@@ -1558,6 +1561,7 @@ class FromExpressionSegment(BaseSegment):
                 Ref("MLTableExpressionSegment"),
                 Ref("FromExpressionElementSegment"),
                 Bracketed(Ref("FromExpressionSegment")),
+                terminators=[Ref.keyword("ORDER"), Ref.keyword("GROUP")],
             ),
             Dedent,
             Conditional(Indent, indented_joins=True),
@@ -1566,6 +1570,7 @@ class FromExpressionSegment(BaseSegment):
                     OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
                 ),
                 optional=True,
+                terminators=[Ref.keyword("ORDER"), Ref.keyword("GROUP")],
             ),
             Conditional(Dedent, indented_joins=True),
         )
@@ -2092,6 +2097,7 @@ ansi_dialect.add(
             AnyNumberOf(Ref("TimeZoneGrammar"), optional=True),
         ),
         Ref("ShorthandCastSegment"),
+        terminators=[Ref("CommaSegment")],
     ),
     # Expression_D_Grammar
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#d_expr
@@ -2149,6 +2155,7 @@ ansi_dialect.add(
                 ),
             ),
             Ref("LocalAliasSegment"),
+            terminators=[Ref("CommaSegment")],
         ),
         Ref("Accessor_Grammar", optional=True),
         allow_gaps=True,

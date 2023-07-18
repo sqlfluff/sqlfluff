@@ -250,7 +250,8 @@ class BaseGrammar(Matchable):
             parse_context.increment("ltm_calls_w_terminator")
         if parse_context.terminators:
             parse_context.increment("ltm_calls_w_ctx_terms")
-            terminators += parse_context.terminators
+            # Slice so that we don't modify in place.
+            terminators = terminators[:] + parse_context.terminators
 
         # Have we been passed an empty list?
         if len(segments) == 0:  # pragma: no cover
@@ -274,7 +275,7 @@ class BaseGrammar(Matchable):
 
         best_match_length = 0
         # iterate at this position across all the matchers
-        for matcher in matchers:
+        for idx, matcher in enumerate(matchers):
             # Check parse cache.
             matcher_key = matcher.cache_key()
             res_match: Optional[MatchResult] = parse_context.check_parse_cache(
@@ -320,7 +321,12 @@ class BaseGrammar(Matchable):
                     # end earlier, and claim an effectively "complete" match.
                     # NOTE: This means that by specifying terminators, we can
                     # significantly increase performance.
-                    if terminators:
+                    if idx == len(matchers) - 1:
+                        # If it's the last option - no need to check terminators.
+                        # We're going to end anyway, so we can skip that step.
+                        terminated = True
+                        break
+                    elif terminators:
                         _, segs, _ = trim_non_code_segments(
                             best_match[0].unmatched_segments
                         )

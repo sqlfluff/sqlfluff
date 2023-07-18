@@ -773,6 +773,7 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
                 Ref("SingleIdentifierGrammar"),
                 Ref("DotSegment"),
             ),
+            terminators=[Ref("BracketedSegment")],
         ),
         # Base function name
         OneOf(
@@ -789,6 +790,7 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
                     ),
                 ),
             ),
+            terminators=[Ref("BracketedSegment")],
         ),
         allow_gaps=False,
     )

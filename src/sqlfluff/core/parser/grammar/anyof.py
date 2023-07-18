@@ -161,6 +161,8 @@ class AnyNumberOf(BaseGrammar):
             return MatchResult.from_unmatched(segments), None
 
         with parse_context.deeper_match() as ctx:
+            if self.terminators:
+                ctx.push_terminators(self.terminators)
             match, matched_option = self._longest_trimmed_match(
                 segments,
                 available_options,
