@@ -149,7 +149,12 @@ class ParseContext:
         """Mimic the copy.copy() method but restrict only to local vars."""
         ctx = self.__class__(root_ctx=self._root_ctx)
         for key in self.__slots__:
-            setattr(ctx, key, getattr(self, key))
+            if key == "terminators":
+                # For terminators, make sure we actually copy the list.
+                # This makes sure we don't keep a reference to the parent list.
+                setattr(ctx, key, getattr(self, key).copy())
+            else:
+                setattr(ctx, key, getattr(self, key))
         return ctx
 
     def __enter__(self):
