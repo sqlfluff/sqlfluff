@@ -512,9 +512,10 @@ class DbtTemplater(JinjaTemplater):
             return old_from_string(*args, **kwargs)
 
         # NOTE: We need to inject the project root here in reaction to the
-        # breaking change upstream with dbt.
+        # breaking change upstream with dbt. Coverage works in 1.5.2, but
+        # appears to no longer be covered in 1.5.3.
         # https://github.com/dbt-labs/dbt-core/pull/7949
-        if cv_project_root is not None:
+        if cv_project_root is not None:  # pragma: no cover
             cv_project_root.set(self.project_dir)
 
         node = self._find_node(fname, config)
