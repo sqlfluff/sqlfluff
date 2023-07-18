@@ -244,9 +244,13 @@ class BaseGrammar(Matchable):
         """
         terminated = False
 
+        terminators = terminators or []
         parse_context.increment("ltm_calls")
         if terminators:
             parse_context.increment("ltm_calls_w_terminator")
+        if parse_context.terminators:
+            parse_context.increment("ltm_calls_w_ctx_terms")
+            terminators += parse_context.terminators
 
         # Have we been passed an empty list?
         if len(segments) == 0:  # pragma: no cover
