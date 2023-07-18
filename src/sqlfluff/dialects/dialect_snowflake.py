@@ -838,6 +838,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                     Ref("GroupByContentsGrammar"),
                 ),
             ),
+            "ALL",
             Ref("GroupByContentsGrammar"),
         ),
         Dedent,
