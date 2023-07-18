@@ -49,7 +49,10 @@ class Parser:
                     if key == "next_counts":
                         continue
                     ctx.logger.warning(f"{key}: {ctx.parse_stats[key]}")
-                ctx.logger.warning("next_counts:")
+                ctx.logger.warning("## Tokens following un-terminated matches")
+                ctx.logger.warning(
+                    "Adding terminator clauses to catch these may improve performance."
+                )
                 for key, val in sorted(
                     ctx.parse_stats["next_counts"].items(),
                     reverse=True,
