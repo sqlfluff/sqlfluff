@@ -597,9 +597,8 @@ ansi_dialect.add(
         # more complicated.
         terminators=[
             Ref("CommaSegment"),
-            # TODO: We can almost certainly add a few more here, but for
-            # now, the most reliable (and impactful) is the comma.
-            # Others could include some variant on AliasExpressionSegment.
+            Ref.keyword("AS"),
+            # TODO: We can almost certainly add a few more here.
         ],
     ),
     FilterClauseGrammar=Sequence(
