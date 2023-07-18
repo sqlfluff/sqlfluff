@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1c7a854bb301d94fdd922bb3e1abd5abc7af67146dc135a575a04a6686eaa301
+_hash: 49a872e61785eff065e6b7a9a3dde70cf2378bd406649775919119a551334817
 file:
 - statement:
     select_statement:
@@ -64,4 +64,36 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: issue
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: customer_id
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TRIM
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: value
+                semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: cross
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: cross
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_table
 - statement_terminator: ;
