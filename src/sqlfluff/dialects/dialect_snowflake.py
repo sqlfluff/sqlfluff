@@ -790,7 +790,6 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
                     ),
                 ),
             ),
-            terminators=[Ref("BracketedSegment")],
         ),
         allow_gaps=False,
     )
