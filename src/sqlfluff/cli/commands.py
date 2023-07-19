@@ -455,7 +455,7 @@ def cli():
     """SQLFluff is a modular SQL linter for humans."""  # noqa D403
 
 
-@cli.command()  # type: ignore
+@cli.command()
 @common_options
 def version(**kwargs) -> None:
     """Show the version of sqlfluff."""
@@ -470,7 +470,7 @@ def version(**kwargs) -> None:
         click.echo(get_package_version(), color=c.get("color"))
 
 
-@cli.command()  # type: ignore
+@cli.command()
 @common_options
 def rules(**kwargs) -> None:
     """Show the current rules in use."""
@@ -492,7 +492,7 @@ def rules(**kwargs) -> None:
         sys.exit(EXIT_ERROR)
 
 
-@cli.command()  # type: ignore
+@cli.command()
 @common_options
 def dialects(**kwargs) -> None:
     """Show the current dialects available."""
@@ -512,7 +512,7 @@ def dump_file_payload(filename: Optional[str], payload: str):
         click.echo(payload)
 
 
-@cli.command(cls=DeprecatedOptionsCommand)  # type: ignore
+@cli.command(cls=DeprecatedOptionsCommand)
 @common_options
 @core_options
 @lint_options
@@ -895,7 +895,7 @@ def _paths_fix(
     sys.exit(exit_code)
 
 
-@cli.command(cls=DeprecatedOptionsCommand)  # type: ignore
+@cli.command(cls=DeprecatedOptionsCommand)
 @common_options
 @core_options
 @lint_options
@@ -1017,7 +1017,7 @@ def fix(
         )
 
 
-@cli.command(name="format", cls=DeprecatedOptionsCommand)  # type: ignore
+@cli.command(name="format", cls=DeprecatedOptionsCommand)
 @common_options
 @core_options
 @lint_options
@@ -1124,7 +1124,7 @@ def quoted_presenter(dumper, data):
         return dumper.represent_scalar("tag:yaml.org,2002:str", data, style="")
 
 
-@cli.command()  # type: ignore
+@cli.command()
 @common_options
 @core_options
 @click.argument("path", nargs=1, type=click.Path(allow_dash=True))
@@ -1306,7 +1306,7 @@ def parse(
         sys.exit(EXIT_SUCCESS)
 
 
-@cli.command()  # type: ignore
+@cli.command()
 @common_options
 @core_options
 @click.argument("path", nargs=1, type=click.Path(allow_dash=True))
@@ -1372,4 +1372,4 @@ def render(
 # simplifies the use of cProfile, e.g.:
 # python -m cProfile -s cumtime -m sqlfluff.cli.commands lint slow_file.sql
 if __name__ == "__main__":
-    cli.main(sys.argv[1:])  # type: ignore # pragma: no cover
+    cli.main(sys.argv[1:])  # pragma: no cover
