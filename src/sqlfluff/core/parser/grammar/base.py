@@ -228,7 +228,6 @@ class BaseGrammar(Matchable):
         matchers: List[MatchableType],
         parse_context: ParseContext,
         trim_noncode=True,
-        terminators: Optional[List[MatchableType]] = None,
     ) -> Tuple[MatchResult, Optional[MatchableType]]:
         """Return longest match from a selection of matchers.
 
@@ -244,14 +243,15 @@ class BaseGrammar(Matchable):
         """
         terminated = False
 
-        terminators = terminators or []
         parse_context.increment("ltm_calls")
-        if terminators:
-            parse_context.increment("ltm_calls_w_terminator")
+        # NOTE: The use of terminators is only available via the context.
+        # They are set in that way to allow appropriate inheritance rather
+        # than only being used in a per-grammar basis.
         if parse_context.terminators:
             parse_context.increment("ltm_calls_w_ctx_terms")
-            # Slice so that we don't modify in place.
-            terminators = terminators[:] + parse_context.terminators
+            terminators = parse_context.terminators
+        else:
+            terminators = []
 
         # Have we been passed an empty list?
         if len(segments) == 0:  # pragma: no cover
