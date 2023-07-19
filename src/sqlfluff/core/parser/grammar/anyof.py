@@ -29,6 +29,7 @@ class AnyNumberOf(BaseGrammar):
         # item is one of these, we can safely conclude it's a "total" match.
         # In those cases, we return early without considering more options.
         self.terminators = kwargs.pop("terminators", None)
+        self.reset_terminators = kwargs.pop("reset_terminators", False)
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
@@ -161,6 +162,8 @@ class AnyNumberOf(BaseGrammar):
             return MatchResult.from_unmatched(segments), None
 
         with parse_context.deeper_match() as ctx:
+            if self.reset_terminators:
+                ctx.clear_terminators()
             if self.terminators:
                 ctx.push_terminators(self.terminators)
             match, matched_option = self._longest_trimmed_match(

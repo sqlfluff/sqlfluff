@@ -1934,7 +1934,11 @@ class CaseExpressionSegment(BaseSegment):
         Sequence(
             "CASE",
             ImplicitIndent,
-            AnyNumberOf(Ref("WhenClauseSegment")),
+            AnyNumberOf(
+                Ref("WhenClauseSegment"),
+                reset_terminators=True,
+                terminators=[Ref.keyword("ELSE"), Ref.keyword("END")],
+            ),
             Ref("ElseClauseSegment", optional=True),
             Dedent,
             "END",
@@ -1943,11 +1947,16 @@ class CaseExpressionSegment(BaseSegment):
             "CASE",
             Ref("ExpressionSegment"),
             ImplicitIndent,
-            AnyNumberOf(Ref("WhenClauseSegment")),
+            AnyNumberOf(
+                Ref("WhenClauseSegment"),
+                reset_terminators=True,
+                terminators=[Ref.keyword("ELSE"), Ref.keyword("END")],
+            ),
             Ref("ElseClauseSegment", optional=True),
             Dedent,
             "END",
         ),
+        terminators=[Ref("CommaSegment"), Ref("BinaryOperatorGrammar")],
     )
 
 
@@ -1978,7 +1987,7 @@ ansi_dialect.add(
         # to recurse into Expression_A_Grammar normally.
         AnyNumberOf(
             Ref("Expression_A_Unary_Operator_Grammar"),
-            # terminators=[Ref("BinaryOperatorGrammar")],
+            terminators=[Ref("BinaryOperatorGrammar")],
         ),
         Ref("Expression_C_Grammar"),
     ),
@@ -2101,7 +2110,7 @@ ansi_dialect.add(
             AnyNumberOf(Ref("TimeZoneGrammar"), optional=True),
         ),
         Ref("ShorthandCastSegment"),
-        terminators=[Ref("CommaSegment"), Ref("BinaryOperatorGrammar")],
+        terminators=[Ref("CommaSegment")],
     ),
     # Expression_D_Grammar
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#d_expr
