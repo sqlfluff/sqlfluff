@@ -86,6 +86,10 @@ class DbtConfigArgs:
     single_threaded: bool = False
     # dict in 1.5.x onwards, json string before.
     vars: Optional[Union[Dict, str]] = None if DBT_VERSION_TUPLE >= (1, 5) else ""
+    # NOTE: The `which` argument here isn't covered in tests, but many
+    # dbt packages assume that it will have been set.
+    # https://github.com/sqlfluff/sqlfluff/issues/4861
+    # https://github.com/sqlfluff/sqlfluff/issues/4965
     which: Optional[str] = "compile"
 
 
