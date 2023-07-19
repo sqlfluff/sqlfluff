@@ -3,43 +3,37 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1a7cb6b0f38f546f67eb9e65afe4e6128acc32f236820b9b88d2a3300ce1b3fe
+_hash: ec3f560739d5cbb79a45481da9f5a78d3d3073fbc8830284de6763c9fc987458
 file:
 - statement:
     values_clause:
     - keyword: VALUES
     - keyword: ROW
     - bracketed:
-      - start_bracket: (
-      - expression:
-          quoted_literal: "'a'"
-      - comma: ','
-      - expression:
-          numeric_literal: '1'
-      - end_bracket: )
+        start_bracket: (
+        quoted_literal: "'a'"
+        comma: ','
+        numeric_literal: '1'
+        end_bracket: )
     - comma: ','
     - keyword: ROW
     - bracketed:
-      - start_bracket: (
-      - expression:
-          quoted_literal: "'b'"
-      - comma: ','
-      - expression:
-          numeric_literal: '2'
-      - end_bracket: )
+        start_bracket: (
+        quoted_literal: "'b'"
+        comma: ','
+        numeric_literal: '2'
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     values_clause:
     - keyword: VALUES
     - keyword: ROW
     - bracketed:
-      - start_bracket: (
-      - expression:
-          quoted_literal: "'a'"
-      - comma: ','
-      - expression:
-          numeric_literal: '1'
-      - end_bracket: )
+        start_bracket: (
+        quoted_literal: "'a'"
+        comma: ','
+        numeric_literal: '1'
+        end_bracket: )
     - comma: ','
     - keyword: ROW
     - bracketed:
