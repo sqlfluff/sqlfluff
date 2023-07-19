@@ -10,12 +10,12 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [2.1.3] - 2023-07-18
+## [2.1.3] - 2023-07-19
 
 ## Highlights
 
 This release is a fairly standard incremental release. Highlights include bugfixes
-to `RF05` and dialect improvements to Snowflake, Teradata, MySQL & Postgres.
+to `RF05` and dialect improvements to Snowflake, Teradata, MySQL, TSQL, SparkSQL & Postgres.
 
 Internally, the last few weeks have brought several improvements to developer tooling.
 
@@ -24,6 +24,10 @@ flattr link, you can find our new profile page at https://github.com/sponsors/sq
 
 ## What’s Changed
 
+* Add the which dbt flag to DbtConfigArgs with default as "compile" [#4982](https://github.com/sqlfluff/sqlfluff/pull/4982) [@moreaupascal56](https://github.com/moreaupascal56)
+* feat: support tsql COPY INTO [#4985](https://github.com/sqlfluff/sqlfluff/pull/4985) [@reata](https://github.com/reata)
+* fix: sparksql lateral view parse tree for multiple column alias [#4980](https://github.com/sqlfluff/sqlfluff/pull/4980) [@reata](https://github.com/reata)
+* Revert "Ignore click mypy issues" [#4967](https://github.com/sqlfluff/sqlfluff/pull/4967) [@greg-finley](https://github.com/greg-finley)
 * Snowflake: Parse column named cross [#4975](https://github.com/sqlfluff/sqlfluff/pull/4975) [@greg-finley](https://github.com/greg-finley)
 * Snowflake: Group by all [#4976](https://github.com/sqlfluff/sqlfluff/pull/4976) [@greg-finley](https://github.com/greg-finley)
 * Update funding yaml to use github sponsors [#4973](https://github.com/sqlfluff/sqlfluff/pull/4973) [@alanmcruickshank](https://github.com/alanmcruickshank)
@@ -39,10 +43,11 @@ flattr link, you can find our new profile page at https://github.com/sponsors/sq
 * MySQL: Rename index [#4950](https://github.com/sqlfluff/sqlfluff/pull/4950) [@greg-finley](https://github.com/greg-finley)
 * Adding support to ALTER TABLE with RENAME COLUMN on MySQL dialect [#4948](https://github.com/sqlfluff/sqlfluff/pull/4948) [@jrballot](https://github.com/jrballot)
 
-## New Contributors
 
+## New Contributors
 * [@jrballot](https://github.com/jrballot) made their first contribution in [#4948](https://github.com/sqlfluff/sqlfluff/pull/4948)
 * [@keitherskine](https://github.com/keitherskine) made their first contribution in [#4953](https://github.com/sqlfluff/sqlfluff/pull/4953)
+* [@reata](https://github.com/reata) made their first contribution in [#4980](https://github.com/sqlfluff/sqlfluff/pull/4980)
 
 ## [2.1.2] - 2023-07-03
 
