@@ -86,6 +86,7 @@ class DbtConfigArgs:
     single_threaded: bool = False
     # dict in 1.5.x onwards, json string before.
     vars: Optional[Union[Dict, str]] = None if DBT_VERSION_TUPLE >= (1, 5) else ""
+    which: Optional[str] = "compile"
 
 
 class DbtTemplater(JinjaTemplater):
