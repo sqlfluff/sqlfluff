@@ -633,6 +633,12 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # no size in the templated file and also no children - they
             # can be done safely without affecting the rest of the file.
             if metas_only and not segment.is_meta:
+                # Assert that the segment already has position. Unless a
+                # fix has occured this should already be true.
+                assert segment.pos_marker, (
+                    "Non-meta segment found without position. Inappropriate "
+                    "use of `metas_only`."
+                )
                 # Add the original segment to the buffer.
                 segment_buffer += (segment,)
                 # Update working position
