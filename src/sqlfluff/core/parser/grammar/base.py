@@ -914,9 +914,11 @@ class Ref(BaseGrammar):
         # which would prevent the rest of this grammar from matching.
         if self.exclude:
             with parse_context.deeper_match() as ctx:
-                if self.reset_terminators:
+                # NOTE: Not covered because `exclude` and `teminators` aren't
+                # currently used together in any dialect.
+                if self.reset_terminators:  # pragma: no cover
                     ctx.clear_terminators()
-                if self.terminators:
+                if self.terminators:  # pragma: no cover
                     ctx.push_terminators(self.terminators)
                 if self.exclude.match(segments, parse_context=ctx):
                     return MatchResult.from_unmatched(segments)
