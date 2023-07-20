@@ -837,6 +837,14 @@ class Ref(BaseGrammar):
     def __init__(self, *args: str, **kwargs):
         # Any patterns to _prevent_ a match.
         self.exclude = kwargs.pop("exclude", None)
+        # The intent here is that if we match something, and then the _next_
+        # item is one of these, we can safely conclude it's a "total" match.
+        # In those cases, we return early without considering more options.
+        # Terminators don't take effect directly within this grammar, but
+        # the Ref grammar is an effective place to manage the terminators
+        # inherited via the context.
+        self.terminators = kwargs.pop("terminators", None)
+        self.reset_terminators = kwargs.pop("reset_terminators", False)
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
@@ -906,6 +914,10 @@ class Ref(BaseGrammar):
         # which would prevent the rest of this grammar from matching.
         if self.exclude:
             with parse_context.deeper_match() as ctx:
+                if self.reset_terminators:
+                    ctx.clear_terminators()
+                if self.terminators:
+                    ctx.push_terminators(self.terminators)
                 if self.exclude.match(segments, parse_context=ctx):
                     return MatchResult.from_unmatched(segments)
 
@@ -930,6 +942,10 @@ class Ref(BaseGrammar):
         # Match against that. NB We're not incrementing the match_depth here.
         # References shouldn't really count as a depth of match.
         with parse_context.matching_segment(self._get_ref()) as ctx:
+            if self.reset_terminators:
+                ctx.clear_terminators()
+            if self.terminators:
+                ctx.push_terminators(self.terminators)
             resp = elem.match(segments=segments, parse_context=ctx)
         if not resp:
             parse_context.denylist.mark(self_name, seg_tuple)
