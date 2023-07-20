@@ -635,6 +635,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
             if metas_only and not segment.is_meta:
                 # Add the original segment to the buffer.
                 segment_buffer += (segment,)
+                # Update working position
+                line_no, line_pos = segment.pos_marker.infer_next_position(
+                    segment.raw, line_no, line_pos
+                )
                 continue
 
             repositioned_seg = segment.copy()
