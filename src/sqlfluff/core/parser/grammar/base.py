@@ -363,7 +363,10 @@ class BaseGrammar(Matchable):
                         if seg.is_code:
                             break
                     next_seg = seg.raw_segments[0].raw_upper
-                else:
+                else:  # pragma: no cover
+                    # NOTE: I don't think this clause should ever
+                    # occur, but it's included so that if it does happen
+                    # we don't get an exception and can better debug.
                     next_seg = "<NONE>"
                 parse_context.parse_stats["next_counts"][next_seg] += 1
 
