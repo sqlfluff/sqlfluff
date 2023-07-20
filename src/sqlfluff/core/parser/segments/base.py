@@ -589,6 +589,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         cls,
         segments: Tuple["BaseSegment", ...],
         parent_pos: Optional[PositionMarker] = None,
+        metas_only: bool = False,
     ) -> Tuple["BaseSegment", ...]:
         """Refresh positions of segments within a span.
 
@@ -625,6 +626,17 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # and backward.
         segment_buffer: Tuple["BaseSegment", ...] = ()
         for idx, segment in enumerate(segments):
+            # NOTE: Repositioning can be very compute intensive to do
+            # completely (especially because of the copying required
+            # to do it safely), but during the parsing phase we may
+            # only need to reposition meta segments. Because they have
+            # no size in the templated file and also no children - they
+            # can be done safely without affecting the rest of the file.
+            if metas_only and not segment.is_meta:
+                # Add the original segment to the buffer.
+                segment_buffer += (segment,)
+                continue
+
             repositioned_seg = segment.copy()
             # Fill any that don't have a position.
             if not repositioned_seg.pos_marker:

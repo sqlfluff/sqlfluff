@@ -232,6 +232,12 @@ class Sequence(BaseGrammar):
         return MatchResult(
             BaseSegment._position_segments(
                 matched_segments.matched_segments + meta_pre_nc + meta_post_nc,
+                # Repositioning only meta segments at this stage does increase the
+                # risk of leakage a little (by not fully copying everything on
+                # return), but it does drastically improve performance. Future
+                # work may involve more immutable segments or a smarter way
+                # of isolating them.
+                metas_only=True,
             ),
             unmatched_segments,
         )
