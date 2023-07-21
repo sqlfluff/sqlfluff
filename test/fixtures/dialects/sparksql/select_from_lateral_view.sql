@@ -41,6 +41,28 @@ FROM person
     LATERAL VIEW OUTER EXPLODE(ARRAY()) tbl_name AS c_age;
 
 SELECT
+    id,
+    name,
+    age,
+    class,
+    address,
+    time,
+    c_age
+FROM person
+    LATERAL VIEW OUTER EXPLODE(ARRAY()) tbl_name c_age;
+
+SELECT
+    id,
+    name,
+    age,
+    class,
+    address,
+    time,
+    c_age
+FROM person
+    LATERAL VIEW OUTER EXPLODE(ARRAY()) c_age;
+
+SELECT
     person.id,
     exploded_people.name,
     exploded_people.age,
@@ -63,3 +85,19 @@ SELECT
     exploded_people.state
 FROM person AS p
     LATERAL VIEW INLINE(array_of_structs) exploded_people;
+
+SELECT
+    p.id,
+    exploded_people.name,
+    exploded_people.age,
+    exploded_people.state
+FROM person AS p
+    LATERAL VIEW INLINE(array_of_structs) exploded_people name, age, state;
+
+SELECT
+    p.id,
+    exploded_people.name,
+    exploded_people.age,
+    exploded_people.state
+FROM person AS p
+    LATERAL VIEW INLINE(array_of_structs) AS name, age, state;

@@ -86,6 +86,11 @@ class DbtConfigArgs:
     single_threaded: bool = False
     # dict in 1.5.x onwards, json string before.
     vars: Optional[Union[Dict, str]] = None if DBT_VERSION_TUPLE >= (1, 5) else ""
+    # NOTE: The `which` argument here isn't covered in tests, but many
+    # dbt packages assume that it will have been set.
+    # https://github.com/sqlfluff/sqlfluff/issues/4861
+    # https://github.com/sqlfluff/sqlfluff/issues/4965
+    which: Optional[str] = "compile"
 
 
 class DbtTemplater(JinjaTemplater):
@@ -512,9 +517,10 @@ class DbtTemplater(JinjaTemplater):
             return old_from_string(*args, **kwargs)
 
         # NOTE: We need to inject the project root here in reaction to the
-        # breaking change upstream with dbt.
+        # breaking change upstream with dbt. Coverage works in 1.5.2, but
+        # appears to no longer be covered in 1.5.3.
         # https://github.com/dbt-labs/dbt-core/pull/7949
-        if cv_project_root is not None:
+        if cv_project_root is not None:  # pragma: no cover
             cv_project_root.set(self.project_dir)
 
         node = self._find_node(fname, config)
