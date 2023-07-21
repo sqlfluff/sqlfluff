@@ -165,6 +165,14 @@ class Rule_ST09(BaseRule):
             raw_comparison_operators = comparison_operator.children().select(
                 sp.is_type("raw_comparison_operator")
             )
+
+            # there can be instances where the alias is not specified
+            # in the join on condition in which case we don't do anything
+            if "." not in [
+                child.raw for child in first_column_reference.children()
+            ] or "." not in [child.raw for child in second_column_reference.children()]:
+                continue
+
             first_table = (
                 first_column_reference.children()
                 .first(sp.is_type("naked_identifier"))[0]
@@ -179,6 +187,11 @@ class Rule_ST09(BaseRule):
             # if we swap the two column references around the comparison operator
             # we might have to replace the comparison operator with a different one
             raw_comparison_operator_opposites = {"<": ">", ">": "<"}
+
+            # there seems to be edge cases where either the first table or the second
+            # table is not in table_aliases, in which case we cannot provide any fix
+            if first_table not in table_aliases or second_table not in table_aliases:
+                continue
 
             if (
                 table_aliases.index(first_table) > table_aliases.index(second_table)
