@@ -708,7 +708,15 @@ class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
     match_grammar = Sequence(
         "INTERVAL",
         Ref("ExpressionSegment"),
-        OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("DatetimeUnitSegment"),
+            Sequence(
+                Ref("DatetimeUnitSegment"),
+                "TO",
+                Ref("DatetimeUnitSegment"),
+            ),
+        ),
     )
 
 
