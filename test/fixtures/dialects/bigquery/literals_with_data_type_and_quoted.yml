@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c07ed7b9b4a72e0d511c8594827a84d8b3709fe989ab6c52093384177cdbce0a
+_hash: 52514ecab4824b6bf1487b20cbeb5f9cefe197bd9ee9f78bd05b1ac77e2b7eab
 file:
 - statement:
     select_statement:
@@ -35,9 +35,25 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          data_type:
-            data_type_identifier: NUMERIC
-          quoted_literal: '"0"'
+          expression:
+            data_type:
+              data_type_identifier: NUMERIC
+            quoted_literal: '"0"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - data_type:
+              data_type_identifier: NUMERIC
+          - quoted_literal: '"0"'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - data_type:
+              data_type_identifier: NUMERIC
+          - quoted_literal: '"0"'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -69,9 +85,25 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          data_type:
-            data_type_identifier: BIGNUMERIC
-          quoted_literal: '"0"'
+          expression:
+            data_type:
+              data_type_identifier: BIGNUMERIC
+            quoted_literal: '"0"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - data_type:
+              data_type_identifier: BIGNUMERIC
+          - quoted_literal: '"0"'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - data_type:
+              data_type_identifier: BIGNUMERIC
+          - quoted_literal: '"0"'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -99,9 +131,25 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          data_type:
-            data_type_identifier: DATE
-          quoted_literal: '"2014-09-27"'
+          expression:
+            data_type:
+              data_type_identifier: DATE
+            quoted_literal: '"2014-09-27"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - data_type:
+              data_type_identifier: DATE
+          - quoted_literal: '"2014-09-27"'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - data_type:
+              data_type_identifier: DATE
+          - quoted_literal: '"2014-09-27"'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -129,9 +177,25 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          data_type:
-            data_type_identifier: TIME
-          quoted_literal: '"12:30:00.45"'
+          expression:
+            data_type:
+              data_type_identifier: TIME
+            quoted_literal: '"12:30:00.45"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - data_type:
+              data_type_identifier: TIME
+          - quoted_literal: '"12:30:00.45"'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - data_type:
+              data_type_identifier: TIME
+          - quoted_literal: '"12:30:00.45"'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -159,9 +223,25 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          data_type:
-            data_type_identifier: DATETIME
-          quoted_literal: '"2014-09-27 12:30:00.45"'
+          expression:
+            data_type:
+              data_type_identifier: DATETIME
+            quoted_literal: '"2014-09-27 12:30:00.45"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - data_type:
+              data_type_identifier: DATETIME
+          - quoted_literal: '"2014-09-27 12:30:00.45"'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - data_type:
+              data_type_identifier: DATETIME
+          - quoted_literal: '"2014-09-27 12:30:00.45"'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -189,9 +269,25 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          data_type:
-            data_type_identifier: TIMESTAMP
-          quoted_literal: '"2014-09-27 12:30:00.45-08"'
+          expression:
+            data_type:
+              data_type_identifier: TIMESTAMP
+            quoted_literal: '"2014-09-27 12:30:00.45-08"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - data_type:
+              data_type_identifier: TIMESTAMP
+          - quoted_literal: '"2014-09-27 12:30:00.45-08"'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - data_type:
+              data_type_identifier: TIMESTAMP
+          - quoted_literal: '"2014-09-27 12:30:00.45-08"'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -208,7 +304,8 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          data_type:
-            data_type_identifier: JSON
-          quoted_literal: '"{}"'
+          expression:
+            data_type:
+              data_type_identifier: JSON
+            quoted_literal: '"{}"'
 - statement_terminator: ;

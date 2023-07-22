@@ -724,10 +724,13 @@ bigquery_dialect.replace(
         TypedParser("numeric_literal", ansi.LiteralSegment, type="numeric_literal"),
         Ref("ParameterizedSegment"),
     ),
-    # Add three elements to the ansi LiteralGrammar
+    QuotedLiteralSegment=OneOf(
+        Ref("SingleQuotedLiteralSegment"),
+        Ref("DoubleQuotedLiteralSegment"),
+    ),
+    # Add elements to the ansi LiteralGrammar
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
-            Ref("DoubleQuotedLiteralSegment"),
             Ref("ParameterizedSegment"),
         ]
     ),
