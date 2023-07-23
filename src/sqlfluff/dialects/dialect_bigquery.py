@@ -476,10 +476,7 @@ class AssertStatementSegment(BaseSegment):
         Ref("ExpressionSegment"),
         Sequence(
             "AS",
-            OneOf(
-                Ref("SingleQuotedLiteralSegment"),
-                Ref("DoubleQuotedLiteralSegment"),
-            ),
+            Ref("QuotedLiteralSegment"),
             optional=True,
         ),
     )
@@ -1780,8 +1777,7 @@ class UnpivotAliasExpressionSegment(BaseSegment):
         Indent,
         Ref.keyword("AS", optional=True),
         OneOf(
-            Ref("SingleQuotedLiteralSegment"),
-            Ref("DoubleQuotedLiteralSegment"),
+            Ref("QuotedLiteralSegment"),
             Ref("NumericLiteralSegment"),
         ),
         Dedent,
@@ -2012,10 +2008,7 @@ class ExportStatementSegment(BaseSegment):
                         ),
                     ),
                     Ref("EqualsSegment"),
-                    OneOf(
-                        Ref("SingleQuotedLiteralSegment"),
-                        Ref("DoubleQuotedLiteralSegment"),
-                    ),
+                    Ref("QuotedLiteralSegment"),
                 ),
                 # Bool options
                 # Note: adding as own type, rather than keywords as convention with
