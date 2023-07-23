@@ -15,7 +15,6 @@ from jinja2 import (
     TemplateSyntaxError,
     meta,
 )
-from jinja2.environment import Template
 from jinja2.exceptions import TemplateNotFound, UndefinedError
 from jinja2.ext import Extension
 from jinja2.sandbox import SandboxedEnvironment

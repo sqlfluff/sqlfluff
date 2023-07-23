@@ -616,7 +616,25 @@ class DbtTemplater(JinjaTemplater):
             #       production, slice_file() does not usually use this string,
             #       but some test scenarios do.
             setattr(node, RAW_SQL_ATTRIBUTE, source_dbt_sql)
-            compiled_sql = compiled_sql + "\n" * n_trailing_newlines
+
+            # So for files that have no templated elements in then make_template
+            # will still be null at this point. If so, initialise it with a dummy
+            # function.
+            if make_template is None:
+                # NOTE: In this case, we shouldn't re-add newlines, because they
+                # were never taken away.
+                n_trailing_newlines = 0
+
+                def render_func(in_str: str) -> str:
+                    """Return non-templated input directly."""
+                    return in_str
+
+            else:
+
+                def render_func(in_str: str) -> str:
+                    """Wraps the make_template function into a renderer."""
+                    template = make_template(in_str)
+                    return template.render()
 
             # TRICKY: dbt configures Jinja2 with keep_trailing_newline=False.
             # As documented (https://jinja.palletsprojects.com/en/3.0.x/api/),
@@ -627,9 +645,8 @@ class DbtTemplater(JinjaTemplater):
             # Below, we use "append_to_templated" to effectively "undo" this.
             raw_sliced, sliced_file, templated_sql = self.slice_file(
                 source_dbt_sql,
-                compiled_sql,
+                render_func=render_func,
                 config=config,
-                make_template=make_template,
                 append_to_templated="\n" if n_trailing_newlines else "",
             )
         # :HACK: If calling compile_node() compiled any ephemeral nodes,
