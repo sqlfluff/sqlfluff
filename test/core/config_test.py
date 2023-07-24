@@ -482,6 +482,11 @@ def test__config__validate_configs_indirect():
             "-- sqlfluff:layout:type:comma:foo:bar\n"
             "SELECT 1"
         ),
+        (
+            # Unsupported layout config key ("foo") [no space]
+            "--sqlfluff:layout:type:comma:foo:bar\n"
+            "SELECT 1"
+        ),
     ],
 )
 def test__config__validate_configs_inline_layout(raw_sql):
