@@ -577,7 +577,7 @@ class ConfigLoader:
             # these are likely to be rejected by the layout routines at
             # runtime. The last risk area is validating that the type is
             # a valid one.
-            if k[0] == "layout":
+            if k and k[0] == "layout":
                 # Check for:
                 # - Key length
                 # - Key values
@@ -590,7 +590,7 @@ class ConfigLoader:
                     or (k[3] not in ALLOWABLE_LAYOUT_CONFIG_KEYS)
                 ):
                     raise SQLFluffUserError(
-                        f"Config file {file_path!r} set an in valid `layout` option "
+                        f"Config file {file_path!r} set an invalid `layout` option "
                         f"value {':'.join(k)}.\n"
                         "See https://docs.sqlfluff.com/en/stable/layout.html"
                         "#configuring-layout for more details."
