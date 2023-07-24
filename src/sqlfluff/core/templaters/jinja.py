@@ -361,9 +361,12 @@ class JinjaTemplater(PythonTemplater):
             # Load the template, passing the global context.
             try:
                 template = env.from_string(in_str, globals=live_context)
-            except TemplateSyntaxError as err:
+            except TemplateSyntaxError as err:  # pragma: no cover
                 # Something in the template didn't parse, return the original
                 # and a violation around what happened.
+                # NOTE: Most parsing exceptions will be captured when we call
+                # env.parse() in the .process() method. Hence this exception
+                # handling should never be called.
                 raise SQLTemplaterError(
                     f"Failure to parse jinja template: {err}.",
                     line_no=err.lineno,
