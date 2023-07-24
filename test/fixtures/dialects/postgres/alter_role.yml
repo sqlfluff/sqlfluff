@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d366aa4ccbfe1b7a349001b32e9a6ae740fc7b1840b39b44b5b6790fa2ffe559
+_hash: 6d26811fd37b12bf88d8f394c7385e1ceafa245efffe0c28c39ab14060ad8596
 file:
 - statement:
     alter_role_statement:
@@ -350,6 +350,130 @@ file:
     - keyword: ROLE
     - role_reference:
         naked_identifier: fred
+    - keyword: IN
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: devel
+    - keyword: RESET
+    - parameter: testing
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - keyword: CURRENT_ROLE
+    - keyword: WITH
+    - keyword: PASSWORD
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - keyword: CURRENT_USER
+    - keyword: WITH
+    - keyword: PASSWORD
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - keyword: SESSION_USER
+    - keyword: WITH
+    - keyword: PASSWORD
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - keyword: CURRENT_ROLE
+    - keyword: IN
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: devel
+    - keyword: SET
+    - parameter: testing
+    - keyword: FROM
+    - keyword: CURRENT
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - keyword: CURRENT_ROLE
+    - keyword: IN
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: devel
+    - keyword: SET
+    - parameter: testing
+    - keyword: TO
+    - numeric_literal: '1234'
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - keyword: CURRENT_ROLE
+    - keyword: IN
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: devel
+    - keyword: SET
+    - parameter: testing
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1234'
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - keyword: CURRENT_ROLE
+    - keyword: IN
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: devel
+    - keyword: SET
+    - parameter: testing
+    - keyword: TO
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - keyword: ALL
+    - keyword: RESET
+    - parameter: ALL
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - keyword: ALL
+    - keyword: RESET
+    - parameter: testing
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - keyword: ALL
+    - keyword: IN
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: devel
+    - keyword: RESET
+    - parameter: ALL
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - keyword: ALL
     - keyword: IN
     - keyword: DATABASE
     - database_reference:
