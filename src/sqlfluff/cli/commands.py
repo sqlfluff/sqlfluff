@@ -1356,7 +1356,7 @@ def render(
             fname = path
 
     # Get file specific config
-    file_config.process_raw_file_for_config(raw_sql)
+    file_config.process_raw_file_for_config(raw_sql, fname)
     rendered = lnt.render_string(raw_sql, fname, file_config, "utf8")
 
     if rendered.templater_violations:

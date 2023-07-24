@@ -141,7 +141,7 @@ class Linter:
         with open(fname, encoding=encoding, errors="backslashreplace") as target_file:
             raw_file = target_file.read()
         # Scan the raw file for config commands.
-        file_config.process_raw_file_for_config(raw_file)
+        file_config.process_raw_file_for_config(raw_file, fname)
         # Return the raw file and config
         return raw_file, file_config, encoding
 
@@ -897,7 +897,7 @@ class Linter:
         config = config or self.config
 
         # Scan the raw file for config commands.
-        config.process_raw_file_for_config(in_str)
+        config.process_raw_file_for_config(in_str, fname)
         rendered = self.render_string(in_str, fname, config, encoding)
         violations += rendered.templater_violations
 
