@@ -210,9 +210,12 @@ def test__templater_dbt_slice_file_wrapped_test(
     raw_file, templated_file, result, dbt_templater, caplog  # noqa: F811
 ):
     """Test that wrapped queries are sliced safely using _check_for_wrapped()."""
-    # Create a dummy render func. Importantly one that does actually allow
-    # different content to be added.
+
     def _render_func(in_str) -> str:
+        """Create a dummy render func.
+
+        Importantly one that does actually allow different content to be added.
+        """
         # Find the raw location in the template for the test case.
         loc = templated_file.find(raw_file)
         # Replace the new content at the previous position.

@@ -5,7 +5,7 @@ from contextlib import contextmanager
 import os
 import os.path
 import logging
-from typing import List, Optional, Iterator, Tuple, Any, Dict, Deque, Union
+from typing import List, Optional, Iterator, Tuple, Any, Dict, Deque, Union, Callable
 
 from dataclasses import dataclass
 
@@ -494,11 +494,13 @@ class DbtTemplater(JinjaTemplater):
         # turn is used by our parent class' (JinjaTemplater) slice_file()
         # function.
         old_from_string = Environment.from_string
-        make_template = None
+        # Start with render_func undefined. We need to know whether it has been
+        # overwritten.
+        render_func: Optional[Callable[[str], str]] = None
 
         def from_string(*args, **kwargs):
             """Replaces (via monkeypatch) the jinja2.Environment function."""
-            nonlocal make_template
+            nonlocal render_func
             # Is it processing the node corresponding to fname?
             globals = kwargs.get("globals")
             if globals:
@@ -506,13 +508,16 @@ class DbtTemplater(JinjaTemplater):
                 if model:
                     if model.get("original_file_path") == original_file_path:
                         # Yes. Capture the important arguments and create
-                        # a make_template() function.
+                        # a render_func() closure with overwrites the variable
+                        # from within _unsafe_process when from_string is run.
                         env = args[0]
                         globals = args[2] if len(args) >= 3 else kwargs["globals"]
 
-                        def make_template(in_str):
+                        # Overwrite the outer render_func
+                        def render_func(in_str):
                             env.add_extension(SnapshotExtension)
-                            return env.from_string(in_str, globals=globals)
+                            template = env.from_string(in_str, globals=globals)
+                            return template.render()
 
             return old_from_string(*args, **kwargs)
 
@@ -617,24 +622,22 @@ class DbtTemplater(JinjaTemplater):
             #       but some test scenarios do.
             setattr(node, RAW_SQL_ATTRIBUTE, source_dbt_sql)
 
-            # So for files that have no templated elements in then make_template
-            # will still be null at this point. If so, initialise it with a dummy
-            # function.
-            if make_template is None:
+            # So for files that have no templated elements in then render_func
+            # will still be null at this point. If so, we replace it with a lambda
+            # which just directly returns the input , but _also_ reset the trailing
+            # newlines counter because they also won't have been stripped.
+            if render_func is None:
                 # NOTE: In this case, we shouldn't re-add newlines, because they
                 # were never taken away.
                 n_trailing_newlines = 0
 
-                def render_func(in_str: str) -> str:
-                    """Return non-templated input directly."""
+                # Overwrite the render_func placeholder.
+                def render_func(in_str):
+                    """A render function which just returns the input."""
                     return in_str
 
-            else:
-
-                def render_func(in_str: str) -> str:
-                    """Wraps the make_template function into a renderer."""
-                    template = make_template(in_str)
-                    return template.render()
+            # At this point assert that we _have_ a render_func
+            assert render_func is not None
 
             # TRICKY: dbt configures Jinja2 with keep_trailing_newline=False.
             # As documented (https://jinja.palletsprojects.com/en/3.0.x/api/),
