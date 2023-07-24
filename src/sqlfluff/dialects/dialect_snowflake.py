@@ -1093,6 +1093,7 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
                 Ref("SamplingExpressionSegment"),
                 Ref("ChangesClauseSegment"),
                 Ref("JoinLikeClauseGrammar"),
+                "CROSS",
             ),
             optional=True,
         ),

@@ -476,10 +476,7 @@ class AssertStatementSegment(BaseSegment):
         Ref("ExpressionSegment"),
         Sequence(
             "AS",
-            OneOf(
-                Ref("SingleQuotedLiteralSegment"),
-                Ref("DoubleQuotedLiteralSegment"),
-            ),
+            Ref("QuotedLiteralSegment"),
             optional=True,
         ),
     )
@@ -708,7 +705,15 @@ class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
     match_grammar = Sequence(
         "INTERVAL",
         Ref("ExpressionSegment"),
-        OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("DatetimeUnitSegment"),
+            Sequence(
+                Ref("DatetimeUnitSegment"),
+                "TO",
+                Ref("DatetimeUnitSegment"),
+            ),
+        ),
     )
 
 
@@ -724,10 +729,13 @@ bigquery_dialect.replace(
         TypedParser("numeric_literal", ansi.LiteralSegment, type="numeric_literal"),
         Ref("ParameterizedSegment"),
     ),
-    # Add three elements to the ansi LiteralGrammar
+    QuotedLiteralSegment=OneOf(
+        Ref("SingleQuotedLiteralSegment"),
+        Ref("DoubleQuotedLiteralSegment"),
+    ),
+    # Add elements to the ansi LiteralGrammar
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
-            Ref("DoubleQuotedLiteralSegment"),
             Ref("ParameterizedSegment"),
         ]
     ),
@@ -1771,8 +1779,7 @@ class UnpivotAliasExpressionSegment(BaseSegment):
         Indent,
         Ref.keyword("AS", optional=True),
         OneOf(
-            Ref("SingleQuotedLiteralSegment"),
-            Ref("DoubleQuotedLiteralSegment"),
+            Ref("QuotedLiteralSegment"),
             Ref("NumericLiteralSegment"),
         ),
         Dedent,
@@ -2003,10 +2010,7 @@ class ExportStatementSegment(BaseSegment):
                         ),
                     ),
                     Ref("EqualsSegment"),
-                    OneOf(
-                        Ref("SingleQuotedLiteralSegment"),
-                        Ref("DoubleQuotedLiteralSegment"),
-                    ),
+                    Ref("QuotedLiteralSegment"),
                 ),
                 # Bool options
                 # Note: adding as own type, rather than keywords as convention with
