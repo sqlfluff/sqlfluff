@@ -622,7 +622,7 @@ class DbtTemplater(JinjaTemplater):
             #       but some test scenarios do.
             setattr(node, RAW_SQL_ATTRIBUTE, source_dbt_sql)
 
-            # So for files that have no templated elements in then render_func
+            # So for files that have no templated elements in them, render_func
             # will still be null at this point. If so, we replace it with a lambda
             # which just directly returns the input , but _also_ reset the trailing
             # newlines counter because they also won't have been stripped.
