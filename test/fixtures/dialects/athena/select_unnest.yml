@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d92dc11987922aacf5ccef182afd314965fa52dbefa975867f82dee0da3e1f38
+_hash: 270021a08e9c72974e0a292bb178e35b9f32af7a316cb4dcc11c4600a499710f
 file:
 - statement:
     select_statement:
@@ -76,32 +76,30 @@ file:
                 - keyword: VALUES
                 - bracketed:
                     start_bracket: (
-                    expression:
-                      typed_array_literal:
-                        array_type:
-                          keyword: ARRAY
-                        array_literal:
-                        - start_square_bracket: '['
-                        - numeric_literal: '2'
-                        - comma: ','
-                        - numeric_literal: '5'
-                        - end_square_bracket: ']'
+                    typed_array_literal:
+                      array_type:
+                        keyword: ARRAY
+                      array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '2'
+                      - comma: ','
+                      - numeric_literal: '5'
+                      - end_square_bracket: ']'
                     end_bracket: )
                 - comma: ','
                 - bracketed:
                     start_bracket: (
-                    expression:
-                      typed_array_literal:
-                        array_type:
-                          keyword: ARRAY
-                        array_literal:
-                        - start_square_bracket: '['
-                        - numeric_literal: '7'
-                        - comma: ','
-                        - numeric_literal: '8'
-                        - comma: ','
-                        - numeric_literal: '9'
-                        - end_square_bracket: ']'
+                    typed_array_literal:
+                      array_type:
+                        keyword: ARRAY
+                      array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '7'
+                      - comma: ','
+                      - numeric_literal: '8'
+                      - comma: ','
+                      - numeric_literal: '9'
+                      - end_square_bracket: ']'
                     end_bracket: )
               end_bracket: )
             alias_expression:
