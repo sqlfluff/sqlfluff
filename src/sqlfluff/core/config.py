@@ -39,6 +39,8 @@ ALLOWABLE_LAYOUT_CONFIG_KEYS = (
     "spacing_after",
     "spacing_within",
     "line_position",
+    "align_within",
+    "align_scope",
 )
 
 
