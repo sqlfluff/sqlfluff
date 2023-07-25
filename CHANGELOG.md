@@ -10,6 +10,26 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.1.4] - 2023-07-25
+
+## Highlights
+
+## What’s Changed
+
+* Databricks set time zone [#5000](https://github.com/sqlfluff/sqlfluff/pull/5000) [@greg-finley](https://github.com/greg-finley)
+* Terminator inheritance [#4981](https://github.com/sqlfluff/sqlfluff/pull/4981) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Reduce copying in the parse phase [#4988](https://github.com/sqlfluff/sqlfluff/pull/4988) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Validate layout configs #4578 [#4997](https://github.com/sqlfluff/sqlfluff/pull/4997) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix handling of keywords for roles in ALTER ROLE statement [#4994](https://github.com/sqlfluff/sqlfluff/pull/4994) [@anzelpwj](https://github.com/anzelpwj)
+* BigQuery: fixes parse error on some literals with data type and quoted [#4992](https://github.com/sqlfluff/sqlfluff/pull/4992) [@yoichi](https://github.com/yoichi)
+* Correct Snowflake `CROSS JOIN` syntax [#4996](https://github.com/sqlfluff/sqlfluff/pull/4996) [@tunetheweb](https://github.com/tunetheweb)
+* Remove broken 'fork me' banner from docs [#4989](https://github.com/sqlfluff/sqlfluff/pull/4989) [@greg-finley](https://github.com/greg-finley)
+* feat: support athena optional WITH ORDINALITY post UNNEST function [#4991](https://github.com/sqlfluff/sqlfluff/pull/4991) [@reata](https://github.com/reata)
+
+## New Contributors
+
+
+
 ## [2.1.3] - 2023-07-19
 
 ## Highlights
