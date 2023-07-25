@@ -40,7 +40,7 @@ clickhouse_dialect.replace(
         TypedParser(
             "single_quote",
             ansi.LiteralSegment,
-            type="quoted_literal"
+            type="quoted_literal",
         ),
         TypedParser(
             "dollar_quote",
