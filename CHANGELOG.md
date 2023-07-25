@@ -19,9 +19,9 @@ complex SQL statements. In files with deeply nested expressions, we have seen
 up to a 50% reduction on time spent in the parsing phase. These changes are all
 internal optimisations and have minimal implications for the parser. In a few
 isolated cases they did highlight inconsistencies in the parsing of literals
-and so if your use case relies on the specific format of literal and expression
-parsing you may find some small differences in how specific expressions are
-parsed.
+and so if your use case relies on the specific structure of literal and
+expression parsing you may find some small differences in how some expressions
+are parsed.
 
 Additionally this release brings new validation steps to configuration.
 Layout configuration is now validated on load (and so users with invalid
