@@ -14,6 +14,24 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This release brings some meaningful performance improvements to the parsing of
+complex SQL statements. In files with deeply nested expressions, we have seen
+up to a 50% reduction on time spent in the parsing phase. These changes are all
+internal optimisations and have minimal implications for the parser. In a few
+isolated cases they did highlight inconsistencies in the parsing of literals
+and so if your use case relies on the specific format of literal and expression
+parsing you may find some small differences in how specific expressions are
+parsed.
+
+Additionally this release brings new validation steps to configuration.
+Layout configuration is now validated on load (and so users with invalid
+layout configurations may see some of these being caught now) and inline
+configuration statements in files are also now validated for both their
+layout rules and for any removed or deprecated settings.
+
+On top of both we've seen dialect improvements to Databricks, PostgreSQL,
+BigQuery, Snowflake & Athena.
+
 ## What’s Changed
 
 * Databricks set time zone [#5000](https://github.com/sqlfluff/sqlfluff/pull/5000) [@greg-finley](https://github.com/greg-finley)
@@ -25,10 +43,6 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * Correct Snowflake `CROSS JOIN` syntax [#4996](https://github.com/sqlfluff/sqlfluff/pull/4996) [@tunetheweb](https://github.com/tunetheweb)
 * Remove broken 'fork me' banner from docs [#4989](https://github.com/sqlfluff/sqlfluff/pull/4989) [@greg-finley](https://github.com/greg-finley)
 * feat: support athena optional WITH ORDINALITY post UNNEST function [#4991](https://github.com/sqlfluff/sqlfluff/pull/4991) [@reata](https://github.com/reata)
-
-## New Contributors
-
-
 
 ## [2.1.3] - 2023-07-19
 
