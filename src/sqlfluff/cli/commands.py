@@ -1173,6 +1173,14 @@ def quoted_presenter(dumper, data):
     "--profiler", is_flag=True, help="Set this flag to engage the python profiler."
 )
 @click.option(
+    "--parse-statistics",
+    is_flag=True,
+    help=(
+        "Set this flag to enabled detailed debugging readout "
+        "on the use of terminators in the parser."
+    ),
+)
+@click.option(
     "--nofail",
     is_flag=True,
     help=(
@@ -1192,6 +1200,7 @@ def parse(
     logger: Optional[logging.Logger] = None,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
+    parse_statistics: bool = False,
     **kwargs,
 ) -> None:
     """Parse SQL files and just spit out the result.
@@ -1247,6 +1256,7 @@ def parse(
                     "stdin",
                     recurse=recurse,
                     config=lnt.config,
+                    parse_statistics=parse_statistics,
                 ),
             ]
         else:
@@ -1255,6 +1265,7 @@ def parse(
                 lnt.parse_path(
                     path=path,
                     recurse=recurse,
+                    parse_statistics=parse_statistics,
                 )
             )
 

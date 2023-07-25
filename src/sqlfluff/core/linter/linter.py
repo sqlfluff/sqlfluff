@@ -223,6 +223,7 @@ class Linter:
         config: FluffConfig,
         recurse: bool = True,
         fname: Optional[str] = None,
+        parse_statistics: bool = False,
     ) -> Tuple[Optional[BaseSegment], List[SQLParseError]]:
         parser = Parser(config=config)
         violations = []
@@ -232,6 +233,7 @@ class Linter:
                 tokens,
                 recurse=recurse,
                 fname=fname,
+                parse_statistics=parse_statistics,
             )
         except SQLParseError as err:
             linter_logger.info("PARSING FAILED! : %s", err)
@@ -381,6 +383,7 @@ class Linter:
         cls,
         rendered: RenderedFile,
         recurse: bool = True,
+        parse_statistics: bool = False,
     ) -> ParsedString:
         """Parse a rendered file."""
         t0 = time.monotonic()
@@ -403,6 +406,7 @@ class Linter:
                 rendered.config,
                 recurse=recurse,
                 fname=rendered.fname,
+                parse_statistics=parse_statistics,
             )
             violations += pvs
         else:
@@ -885,6 +889,7 @@ class Linter:
         recurse: bool = True,
         config: Optional[FluffConfig] = None,
         encoding: str = "utf-8",
+        parse_statistics: bool = False,
     ) -> ParsedString:
         """Parse a string."""
         violations: List[SQLBaseError] = []
@@ -905,7 +910,9 @@ class Linter:
         if self.formatter:
             self.formatter.dispatch_parse_header(fname)
 
-        return self.parse_rendered(rendered, recurse=recurse)
+        return self.parse_rendered(
+            rendered, recurse=recurse, parse_statistics=parse_statistics
+        )
 
     def fix(
         self,
@@ -1238,6 +1245,7 @@ class Linter:
         self,
         path: str,
         recurse: bool = True,
+        parse_statistics: bool = False,
     ) -> Iterator[ParsedString]:
         """Parse a path of sql files.
 
@@ -1261,4 +1269,5 @@ class Linter:
                 recurse=recurse,
                 config=config,
                 encoding=encoding,
+                parse_statistics=parse_statistics,
             )

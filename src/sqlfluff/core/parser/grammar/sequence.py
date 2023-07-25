@@ -355,14 +355,18 @@ class Bracketed(Sequence):
                 return MatchResult.from_unmatched(segments)
 
             # Look for the closing bracket
-            content_segs, end_match, _ = self._bracket_sensitive_look_ahead_match(
-                segments=seg_buff,
-                matchers=[end_bracket],
-                parse_context=parse_context,
-                start_bracket=start_bracket,
-                end_bracket=end_bracket,
-                bracket_pairs_set=self.bracket_pairs_set,
-            )
+            with parse_context.deeper_match() as ctx:
+                # Within the brackets, clear any inherited terminators.
+                ctx.clear_terminators()
+                content_segs, end_match, _ = self._bracket_sensitive_look_ahead_match(
+                    segments=seg_buff,
+                    matchers=[end_bracket],
+                    parse_context=ctx,
+                    start_bracket=start_bracket,
+                    end_bracket=end_bracket,
+                    bracket_pairs_set=self.bracket_pairs_set,
+                )
+
             if not end_match:  # pragma: no cover
                 raise SQLParseError(
                     "Couldn't find closing bracket for opening bracket.",
@@ -406,6 +410,8 @@ class Bracketed(Sequence):
         # Match the content using super. Sequence will interpret the content of the
         # elements.
         with parse_context.deeper_match() as ctx:
+            # Within the brackets, clear any inherited terminators.
+            ctx.clear_terminators()
             content_match = super().match(content_segs, parse_context=ctx)
 
         # We require a complete match for the content (hopefully for obvious reasons)

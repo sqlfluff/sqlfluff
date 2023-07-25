@@ -151,15 +151,14 @@ class Delimited(OneOf):
                         break
 
                 with parse_context.deeper_match() as ctx:
+                    if delimiter_matchers and elements != delimiter_matchers:
+                        ctx.push_terminators(delimiter_matchers)
                     match, _ = self._longest_trimmed_match(
                         segments=seg_content,
                         matchers=elements,
                         parse_context=ctx,
                         # We've already trimmed
                         trim_noncode=False,
-                        terminators=delimiter_matchers
-                        if elements != delimiter_matchers
-                        else None,
                     )
 
                 if match:
