@@ -1250,6 +1250,16 @@ class QualifiedNumericLiteralSegment(BaseSegment):
     )
 
 
+class AggregateOrderByClause(BaseSegment):
+    """An order by clause for an aggregate fucntion.
+
+    Defined as a class to allow a specific type for rule AM06
+    """
+
+    type = "aggregate_order_by"
+    match_grammar: Matchable = Ref("OrderByClauseSegment")
+
+
 ansi_dialect.add(
     # FunctionContentsExpressionGrammar intended as a hook to override
     # in other dialects.
@@ -1283,7 +1293,7 @@ ansi_dialect.add(
             ),
         ),
         Ref(
-            "OrderByClauseSegment"
+            "AggregateOrderByClause"
         ),  # used by string_agg (postgres), group_concat (exasol),listagg (snowflake)..
         Sequence(Ref.keyword("SEPARATOR"), Ref("LiteralGrammar")),
         # like a function call: POSITION ( 'QL' IN 'SQL')
