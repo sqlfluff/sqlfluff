@@ -3443,7 +3443,7 @@ class AccessStatementSegment(BaseSegment):
                     "IN",
                     OneOf("DATABASE", "SCHEMA"),
                 ),
-                optional = True,
+                optional=True,
             ),
             Delimited(
                 Ref("ObjectReferenceSegment"),
