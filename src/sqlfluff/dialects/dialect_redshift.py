@@ -11,7 +11,9 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     CodeSegment,
+    Dedent,
     Delimited,
+    Indent,
     Matchable,
     Nothing,
     OneOf,
@@ -21,6 +23,7 @@ from sqlfluff.core.parser import (
     RegexParser,
     SegmentGenerator,
     Sequence,
+    StartsWith,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_postgres as postgres
@@ -2568,4 +2571,57 @@ class CreateExternalFunctionStatementSegment(BaseSegment):
             Ref("NumericLiteralSegment"),
             optional=True,
         ),
+    )
+
+
+class QualifyClauseSegment(BaseSegment):
+    """A `QUALIFY` clause like in `SELECT`.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_QUALIFY_clause.html
+    """
+
+    type = "qualify_clause"
+    match_grammar = Sequence(
+        "QUALIFY",
+        Indent,
+        Ref("ExpressionSegment"),
+        Dedent,
+    )
+
+
+class SelectStatementSegment(ansi.SelectStatementSegment):
+    """A snowflake `SELECT` statement including optional Qualify.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_QUALIFY_clause.html
+    """
+
+    type = "select_statement"
+    match_grammar = StartsWith(
+        # NB: In bigquery, the select clause may include an EXCEPT, which
+        # will also match the set operator, but by starting with the whole
+        # select clause rather than just the SELECT keyword, we normally
+        # mitigate that here. But this isn't BigQuery! So we can be more
+        # efficient and just use the keyword.
+        "SELECT",
+        terminator=Ref("SetOperatorSegment"),
+    )
+
+    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+        before=Ref("OrderByClauseSegment", optional=True),
+    )
+
+
+class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
+    """A snowflake unordered `SELECT` statement including optional Qualify.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_QUALIFY_clause.html
+    """
+
+    type = "select_statement"
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
+
+    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+        before=Ref("OverlapsClauseSegment", optional=True),
     )
