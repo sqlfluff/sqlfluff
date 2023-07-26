@@ -36,6 +36,18 @@ clickhouse_dialect.replace(
         Ref("QuotedIdentifierSegment"),
         Ref("SingleQuotedIdentifierSegment"),
     ),
+    QuotedLiteralSegment=OneOf(
+        TypedParser(
+            "single_quote",
+            ansi.LiteralSegment,
+            type="quoted_literal",
+        ),
+        TypedParser(
+            "dollar_quote",
+            ansi.LiteralSegment,
+            type="quoted_literal",
+        ),
+    ),
 )
 
 clickhouse_dialect.insert_lexer_matchers(
