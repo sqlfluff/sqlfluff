@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a2a0f2c4bee4578f40958582525e3f84a4b19d621ce8333f1364624f3b028c98
+_hash: 763dcc4eb40c6b199824179d4cce12783cbcfddc9a1a5567d169f3df3bd298ea
 file:
 - statement:
     create_function_statement:
@@ -543,8 +543,8 @@ file:
     - keyword: ALL
     - keyword: 'ON'
     - keyword: FUNCTION
-    - object_reference:
-        naked_identifier: check_password
+    - function_name:
+        function_name_identifier: check_password
     - function_parameter_list:
         bracketed:
         - start_bracket: (
@@ -566,8 +566,8 @@ file:
     - keyword: EXECUTE
     - keyword: 'ON'
     - keyword: FUNCTION
-    - object_reference:
-        naked_identifier: check_password
+    - function_name:
+        function_name_identifier: check_password
     - function_parameter_list:
         bracketed:
         - start_bracket: (
