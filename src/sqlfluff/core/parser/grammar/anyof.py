@@ -6,6 +6,7 @@ from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
     MatchableType,
+    SimpleHintType,
     cached_method_for_parse_context,
 )
 from sqlfluff.core.parser.grammar.sequence import Sequence, Bracketed
@@ -33,7 +34,9 @@ class AnyNumberOf(BaseGrammar):
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext, crumbs: Optional[List[str]] = None):
+    def simple(
+        self, parse_context: ParseContext, crumbs: Optional[List[str]] = None
+    ) -> SimpleHintType:
         """Does this matcher support a uppercase hash matching route?
 
         AnyNumberOf does provide this, as long as *all* the elements *also* do.
