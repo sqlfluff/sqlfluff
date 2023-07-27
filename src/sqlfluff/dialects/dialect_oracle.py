@@ -104,56 +104,10 @@ oracle_dialect.replace(
         Ref("FilterClauseGrammar"),
         Ref("OverClauseSegment", optional=True),
     ),
-    FunctionContentsGrammar=AnyNumberOf(
-        Ref("ExpressionSegment"),
-        # A Cast-like function
-        Sequence(Ref("ExpressionSegment"), "AS", Ref("DatatypeSegment")),
-        # Trim function
-        Sequence(
-            Ref("TrimParametersGrammar"),
-            Ref("ExpressionSegment", optional=True, exclude=Ref.keyword("FROM")),
-            "FROM",
-            Ref("ExpressionSegment"),
-        ),
-        # An extract-like or substring-like function
-        Sequence(
-            OneOf(Ref("DatetimeUnitSegment"), Ref("ExpressionSegment")),
-            "FROM",
-            Ref("ExpressionSegment"),
-        ),
-        Sequence(
-            # Allow an optional distinct keyword here.
-            Ref.keyword("DISTINCT", optional=True),
-            OneOf(
-                # Most functions will be using the delimited route
-                # but for COUNT(*) or similar we allow the star segment
-                # here.
-                Ref("StarSegment"),
-                Delimited(Ref("FunctionContentsExpressionGrammar")),
-            ),
-        ),
-        Ref(
-            "OrderByClauseSegment"
-        ),  # used by string_agg (postgres), group_concat (exasol),listagg (snowflake)..
-        Sequence(Ref.keyword("SEPARATOR"), Ref("LiteralGrammar")),
-        # like a function call: POSITION ( 'QL' IN 'SQL')
-        Sequence(
-            OneOf(
-                Ref("QuotedLiteralSegment"),
-                Ref("SingleIdentifierGrammar"),
-                Ref("ColumnReferenceSegment"),
-            ),
-            "IN",
-            OneOf(
-                Ref("QuotedLiteralSegment"),
-                Ref("SingleIdentifierGrammar"),
-                Ref("ColumnReferenceSegment"),
-            ),
-        ),
-        Ref("IgnoreRespectNullsGrammar"),
-        Ref("IndexColumnDefinitionSegment"),
-        Ref("EmptyStructLiteralSegment"),
-        Ref("ListaggOverflowClauseSegment"),
+    FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
+        insert=[
+            Ref("ListaggOverflowClauseSegment"),
+        ]
     ),
 )
 
