@@ -1,5 +1,6 @@
 """Module for loading config."""
 
+from importlib.resources import files
 import logging
 import os
 import os.path
@@ -412,7 +413,9 @@ class ConfigLoader:
         return cls._walk_toml(tool)
 
     @classmethod
-    def _get_config_elems_from_file(cls, fpath: str) -> List[ConfigElemType]:
+    def _get_config_elems_from_file(
+        cls, fpath: Optional[str] = None, config_string: Optional[str] = None
+    ) -> List[ConfigElemType]:
         """Load a config from a file and return a list of tuples.
 
         The return value is a list of tuples, were each tuple has two elements,
@@ -428,6 +431,7 @@ class ConfigLoader:
             string value will remain.
 
         """
+        assert fpath or config_string, "One of fpath or config_string is required."
         buff: List[Tuple[tuple, Any]] = []
         # Disable interpolation so we can load macros
         kw: Dict = {}
@@ -437,7 +441,11 @@ class ConfigLoader:
         # because jinja is also case sensitive. To do this we override
         # the optionxform attribute.
         config.optionxform = lambda option: option  # type: ignore
-        config.read(fpath)
+        if fpath:
+            config.read(fpath)
+        else:
+            config.read_string(config_string)
+
         for k in config.sections():
             if k == "sqlfluff":
                 key: Tuple = ("core",)
@@ -599,10 +607,30 @@ class ConfigLoader:
             validated_configs.append((k, v))
         return validated_configs
 
+    def load_config_resource(
+        self, package: str, file_name: str, configs: Optional[dict] = None
+    ) -> dict:
+        """Load the a config resource.
+
+        This is however more compatible with mypyc because it avoids
+        the use of the __file__ object to find the default config.
+
+        This is only tested extensively with the default config.
+
+        NOTE: This requires that the config file is built into
+        a package but should be more performant because it leverages
+        importlib.
+        https://docs.python.org/3/library/importlib.resources.html
+        """
+        config_string = files(package).joinpath(file_name).read_text()
+        elems = self._get_config_elems_from_file(config_string=config_string)
+        elems = self._validate_configs(elems, package + "." + file_name)
+        return self._incorporate_vals(configs or {}, elems)
+
     def load_config_file(
         self, file_dir: str, file_name: str, configs: Optional[dict] = None
     ) -> dict:
-        """Load the default config file."""
+        """Load the a config file."""
         file_path = os.path.join(file_dir, file_name)
         if file_name == "pyproject.toml":
             elems = self._get_config_elems_from_toml(file_path)
