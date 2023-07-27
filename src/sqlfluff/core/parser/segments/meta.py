@@ -46,7 +46,7 @@ class MetaSegment(RawSegment):
         self.is_template = is_template
         self.block_uuid = block_uuid
 
-    def _suffix(self):
+    def _suffix(self) -> str:
         """Return any extra output required at the end when logging.
 
         Meta classes have not much to say here so just stay blank.
@@ -55,7 +55,7 @@ class MetaSegment(RawSegment):
 
     @classmethod
     @match_wrapper()
-    def match(cls, segments, parse_context):  # pragma: no cover
+    def match(cls, segments, parse_context) -> NotImplementedError:  # pragma: no cover
         """This will never be called. If it is then we're using it wrong."""
         raise NotImplementedError(
             "{} has no match method, it should only be used in a Sequence!".format(
@@ -64,7 +64,7 @@ class MetaSegment(RawSegment):
         )
 
     @classmethod
-    def simple(cls, parse_context: ParseContext, crumbs=None):
+    def simple(cls, parse_context: ParseContext, crumbs=None) -> None:
         """Does this matcher support an uppercase hash matching route?
 
         This should be true if the MATCH grammar is simple. Most more
@@ -210,7 +210,7 @@ class TemplateSegment(MetaSegment):
             block_uuid=block_uuid,
         )
 
-    def to_tuple(self, code_only=False, show_raw=False, include_meta=False):
+    def to_tuple(self, code_only=False, show_raw=False, include_meta=False) -> tuple:
         """Return a tuple structure from this segment.
 
         Unlike most segments, we return the _source_ content for placeholders
@@ -227,7 +227,7 @@ class TemplateSegment(MetaSegment):
         raw: Optional[str] = None,
         source_fixes: Optional[List[SourceFix]] = None,
         source_str: Optional[str] = None,
-    ):
+    ) -> MetaSegment:
         """Create a new segment, with exactly the same position but different content.
 
         Returns:

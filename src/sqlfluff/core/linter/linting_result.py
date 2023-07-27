@@ -107,7 +107,7 @@ class LintingResult:
         """Count the number of violations in the result."""
         return sum(path.num_violations(**kwargs) for path in self.paths)
 
-    def get_violations(self, **kwargs):
+    def get_violations(self, **kwargs) -> list:
         """Return a list of violations in the result."""
         buff = []
         for path in self.paths:

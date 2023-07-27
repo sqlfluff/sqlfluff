@@ -101,7 +101,7 @@ class Rule_CV09(BaseRule):
 
         return None
 
-    def _init_blocked_words(self):
+    def _init_blocked_words(self) -> list:
         """Called first time rule is evaluated to fetch & cache the blocked_words."""
         blocked_words_config = getattr(self, "blocked_words")
         if blocked_words_config:

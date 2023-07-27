@@ -261,7 +261,7 @@ class Bracketed(Sequence):
       brackets to that sequence.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         # Store the bracket type. NB: This is only
         # hydrated into segments at runtime.
         self.bracket_type = kwargs.pop("bracket_type", "round")

@@ -110,7 +110,7 @@ class Rule_RF04(BaseRule):
         else:
             return None
 
-    def _init_ignore_string(self):
+    def _init_ignore_string(self) -> list:
         """Called first time rule is evaluated to fetch & cache the ignore_words."""
         # Use str() in case bools are passed which might otherwise be read as bool
         ignore_words_config = str(getattr(self, "ignore_words"))

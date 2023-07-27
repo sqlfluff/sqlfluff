@@ -157,7 +157,7 @@ class ParseContext:
                 setattr(ctx, key, getattr(self, key))
         return ctx
 
-    def __enter__(self):
+    def __enter__(self) -> "ParseContext":
         """Enter into the context.
 
         For the ParseContext, this just returns itself, because

@@ -3,15 +3,16 @@
 import os
 from importlib import import_module
 from glob import glob
+from typing import AnyStr
 
 
 def get_rules_from_path(
     # All rule files are expected in the format of L*.py
-    rules_path=os.path.abspath(
+    rules_path: AnyStr = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "../../rules", "L*.py")
     ),
-    base_module="sqlfluff.rules",
-):
+    base_module: str = "sqlfluff.rules",
+) -> list:
     """Reads all of the Rule classes from a path into a list."""
     # Create a rules dictionary for importing in
     # sqlfluff/src/sqlfluff/core/rules/__init__.py

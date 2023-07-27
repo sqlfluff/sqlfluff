@@ -38,7 +38,7 @@ if TYPE_CHECKING:
     from sqlfluff.core.dialects.base import Dialect  # pragma: no cover
 
 
-def first_trimmed_raw(seg):
+def first_trimmed_raw(seg) -> str:
     """Trim whitespace off a whole element raw.
 
     Used as a helper function in BaseGrammar._look_ahead_match.
@@ -71,7 +71,7 @@ class BracketInfo:
     bracket: BaseSegment
     segments: Tuple[BaseSegment, ...]
 
-    def to_segment(self, end_bracket):
+    def to_segment(self, end_bracket) -> BracketedSegment:
         """Turn the contained segments into a bracketed segment."""
         return BracketedSegment(
             segments=self.segments,
@@ -97,7 +97,7 @@ def cached_method_for_parse_context(func):
         for the current use case of dependency loop debugging that's
         ok.
         """
-        cache_tuple: Tuple = self.__dict__.get(cache_key, (None, None))
+        cache_tuple: tuple = self.__dict__.get(cache_key, (None, None))
         # Do we currently have a cached value?
         if cache_tuple[0] == parse_context.uuid:
             return cache_tuple[1]
@@ -154,7 +154,7 @@ class BaseGrammar(Matchable):
         allow_gaps=True,
         optional=False,
         ephemeral_name=None,
-    ):
+    ) -> None:
         """Deal with kwargs common to all grammars.
 
         Args:
@@ -967,7 +967,7 @@ class Ref(BaseGrammar):
         return resp
 
     @classmethod
-    def keyword(cls, keyword, **kwargs):
+    def keyword(cls, keyword, **kwargs) -> BaseGrammar:
         """Generate a reference to a keyword by name.
 
         This function is entirely syntactic sugar, and designed

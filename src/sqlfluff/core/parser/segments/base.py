@@ -109,7 +109,7 @@ class FixPatch:
     templated_str: str
     source_str: str
 
-    def dedupe_tuple(self):
+    def dedupe_tuple(self) -> tuple:
         """Generate a tuple of this fix for deduping."""
         return (self.source_slice, self.fixed_raw)
 
@@ -737,7 +737,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return cls._cache_key
 
     @classmethod
-    def is_optional(cls):
+    def is_optional(cls) -> bool:
         """Return True if this segment is optional.
 
         This is used primarily in sequence matching, where optional
@@ -746,7 +746,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return cls.optional
 
     @classmethod
-    def class_is_type(cls, *seg_type):
+    def class_is_type(cls, *seg_type) -> bool:
         """Is this segment class (or its parent) of the given type."""
         # Use set intersection
         if cls._class_types.intersection(seg_type):
@@ -904,11 +904,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
         else:
             return 1
 
-    def is_type(self, *seg_type):
+    def is_type(self, *seg_type) -> bool:
         """Is this segment (or its parent) of the given type."""
         return self.class_is_type(*seg_type)
 
-    def invalidate_caches(self):
+    def invalidate_caches(self) -> None:
         """Invalidate the cached properties.
 
         This should be called whenever the segments within this
@@ -937,7 +937,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             self.raw,
         )
 
-    def stringify(self, ident=0, tabsize=4, code_only=False):
+    def stringify(self, ident=0, tabsize=4, code_only=False) -> str:
         """Use indentation to render this segment and its children as a string."""
         buff = StringIO()
         preface = self._preface(ident=ident, tabsize=tabsize)
@@ -1056,14 +1056,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
         for s in self.segments:
             yield from s.iter_unparsables()
 
-    def type_set(self):
+    def type_set(self) -> set:
         """Return a set of the types contained, mostly for testing."""
         typs = {self.type}
         for s in self.segments:
             typs |= s.type_set()
         return typs
 
-    def is_raw(self):
+    def is_raw(self) -> bool:
         """Return True if this segment has no children."""
         return len(self.segments) == 0
 
@@ -1074,7 +1074,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 return seg
         return None
 
-    def get_children(self, *seg_type):
+    def get_children(self, *seg_type) -> list:
         """Retrieve the all of the children of this segment with matching type."""
         buff = []
         for seg in self.segments:
@@ -1088,7 +1088,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         stop_seg: Optional["BaseSegment"] = None,
         select_if: Optional[Callable[["BaseSegment"], Any]] = None,
         loop_while: Optional[Callable[["BaseSegment"], Any]] = None,
-    ):
+    ) -> list:
         """Retrieve subset of children based on range and filters.
 
         Often useful by linter rules when generating fixes, e.g. to find
@@ -1500,7 +1500,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
             anchor_info[anchor_id].add(fix)
         return dict(anchor_info)
 
-    def _validate_segment_after_fixes(self, rule_code, dialect, fixes_applied, segment):
+    def _validate_segment_after_fixes(
+        self, rule_code, dialect, fixes_applied, segment
+    ) -> None:
         """Checks correctness of new segment against match or parse grammar."""
         root_parse_context = RootParseContext(dialect=dialect)
         with root_parse_context as parse_context:
@@ -1771,7 +1773,7 @@ class UnparsableSegment(BaseSegment):
     comment_separate = True
     _expected = ""
 
-    def __init__(self, *args, expected="", **kwargs):
+    def __init__(self, *args, expected="", **kwargs) -> None:
         self._expected = expected
         super().__init__(*args, **kwargs)
 
@@ -1818,7 +1820,7 @@ class BaseFileSegment(BaseSegment):
         """File path of a parsed SQL file."""
         return self._file_path
 
-    def get_table_references(self):
+    def get_table_references(self) -> set:
         """Use parsed tree to extract table references."""
         references = set()
         for stmt in self.get_children("statement"):

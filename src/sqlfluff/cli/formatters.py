@@ -458,7 +458,7 @@ class OutputStreamFormatter:
             out_buff += line
         return out_buff
 
-    def format_linting_stats(self, result, verbose=0):
+    def format_linting_stats(self, result, verbose=0) -> str:
         """Format a set of stats given a `LintingResult`."""
         text_buffer = StringIO()
         all_stats = result.stats()
@@ -568,7 +568,7 @@ class OutputStreamFormatter:
         )
         return text_buffer.getvalue()
 
-    def format_dialect_warning(self, dialect):
+    def format_dialect_warning(self, dialect) -> str:
         """Output a warning for parsing errors."""
         return self.colorize(
             (

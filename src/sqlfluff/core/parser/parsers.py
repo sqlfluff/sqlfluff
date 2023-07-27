@@ -111,7 +111,7 @@ class TypedParser(BaseParser):
         type: Optional[str] = None,
         optional: bool = False,
         **segment_kwargs,
-    ):
+    ) -> None:
         # NB: the template in this case is the _target_ type.
         # The type kwarg is the eventual type.
         self.template = template
@@ -123,7 +123,9 @@ class TypedParser(BaseParser):
             **segment_kwargs,
         )
 
-    def simple(cls, parse_context: ParseContext, crumbs=None):
+    def simple(
+        cls, parse_context: ParseContext, crumbs=None
+    ) -> Tuple[frozenset, frozenset]:
         """Does this matcher support a uppercase hash matching route?
 
         TypedParser segment doesn't support matching against raw strings,
@@ -131,7 +133,7 @@ class TypedParser(BaseParser):
         """
         return frozenset(), frozenset((cls.template,))
 
-    def _is_first_match(self, segment: BaseSegment):
+    def _is_first_match(self, segment: BaseSegment) -> bool:
         """Return true if the type matches the target type."""
         return segment.is_type(self.template)
 
@@ -195,7 +197,9 @@ class MultiStringParser(BaseParser):
             **segment_kwargs,
         )
 
-    def simple(self, parse_context: "ParseContext", crumbs=None):
+    def simple(
+        self, parse_context: "ParseContext", crumbs=None
+    ) -> Tuple[frozenset, frozenset]:
         """Return simple options for this matcher.
 
         Because string matchers are not case sensitive we can
@@ -203,7 +207,7 @@ class MultiStringParser(BaseParser):
         """
         return self._simple, frozenset()
 
-    def _is_first_match(self, segment: BaseSegment):
+    def _is_first_match(self, segment: BaseSegment) -> bool:
         """Does the segment provided match according to the current rules."""
         # Is the target a match and IS IT CODE.
         # The latter stops us accidentally matching comments.

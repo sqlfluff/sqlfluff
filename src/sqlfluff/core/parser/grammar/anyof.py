@@ -20,7 +20,7 @@ from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
 class AnyNumberOf(BaseGrammar):
     """A more configurable version of OneOf."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self.max_times = kwargs.pop("max_times", None)
         self.min_times = kwargs.pop("min_times", 0)
         self.max_times_per_element = kwargs.pop("max_times_per_element", None)
@@ -271,7 +271,7 @@ class OneOf(AnyNumberOf):
     length it returns the first (unless we explicitly just match first).
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, max_times=1, min_times=1, **kwargs)
 
 
@@ -282,7 +282,7 @@ class OptionallyBracketed(OneOf):
     they will be.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(
             Bracketed(*args),
             # In the case that there is only one argument, no sequence is required.
@@ -294,5 +294,5 @@ class OptionallyBracketed(OneOf):
 class AnySetOf(AnyNumberOf):
     """Match any number of the elements but each element can only be matched once."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, max_times_per_element=1, **kwargs)

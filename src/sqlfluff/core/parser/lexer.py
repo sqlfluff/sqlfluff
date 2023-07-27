@@ -133,7 +133,7 @@ class StringLexer:
         subdivider=None,
         trim_post_subdivide=None,
         segment_kwargs=None,
-    ):
+    ) -> None:
         self.name = name
         self.template = template
         self.segment_class = segment_class
@@ -273,7 +273,7 @@ class StringLexer:
 class RegexLexer(StringLexer):
     """This RegexLexer matches based on regular expressions."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         # We might want to configure this at some point, but for now, newlines
         # do get matched by .
