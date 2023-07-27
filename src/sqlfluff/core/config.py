@@ -1,6 +1,10 @@
 """Module for loading config."""
 
-from importlib.resources import files
+try:
+    from importlib.resources import files
+except ImportError:  # fallback for python <=3.8
+    from importlib_resources import files
+
 import logging
 import os
 import os.path
