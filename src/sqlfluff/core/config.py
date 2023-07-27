@@ -631,7 +631,7 @@ class ConfigLoader:
     def load_config_file(
         self, file_dir: str, file_name: str, configs: Optional[dict] = None
     ) -> dict:
-        """Load the a config file."""
+        """Load a config file."""
         file_path = os.path.join(file_dir, file_name)
         if file_name == "pyproject.toml":
             elems = self._get_config_elems_from_toml(file_path)
@@ -643,7 +643,7 @@ class ConfigLoader:
     def load_config_string(
         self, config_string: str, configs: Optional[dict] = None
     ) -> dict:
-        """Load the a config from the string in cfg format."""
+        """Load a config from the string in cfg format."""
         elems = self._get_config_elems_from_file(config_string=config_string)
         elems = self._validate_configs(elems, "<config string>")
         return self._incorporate_vals(configs or {}, elems)
