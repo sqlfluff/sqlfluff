@@ -1500,9 +1500,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             anchor_info[anchor_id].add(fix)
         return dict(anchor_info)
 
-    def _validate_segment_after_fixes(
-        self, rule_code, dialect, fixes_applied, segment
-    ):
+    def _validate_segment_after_fixes(self, rule_code, dialect, fixes_applied, segment):
         """Checks correctness of new segment against match or parse grammar."""
         root_parse_context = RootParseContext(dialect=dialect)
         with root_parse_context as parse_context:
