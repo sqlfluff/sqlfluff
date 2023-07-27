@@ -2,7 +2,8 @@
 
 try:
     from importlib.resources import files
-except ImportError:  # fallback for python <=3.8
+except ImportError:  # pragma: no cover
+    # fallback for python <=3.8
     from importlib_resources import files  # type: ignore
 
 import logging
