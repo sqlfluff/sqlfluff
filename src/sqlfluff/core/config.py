@@ -611,7 +611,7 @@ class ConfigLoader:
     def load_config_resource(
         self, package: str, file_name: str, configs: Optional[dict] = None
     ) -> dict:
-        """Load the a config resource.
+        """Load a config resource.
 
         This is however more compatible with mypyc because it avoids
         the use of the __file__ object to find the default config.
