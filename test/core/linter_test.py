@@ -20,7 +20,7 @@ from sqlfluff.core.errors import (
 )
 from sqlfluff.cli.formatters import OutputStreamFormatter
 from sqlfluff.cli.outputstream import make_output_stream
-from sqlfluff.core.linter import LintingResult, NoQaDirective
+from sqlfluff.core.linter import LintingResult, NoQaDirective, IgnoreMask
 from sqlfluff.core.linter.runner import get_runner
 import sqlfluff.core.linter as linter
 from sqlfluff.core.parser import GreedyUntil, Ref
@@ -763,16 +763,7 @@ def test_linted_file_ignore_masked_violations(
 ):
     """Test that _ignore_masked_violations() correctly filters violations."""
     ignore_mask = [Linter.parse_noqa(reference_map=dummy_rule_map, **c) for c in noqa]
-    lf = linter.LintedFile(
-        path="",
-        violations=violations,
-        timings=None,
-        tree=None,
-        ignore_mask=ignore_mask,
-        templated_file=TemplatedFile.from_string(""),
-        encoding="utf8",
-    )
-    result = lf.ignore_masked_violations(violations, ignore_mask)
+    result = IgnoreMask(ignore_mask).ignore_masked_violations(violations)
     expected_violations = [v for i, v in enumerate(violations) if i in expected]
     assert expected_violations == result
 

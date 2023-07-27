@@ -24,14 +24,6 @@ class RuleTuple(NamedTuple):
     aliases: Tuple[str, ...]
 
 
-class NoQaDirective(NamedTuple):
-    """Parsed version of a 'noqa' comment."""
-
-    line_no: int  # Source line number
-    rules: Optional[Tuple[str, ...]]  # Affected rule names
-    action: Optional[str]  # "enable", "disable", or "None"
-
-
 class RenderedFile(NamedTuple):
     """An object to store the result of a templated file/string.
 

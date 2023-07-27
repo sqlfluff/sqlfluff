@@ -45,9 +45,9 @@ from sqlfluff.core.rules import BaseRule, RulePack
 from sqlfluff.core.linter.common import (
     RuleTuple,
     ParsedString,
-    NoQaDirective,
     RenderedFile,
 )
+from sqlfluff.core.linter.noqa import NoQaDirective
 from sqlfluff.core.linter.linted_file import (
     LintedFile,
     FileTimings,
