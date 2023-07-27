@@ -24,7 +24,6 @@ from sqlfluff.core.linter import LintingResult, NoQaDirective, IgnoreMask
 from sqlfluff.core.linter.runner import get_runner
 import sqlfluff.core.linter as linter
 from sqlfluff.core.parser import GreedyUntil, Ref
-from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 
 
@@ -555,7 +554,7 @@ dummy_rule_map = Linter().get_rulepack().reference_map
 )
 def test_parse_noqa(input, expected):
     """Test correct of "noqa" comments."""
-    result = Linter.parse_noqa(input, 0, reference_map=dummy_rule_map)
+    result = IgnoreMask._parse_noqa(input, 0, reference_map=dummy_rule_map)
     if not isinstance(expected, type):
         assert result == expected
     else:
@@ -565,7 +564,7 @@ def test_parse_noqa(input, expected):
 
 def test_parse_noqa_no_dups():
     """Test overlapping glob expansions don't return duplicate rules in noqa."""
-    result = Linter.parse_noqa(
+    result = IgnoreMask._parse_noqa(
         comment="noqa:L0*5,L01*", line_no=0, reference_map=dummy_rule_map
     )
     assert len(result.rules) == len(set(result.rules))
@@ -762,7 +761,9 @@ def test_linted_file_ignore_masked_violations(
     noqa: dict, violations: List[SQLBaseError], expected
 ):
     """Test that _ignore_masked_violations() correctly filters violations."""
-    ignore_mask = [Linter.parse_noqa(reference_map=dummy_rule_map, **c) for c in noqa]
+    ignore_mask = [
+        IgnoreMask._parse_noqa(reference_map=dummy_rule_map, **c) for c in noqa
+    ]
     result = IgnoreMask(ignore_mask).ignore_masked_violations(violations)
     expected_violations = [v for i, v in enumerate(violations) if i in expected]
     assert expected_violations == result

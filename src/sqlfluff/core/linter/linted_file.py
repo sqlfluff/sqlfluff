@@ -36,7 +36,7 @@ from sqlfluff.core.templaters import TemplatedFile, RawFileSlice
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments import BaseSegment, FixPatch
 
-from sqlfluff.core.linter.noqa import NoQaDirective, IgnoreMask
+from sqlfluff.core.linter.noqa import IgnoreMask
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
@@ -75,7 +75,7 @@ class LintedFile(NamedTuple):
     violations: List[SQLBaseError]
     timings: Optional[FileTimings]
     tree: Optional[BaseSegment]
-    ignore_mask: List[NoQaDirective]
+    ignore_mask: Optional[IgnoreMask]
     templated_file: TemplatedFile
     encoding: str
 
@@ -160,10 +160,7 @@ class LintedFile(NamedTuple):
             violations = [v for v in violations if not v.ignore]
             # Ignore any rules in the ignore mask
             if self.ignore_mask:
-                ##### TODO: Instantiate earlier.
-                violations = IgnoreMask(self.ignore_mask).ignore_masked_violations(
-                    violations
-                )
+                violations = self.ignore_mask.ignore_masked_violations(violations)
         # Filter warning violations
         if filter_warning:
             violations = [v for v in violations if not v.warning]

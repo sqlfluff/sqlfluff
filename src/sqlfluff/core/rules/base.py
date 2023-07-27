@@ -41,7 +41,7 @@ from collections import namedtuple, defaultdict
 
 from sqlfluff.core.config import FluffConfig, split_comma_separated_string
 
-from sqlfluff.core.linter import NoQaDirective, IgnoreMask
+from sqlfluff.core.linter import IgnoreMask
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.dialects import Dialect
 from sqlfluff.core.errors import SQLLintError, SQLFluffUserError
@@ -766,7 +766,7 @@ class BaseRule(metaclass=RuleMetaclass):
         dialect: Dialect,
         fix: bool,
         templated_file: Optional["TemplatedFile"],
-        ignore_mask: List[NoQaDirective],
+        ignore_mask: Optional[IgnoreMask],
         fname: Optional[str],
         config: FluffConfig,
     ) -> Tuple[List[SQLLintError], Tuple[RawSegment, ...], List[LintFix], Any]:
@@ -881,7 +881,13 @@ class BaseRule(metaclass=RuleMetaclass):
         pass
 
     def _process_lint_result(
-        self, res, templated_file, ignore_mask, new_lerrs, new_fixes, root
+        self,
+        res: LintResult,
+        templated_file: Optional[TemplatedFile],
+        ignore_mask: Optional[IgnoreMask],
+        new_lerrs: List[SQLLintError],
+        new_fixes: List[LintFix],
+        root: BaseSegment,
     ):
         # Unless the rule declares that it's already template safe. Do safety
         # checks.
@@ -921,7 +927,7 @@ class BaseRule(metaclass=RuleMetaclass):
                     break
 
             if lerr and ignore_mask:
-                filtered = IgnoreMask(ignore_mask).ignore_masked_violations([lerr])
+                filtered = ignore_mask.ignore_masked_violations([lerr])
                 if not filtered:
                     lerr = None
                     ignored = True
