@@ -8,16 +8,17 @@ from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.context import ParseContext
+from sqlfluff.core.parser.grammar.base import SimpleHintType
 
 
 class NonCodeMatcher(Matchable):
     """An object which behaves like a matcher to match non-code."""
 
-    def simple(self, parse_context: ParseContext, crumbs=None):
+    def simple(self, parse_context: ParseContext, crumbs=None) -> SimpleHintType:
         """This element doesn't work with simple."""
         return None
 
-    def is_optional(self):  # pragma: no cover TODO?
+    def is_optional(self) -> bool:  # pragma: no cover TODO?
         """Not optional."""
         return False
 
@@ -31,7 +32,7 @@ class NonCodeMatcher(Matchable):
         return "non-code-matcher"
 
     @match_wrapper(v_level=4)
-    def match(self, segments, parse_context):
+    def match(self, segments, parse_context) -> MatchResult:
         """Match any starting non-code segments."""
         if not isinstance(segments, tuple):  # pragma: no cover
             raise TypeError("NonCodeMatcher expects a tuple.")

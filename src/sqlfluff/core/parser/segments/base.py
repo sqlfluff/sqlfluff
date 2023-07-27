@@ -166,12 +166,12 @@ class AnchorEditInfo:
         setattr(self, fix.edit_type, getattr(self, fix.edit_type) + 1)
 
     @property
-    def total(self):
+    def total(self) -> int:
         """Returns total count of fixes."""
         return len(self.fixes)
 
     @property
-    def is_valid(self):
+    def is_valid(self) -> bool:
         """Returns True if valid combination of fixes for anchor.
 
         Cases:
@@ -350,12 +350,12 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # ################ PRIVATE PROPERTIES
 
     @property
-    def _comments(self):
+    def _comments(self) -> List["BaseSegment"]:
         """Returns only the comment elements of this segment."""
         return [seg for seg in self.segments if seg.is_type("comment")]
 
     @property
-    def _non_comments(self):  # pragma: no cover TODO?
+    def _non_comments(self) -> List["BaseSegment"]:  # pragma: no cover TODO?
         """Returns only the non-comment elements of this segment."""
         return [seg for seg in self.segments if not seg.is_type("comment")]
 
@@ -1814,7 +1814,7 @@ class BaseFileSegment(BaseSegment):
         super().__init__(segments, pos_marker=pos_marker)
 
     @property
-    def file_path(self):
+    def file_path(self) -> Optional[str]:
         """File path of a parsed SQL file."""
         return self._file_path
 

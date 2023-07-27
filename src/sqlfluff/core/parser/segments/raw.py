@@ -75,47 +75,47 @@ class RawSegment(BaseSegment):
     # ################ PUBLIC PROPERTIES
 
     @property
-    def matched_length(self):
+    def matched_length(self) -> int:
         """Return the length of the segment in characters."""
         return len(self._raw)
 
     @property
-    def is_expandable(self):
+    def is_expandable(self) -> bool:
         """Return true if it is meaningful to call `expand` on this segment."""
         return False
 
     @property
-    def is_code(self):
+    def is_code(self) -> bool:
         """Return True if this segment is code."""
         return self._is_code
 
     @property
-    def is_comment(self):
+    def is_comment(self) -> bool:
         """Return True if this segment is a comment."""
         return self._is_comment
 
     @property
-    def is_whitespace(self):
+    def is_whitespace(self) -> bool:
         """Return True if this segment is whitespace."""
         return self._is_whitespace
 
     @property
-    def raw(self):
+    def raw(self) -> str:
         """Returns the raw segment."""
         return self._raw
 
     @property
-    def raw_upper(self):
+    def raw_upper(self) -> str:
         """Returns the raw segment in uppercase."""
         return self._raw_upper
 
     @property
-    def raw_segments(self):
+    def raw_segments(self) -> List["RawSegment"]:
         """Returns self to be compatible with calls to its superclass."""
         return [self]
 
     @property
-    def segments(self):
+    def segments(self) -> List["BaseSegment"]:
         """Return an empty list of child segments.
 
         This is in case something tries to iterate on this segment.
