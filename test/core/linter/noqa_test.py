@@ -1,4 +1,4 @@
-"""The Test file for the linter class."""
+"""Tests for applying noqa directives and the IgnoreMask."""
 
 from typing import List
 import pytest

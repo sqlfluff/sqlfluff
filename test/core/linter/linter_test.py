@@ -1,4 +1,4 @@
-"""The Test file for the linter class."""
+"""Tests for the Linter class and LintingResult class."""
 
 import os
 import logging
@@ -20,7 +20,6 @@ from sqlfluff.cli.formatters import OutputStreamFormatter
 from sqlfluff.cli.outputstream import make_output_stream
 from sqlfluff.core.linter import LintingResult
 from sqlfluff.core.linter.runner import get_runner
-import sqlfluff.core.linter as linter
 from sqlfluff.core.parser import GreedyUntil, Ref
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 
@@ -500,59 +499,6 @@ def test__attempt_to_change_templater_warning():
             encoding="utf-8",
         )
     assert "Attempt to set templater to " in caplog.text
-
-
-@pytest.mark.parametrize(
-    "case",
-    [
-        dict(
-            name="utf8_create",
-            fname="test.sql",
-            encoding="utf-8",
-            existing=None,
-            update="def",
-            expected="def",
-        ),
-        dict(
-            name="utf8_update",
-            fname="test.sql",
-            encoding="utf-8",
-            existing="abc",
-            update="def",
-            expected="def",
-        ),
-        dict(
-            name="utf8_special_char",
-            fname="test.sql",
-            encoding="utf-8",
-            existing="abc",
-            update="→",  # Special utf-8 character
-            expected="→",
-        ),
-        dict(
-            name="incorrect_encoding",
-            fname="test.sql",
-            encoding="Windows-1252",
-            existing="abc",
-            update="→",  # Not valid in Windows-1252
-            expected="abc",  # File should be unchanged
-        ),
-    ],
-    ids=lambda case: case["name"],
-)
-def test_safe_create_replace_file(case, tmp_path):
-    """Test creating or updating .sql files, various content and encoding."""
-    p = tmp_path / case["fname"]
-    if case["existing"]:
-        p.write_text(case["existing"])
-    try:
-        linter.LintedFile._safe_create_replace_file(
-            str(p), str(p), case["update"], case["encoding"]
-        )
-    except:  # noqa: E722
-        pass
-    actual = p.read_text(encoding=case["encoding"])
-    assert case["expected"] == actual
 
 
 def test_advanced_api_methods():
