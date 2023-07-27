@@ -2,7 +2,17 @@
 
 import copy
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List, Optional, Union, Type, Tuple, Any, cast
+from typing import (
+    TYPE_CHECKING,
+    List,
+    Optional,
+    Union,
+    Type,
+    Tuple,
+    Any,
+    cast,
+    FrozenSet,
+)
 from uuid import uuid4
 
 from sqlfluff.core.errors import SQLParseError
@@ -22,6 +32,7 @@ from sqlfluff.core.parser.parsers import BaseParser
 
 # Either a Matchable (a grammar or parser) or a Segment CLASS
 MatchableType = Union[Matchable, Type[BaseSegment]]
+SimpleHintType = Optional[Tuple[FrozenSet[str], FrozenSet[str]]]
 
 if TYPE_CHECKING:
     from sqlfluff.core.dialects.base import Dialect  # pragma: no cover
@@ -205,7 +216,9 @@ class BaseGrammar(Matchable):
 
     @match_wrapper()
     @allow_ephemeral
-    def match(self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext):
+    def match(
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> MatchResult:
         """Match a list of segments against this segment.
 
         Matching can be done from either the raw or the segments.
@@ -217,7 +230,7 @@ class BaseGrammar(Matchable):
         )  # pragma: no cover
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext, crumbs=None):
+    def simple(self, parse_context: ParseContext, crumbs=None) -> SimpleHintType:
         """Does this matcher support a lowercase hash matching route?"""
         return None
 

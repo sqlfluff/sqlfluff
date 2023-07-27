@@ -22,6 +22,7 @@ from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
     MatchableType,
+    SimpleHintType,
     cached_method_for_parse_context,
 )
 from sqlfluff.core.parser.grammar.conditional import Conditional
@@ -71,7 +72,7 @@ class Sequence(BaseGrammar):
     test_env = getenv("SQLFLUFF_TESTENV", "")
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext, crumbs=None):
+    def simple(self, parse_context: ParseContext, crumbs=None) -> SimpleHintType:
         """Does this matcher support a uppercase hash matching route?
 
         Sequence does provide this, as long as the *first* non-optional

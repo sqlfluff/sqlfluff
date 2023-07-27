@@ -33,7 +33,7 @@ class EphemeralSegment(BaseSegment):
         return self.ephemeral_name
 
     @property
-    def is_expandable(self):
+    def is_expandable(self) -> bool:
         """Ephemeral segments are always expandable.
 
         They should dissolve after expansion. So if it exists, it's expandable.
