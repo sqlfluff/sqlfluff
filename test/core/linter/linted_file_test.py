@@ -1,4 +1,4 @@
-"""The Test file for the linter class."""
+"""Tests covering the LintedFile class and it's methods."""
 
 import pytest
 import logging
@@ -366,3 +366,56 @@ def test__linted_file__generate_source_patches(
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.linter"):
         result = LintedFile._generate_source_patches(tree, templated_file)
     assert result == expected_result
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        dict(
+            name="utf8_create",
+            fname="test.sql",
+            encoding="utf-8",
+            existing=None,
+            update="def",
+            expected="def",
+        ),
+        dict(
+            name="utf8_update",
+            fname="test.sql",
+            encoding="utf-8",
+            existing="abc",
+            update="def",
+            expected="def",
+        ),
+        dict(
+            name="utf8_special_char",
+            fname="test.sql",
+            encoding="utf-8",
+            existing="abc",
+            update="→",  # Special utf-8 character
+            expected="→",
+        ),
+        dict(
+            name="incorrect_encoding",
+            fname="test.sql",
+            encoding="Windows-1252",
+            existing="abc",
+            update="→",  # Not valid in Windows-1252
+            expected="abc",  # File should be unchanged
+        ),
+    ],
+    ids=lambda case: case["name"],
+)
+def test_safe_create_replace_file(case, tmp_path):
+    """Test creating or updating .sql files, various content and encoding."""
+    p = tmp_path / case["fname"]
+    if case["existing"]:
+        p.write_text(case["existing"])
+    try:
+        LintedFile._safe_create_replace_file(
+            str(p), str(p), case["update"], case["encoding"]
+        )
+    except:  # noqa: E722
+        pass
+    actual = p.read_text(encoding=case["encoding"])
+    assert case["expected"] == actual

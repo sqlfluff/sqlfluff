@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: feac558779eab5cd039ec703125209de00ded78733b832070559793932bc656b
+_hash: 9e6988348c99ebb219984d286dc8aa9beaaab8121d85729dcf544e6479c2c596
 file:
 - statement:
     merge_statement:
@@ -75,8 +75,7 @@ file:
                   column_reference:
                     naked_identifier: quantity
               - comma: ','
-              - expression:
-                  boolean_literal: 'TRUE'
+              - boolean_literal: 'TRUE'
               - end_bracket: )
       - not_matched_by_target_clause:
         - keyword: WHEN
@@ -108,8 +107,7 @@ file:
                   column_reference:
                     naked_identifier: quantity
               - comma: ','
-              - expression:
-                  boolean_literal: 'FALSE'
+              - boolean_literal: 'FALSE'
               - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -183,8 +181,7 @@ file:
                   column_reference:
                     naked_identifier: quantity
               - comma: ','
-              - expression:
-                  boolean_literal: 'TRUE'
+              - boolean_literal: 'TRUE'
               - end_bracket: )
       - not_matched_by_target_clause:
         - keyword: WHEN
@@ -216,8 +213,7 @@ file:
                   column_reference:
                     naked_identifier: quantity
               - comma: ','
-              - expression:
-                  boolean_literal: 'FALSE'
+              - boolean_literal: 'FALSE'
               - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -671,8 +667,7 @@ file:
                   column_reference:
                     naked_identifier: quantity
               - comma: ','
-              - expression:
-                  boolean_literal: 'TRUE'
+              - boolean_literal: 'TRUE'
               - end_bracket: )
       - not_matched_by_target_clause:
         - keyword: WHEN
@@ -706,8 +701,7 @@ file:
                   column_reference:
                     naked_identifier: quantity
               - comma: ','
-              - expression:
-                  boolean_literal: 'FALSE'
+              - boolean_literal: 'FALSE'
               - end_bracket: )
 - statement_terminator: ;
 - statement:

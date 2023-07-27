@@ -8,6 +8,7 @@ to common configuration and dialects, logging and also the parse
 and match depth of the current operation.
 """
 
+from collections import defaultdict
 import logging
 import uuid
 from typing import Optional, TYPE_CHECKING, Dict
@@ -47,6 +48,12 @@ class RootParseContext:
         # A dict for parse caching. This is reset for each file,
         # but persists for the duration of an individual file parse.
         self._parse_cache = {}
+        # A dictionary for keeping track of some statistics on parsing
+        # for performance optimisation.
+        # Focused around BaseGrammar._longest_trimmed_match().
+        # Initialise only with "next_counts", the rest will be int
+        # and are dealt with in .increment().
+        self.parse_stats = {"next_counts": defaultdict(int)}
 
     @classmethod
     def from_config(cls, config, **overrides: Dict[str, bool]) -> "RootParseContext":
@@ -108,7 +115,14 @@ class ParseContext:
 
     # We create and destroy many ParseContexts, so we limit the slots
     # to improve performance.
-    __slots__ = ["match_depth", "parse_depth", "match_segment", "recurse", "_root_ctx"]
+    __slots__ = [
+        "match_depth",
+        "parse_depth",
+        "match_segment",
+        "recurse",
+        "terminators",
+        "_root_ctx",
+    ]
 
     def __init__(self, root_ctx, recurse=True):
         self._root_ctx = root_ctx
@@ -118,6 +132,7 @@ class ParseContext:
         self.match_segment = None
         self.match_depth = 0
         self.parse_depth = 0
+        self.terminators = []  # NOTE: Includes inherited parent terminators.
 
     def __getattr__(self, name):
         """If the attribute doesn't exist on this, revert to the root."""
@@ -134,7 +149,12 @@ class ParseContext:
         """Mimic the copy.copy() method but restrict only to local vars."""
         ctx = self.__class__(root_ctx=self._root_ctx)
         for key in self.__slots__:
-            setattr(ctx, key, getattr(self, key))
+            if key == "terminators":
+                # For terminators, make sure we actually copy the list.
+                # This makes sure we don't keep a reference to the parent list.
+                setattr(ctx, key, getattr(self, key).copy())
+            else:
+                setattr(ctx, key, getattr(self, key))
         return ctx
 
     def __enter__(self):
@@ -162,6 +182,8 @@ class ParseContext:
             ctx.recurse -= 1
         ctx.parse_depth += 1
         ctx.match_depth = 0
+        # Clear terminators here. Inner parsing shouldn't inherit terminators.
+        ctx.clear_terminators()
         return ctx
 
     def may_recurse(self):
@@ -189,6 +211,21 @@ class ParseContext:
     def put_parse_cache(self, loc_key: tuple, matcher_key: str, match: "MatchResult"):
         """Store a match in the cache for later retrieval."""
         self._root_ctx._parse_cache[(loc_key, matcher_key)] = match
+
+    def increment(self, key: str, default: int = 0) -> None:
+        """Increment one of the parse stats by name."""
+        self._root_ctx.parse_stats[key] = self._root_ctx.parse_stats.get(key, 0) + 1
+
+    def push_terminators(self, new_terminators: list) -> None:
+        """Push any new terminators onto the stack."""
+        # Yes, inefficient for now.
+        for term in new_terminators:
+            if term not in self.terminators:
+                self.terminators.append(term)
+
+    def clear_terminators(self) -> None:
+        """Clear any inherited terminators from this context."""
+        self.terminators = []
 
 
 class ParseDenylist:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1ff2d38b52827e471ccf75a76808c29ef9badfb837caacad56d7b5ad51d417f8
+_hash: e03e6e2bd7c91bcd31b904eef0ab506b9fb6ae6aac8c1033c731be2d8fd9427f
 file:
 - statement:
     select_statement:
@@ -432,30 +432,28 @@ file:
           start_bracket: (
           values_clause:
           - keyword: VALUES
-          - expression:
-              bracketed:
-              - start_bracket: (
-              - quoted_literal: "'a'"
-              - comma: ','
-              - quoted_literal: "'b'"
-              - comma: ','
-              - quoted_literal: "'c'"
-              - end_bracket: )
+          - bracketed:
+            - start_bracket: (
+            - quoted_literal: "'a'"
+            - comma: ','
+            - quoted_literal: "'b'"
+            - comma: ','
+            - quoted_literal: "'c'"
+            - end_bracket: )
           - comma: ','
-          - expression:
-              bracketed:
-              - start_bracket: (
-              - quoted_literal: "'d'"
-              - comma: ','
-              - quoted_literal: "'e'"
-              - comma: ','
-              - quoted_literal: "'f'"
-              - end_bracket: )
+          - bracketed:
+            - start_bracket: (
+            - quoted_literal: "'d'"
+            - comma: ','
+            - quoted_literal: "'e'"
+            - comma: ','
+            - quoted_literal: "'f'"
+            - end_bracket: )
           - comma: ','
-          - expression:
-              bracketed:
-              - start_bracket: (
-              - function:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+                function:
                   function_name:
                     function_name_identifier: f1
                   bracketed:
@@ -463,11 +461,11 @@ file:
                     expression:
                       quoted_literal: "'a'"
                     end_bracket: )
-              - comma: ','
-              - quoted_literal: "'b'"
-              - comma: ','
-              - quoted_literal: "'d'"
-              - end_bracket: )
+            - comma: ','
+            - quoted_literal: "'b'"
+            - comma: ','
+            - quoted_literal: "'d'"
+            - end_bracket: )
           - alias_expression:
               keyword: AS
               naked_identifier: mylist
@@ -625,11 +623,9 @@ file:
                 keyword: values
                 bracketed:
                 - start_bracket: (
-                - expression:
-                    quoted_literal: "'x'"
+                - quoted_literal: "'x'"
                 - comma: ','
-                - expression:
-                    quoted_literal: "'y'"
+                - quoted_literal: "'y'"
                 - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -649,11 +645,9 @@ file:
                 keyword: values
                 bracketed:
                 - start_bracket: (
-                - expression:
-                    quoted_literal: "'x'"
+                - quoted_literal: "'x'"
                 - comma: ','
-                - expression:
-                    quoted_literal: "'y'"
+                - quoted_literal: "'y'"
                 - end_bracket: )
                 alias_expression:
                   keyword: AS

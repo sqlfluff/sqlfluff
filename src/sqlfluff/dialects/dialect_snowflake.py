@@ -773,6 +773,7 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
                 Ref("SingleIdentifierGrammar"),
                 Ref("DotSegment"),
             ),
+            terminators=[Ref("BracketedSegment")],
         ),
         # Base function name
         OneOf(
@@ -2366,8 +2367,14 @@ class AccessStatementSegment(BaseSegment):
                 ),
                 optional=True,
             ),
-            Delimited(Ref("ObjectReferenceSegment"), terminator=OneOf("TO", "FROM")),
-            Ref("FunctionParameterListGrammar", optional=True),
+            Delimited(
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    Ref("FunctionNameSegment"),
+                    Ref("FunctionParameterListGrammar", optional=True),
+                ),
+                terminator=OneOf("TO", "FROM"),
+            ),
         ),
     )
 

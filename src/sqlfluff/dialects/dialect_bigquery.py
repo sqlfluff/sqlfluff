@@ -862,11 +862,13 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
                 OneOf("SAFE", Ref("SingleIdentifierGrammar")),
                 Ref("DotSegment"),
             ),
+            terminators=[Ref("BracketedSegment")],
         ),
         # Base function name
         OneOf(
             Ref("FunctionNameIdentifierSegment"),
             Ref("QuotedIdentifierSegment"),
+            terminators=[Ref("BracketedSegment")],
         ),
         # BigQuery allows whitespaces between the `.` of a function refrence or
         # SAFE prefix. Keeping the explicit `allow_gaps=True` here to
