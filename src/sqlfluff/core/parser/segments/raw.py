@@ -195,7 +195,7 @@ class RawSegment(BaseSegment):
 
     def edit(
         self, raw: Optional[str] = None, source_fixes: Optional[List[SourceFix]] = None
-    ) -> BaseSegment:
+    ) -> "RawSegment":
         """Create a new segment, with exactly the same position but different content.
 
         Returns:

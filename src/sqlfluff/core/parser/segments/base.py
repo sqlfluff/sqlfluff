@@ -1502,7 +1502,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def _validate_segment_after_fixes(
         self, rule_code, dialect, fixes_applied, segment
-    ) -> None:
+    ):
         """Checks correctness of new segment against match or parse grammar."""
         root_parse_context = RootParseContext(dialect=dialect)
         with root_parse_context as parse_context:

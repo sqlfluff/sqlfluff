@@ -3,12 +3,11 @@
 import os
 from importlib import import_module
 from glob import glob
-from typing import AnyStr
 
 
 def get_rules_from_path(
     # All rule files are expected in the format of L*.py
-    rules_path: AnyStr = os.path.abspath(
+    rules_path = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "../../rules", "L*.py")
     ),
     base_module: str = "sqlfluff.rules",
