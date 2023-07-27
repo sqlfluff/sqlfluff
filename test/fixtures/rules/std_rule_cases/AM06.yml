@@ -671,3 +671,14 @@ test_fail_groupby_rollup_sparksql:
   configs:
     core:
       dialect: sparksql
+
+test_pass_array_agg_bigquery:
+  pass_str: |
+    SELECT
+        to_json_string(array_agg(product_id order by started_at desc)) AS products
+    FROM purchased
+    GROUP by 1
+
+  configs:
+    core:
+      dialect: bigquery
