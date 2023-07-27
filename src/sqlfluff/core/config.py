@@ -444,6 +444,7 @@ class ConfigLoader:
         if fpath:
             config.read(fpath)
         else:
+            assert config_string
             config.read_string(config_string)
 
         for k in config.sections():
@@ -637,6 +638,14 @@ class ConfigLoader:
         else:
             elems = self._get_config_elems_from_file(file_path)
         elems = self._validate_configs(elems, file_path)
+        return self._incorporate_vals(configs or {}, elems)
+
+    def load_config_string(
+        self, config_string: str, configs: Optional[dict] = None
+    ) -> dict:
+        """Load the a config from the string in cfg format."""
+        elems = self._get_config_elems_from_file(config_string=config_string)
+        elems = self._validate_configs(elems, "<config string>")
         return self._incorporate_vals(configs or {}, elems)
 
     def load_config_at_path(self, path: str) -> dict:
@@ -966,6 +975,26 @@ class FluffConfig:
             ignore_local_config=ignore_local_config,
             overrides=overrides,
             **kw,
+        )
+
+    @classmethod
+    def from_string(
+        cls,
+        config_string: str,
+        extra_config_path: Optional[str] = None,
+        ignore_local_config: bool = False,
+        overrides: Optional[dict] = None,
+        plugin_manager: Optional[pluggy.PluginManager] = None,
+    ) -> "FluffConfig":
+        """Loads a config object given a particular path."""
+        loader = ConfigLoader.get_global()
+        c = loader.load_config_string(config_string)
+        return cls(
+            configs=c,
+            extra_config_path=extra_config_path,
+            ignore_local_config=ignore_local_config,
+            overrides=overrides,
+            plugin_manager=plugin_manager,
         )
 
     @classmethod
