@@ -9,7 +9,7 @@ import regex
 from typing import Collection, Type, Optional, Tuple, Union
 
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.grammar.base import SimpleHintType
+from sqlfluff.core.parser.grammar.types import SimpleHintType
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.segments import RawSegment, BaseSegment
