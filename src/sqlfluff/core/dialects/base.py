@@ -35,7 +35,7 @@ class Dialect:
         sets=None,
         inherits_from=None,
         root_segment_name=None,
-    ):
+    ) -> None:
         self._library = library or {}
         self.name = name
         self.lexer_matchers = lexer_matchers
@@ -135,7 +135,7 @@ class Dialect:
             root_segment_name=self.root_segment_name,
         )
 
-    def add(self, **kwargs: DialectElementType):
+    def add(self, **kwargs: DialectElementType) -> None:
         """Add a segment to the dialect directly.
 
         This is the alternative to the decorator route, most useful for segments
@@ -152,7 +152,7 @@ class Dialect:
                 raise ValueError(f"{n!r} is already registered in {self!r}")
             self._library[n] = kwargs[n]
 
-    def replace(self, **kwargs: DialectElementType):
+    def replace(self, **kwargs: DialectElementType) -> None:
         """Override a segment on the dialect directly.
 
         Usage is very similar to add, but elements specified must already exist.
@@ -307,7 +307,7 @@ class Dialect:
                 )
             )
 
-    def set_lexer_matchers(self, lexer_matchers):
+    def set_lexer_matchers(self, lexer_matchers) -> None:
         """Set the lexer struct for the dialect.
 
         This is what is used for base dialects. For derived dialects

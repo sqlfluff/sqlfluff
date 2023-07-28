@@ -65,7 +65,7 @@ class RawFileSlice(NamedTuple):
     # Block index, incremented on start or end block tags, e.g. "if", "for"
     block_idx: int = 0
 
-    def end_source_idx(self):
+    def end_source_idx(self) -> int:
         """Return the closing index of this slice."""
         return self.source_idx + len(self.raw)
 
@@ -73,7 +73,7 @@ class RawFileSlice(NamedTuple):
         """Return the a slice object for this slice."""
         return slice(self.source_idx, self.end_source_idx())
 
-    def is_source_only_slice(self):
+    def is_source_only_slice(self) -> bool:
         """Based on its slice_type, does it only appear in the *source*?
 
         There are some slice types which are automatically source only.
