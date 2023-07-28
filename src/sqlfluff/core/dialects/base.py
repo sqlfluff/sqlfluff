@@ -44,7 +44,7 @@ class Dialect:
         self.inherits_from = inherits_from
         self.root_segment_name = root_segment_name
 
-    def __repr__(self):  # pragma: no cover
+    def __repr__(self) -> str:  # pragma: no cover
         return f"<Dialect: {self.name}>"
 
     def expand(self) -> "Dialect":
@@ -109,7 +109,7 @@ class Dialect:
             [n.strip().upper() for n in values.strip().split("\n")]
         )
 
-    def copy_as(self, name):
+    def copy_as(self, name) -> "Dialect":
         """Copy this dialect and create a new one with a different name.
 
         This is the primary method for inheritance, after which, the
@@ -219,7 +219,7 @@ class Dialect:
                                 )
             self._library[n] = cls
 
-    def add_update_segments(self, module_dct):
+    def add_update_segments(self, module_dct: dict) -> None:
         """Scans module dictionary, adding or replacing segment definitions."""
         for k, v in module_dct.items():
             if isinstance(v, type) and issubclass(v, BaseSegment):
@@ -324,7 +324,7 @@ class Dialect:
         else:  # pragma: no cover
             raise ValueError(f"Lexing struct has not been set for dialect {self}")
 
-    def patch_lexer_matchers(self, lexer_patch):
+    def patch_lexer_matchers(self, lexer_patch) -> None:
         """Patch an existing lexer struct.
 
         Used to edit the lexer of a sub-dialect.
@@ -344,7 +344,7 @@ class Dialect:
         # Overwrite with the buffer once we're done
         self.lexer_matchers = buff
 
-    def insert_lexer_matchers(self, lexer_patch, before):
+    def insert_lexer_matchers(self, lexer_patch, before) -> None:
         """Insert new records into an existing lexer struct.
 
         Used to edit the lexer of a sub-dialect. The patch is

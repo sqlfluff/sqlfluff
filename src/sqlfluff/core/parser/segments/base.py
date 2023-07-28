@@ -855,7 +855,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     # ################ PRIVATE INSTANCE METHODS
 
-    def _recalculate_caches(self):
+    def _recalculate_caches(self) -> None:
         for key in [
             "is_code",
             "is_comment",
@@ -873,7 +873,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         ]:
             self.__dict__.pop(key, None)
 
-    def _preface(self, ident, tabsize):
+    def _preface(self, ident, tabsize) -> str:
         """Returns the preamble to any logging."""
         padded_type = "{padding}{modifier}{type}".format(
             padding=" " * (ident * tabsize),
@@ -890,11 +890,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     # ################ PUBLIC INSTANCE METHODS
 
-    def get_type(self):
+    def get_type(self) -> str:
         """Returns the type of this segment as a string."""
         return self.type
 
-    def count_segments(self, raw_only=False):
+    def count_segments(self, raw_only=False) -> int:
         """Returns the number of segments in this segment."""
         if self.segments:
             self_count = 0 if raw_only else 1
@@ -919,19 +919,19 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         self._recalculate_caches()
 
-    def get_start_point_marker(self):  # pragma: no cover
+    def get_start_point_marker(self) -> PositionMarker:  # pragma: no cover
         """Get a point marker at the start of this segment."""
         return self.pos_marker.start_point_marker()
 
-    def get_end_point_marker(self):
+    def get_end_point_marker(self) -> PositionMarker:
         """Get a point marker at the end of this segment."""
         return self.pos_marker.end_point_marker()
 
-    def get_start_loc(self):
+    def get_start_loc(self) -> Tuple[int, int]:
         """Get a location tuple at the start of this segment."""
         return self.pos_marker.working_loc
 
-    def get_end_loc(self):
+    def get_end_loc(self) -> Tuple[int, int]:
         """Get a location tuple at the end of this segment."""
         return self.pos_marker.working_loc_after(
             self.raw,

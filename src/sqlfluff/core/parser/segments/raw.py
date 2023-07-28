@@ -62,13 +62,13 @@ class RawSegment(BaseSegment):
             self.__class__.__name__, self.pos_marker, self.raw
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         # This is calculated at __init__, because all elements are immutable
         # and this was previously recalculating the pos marker,
         # and became very expensive
         return self.representation
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, key, value) -> None:
         """Overwrite BaseSegment's __setattr__ with BaseSegment's superclass."""
         super(BaseSegment, self).__setattr__(key, value)
 
@@ -290,7 +290,7 @@ class KeywordSegment(CodeSegment):
             source_fixes=source_fixes,
         )
 
-    def edit(self, raw=None, source_fixes=None):
+    def edit(self, raw=None, source_fixes=None) -> "KeywordSegment":
         """Create a new segment, with exactly the same position but different content.
 
         Returns:
