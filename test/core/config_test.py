@@ -27,7 +27,7 @@ import pytest
 
 
 config_a = {
-    "core": {"testing_val": "foobar", "testing_int": 4},
+    "core": {"testing_val": "foobar", "testing_int": 4, "dialect": "mysql"},
     "bar": {"foo": "barbar"},
 }
 
@@ -89,6 +89,18 @@ def test__config__load_file_dir():
     assert cfg == config_a
 
 
+def test__config__load_from_string():
+    """Test loading config from a string."""
+    c = ConfigLoader()
+    # Load a string
+    with open(
+        os.path.join("test", "fixtures", "config", "inheritance_a", ".sqlfluff")
+    ) as f:
+        config_string = f.read()
+    cfg = c.load_config_string(config_string)
+    assert cfg == config_a
+
+
 def test__config__load_file_f():
     """Test loading config from a file path."""
     c = ConfigLoader()
@@ -108,7 +120,7 @@ def test__config__load_nested():
     )
     assert cfg == {
         "core": {
-            "dialect": "ansi",
+            "dialect": "mysql",
             "testing_val": "foobar",
             "testing_int": 1,
             "testing_bar": 7.698,
@@ -415,6 +427,18 @@ def test__config__from_kwargs():
     assert cfg.get("dialect") == "snowflake"
     assert cfg.get("rules") == "LT01,LT02"
     assert cfg.get("exclude_rules") == "CP01,AL01"
+
+
+def test__config__from_string():
+    """Test from_string method of FluffConfig."""
+    with open(
+        os.path.join("test", "fixtures", "config", "inheritance_a", ".sqlfluff")
+    ) as f:
+        config_string = f.read()
+    cfg = FluffConfig.from_string(config_string)
+    # Verify we can later retrieve the config values.
+    assert cfg.get("testing_val") == "foobar"
+    assert cfg.get("dialect") == "mysql"
 
 
 def test__config_missing_dialect():
