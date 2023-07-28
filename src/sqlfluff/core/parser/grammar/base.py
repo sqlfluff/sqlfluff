@@ -15,7 +15,7 @@ from typing import (
 from uuid import uuid4
 
 from sqlfluff.core.errors import SQLParseError
-from sqlfluff.core.parser.grammar.types import SimpleHintType, MatchableType
+from sqlfluff.core.parser.grammar.types import SimpleHintType
 from sqlfluff.core.string_helpers import curtail_string
 
 from sqlfluff.core.parser.segments import BaseSegment, BracketedSegment, allow_ephemeral
@@ -31,6 +31,8 @@ from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.parsers import BaseParser
 
 # Either a Matchable (a grammar or parser) or a Segment CLASS
+
+MatchableType = Union[Matchable, Type[BaseSegment]]
 
 if TYPE_CHECKING:
     from sqlfluff.core.dialects.base import Dialect  # pragma: no cover

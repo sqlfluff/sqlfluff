@@ -1,7 +1,4 @@
 """Complex Type helpers."""
-from typing import Optional, Tuple, FrozenSet, Union, Type
-
-from sqlfluff.core.parser import Matchable, BaseSegment
+from typing import Optional, Tuple, FrozenSet
 
 SimpleHintType = Optional[Tuple[FrozenSet[str], FrozenSet[str]]]
-MatchableType = Union[Matchable, Type[BaseSegment]]
