@@ -1,7 +1,9 @@
 """An example to show a few ways of configuring the API."""
 
 import sqlfluff
+from sqlfluff.core import Linter, FluffConfig
 
+# #######################################
 # The simple API can be configured in three ways.
 
 # 1. Limited keyword arguments
@@ -12,7 +14,6 @@ sqlfluff.fix("SELECT  1", config_path="../test/fixtures/.sqlfluff")
 
 # 3. Providing a preconfigured FluffConfig object.
 # NOTE: This is the way of configuring SQLFluff which will give the most control.
-from sqlfluff.core import FluffConfig
 
 # 3a. FluffConfig objects can be created directly from a dictionary of values.
 config = FluffConfig(configs={"core": {"dialect", "bigquery"}})
@@ -26,12 +27,12 @@ config = FluffConfig.from_kwargs(dialect="bigquery", rules=["LT01"])
 # The FluffConfig is then provided via a config argument.
 sqlfluff.fix("SELECT  1", config=config)
 
+
+# #######################################
 # The core API is always configured using a FluffConfig object.
 
-from sqlfluff.core import Linter
-
-# When instantiating a Linter (or Parser), a FluffConfig must be provided on instantiation.
-# See above for details on how to create a FluffConfig.
+# When instantiating a Linter (or Parser), a FluffConfig must be provided
+# on instantiation. See above for details on how to create a FluffConfig.
 linter = Linter(config=config)
 
 # The provided config will then be used in any operations.
