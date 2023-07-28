@@ -1,4 +1,11 @@
-"""Defines the plugin manager getter."""
+"""Defines the plugin manager getter.
+
+NOTE: The plugin manager will load all of the plugins on
+the first pass. Each plugin will also load the plugin
+manager on load to register themselves. To ensure this is
+as performant as possible, we cache the plugin manager within
+the context of each thread.
+"""
 
 from contextvars import ContextVar
 import pluggy
