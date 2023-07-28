@@ -218,11 +218,10 @@ class LintFix:
         Removing these makes the routines which process fixes much faster.
         """
         if self.edit_type in ("create_before", "create_after"):
-            assert self.edit
             if isinstance(self.edit, BaseSegment):
                 if len(self.edit.raw) == 0:  # pragma: no cover TODO?
                     return True
-            elif all(len(elem.raw) == 0 for elem in self.edit):
+            elif self.edit and all(len(elem.raw) == 0 for elem in self.edit):
                 return True
         elif self.edit_type == "replace" and self.edit == self.anchor:
             return True  # pragma: no cover TODO?
