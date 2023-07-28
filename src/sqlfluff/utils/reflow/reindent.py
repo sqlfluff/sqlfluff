@@ -84,7 +84,7 @@ class _IndentPoint:
     untaken_indents: Tuple[int, ...]
 
     @property
-    def closing_indent_balance(self):
+    def closing_indent_balance(self) -> int:
         return self.initial_indent_balance + self.indent_impulse
 
 
@@ -100,7 +100,7 @@ class _IndentLine:
     initial_indent_balance: int
     indent_points: List[_IndentPoint]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Compressed repr method to ease logging."""
         return (
             f"IndentLine(iib={self.initial_indent_balance}, ipts=["
@@ -154,7 +154,7 @@ class _IndentLine:
             seg.is_type("placeholder", "template_loop") for seg in block_segments
         )
 
-    def desired_indent_units(self, forced_indents: List[int]):
+    def desired_indent_units(self, forced_indents: List[int]) -> int:
         """Calculate the desired indent units.
 
         This is the heart of the indentation calculations.
@@ -207,11 +207,11 @@ class _IndentLine:
         )
         return desired_indent
 
-    def closing_balance(self):
+    def closing_balance(self) -> int:
         """The closing indent balance of the line."""
         return self.indent_points[-1].closing_indent_balance
 
-    def opening_balance(self):
+    def opening_balance(self) -> int:
         """The opening indent balance of the line.
 
         NOTE: We use the first point for the starting balance rather than

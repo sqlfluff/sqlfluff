@@ -1003,11 +1003,11 @@ class ObjectReferenceSegment(BaseSegment):
         for elem in self.recursive_crawl("identifier"):
             yield from self._iter_reference_parts(elem)
 
-    def is_qualified(self):
+    def is_qualified(self) -> bool:
         """Return if there is more than one element to the reference."""
         return len(list(self.iter_raw_references())) > 1
 
-    def qualification(self):
+    def qualification(self) -> str:
         """Return the qualification type of this reference."""
         return "qualified" if self.is_qualified() else "unqualified"
 

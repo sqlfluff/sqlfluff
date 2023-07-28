@@ -10,7 +10,7 @@ isn't support for that distinction at present.
 """
 
 
-def priority_keyword_merge(*args):
+def priority_keyword_merge(*args) -> list:
     """Merge keyword lists, giving priority to entries in later lists.
 
     *args is a list of keyword lists, these lists should be of tuples in the form
@@ -38,7 +38,7 @@ def priority_keyword_merge(*args):
     return base_list
 
 
-def get_keywords(keyword_list, keyword_type):
+def get_keywords(keyword_list, keyword_type) -> list:
     """Get a list of keywords of the required type.
 
     keyword_type should be one of "not-keyword", "reserved", "non-reserved"

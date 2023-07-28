@@ -139,25 +139,25 @@ class RawSegment(BaseSegment):
 
     # ################ INSTANCE METHODS
 
-    def invalidate_caches(self):
+    def invalidate_caches(self) -> None:
         """Overwrite superclass functionality."""
         pass
 
-    def get_type(self):
+    def get_type(self) -> Optional[str]:
         """Returns the type of this segment as a string."""
         return self._surrogate_type or self.type
 
-    def is_type(self, *seg_type):
+    def is_type(self, *seg_type) -> bool:
         """Extend the parent class method with the surrogate types."""
         if self._surrogate_type and self._surrogate_type in seg_type:
             return True
         return self.class_is_type(*seg_type)
 
-    def get_raw_segments(self):
+    def get_raw_segments(self) -> List["RawSegment"]:
         """Iterate raw segments, mostly for searching."""
         return [self]
 
-    def raw_trimmed(self):
+    def raw_trimmed(self) -> str:
         """Return a trimmed version of the raw content."""
         raw_buff = self.raw
         if self.trim_start:
@@ -177,16 +177,12 @@ class RawSegment(BaseSegment):
             return raw_buff
         return raw_buff
 
-    def raw_list(self):  # pragma: no cover TODO?
-        """Return a list of the raw content of this segment."""
-        return [self.raw]
-
-    def stringify(self, ident=0, tabsize=4, code_only=False):
+    def stringify(self, ident=0, tabsize=4, code_only=False) -> str:
         """Use indentation to render this segment and its children as a string."""
         preface = self._preface(ident=ident, tabsize=tabsize)
         return preface + "\n"
 
-    def _suffix(self):
+    def _suffix(self) -> str:
         """Return any extra output required at the end when logging.
 
         NB Override this for specific subclasses if we want extra output.
@@ -195,7 +191,7 @@ class RawSegment(BaseSegment):
 
     def edit(
         self, raw: Optional[str] = None, source_fixes: Optional[List[SourceFix]] = None
-    ):
+    ) -> "RawSegment":
         """Create a new segment, with exactly the same position but different content.
 
         Returns:

@@ -713,7 +713,7 @@ def do_fixes(
     result: LintingResult,
     formatter: Optional[OutputStreamFormatter] = None,
     fixed_file_suffix: str = "",
-):
+) -> bool:
     """Actually do the fixes."""
     if formatter and formatter.verbosity >= 0:
         click.echo("Persisting Changes...")

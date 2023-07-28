@@ -8,7 +8,7 @@ from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.grammar.base import SimpleHintType
+from sqlfluff.core.parser.grammar.types import SimpleHintType
 
 
 class NonCodeMatcher(Matchable):
