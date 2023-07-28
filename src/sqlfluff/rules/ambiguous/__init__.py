@@ -8,7 +8,11 @@ from sqlfluff.core.plugin import hookimpl
 
 @hookimpl
 def get_rules():
-    """Get plugin rules."""
+    """Get plugin rules.
+
+    NOTE: Rules are imported only on fetch to manage import times
+    when rules aren't used.
+    """
     from sqlfluff.rules.ambiguous.AM01 import Rule_AM01
     from sqlfluff.rules.ambiguous.AM02 import Rule_AM02
     from sqlfluff.rules.ambiguous.AM03 import Rule_AM03
