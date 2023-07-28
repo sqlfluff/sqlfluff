@@ -33,6 +33,5 @@ def get_plugin_manager() -> pluggy.PluginManager:
     # points, this function gets called again - and we only
     # want to load the entry points once!
     _plugin_manager.set(plugin_manager)
-    print(f"get_plugin_manager LOADING ENTRY POINTS")
     plugin_manager.load_setuptools_entrypoints(project_name)
     return plugin_manager
