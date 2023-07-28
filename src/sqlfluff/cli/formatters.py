@@ -58,7 +58,7 @@ def split_string_on_spaces(s: str, line_length: int = 100) -> List[str]:
     return line_buff
 
 
-def format_linting_result_header():
+def format_linting_result_header() -> str:
     """Format the header of a linting result output."""
     text_buffer = StringIO()
     text_buffer.write("==== readout ====\n")
@@ -491,7 +491,7 @@ class OutputStreamFormatter:
         text_buffer.write(self.cli_table(summary_content, max_label_width=14))
         return text_buffer.getvalue()
 
-    def format_config_vals(self, config_vals):
+    def format_config_vals(self, config_vals) -> str:
         """Format an iterable of config values from a config object."""
         text_buffer = StringIO()
         for i, k, v in config_vals:

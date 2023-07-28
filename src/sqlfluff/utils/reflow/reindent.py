@@ -3,7 +3,17 @@
 from collections import defaultdict
 from itertools import chain
 import logging
-from typing import Iterator, List, Optional, Set, Tuple, cast, Dict, DefaultDict
+from typing import (
+    Iterator,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    cast,
+    Dict,
+    DefaultDict,
+    FrozenSet,
+)
 from dataclasses import dataclass
 from sqlfluff.core.errors import SQLFluffUserError
 
@@ -1445,7 +1455,7 @@ def _lint_line_buffer_indents(
 def lint_indent_points(
     elements: ReflowSequenceType,
     single_indent: str,
-    skip_indentation_in: Set[str] = set(),
+    skip_indentation_in: FrozenSet[str] = frozenset(),
     allow_implicit_indents: bool = False,
 ) -> Tuple[ReflowSequenceType, List[LintResult]]:
     """Lint the indent points to check we have line breaks where we should.

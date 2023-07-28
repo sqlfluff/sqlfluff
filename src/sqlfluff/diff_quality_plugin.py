@@ -33,11 +33,11 @@ class SQLFluffDriver(QualityDriver):
             exit_codes=[0, 1],
         )
 
-    def parse_reports(self, reports):  # pragma: no cover
+    def parse_reports(self, reports) -> None:  # pragma: no cover
         """Parse report output. Not used by SQLFluff."""
         pass
 
-    def installed(self):
+    def installed(self) -> bool:
         """Check if SQLFluff is installed."""
         return run_command_for_code("sqlfluff") == 0
 

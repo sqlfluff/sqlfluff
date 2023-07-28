@@ -77,7 +77,7 @@ class RootParseContext:
                 setattr(ctx, key, overrides[key])
         return ctx
 
-    def __enter__(self):
+    def __enter__(self) -> "ParseContext":
         """Enter into the context.
 
         Here we return a basic ParseContext with initial values,
@@ -91,7 +91,7 @@ class RootParseContext:
         """
         return ParseContext(root_ctx=self, recurse=self.recurse)
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, type, value, traceback) -> None:
         """Clear up the context."""
         pass
 
@@ -124,7 +124,7 @@ class ParseContext:
         "_root_ctx",
     ]
 
-    def __init__(self, root_ctx, recurse=True):
+    def __init__(self, root_ctx, recurse=True) -> None:
         self._root_ctx = root_ctx
         self.recurse = recurse
         # The following attributes are only accessible via a copy
@@ -132,7 +132,7 @@ class ParseContext:
         self.match_segment = None
         self.match_depth = 0
         self.parse_depth = 0
-        self.terminators = []  # NOTE: Includes inherited parent terminators.
+        self.terminators: list = []  # NOTE: Includes inherited parent terminators.
 
     def __getattr__(self, name):
         """If the attribute doesn't exist on this, revert to the root."""
@@ -145,7 +145,7 @@ class ParseContext:
                 )
             )
 
-    def _copy(self):
+    def _copy(self) -> "ParseContext":
         """Mimic the copy.copy() method but restrict only to local vars."""
         ctx = self.__class__(root_ctx=self._root_ctx)
         for key in self.__slots__:
@@ -165,17 +165,17 @@ class ParseContext:
         """
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, type, value, traceback) -> None:
         """Clear up the context."""
         pass
 
-    def deeper_match(self):
+    def deeper_match(self) -> "ParseContext":
         """Return a copy with an incremented match depth."""
         ctx = self._copy()
         ctx.match_depth += 1
         return ctx
 
-    def deeper_parse(self):
+    def deeper_parse(self) -> "ParseContext":
         """Return a copy with an incremented parse depth."""
         ctx = self._copy()
         if not isinstance(ctx.recurse, bool):  # pragma: no cover TODO?
@@ -186,11 +186,11 @@ class ParseContext:
         ctx.clear_terminators()
         return ctx
 
-    def may_recurse(self):
+    def may_recurse(self) -> bool:
         """Return True if allowed to recurse."""
         return self.recurse > 1 or self.recurse is True
 
-    def matching_segment(self, name):
+    def matching_segment(self, name) -> "ParseContext":
         """Set the name of the current matching segment.
 
         NB: We don't reset the match depth here.
@@ -208,7 +208,9 @@ class ParseContext:
         """
         return self._root_ctx._parse_cache.get((loc_key, matcher_key))
 
-    def put_parse_cache(self, loc_key: tuple, matcher_key: str, match: "MatchResult"):
+    def put_parse_cache(
+        self, loc_key: tuple, matcher_key: str, match: "MatchResult"
+    ) -> None:
         """Store a match in the cache for later retrieval."""
         self._root_ctx._parse_cache[(loc_key, matcher_key)] = match
 

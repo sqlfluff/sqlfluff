@@ -117,7 +117,9 @@ def assert_rule_pass_in_sql(code, sql, configs=None, msg=None):
     if parsed.violations:
         if msg:
             print(msg)  # pragma: no cover
+        assert parsed.tree
         pytest.fail(parsed.violations[0].desc() + "\n" + parsed.tree.stringify())
+    assert parsed.tree
     print(f"Parsed:\n {parsed.tree.stringify()}")
 
     # Note that lint_string() runs the templater and parser again, in order to

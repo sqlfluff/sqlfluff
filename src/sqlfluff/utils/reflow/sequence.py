@@ -562,7 +562,7 @@ class ReflowSequence:
             lint_results=lint_results,
         )
 
-    def reindent(self):
+    def reindent(self) -> "ReflowSequence":
         """Reindent lines within a sequence."""
         if self.lint_results:
             raise NotImplementedError(  # pragma: no cover

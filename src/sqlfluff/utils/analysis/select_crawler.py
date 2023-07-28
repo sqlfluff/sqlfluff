@@ -246,7 +246,7 @@ class SelectCrawler:
         # so we can pop "query_stack" when those segments complete processing.
         pop_queries_for = []
 
-        def append_query(query, parent_stack):
+        def append_query(query, parent_stack) -> None:
             """Bookkeeping when a new Query is created."""
             if query_stack:
                 query.parent = query_stack[-1]

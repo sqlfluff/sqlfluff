@@ -174,7 +174,9 @@ class JinjaTracer:
                 candidates.sort(key=lambda c: abs(target_slice_idx - c))
                 self.program_counter = candidates[0]
 
-    def record_trace(self, target_slice_length, slice_idx=None, slice_type=None):
+    def record_trace(
+        self, target_slice_length, slice_idx=None, slice_type=None
+    ) -> None:
         """Add the specified (default: current) location to the trace."""
         if slice_idx is None:
             slice_idx = self.program_counter
@@ -202,7 +204,7 @@ class JinjaAnalyzer:
     re_open_tag = regex.compile(r"^\s*({[{%])[\+\-]?\s*")
     re_close_tag = regex.compile(r"\s*[\+\-]?([}%]})\s*$")
 
-    def __init__(self, raw_str: str, env: Environment):
+    def __init__(self, raw_str: str, env: Environment) -> None:
         # Input
         self.raw_str: str = raw_str
         self.env = env

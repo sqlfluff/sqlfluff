@@ -71,7 +71,7 @@ class Rule_AM04(BaseRule):
     groups: Tuple[str, ...] = ("all", "ambiguous")
     crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES))
 
-    def _handle_alias(self, selectable, alias_info, query):
+    def _handle_alias(self, selectable, alias_info, query) -> None:
         select_info_target = SelectCrawler.get(
             query, alias_info.from_expression_element
         )[0]

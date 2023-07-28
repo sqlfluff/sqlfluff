@@ -8,7 +8,7 @@ def frame_msg(msg: str) -> str:
     return f"\n###\n#\n# {msg}\n#\n###"
 
 
-def curtail_string(s: str, length=20) -> str:
+def curtail_string(s: str, length: int = 20) -> str:
     """Trim a string nicely to length."""
     if len(s) > length:
         return s[:length] + "..."

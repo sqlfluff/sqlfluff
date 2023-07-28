@@ -143,7 +143,7 @@ class RawSegment(BaseSegment):
         """Overwrite superclass functionality."""
         pass
 
-    def get_type(self) -> Optional[str]:
+    def get_type(self) -> str:
         """Returns the type of this segment as a string."""
         return self._surrogate_type or self.type
 

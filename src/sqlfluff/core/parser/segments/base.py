@@ -921,18 +921,22 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def get_start_point_marker(self) -> PositionMarker:  # pragma: no cover
         """Get a point marker at the start of this segment."""
+        assert self.pos_marker
         return self.pos_marker.start_point_marker()
 
     def get_end_point_marker(self) -> PositionMarker:
         """Get a point marker at the end of this segment."""
+        assert self.pos_marker
         return self.pos_marker.end_point_marker()
 
     def get_start_loc(self) -> Tuple[int, int]:
         """Get a location tuple at the start of this segment."""
+        assert self.pos_marker
         return self.pos_marker.working_loc
 
     def get_end_loc(self) -> Tuple[int, int]:
         """Get a location tuple at the end of this segment."""
+        assert self.pos_marker
         return self.pos_marker.working_loc_after(
             self.raw,
         )
@@ -1830,11 +1834,11 @@ class IdentitySet(MutableSet):
 
     key = id  # should return a hashable object
 
-    def __init__(self, iterable=()):
-        self.map = {}  # id -> object
+    def __init__(self, iterable=()) -> None:
+        self.map: dict = {}  # id -> object
         self |= iterable  # add elements from iterable to the set (union)
 
-    def __len__(self):  # Sized
+    def __len__(self) -> int:  # Sized
         return len(self.map)
 
     def __iter__(self):  # Iterable
@@ -1847,7 +1851,7 @@ class IdentitySet(MutableSet):
         """Add an element."""
         self.map[self.key(value)] = value
 
-    def update(self, value):
+    def update(self, value) -> None:
         """Add elements in 'value'."""
         for v in value:
             self.add(v)
@@ -1856,7 +1860,7 @@ class IdentitySet(MutableSet):
         """Remove an element.  Do not raise an exception if absent."""
         self.map.pop(self.key(value), None)  # pragma: no cover
 
-    def __repr__(self):  # pragma: no cover
+    def __repr__(self) -> str:  # pragma: no cover
         if not self:
             return "%s()" % (self.__class__.__name__,)
         return "%s(%r)" % (self.__class__.__name__, list(self))

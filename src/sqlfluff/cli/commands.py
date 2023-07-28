@@ -138,13 +138,13 @@ def set_logging_level(
 class PathAndUserErrorHandler:
     """Make an API call but with error handling for the CLI."""
 
-    def __init__(self, formatter):
+    def __init__(self, formatter) -> None:
         self.formatter = formatter
 
-    def __enter__(self):
+    def __enter__(self) -> "PathAndUserErrorHandler":
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         if exc_type is SQLFluffUserError:
             click.echo(
                 "\nUser Error: "

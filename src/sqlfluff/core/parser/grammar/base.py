@@ -190,7 +190,7 @@ class BaseGrammar(Matchable):
 
         # Now we deal with the standard kwargs
         self.allow_gaps = allow_gaps
-        self.optional = optional
+        self.optional: bool = optional
         # ephemeral_name is a flag to indicate whether we need to make an
         # EphemeralSegment class. This is effectively syntactic sugar
         # to allow us to avoid specifying a EphemeralSegment directly in a dialect.
@@ -207,7 +207,7 @@ class BaseGrammar(Matchable):
         """
         return self._cache_key
 
-    def is_optional(self):
+    def is_optional(self) -> bool:
         """Return whether this segment is optional.
 
         The optional attribute is set in the __init__ method.

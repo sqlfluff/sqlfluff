@@ -1158,7 +1158,7 @@ class FluffConfig:
         if config_path[:-1] == ["dialect"]:
             self._initialise_dialect(config_path[-1])
 
-    def process_raw_file_for_config(self, raw_str: str, fname: str):
+    def process_raw_file_for_config(self, raw_str: str, fname: str) -> None:
         """Process a full raw file for inline config and update self."""
         # Scan the raw file for config commands.
         for raw_line in raw_str.splitlines():

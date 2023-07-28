@@ -157,7 +157,9 @@ class Rule_LT09(BaseRule):
             list(pre_from_whitespace),
         )
 
-    def _eval_multiple_select_target_elements(self, select_targets_info, segment):
+    def _eval_multiple_select_target_elements(
+        self, select_targets_info, segment
+    ) -> Optional[LintResult]:
         """Multiple select targets. Ensure each is on a separate line."""
         # Insert newline before every select target.
         fixes = []
@@ -209,6 +211,8 @@ class Rule_LT09(BaseRule):
 
         if fixes:
             return LintResult(anchor=segment, fixes=fixes)
+
+        return None
 
     def _eval_single_select_target_element(
         self, select_targets_info, context: RuleContext
