@@ -9,6 +9,7 @@ import regex
 from typing import Collection, Type, Optional, Tuple, Union
 
 from sqlfluff.core.parser.context import ParseContext
+from sqlfluff.core.parser.grammar.base import SimpleHintType
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.segments import RawSegment, BaseSegment
@@ -123,9 +124,7 @@ class TypedParser(BaseParser):
             **segment_kwargs,
         )
 
-    def simple(
-        cls, parse_context: ParseContext, crumbs=None
-    ) -> Tuple[frozenset, frozenset]:
+    def simple(cls, parse_context: ParseContext, crumbs=None) -> SimpleHintType:
         """Does this matcher support a uppercase hash matching route?
 
         TypedParser segment doesn't support matching against raw strings,
@@ -197,9 +196,7 @@ class MultiStringParser(BaseParser):
             **segment_kwargs,
         )
 
-    def simple(
-        self, parse_context: "ParseContext", crumbs=None
-    ) -> Tuple[frozenset, frozenset]:
+    def simple(self, parse_context: "ParseContext", crumbs=None) -> SimpleHintType:
         """Return simple options for this matcher.
 
         Because string matchers are not case sensitive we can

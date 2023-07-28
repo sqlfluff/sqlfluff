@@ -1030,13 +1030,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """
         return self.structural_simplify(self.to_tuple(**kwargs))
 
-    def raw_list(self):  # pragma: no cover TODO?
-        """Return a list of raw elements, mostly for testing or searching."""
-        buff = []
-        for s in self.segments:
-            buff += s.raw_list()
-        return buff
-
     def get_raw_segments(self):
         """Iterate raw segments, mostly for searching."""
         return [item for s in self.segments for item in s.raw_segments]
@@ -1056,7 +1049,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         for s in self.segments:
             yield from s.iter_unparsables()
 
-    def type_set(self) -> set:
+    def type_set(self) -> Set[str]:
         """Return a set of the types contained, mostly for testing."""
         typs = {self.type}
         for s in self.segments:
@@ -1088,7 +1081,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         stop_seg: Optional["BaseSegment"] = None,
         select_if: Optional[Callable[["BaseSegment"], Any]] = None,
         loop_while: Optional[Callable[["BaseSegment"], Any]] = None,
-    ) -> list:
+    ) -> List["BaseSegment"]:
         """Retrieve subset of children based on range and filters.
 
         Often useful by linter rules when generating fixes, e.g. to find

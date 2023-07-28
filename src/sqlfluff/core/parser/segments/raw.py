@@ -153,7 +153,7 @@ class RawSegment(BaseSegment):
             return True
         return self.class_is_type(*seg_type)
 
-    def get_raw_segments(self) -> list:
+    def get_raw_segments(self) -> List["RawSegment"]:
         """Iterate raw segments, mostly for searching."""
         return [self]
 
@@ -176,10 +176,6 @@ class RawSegment(BaseSegment):
                     raw_buff = raw_buff[: -len(seq)]
             return raw_buff
         return raw_buff
-
-    def raw_list(self) -> list:  # pragma: no cover TODO?
-        """Return a list of the raw content of this segment."""
-        return [self.raw]
 
     def stringify(self, ident=0, tabsize=4, code_only=False) -> str:
         """Use indentation to render this segment and its children as a string."""
