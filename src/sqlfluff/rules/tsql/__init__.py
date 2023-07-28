@@ -8,10 +8,10 @@ low, it makes sense to keep it bundled with SQLFluff core.
 
 from sqlfluff.core.plugin import hookimpl
 
-from sqlfluff.rules.tsql.TQ01 import Rule_TQ01
-
 
 @hookimpl
 def get_rules():
     """Get plugin rules."""
+    from sqlfluff.rules.tsql.TQ01 import Rule_TQ01
+
     return [Rule_TQ01]
