@@ -5,7 +5,8 @@ from typing import List, Optional, Tuple, Set
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
-    cached_method_for_parse_context, MatchableType,
+    cached_method_for_parse_context,
+    MatchableType,
 )
 from sqlfluff.core.parser.grammar.types import SimpleHintType
 from sqlfluff.core.parser.grammar.sequence import Sequence, Bracketed
