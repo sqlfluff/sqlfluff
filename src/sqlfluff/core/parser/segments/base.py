@@ -1030,7 +1030,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """
         return self.structural_simplify(self.to_tuple(**kwargs))
 
-    def get_raw_segments(self):
+    def get_raw_segments(self) -> List["RawSegment"]:
         """Iterate raw segments, mostly for searching."""
         return [item for s in self.segments for item in s.raw_segments]
 
