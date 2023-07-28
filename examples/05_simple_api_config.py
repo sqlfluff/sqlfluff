@@ -10,17 +10,17 @@ from sqlfluff.core import Linter, FluffConfig
 sqlfluff.fix("SELECT  1", dialect="bigquery")
 
 # 2. Providing the path to a config file
-sqlfluff.fix("SELECT  1", config_path="../test/fixtures/.sqlfluff")
+sqlfluff.fix("SELECT  1", config_path="test/fixtures/.sqlfluff")
 
 # 3. Providing a preconfigured FluffConfig object.
 # NOTE: This is the way of configuring SQLFluff which will give the most control.
 
 # 3a. FluffConfig objects can be created directly from a dictionary of values.
-config = FluffConfig(configs={"core": {"dialect", "bigquery"}})
+config = FluffConfig(configs={"core": {"dialect": "bigquery"}})
 # 3b. FluffConfig objects can be created from a config file in a string.
 config = FluffConfig.from_string("[sqlfluff]\ndialect=bigquery\n")
 # 3c. FluffConfig objects can be created from a path containing a config file.
-config = FluffConfig.from_path("../test/fixtures/")
+config = FluffConfig.from_path("test/fixtures/")
 # 3c. FluffConfig objects can be from keyword arguments
 config = FluffConfig.from_kwargs(dialect="bigquery", rules=["LT01"])
 
@@ -39,4 +39,5 @@ linter = Linter(config=config)
 
 lint_result = linter.lint_string("SELECT  1", fix=True)
 fixed_string = lint_result.fix_string()
-assert fixed_string == "SELECT 1\n"
+# NOTE: The "True" element shows that fixing was a success.
+assert fixed_string == ("SELECT 1", True)
