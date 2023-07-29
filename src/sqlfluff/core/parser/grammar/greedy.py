@@ -35,7 +35,7 @@ class GreedyUntil(BaseGrammar):
 
     @match_wrapper()
     @allow_ephemeral
-    def match(self, segments, parse_context):
+    def match(self, segments, parse_context) -> MatchResult:
         """Matching for GreedyUntil works just how you'd expect."""
         return self.greedy_match(
             segments,

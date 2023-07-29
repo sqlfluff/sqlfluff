@@ -443,22 +443,22 @@ class JinjaTemplater(PythonTemplater):
             alters_data = False
 
             @classmethod
-            def create(cls, name):
+            def create(cls, name: str) -> "UndefinedRecorder":
                 return UndefinedRecorder(name=name)
 
-            def __init__(self, name):
+            def __init__(self, name: str) -> None:
                 self.name = name
 
-            def __str__(self):
+            def __str__(self) -> str:
                 """Treat undefined vars as empty, but remember for later."""
                 undefined_variables.add(self.name)
                 return ""
 
-            def __getattr__(self, item):
+            def __getattr__(self, item) -> "UndefinedRecorder":
                 undefined_variables.add(self.name)
                 return UndefinedRecorder(f"{self.name}.{item}")
 
-            def __call__(self, *args, **kwargs):
+            def __call__(self, *args, **kwargs) -> "UndefinedRecorder":
                 return UndefinedRecorder(f"{self.name}()")
 
         Undefined = (

@@ -240,7 +240,7 @@ class BaseGrammar(Matchable):
         segments: Tuple[BaseSegment, ...],
         matchers: List[MatchableType],
         parse_context: ParseContext,
-        trim_noncode=True,
+        trim_noncode: bool = True,
     ) -> Tuple[MatchResult, Optional[MatchableType]]:
         """Return longest match from a selection of matchers.
 

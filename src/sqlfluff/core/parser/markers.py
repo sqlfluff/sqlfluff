@@ -36,7 +36,7 @@ class PositionMarker:
     working_line_no: int = -1
     working_line_pos: int = -1
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         # If the working position has not been explicitly set
         # then infer it from the position in the templated file.
         # This is accurate up until the point that any fixes have
