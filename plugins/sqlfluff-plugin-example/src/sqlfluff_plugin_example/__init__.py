@@ -31,8 +31,8 @@ def get_rules() -> List[Type[BaseRule]]:
 @hookimpl
 def load_default_config() -> dict:
     """Loads the default configuration for the plugin."""
-    return ConfigLoader.get_global().load_config_file(
-        file_dir=os.path.dirname(__file__),
+    return ConfigLoader.get_global().load_config_resource(
+        package="sqlfluff_plugin_example",
         file_name="plugin_default_config.cfg",
     )
 
