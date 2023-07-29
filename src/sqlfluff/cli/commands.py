@@ -8,7 +8,6 @@ import logging
 import time
 from logging import LogRecord
 from typing import Callable, Tuple, Optional, cast
-from collections import abc
 
 import yaml
 
@@ -32,7 +31,7 @@ from sqlfluff.cli.formatters import (
     format_linting_result_header,
     OutputStreamFormatter,
 )
-from sqlfluff.cli.helpers import get_package_version
+from sqlfluff.cli.helpers import get_package_version, LazySequence
 from sqlfluff.cli.outputstream import make_output_stream, OutputStream
 
 # Import from sqlfluff core.
@@ -45,7 +44,6 @@ from sqlfluff.core import (
     dialect_selector,
     dialect_readout,
 )
-from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.linter import LintingResult
 from sqlfluff.core.config import progress_bar_configuration
 
@@ -184,22 +182,6 @@ def common_options(f: Callable) -> Callable:
     )(f)
 
     return f
-
-
-class LazySequence(abc.Sequence):
-
-    def __init__(self, getter=Callable[[], abc.Sequence]):
-        self._getter = getter
-    
-    @cached_property
-    def _sequence(self) -> abc.Sequence:
-        return self._getter()
-    
-    def __getitem__(self, key):
-        return self._sequence[key]
-
-    def __len__(self):
-        return len(self._sequence)
 
 
 def core_options(f: Callable) -> Callable:
