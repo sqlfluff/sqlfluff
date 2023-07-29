@@ -14,6 +14,7 @@ from sqlfluff.core.plugin.hookspecs import PluginSpec
 from sqlfluff.core.plugin import plugin_base_name, project_name
 
 _plugin_manager = ContextVar("_plugin_manager", default=None)
+plugins_loaded = ContextVar("plugins_loaded", default=False)
 
 
 def get_plugin_manager() -> pluggy.PluginManager:
@@ -34,4 +35,10 @@ def get_plugin_manager() -> pluggy.PluginManager:
     # want to load the entry points once!
     _plugin_manager.set(plugin_manager)
     plugin_manager.load_setuptools_entrypoints(project_name)
+
+    # Once plugins are loaded we set a second context var
+    # to indicate that loading is complete. Other parts of
+    # the codebase can use this to detect whether it's safe.
+    plugins_loaded.set(True)
+
     return plugin_manager

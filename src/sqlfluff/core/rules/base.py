@@ -49,6 +49,7 @@ from sqlfluff.core.parser.segments.base import SourceFix
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import BaseCrawler
 from sqlfluff.core.rules.config_info import get_config_info
+from sqlfluff.core.plugin.host import plugins_loaded
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
 # The ghost of a rule (mostly used for testing)
@@ -571,7 +572,22 @@ class RuleMetaclass(type):
         )
 
         config_docs = ""
-        if class_dict.get("config_keywords", []):
+
+        # NOTE: We should only validate and add config keywords
+        # into the docstring if the plugin loading methods have
+        # fully completed (i.e. plugins_loaded.get() is True).
+        if not plugins_loaded.get():
+            # Show a warning if a plugin has their imports set up in a suboptimal
+            # way. The example plugin imports the rules in both ways, to test the
+            # triggering of this warning.
+            rules_logger.warning(
+                f"Rule {name!r} has been imported before all plugins "
+                "have been fully loaded. For best performance, plugins "
+                "should import any rule definitions within their `get_rules()` "
+                "method. See: "
+                "https://docs.sqlfluff.com/en/stable/developingplugins.html"
+            )
+        elif class_dict.get("config_keywords", []):
             config_docs = "\n    **Configuration**\n"
             config_info = get_config_info()
             for keyword in sorted(class_dict["config_keywords"]):

@@ -1,28 +1,37 @@
 """Plugin related tests."""
+import logging
 import pytest
 
 from sqlfluff.core.plugin.host import get_plugin_manager
 from sqlfluff.core.config import FluffConfig
+from sqlfluff.utils.testing.logging import fluff_log_catcher
 
 
 def test__plugin_manager_registers_example_plugin():
     """Test that the example plugin is registered."""
-    plugin_manager = get_plugin_manager()
-    # The plugin import order is non-deterministic.
-    # Use sets in case the dbt plugin (or other plugins) are
-    # already installed too.
-    installed_plugins = set(
-        plugin_module.__name__ for plugin_module in plugin_manager.get_plugins()
-    )
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.rules") as caplog:
+        plugin_manager = get_plugin_manager()
+        # The plugin import order is non-deterministic.
+        # Use sets in case the dbt plugin (or other plugins) are
+        # already installed too.
+        installed_plugins = set(
+            plugin_module.__name__ for plugin_module in plugin_manager.get_plugins()
+        )
+
     print(f"Installed plugins: {installed_plugins}")
     assert installed_plugins.issuperset(
         {
-            # Check that both the v1 and v2 example are correctly
-            # installed.
-            "example.rules",
+            "sqlfluff_plugin_example",
             "sqlfluff.core.plugin.lib",
         }
     )
+
+    # At this stage we should also check that the example plugin
+    # also raises a warning for it's import location.
+    assert (
+        "Rule 'Rule_Example_L001' has been imported before all plugins "
+        "have been fully loaded"
+    ) in caplog.text
 
 
 @pytest.mark.parametrize(

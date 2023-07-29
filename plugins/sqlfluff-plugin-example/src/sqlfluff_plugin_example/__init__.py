@@ -6,24 +6,33 @@ This uses the rules API supported from 0.4.0 onwards.
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules import BaseRule
 from typing import List, Type
-import os.path
 from sqlfluff.core.config import ConfigLoader
+
+# For backward compatibility we still support importing
+# rules within the body of the root plugin module. This is included
+# here for illustration, but also such that support for this import
+# order can be tested in the test suite (and that the associated
+# warning is triggered).
+# See note below in `get_rules()` for more details.
+# i.e. we DO NOT recommend importing here:
+from sqlfluff_plugin_example.rules import Rule_Example_L001  # noqa: F401
 
 
 @hookimpl
 def get_rules() -> List[Type[BaseRule]]:
     """Get plugin rules.
 
-    NOTE: It is important that we only import the rule on demand.
+    NOTE: It is much better that we only import the rule on demand.
     The root module of the plugin (i.e. this file which contains
-    all of the hook implementations) must have fully loaded before
+    all of the hook implementations) should have fully loaded before
     we try and import the rules. This is partly for performance
     reasons - but more because the definition of a BaseRule requires
     that all of the get_configs_info() methods have both been
     defined _and have run_ before so all the validation information
     is available for the validation steps in the meta class.
     """
-    from sqlfluff_plugin_example.rules import Rule_Example_L001
+    # i.e. we DO recommend importing here:
+    from sqlfluff_plugin_example.rules import Rule_Example_L001  # noqa: F811
 
     return [Rule_Example_L001]
 
