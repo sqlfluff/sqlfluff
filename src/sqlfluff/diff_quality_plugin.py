@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 class SQLFluffDriver(QualityDriver):
     """SQLFluff driver for use by SQLFluffViolationReporter."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             [sys.executable, "-m", "sqlfluff.cli.commands"],
             [".sql"],
@@ -47,7 +47,7 @@ class SQLFluffViolationReporter(QualityReporter):
 
     supported_extensions = ["sql"]
 
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         """Calls the base class constructor to set the object's name."""
         super().__init__(SQLFluffDriver(), **kw)
 

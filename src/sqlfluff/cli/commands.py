@@ -7,7 +7,7 @@ import json
 import logging
 import time
 from logging import LogRecord
-from typing import Callable, Tuple, Optional, cast
+from typing import Callable, Tuple, Optional
 
 import yaml
 
@@ -451,7 +451,7 @@ def get_linter_and_formatter(
 """,
 )
 @click.version_option()
-def cli():
+def cli() -> None:
     """SQLFluff is a modular SQL linter for humans."""  # noqa D403
 
 
@@ -501,7 +501,7 @@ def dialects(**kwargs) -> None:
     click.echo(formatter.format_dialects(dialect_readout), color=c.get("color"))
 
 
-def dump_file_payload(filename: Optional[str], payload: str):
+def dump_file_payload(filename: Optional[str], payload: str) -> None:
     """Write the output file content to stdout or file."""
     # If there's a file specified to write to, write to it.
     if filename:
@@ -685,7 +685,7 @@ def lint(
         file_output = "\n".join(github_result_native)
 
     if file_output:
-        dump_file_payload(write_output, cast(str, file_output))
+        dump_file_payload(write_output, file_output)
 
     if persist_timing:
         result.persist_timing_records(persist_timing)
@@ -734,7 +734,7 @@ def do_fixes(
     return False  # pragma: no cover
 
 
-def _stdin_fix(linter: Linter, formatter, fix_even_unparsable):
+def _stdin_fix(linter: Linter, formatter, fix_even_unparsable) -> None:
     """Handle fixing from stdin."""
     exit_code = EXIT_SUCCESS
     stdin = sys.stdin.read()
@@ -788,7 +788,7 @@ def _paths_fix(
     show_lint_violations,
     warn_force: bool = True,
     persist_timing: Optional[str] = None,
-):
+) -> None:
     """Handle fixing from paths."""
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     if formatter.verbosity >= 0:

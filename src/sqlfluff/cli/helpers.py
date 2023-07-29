@@ -2,7 +2,7 @@
 
 import sys
 import textwrap
-from typing import Dict, List
+from typing import List
 
 from sqlfluff import __version__ as pkg_version
 

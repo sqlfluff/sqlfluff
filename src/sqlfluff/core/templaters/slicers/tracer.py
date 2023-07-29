@@ -146,7 +146,7 @@ class JinjaTracer:
             )
         return raw_slices_search_result[0]
 
-    def move_to_slice(self, target_slice_idx, target_slice_length):
+    def move_to_slice(self, target_slice_idx, target_slice_length) -> None:
         """Given a template location, walk execution to that point."""
         while self.program_counter < len(self.raw_sliced):
             self.record_trace(
@@ -495,7 +495,7 @@ class JinjaAnalyzer:
 
     def track_call(
         self, m_open: regex.Match, m_close: regex.Match, tag_contents: List[str]
-    ):
+    ) -> RawSliceInfo:
         """Set up tracking for "{% call ... %}"."""
         unique_alternate_id = self.next_slice_id()
         open_ = m_open.group(1)

@@ -236,10 +236,11 @@ class LintFix:
             and self.edit[0].raw == self.anchor.raw
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if self.edit_type == "delete":
             detail = f"delete:{self.anchor.raw!r}"
         elif self.edit_type in ("replace", "create_before", "create_after"):
+            assert self.edit
             if hasattr(self.edit, "raw"):
                 new_detail = self.edit.raw  # pragma: no cover TODO?
             else:
@@ -259,7 +260,7 @@ class LintFix:
             f"@{self.anchor.pos_marker} {detail}>"
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """Compare equality with another fix.
 
         A fix is equal to another if is in the same place (position), with the
@@ -1181,7 +1182,7 @@ class RuleSet:
         self.config_info = config_info
         self._register: Dict[str, RuleManifest] = {}
 
-    def _validate_config_options(self, config, rule_ref: Optional[str] = None):
+    def _validate_config_options(self, config, rule_ref: Optional[str] = None) -> None:
         """Ensure that all config options are valid.
 
         Config options can also be checked for a specific rule e.g CP01.

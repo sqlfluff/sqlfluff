@@ -55,7 +55,7 @@ class GreedyUntil(BaseGrammar):
         matchers,
         enforce_whitespace_preceding_terminator,
         include_terminator=False,
-    ):
+    ) -> MatchResult:
         """Matching for GreedyUntil works just how you'd expect."""
         seg_buff = segments
         seg_bank = ()  # Empty tuple

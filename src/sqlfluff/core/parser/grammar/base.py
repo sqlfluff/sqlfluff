@@ -739,10 +739,10 @@ class BaseGrammar(Matchable):
             # bracket matching.
             return ((), MatchResult.from_unmatched(pre_seg_buff + seg_buff), None)
 
-    def __str__(self):  # pragma: no cover TODO?
+    def __str__(self) -> str:  # pragma: no cover TODO?
         return repr(self)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<{}: [{}]>".format(
             self.__class__.__name__,
             curtail_string(
@@ -751,7 +751,7 @@ class BaseGrammar(Matchable):
             ),
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """Two grammars are equal if their elements and types are equal.
 
         NOTE: We use the equality_kwargs tuple on the class to define

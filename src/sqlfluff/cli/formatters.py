@@ -147,7 +147,7 @@ class OutputStreamFormatter:
         """Dispatch configuration output appropriately."""
         self._dispatch(self._format_config(linter))
 
-    def dispatch_persist_filename(self, filename, result):
+    def dispatch_persist_filename(self, filename, result) -> None:
         """Dispatch filenames during a persist operation."""
         # Only show the skip records at higher levels of verbosity
         if self.verbosity >= 2 or result != "SKIP":
@@ -194,7 +194,7 @@ class OutputStreamFormatter:
                 )
             )
 
-    def dispatch_compilation_header(self, templater, message):
+    def dispatch_compilation_header(self, templater, message) -> None:
         """Dispatch the header displayed before linting."""
         self._dispatch(
             f"=== [{self.colorize(templater, Color.lightgrey)}] {message}"
@@ -546,7 +546,7 @@ class OutputStreamFormatter:
         )
         return text_buffer.getvalue()
 
-    def format_dialects(self, dialect_readout, verbose=0):
+    def format_dialects(self, dialect_readout, verbose=0) -> str:
         """Format the dialects yielded by `dialect_readout`."""
         text_buffer = StringIO()
         text_buffer.write("==== sqlfluff - dialects ====\n")

@@ -31,7 +31,7 @@ from os import getenv
 
 def _all_remaining_metas(
     remaining_elements: _Sequence[MatchableType], parse_context: ParseContext
-) -> Optional[Tuple[BaseSegment, ...]]:
+) -> Optional[Tuple[MetaSegment, ...]]:
     """Check the remaining elements, instantiate them if they're metas.
 
     Helper function in `Sequence.match()`.
@@ -48,7 +48,7 @@ def _all_remaining_metas(
 
     # Yes, so we shortcut back early because we don't want
     # to claim any more whitespace.
-    return_segments: Tuple[BaseSegment, ...] = tuple()
+    return_segments: Tuple[MetaSegment, ...] = tuple()
     # Instantiate all the metas
     for e in remaining_elements:
         # If it's meta, instantiate it.
@@ -95,17 +95,14 @@ class Sequence(BaseGrammar):
 
     @match_wrapper()
     @allow_ephemeral
-    def match(self, segments, parse_context):
+    def match(self, segments, parse_context: ParseContext) -> MatchResult:
         """Match a specific sequence of elements."""
-        if isinstance(segments, BaseSegment):
-            segments = tuple(segments)  # pragma: no cover TODO?
-
         matched_segments = MatchResult.from_empty()
         unmatched_segments = segments
 
         # Buffers of uninstantiated meta segments.
-        meta_pre_nc = ()
-        meta_post_nc = ()
+        meta_pre_nc: Tuple[MetaSegment, ...] = ()
+        meta_post_nc: Tuple[MetaSegment, ...] = ()
         early_break = False
 
         for idx, elem in enumerate(self._elements):
@@ -133,7 +130,7 @@ class Sequence(BaseGrammar):
                         return MatchResult.from_unmatched(segments)
 
                 # Then handle any metas mid-sequence.
-                new_metas = ()
+                new_metas: Tuple[MetaSegment, ...] = ()
                 # Is it a raw meta?
                 if elem.is_meta:
                     new_metas = (elem(),)
@@ -280,7 +277,7 @@ class Bracketed(Sequence):
         start_bracket, _, _ = self.get_bracket_from_dialect(parse_context)
         return start_bracket.simple(parse_context=parse_context, crumbs=crumbs)
 
-    def get_bracket_from_dialect(self, parse_context):
+    def get_bracket_from_dialect(self, parse_context: ParseContext):
         """Rehydrate the bracket segments in question."""
         for bracket_type, start_ref, end_ref, persists in parse_context.dialect.sets(
             self.bracket_pairs_set

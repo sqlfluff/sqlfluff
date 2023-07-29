@@ -770,7 +770,7 @@ class ConfigLoader:
     @classmethod
     def find_ignore_config_files(
         cls, path, working_path=Path.cwd(), ignore_file_name=".sqlfluffignore"
-    ):
+    ) -> set:
         """Finds sqlfluff ignore files from both the path and its parent paths."""
         return set(
             filter(
@@ -785,7 +785,9 @@ class ConfigLoader:
         )
 
     @staticmethod
-    def iter_config_locations_up_to_path(path, working_path=Path.cwd()):
+    def iter_config_locations_up_to_path(
+        path, working_path=Path.cwd()
+    ) -> Iterator[str]:
         """Finds config locations from both the path and its parent paths.
 
         The lowest priority is the user appdir, then home dir, then increasingly

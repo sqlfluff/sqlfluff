@@ -1,7 +1,7 @@
 """Implementation of Rule AL07."""
 
 from collections import Counter, defaultdict
-from typing import Generator, List, NamedTuple, Optional
+from typing import Generator, NamedTuple, Optional
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext

@@ -77,7 +77,7 @@ class BaseRunner(ABC):
         raise NotImplementedError  # pragma: no cover
 
     @classmethod
-    def _init_global(cls, config):
+    def _init_global(cls, config) -> None:
         """Initializes any global state.
 
         May be overridden by subclasses to apply global configuration, initialize
@@ -86,7 +86,7 @@ class BaseRunner(ABC):
         pass
 
     @staticmethod
-    def _handle_lint_path_exception(fname, e):
+    def _handle_lint_path_exception(fname, e) -> None:
         if isinstance(e, IOError):
             # IOErrors are caught in commands.py, so propagate it
             raise (e)  # pragma: no cover

@@ -75,7 +75,9 @@ class JinjaTemplater(PythonTemplater):
         return context
 
     @classmethod
-    def _extract_macros_from_path(cls, path: List[str], env: Environment, ctx: Dict):
+    def _extract_macros_from_path(
+        cls, path: List[str], env: Environment, ctx: Dict
+    ) -> dict:
         """Take a path and extract macros from it."""
         macro_ctx = {}
         for path_entry in path:
@@ -199,7 +201,7 @@ class JinjaTemplater(PythonTemplater):
             schema = "this_schema"
             database = "this_database"
 
-            def __str__(self):  # pragma: no cover TODO?
+            def __str__(self) -> str:  # pragma: no cover TODO?
                 return self.name
 
         dbt_builtins = {
@@ -625,7 +627,7 @@ class DBTTestExtension(Extension):
 
     tags = {"test"}
 
-    def parse(self, parser):
+    def parse(self, parser) -> jinja2.nodes.Macro:
         """Parses out the contents of the test tag."""
         node = jinja2.nodes.Macro(lineno=next(parser.stream).lineno)
         test_name = parser.parse_assign_target(name_only=True).name

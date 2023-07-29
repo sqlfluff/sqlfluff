@@ -266,7 +266,7 @@ class SelectCrawler:
                     self.query_tree.parent = parent
             pop_queries_for.append(path[-1])
 
-        def finish_segment():
+        def finish_segment() -> None:
             """Bookkeeping when a segment finishes processing."""
             try:
                 idx = pop_queries_for.index(path[-1])

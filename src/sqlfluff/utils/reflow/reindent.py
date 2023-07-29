@@ -124,7 +124,7 @@ class _IndentLine:
         )
 
     @classmethod
-    def from_points(cls, indent_points: List[_IndentPoint]):
+    def from_points(cls, indent_points: List[_IndentPoint]) -> "_IndentLine":
         # Catch edge case for first line where we'll start with a
         # block if no initial indent.
         if indent_points[-1].last_line_break_idx:

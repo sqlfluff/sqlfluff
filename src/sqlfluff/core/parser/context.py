@@ -31,7 +31,7 @@ class RootParseContext:
     which created it so that it can refer to config within it.
     """
 
-    def __init__(self, dialect, indentation_config=None, recurse=True):
+    def __init__(self, dialect, indentation_config=None, recurse=True) -> None:
         """Store persistent config objects."""
         self.dialect = dialect
         self.recurse = recurse
@@ -47,13 +47,13 @@ class RootParseContext:
         self.uuid = uuid.uuid4()
         # A dict for parse caching. This is reset for each file,
         # but persists for the duration of an individual file parse.
-        self._parse_cache = {}
+        self._parse_cache: dict = {}
         # A dictionary for keeping track of some statistics on parsing
         # for performance optimisation.
         # Focused around BaseGrammar._longest_trimmed_match().
         # Initialise only with "next_counts", the rest will be int
         # and are dealt with in .increment().
-        self.parse_stats = {"next_counts": defaultdict(int)}
+        self.parse_stats: dict = {"next_counts": defaultdict(int)}
 
     @classmethod
     def from_config(cls, config, **overrides: Dict[str, bool]) -> "RootParseContext":
@@ -233,16 +233,16 @@ class ParseContext:
 class ParseDenylist:
     """Acts as a cache to stop unnecessary matching."""
 
-    def __init__(self):
-        self._denylist_struct = {}
+    def __init__(self) -> None:
+        self._denylist_struct: dict = {}
 
-    def _hashed_version(self):  # pragma: no cover TODO?
+    def _hashed_version(self) -> dict:  # pragma: no cover TODO?
         return {
             k: {hash(e) for e in self._denylist_struct[k]}
             for k in self._denylist_struct
         }
 
-    def check(self, seg_name, seg_tuple):
+    def check(self, seg_name, seg_tuple) -> bool:
         """Check this seg_tuple against this seg_name.
 
         Has this seg_tuple already been matched
@@ -253,13 +253,13 @@ class ParseDenylist:
                 return True
         return False
 
-    def mark(self, seg_name, seg_tuple):
+    def mark(self, seg_name, seg_tuple) -> None:
         """Mark this seg_tuple as not a match with this seg_name."""
         if seg_name in self._denylist_struct:
             self._denylist_struct[seg_name].add(seg_tuple)
         else:
             self._denylist_struct[seg_name] = {seg_tuple}
 
-    def clear(self):
+    def clear(self) -> None:
         """Clear the denylist struct."""
         self._denylist_struct = {}

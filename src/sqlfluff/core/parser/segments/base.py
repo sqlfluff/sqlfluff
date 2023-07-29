@@ -754,7 +754,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return False
 
     @classmethod
-    def structural_simplify(cls, elem):
+    def structural_simplify(cls, elem) -> Optional["BaseSegment"]:
         """Simplify the structure recursively so it serializes nicely in json/yaml."""
         if len(elem) == 0:
             return None
@@ -1015,7 +1015,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             )
         return result
 
-    def copy(self):
+    def copy(self) -> "BaseSegment":
         """Copy the segment recursively, with appropriate copying of references."""
         new_seg = copy(self)
         # Position markers are immutable, and it's important that we keep

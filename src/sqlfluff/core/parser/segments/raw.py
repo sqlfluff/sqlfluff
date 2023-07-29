@@ -4,7 +4,7 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
-from typing import List, Optional, Tuple, Set
+from typing import Any, List, Optional, Tuple, Set
 from uuid import UUID, uuid4
 
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
@@ -68,7 +68,7 @@ class RawSegment(BaseSegment):
         # and became very expensive
         return self.representation
 
-    def __setattr__(self, key, value) -> None:
+    def __setattr__(self, key: str, value: Any) -> None:
         """Overwrite BaseSegment's __setattr__ with BaseSegment's superclass."""
         super(BaseSegment, self).__setattr__(key, value)
 

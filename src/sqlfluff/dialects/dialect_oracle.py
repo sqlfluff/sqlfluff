@@ -13,6 +13,7 @@ from sqlfluff.core.parser import (
     Delimited,
     GreedyUntil,
     Matchable,
+    OptionallyBracketed,
     Ref,
     RegexLexer,
     RegexParser,
@@ -438,7 +439,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         # Optional list of column names
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
-        ansi.OptionallyBracketed(Ref("SelectableGrammar")),
+        OptionallyBracketed(Ref("SelectableGrammar")),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
 

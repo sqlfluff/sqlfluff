@@ -85,7 +85,7 @@ class Rule_LT09(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
     is_fix_compatible = True
 
-    def _eval(self, context: RuleContext):
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
         self.wildcard_policy: str
         assert context.segment.is_type("select_clause")
         select_targets_info = self._get_indexes(context)
@@ -105,9 +105,10 @@ class Rule_LT09(BaseRule):
             return self._eval_multiple_select_target_elements(
                 select_targets_info, context.segment
             )
+        return None
 
     @staticmethod
-    def _get_indexes(context: RuleContext):
+    def _get_indexes(context: RuleContext) -> SelectTargetsInfo:
         children = FunctionalContext(context).segment.children()
         select_targets = children.select(sp.is_type("select_clause_element"))
         first_select_target_idx = children.find(select_targets.get())
