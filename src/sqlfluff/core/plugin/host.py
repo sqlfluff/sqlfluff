@@ -42,3 +42,16 @@ def get_plugin_manager() -> pluggy.PluginManager:
     plugins_loaded.set(True)
 
     return plugin_manager
+
+
+def purge_plugin_manager() -> None:
+    """Purge the current loaded plugin manager.
+
+    NOTE: This method should not be used in normal SQFluff
+    operation, but exists so that in the test suite we can
+    reliably clear the cached plugin manager and force
+    plugins to be reload.
+    """
+    # Reset back to defaults.
+    _plugin_manager.set(None)
+    plugins_loaded.set(False)

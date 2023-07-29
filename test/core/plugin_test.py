@@ -1,14 +1,36 @@
 """Plugin related tests."""
 import logging
 import pytest
+import sys
 
-from sqlfluff.core.plugin.host import get_plugin_manager
+from sqlfluff.core.plugin.host import get_plugin_manager, purge_plugin_manager
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 
 
 def test__plugin_manager_registers_example_plugin():
     """Test that the example plugin is registered."""
+
+    # This test also tests that warnings are raised on the import of
+    # plugins which have their imports in the wrong place (e.g. the
+    # example plugin). That means we need to make sure the plugin is
+    # definitely reimported at the start of this test, so we can see
+    # any warnings raised on imports.
+
+    # To do this we clear the plugin manager cache and also forcibly
+    # unload the example plugin modules if they are already loaded.
+    # This ensures that we can capture any warnings raised by importing the
+    # module.
+    purge_plugin_manager()
+    try:
+        del sys.modules["sqlfluff_plugin_example"]
+    except KeyError:
+        pass
+    try:
+        del sys.modules["sqlfluff_plugin_example.rules"]
+    except KeyError:
+        pass
+
     with fluff_log_catcher(logging.WARNING, "sqlfluff.rules") as caplog:
         plugin_manager = get_plugin_manager()
         # The plugin import order is non-deterministic.
