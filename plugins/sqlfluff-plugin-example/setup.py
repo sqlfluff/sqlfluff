@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 
 # Change these names in your plugin, e.g. company name or plugin purpose.
 PLUGIN_LOGICAL_NAME = "example"
-PLUGIN_ROOT_MODULE = "example"
+PLUGIN_ROOT_MODULE = "sqlfluff_plugin_example"
 
 setup(
     name=f"sqlfluff-plugin-{PLUGIN_LOGICAL_NAME}",
