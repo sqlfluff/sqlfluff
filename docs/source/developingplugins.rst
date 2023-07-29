@@ -10,7 +10,7 @@ to be included in the core library.
 
 .. note::
 
-    It is necessary to ensure that the module in a plugin which defines all
+    We recommend that the module in a plugin which defines all
     of the hook implementations (anything using the ``@hookimpl`` decorator)
     must be able to fully import before any rule implementations are imported.
     More specifically, the SQLFluff must be able to both *import* **and**
@@ -19,6 +19,11 @@ to be included in the core library.
     this, we recommend that rules are defined in a separate module to the
     root of the plugin and then only imported within the ``get_rules()``
     method.
+
+    Importing in the main body of the module was previously our recommendation
+    and so may be the case for versions of some plugins. If one of your plugins
+    does use imports in this way, a warning will be presented, recommending that
+    you update your plugin.
 
     .. code-block:: python
        :emphasize-lines: 7,8

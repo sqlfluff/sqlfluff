@@ -584,7 +584,7 @@ class RuleMetaclass(type):
                 f"Rule {name!r} has been imported before all plugins "
                 "have been fully loaded. For best performance, plugins "
                 "should import any rule definitions within their `get_rules()` "
-                "method. See: "
+                "method. Please update your plugin to remove this warning. See: "
                 "https://docs.sqlfluff.com/en/stable/developingplugins.html"
             )
         elif class_dict.get("config_keywords", []):
