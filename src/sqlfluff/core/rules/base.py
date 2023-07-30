@@ -208,7 +208,7 @@ class LintFix:
             # can't guarantee with edits.
         self.source = [seg for seg in source if seg.pos_marker] if source else []
 
-    def is_trivial(self):
+    def is_trivial(self) -> bool:
         """Return true if the fix is trivial.
 
         Trivial edits are:
@@ -221,7 +221,7 @@ class LintFix:
             if isinstance(self.edit, BaseSegment):
                 if len(self.edit.raw) == 0:  # pragma: no cover TODO?
                     return True
-            elif all(len(elem.raw) == 0 for elem in self.edit):
+            elif self.edit and all(len(elem.raw) == 0 for elem in self.edit):
                 return True
         elif self.edit_type == "replace" and self.edit == self.anchor:
             return True  # pragma: no cover TODO?
@@ -259,7 +259,7 @@ class LintFix:
             f"@{self.anchor.pos_marker} {detail}>"
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """Compare equality with another fix.
 
         A fix is equal to another if is in the same place (position), with the
@@ -701,7 +701,7 @@ class BaseRule(metaclass=RuleMetaclass):
     # Configuration that is defined in the Config.py file
     split_comma_separated_string = staticmethod(split_comma_separated_string)
 
-    def __init__(self, code, description, **kwargs):
+    def __init__(self, code, description, **kwargs) -> None:
         self.description = description
         self.code = code
         # kwargs represents the config passed to the rule. Add all kwargs as class
@@ -724,7 +724,7 @@ class BaseRule(metaclass=RuleMetaclass):
                 )
 
     @classmethod
-    def get_config_ref(cls):
+    def get_config_ref(cls) -> str:
         """Return the config lookup ref for this rule.
 
         If a `name` is defined, it's the name - otherwise the code.
@@ -1181,7 +1181,7 @@ class RuleSet:
         self.config_info = config_info
         self._register: Dict[str, RuleManifest] = {}
 
-    def _validate_config_options(self, config, rule_ref: Optional[str] = None):
+    def _validate_config_options(self, config, rule_ref: Optional[str] = None) -> None:
         """Ensure that all config options are valid.
 
         Config options can also be checked for a specific rule e.g CP01.

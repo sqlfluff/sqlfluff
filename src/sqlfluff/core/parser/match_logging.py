@@ -12,16 +12,16 @@ class LateLoggingObject:
 
     __slots__ = "v_level", "logger", "msg"
 
-    def __init__(self, logger, msg, v_level=3):
+    def __init__(self, logger, msg, v_level=3) -> None:
         self.v_level = v_level
         self.logger = logger
         self.msg = msg
 
-    def __str__(self):  # pragma: no cover TODO?
+    def __str__(self) -> str:  # pragma: no cover TODO?
         """Actually materialise the string."""
         return self.msg
 
-    def log(self):
+    def log(self) -> None:
         """Actually log this object."""
         # Otherwise carry on...
         if self.v_level == 3:
@@ -44,14 +44,14 @@ class ParseMatchLogObject(LateLoggingObject):
         "kwargs",
     ]
 
-    def __init__(self, parse_context, grammar, func, msg, v_level=3, **kwargs):
+    def __init__(self, parse_context, grammar, func, msg, v_level=3, **kwargs) -> None:
         super().__init__(v_level=v_level, logger=parse_context.logger, msg=msg)
         self.context = parse_context
         self.grammar = grammar
         self.func = func
         self.kwargs = kwargs
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Actually materialise the string."""
         symbol = self.kwargs.pop("symbol", "")
         s = "[PD:{:<2} MD:{:<2}]\t{:<50}\t{:<20}\t{:<4}".format(
@@ -71,7 +71,7 @@ class ParseMatchLogObject(LateLoggingObject):
         return s
 
 
-def parse_match_logging(grammar, func, msg, parse_context, v_level=3, **kwargs):
+def parse_match_logging(grammar, func, msg, parse_context, v_level=3, **kwargs) -> None:
     """Log in a particular consistent format for use while matching."""
     # Make a late bound log object so we only do the string manipulation when we need
     # to.
@@ -87,8 +87,8 @@ class LateBoundJoinSegmentsCurtailed:
     until actually required by the logger.
     """
 
-    def __init__(self, segments):
+    def __init__(self, segments) -> None:
         self.segments = segments
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(join_segments_raw_curtailed(self.segments))

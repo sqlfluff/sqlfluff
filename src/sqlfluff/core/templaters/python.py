@@ -2,7 +2,7 @@
 
 import ast
 from string import Formatter
-from typing import Iterable, Dict, Tuple, List, Iterator, Optional, NamedTuple, Callable
+from typing import Any, Iterable, Dict, Tuple, List, Iterator, Optional, NamedTuple, Callable
 
 from sqlfluff.core.errors import SQLTemplaterError
 from sqlfluff.core.string_helpers import findall
@@ -160,12 +160,12 @@ class PythonTemplater(RawTemplater):
 
     name = "python"
 
-    def __init__(self, override_context=None, **kwargs):
+    def __init__(self, override_context=None, **kwargs) -> None:
         self.default_context = dict(test_value="__test__")
         self.override_context = override_context or {}
 
     @staticmethod
-    def infer_type(s):
+    def infer_type(s) -> Any:
         """Infer a python type from a string and convert.
 
         Given a string value, convert it to a more specific built-in Python type

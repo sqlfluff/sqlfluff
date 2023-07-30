@@ -190,7 +190,7 @@ class BaseGrammar(Matchable):
 
         # Now we deal with the standard kwargs
         self.allow_gaps = allow_gaps
-        self.optional = optional
+        self.optional: bool = optional
         # ephemeral_name is a flag to indicate whether we need to make an
         # EphemeralSegment class. This is effectively syntactic sugar
         # to allow us to avoid specifying a EphemeralSegment directly in a dialect.
@@ -207,7 +207,7 @@ class BaseGrammar(Matchable):
         """
         return self._cache_key
 
-    def is_optional(self):
+    def is_optional(self) -> bool:
         """Return whether this segment is optional.
 
         The optional attribute is set in the __init__ method.
@@ -240,7 +240,7 @@ class BaseGrammar(Matchable):
         segments: Tuple[BaseSegment, ...],
         matchers: List[MatchableType],
         parse_context: ParseContext,
-        trim_noncode=True,
+        trim_noncode: bool = True,
     ) -> Tuple[MatchResult, Optional[MatchableType]]:
         """Return longest match from a selection of matchers.
 
@@ -739,10 +739,10 @@ class BaseGrammar(Matchable):
             # bracket matching.
             return ((), MatchResult.from_unmatched(pre_seg_buff + seg_buff), None)
 
-    def __str__(self):  # pragma: no cover TODO?
+    def __str__(self) -> str:  # pragma: no cover TODO?
         return repr(self)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<{}: [{}]>".format(
             self.__class__.__name__,
             curtail_string(
@@ -751,7 +751,7 @@ class BaseGrammar(Matchable):
             ),
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """Two grammars are equal if their elements and types are equal.
 
         NOTE: We use the equality_kwargs tuple on the class to define

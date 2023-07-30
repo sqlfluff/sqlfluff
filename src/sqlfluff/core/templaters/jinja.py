@@ -74,7 +74,9 @@ class JinjaTemplater(PythonTemplater):
         return context
 
     @classmethod
-    def _extract_macros_from_path(cls, path: List[str], env: Environment, ctx: Dict):
+    def _extract_macros_from_path(
+        cls, path: List[str], env: Environment, ctx: Dict
+    ) -> dict:
         """Take a path and extract macros from it."""
         macro_ctx = {}
         for path_entry in path:
@@ -198,7 +200,7 @@ class JinjaTemplater(PythonTemplater):
             schema = "this_schema"
             database = "this_database"
 
-            def __str__(self):  # pragma: no cover TODO?
+            def __str__(self) -> str:  # pragma: no cover TODO?
                 return self.name
 
         dbt_builtins = {
@@ -448,22 +450,22 @@ class JinjaTemplater(PythonTemplater):
             alters_data = False
 
             @classmethod
-            def create(cls, name):
+            def create(cls, name: str) -> "UndefinedRecorder":
                 return UndefinedRecorder(name=name)
 
-            def __init__(self, name):
+            def __init__(self, name: str) -> None:
                 self.name = name
 
-            def __str__(self):
+            def __str__(self) -> str:
                 """Treat undefined vars as empty, but remember for later."""
                 undefined_variables.add(self.name)
                 return ""
 
-            def __getattr__(self, item):
+            def __getattr__(self, item) -> "UndefinedRecorder":
                 undefined_variables.add(self.name)
                 return UndefinedRecorder(f"{self.name}.{item}")
 
-            def __call__(self, *args, **kwargs):
+            def __call__(self, *args, **kwargs) -> "UndefinedRecorder":
                 return UndefinedRecorder(f"{self.name}()")
 
         Undefined = (
@@ -545,15 +547,15 @@ class DummyUndefined(jinja2.Undefined):
     # https://jinja.palletsprojects.com/en/3.0.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
     alters_data = False
 
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         super().__init__()
         self.name = name
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name.replace(".", "_")
 
     @classmethod
-    def create(cls, name):
+    def create(cls, name) -> "DummyUndefined":
         """Factory method.
 
         When ignoring=templating is configured, use 'name' as the value for
@@ -574,10 +576,10 @@ class DummyUndefined(jinja2.Undefined):
     # Implement the most common magic methods. This helps avoid
     # templating errors for undefined variables.
     # https://www.tutorialsteacher.com/python/magic-methods-in-python
-    def _self_impl(self, *args, **kwargs):
+    def _self_impl(self, *args, **kwargs) -> "DummyUndefined":
         return self
 
-    def _bool_impl(self, *args, **kwargs):
+    def _bool_impl(self, *args, **kwargs) -> bool:
         return True
 
     __add__ = _self_impl
@@ -605,7 +607,7 @@ class DummyUndefined(jinja2.Undefined):
     __ge__ = _bool_impl
     __gt__ = _bool_impl
 
-    def __hash__(self):  # pragma: no cov
+    def __hash__(self) -> int:  # pragma: no cov
         # This is called by the "in" operator, among other things.
         return 0
 
@@ -618,7 +620,7 @@ class DBTTestExtension(Extension):
 
     tags = {"test"}
 
-    def parse(self, parser):
+    def parse(self, parser) -> jinja2.nodes.Macro:
         """Parses out the contents of the test tag."""
         node = jinja2.nodes.Macro(lineno=next(parser.stream).lineno)
         test_name = parser.parse_assign_target(name_only=True).name

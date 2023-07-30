@@ -111,7 +111,7 @@ class Rule_CV06(BaseRule):
         return anchor_segment
 
     @staticmethod
-    def _is_one_line_statement(parent_segment, segment):
+    def _is_one_line_statement(parent_segment, segment) -> bool:
         """Check if the statement containing the provided segment is one line."""
         # Find statement segment containing the current segment.
         statement_segment = next(

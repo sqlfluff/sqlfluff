@@ -31,7 +31,7 @@ class BaseRunner(ABC):
         self,
         linter,
         config,
-    ):
+    ) -> None:
         self.linter = linter
         self.config = config
 
@@ -77,7 +77,7 @@ class BaseRunner(ABC):
         raise NotImplementedError  # pragma: no cover
 
     @classmethod
-    def _init_global(cls, config):
+    def _init_global(cls, config) -> None:
         """Initializes any global state.
 
         May be overridden by subclasses to apply global configuration, initialize
@@ -86,7 +86,7 @@ class BaseRunner(ABC):
         pass
 
     @staticmethod
-    def _handle_lint_path_exception(fname, e):
+    def _handle_lint_path_exception(fname, e) -> None:
         if isinstance(e, IOError):
             # IOErrors are caught in commands.py, so propagate it
             raise (e)  # pragma: no cover
@@ -121,7 +121,7 @@ class ParallelRunner(BaseRunner):
     # don't pickle well.
     pass_formatter = False
 
-    def __init__(self, linter, config, processes):
+    def __init__(self, linter, config, processes) -> None:
         super().__init__(linter, config)
         self.processes = processes
 
@@ -192,7 +192,7 @@ class MultiProcessRunner(ParallelRunner):
     MAP_FUNCTION_NAME = "imap_unordered"
 
     @classmethod
-    def _init_global(cls, config):  # pragma: no cover
+    def _init_global(cls, config) -> None:  # pragma: no cover
         super()._init_global(config)
 
         # Disable signal handling in the child processes to let the parent

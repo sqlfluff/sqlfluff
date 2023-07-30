@@ -127,7 +127,7 @@ def get_aliases_from_select(segment, dialect=None):
     return table_aliases, standalone_aliases
 
 
-def _has_value_table_function(table_expr, dialect):
+def _has_value_table_function(table_expr, dialect) -> bool:
     if not dialect:
         # We need the dialect to get the value table function names. If
         # we don't have it, assume the clause does not have a value table

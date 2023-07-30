@@ -69,7 +69,7 @@ class RawFileSlice(NamedTuple):
         """Return the closing index of this slice."""
         return self.source_idx + len(self.raw)
 
-    def source_slice(self):
+    def source_slice(self) -> slice:
         """Return the a slice object for this slice."""
         return slice(self.source_idx, self.end_source_idx())
 
@@ -203,14 +203,14 @@ class TemplatedFile:
                 )
 
     @classmethod
-    def from_string(cls, raw):
+    def from_string(cls, raw) -> "TemplatedFile":
         """Create TemplatedFile from a string."""
         return cls(source_str=raw, fname="<string>")
 
-    def __repr__(self):  # pragma: no cover TODO?
+    def __repr__(self) -> str:  # pragma: no cover TODO?
         return "<TemplatedFile>"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the templated file if coerced to string."""
         return self.templated_str
 
@@ -465,7 +465,7 @@ class RawTemplater:
     name = "raw"
     templater_selector = "templater"
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         """Placeholder init function.
 
         Here we should load any initial config found in the root directory. The init
@@ -512,13 +512,13 @@ class RawTemplater:
         """
         return TemplatedFile(in_str, fname=fname), []
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """Return true if `other` is of the same class as this one.
 
         NB: This is useful in comparing configs.
         """
         return isinstance(other, self.__class__)
 
-    def config_pairs(self):
+    def config_pairs(self) -> list:
         """Returns info about the given templater for output by the cli."""
         return [("templater", self.name)]

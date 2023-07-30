@@ -63,7 +63,9 @@ class DepthInfo:
     stack_positions: Dict[int, StackPosition]
 
     @classmethod
-    def from_raw_and_stack(cls, raw: RawSegment, stack: Sequence[PathStep]):
+    def from_raw_and_stack(
+        cls, raw: RawSegment, stack: Sequence[PathStep]
+    ) -> "DepthInfo":
         """Construct from a raw and its stack."""
         stack_hashes = tuple(hash(ps.segment) for ps in stack)
         return cls(
@@ -87,7 +89,7 @@ class DepthInfo:
         common_depth = len(common_hashes)
         return self.stack_hashes[:common_depth]
 
-    def trim(self, amount: int):
+    def trim(self, amount: int) -> "DepthInfo":
         """Return a DepthInfo object with some amount trimmed."""
         if amount == 0:
             # The trivial case.
@@ -167,7 +169,7 @@ class DepthMap:
 
     def copy_depth_info(
         self, anchor: RawSegment, new_segment: RawSegment, trim: int = 0
-    ):
+    ) -> None:
         """Copy the depth info for one segment and apply to another.
 
         This mutates the existing depth map. That's ok because it's

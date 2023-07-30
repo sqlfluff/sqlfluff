@@ -37,6 +37,7 @@ from sqlfluff.core.parser import (
     StringLexer,
     AnySetOf,
 )
+from sqlfluff.core.parser.segments import BracketedSegment
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.dialect_sparksql_keywords import (
     RESERVED_KEYWORDS,
@@ -396,7 +397,7 @@ sparksql_dialect.replace(
         Ref("BinaryOperatorGrammar"),
         Ref("DelimiterGrammar"),
         Ref("JoinLikeClauseGrammar"),
-        ansi.BracketedSegment,
+        BracketedSegment,
     ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),

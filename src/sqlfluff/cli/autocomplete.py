@@ -12,7 +12,7 @@ except ImportError:  # pragma: no cover
     shell_completion_enabled = False
 
 
-def dialect_shell_complete(ctx, param, incomplete):
+def dialect_shell_complete(ctx, param, incomplete) -> list:
     """Shell completion for possible dialect names.
 
     We use this over click.Choice as we want to internally
