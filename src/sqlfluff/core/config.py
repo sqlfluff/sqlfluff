@@ -1244,7 +1244,9 @@ class FluffConfig:
         ConfigLoader._validate_configs([config_val], fname)
         # Set the value
         self.set_value(*config_val)
-        # If the config is for dialect, initialise the dialect
+        # If the config is for dialect, initialise the dialect.
+        # NOTE: Comparison with a 1-tuple is intentional here as
+        # the first element of config_val is a tuple.
         if config_val[0] == ("dialect",):
             self._initialise_dialect(config_val[1])
 
