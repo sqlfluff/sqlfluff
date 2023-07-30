@@ -92,6 +92,7 @@ class DeprecatedOptionsCommand(click.Command):
             finally:
                 del frame
 
+            assert deprecated
             if opt in deprecated:
                 msg = (
                     f"DeprecationWarning: The option {opt!r} is deprecated, "

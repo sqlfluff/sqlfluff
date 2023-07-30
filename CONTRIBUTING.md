@@ -189,6 +189,62 @@ sqlfluff parse test.sql
 ```
 (ensure your virtual environment is activated first).
 
+#### How to use and understand the test suite
+
+When developing for SQLFluff, you may not need (or wish) to run the whole test
+suite, depending on what you are working on. Here are a couple of scenarios
+for development, and which parts of the test suite you may find most useful.
+
+1. For dialect improvements (i.e. changes to anything in [src/sqlfluff/dialects](./src/sqlfluff/dialects))
+   you should not need to continuously run the full core test suite. Running
+   either `tox -e generate-fixture-yml` (if using tox), or setting up a python
+   virtualenv and running `test/generate_parse_fixture_yml.py` directly will
+   usually be sufficient. Both of these options accept arguments to restrict
+   runs to specific dialects to further improve iteration speed. e.g.
+   - `tox -e generate-fixture-yml -- -d mysql` will run just the mysql tests.
+   - `python test/generate_parse_fixture_yml.py -d mysql` will do the same.
+2. Developing for the dbt templater should only require running the dbt test
+   suite (see below).
+3. Developing rules and rule plugins there are a couple of scenarios.
+   - When developing a new rule or working with a more isolated rule, you
+     should only need to run the tests for that rule. These are usually what
+     are called the _yaml tests_. This refers to a body of example sql
+     statements and potential fixes defined in a large set of yaml files
+     found in [test/fixtures/rules/std_rule_cases](./test/fixtures/rules/std_rule_cases).
+     The easiest way to run these is by calling that part of the suite
+     directly and filtering to just that rule. For example:
+     - `tox -e py39 -- test/rules/yaml_test_cases_test.py -k AL01`
+     - `pytest test/rules/yaml_test_cases_test.py -k AL01`
+   - When developing on some more complicated rules, or ones known to
+     have interactions with other rules, there are a set of rule fixing
+     tests which apply a set combination of those rules. These are best
+     run via the `autofix` tests. For example:
+     - `tox -e py39 -- test/rules/std_fix_auto_test.py`
+     - `pytest test/rules/std_fix_auto_test.py`
+     - Potentially even the full rules suite `tox -e py39 -- test/rules`
+   - A small number of core rules are also used in making sure that inner
+     parts of SQLFluff are also functioning. This isn't great isolation
+     but does mean that occasionally you may find side effects of your
+     changes in the wider test suite. These can usually be caught by
+     running the full `tox -e py39` suite as a final check (or using the
+     test suite on GitHub when posting your PR).
+4. When developing the internals of SQLFluff (i.e. anything not
+   already mentioned above), the test suite typically mirrors the structure
+   of the internal submodules of sqlfluff:
+   - When working with the CLI, the `sqlfluff.cli` module has a test suite
+     called via `tox -e py39 -- test/cli`.
+   - When working with the templaters (i.e. `sqlfluff.core.templaters`), the
+     corresponding test suite is found via `tox -e py39 -- test/core/templaters`.
+   - This rough guidance and may however not apply for all of the internals.
+     For example, changes to the internals of the parsing module (`sqlfluff.core.parser`)
+     are very likely to have knock-on implications across the rest of the test
+     suite and it may be necessary to run the whole thing. In these
+     situations however you can usually work slowly outward, for example:
+     1. If your change is to the `AnyOf()` grammar, first running `tox -e py39 -- test/core/parser/grammar_test.py` would be wise.
+     2. ...followed by `tox -e py39 -- test/core/parser` once the above is passing.
+     3. ...and then `tox -e py39 -- test/core`.
+     4. ...and finally the full suite `tox -e py39`.
+
 #### dbt templater tests
 
 The dbt templater tests require a locally running Postgres instance. See the

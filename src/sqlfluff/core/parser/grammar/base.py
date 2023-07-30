@@ -2,10 +2,20 @@
 
 import copy
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List, Optional, Union, Type, Tuple, Any, cast
+from typing import (
+    TYPE_CHECKING,
+    List,
+    Optional,
+    Union,
+    Type,
+    Tuple,
+    Any,
+    cast,
+)
 from uuid import uuid4
 
 from sqlfluff.core.errors import SQLParseError
+from sqlfluff.core.parser.grammar.types import SimpleHintType
 from sqlfluff.core.string_helpers import curtail_string
 
 from sqlfluff.core.parser.segments import BaseSegment, BracketedSegment, allow_ephemeral
@@ -21,13 +31,14 @@ from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.parsers import BaseParser
 
 # Either a Matchable (a grammar or parser) or a Segment CLASS
+
 MatchableType = Union[Matchable, Type[BaseSegment]]
 
 if TYPE_CHECKING:
     from sqlfluff.core.dialects.base import Dialect  # pragma: no cover
 
 
-def first_trimmed_raw(seg):
+def first_trimmed_raw(seg) -> str:
     """Trim whitespace off a whole element raw.
 
     Used as a helper function in BaseGrammar._look_ahead_match.
@@ -60,7 +71,7 @@ class BracketInfo:
     bracket: BaseSegment
     segments: Tuple[BaseSegment, ...]
 
-    def to_segment(self, end_bracket):
+    def to_segment(self, end_bracket) -> BracketedSegment:
         """Turn the contained segments into a bracketed segment."""
         return BracketedSegment(
             segments=self.segments,
@@ -86,7 +97,7 @@ def cached_method_for_parse_context(func):
         for the current use case of dependency loop debugging that's
         ok.
         """
-        cache_tuple: Tuple = self.__dict__.get(cache_key, (None, None))
+        cache_tuple: tuple = self.__dict__.get(cache_key, (None, None))
         # Do we currently have a cached value?
         if cache_tuple[0] == parse_context.uuid:
             return cache_tuple[1]
@@ -143,7 +154,7 @@ class BaseGrammar(Matchable):
         allow_gaps=True,
         optional=False,
         ephemeral_name=None,
-    ):
+    ) -> None:
         """Deal with kwargs common to all grammars.
 
         Args:
@@ -205,7 +216,9 @@ class BaseGrammar(Matchable):
 
     @match_wrapper()
     @allow_ephemeral
-    def match(self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext):
+    def match(
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> MatchResult:
         """Match a list of segments against this segment.
 
         Matching can be done from either the raw or the segments.
@@ -217,7 +230,7 @@ class BaseGrammar(Matchable):
         )  # pragma: no cover
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext, crumbs=None):
+    def simple(self, parse_context: ParseContext, crumbs=None) -> SimpleHintType:
         """Does this matcher support a lowercase hash matching route?"""
         return None
 
@@ -954,7 +967,7 @@ class Ref(BaseGrammar):
         return resp
 
     @classmethod
-    def keyword(cls, keyword, **kwargs):
+    def keyword(cls, keyword, **kwargs) -> BaseGrammar:
         """Generate a reference to a keyword by name.
 
         This function is entirely syntactic sugar, and designed

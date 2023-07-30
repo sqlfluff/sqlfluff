@@ -32,7 +32,7 @@ class SQLBaseError(ValueError):
         super().__init__(*args, **kwargs)
 
     @property
-    def fixable(self):
+    def fixable(self) -> bool:
         """Should this error be considered fixable?"""
         return False
 
@@ -196,7 +196,7 @@ class SQLLintError(SQLBaseError):
         super().__init__(*args, **kwargs)
 
     @property
-    def fixable(self):
+    def fixable(self) -> bool:
         """Should this error be considered fixable?"""
         if self.fixes:
             return True

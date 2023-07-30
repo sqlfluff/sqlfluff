@@ -75,47 +75,47 @@ class RawSegment(BaseSegment):
     # ################ PUBLIC PROPERTIES
 
     @property
-    def matched_length(self):
+    def matched_length(self) -> int:
         """Return the length of the segment in characters."""
         return len(self._raw)
 
     @property
-    def is_expandable(self):
+    def is_expandable(self) -> bool:
         """Return true if it is meaningful to call `expand` on this segment."""
         return False
 
     @property
-    def is_code(self):
+    def is_code(self) -> bool:
         """Return True if this segment is code."""
         return self._is_code
 
     @property
-    def is_comment(self):
+    def is_comment(self) -> bool:
         """Return True if this segment is a comment."""
         return self._is_comment
 
     @property
-    def is_whitespace(self):
+    def is_whitespace(self) -> bool:
         """Return True if this segment is whitespace."""
         return self._is_whitespace
 
     @property
-    def raw(self):
+    def raw(self) -> str:
         """Returns the raw segment."""
         return self._raw
 
     @property
-    def raw_upper(self):
+    def raw_upper(self) -> str:
         """Returns the raw segment in uppercase."""
         return self._raw_upper
 
     @property
-    def raw_segments(self):
+    def raw_segments(self) -> List["RawSegment"]:
         """Returns self to be compatible with calls to its superclass."""
         return [self]
 
     @property
-    def segments(self):
+    def segments(self) -> List["BaseSegment"]:
         """Return an empty list of child segments.
 
         This is in case something tries to iterate on this segment.
@@ -139,25 +139,25 @@ class RawSegment(BaseSegment):
 
     # ################ INSTANCE METHODS
 
-    def invalidate_caches(self):
+    def invalidate_caches(self) -> None:
         """Overwrite superclass functionality."""
         pass
 
-    def get_type(self):
+    def get_type(self) -> Optional[str]:
         """Returns the type of this segment as a string."""
         return self._surrogate_type or self.type
 
-    def is_type(self, *seg_type):
+    def is_type(self, *seg_type) -> bool:
         """Extend the parent class method with the surrogate types."""
         if self._surrogate_type and self._surrogate_type in seg_type:
             return True
         return self.class_is_type(*seg_type)
 
-    def get_raw_segments(self):
+    def get_raw_segments(self) -> List["RawSegment"]:
         """Iterate raw segments, mostly for searching."""
         return [self]
 
-    def raw_trimmed(self):
+    def raw_trimmed(self) -> str:
         """Return a trimmed version of the raw content."""
         raw_buff = self.raw
         if self.trim_start:
@@ -177,16 +177,12 @@ class RawSegment(BaseSegment):
             return raw_buff
         return raw_buff
 
-    def raw_list(self):  # pragma: no cover TODO?
-        """Return a list of the raw content of this segment."""
-        return [self.raw]
-
-    def stringify(self, ident=0, tabsize=4, code_only=False):
+    def stringify(self, ident=0, tabsize=4, code_only=False) -> str:
         """Use indentation to render this segment and its children as a string."""
         preface = self._preface(ident=ident, tabsize=tabsize)
         return preface + "\n"
 
-    def _suffix(self):
+    def _suffix(self) -> str:
         """Return any extra output required at the end when logging.
 
         NB Override this for specific subclasses if we want extra output.
@@ -195,7 +191,7 @@ class RawSegment(BaseSegment):
 
     def edit(
         self, raw: Optional[str] = None, source_fixes: Optional[List[SourceFix]] = None
-    ):
+    ) -> "RawSegment":
         """Create a new segment, with exactly the same position but different content.
 
         Returns:
