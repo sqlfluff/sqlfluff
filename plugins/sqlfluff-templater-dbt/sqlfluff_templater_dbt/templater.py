@@ -110,7 +110,7 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_version_tuple(self):
         """Gets the dbt version."""
-        return (int(self._dbt_version.major), int(self._dbt_version.minor))
+        return int(self._dbt_version.major), int(self._dbt_version.minor)
 
     @cached_property
     def dbt_config(self):

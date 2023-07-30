@@ -23,6 +23,9 @@ def test__plugin_manager_registers_example_plugin():
     module.
     """
     purge_plugin_manager()
+    # We still to a try/except here, even though it's only run within
+    # the context of a test because the module may or may not already
+    # be imported depending on the order that the tests run in.
     try:
         del sys.modules["sqlfluff_plugin_example"]
     except KeyError:
