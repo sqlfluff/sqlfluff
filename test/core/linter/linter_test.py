@@ -267,7 +267,7 @@ def test__linter__linting_result_get_violations(processes):
         processes=processes,
     )
 
-    all([type(v) == SQLLintError for v in result.get_violations()])
+    all([isinstance(v, SQLLintError) for v in result.get_violations()])
 
 
 @pytest.mark.parametrize("force_error", [False, True])
@@ -310,7 +310,7 @@ def test__linter__linting_parallel_thread(force_error, monkeypatch):
         processes=2,
     )
 
-    all([type(v) == SQLLintError for v in result.get_violations()])
+    all([isinstance(v, SQLLintError) for v in result.get_violations()])
 
 
 @patch("sqlfluff.core.linter.Linter.lint_rendered")
