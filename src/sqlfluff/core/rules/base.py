@@ -236,11 +236,10 @@ class LintFix:
             and self.edit[0].raw == self.anchor.raw
         )
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         if self.edit_type == "delete":
             detail = f"delete:{self.anchor.raw!r}"
         elif self.edit_type in ("replace", "create_before", "create_after"):
-            assert self.edit
             if hasattr(self.edit, "raw"):
                 new_detail = self.edit.raw  # pragma: no cover TODO?
             else:
