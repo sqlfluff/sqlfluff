@@ -1,5 +1,5 @@
 """Implementation of Rule CV06."""
-from typing import List, NamedTuple, Optional, Sequence, cast, Tuple
+from typing import List, NamedTuple, Optional, Sequence, cast
 
 from sqlfluff.core.parser import SymbolSegment
 from sqlfluff.core.parser.segments.base import BaseSegment, IdentitySet

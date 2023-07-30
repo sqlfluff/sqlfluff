@@ -3,7 +3,6 @@
 import copy
 import logging
 
-from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.segments.base import BaseSegment
 
