@@ -296,6 +296,27 @@ def split_comma_separated_string(raw: Union[str, List[str]]) -> List[str]:
     )
 
 
+def split_colon_separated_string(in_str: str) -> Tuple[List[str], str]:
+    """Converts a colon separated string.
+    
+    NOTE: This also includes some provisions for values which may be
+    Windows paths containing colons and NOT stripping those.
+    """
+    config_path = []
+    for element in in_str.split(":"):
+        # If the next element begins with a backslash, and the previous
+        # one had length == 1,  then this is probably a windows path.
+        # In which case, rejoin them together.
+        element = element.strip()
+        if element and element[0] == "\\" and config_path[-1] and len(config_path[-1]) == 1:
+            config_path[-1] = config_path[-1] + ":" + element
+        else:
+            # Otherwise just add it to the path.
+            config_path.append(element)
+
+    return (tuple(config_path[:-1]), config_path[-1])
+
+
 class ConfigLoader:
     """The class for loading config files.
 
@@ -451,6 +472,8 @@ class ConfigLoader:
         else:
             assert config_string
             config.read_string(config_string)
+            # Set the fpath to the current working directory
+            fpath = os.getcwd()
 
         for k in config.sections():
             if k == "sqlfluff":
@@ -1161,7 +1184,7 @@ class FluffConfig:
         # Current section:
         dict_buff = [self._configs]
         for elem in config_path[:-1]:
-            dict_buff.append(dict_buff[-1][elem])
+            dict_buff.append(dict_buff[-1].get(elem, {}))
         # Set the value
         dict_buff[-1][config_path[-1]] = config_val
         # Rebuild the config
@@ -1211,16 +1234,14 @@ class FluffConfig:
             )
             return
         config_line = config_line[9:].strip()
-        # Divide on colons
-        config_path = [elem.strip() for elem in config_line.split(":")]
-        config_val = (tuple(config_path[:-1]), config_path[-1])
+        config_val = split_colon_separated_string(config_line)
         # Validate the value
         ConfigLoader._validate_configs([config_val], fname)
         # Set the value
         self.set_value(*config_val)
         # If the config is for dialect, initialise the dialect
-        if config_path[:-1] == ["dialect"]:
-            self._initialise_dialect(config_path[-1])
+        if config_val[0] == ["dialect"]:
+            self._initialise_dialect(config_val[1])
 
     def process_raw_file_for_config(self, raw_str: str, fname: str) -> None:
         """Process a full raw file for inline config and update self."""
