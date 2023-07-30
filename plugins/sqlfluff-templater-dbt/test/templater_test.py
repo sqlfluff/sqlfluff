@@ -210,10 +210,15 @@ def test__templater_dbt_slice_file_wrapped_test(
     raw_file, templated_file, result, dbt_templater, caplog  # noqa: F811
 ):
     """Test that wrapped queries are sliced safely using _check_for_wrapped()."""
+
+    def _render_func(in_str):
+        """Return the test fixture regardless."""
+        return templated_file
+
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
         _, resp, _ = dbt_templater.slice_file(
             raw_file,
-            templated_file,
+            render_func=_render_func,
         )
     assert resp == result
 

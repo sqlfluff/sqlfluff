@@ -399,22 +399,6 @@ class JinjaTemplater(PythonTemplater):
         except SQLTemplaterError as err:
             return None, [err]
 
-        # Load the template, passing the global context.
-        try:
-            template = make_template(in_str)
-        except TemplateSyntaxError as err:
-            # Something in the template didn't parse, return the original
-            # and a violation around what happened.
-            return (
-                TemplatedFile(source_str=in_str, fname=fname),
-                [
-                    SQLTemplaterError(
-                        f"Failure to parse jinja template: {err}.",
-                        line_no=err.lineno,
-                    )
-                ],
-            )
-
         violations: List[SQLBaseError] = []
 
         # Attempt to identify any undeclared variables. The majority
@@ -468,15 +452,26 @@ class JinjaTemplater(PythonTemplater):
             if val not in live_context:
                 live_context[val] = Undefined.create(val)  # type: ignore
 
+        def render_func(in_str: str) -> str:
+            """Wraps the make_template function into a renderer."""
+            # Load the template, passing the global context.
+            try:
+                template = make_template(in_str)
+            except TemplateSyntaxError as err:
+                # Something in the template didn't parse, return the original
+                # and a violation around what happened.
+                raise SQLTemplaterError(
+                    f"Failure to parse jinja template: {err}.",
+                    line_no=err.lineno,
+                )
+            return template.render()
+
         try:
-            # NB: Passing no context. Everything is loaded when the template is loaded.
-            out_str = template.render(**live_context)
             # Slice the file once rendered.
             raw_sliced, sliced_file, out_str = self.slice_file(
                 in_str,
-                out_str,
+                render_func=render_func,
                 config=config,
-                make_template=make_template,
             )
             if undefined_variables:
                 # Lets go through and find out where they are:
@@ -513,27 +508,16 @@ class JinjaTemplater(PythonTemplater):
             return None, violations
 
     def slice_file(
-        self, raw_str: str, templated_str: str, config=None, **kwargs
+        self, raw_str: str, render_func: Callable[[str], str], config=None, **kwargs
     ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix."""
         # The JinjaTracer slicing algorithm is more robust, but it requires
-        # us to create and render a second template (not raw_str) and is only
-        # enabled if the caller passes a make_template() function.
-        make_template = kwargs.pop("make_template", None)
-        if make_template is None:
-            # make_template() was not provided. Use the base class
-            # implementation instead.
-            return super().slice_file(
-                raw_str, templated_str, config, **kwargs
-            )  # pragma: no cover
+        # us to create and render a second template (not raw_str).
 
         templater_logger.info("Slicing File Template")
-        templater_logger.debug("    Raw String: %r", raw_str)
-        templater_logger.debug("    Templated String: %r", templated_str)
-        # TRICKY: Note that the templated_str parameter is not used. JinjaTracer
-        # uses make_template() to build and render the template itself.
+        templater_logger.debug("    Raw String: %r", raw_str[:80])
         analyzer = JinjaAnalyzer(raw_str, self._get_jinja_env())
-        tracer = analyzer.analyze(make_template)
+        tracer = analyzer.analyze(render_func)
         trace = tracer.trace(append_to_templated=kwargs.pop("append_to_templated", ""))
         return trace.raw_sliced, trace.sliced_file, trace.templated_str
 
