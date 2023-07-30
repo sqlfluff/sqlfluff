@@ -38,7 +38,7 @@ from sqlfluff.core.templaters.base import TemplatedFile, large_file_check
 
 from sqlfluff.core.templaters.jinja import JinjaTemplater
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from dbt.semver import VersionSpecifier
     from sqlfluff.core import FluffConfig
     from sqlfluff.cli.formatters import OutputStreamFormatter
