@@ -36,7 +36,7 @@ class PositionMarker:
     working_line_no: int = -1
     working_line_pos: int = -1
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         # If the working position has not been explicitly set
         # then infer it from the position in the templated file.
         # This is accurate up until the point that any fixes have
@@ -82,7 +82,7 @@ class PositionMarker:
         templated_point: int,
         templated_file: "TemplatedFile",
         **kwargs,
-    ):
+    ) -> "PositionMarker":
         """Convenience method for creating point markers."""
         return cls(
             zero_slice(source_point),
@@ -118,7 +118,7 @@ class PositionMarker:
         )
 
     @classmethod
-    def from_child_markers(cls, *markers):
+    def from_child_markers(cls, *markers) -> "PositionMarker":
         """Create a parent marker from it's children."""
         source_slice = slice(
             min(m.source_slice.start for m in markers),

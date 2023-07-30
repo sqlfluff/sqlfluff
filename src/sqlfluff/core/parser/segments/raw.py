@@ -4,7 +4,7 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
-from typing import List, Optional, Tuple, Set
+from typing import Any, List, Optional, Tuple, Set
 from uuid import UUID, uuid4
 
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
@@ -62,13 +62,13 @@ class RawSegment(BaseSegment):
             self.__class__.__name__, self.pos_marker, self.raw
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         # This is calculated at __init__, because all elements are immutable
         # and this was previously recalculating the pos marker,
         # and became very expensive
         return self.representation
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, key: str, value: Any) -> None:
         """Overwrite BaseSegment's __setattr__ with BaseSegment's superclass."""
         super(BaseSegment, self).__setattr__(key, value)
 
@@ -143,7 +143,7 @@ class RawSegment(BaseSegment):
         """Overwrite superclass functionality."""
         pass
 
-    def get_type(self) -> Optional[str]:
+    def get_type(self) -> str:
         """Returns the type of this segment as a string."""
         return self._surrogate_type or self.type
 
@@ -290,7 +290,7 @@ class KeywordSegment(CodeSegment):
             source_fixes=source_fixes,
         )
 
-    def edit(self, raw=None, source_fixes=None):
+    def edit(self, raw=None, source_fixes=None) -> "KeywordSegment":
         """Create a new segment, with exactly the same position but different content.
 
         Returns:

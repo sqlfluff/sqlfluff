@@ -3926,7 +3926,7 @@ class StatementSegment(BaseSegment):
         Ref("DropTriggerStatementSegment"),
     )
 
-    def get_table_references(self):
+    def get_table_references(self) -> set:
         """Use parsed tree to extract table references."""
         table_refs = {
             tbl_ref.raw for tbl_ref in self.recursive_crawl("table_reference")

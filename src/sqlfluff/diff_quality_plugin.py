@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 class SQLFluffDriver(QualityDriver):
     """SQLFluff driver for use by SQLFluffViolationReporter."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             [sys.executable, "-m", "sqlfluff.cli.commands"],
             [".sql"],
@@ -33,11 +33,11 @@ class SQLFluffDriver(QualityDriver):
             exit_codes=[0, 1],
         )
 
-    def parse_reports(self, reports):  # pragma: no cover
+    def parse_reports(self, reports) -> None:  # pragma: no cover
         """Parse report output. Not used by SQLFluff."""
         pass
 
-    def installed(self):
+    def installed(self) -> bool:
         """Check if SQLFluff is installed."""
         return run_command_for_code("sqlfluff") == 0
 
@@ -47,7 +47,7 @@ class SQLFluffViolationReporter(QualityReporter):
 
     supported_extensions = ["sql"]
 
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         """Calls the base class constructor to set the object's name."""
         super().__init__(SQLFluffDriver(), **kw)
 

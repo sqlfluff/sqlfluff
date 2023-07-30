@@ -770,7 +770,7 @@ class ConfigLoader:
     @classmethod
     def find_ignore_config_files(
         cls, path, working_path=Path.cwd(), ignore_file_name=".sqlfluffignore"
-    ):
+    ) -> set:
         """Finds sqlfluff ignore files from both the path and its parent paths."""
         return set(
             filter(
@@ -785,7 +785,9 @@ class ConfigLoader:
         )
 
     @staticmethod
-    def iter_config_locations_up_to_path(path, working_path=Path.cwd()):
+    def iter_config_locations_up_to_path(
+        path, working_path=Path.cwd()
+    ) -> Iterator[str]:
         """Finds config locations from both the path and its parent paths.
 
         The lowest priority is the user appdir, then home dir, then increasingly
@@ -942,7 +944,7 @@ class FluffConfig:
         state["_configs"]["core"].pop("templater_obj", None)
         return state
 
-    def __setstate__(self, state):  # pragma: no cover
+    def __setstate__(self, state) -> None:  # pragma: no cover
         # Restore instance attributes
         self.__dict__.update(state)
         # NB: We don't reinstate the plugin manager, but this should only
@@ -1220,7 +1222,7 @@ class FluffConfig:
         if config_path[:-1] == ["dialect"]:
             self._initialise_dialect(config_path[-1])
 
-    def process_raw_file_for_config(self, raw_str: str, fname: str):
+    def process_raw_file_for_config(self, raw_str: str, fname: str) -> None:
         """Process a full raw file for inline config and update self."""
         # Scan the raw file for config commands.
         for raw_line in raw_str.splitlines():

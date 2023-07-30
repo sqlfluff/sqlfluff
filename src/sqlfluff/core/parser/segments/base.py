@@ -72,7 +72,7 @@ class SourceFix:
     # More work required to achieve that if desired.
     templated_slice: slice
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         # Only hash based on the source slice, not the
         # templated slice (which might change)
         return hash((self.edit, self.source_slice.start, self.source_slice.stop))
@@ -754,7 +754,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return False
 
     @classmethod
-    def structural_simplify(cls, elem):
+    def structural_simplify(cls, elem) -> Optional["BaseSegment"]:
         """Simplify the structure recursively so it serializes nicely in json/yaml."""
         if len(elem) == 0:
             return None
@@ -855,7 +855,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     # ################ PRIVATE INSTANCE METHODS
 
-    def _recalculate_caches(self):
+    def _recalculate_caches(self) -> None:
         for key in [
             "is_code",
             "is_comment",
@@ -873,7 +873,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         ]:
             self.__dict__.pop(key, None)
 
-    def _preface(self, ident, tabsize):
+    def _preface(self, ident, tabsize) -> str:
         """Returns the preamble to any logging."""
         padded_type = "{padding}{modifier}{type}".format(
             padding=" " * (ident * tabsize),
@@ -890,11 +890,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     # ################ PUBLIC INSTANCE METHODS
 
-    def get_type(self):
+    def get_type(self) -> str:
         """Returns the type of this segment as a string."""
         return self.type
 
-    def count_segments(self, raw_only=False):
+    def count_segments(self, raw_only=False) -> int:
         """Returns the number of segments in this segment."""
         if self.segments:
             self_count = 0 if raw_only else 1
@@ -919,20 +919,24 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         self._recalculate_caches()
 
-    def get_start_point_marker(self):  # pragma: no cover
+    def get_start_point_marker(self) -> PositionMarker:  # pragma: no cover
         """Get a point marker at the start of this segment."""
+        assert self.pos_marker
         return self.pos_marker.start_point_marker()
 
-    def get_end_point_marker(self):
+    def get_end_point_marker(self) -> PositionMarker:
         """Get a point marker at the end of this segment."""
+        assert self.pos_marker
         return self.pos_marker.end_point_marker()
 
-    def get_start_loc(self):
+    def get_start_loc(self) -> Tuple[int, int]:
         """Get a location tuple at the start of this segment."""
+        assert self.pos_marker
         return self.pos_marker.working_loc
 
-    def get_end_loc(self):
+    def get_end_loc(self) -> Tuple[int, int]:
         """Get a location tuple at the end of this segment."""
+        assert self.pos_marker
         return self.pos_marker.working_loc_after(
             self.raw,
         )
@@ -1011,7 +1015,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             )
         return result
 
-    def copy(self):
+    def copy(self) -> "BaseSegment":
         """Copy the segment recursively, with appropriate copying of references."""
         new_seg = copy(self)
         # Position markers are immutable, and it's important that we keep
@@ -1030,7 +1034,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """
         return self.structural_simplify(self.to_tuple(**kwargs))
 
-    def get_raw_segments(self):
+    def get_raw_segments(self) -> List["RawSegment"]:
         """Iterate raw segments, mostly for searching."""
         return [item for s in self.segments for item in s.raw_segments]
 
@@ -1830,11 +1834,11 @@ class IdentitySet(MutableSet):
 
     key = id  # should return a hashable object
 
-    def __init__(self, iterable=()):
-        self.map = {}  # id -> object
+    def __init__(self, iterable=()) -> None:
+        self.map: dict = {}  # id -> object
         self |= iterable  # add elements from iterable to the set (union)
 
-    def __len__(self):  # Sized
+    def __len__(self) -> int:  # Sized
         return len(self.map)
 
     def __iter__(self):  # Iterable
@@ -1847,7 +1851,7 @@ class IdentitySet(MutableSet):
         """Add an element."""
         self.map[self.key(value)] = value
 
-    def update(self, value):
+    def update(self, value) -> None:
         """Add elements in 'value'."""
         for v in value:
             self.add(v)
@@ -1856,7 +1860,7 @@ class IdentitySet(MutableSet):
         """Remove an element.  Do not raise an exception if absent."""
         self.map.pop(self.key(value), None)  # pragma: no cover
 
-    def __repr__(self):  # pragma: no cover
+    def __repr__(self) -> str:  # pragma: no cover
         if not self:
             return "%s()" % (self.__class__.__name__,)
         return "%s(%r)" % (self.__class__.__name__, list(self))

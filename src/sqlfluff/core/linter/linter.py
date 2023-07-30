@@ -407,7 +407,7 @@ class Linter:
                 rules_this_phase = rule_pack.rules
             for loop in range(loop_limit if phase == "main" else 2):
 
-                def is_first_linter_pass():
+                def is_first_linter_pass() -> bool:
                     return phase == phases[0] and loop == 0
 
                 # Additional newlines are to assist in scanning linting loops

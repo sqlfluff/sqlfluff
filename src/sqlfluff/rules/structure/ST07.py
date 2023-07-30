@@ -156,7 +156,9 @@ def _extract_cols_from_using(join_clause: Segments, using_segs: Segments) -> Lis
     return using_cols
 
 
-def _generate_join_conditions(table_a_ref: str, table_b_ref: str, columns: List[str]):
+def _generate_join_conditions(
+    table_a_ref: str, table_b_ref: str, columns: List[str]
+) -> List[BaseSegment]:
     edit_segments: List[BaseSegment] = []
     for col in columns:
         edit_segments = edit_segments + [
