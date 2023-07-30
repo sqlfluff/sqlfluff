@@ -41,7 +41,7 @@ class Delimited(OneOf):
         terminator=None,
         min_delimiters=None,
         **kwargs,
-    ):
+    ) -> None:
         if delimiter is None:  # pragma: no cover
             raise ValueError("Delimited grammars require a `delimiter`")
         self.bracket_pairs_set = kwargs.pop("bracket_pairs_set", "bracket_pairs")

@@ -11,7 +11,7 @@ class TimingSummary:
         self.steps = steps
         self._timings: List[Dict[str, float]] = []
 
-    def add(self, timing_dict: Dict[str, float]):
+    def add(self, timing_dict: Dict[str, float]) -> None:
         """Add a timing dictionary to the summary."""
         self._timings.append(timing_dict)
         if not self.steps:
@@ -46,12 +46,14 @@ class RuleTimingSummary:
     def __init__(self) -> None:
         self._timings: List[Tuple[str, str, float]] = []
 
-    def add(self, rule_timings: List[Tuple[str, str, float]]):
+    def add(self, rule_timings: List[Tuple[str, str, float]]) -> None:
         """Add a set of rule timings."""
         # Add records to the main list.
         self._timings.extend(rule_timings)
 
-    def summary(self, threshold=0.5) -> Dict[str, Dict[str, Union[float, str]]]:
+    def summary(
+        self, threshold: float = 0.5
+    ) -> Dict[str, Dict[str, Union[float, str]]]:
         """Generate a summary for display."""
         keys: Set[Tuple[str, str]] = set()
         vals: Dict[Tuple[str, str], List[float]] = defaultdict(list)

@@ -23,7 +23,7 @@ class GreedyUntil(BaseGrammar):
 
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self.enforce_whitespace_preceding_terminator = kwargs.pop(
             "enforce_whitespace_preceding_terminator", False
         )
@@ -157,7 +157,7 @@ class StartsWith(GreedyUntil):
     This also has configurable whitespace and comment handling.
     """
 
-    def __init__(self, target, *args, **kwargs):
+    def __init__(self, target, *args, **kwargs) -> None:
         self.target = self._resolve_ref(target)
         self.terminator = self._resolve_ref(kwargs.pop("terminator", None))
         self.include_terminator = kwargs.pop("include_terminator", False)

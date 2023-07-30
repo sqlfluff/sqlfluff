@@ -125,7 +125,7 @@ class IntermediateFileSlice(NamedTuple):
         # Return
         return head_buffer, new_slice, tail_buffer
 
-    def try_simple(self):
+    def try_simple(self) -> TemplatedFileSlice:
         """Try to turn this intermediate slice into a simple slice."""
         # Yield anything simple
         if len(self.slice_buffer) == 1:
@@ -137,7 +137,7 @@ class IntermediateFileSlice(NamedTuple):
         else:
             raise ValueError("IntermediateFileSlice is not simple!")
 
-    def coalesce(self):
+    def coalesce(self) -> TemplatedFileSlice:
         """Coalesce this whole slice into a single one. Brutally."""
         return TemplatedFileSlice(
             PythonTemplater._coalesce_types(self.slice_buffer),
