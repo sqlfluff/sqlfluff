@@ -246,3 +246,20 @@ test_fail_right_table_no_join_clause_in_main_query:
     select
         b
     from foo
+
+test_fail_right_table_first_brackets:
+  fail_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    left join bar
+        on (bar.a = foo.a)
+
+  fix_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    left join bar
+        on (foo.a = bar.a)

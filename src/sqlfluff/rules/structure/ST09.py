@@ -1,5 +1,5 @@
 """Implementation of Rule ST09."""
-from typing import Optional, Tuple, Any
+from typing import Optional, Tuple, List, Any
 from sqlfluff.core.parser.segments.raw import BaseSegment, SymbolSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
@@ -82,7 +82,7 @@ class Rule_ST09(BaseRule):
         assert context.segment.is_type("from_expression")
 
         # STEP 0.
-        table_aliases: list[str] = []
+        table_aliases: List[str] = []
 
         children = FunctionalContext(context).segment.children()
 
@@ -96,9 +96,30 @@ class Rule_ST09(BaseRule):
         if len(join_on_conditions) == 0:
             return None
 
-        from_expression__from_expression_element: Any = children.first(
-            sp.is_type("from_expression_element")
-        )[0]
+        # we handle situations where the from keyword is followed by one bracket
+        if (
+            len(children.select(sp.is_type("from_expression_element"))) == 0
+            and len(
+                children.select(sp.is_type("bracketed"))
+                .children()
+                .select(sp.is_type("from_expression_element"))
+            )
+            == 0
+        ):
+            return None
+
+        from_expression__from_expression_element: Any
+
+        if len(children.select(sp.is_type("from_expression_element"))) > 0:
+            from_expression__from_expression_element = children.first(
+                sp.is_type("from_expression_element")
+            )[0]
+        else:
+            from_expression__from_expression_element = (
+                children.select(sp.is_type("bracketed"))
+                .children()
+                .first(sp.is_type("from_expression_element"))[0]
+            )
 
         # the first alias comes from the from clause
         table_aliases.append(
@@ -106,9 +127,9 @@ class Rule_ST09(BaseRule):
         )
 
         # the rest of the aliases come from the different join clauses
-        join_clause_list: list[Any] = [clause for clause in join_clauses]
+        join_clause_list: List[Any] = [clause for clause in join_clauses]
 
-        join_clause_aliases: list[str] = [
+        join_clause_aliases: List[str] = [
             join_clause_list[i].get_eventual_aliases()[0][1].ref_str
             for i in range(len(join_clause_list))
         ]
@@ -118,22 +139,45 @@ class Rule_ST09(BaseRule):
         table_aliases = [alias.upper() for alias in table_aliases]
 
         # STEP 1.
-        conditions: list[list[BaseSegment]] = []
+        conditions: List[List[BaseSegment]] = []
 
-        join_on_condition__expressions = join_on_conditions.children().select(
-            sp.is_type("expression")
-        )
+        # we handle situations where the on keyword is followed by one bracket
+        if len(join_on_conditions.children().select(sp.is_type("bracketed"))) == 0:
+            join_on_condition__expressions = join_on_conditions.children().select(
+                sp.is_type("expression")
+            )
+        else:
+            join_on_condition__expressions = (
+                join_on_conditions.children()
+                .select(sp.is_type("bracketed"))
+                .children()
+                .select(sp.is_type("expression"))
+            )
 
         # we exclude segments of type whitespace or newline
         for expression in join_on_condition__expressions:
             expression_group = []
-            for element in Segments(expression).children():
-                if element.type not in ("whitespace", "newline"):
-                    expression_group.append(element)
+            if (
+                len(Segments(expression).children().select(sp.is_type("bracketed")))
+                == 0
+            ):
+                for element in Segments(expression).children():
+                    if element.type not in ("whitespace", "newline"):
+                        expression_group.append(element)
+            else:
+                for element in (
+                    Segments(expression).children().select(sp.is_type("bracketed"))
+                ):
+                    for sub_element in (
+                        Segments(element).children().select(sp.is_type("expression"))
+                    ):
+                        for sub_sub_element in Segments(sub_element).children():
+                            if sub_sub_element.type not in ("whitespace", "newline"):
+                                expression_group.append(sub_sub_element)
             conditions.append(expression_group)
 
         # STEP 2.
-        subconditions: list[list[list[BaseSegment]]] = []
+        subconditions: List[List[List[BaseSegment]]] = []
 
         for expression_group in conditions:
             subconditions.append(
@@ -144,19 +188,19 @@ class Rule_ST09(BaseRule):
                 )
             )
 
-        subconditions_flattened: list[list[BaseSegment]] = [
+        subconditions_flattened: List[List[BaseSegment]] = [
             item for sublist in subconditions for item in sublist
         ]
 
         # STEP 3.
-        column_operator_column_subconditions: list[list[BaseSegment]] = [
+        column_operator_column_subconditions: List[List[BaseSegment]] = [
             subcondition
             for subcondition in subconditions_flattened
             if self._is_column_operator_column_sequence(subcondition)
         ]
 
         # STEP 4.
-        fixes: list[LintFix] = []
+        fixes: List[LintFix] = []
 
         for subcondition in column_operator_column_subconditions:
             comparison_operator = Segments(subcondition[1])
@@ -245,8 +289,8 @@ class Rule_ST09(BaseRule):
 
     @staticmethod
     def _split_list_by_segment_type(
-        segment_list: list[BaseSegment], delimiter_type: str, delimiters: list[str]
-    ) -> list:
+        segment_list: List[BaseSegment], delimiter_type: str, delimiters: List[str]
+    ) -> List:
         # Break down a list into multiple sub-lists using a set of delimiters
         delimiters = [delimiter.upper() for delimiter in delimiters]
         new_list = []
@@ -267,7 +311,7 @@ class Rule_ST09(BaseRule):
         return new_list
 
     @staticmethod
-    def _is_column_operator_column_sequence(segment_list: list[BaseSegment]) -> bool:
+    def _is_column_operator_column_sequence(segment_list: List[BaseSegment]) -> bool:
         # Check if list is made up of a column_reference segment,
         # a comparison_operator segment and another column_reference segment
         if len(segment_list) != 3:
