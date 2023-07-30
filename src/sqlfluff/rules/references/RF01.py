@@ -136,7 +136,7 @@ class Rule_RF01(BaseRule):
         dml_target_table: Optional[Tuple[str, ...]],
         dialect: Dialect,
         violations: List[LintResult],
-    ):
+    ) -> None:
         # For each query...
         for selectable in query.selectables:
             select_info = selectable.select_info
@@ -172,7 +172,7 @@ class Rule_RF01(BaseRule):
             )
 
     @staticmethod
-    def _should_ignore_reference(reference, selectable):
+    def _should_ignore_reference(reference, selectable) -> bool:
         ref_path = selectable.selectable.path_to(reference)
         # Ignore references occurring in an "INTO" clause:
         # - They are table references, not column references.

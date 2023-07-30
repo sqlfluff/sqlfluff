@@ -11,12 +11,14 @@ def to_tuple(s: slice) -> Tuple[int, int]:
 
 def slice_length(s: slice) -> int:
     """Get the length of a slice."""
-    return s.stop - s.start
+    length: int = s.stop - s.start
+    return length
 
 
 def is_zero_slice(s: slice) -> bool:
     """Return true if this is a zero slice."""
-    return s.stop == s.start
+    is_zero: bool = s.stop == s.start
+    return is_zero
 
 
 def zero_slice(i: int) -> slice:

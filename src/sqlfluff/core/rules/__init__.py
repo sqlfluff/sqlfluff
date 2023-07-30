@@ -14,7 +14,7 @@ from sqlfluff.core.rules.config_info import STANDARD_CONFIG_INFO_DICT
 from sqlfluff.core.plugin.host import get_plugin_manager
 
 
-def _load_standard_rules():
+def _load_standard_rules() -> RuleSet:
     """Initialise the standard ruleset.
 
     We do this on each call so that dynamic rules changes

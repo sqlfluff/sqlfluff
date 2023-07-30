@@ -454,11 +454,11 @@ class _CTEBuilder:
                 missing_space_after_from = True
         return missing_space_after_from, from_clause, from_clause_children, from_segment
 
-    def replace_with_clone(self, segment, clone_map):
+    def replace_with_clone(self, segment, clone_map) -> None:
         for idx, cte in enumerate(self.ctes):
             if any(segment is seg for seg in cte.recursive_crawl_all()):
                 self.ctes[idx] = clone_map[self.ctes[idx]]
-                return
+                return None
 
 
 def _is_child(maybe_parent: Segments, maybe_child: Segments) -> bool:

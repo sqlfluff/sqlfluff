@@ -1,5 +1,5 @@
 """Testing utils for working with the CLIs."""
-from click.testing import CliRunner
+from click.testing import CliRunner, Result
 
 
 def invoke_assert_code(
@@ -9,7 +9,7 @@ def invoke_assert_code(
     cli_input=None,
     mix_stderr=True,
     output_contains="",
-):
+) -> Result:
     """Invoke a command and check return code."""
     args = args or []
     kwargs = kwargs or {}

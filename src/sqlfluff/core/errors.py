@@ -20,7 +20,7 @@ class SQLBaseError(ValueError):
         fatal=False,
         warning=False,
         **kwargs
-    ):
+    ) -> None:
         self.fatal = fatal
         self.ignore = ignore
         self.warning = warning
@@ -159,7 +159,7 @@ class SQLParseError(SQLBaseError):
     _code = "PRS"
     _identifier = "parsing"
 
-    def __init__(self, *args, segment=None, **kwargs):
+    def __init__(self, *args, segment=None, **kwargs) -> None:
         # Store the segment on creation - we might need it later
         self.segment = segment
         if self.segment:
@@ -185,7 +185,7 @@ class SQLLintError(SQLBaseError):
 
     def __init__(
         self, *args, segment=None, rule=None, fixes=None, description=None, **kwargs
-    ):
+    ) -> None:
         # Something about position, message and fix?
         self.segment = segment
         if self.segment:

@@ -103,7 +103,7 @@ class ReflowSequence:
         return "".join(elem.raw for elem in self.elements)
 
     @staticmethod
-    def _validate_reflow_sequence(elements: ReflowSequenceType):
+    def _validate_reflow_sequence(elements: ReflowSequenceType) -> None:
         # An empty set of elements _is_ allowed as an edge case.
         if not elements:
             # Return early if so
@@ -120,6 +120,7 @@ class ReflowSequence:
             assert all(
                 isinstance(elem, EvenType) for elem in elements[1::2]
             ), f"Not all even elements are {EvenType.__name__}"
+            return None
         except AssertionError as err:  # pragma: no cover
             for elem in elements:
                 reflow_logger.error("   - %s", elem)
@@ -562,7 +563,7 @@ class ReflowSequence:
             lint_results=lint_results,
         )
 
-    def reindent(self):
+    def reindent(self) -> "ReflowSequence":
         """Reindent lines within a sequence."""
         if self.lint_results:
             raise NotImplementedError(  # pragma: no cover

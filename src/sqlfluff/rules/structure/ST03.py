@@ -56,7 +56,7 @@ class Rule_ST03(BaseRule):
             yield from cls._find_all_ctes(query)
 
     @classmethod
-    def _visit_sources(cls, query: Query):
+    def _visit_sources(cls, query: Query) -> None:
         for selectable in query.selectables:
             for source in query.crawl_sources(selectable.selectable, pop=True):
                 if isinstance(source, Query):

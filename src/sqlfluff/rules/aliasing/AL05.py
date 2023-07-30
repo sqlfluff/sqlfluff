@@ -163,7 +163,7 @@ class Rule_AL05(BaseRule):
         return False  # pragma: no cover
 
     @classmethod
-    def _analyze_table_aliases(cls, query: AL05Query, dialect: Dialect):
+    def _analyze_table_aliases(cls, query: AL05Query, dialect: Dialect) -> None:
         # Get table aliases defined in query.
         for selectable in query.selectables:
             select_info = selectable.select_info
@@ -186,7 +186,7 @@ class Rule_AL05(BaseRule):
             cls._analyze_table_aliases(cast(AL05Query, child), dialect)
 
     @classmethod
-    def _resolve_and_mark_reference(cls, query: AL05Query, ref: str):
+    def _resolve_and_mark_reference(cls, query: AL05Query, ref: str) -> None:
         # Does this query define the referenced alias?
         if any(ref == a.ref_str for a in query.aliases):
             # Yes. Record the reference.

@@ -166,7 +166,7 @@ class StringParser(BaseParser):
         """
         return self._simple, frozenset()
 
-    def _is_first_match(self, segment: BaseSegment):
+    def _is_first_match(self, segment: BaseSegment) -> bool:
         """Does the segment provided match according to the current rules."""
         # Is the target a match and IS IT CODE.
         # The latter stops us accidentally matching comments.
@@ -238,14 +238,14 @@ class RegexParser(BaseParser):
             **segment_kwargs,
         )
 
-    def simple(cls, parse_context: ParseContext, crumbs=None):
+    def simple(cls, parse_context: ParseContext, crumbs=None) -> None:
         """Does this matcher support a uppercase hash matching route?
 
         Regex segment does NOT for now. We might need to later for efficiency.
         """
         return None
 
-    def _is_first_match(self, segment: BaseSegment):
+    def _is_first_match(self, segment: BaseSegment) -> bool:
         """Does the segment provided match according to the current rules.
 
         RegexParser implements its own matching function where
