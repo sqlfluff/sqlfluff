@@ -319,7 +319,7 @@ def split_colon_separated_string(in_str: str) -> Tuple[Tuple[str, ...], str]:
             # Otherwise just add it to the path.
             config_path.append(element)
 
-    return (tuple(config_path[:-1]), config_path[-1])
+    return tuple(config_path[:-1]), config_path[-1]
 
 
 class ConfigLoader:
