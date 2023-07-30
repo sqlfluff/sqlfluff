@@ -41,6 +41,17 @@ def test__linter__lint_ephemeral_3_level(project_dir):  # noqa
     lntr.lint_path(path=model_file_path)
 
 
+def test__linter__config_pairs(project_dir):  # noqa
+    """Test that the dbt templater returns version information in it's config."""
+    conf = FluffConfig(configs=DBT_FLUFF_CONFIG)
+    lntr = Linter(config=conf)
+    # NOTE: This method is called within the config readout.
+    assert lntr.templater.config_pairs() == [
+        ("templater", "dbt"),
+        ("dbt", lntr.templater.dbt_version),
+    ]
+
+
 @pytest.mark.skipif(
     sys.platform.startswith("win"),
     reason="Fails on GitHub Windows with: Paths don't have the same drive",
