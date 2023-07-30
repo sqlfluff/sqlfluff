@@ -658,7 +658,7 @@ class DbtTemplater(JinjaTemplater):
             #    3. Append the count from #1 above to compiled_sql. (In
             #       production, slice_file() does not usually use this string,
             #       but some test scenarios do.
-            setattr(node, RAW_SQL_ATTRIBUTE, source_dbt_sql)
+            setattr(node, raw_sql_attribute, source_dbt_sql)
 
             # So for files that have no templated elements in them, render_func
             # will still be null at this point. If so, we replace it with a lambda
