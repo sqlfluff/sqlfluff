@@ -1560,9 +1560,15 @@ class AlterRoleStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         OneOf("ROLE", "USER"),
-        OneOf(Ref("RoleReferenceSegment"), "ALL"),
         OneOf(
+            # role_specification
             Sequence(
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    Ref("RoleReferenceSegment"),
+                ),
                 Ref.keyword("WITH", optional=True),
                 AnySetOf(
                     OneOf("SUPERUSER", "NOSUPERUSER"),
@@ -1573,13 +1579,28 @@ class AlterRoleStatementSegment(BaseSegment):
                     OneOf("REPLICATION", "NOREPLICATION"),
                     OneOf("BYPASSRLS", "NOBYPASSRLS"),
                     Sequence("CONNECTION", "LIMIT", Ref("NumericLiteralSegment")),
-                    Sequence("PASSWORD", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
+                    Sequence(
+                        Ref.keyword("ENCRYPTED", optional=True),
+                        "PASSWORD",
+                        OneOf(Ref("QuotedLiteralSegment"), "NULL"),
+                    ),
                     Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment")),
                 ),
-                optional=True,
             ),
-            Sequence("RENAME", "TO", Ref("RoleReferenceSegment"), optional=True),
+            # name only
             Sequence(
+                Ref("RoleReferenceSegment"),
+                Sequence("RENAME", "TO", Ref("RoleReferenceSegment")),
+            ),
+            # role_specification | all
+            Sequence(
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    "ALL",
+                    Ref("RoleReferenceSegment"),
+                ),
                 Sequence(
                     "IN",
                     "DATABASE",
@@ -1611,7 +1632,6 @@ class AlterRoleStatementSegment(BaseSegment):
                     ),
                     Sequence("RESET", OneOf(Ref("ParameterNameSegment"), "ALL")),
                 ),
-                optional=True,
             ),
         ),
     )

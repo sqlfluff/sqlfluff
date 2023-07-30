@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b6c96ddb1dfcfd7fcc60de3b141edda1c9b72bd7a22de586fce83b51d3e3dfb2
+_hash: 612f5a6269c6f3b3edfb7afeee15e095dce9d4e4d6adfaeaab1ccab45eb525ce
 file:
 - statement:
     create_table_statement:
@@ -340,38 +340,35 @@ file:
     - table_reference:
         naked_identifier: codec_example
     - bracketed:
-        start_bracket: (
-        column_definition:
+      - start_bracket: (
+      - column_definition:
           naked_identifier: timestamp
           data_type:
             data_type_identifier: DateTime
           column_constraint_segment:
-          - keyword: CODEC
-          - expression:
+            keyword: CODEC
+            expression:
               bracketed:
                 start_bracket: (
                 expression:
                   column_reference:
                     naked_identifier: DoubleDelta
                 end_bracket: )
-          - comma: ','
-          - expression:
-              column_reference:
-                naked_identifier: slow_values
-          - expression:
-              column_reference:
-                naked_identifier: Float32
-          - expression:
-              function:
-                function_name:
-                  function_name_identifier: CODEC
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: Gorilla
-                  end_bracket: )
-        end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: slow_values
+          data_type:
+            data_type_identifier: Float32
+          column_constraint_segment:
+            keyword: CODEC
+            expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: Gorilla
+                end_bracket: )
+      - end_bracket: )
     - engine:
         keyword: ENGINE
         comparison_operator:

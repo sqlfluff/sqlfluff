@@ -11,12 +11,12 @@ class WrapParseMatchLogObject(ParseMatchLogObject):
     This defers some of the specialist handling to later.
     """
 
-    def __init__(self, match, segments, **kwargs):
+    def __init__(self, match, segments, **kwargs) -> None:
         self.match = match
         self.segments = segments
         super().__init__(msg="OUT", match=match, **kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.match.is_complete():
             self.kwargs["symbol"] = "++"
         elif self.match:

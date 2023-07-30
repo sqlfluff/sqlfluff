@@ -7,7 +7,7 @@ import json
 import logging
 import time
 from logging import LogRecord
-from typing import Callable, Tuple, Optional, cast
+from typing import Callable, Tuple, Optional
 
 import yaml
 
@@ -138,13 +138,13 @@ def set_logging_level(
 class PathAndUserErrorHandler:
     """Make an API call but with error handling for the CLI."""
 
-    def __init__(self, formatter):
+    def __init__(self, formatter) -> None:
         self.formatter = formatter
 
-    def __enter__(self):
+    def __enter__(self) -> "PathAndUserErrorHandler":
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         if exc_type is SQLFluffUserError:
             click.echo(
                 "\nUser Error: "
@@ -451,7 +451,7 @@ def get_linter_and_formatter(
 """,
 )
 @click.version_option()
-def cli():
+def cli() -> None:
     """SQLFluff is a modular SQL linter for humans."""  # noqa D403
 
 
@@ -501,7 +501,7 @@ def dialects(**kwargs) -> None:
     click.echo(formatter.format_dialects(dialect_readout), color=c.get("color"))
 
 
-def dump_file_payload(filename: Optional[str], payload: str):
+def dump_file_payload(filename: Optional[str], payload: str) -> None:
     """Write the output file content to stdout or file."""
     # If there's a file specified to write to, write to it.
     if filename:
@@ -685,7 +685,7 @@ def lint(
         file_output = "\n".join(github_result_native)
 
     if file_output:
-        dump_file_payload(write_output, cast(str, file_output))
+        dump_file_payload(write_output, file_output)
 
     if persist_timing:
         result.persist_timing_records(persist_timing)
@@ -713,7 +713,7 @@ def do_fixes(
     result: LintingResult,
     formatter: Optional[OutputStreamFormatter] = None,
     fixed_file_suffix: str = "",
-):
+) -> bool:
     """Actually do the fixes."""
     if formatter and formatter.verbosity >= 0:
         click.echo("Persisting Changes...")
@@ -734,7 +734,7 @@ def do_fixes(
     return False  # pragma: no cover
 
 
-def _stdin_fix(linter: Linter, formatter, fix_even_unparsable):
+def _stdin_fix(linter: Linter, formatter, fix_even_unparsable) -> None:
     """Handle fixing from stdin."""
     exit_code = EXIT_SUCCESS
     stdin = sys.stdin.read()
@@ -788,7 +788,7 @@ def _paths_fix(
     show_lint_violations,
     warn_force: bool = True,
     persist_timing: Optional[str] = None,
-):
+) -> None:
     """Handle fixing from paths."""
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     if formatter.verbosity >= 0:
@@ -1173,6 +1173,14 @@ def quoted_presenter(dumper, data):
     "--profiler", is_flag=True, help="Set this flag to engage the python profiler."
 )
 @click.option(
+    "--parse-statistics",
+    is_flag=True,
+    help=(
+        "Set this flag to enabled detailed debugging readout "
+        "on the use of terminators in the parser."
+    ),
+)
+@click.option(
     "--nofail",
     is_flag=True,
     help=(
@@ -1192,6 +1200,7 @@ def parse(
     logger: Optional[logging.Logger] = None,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
+    parse_statistics: bool = False,
     **kwargs,
 ) -> None:
     """Parse SQL files and just spit out the result.
@@ -1247,6 +1256,7 @@ def parse(
                     "stdin",
                     recurse=recurse,
                     config=lnt.config,
+                    parse_statistics=parse_statistics,
                 ),
             ]
         else:
@@ -1255,6 +1265,7 @@ def parse(
                 lnt.parse_path(
                     path=path,
                     recurse=recurse,
+                    parse_statistics=parse_statistics,
                 )
             )
 
@@ -1356,7 +1367,7 @@ def render(
             fname = path
 
     # Get file specific config
-    file_config.process_raw_file_for_config(raw_sql)
+    file_config.process_raw_file_for_config(raw_sql, fname)
     rendered = lnt.render_string(raw_sql, fname, file_config, "utf8")
 
     if rendered.templater_violations:

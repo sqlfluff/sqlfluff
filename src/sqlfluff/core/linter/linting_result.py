@@ -58,7 +58,7 @@ class LintingResult:
         """Add a new `LintedDir` to this result."""
         self.paths.append(path)
 
-    def stop_timer(self):
+    def stop_timer(self) -> None:
         """Stop the linting timer."""
         self.total_time = time.monotonic() - self._start_time
 
@@ -107,14 +107,14 @@ class LintingResult:
         """Count the number of violations in the result."""
         return sum(path.num_violations(**kwargs) for path in self.paths)
 
-    def get_violations(self, **kwargs):
+    def get_violations(self, **kwargs) -> list:
         """Return a list of violations in the result."""
         buff = []
         for path in self.paths:
             buff += path.get_violations(**kwargs)
         return buff
 
-    def violation_dict(self, **kwargs):
+    def violation_dict(self, **kwargs) -> dict:
         """Return a dict of paths and violations."""
         return self.combine_dicts(
             *(path.violation_dict(**kwargs) for path in self.paths)

@@ -27,7 +27,7 @@ import pytest
 
 
 config_a = {
-    "core": {"testing_val": "foobar", "testing_int": 4},
+    "core": {"testing_val": "foobar", "testing_int": 4, "dialect": "mysql"},
     "bar": {"foo": "barbar"},
 }
 
@@ -89,6 +89,18 @@ def test__config__load_file_dir():
     assert cfg == config_a
 
 
+def test__config__load_from_string():
+    """Test loading config from a string."""
+    c = ConfigLoader()
+    # Load a string
+    with open(
+        os.path.join("test", "fixtures", "config", "inheritance_a", ".sqlfluff")
+    ) as f:
+        config_string = f.read()
+    cfg = c.load_config_string(config_string)
+    assert cfg == config_a
+
+
 def test__config__load_file_f():
     """Test loading config from a file path."""
     c = ConfigLoader()
@@ -108,7 +120,7 @@ def test__config__load_nested():
     )
     assert cfg == {
         "core": {
-            "dialect": "ansi",
+            "dialect": "mysql",
             "testing_val": "foobar",
             "testing_int": 1,
             "testing_bar": 7.698,
@@ -417,6 +429,18 @@ def test__config__from_kwargs():
     assert cfg.get("exclude_rules") == "CP01,AL01"
 
 
+def test__config__from_string():
+    """Test from_string method of FluffConfig."""
+    with open(
+        os.path.join("test", "fixtures", "config", "inheritance_a", ".sqlfluff")
+    ) as f:
+        config_string = f.read()
+    cfg = FluffConfig.from_string(config_string)
+    # Verify we can later retrieve the config values.
+    assert cfg.get("testing_val") == "foobar"
+    assert cfg.get("dialect") == "mysql"
+
+
 def test__config_missing_dialect():
     """Verify an exception is thrown if no dialect was specified."""
     with pytest.raises(SQLFluffUserError) as e:
@@ -457,6 +481,50 @@ def test__config__validate_configs_indirect():
                 "rules": {"L003": {"lint_templated_tokens": True}},
             }
         )
+
+
+@pytest.mark.parametrize(
+    "raw_sql",
+    [
+        (
+            # "types" not "type"
+            "-- sqlfluff:layout:types:comma:line_position:leading\n"
+            "SELECT 1"
+        ),
+        (
+            # Unsupported layout config length
+            "-- sqlfluff:layout:foo\n"
+            "SELECT 1"
+        ),
+        (
+            # Unsupported layout config length
+            "-- sqlfluff:layout:type:comma:bar\n"
+            "SELECT 1"
+        ),
+        (
+            # Unsupported layout config key ("foo")
+            "-- sqlfluff:layout:type:comma:foo:bar\n"
+            "SELECT 1"
+        ),
+        (
+            # Unsupported layout config key ("foo") [no space]
+            "--sqlfluff:layout:type:comma:foo:bar\n"
+            "SELECT 1"
+        ),
+    ],
+)
+def test__config__validate_configs_inline_layout(raw_sql):
+    """Test _validate_configs method of FluffConfig when used on a file.
+
+    This test covers both the validation of inline config
+    directives but also the validation of layout configs.
+    """
+    # Instantiate config object.
+    cfg = FluffConfig(configs={"core": {"dialect": "ansi"}})
+
+    # Try to process an invalid inline config. Make sure we get an error.
+    with pytest.raises(SQLFluffUserError):
+        cfg.process_raw_file_for_config(raw_sql, "test.sql")
 
 
 def test__config__validate_configs_precedence_same_file():
@@ -528,19 +596,19 @@ def test__process_inline_config():
     cfg = FluffConfig(config_b)
     assert cfg.get("rules") == "LT03"
 
-    cfg.process_inline_config("-- sqlfluff:rules:LT02")
+    cfg.process_inline_config("-- sqlfluff:rules:LT02", "test.sql")
     assert cfg.get("rules") == "LT02"
 
     assert cfg.get("tab_space_size", section="indentation") == 4
-    cfg.process_inline_config("-- sqlfluff:indentation:tab_space_size:20")
+    cfg.process_inline_config("-- sqlfluff:indentation:tab_space_size:20", "test.sql")
     assert cfg.get("tab_space_size", section="indentation") == 20
 
     assert cfg.get("dialect") == "ansi"
     assert cfg.get("dialect_obj").name == "ansi"
-    cfg.process_inline_config("-- sqlfluff:dialect:postgres")
+    cfg.process_inline_config("-- sqlfluff:dialect:postgres", "test.sql")
     assert cfg.get("dialect") == "postgres"
     assert cfg.get("dialect_obj").name == "postgres"
 
     assert cfg.get("rulez") is None
-    cfg.process_inline_config("-- sqlfluff:rulez:LT06")
+    cfg.process_inline_config("-- sqlfluff:rulez:LT06", "test.sql")
     assert cfg.get("rulez") == "LT06"

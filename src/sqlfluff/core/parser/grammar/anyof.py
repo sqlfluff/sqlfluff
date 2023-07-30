@@ -5,9 +5,10 @@ from typing import List, Optional, Tuple, Set
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
-    MatchableType,
     cached_method_for_parse_context,
+    MatchableType,
 )
+from sqlfluff.core.parser.grammar.types import SimpleHintType
 from sqlfluff.core.parser.grammar.sequence import Sequence, Bracketed
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.match_logging import parse_match_logging
@@ -19,7 +20,7 @@ from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
 class AnyNumberOf(BaseGrammar):
     """A more configurable version of OneOf."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self.max_times = kwargs.pop("max_times", None)
         self.min_times = kwargs.pop("min_times", 0)
         self.max_times_per_element = kwargs.pop("max_times_per_element", None)
@@ -29,10 +30,13 @@ class AnyNumberOf(BaseGrammar):
         # item is one of these, we can safely conclude it's a "total" match.
         # In those cases, we return early without considering more options.
         self.terminators = kwargs.pop("terminators", None)
+        self.reset_terminators = kwargs.pop("reset_terminators", False)
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext, crumbs: Optional[List[str]] = None):
+    def simple(
+        self, parse_context: ParseContext, crumbs: Optional[List[str]] = None
+    ) -> SimpleHintType:
         """Does this matcher support a uppercase hash matching route?
 
         AnyNumberOf does provide this, as long as *all* the elements *also* do.
@@ -161,12 +165,15 @@ class AnyNumberOf(BaseGrammar):
             return MatchResult.from_unmatched(segments), None
 
         with parse_context.deeper_match() as ctx:
+            if self.reset_terminators:
+                ctx.clear_terminators()
+            if self.terminators:
+                ctx.push_terminators(self.terminators)
             match, matched_option = self._longest_trimmed_match(
                 segments,
                 available_options,
                 parse_context=ctx,
                 trim_noncode=False,
-                terminators=self.terminators,
             )
 
         return match, matched_option
@@ -264,7 +271,7 @@ class OneOf(AnyNumberOf):
     length it returns the first (unless we explicitly just match first).
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, max_times=1, min_times=1, **kwargs)
 
 
@@ -275,7 +282,7 @@ class OptionallyBracketed(OneOf):
     they will be.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(
             Bracketed(*args),
             # In the case that there is only one argument, no sequence is required.
@@ -287,5 +294,5 @@ class OptionallyBracketed(OneOf):
 class AnySetOf(AnyNumberOf):
     """Match any number of the elements but each element can only be matched once."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, max_times_per_element=1, **kwargs)

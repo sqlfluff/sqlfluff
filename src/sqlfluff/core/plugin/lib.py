@@ -1,7 +1,5 @@
 """Base implementation for the plugin."""
 
-import os.path
-
 from typing import List, Type
 
 from sqlfluff.core.config import ConfigLoader
@@ -32,8 +30,8 @@ def get_templaters() -> List[Type[RawTemplater]]:
 @hookimpl
 def load_default_config() -> dict:
     """Loads the default configuration for the plugin."""
-    return ConfigLoader.get_global().load_config_file(
-        file_dir=os.path.join(os.path.dirname(os.path.dirname(__file__))),
+    return ConfigLoader.get_global().load_config_resource(
+        package="sqlfluff.core",
         file_name="default_config.cfg",
     )
 

@@ -243,6 +243,12 @@ athena_dialect.replace(
         # Add arrow operators for functions (e.g. filter)
         Ref("RightArrowOperator"),
     ),
+    PostFunctionGrammar=ansi_dialect.get_grammar("PostFunctionGrammar").copy(
+        # UNNEST can optionally have a WITH ORDINALITY clause
+        insert=[
+            Sequence("WITH", "ORDINALITY", optional=True),
+        ]
+    ),
 )
 
 

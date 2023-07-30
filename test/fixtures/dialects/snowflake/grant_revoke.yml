@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 25596156a43ae14090219ab8f410cb86b21ff7e0077e7ef54e797d975fe21c92
+_hash: aeee2f396458b254c167e80035f3da42c44feeb3cb7ace72d3ccb39f9357113e
 file:
 - statement:
     access_statement:
@@ -410,8 +410,8 @@ file:
     - keyword: privileges
     - keyword: 'on'
     - keyword: function
-    - object_reference:
-        naked_identifier: add5
+    - function_name:
+        function_name_identifier: add5
     - function_parameter_list:
         bracketed:
           start_bracket: (
@@ -550,12 +550,12 @@ file:
     - keyword: privileges
     - keyword: 'on'
     - keyword: function
-    - object_reference:
+    - function_name:
       - naked_identifier: mydb
       - dot: .
       - naked_identifier: myschema
       - dot: .
-      - naked_identifier: add5
+      - function_name_identifier: add5
     - function_parameter_list:
         bracketed:
           start_bracket: (
@@ -574,12 +574,12 @@ file:
     - keyword: privileges
     - keyword: 'on'
     - keyword: function
-    - object_reference:
+    - function_name:
       - naked_identifier: mydb
       - dot: .
       - naked_identifier: myschema
       - dot: .
-      - naked_identifier: add5
+      - function_name_identifier: add5
     - function_parameter_list:
         bracketed:
           start_bracket: (
@@ -597,12 +597,12 @@ file:
     - keyword: usage
     - keyword: 'on'
     - keyword: procedure
-    - object_reference:
+    - function_name:
       - naked_identifier: mydb
       - dot: .
       - naked_identifier: myschema
       - dot: .
-      - naked_identifier: myprocedure
+      - function_name_identifier: myprocedure
     - function_parameter_list:
         bracketed:
           start_bracket: (
@@ -851,8 +851,8 @@ file:
     - keyword: privileges
     - keyword: 'on'
     - keyword: procedure
-    - object_reference:
-        naked_identifier: clean_schema
+    - function_name:
+        function_name_identifier: clean_schema
     - function_parameter_list:
         bracketed:
           start_bracket: (
@@ -871,8 +871,8 @@ file:
     - keyword: privileges
     - keyword: 'on'
     - keyword: function
-    - object_reference:
-        naked_identifier: add5
+    - function_name:
+        function_name_identifier: add5
     - function_parameter_list:
         bracketed:
           start_bracket: (

@@ -41,7 +41,7 @@ from collections import namedtuple, defaultdict
 
 from sqlfluff.core.config import FluffConfig, split_comma_separated_string
 
-from sqlfluff.core.linter import LintedFile, NoQaDirective
+from sqlfluff.core.linter import IgnoreMask
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.dialects import Dialect
 from sqlfluff.core.errors import SQLLintError, SQLFluffUserError
@@ -208,7 +208,7 @@ class LintFix:
             # can't guarantee with edits.
         self.source = [seg for seg in source if seg.pos_marker] if source else []
 
-    def is_trivial(self):
+    def is_trivial(self) -> bool:
         """Return true if the fix is trivial.
 
         Trivial edits are:
@@ -221,7 +221,7 @@ class LintFix:
             if isinstance(self.edit, BaseSegment):
                 if len(self.edit.raw) == 0:  # pragma: no cover TODO?
                     return True
-            elif all(len(elem.raw) == 0 for elem in self.edit):
+            elif self.edit and all(len(elem.raw) == 0 for elem in self.edit):
                 return True
         elif self.edit_type == "replace" and self.edit == self.anchor:
             return True  # pragma: no cover TODO?
@@ -259,7 +259,7 @@ class LintFix:
             f"@{self.anchor.pos_marker} {detail}>"
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """Compare equality with another fix.
 
         A fix is equal to another if is in the same place (position), with the
@@ -701,7 +701,7 @@ class BaseRule(metaclass=RuleMetaclass):
     # Configuration that is defined in the Config.py file
     split_comma_separated_string = staticmethod(split_comma_separated_string)
 
-    def __init__(self, code, description, **kwargs):
+    def __init__(self, code, description, **kwargs) -> None:
         self.description = description
         self.code = code
         # kwargs represents the config passed to the rule. Add all kwargs as class
@@ -724,7 +724,7 @@ class BaseRule(metaclass=RuleMetaclass):
                 )
 
     @classmethod
-    def get_config_ref(cls):
+    def get_config_ref(cls) -> str:
         """Return the config lookup ref for this rule.
 
         If a `name` is defined, it's the name - otherwise the code.
@@ -766,7 +766,7 @@ class BaseRule(metaclass=RuleMetaclass):
         dialect: Dialect,
         fix: bool,
         templated_file: Optional["TemplatedFile"],
-        ignore_mask: List[NoQaDirective],
+        ignore_mask: Optional[IgnoreMask],
         fname: Optional[str],
         config: FluffConfig,
     ) -> Tuple[List[SQLLintError], Tuple[RawSegment, ...], List[LintFix], Any]:
@@ -881,7 +881,13 @@ class BaseRule(metaclass=RuleMetaclass):
         pass
 
     def _process_lint_result(
-        self, res, templated_file, ignore_mask, new_lerrs, new_fixes, root
+        self,
+        res: LintResult,
+        templated_file: Optional[TemplatedFile],
+        ignore_mask: Optional[IgnoreMask],
+        new_lerrs: List[SQLLintError],
+        new_fixes: List[LintFix],
+        root: BaseSegment,
     ):
         # Unless the rule declares that it's already template safe. Do safety
         # checks.
@@ -921,7 +927,7 @@ class BaseRule(metaclass=RuleMetaclass):
                     break
 
             if lerr and ignore_mask:
-                filtered = LintedFile.ignore_masked_violations([lerr], ignore_mask)
+                filtered = ignore_mask.ignore_masked_violations([lerr])
                 if not filtered:
                     lerr = None
                     ignored = True
@@ -1175,7 +1181,7 @@ class RuleSet:
         self.config_info = config_info
         self._register: Dict[str, RuleManifest] = {}
 
-    def _validate_config_options(self, config, rule_ref: Optional[str] = None):
+    def _validate_config_options(self, config, rule_ref: Optional[str] = None) -> None:
         """Ensure that all config options are valid.
 
         Config options can also be checked for a specific rule e.g CP01.

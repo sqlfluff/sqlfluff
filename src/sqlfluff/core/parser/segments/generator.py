@@ -15,7 +15,7 @@ class SegmentGenerator:
     inheritance.
     """
 
-    def __init__(self, func):
+    def __init__(self, func) -> None:
         self.func = func
 
     # For all functions, use the function call

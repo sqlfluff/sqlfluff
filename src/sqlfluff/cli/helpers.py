@@ -2,7 +2,7 @@
 
 import sys
 import textwrap
-from typing import Dict, List
+from typing import List
 
 from sqlfluff import __version__ as pkg_version
 
@@ -32,7 +32,7 @@ def wrap_elem(s: str, width: int) -> List[str]:
 
 def wrap_field(
     label: str, val: str, width: int, max_label_width: int = 10, sep_char: str = ": "
-) -> Dict:
+) -> dict:
     """Wrap a field (label, val).
 
     Returns:

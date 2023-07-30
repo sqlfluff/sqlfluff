@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ce20fc23dc8e2aae7b9a2ad6e51a7ecb24fcb8c54f74cb0b12c2980ede299875
+_hash: 2f876c0643fe22eb9f152e9ffe39497b2d83c88b520e06030b7d4f9ba68700f5
 file:
 - statement:
     with_compound_statement:
@@ -17,8 +17,7 @@ file:
             keyword: VALUES
             bracketed:
               start_bracket: (
-              expression:
-                numeric_literal: '1'
+              numeric_literal: '1'
               end_bracket: )
             alias_expression:
               keyword: AS
@@ -54,21 +53,19 @@ file:
           start_bracket: (
           values_clause:
           - keyword: VALUES
-          - expression:
-              bracketed:
-              - start_bracket: (
-              - numeric_literal: '1'
-              - comma: ','
-              - numeric_literal: '2'
-              - end_bracket: )
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '1'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
           - comma: ','
-          - expression:
-              bracketed:
-              - start_bracket: (
-              - numeric_literal: '3'
-              - comma: ','
-              - numeric_literal: '4'
-              - end_bracket: )
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '3'
+            - comma: ','
+            - numeric_literal: '4'
+            - end_bracket: )
           - alias_expression:
               keyword: AS
               naked_identifier: t
@@ -114,8 +111,7 @@ file:
                   keyword: VALUES
                   bracketed:
                     start_bracket: (
-                    expression:
-                      numeric_literal: '1'
+                    numeric_literal: '1'
                     end_bracket: )
               end_bracket: )
             alias_expression:
@@ -144,21 +140,19 @@ file:
               table_expression:
                 values_clause:
                 - keyword: VALUES
-                - expression:
-                    bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '1'
-                    - comma: ','
-                    - numeric_literal: '2'
-                    - end_bracket: )
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '1'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - end_bracket: )
                 - comma: ','
-                - expression:
-                    bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '3'
-                    - comma: ','
-                    - numeric_literal: '4'
-                    - end_bracket: )
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '3'
+                  - comma: ','
+                  - numeric_literal: '4'
+                  - end_bracket: )
               end_bracket: )
             alias_expression:
               keyword: AS

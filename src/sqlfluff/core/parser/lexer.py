@@ -92,7 +92,9 @@ class TemplateElement(NamedTuple):
     matcher: "StringLexer"
 
     @classmethod
-    def from_element(cls, element: LexedElement, template_slice: slice):
+    def from_element(
+        cls, element: LexedElement, template_slice: slice
+    ) -> "TemplateElement":
         """Make a TemplateElement from a LexedElement."""
         return cls(
             raw=element.raw, template_slice=template_slice, matcher=element.matcher
@@ -111,7 +113,7 @@ class LexMatch(NamedTuple):
     forward_string: str
     elements: List[LexedElement]
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         """A LexMatch is truthy if it contains a non-zero number of matched elements."""
         return len(self.elements) > 0
 
@@ -133,7 +135,7 @@ class StringLexer:
         subdivider=None,
         trim_post_subdivide=None,
         segment_kwargs=None,
-    ):
+    ) -> None:
         self.name = name
         self.template = template
         self.segment_class = segment_class
@@ -141,7 +143,7 @@ class StringLexer:
         self.trim_post_subdivide = trim_post_subdivide
         self.segment_kwargs = segment_kwargs or {}
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: {self.name}>"
 
     def _match(self, forward_string: str) -> Optional[LexedElement]:
@@ -273,7 +275,7 @@ class StringLexer:
 class RegexLexer(StringLexer):
     """This RegexLexer matches based on regular expressions."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         # We might want to configure this at some point, but for now, newlines
         # do get matched by .

@@ -72,7 +72,7 @@ class SourceFix:
     # More work required to achieve that if desired.
     templated_slice: slice
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         # Only hash based on the source slice, not the
         # templated slice (which might change)
         return hash((self.edit, self.source_slice.start, self.source_slice.stop))
@@ -109,7 +109,7 @@ class FixPatch:
     templated_str: str
     source_str: str
 
-    def dedupe_tuple(self):
+    def dedupe_tuple(self) -> tuple:
         """Generate a tuple of this fix for deduping."""
         return (self.source_slice, self.fixed_raw)
 
@@ -166,12 +166,12 @@ class AnchorEditInfo:
         setattr(self, fix.edit_type, getattr(self, fix.edit_type) + 1)
 
     @property
-    def total(self):
+    def total(self) -> int:
         """Returns total count of fixes."""
         return len(self.fixes)
 
     @property
-    def is_valid(self):
+    def is_valid(self) -> bool:
         """Returns True if valid combination of fixes for anchor.
 
         Cases:
@@ -350,12 +350,12 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # ################ PRIVATE PROPERTIES
 
     @property
-    def _comments(self):
+    def _comments(self) -> List["BaseSegment"]:
         """Returns only the comment elements of this segment."""
         return [seg for seg in self.segments if seg.is_type("comment")]
 
     @property
-    def _non_comments(self):  # pragma: no cover TODO?
+    def _non_comments(self) -> List["BaseSegment"]:  # pragma: no cover TODO?
         """Returns only the non-comment elements of this segment."""
         return [seg for seg in self.segments if not seg.is_type("comment")]
 
@@ -589,6 +589,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         cls,
         segments: Tuple["BaseSegment", ...],
         parent_pos: Optional[PositionMarker] = None,
+        metas_only: bool = False,
     ) -> Tuple["BaseSegment", ...]:
         """Refresh positions of segments within a span.
 
@@ -625,6 +626,27 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # and backward.
         segment_buffer: Tuple["BaseSegment", ...] = ()
         for idx, segment in enumerate(segments):
+            # NOTE: Repositioning can be very compute intensive to do
+            # completely (especially because of the copying required
+            # to do it safely), but during the parsing phase we may
+            # only need to reposition meta segments. Because they have
+            # no size in the templated file and also no children - they
+            # can be done safely without affecting the rest of the file.
+            if metas_only and not segment.is_meta:
+                # Assert that the segment already has position. Unless a
+                # fix has occured this should already be true.
+                assert segment.pos_marker, (
+                    "Non-meta segment found without position. Inappropriate "
+                    "use of `metas_only`."
+                )
+                # Add the original segment to the buffer.
+                segment_buffer += (segment,)
+                # Update working position
+                line_no, line_pos = segment.pos_marker.infer_next_position(
+                    segment.raw, line_no, line_pos
+                )
+                continue
+
             repositioned_seg = segment.copy()
             # Fill any that don't have a position.
             if not repositioned_seg.pos_marker:
@@ -715,7 +737,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return cls._cache_key
 
     @classmethod
-    def is_optional(cls):
+    def is_optional(cls) -> bool:
         """Return True if this segment is optional.
 
         This is used primarily in sequence matching, where optional
@@ -724,7 +746,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return cls.optional
 
     @classmethod
-    def class_is_type(cls, *seg_type):
+    def class_is_type(cls, *seg_type) -> bool:
         """Is this segment class (or its parent) of the given type."""
         # Use set intersection
         if cls._class_types.intersection(seg_type):
@@ -732,7 +754,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return False
 
     @classmethod
-    def structural_simplify(cls, elem):
+    def structural_simplify(cls, elem) -> Optional["BaseSegment"]:
         """Simplify the structure recursively so it serializes nicely in json/yaml."""
         if len(elem) == 0:
             return None
@@ -833,7 +855,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     # ################ PRIVATE INSTANCE METHODS
 
-    def _recalculate_caches(self):
+    def _recalculate_caches(self) -> None:
         for key in [
             "is_code",
             "is_comment",
@@ -851,7 +873,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         ]:
             self.__dict__.pop(key, None)
 
-    def _preface(self, ident, tabsize):
+    def _preface(self, ident, tabsize) -> str:
         """Returns the preamble to any logging."""
         padded_type = "{padding}{modifier}{type}".format(
             padding=" " * (ident * tabsize),
@@ -868,11 +890,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     # ################ PUBLIC INSTANCE METHODS
 
-    def get_type(self):
+    def get_type(self) -> str:
         """Returns the type of this segment as a string."""
         return self.type
 
-    def count_segments(self, raw_only=False):
+    def count_segments(self, raw_only=False) -> int:
         """Returns the number of segments in this segment."""
         if self.segments:
             self_count = 0 if raw_only else 1
@@ -882,11 +904,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
         else:
             return 1
 
-    def is_type(self, *seg_type):
+    def is_type(self, *seg_type) -> bool:
         """Is this segment (or its parent) of the given type."""
         return self.class_is_type(*seg_type)
 
-    def invalidate_caches(self):
+    def invalidate_caches(self) -> None:
         """Invalidate the cached properties.
 
         This should be called whenever the segments within this
@@ -897,25 +919,29 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         self._recalculate_caches()
 
-    def get_start_point_marker(self):  # pragma: no cover
+    def get_start_point_marker(self) -> PositionMarker:  # pragma: no cover
         """Get a point marker at the start of this segment."""
+        assert self.pos_marker
         return self.pos_marker.start_point_marker()
 
-    def get_end_point_marker(self):
+    def get_end_point_marker(self) -> PositionMarker:
         """Get a point marker at the end of this segment."""
+        assert self.pos_marker
         return self.pos_marker.end_point_marker()
 
-    def get_start_loc(self):
+    def get_start_loc(self) -> Tuple[int, int]:
         """Get a location tuple at the start of this segment."""
+        assert self.pos_marker
         return self.pos_marker.working_loc
 
-    def get_end_loc(self):
+    def get_end_loc(self) -> Tuple[int, int]:
         """Get a location tuple at the end of this segment."""
+        assert self.pos_marker
         return self.pos_marker.working_loc_after(
             self.raw,
         )
 
-    def stringify(self, ident=0, tabsize=4, code_only=False):
+    def stringify(self, ident=0, tabsize=4, code_only=False) -> str:
         """Use indentation to render this segment and its children as a string."""
         buff = StringIO()
         preface = self._preface(ident=ident, tabsize=tabsize)
@@ -989,7 +1015,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             )
         return result
 
-    def copy(self):
+    def copy(self) -> "BaseSegment":
         """Copy the segment recursively, with appropriate copying of references."""
         new_seg = copy(self)
         # Position markers are immutable, and it's important that we keep
@@ -1008,14 +1034,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """
         return self.structural_simplify(self.to_tuple(**kwargs))
 
-    def raw_list(self):  # pragma: no cover TODO?
-        """Return a list of raw elements, mostly for testing or searching."""
-        buff = []
-        for s in self.segments:
-            buff += s.raw_list()
-        return buff
-
-    def get_raw_segments(self):
+    def get_raw_segments(self) -> List["RawSegment"]:
         """Iterate raw segments, mostly for searching."""
         return [item for s in self.segments for item in s.raw_segments]
 
@@ -1034,14 +1053,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
         for s in self.segments:
             yield from s.iter_unparsables()
 
-    def type_set(self):
+    def type_set(self) -> Set[str]:
         """Return a set of the types contained, mostly for testing."""
         typs = {self.type}
         for s in self.segments:
             typs |= s.type_set()
         return typs
 
-    def is_raw(self):
+    def is_raw(self) -> bool:
         """Return True if this segment has no children."""
         return len(self.segments) == 0
 
@@ -1052,7 +1071,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 return seg
         return None
 
-    def get_children(self, *seg_type):
+    def get_children(self, *seg_type) -> list:
         """Retrieve the all of the children of this segment with matching type."""
         buff = []
         for seg in self.segments:
@@ -1066,7 +1085,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         stop_seg: Optional["BaseSegment"] = None,
         select_if: Optional[Callable[["BaseSegment"], Any]] = None,
         loop_while: Optional[Callable[["BaseSegment"], Any]] = None,
-    ):
+    ) -> List["BaseSegment"]:
         """Retrieve subset of children based on range and filters.
 
         Often useful by linter rules when generating fixes, e.g. to find
@@ -1749,7 +1768,7 @@ class UnparsableSegment(BaseSegment):
     comment_separate = True
     _expected = ""
 
-    def __init__(self, *args, expected="", **kwargs):
+    def __init__(self, *args, expected="", **kwargs) -> None:
         self._expected = expected
         super().__init__(*args, **kwargs)
 
@@ -1792,11 +1811,11 @@ class BaseFileSegment(BaseSegment):
         super().__init__(segments, pos_marker=pos_marker)
 
     @property
-    def file_path(self):
+    def file_path(self) -> Optional[str]:
         """File path of a parsed SQL file."""
         return self._file_path
 
-    def get_table_references(self):
+    def get_table_references(self) -> set:
         """Use parsed tree to extract table references."""
         references = set()
         for stmt in self.get_children("statement"):
@@ -1815,11 +1834,11 @@ class IdentitySet(MutableSet):
 
     key = id  # should return a hashable object
 
-    def __init__(self, iterable=()):
-        self.map = {}  # id -> object
+    def __init__(self, iterable=()) -> None:
+        self.map: dict = {}  # id -> object
         self |= iterable  # add elements from iterable to the set (union)
 
-    def __len__(self):  # Sized
+    def __len__(self) -> int:  # Sized
         return len(self.map)
 
     def __iter__(self):  # Iterable
@@ -1832,7 +1851,7 @@ class IdentitySet(MutableSet):
         """Add an element."""
         self.map[self.key(value)] = value
 
-    def update(self, value):
+    def update(self, value) -> None:
         """Add elements in 'value'."""
         for v in value:
             self.add(v)
@@ -1841,7 +1860,7 @@ class IdentitySet(MutableSet):
         """Remove an element.  Do not raise an exception if absent."""
         self.map.pop(self.key(value), None)  # pragma: no cover
 
-    def __repr__(self):  # pragma: no cover
+    def __repr__(self) -> str:  # pragma: no cover
         if not self:
             return "%s()" % (self.__class__.__name__,)
         return "%s(%r)" % (self.__class__.__name__, list(self))

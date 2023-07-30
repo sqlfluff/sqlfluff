@@ -94,8 +94,8 @@ html_theme_options = {
     "touch_icon": "images/sqlfluff-sm2-sq.png",
     "github_user": "sqlfluff",
     "github_repo": "sqlfluff",
-    # GitHub Fork button
-    "github_banner": True,
+    # GitHub Fork button (points at a broken link, so disabling it)
+    "github_banner": False,
     # GitHub star button
     "github_type": "star",
     # Use `"true"` instead of `True` for counting GitHub star, see https://ghbtns.com

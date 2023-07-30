@@ -1,5 +1,11 @@
 """Module for loading config."""
 
+try:
+    from importlib.resources import files
+except ImportError:  # pragma: no cover
+    # fallback for python <=3.8
+    from importlib_resources import files  # type: ignore
+
 import logging
 import os
 import os.path
@@ -32,6 +38,16 @@ can still cache appropriately
 """
 
 ConfigElemType = Tuple[Tuple[str, ...], Any]
+
+
+ALLOWABLE_LAYOUT_CONFIG_KEYS = (
+    "spacing_before",
+    "spacing_after",
+    "spacing_within",
+    "line_position",
+    "align_within",
+    "align_scope",
+)
 
 
 @dataclass
@@ -402,7 +418,9 @@ class ConfigLoader:
         return cls._walk_toml(tool)
 
     @classmethod
-    def _get_config_elems_from_file(cls, fpath: str) -> List[ConfigElemType]:
+    def _get_config_elems_from_file(
+        cls, fpath: Optional[str] = None, config_string: Optional[str] = None
+    ) -> List[ConfigElemType]:
         """Load a config from a file and return a list of tuples.
 
         The return value is a list of tuples, were each tuple has two elements,
@@ -418,6 +436,7 @@ class ConfigLoader:
             string value will remain.
 
         """
+        assert fpath or config_string, "One of fpath or config_string is required."
         buff: List[Tuple[tuple, Any]] = []
         # Disable interpolation so we can load macros
         kw: Dict = {}
@@ -427,7 +446,12 @@ class ConfigLoader:
         # because jinja is also case sensitive. To do this we override
         # the optionxform attribute.
         config.optionxform = lambda option: option  # type: ignore
-        config.read(fpath)
+        if fpath:
+            config.read(fpath)
+        else:
+            assert config_string
+            config.read_string(config_string)
+
         for k in config.sections():
             if k == "sqlfluff":
                 key: Tuple = ("core",)
@@ -501,13 +525,19 @@ class ConfigLoader:
     def _validate_configs(
         configs: Iterable[ConfigElemType], file_path
     ) -> List[ConfigElemType]:
-        """Validate config elements against removed list."""
+        """Validate config elements.
+
+        We validate in two ways:
+        1. Are these config settings removed or deprecated.
+        2. Are these config elements in the layout section _valid_.
+        """
         config_map = {cfg.old_path: cfg for cfg in REMOVED_CONFIGS}
         # Materialise the configs into a list to we can iterate twice.
         new_configs = list(configs)
         defined_keys = {k for k, _ in new_configs}
         validated_configs = []
         for k, v in new_configs:
+            # First validate against the removed option list.
             if k in config_map.keys():
                 formatted_key = ":".join(k)
                 removed_option = config_map[k]
@@ -549,25 +579,78 @@ class ConfigLoader:
                 else:
                     # Raise an error.
                     raise SQLFluffUserError(
-                        f"Config file {file_path} set an outdated config "
+                        f"Config file {file_path!r} set an outdated config "
                         f"value {formatted_key}.\n\n{removed_option.warning}\n\n"
                         "See https://docs.sqlfluff.com/en/stable/configuration.html"
                         " for more details."
                     )
 
+            # Second validate any layout configs for validity.
+            # NOTE: For now we don't check that the "type" is a valid one
+            # to reference, or that the values are valid. For the values,
+            # these are likely to be rejected by the layout routines at
+            # runtime. The last risk area is validating that the type is
+            # a valid one.
+            if k and k[0] == "layout":
+                # Check for:
+                # - Key length
+                # - Key values
+                if (
+                    # Key length must be 4
+                    (len(k) != 4)
+                    # Second value must (currently) be "type"
+                    or (k[1] != "type")
+                    # Last key value must be one of the allowable options.
+                    or (k[3] not in ALLOWABLE_LAYOUT_CONFIG_KEYS)
+                ):
+                    raise SQLFluffUserError(
+                        f"Config file {file_path!r} set an invalid `layout` option "
+                        f"value {':'.join(k)}.\n"
+                        "See https://docs.sqlfluff.com/en/stable/layout.html"
+                        "#configuring-layout for more details."
+                    )
+
             validated_configs.append((k, v))
         return validated_configs
+
+    def load_config_resource(
+        self, package: str, file_name: str, configs: Optional[dict] = None
+    ) -> dict:
+        """Load a config resource.
+
+        This is however more compatible with mypyc because it avoids
+        the use of the __file__ object to find the default config.
+
+        This is only tested extensively with the default config.
+
+        NOTE: This requires that the config file is built into
+        a package but should be more performant because it leverages
+        importlib.
+        https://docs.python.org/3/library/importlib.resources.html
+        """
+        config_string = files(package).joinpath(file_name).read_text()
+        elems = self._get_config_elems_from_file(config_string=config_string)
+        elems = self._validate_configs(elems, package + "." + file_name)
+        return self._incorporate_vals(configs or {}, elems)
 
     def load_config_file(
         self, file_dir: str, file_name: str, configs: Optional[dict] = None
     ) -> dict:
-        """Load the default config file."""
+        """Load a config file."""
         file_path = os.path.join(file_dir, file_name)
         if file_name == "pyproject.toml":
             elems = self._get_config_elems_from_toml(file_path)
         else:
             elems = self._get_config_elems_from_file(file_path)
         elems = self._validate_configs(elems, file_path)
+        return self._incorporate_vals(configs or {}, elems)
+
+    def load_config_string(
+        self, config_string: str, configs: Optional[dict] = None
+    ) -> dict:
+        """Load a config from the string in cfg format."""
+        elems = self._get_config_elems_from_file(config_string=config_string)
+        elems = self._validate_configs(elems, "<config string>")
         return self._incorporate_vals(configs or {}, elems)
 
     def load_config_at_path(self, path: str) -> dict:
@@ -687,7 +770,7 @@ class ConfigLoader:
     @classmethod
     def find_ignore_config_files(
         cls, path, working_path=Path.cwd(), ignore_file_name=".sqlfluffignore"
-    ):
+    ) -> set:
         """Finds sqlfluff ignore files from both the path and its parent paths."""
         return set(
             filter(
@@ -702,7 +785,9 @@ class ConfigLoader:
         )
 
     @staticmethod
-    def iter_config_locations_up_to_path(path, working_path=Path.cwd()):
+    def iter_config_locations_up_to_path(
+        path, working_path=Path.cwd()
+    ) -> Iterator[str]:
         """Finds config locations from both the path and its parent paths.
 
         The lowest priority is the user appdir, then home dir, then increasingly
@@ -859,7 +944,7 @@ class FluffConfig:
         state["_configs"]["core"].pop("templater_obj", None)
         return state
 
-    def __setstate__(self, state):  # pragma: no cover
+    def __setstate__(self, state) -> None:  # pragma: no cover
         # Restore instance attributes
         self.__dict__.update(state)
         # NB: We don't reinstate the plugin manager, but this should only
@@ -897,6 +982,26 @@ class FluffConfig:
             ignore_local_config=ignore_local_config,
             overrides=overrides,
             **kw,
+        )
+
+    @classmethod
+    def from_string(
+        cls,
+        config_string: str,
+        extra_config_path: Optional[str] = None,
+        ignore_local_config: bool = False,
+        overrides: Optional[dict] = None,
+        plugin_manager: Optional[pluggy.PluginManager] = None,
+    ) -> "FluffConfig":
+        """Loads a config object given a particular path."""
+        loader = ConfigLoader.get_global()
+        c = loader.load_config_string(config_string)
+        return cls(
+            configs=c,
+            extra_config_path=extra_config_path,
+            ignore_local_config=ignore_local_config,
+            overrides=overrides,
+            plugin_manager=plugin_manager,
         )
 
     @classmethod
@@ -1094,7 +1199,7 @@ class FluffConfig:
                 for idnt, key, val in self.iter_vals(cfg=cfg[k]):
                     yield (idnt + 1, key, val)
 
-    def process_inline_config(self, config_line: str):
+    def process_inline_config(self, config_line: str, fname: str):
         """Process an inline config command and update self."""
         # Strip preceding comment marks
         if config_line.startswith("--"):
@@ -1108,19 +1213,23 @@ class FluffConfig:
         config_line = config_line[9:].strip()
         # Divide on colons
         config_path = [elem.strip() for elem in config_line.split(":")]
+        config_val = (tuple(config_path[:-1]), config_path[-1])
+        # Validate the value
+        ConfigLoader._validate_configs([config_val], fname)
         # Set the value
-        self.set_value(config_path[:-1], config_path[-1])
+        self.set_value(*config_val)
         # If the config is for dialect, initialise the dialect
         if config_path[:-1] == ["dialect"]:
             self._initialise_dialect(config_path[-1])
 
-    def process_raw_file_for_config(self, raw_str: str):
+    def process_raw_file_for_config(self, raw_str: str, fname: str) -> None:
         """Process a full raw file for inline config and update self."""
         # Scan the raw file for config commands.
         for raw_line in raw_str.splitlines():
-            if raw_line.startswith("-- sqlfluff"):
+            # With or without a space.
+            if raw_line.startswith(("-- sqlfluff", "--sqlfluff")):
                 # Found a in-file config command
-                self.process_inline_config(raw_line)
+                self.process_inline_config(raw_line, fname)
 
 
 class ProgressBarConfiguration:

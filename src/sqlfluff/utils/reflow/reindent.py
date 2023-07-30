@@ -3,7 +3,17 @@
 from collections import defaultdict
 from itertools import chain
 import logging
-from typing import Iterator, List, Optional, Set, Tuple, cast, Dict, DefaultDict
+from typing import (
+    Iterator,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    cast,
+    Dict,
+    DefaultDict,
+    FrozenSet,
+)
 from dataclasses import dataclass
 from sqlfluff.core.errors import SQLFluffUserError
 
@@ -84,7 +94,7 @@ class _IndentPoint:
     untaken_indents: Tuple[int, ...]
 
     @property
-    def closing_indent_balance(self):
+    def closing_indent_balance(self) -> int:
         return self.initial_indent_balance + self.indent_impulse
 
 
@@ -100,7 +110,7 @@ class _IndentLine:
     initial_indent_balance: int
     indent_points: List[_IndentPoint]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Compressed repr method to ease logging."""
         return (
             f"IndentLine(iib={self.initial_indent_balance}, ipts=["
@@ -114,7 +124,7 @@ class _IndentLine:
         )
 
     @classmethod
-    def from_points(cls, indent_points: List[_IndentPoint]):
+    def from_points(cls, indent_points: List[_IndentPoint]) -> "_IndentLine":
         # Catch edge case for first line where we'll start with a
         # block if no initial indent.
         if indent_points[-1].last_line_break_idx:
@@ -154,7 +164,7 @@ class _IndentLine:
             seg.is_type("placeholder", "template_loop") for seg in block_segments
         )
 
-    def desired_indent_units(self, forced_indents: List[int]):
+    def desired_indent_units(self, forced_indents: List[int]) -> int:
         """Calculate the desired indent units.
 
         This is the heart of the indentation calculations.
@@ -207,11 +217,11 @@ class _IndentLine:
         )
         return desired_indent
 
-    def closing_balance(self):
+    def closing_balance(self) -> int:
         """The closing indent balance of the line."""
         return self.indent_points[-1].closing_indent_balance
 
-    def opening_balance(self):
+    def opening_balance(self) -> int:
         """The opening indent balance of the line.
 
         NOTE: We use the first point for the starting balance rather than
@@ -1445,7 +1455,7 @@ def _lint_line_buffer_indents(
 def lint_indent_points(
     elements: ReflowSequenceType,
     single_indent: str,
-    skip_indentation_in: Set[str] = set(),
+    skip_indentation_in: FrozenSet[str] = frozenset(),
     allow_implicit_indents: bool = False,
 ) -> Tuple[ReflowSequenceType, List[LintResult]]:
     """Lint the indent points to check we have line breaks where we should.

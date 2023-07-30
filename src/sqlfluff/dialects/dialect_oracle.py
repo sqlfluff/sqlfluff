@@ -13,6 +13,7 @@ from sqlfluff.core.parser import (
     Delimited,
     GreedyUntil,
     Matchable,
+    OptionallyBracketed,
     Ref,
     RegexLexer,
     RegexParser,
@@ -32,7 +33,7 @@ oracle_dialect = ansi_dialect.copy_as("oracle")
 
 oracle_dialect.sets("unreserved_keywords").difference_update(["COMMENT"])
 oracle_dialect.sets("reserved_keywords").update(
-    ["COMMENT", "ON", "UPDATE", "INDEXTYPE", "PROMPT", "FORCE"]
+    ["COMMENT", "ON", "UPDATE", "INDEXTYPE", "PROMPT", "FORCE", "OVERFLOW", "ERROR"]
 )
 
 oracle_dialect.sets("unreserved_keywords").update(
@@ -98,6 +99,16 @@ oracle_dialect.replace(
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
+    ),
+    PostFunctionGrammar=AnyNumberOf(
+        Ref("WithinGroupClauseSegment"),
+        Ref("FilterClauseGrammar"),
+        Ref("OverClauseSegment", optional=True),
+    ),
+    FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
+        insert=[
+            Ref("ListaggOverflowClauseSegment"),
+        ]
     ),
 )
 
@@ -428,6 +439,36 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         # Optional list of column names
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
-        ansi.OptionallyBracketed(Ref("SelectableGrammar")),
+        OptionallyBracketed(Ref("SelectableGrammar")),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
+    )
+
+
+class WithinGroupClauseSegment(BaseSegment):
+    """An WITHIN GROUP clause for window functions."""
+
+    type = "withingroup_clause"
+    match_grammar = Sequence(
+        "WITHIN",
+        "GROUP",
+        Bracketed(Ref("OrderByClauseSegment", optional=False)),
+    )
+
+
+class ListaggOverflowClauseSegment(BaseSegment):
+    """ON OVERFLOW clause of listagg function."""
+
+    type = "listagg_overflow_clause"
+    match_grammar = Sequence(
+        "ON",
+        "OVERFLOW",
+        OneOf(
+            "ERROR",
+            Sequence(
+                "TRUNCATE",
+                Ref("SingleQuotedIdentifierSegment", optional=True),
+                OneOf("WITH", "WITHOUT", optional=True),
+                Ref.keyword("COUNT", optional=True),
+            ),
+        ),
     )

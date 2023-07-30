@@ -68,7 +68,7 @@ class MatchResult(
             content,
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """Equals function override.
 
         This allows comparison to tuples for testing.

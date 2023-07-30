@@ -9,6 +9,8 @@ from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import sp, FunctionalContext
 
+from typing import Optional
+
 
 class Rule_LT07(BaseRule):
     """``WITH`` clause closing bracket should be on a new line.
@@ -47,7 +49,7 @@ class Rule_LT07(BaseRule):
     )
     is_fix_compatible = True
 
-    def _eval(self, context: RuleContext):
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """WITH clause closing bracket should be aligned with WITH keyword.
 
         Look for a with clause and evaluate the position of closing brackets.
@@ -124,3 +126,5 @@ class Rule_LT07(BaseRule):
                         )
                     ],
                 )
+
+        return None
