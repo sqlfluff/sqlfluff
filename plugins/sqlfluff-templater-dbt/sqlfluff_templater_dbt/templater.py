@@ -15,6 +15,7 @@ import os
 import os.path
 import logging
 from typing import (
+    Callable,
     List,
     Optional,
     Iterator,
