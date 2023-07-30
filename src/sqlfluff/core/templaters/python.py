@@ -2,7 +2,17 @@
 
 import ast
 from string import Formatter
-from typing import Any, Iterable, Dict, Tuple, List, Iterator, Optional, NamedTuple, Callable
+from typing import (
+    Any,
+    Iterable,
+    Dict,
+    Tuple,
+    List,
+    Iterator,
+    Optional,
+    NamedTuple,
+    Callable,
+)
 
 from sqlfluff.core.errors import SQLTemplaterError
 from sqlfluff.core.string_helpers import findall
