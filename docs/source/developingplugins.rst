@@ -8,6 +8,37 @@ to make linting Rules pluggable, which enable users to implement rules that
 are just too "organization specific" to be shared, or too platform specific
 to be included in the core library.
 
+.. note::
+
+    We recommend that the module in a plugin which defines all
+    of the hook implementations (anything using the ``@hookimpl`` decorator)
+    must be able to fully import before any rule implementations are imported.
+    More specifically, SQLFluff must be able to both *import* **and**
+    *run* any implementations of ``get_configs_info()`` before any plugin
+    rules (i.e. any derivatives of ``BaseRule``) are *imported*. Because of
+    this, we recommend that rules are defined in a separate module to the
+    root of the plugin and then only imported within the ``get_rules()``
+    method.
+
+    Importing in the main body of the module was previously our recommendation
+    and so may be the case for versions of some plugins. If one of your plugins
+    does use imports in this way, a warning will be presented, recommending that
+    you update your plugin.
+
+    .. code-block:: python
+       :emphasize-lines: 7,8
+
+        # The root module will need to import `hookimpl`, but
+        # should not yet import the rule definitions for the plugin.
+        from sqlfluff.core.plugin import hookimpl
+
+        @hookimpl
+        def get_rules():
+            # Rules should be imported within the `get_rules` method instead
+            from my_plugin.rules import MyRule
+            return [MyRule]
+
+
 .. _`pluggy library`: https://pluggy.readthedocs.io/en/latest/
 
 Creating a plugin

@@ -18,7 +18,7 @@ from test.fixtures.dbt.templater import (  # noqa: F401
     dbt_templater,
     project_dir,
 )
-from sqlfluff_templater_dbt.templater import DbtFailedToConnectException, DbtTemplater
+from sqlfluff_templater_dbt.templater import DbtTemplater
 
 
 def test__templater_dbt_missing(dbt_templater, project_dir):  # noqa: F811
@@ -422,6 +422,15 @@ def test__templater_dbt_handle_database_connection_failure(
 ):
     """Test the result of a failed database connection."""
     from dbt.adapters.factory import get_adapter
+
+    try:
+        from dbt.exceptions import (
+            FailedToConnectException as DbtFailedToConnectException,
+        )
+    except ImportError:
+        from dbt.exceptions import (
+            FailedToConnectError as DbtFailedToConnectException,
+        )
 
     # Clear the adapter cache to force this test to create a new connection.
     DbtTemplater.adapters.clear()
