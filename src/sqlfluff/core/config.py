@@ -296,19 +296,24 @@ def split_comma_separated_string(raw: Union[str, List[str]]) -> List[str]:
     )
 
 
-def split_colon_separated_string(in_str: str) -> Tuple[List[str], str]:
+def split_colon_separated_string(in_str: str) -> Tuple[Tuple[str, ...], str]:
     """Converts a colon separated string.
-    
+
     NOTE: This also includes some provisions for values which may be
     Windows paths containing colons and NOT stripping those.
     """
-    config_path = []
+    config_path: List[str] = []
     for element in in_str.split(":"):
         # If the next element begins with a backslash, and the previous
         # one had length == 1,  then this is probably a windows path.
         # In which case, rejoin them together.
         element = element.strip()
-        if element and element[0] == "\\" and config_path[-1] and len(config_path[-1]) == 1:
+        if (
+            element
+            and element[0] == "\\"
+            and config_path[-1]
+            and len(config_path[-1]) == 1
+        ):
             config_path[-1] = config_path[-1] + ":" + element
         else:
             # Otherwise just add it to the path.
