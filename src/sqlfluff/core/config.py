@@ -1239,9 +1239,7 @@ class FluffConfig:
             )
             return
         config_line = config_line[9:].strip()
-        print(f"STRING: {config_line}")
         config_val = split_colon_separated_string(config_line)
-        print(f"CONFIG_VAL: {config_val}")
         # Validate the value
         ConfigLoader._validate_configs([config_val], fname)
         # Set the value
