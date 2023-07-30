@@ -1239,13 +1239,15 @@ class FluffConfig:
             )
             return
         config_line = config_line[9:].strip()
+        print(f"STRING: {config_line}")
         config_val = split_colon_separated_string(config_line)
+        print(f"CONFIG_VAL: {config_val}")
         # Validate the value
         ConfigLoader._validate_configs([config_val], fname)
         # Set the value
         self.set_value(*config_val)
         # If the config is for dialect, initialise the dialect
-        if config_val[0] == ["dialect"]:
+        if config_val[0] == ("dialect",):
             self._initialise_dialect(config_val[1])
 
     def process_raw_file_for_config(self, raw_str: str, fname: str) -> None:
