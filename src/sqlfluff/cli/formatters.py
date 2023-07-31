@@ -250,7 +250,11 @@ class OutputStreamFormatter:
         return str_buffer
 
     def dispatch_file_violations(
-        self, fname: str, linted_file: LintedFile, only_fixable: bool
+        self,
+        fname: str,
+        linted_file: LintedFile,
+        only_fixable: bool,
+        warn_unused_ignores: bool,
     ) -> None:
         """Dispatch any violations found in a file."""
         if self.verbosity < 0:
@@ -258,7 +262,9 @@ class OutputStreamFormatter:
         s = self._format_file_violations(
             fname,
             linted_file.get_violations(
-                fixable=True if only_fixable else None, filter_warning=False
+                fixable=True if only_fixable else None,
+                filter_warning=False,
+                warn_unused_ignores=warn_unused_ignores,
             ),
         )
         self._dispatch(s)

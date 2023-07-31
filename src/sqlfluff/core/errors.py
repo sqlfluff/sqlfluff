@@ -19,11 +19,18 @@ class SQLBaseError(ValueError):
         ignore=False,
         fatal=False,
         warning=False,
+        # TODO: REVISIT WHETHER THIS IS A GOOD IDEA
+        description=None,
+        code=None,
         **kwargs
     ) -> None:
         self.fatal = fatal
         self.ignore = ignore
         self.warning = warning
+        if description:
+            self.description = description
+        if code:
+            self._code = code
         if pos:
             self.line_no, self.line_pos = pos.source_position()
         else:

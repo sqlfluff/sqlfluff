@@ -641,7 +641,10 @@ class Linter:
         # This is the main command line output from linting.
         if formatter:
             formatter.dispatch_file_violations(
-                parsed.fname, linted_file, only_fixable=fix
+                parsed.fname,
+                linted_file,
+                only_fixable=fix,
+                warn_unused_ignores=parsed.config.get("warn_unused_ignores"),
             )
 
         # Safety flag for unset dialects

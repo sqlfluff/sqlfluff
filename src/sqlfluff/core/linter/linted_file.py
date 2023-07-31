@@ -126,6 +126,7 @@ class LintedFile(NamedTuple):
         types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
         filter_ignore: bool = True,
         filter_warning: bool = True,
+        warn_unused_ignores: bool = False,
         fixable: Optional[bool] = None,
     ) -> list:
         """Get a list of violations, respecting filters and ignore options.
@@ -164,6 +165,20 @@ class LintedFile(NamedTuple):
         # Filter warning violations
         if filter_warning:
             violations = [v for v in violations if not v.warning]
+        # Add warnings for unneeded noqa if applicable
+        if warn_unused_ignores and not filter_warning and self.ignore_mask:
+            violations += [
+                SQLBaseError(
+                    line_no=ignore.line_no,
+                    line_pos=0,
+                    warning=True,
+                    description="Unused NOQA",
+                    code="NOQA",
+                )
+                for ignore in self.ignore_mask._ignore_list
+                if not ignore.used
+                # TODO: This should be in the ignore_mask
+            ]
         return violations
 
     def num_violations(self, **kwargs) -> int:
