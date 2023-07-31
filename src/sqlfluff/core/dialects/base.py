@@ -259,7 +259,8 @@ class Dialect:
             return segment
         else:
             raise TypeError(
-                f"Attempted to fetch non segment [{name}] with get_segment - type{type(segment)}"
+                f"Attempted to fetch non segment [{name}] "
+                f"with get_segment - type{type(segment)}"
             )
 
     def ref(self, name: str) -> ExpandedDialectElementType:
