@@ -36,22 +36,35 @@ def test__linter__raises_malformed_noqa():
     "input,expected",
     [
         ("", None),
-        ("noqa", NoQaDirective(0, None, None)),
+        ("noqa", NoQaDirective(0, 0, None, None, "noqa")),
         ("noqa?", SQLParseError),
-        ("noqa:", NoQaDirective(0, None, None)),
-        ("noqa:LT01,LT02", NoQaDirective(0, ("LT01", "LT02"), None)),
-        ("noqa: enable=LT01", NoQaDirective(0, ("LT01",), "enable")),
-        ("noqa: disable=CP01", NoQaDirective(0, ("CP01",), "disable")),
-        ("noqa: disable=all", NoQaDirective(0, None, "disable")),
+        ("noqa:", NoQaDirective(0, 0, None, None, "noqa:")),
+        (
+            "noqa:LT01,LT02",
+            NoQaDirective(0, 0, ("LT01", "LT02"), None, "noqa:LT01,LT02"),
+        ),
+        (
+            "noqa: enable=LT01",
+            NoQaDirective(0, 0, ("LT01",), "enable", "noqa: enable=LT01"),
+        ),
+        (
+            "noqa: disable=CP01",
+            NoQaDirective(0, 0, ("CP01",), "disable", "noqa: disable=CP01"),
+        ),
+        (
+            "noqa: disable=all",
+            NoQaDirective(0, 0, None, "disable", "noqa: disable=all"),
+        ),
         ("noqa: disable", SQLParseError),
         (
             "Inline comment before inline ignore -- noqa:LT01,LT02",
-            NoQaDirective(0, ("LT01", "LT02"), None),
+            NoQaDirective(0, 0, ("LT01", "LT02"), None, "noqa:LT01,LT02"),
         ),
         # Test selection with rule globs
         (
             "noqa:L04*",
             NoQaDirective(
+                0,
                 0,
                 (
                     "AM04",  # L044 is an alias of AM04
@@ -66,37 +79,46 @@ def test__linter__raises_malformed_noqa():
                     "ST05",  # L042 is an alias of ST05
                 ),
                 None,
+                "noqa:L04*",
             ),
         ),
         # Test selection with aliases.
         (
             "noqa:L002",
-            NoQaDirective(0, ("LT02",), None),
+            NoQaDirective(0, 0, ("LT02",), None, "noqa:L002"),
         ),
         # Test selection with alias globs.
         (
             "noqa:L00*",
             NoQaDirective(
                 0,
+                0,
                 ("LT01", "LT02", "LT03", "LT12"),
                 None,
+                "noqa:L00*",
             ),
         ),
         # Test selection with names.
         (
             "noqa:capitalisation.keywords",
-            NoQaDirective(0, ("CP01",), None),
+            NoQaDirective(0, 0, ("CP01",), None, "noqa:capitalisation.keywords"),
         ),
         # Test selection with groups.
         (
             "noqa:capitalisation",
-            NoQaDirective(0, ("CP01", "CP02", "CP03", "CP04", "CP05"), None),
+            NoQaDirective(
+                0,
+                0,
+                ("CP01", "CP02", "CP03", "CP04", "CP05"),
+                None,
+                "noqa:capitalisation",
+            ),
         ),
     ],
 )
 def test_parse_noqa(input, expected):
     """Test correct of "noqa" comments."""
-    result = IgnoreMask._parse_noqa(input, 0, reference_map=dummy_rule_map)
+    result = IgnoreMask._parse_noqa(input, 0, 0, reference_map=dummy_rule_map)
     if not isinstance(expected, type):
         assert result == expected
     else:
@@ -107,7 +129,7 @@ def test_parse_noqa(input, expected):
 def test_parse_noqa_no_dups():
     """Test overlapping glob expansions don't return duplicate rules in noqa."""
     result = IgnoreMask._parse_noqa(
-        comment="noqa:L0*5,L01*", line_no=0, reference_map=dummy_rule_map
+        comment="noqa:L0*5,L01*", line_no=0, line_pos=0, reference_map=dummy_rule_map
     )
     assert len(result.rules) == len(set(result.rules))
 
@@ -342,7 +364,8 @@ def test_linted_file_ignore_masked_violations(
 ):
     """Test that _ignore_masked_violations() correctly filters violations."""
     ignore_mask = [
-        IgnoreMask._parse_noqa(reference_map=dummy_rule_map, **c) for c in noqa
+        IgnoreMask._parse_noqa(reference_map=dummy_rule_map, line_pos=0, **c)
+        for c in noqa
     ]
     result = IgnoreMask(ignore_mask).ignore_masked_violations(violations)
     expected_violations = [v for i, v in enumerate(violations) if i in expected]

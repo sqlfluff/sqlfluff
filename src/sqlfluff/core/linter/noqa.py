@@ -6,7 +6,7 @@ import logging
 from typing import Optional, Tuple, List, Dict, Set, cast
 
 from sqlfluff.core.parser import RegexLexer, BaseSegment, RawSegment
-from sqlfluff.core.errors import SQLBaseError, SQLParseError
+from sqlfluff.core.errors import SQLBaseError, SQLParseError, SQLUnusedNoQaWarning
 
 
 # Instantiate the linter logger
@@ -18,8 +18,10 @@ class NoQaDirective:
     """Parsed version of a 'noqa' comment."""
 
     line_no: int  # Source line number
+    line_pos: int  # Source line position
     rules: Optional[Tuple[str, ...]]  # Affected rule names
     action: Optional[str]  # "enable", "disable", or "None"
+    raw_str: str = ""  # The raw representation of the directive for warnings.
     used: bool = False  # Has it been used.
 
     def _filter_violations_single_line(
@@ -61,6 +63,7 @@ class IgnoreMask:
     def _parse_noqa(
         comment: str,
         line_no: int,
+        line_pos: int,
         reference_map: Dict[str, Set[str]],
     ):
         """Extract ignore mask entries from a comment string."""
@@ -130,8 +133,8 @@ class IgnoreMask:
                         rules = tuple(sorted(expanded_rules))
                     else:
                         rules = None
-                    return NoQaDirective(line_no, rules, action)
-            return NoQaDirective(line_no, None, None)
+                    return NoQaDirective(line_no, line_pos, rules, action, comment)
+            return NoQaDirective(line_no, line_pos, None, None, comment)
         return None
 
     @classmethod
@@ -143,8 +146,10 @@ class IgnoreMask:
         """Extract ignore mask entries from a comment segment."""
         # Also trim any whitespace afterward
         comment_content = comment.raw_trimmed().strip()
-        comment_line, _ = comment.pos_marker.source_position()
-        result = cls._parse_noqa(comment_content, comment_line, reference_map)
+        comment_line, comment_pos = comment.pos_marker.source_position()
+        result = cls._parse_noqa(
+            comment_content, comment_line, comment_pos, reference_map
+        )
         if isinstance(result, SQLParseError):
             result.segment = comment
         return result
@@ -187,7 +192,7 @@ class IgnoreMask:
             match = inline_comment_regex.search(line) if line else None
             if match:
                 ignore_entry = cls._parse_noqa(
-                    line[match[0] : match[1]], idx + 1, reference_map
+                    line[match[0] : match[1]], idx + 1, match[0], reference_map
                 )
                 if isinstance(ignore_entry, SQLParseError):
                     violations.append(ignore_entry)  # pragma: no cover
@@ -305,12 +310,10 @@ class IgnoreMask:
     def generate_warnings_for_unused(self) -> List[SQLBaseError]:
         """Generates warnings for any unused NoQaDirectives."""
         return [
-            SQLBaseError(
+            SQLUnusedNoQaWarning(
                 line_no=ignore.line_no,
-                line_pos=0,
-                warning=True,
-                description="Unused NOQA",
-                code="NOQA",
+                line_pos=ignore.line_pos,
+                description=f"Unused noqa: {ignore.raw_str!r}",
             )
             for ignore in self._ignore_list
             if not ignore.used

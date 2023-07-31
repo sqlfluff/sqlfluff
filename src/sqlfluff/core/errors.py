@@ -19,18 +19,11 @@ class SQLBaseError(ValueError):
         ignore=False,
         fatal=False,
         warning=False,
-        # TODO: REVISIT WHETHER THIS IS A GOOD IDEA
-        description=None,
-        code=None,
         **kwargs
     ) -> None:
         self.fatal = fatal
         self.ignore = ignore
         self.warning = warning
-        if description:
-            self.description = description
-        if code:
-            self._code = code
         if pos:
             self.line_no, self.line_pos = pos.source_position()
         else:
@@ -232,6 +225,20 @@ class SQLLintError(SQLBaseError):
             len(self.fixes),
             self.description,
         )
+
+
+class SQLUnusedNoQaWarning(SQLBaseError):
+    """A warning about an unused noqa directive."""
+
+    _code = "NOQA"
+    _identifier = "noqa"
+
+    def __init__(self, *args, description=None, **kwargs) -> None:
+        # Should have a description.
+        self.description = description
+        # Always a warning.
+        kwargs["warning"] = True
+        super().__init__(*args, **kwargs)
 
 
 class SQLFluffUserError(ValueError):
