@@ -180,7 +180,6 @@ class Dialect:
             subclass = False
             if isinstance(segment, type) and isinstance(cls, type):
                 subclass = issubclass(cls, segment)
-                assert isinstance(segment, BaseSegment)
                 if not subclass:
                     if segment.type != cls.type:
                         raise ValueError(  # pragma: no cover
