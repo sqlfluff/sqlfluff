@@ -185,7 +185,7 @@ class Rule_RF06(BaseRule):
 
         # Retrieve NakedIdentifierSegment RegexParser for the dialect.
         naked_identifier_parser = context.dialect._library["NakedIdentifierSegment"]
-        assert issubclass(naked_identifier_parser, BaseSegment)
+        assert issubclass(type(naked_identifier_parser), BaseSegment)
         NakedIdentifierSegment = cast(
             Type[CodeSegment], context.dialect.get_segment("IdentifierSegment")
         )

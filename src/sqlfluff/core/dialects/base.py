@@ -163,7 +163,6 @@ class Dialect:
             if n not in self._library:  # pragma: no cover
                 raise ValueError(f"{n!r} is not already registered in {self!r}")
             cls = kwargs[n]
-            segment = self._library[n]
             if self._library[n] is cls:
                 continue
             elif self._library[n] == cls:
