@@ -576,7 +576,11 @@ class RuleMetaclass(type):
         # NOTE: We should only validate and add config keywords
         # into the docstring if the plugin loading methods have
         # fully completed (i.e. plugins_loaded.get() is True).
-        if not plugins_loaded.get():
+        if name == "BaseRule":
+            # Except if it's the base rule, in which case we shouldn't try and
+            # apply configuration _anyway_.
+            pass
+        elif not plugins_loaded.get() :
             # Show a warning if a plugin has their imports set up in a suboptimal
             # way. The example plugin imports the rules in both ways, to test the
             # triggering of this warning.
