@@ -3,39 +3,12 @@
 This uses the rules API supported from 0.4.0 onwards.
 """
 
-from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules import (
     BaseRule,
     LintResult,
     RuleContext,
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from typing import List, Type
-import os.path
-from sqlfluff.core.config import ConfigLoader
-
-
-@hookimpl
-def get_rules() -> List[Type[BaseRule]]:
-    """Get plugin rules."""
-    return [Rule_Example_L001]
-
-
-@hookimpl
-def load_default_config() -> dict:
-    """Loads the default configuration for the plugin."""
-    return ConfigLoader.get_global().load_config_file(
-        file_dir=os.path.dirname(__file__),
-        file_name="plugin_default_config.cfg",
-    )
-
-
-@hookimpl
-def get_configs_info() -> dict:
-    """Get rule config validations and descriptions."""
-    return {
-        "forbidden_columns": {"definition": "A list of column to forbid"},
-    }
 
 
 # These two decorators allow plugins

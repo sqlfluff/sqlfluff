@@ -1,28 +1,63 @@
 """Plugin related tests."""
+import logging
 import pytest
+import sys
 
-from sqlfluff.core.plugin.host import get_plugin_manager
+from sqlfluff.core.plugin.host import get_plugin_manager, purge_plugin_manager
 from sqlfluff.core.config import FluffConfig
+from sqlfluff.utils.testing.logging import fluff_log_catcher
 
 
 def test__plugin_manager_registers_example_plugin():
-    """Test that the example plugin is registered."""
-    plugin_manager = get_plugin_manager()
-    # The plugin import order is non-deterministic.
-    # Use sets in case the dbt plugin (or other plugins) are
-    # already installed too.
-    installed_plugins = set(
-        plugin_module.__name__ for plugin_module in plugin_manager.get_plugins()
-    )
+    """Test that the example plugin is registered.
+
+    This test also tests that warnings are raised on the import of
+    plugins which have their imports in the wrong place (e.g. the
+    example plugin). That means we need to make sure the plugin is
+    definitely reimported at the start of this test, so we can see
+    any warnings raised on imports.
+
+    To do this we clear the plugin manager cache and also forcibly
+    unload the example plugin modules if they are already loaded.
+    This ensures that we can capture any warnings raised by importing the
+    module.
+    """
+    purge_plugin_manager()
+    # We still to a try/except here, even though it's only run within
+    # the context of a test because the module may or may not already
+    # be imported depending on the order that the tests run in.
+    try:
+        del sys.modules["sqlfluff_plugin_example"]
+    except KeyError:
+        pass
+    try:
+        del sys.modules["sqlfluff_plugin_example.rules"]
+    except KeyError:
+        pass
+
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.rules") as caplog:
+        plugin_manager = get_plugin_manager()
+        # The plugin import order is non-deterministic.
+        # Use sets in case the dbt plugin (or other plugins) are
+        # already installed too.
+        installed_plugins = set(
+            plugin_module.__name__ for plugin_module in plugin_manager.get_plugins()
+        )
+
     print(f"Installed plugins: {installed_plugins}")
     assert installed_plugins.issuperset(
         {
-            # Check that both the v1 and v2 example are correctly
-            # installed.
-            "example.rules",
+            "sqlfluff_plugin_example",
             "sqlfluff.core.plugin.lib",
         }
     )
+
+    # At this stage we should also check that the example plugin
+    # also raises a warning for it's import location.
+    assert (
+        "Rule 'Rule_Example_L001' has been imported before all plugins "
+        "have been fully loaded"
+    ) in caplog.text
 
 
 @pytest.mark.parametrize(
