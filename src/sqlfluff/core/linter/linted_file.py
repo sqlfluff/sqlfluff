@@ -167,18 +167,7 @@ class LintedFile(NamedTuple):
             violations = [v for v in violations if not v.warning]
         # Add warnings for unneeded noqa if applicable
         if warn_unused_ignores and not filter_warning and self.ignore_mask:
-            violations += [
-                SQLBaseError(
-                    line_no=ignore.line_no,
-                    line_pos=0,
-                    warning=True,
-                    description="Unused NOQA",
-                    code="NOQA",
-                )
-                for ignore in self.ignore_mask._ignore_list
-                if not ignore.used
-                # TODO: This should be in the ignore_mask
-            ]
+            violations += self.ignore_mask.generate_warnings_for_unused()
         return violations
 
     def num_violations(self, **kwargs) -> int:

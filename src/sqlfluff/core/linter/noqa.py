@@ -301,3 +301,17 @@ class IgnoreMask:
         )
         violations = self._ignore_masked_violations_line_range(violations, ignore_range)
         return violations
+
+    def generate_warnings_for_unused(self) -> List[SQLBaseError]:
+        """Generates warnings for any unused NoQaDirectives."""
+        return [
+            SQLBaseError(
+                line_no=ignore.line_no,
+                line_pos=0,
+                warning=True,
+                description="Unused NOQA",
+                code="NOQA",
+            )
+            for ignore in self._ignore_list
+            if not ignore.used
+        ]
