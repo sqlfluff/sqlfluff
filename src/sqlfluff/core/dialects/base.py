@@ -256,7 +256,7 @@ class Dialect:
             raise ValueError(f"Element {name} not found in dialect.")
         segment = self._library[name]
 
-        if isinstance(segment, BaseSegment):  # pragma: no cover
+        if issubclass(segment, BaseSegment):  # pragma: no cover
             return segment
         else:
             raise TypeError(
