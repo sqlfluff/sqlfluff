@@ -15,6 +15,7 @@ import os
 import os.path
 import logging
 from typing import (
+    Callable,
     List,
     Optional,
     Iterator,
@@ -518,7 +519,9 @@ class DbtTemplater(JinjaTemplater):
         # turn is used by our parent class' (JinjaTemplater) slice_file()
         # function.
         old_from_string = Environment.from_string
-        make_template = None
+        # Start with render_func undefined. We need to know whether it has been
+        # overwritten.
+        render_func: Optional[Callable[[str], str]] = None
 
         if self.dbt_version_tuple >= (1, 3):
             compiled_sql_attribute = "compiled_code"
@@ -529,7 +532,7 @@ class DbtTemplater(JinjaTemplater):
 
         def from_string(*args, **kwargs):
             """Replaces (via monkeypatch) the jinja2.Environment function."""
-            nonlocal make_template
+            nonlocal render_func
             # Is it processing the node corresponding to fname?
             globals = kwargs.get("globals")
             if globals:
@@ -537,13 +540,16 @@ class DbtTemplater(JinjaTemplater):
                 if model:
                     if model.get("original_file_path") == original_file_path:
                         # Yes. Capture the important arguments and create
-                        # a make_template() function.
+                        # a render_func() closure with overwrites the variable
+                        # from within _unsafe_process when from_string is run.
                         env = args[0]
                         globals = args[2] if len(args) >= 3 else kwargs["globals"]
 
-                        def make_template(in_str):
+                        # Overwrite the outer render_func
+                        def render_func(in_str):
                             env.add_extension(SnapshotExtension)
-                            return env.from_string(in_str, globals=globals)
+                            template = env.from_string(in_str, globals=globals)
+                            return template.render()
 
             return old_from_string(*args, **kwargs)
 
@@ -654,7 +660,23 @@ class DbtTemplater(JinjaTemplater):
             #       production, slice_file() does not usually use this string,
             #       but some test scenarios do.
             setattr(node, raw_sql_attribute, source_dbt_sql)
-            compiled_sql = compiled_sql + "\n" * n_trailing_newlines
+
+            # So for files that have no templated elements in them, render_func
+            # will still be null at this point. If so, we replace it with a lambda
+            # which just directly returns the input , but _also_ reset the trailing
+            # newlines counter because they also won't have been stripped.
+            if render_func is None:
+                # NOTE: In this case, we shouldn't re-add newlines, because they
+                # were never taken away.
+                n_trailing_newlines = 0
+
+                # Overwrite the render_func placeholder.
+                def render_func(in_str):
+                    """A render function which just returns the input."""
+                    return in_str
+
+            # At this point assert that we _have_ a render_func
+            assert render_func is not None
 
             # TRICKY: dbt configures Jinja2 with keep_trailing_newline=False.
             # As documented (https://jinja.palletsprojects.com/en/3.0.x/api/),
@@ -665,9 +687,8 @@ class DbtTemplater(JinjaTemplater):
             # Below, we use "append_to_templated" to effectively "undo" this.
             raw_sliced, sliced_file, templated_sql = self.slice_file(
                 source_dbt_sql,
-                compiled_sql,
+                render_func=render_func,
                 config=config,
-                make_template=make_template,
                 append_to_templated="\n" if n_trailing_newlines else "",
             )
         # :HACK: If calling compile_node() compiled any ephemeral nodes,
