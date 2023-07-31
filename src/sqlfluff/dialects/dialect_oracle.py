@@ -77,8 +77,17 @@ oracle_dialect.insert_lexer_matchers(
     before="code",
 )
 
+oracle_dialect.insert_lexer_matchers(
+    # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
+    [
+        StringLexer("right_arrow", "=>", CodeSegment),
+    ],
+    before="equals",
+)
+
 oracle_dialect.add(
     AtSignSegment=StringParser("@", SymbolSegment, type="at_sign"),
+    RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
 )
 
 oracle_dialect.replace(
@@ -104,6 +113,10 @@ oracle_dialect.replace(
         Ref("WithinGroupClauseSegment"),
         Ref("FilterClauseGrammar"),
         Ref("OverClauseSegment", optional=True),
+    ),
+    FunctionContentsExpressionGrammar=OneOf(
+        Ref("ExpressionSegment"),
+        Ref("NamedArgumentSegment"),
     ),
     FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
         insert=[
@@ -471,4 +484,18 @@ class ListaggOverflowClauseSegment(BaseSegment):
                 Ref.keyword("COUNT", optional=True),
             ),
         ),
+    )
+
+
+class NamedArgumentSegment(BaseSegment):
+    """Named argument to a function.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/lnpls/plsql-subprograms.html#GUID-A7D51201-1711-4F33-827F-70042700801F
+    """
+
+    type = "named_argument"
+    match_grammar = Sequence(
+        Ref("NakedIdentifierSegment"),
+        Ref("RightArrowSegment"),
+        Ref("ExpressionSegment"),
     )
