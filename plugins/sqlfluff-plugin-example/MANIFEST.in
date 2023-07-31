@@ -1,1 +1,1 @@
-include src/example/plugin_default_config.cfg
+include src/sqlfluff_plugin_example/plugin_default_config.cfg
