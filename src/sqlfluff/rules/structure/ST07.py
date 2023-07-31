@@ -211,7 +211,7 @@ def _extract_deletion_sequence_and_anchor(
     return to_delete, insert_anchor
 
 
-def _create_col_reference(table_ref: str, column_name: str):
+def _create_col_reference(table_ref: str, column_name: str) -> ColumnReferenceSegment:
     segments = [
         IdentifierSegment(raw=table_ref, type="naked_identifier"),
         SymbolSegment(raw=".", type="symbol"),

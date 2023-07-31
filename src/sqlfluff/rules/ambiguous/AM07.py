@@ -57,7 +57,7 @@ class Rule_AM07(BaseRule):
 
     def __handle_alias_case(
         self, parent_query, alias_info, query, context, resolve_targets, wildcard
-    ):
+    ) -> None:
         select_info_target = SelectCrawler.get(
             parent_query, alias_info.from_expression_element
         )[0]
@@ -85,8 +85,8 @@ class Rule_AM07(BaseRule):
     def __resolve_wildcard(
         self,
         context: RuleContext,
-        query,
-        parent_query,
+        query: Query,
+        parent_query: Query,
         resolve_targets,
     ):
         """Attempt to resolve the wildcard to a list of selectables."""
@@ -138,6 +138,7 @@ class Rule_AM07(BaseRule):
                                 )
                                 return resolve_targets
             else:
+                assert selectable.select_info
                 resolve_targets.extend(
                     [target for target in selectable.select_info.select_targets]
                 )
@@ -167,6 +168,8 @@ class Rule_AM07(BaseRule):
                     context.dialect,
                     parent_stack=context.parent_stack,
                 ).query_tree
+                assert select_crawler
+                assert parent_crawler.query_tree
                 select_list = self.__resolve_wildcard(
                     context,
                     select_crawler,

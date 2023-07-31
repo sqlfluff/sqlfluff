@@ -38,7 +38,7 @@ if TYPE_CHECKING:
     from sqlfluff.core.dialects.base import Dialect  # pragma: no cover
 
 
-def first_trimmed_raw(seg) -> str:
+def first_trimmed_raw(seg: BaseSegment) -> str:
     """Trim whitespace off a whole element raw.
 
     Used as a helper function in BaseGrammar._look_ahead_match.
@@ -230,7 +230,9 @@ class BaseGrammar(Matchable):
         )  # pragma: no cover
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext, crumbs=None) -> SimpleHintType:
+    def simple(
+        self, parse_context: ParseContext, crumbs: Optional[List[str]] = None
+    ) -> SimpleHintType:
         """Does this matcher support a lowercase hash matching route?"""
         return None
 
@@ -847,7 +849,7 @@ class Ref(BaseGrammar):
     # and it also causes infinite recursion.
     allow_keyword_string_refs = False
 
-    def __init__(self, *args: str, **kwargs):
+    def __init__(self, *args: str, **kwargs) -> None:
         # Any patterns to _prevent_ a match.
         self.exclude = kwargs.pop("exclude", None)
         # The intent here is that if we match something, and then the _next_
@@ -861,7 +863,9 @@ class Ref(BaseGrammar):
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None):
+    def simple(
+        self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
+    ) -> SimpleHintType:
         """Does this matcher support a uppercase hash matching route?
 
         A ref is simple, if the thing it references is simple.
@@ -967,7 +971,7 @@ class Ref(BaseGrammar):
         return resp
 
     @classmethod
-    def keyword(cls, keyword, **kwargs) -> BaseGrammar:
+    def keyword(cls, keyword: str, **kwargs) -> BaseGrammar:
         """Generate a reference to a keyword by name.
 
         This function is entirely syntactic sugar, and designed

@@ -190,7 +190,7 @@ def coerce_value(val: str) -> Any:
     return v
 
 
-def nested_combine(*dicts: dict) -> dict:
+def nested_combine(*dicts: Dict[str, Any]) -> Dict[str, Any]:
     """Combine an iterable of dictionaries.
 
     Each dictionary is combined into a result dictionary. For
@@ -643,7 +643,7 @@ class ConfigLoader:
 
     def load_config_resource(
         self, package: str, file_name: str, configs: Optional[dict] = None
-    ) -> dict:
+    ) -> Dict[str, Any]:
         """Load a config resource.
 
         This is however more compatible with mypyc because it avoids

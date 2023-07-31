@@ -2,6 +2,7 @@
 from typing import List, NamedTuple, Optional
 
 from sqlfluff.core.dialects.base import Dialect
+from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment
 
@@ -12,7 +13,7 @@ class SelectStatementColumnsAndTables(NamedTuple):
     select_statement: BaseSegment
     table_aliases: List[AliasInfo]
     standalone_aliases: List[str]  # value table function aliases
-    reference_buffer: List[BaseSegment]
+    reference_buffer: List[ObjectReferenceSegment]
     select_targets: List[BaseSegment]
     col_aliases: List[ColumnAliasInfo]
     using_cols: List[str]
@@ -143,7 +144,7 @@ def _has_value_table_function(table_expr, dialect) -> bool:
     return False
 
 
-def _get_pivot_table_columns(segment, dialect):
+def _get_pivot_table_columns(segment, dialect) -> list:
     if not dialect:
         # We need the dialect to get the pivot table column names. If
         # we don't have it, assume the clause does not have a pivot table
@@ -169,7 +170,9 @@ def _get_pivot_table_columns(segment, dialect):
 # identifiers or columns that we should expect to be declared somewhere else.
 # These columns are interesting to identify since they can get special
 # treatment in some rules.
-def _get_lambda_argument_columns(segment, dialect):
+def _get_lambda_argument_columns(
+    segment: BaseSegment, dialect: Dialect
+) -> Optional[List[str]]:
     if not dialect or dialect.name not in ["athena", "sparksql"]:
         # Only athena and sparksql are known to have lambda expressions,
         # so all other dialects will have zero lambda columns

@@ -47,7 +47,7 @@ class LintingResult:
         return {key: d1.get(key, 0) + d2.get(key, 0) for key in keys}
 
     @staticmethod
-    def combine_dicts(*d: dict) -> dict:
+    def combine_dicts(*d: Dict[str, Any]) -> Dict[str, Any]:
         """Take any set of dictionaries and combine them."""
         dict_buffer: dict = {}
         for dct in d:

@@ -737,7 +737,7 @@ def do_fixes(
     return False  # pragma: no cover
 
 
-def _stdin_fix(linter: Linter, formatter, fix_even_unparsable) -> None:
+def _stdin_fix(linter: Linter, formatter, fix_even_unparsable: bool) -> None:
     """Handle fixing from stdin."""
     exit_code = EXIT_SUCCESS
     stdin = sys.stdin.read()

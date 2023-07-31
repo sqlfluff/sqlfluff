@@ -2,7 +2,7 @@
 
 import itertools
 from typing import List, Optional, Tuple
-
+from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext, EvalResultType
@@ -68,7 +68,7 @@ class Rule_AL04(BaseRule):
         self,
         table_aliases: List[AliasInfo],
         standalone_aliases: List[str],
-        references: List[BaseSegment],
+        references: List[ObjectReferenceSegment],
         col_aliases: List[ColumnAliasInfo],
         using_cols: List[str],
         parent_select: Optional[BaseSegment],

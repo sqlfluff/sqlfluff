@@ -1,7 +1,7 @@
 """Implementation of Rule AL07."""
 
 from collections import Counter, defaultdict
-from typing import Generator, NamedTuple, Optional
+from typing import Generator, NamedTuple, Optional, List
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -89,7 +89,7 @@ class Rule_AL07(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
     is_fix_compatible = True
 
-    def _eval(self, context: RuleContext) -> Optional[LintResult]:
+    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Identify aliases in from clause and join conditions.
 
         Find base table, table expressions in join, and other expressions in select
@@ -108,7 +108,7 @@ class Rule_AL07(BaseRule):
         # this rule to do the right thing. For now, the rule simply disables
         # itself.
         if not self.force_enable:
-            return LintResult()
+            return None
 
         assert context.segment.is_type("select_statement")
 
@@ -188,7 +188,7 @@ class Rule_AL07(BaseRule):
 
     def _lint_aliases_in_join(
         self, base_table, from_expression_elements, column_reference_segments, segment
-    ):
+    ) -> Optional[List[LintResult]]:
         """Lint and fix all aliases in joins - except for self-joins."""
         # A buffer to keep any violations.
         violation_buff = []

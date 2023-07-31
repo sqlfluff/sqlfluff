@@ -39,7 +39,7 @@ from typing import (
 )
 from collections import namedtuple, defaultdict
 
-from sqlfluff.core.config import FluffConfig, split_comma_separated_string
+from sqlfluff.core.config import split_comma_separated_string
 
 from sqlfluff.core.linter import IgnoreMask
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
@@ -502,7 +502,7 @@ class RuleMetaclass(type):
     _valid_classname_regex = regex.compile(r"Rule_?([A-Z]{1}[a-zA-Z]+)?_([A-Z0-9]{4})")
     _valid_rule_name_regex = regex.compile(r"[a-z][a-z\.\_]+")
 
-    def _populate_code_and_description(mcs, name, class_dict):
+    def _populate_code_and_description(mcs, name, class_dict) -> dict:
         """Extract and validate the rule code & description.
 
         We expect that rules are defined as classes with the name `Rule_XXXX`
@@ -788,7 +788,7 @@ class BaseRule(metaclass=RuleMetaclass):
         templated_file: Optional["TemplatedFile"],
         ignore_mask: Optional[IgnoreMask],
         fname: Optional[str],
-        config: FluffConfig,
+        config,
     ) -> Tuple[List[SQLLintError], Tuple[RawSegment, ...], List[LintFix], Any]:
         """Run the rule on a given tree.
 
@@ -957,7 +957,7 @@ class BaseRule(metaclass=RuleMetaclass):
             new_fixes.extend(res.fixes)
 
     @staticmethod
-    def filter_meta(segments, keep_meta=False):
+    def filter_meta(segments, keep_meta=False) -> tuple:
         """Filter the segments to non-meta.
 
         Or optionally the opposite if keep_meta is True.
@@ -969,7 +969,9 @@ class BaseRule(metaclass=RuleMetaclass):
         return tuple(buff)
 
     @classmethod
-    def get_parent_of(cls, segment, root_segment):  # pragma: no cover TODO?
+    def get_parent_of(
+        cls, segment: BaseSegment, root_segment: BaseSegment
+    ):  # pragma: no cover TODO?
         """Return the segment immediately containing segment.
 
         NB: This is recursive.
@@ -1067,7 +1069,7 @@ class BaseRule(metaclass=RuleMetaclass):
         edit_type: str,
         segment: BaseSegment,
         filter_meta: bool = False,
-    ):
+    ) -> BaseSegment:
         """Choose the anchor point for a lint fix, i.e. where to apply the fix.
 
         From a grammar perspective, segments near the leaf of the tree are
@@ -1497,7 +1499,7 @@ class RuleSet:
 
         return RulePack(instantiated_rules, reference_map)
 
-    def copy(self):
+    def copy(self) -> "RuleSet":
         """Return a copy of self with a separate register."""
         new_ruleset = copy.copy(self)
         new_ruleset._register = self._register.copy()
