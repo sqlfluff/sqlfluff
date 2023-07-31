@@ -33,7 +33,7 @@ class Dialect:
         name: str,
         root_segment_name: str,
         lexer_matchers: Optional[List[LexerType]] = None,
-        library: Optional[Dict[str, DialectElementType]] = None,
+        library=None,
         sets: Optional[Dict[str, Set[str]]] = None,
         inherits_from: Optional[str] = None,
     ) -> None:
@@ -154,7 +154,7 @@ class Dialect:
                 raise ValueError(f"{n!r} is already registered in {self!r}")
             self._library[n] = kwargs[n]
 
-    def replace(self, **kwargs: DialectElementType) -> None:
+    def replace(self, **kwargs) -> None:
         """Override a segment on the dialect directly.
 
         Usage is very similar to add, but elements specified must already exist.
@@ -177,25 +177,23 @@ class Dialect:
             # subclass of the original, *or* it must have the same
             # public methods and/or fields as it.
             base_dir = set(dir(segment))
-            subclass = False
-            if isinstance(segment, type) and isinstance(cls, type):
-                subclass = issubclass(cls, segment)
-                if not subclass:
-                    if segment.type != cls.type:
-                        raise ValueError(  # pragma: no cover
-                            f"Cannot replace {n!r} because 'type' property does not "
-                            f"match: {cls.type} != {segment.type}"
-                        )
-
-                    cls_dir = set(dir(cls))
-                    missing = set(
-                        n for n in base_dir.difference(cls_dir) if not n.startswith("_")
+            subclass = issubclass(cls, segment)
+            if not subclass:
+                if segment.type != cls.type:
+                    raise ValueError(  # pragma: no cover
+                        f"Cannot replace {n!r} because 'type' property does not "
+                        f"match: {cls.type} != {segment.type}"
                     )
-                    if missing:
-                        raise ValueError(  # pragma: no cover
-                            f"Cannot replace {n!r} because it's not a subclass and "
-                            f"is missing these from base: {', '.join(missing)}"
-                        )
+
+                cls_dir = set(dir(cls))
+                missing = set(
+                    n for n in base_dir.difference(cls_dir) if not n.startswith("_")
+                )
+                if missing:
+                    raise ValueError(  # pragma: no cover
+                        f"Cannot replace {n!r} because it's not a subclass and "
+                        f"is missing these from base: {', '.join(missing)}"
+                    )
 
             if subclass:
                 # If the segment class we're replacing defines these fields, the
@@ -246,7 +244,7 @@ class Dialect:
             )
         return grammar
 
-    def get_segment(self, name: str) -> BaseSegment:
+    def get_segment(self, name: str) -> Type["BaseSegment"]:
         """Allow access to segments pre-expansion.
 
         This is typically for dialect inheritance. This method
@@ -256,7 +254,7 @@ class Dialect:
             raise ValueError(f"Element {name} not found in dialect.")
         segment = self._library[name]
 
-        if isinstance(segment, BaseSegment):  # pragma: no cover
+        if issubclass(segment, BaseSegment):  # pragma: no cover
             return segment
         else:
             raise TypeError(
