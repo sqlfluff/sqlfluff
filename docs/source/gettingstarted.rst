@@ -258,7 +258,7 @@ put the following content:
     [sqlfluff:indentation]
     tab_space_size = 2
 
-    [sqlfluff:rules:CP01]
+    [sqlfluff:rules:capitalisation.keywords]
     capitalisation_policy = lower
 
 Then rerun the same command as before.
