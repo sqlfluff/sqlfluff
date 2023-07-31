@@ -177,23 +177,26 @@ class Dialect:
             # subclass of the original, *or* it must have the same
             # public methods and/or fields as it.
             base_dir = set(dir(segment))
-            subclass = issubclass(cls, segment)
-            if not subclass:
-                if segment.type != cls.type:
-                    raise ValueError(  # pragma: no cover
-                        f"Cannot replace {n!r} because 'type' property does not "
-                        f"match: {cls.type} != {segment.type}"
-                    )
+            subclass = False
+            if hasattr(segment, "type") and hasattr(cls, "type"):
+                subclass = issubclass(cls, segment)
+                if not subclass:
+                    assert segment.type and cls.type
+                    if segment.type != cls.type:
+                        raise ValueError(  # pragma: no cover
+                            f"Cannot replace {n!r} because 'type' property does not "
+                            f"match: {cls.type} != {segment.type}"
+                        )
 
-                cls_dir = set(dir(cls))
-                missing = set(
-                    n for n in base_dir.difference(cls_dir) if not n.startswith("_")
-                )
-                if missing:
-                    raise ValueError(  # pragma: no cover
-                        f"Cannot replace {n!r} because it's not a subclass and "
-                        f"is missing these from base: {', '.join(missing)}"
+                    cls_dir = set(dir(cls))
+                    missing = set(
+                        n for n in base_dir.difference(cls_dir) if not n.startswith("_")
                     )
+                    if missing:
+                        raise ValueError(  # pragma: no cover
+                            f"Cannot replace {n!r} because it's not a subclass and "
+                            f"is missing these from base: {', '.join(missing)}"
+                        )
 
             if subclass:
                 # If the segment class we're replacing defines these fields, the
