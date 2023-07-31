@@ -69,8 +69,9 @@ of the hook implementations (anything using the :code:`@hookimpl` decorator)
 must be able to fully import before any rule implementations are imported.
 More specifically, SQLFluff must be able to both *import* **and**
 *run* any implementations of :code:`get_configs_info()` before any plugin
-rules (i.e. any derivatives of :py:class:`BaseRule <sqlfluff.core.rules.base.BaseRule>`)
-are *imported*. Because of this, we recommend that rules are defined in a
+rules (i.e. any derivatives of
+:py:class:`BaseRule <sqlfluff.core.rules.base.BaseRule>`) are *imported*.
+Because of this, we recommend that rules are defined in a
 separate module to the root of the plugin and then only imported *within*
 the :code:`get_rules()` method.
 
