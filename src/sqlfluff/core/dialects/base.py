@@ -246,7 +246,7 @@ class Dialect:
             )
         return grammar
 
-    def get_segment(self, name: str) -> Type["BaseSegment"]:
+    def get_segment(self, name: str) -> BaseSegment:
         """Allow access to segments pre-expansion.
 
         This is typically for dialect inheritance. This method
@@ -256,7 +256,7 @@ class Dialect:
             raise ValueError(f"Element {name} not found in dialect.")
         segment = self._library[name]
 
-        if issubclass(segment, BaseSegment):  # pragma: no cover
+        if isinstance(segment, BaseSegment):  # pragma: no cover
             return segment
         else:
             raise TypeError(
