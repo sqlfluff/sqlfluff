@@ -444,6 +444,9 @@ def test__cli__command_render_stdin():
         ),
         # Check timing outputs doesn't raise exceptions
         (lint, ["test/fixtures/cli/passing_a.sql", "--persist-timing", "test.csv"]),
+        # Check lint --help command doesn't raise exception.
+        # NOTE: This tests the LazySequence in action.
+        (lint, ["--help"]),
     ],
 )
 def test__cli__command_lint_parse(command):

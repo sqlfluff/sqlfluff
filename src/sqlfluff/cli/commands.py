@@ -31,7 +31,7 @@ from sqlfluff.cli.formatters import (
     format_linting_result_header,
     OutputStreamFormatter,
 )
-from sqlfluff.cli.helpers import get_package_version
+from sqlfluff.cli.helpers import get_package_version, LazySequence
 from sqlfluff.cli.outputstream import make_output_stream, OutputStream
 
 # Import from sqlfluff core.
@@ -213,12 +213,15 @@ def core_options(f: Callable) -> Callable:
         default=None,
         help="The templater to use (default=jinja)",
         type=click.Choice(
-            [
-                templater.name
-                for templater in chain.from_iterable(
-                    get_plugin_manager().hook.get_templaters()
-                )
-            ]
+            # Use LazySequence so that we don't load templaters until required.
+            LazySequence(
+                lambda: [
+                    templater.name
+                    for templater in chain.from_iterable(
+                        get_plugin_manager().hook.get_templaters()
+                    )
+                ]
+            )
         ),
     )(f)
     f = click.option(
