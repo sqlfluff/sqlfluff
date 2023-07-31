@@ -12,7 +12,6 @@ from collections import defaultdict
 import logging
 import uuid
 from typing import Optional, TYPE_CHECKING, Dict
-from sqlfluff.core.dialects import Dialect
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.match_result import MatchResult
@@ -32,7 +31,7 @@ class RootParseContext:
     which created it so that it can refer to config within it.
     """
 
-    def __init__(self, dialect: Dialect, indentation_config=None, recurse=True) -> None:
+    def __init__(self, dialect, indentation_config=None, recurse=True) -> None:
         """Store persistent config objects."""
         self.dialect = dialect
         self.recurse = recurse

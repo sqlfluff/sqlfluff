@@ -39,7 +39,6 @@ from sqlfluff.core.string_helpers import (
 )
 
 from sqlfluff.core.parser.context import RootParseContext
-from sqlfluff.core.parser.grammar.types import SimpleHintType
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_logging import parse_match_logging
 from sqlfluff.core.parser.match_wrapper import match_wrapper
@@ -715,7 +714,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # ################ CLASS METHODS
 
     @classmethod
-    def simple(cls, parse_context: ParseContext, crumbs=None) -> SimpleHintType:
+    def simple(cls, parse_context: ParseContext, crumbs=None):
         """Does this matcher support an uppercase hash matching route?
 
         This should be true if the MATCH grammar is simple. Most more

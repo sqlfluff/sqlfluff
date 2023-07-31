@@ -39,7 +39,7 @@ from typing import (
 )
 from collections import namedtuple, defaultdict
 
-from sqlfluff.core.config import FluffConfig, split_comma_separated_string
+from sqlfluff.core.config import split_comma_separated_string
 
 from sqlfluff.core.linter import IgnoreMask
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
@@ -768,7 +768,7 @@ class BaseRule(metaclass=RuleMetaclass):
         templated_file: Optional["TemplatedFile"],
         ignore_mask: Optional[IgnoreMask],
         fname: Optional[str],
-        config: FluffConfig,
+        config,
     ) -> Tuple[List[SQLLintError], Tuple[RawSegment, ...], List[LintFix], Any]:
         """Run the rule on a given tree.
 
