@@ -117,7 +117,9 @@ class Rule_ST08(BaseRule):
                 )
         return None
 
-    def _remove_unneeded_brackets(self, context: RuleContext, bracketed: Segments) -> Tuple[BaseSegment, ReflowSequence]:
+    def _remove_unneeded_brackets(
+        self, context: RuleContext, bracketed: Segments
+    ) -> Tuple[BaseSegment, ReflowSequence]:
         # Remove the brackets and strip any meta segments.
         anchor = bracketed.get()
         assert anchor
