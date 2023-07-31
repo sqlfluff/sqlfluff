@@ -14,6 +14,36 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This release changes some of the interfaces between SQLFluff core and
+our plugin ecosystem. The only *breaking* change is in the interface
+between SQLFluff and *templater* plugins (which are not common in the
+ecosystem, hence why this is only a minor and not a major release).
+
+For all plugins, we also recommend a different structure for their
+imports (especially for rule plugins which are more common in the
+ecosystem) - for performance and stability reasons. Some users had
+been experiencing very long import times with previous releases as
+a result of the layout of plugin imports. Users with affected plugins
+will begin to see a warning from this release onward, which can be
+resolved for their plugin by updating to a new version of that plugin
+which follows the guidelines.
+
+For more details (especially if you're a plugin maintainer) see our
+[release notes](https://docs.sqlfluff.com/en/latest/releasenotes.html).
+
+Additionally this release includes:
+- Improvements to the Simple API, including the ability to pass in
+  a `FluffConfig` object directly, and better support for parsing
+  config files directly from strings (see
+  [the included example](examples/05_simple_api_config.py)).
+- A bugfix for `AM06`.
+- Improvements to Redshift, Oracle, Clickhouse & Materialize dialects.
+- A selection of internal improvements, documentation and type hints.
+
+Thanks also to [@kaiyannameighu](https://github.com/kaiyannameighu) &
+[@joaostorrer](https://github.com/joaostorrer) who made their first
+contributions as part of this release! 🎉🎉🎉
+
 ## What’s Changed
 
 * Move from `make_template` to `render_func` in jinja and dbt [#4942](https://github.com/sqlfluff/sqlfluff/pull/4942) [@alanmcruickshank](https://github.com/alanmcruickshank)
