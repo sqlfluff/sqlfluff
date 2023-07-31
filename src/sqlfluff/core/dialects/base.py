@@ -164,9 +164,9 @@ class Dialect:
                 raise ValueError(f"{n!r} is not already registered in {self!r}")
             cls = kwargs[n]
             segment = self._library[n]
-            if segment is cls:
+            if self._library[n] is cls:
                 continue
-            elif segment == cls:
+            elif self._library[n] == cls:
                 # Check for replacement with a new but identical class.
                 # This would be a sign of redundant definitions in the dialect.
                 raise ValueError(
@@ -176,16 +176,15 @@ class Dialect:
             # To replace a segment, the replacement must either be a
             # subclass of the original, *or* it must have the same
             # public methods and/or fields as it.
-            base_dir = set(dir(segment))
+            base_dir = set(dir(self._library[n]))
             subclass = False
-            if hasattr(segment, "type") and hasattr(cls, "type"):
-                subclass = issubclass(type(cls), type(segment))
+            if issubclass(type(self._library[n]), type) and issubclass(type(cls), type):
+                subclass = issubclass(cls, self._library[n])
                 if not subclass:
-                    assert segment.type and cls.type
-                    if segment.type != cls.type:
+                    if self._library[n].type != cls.type:
                         raise ValueError(  # pragma: no cover
                             f"Cannot replace {n!r} because 'type' property does not "
-                            f"match: {cls.type} != {segment.type}"
+                            f"match: {cls.type} != {self._library[n].type}"
                         )
 
                     cls_dir = set(dir(cls))
