@@ -170,4 +170,6 @@ def parse(
     # Return a JSON representation of the parse tree.
     if parsed.tree is None:  # pragma: no cover
         return {}
-    return parsed.tree.as_record(show_raw=True)
+    record = parsed.tree.as_record(show_raw=True)
+    assert record
+    return record

@@ -1,7 +1,7 @@
 """The structure plugin bundle."""
 
 from sqlfluff.core.plugin import hookimpl
-
+from sqlfluff.core.rules import BaseRule
 from sqlfluff.rules.structure.ST01 import Rule_ST01
 from sqlfluff.rules.structure.ST02 import Rule_ST02
 from sqlfluff.rules.structure.ST03 import Rule_ST03
@@ -10,10 +10,11 @@ from sqlfluff.rules.structure.ST05 import Rule_ST05
 from sqlfluff.rules.structure.ST06 import Rule_ST06
 from sqlfluff.rules.structure.ST07 import Rule_ST07
 from sqlfluff.rules.structure.ST08 import Rule_ST08
+from typing import List, Type
 
 
 @hookimpl
-def get_rules():
+def get_rules() -> List[Type[BaseRule]]:
     """Get plugin rules."""
     return [
         Rule_ST01,

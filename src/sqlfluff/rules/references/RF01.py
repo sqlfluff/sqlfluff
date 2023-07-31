@@ -185,7 +185,7 @@ class Rule_RF01(BaseRule):
             return False  # pragma: no cover
 
     @staticmethod
-    def _get_table_refs(ref, dialect):
+    def _get_table_refs(ref, dialect: Dialect):
         """Given ObjectReferenceSegment, determine possible table references."""
         tbl_refs = []
         # First, handle any schema.table references.
@@ -211,7 +211,7 @@ class Rule_RF01(BaseRule):
             for tr in ref.extract_possible_references(
                 level=ref.ObjectReferenceLevel.TABLE
             ):
-                tbl_refs.append((tr, (tr.part,)))
+                tbl_refs.append((tr, (tr.part, None)))
         return tbl_refs
 
     def _resolve_reference(

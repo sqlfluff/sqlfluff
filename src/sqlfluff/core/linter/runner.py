@@ -29,8 +29,8 @@ class BaseRunner(ABC):
 
     def __init__(
         self,
-        linter,
-        config,
+        linter: Linter,
+        config: FluffConfig,
     ) -> None:
         self.linter = linter
         self.config = config

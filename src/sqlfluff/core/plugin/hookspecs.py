@@ -3,6 +3,8 @@
 import pluggy
 from abc import abstractmethod
 from sqlfluff.core.plugin import plugin_base_name
+from typing import List, Type
+from sqlfluff.core.rules import BaseRule
 
 hookspec = pluggy.HookspecMarker(plugin_base_name)
 
@@ -12,7 +14,7 @@ class PluginSpec:
 
     @hookspec
     @abstractmethod
-    def get_rules(self):
+    def get_rules(self) -> List[Type[BaseRule]]:
         """Get plugin rules."""
 
     @hookspec

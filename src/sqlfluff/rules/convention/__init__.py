@@ -1,7 +1,7 @@
 """The convention plugin bundle."""
 
 from sqlfluff.core.plugin import hookimpl
-
+from sqlfluff.core.rules import BaseRule
 from sqlfluff.rules.convention.CV01 import Rule_CV01
 from sqlfluff.rules.convention.CV02 import Rule_CV02
 from sqlfluff.rules.convention.CV03 import Rule_CV03
@@ -13,10 +13,11 @@ from sqlfluff.rules.convention.CV08 import Rule_CV08
 from sqlfluff.rules.convention.CV09 import Rule_CV09
 from sqlfluff.rules.convention.CV10 import Rule_CV10
 from sqlfluff.rules.convention.CV11 import Rule_CV11
+from typing import List, Type
 
 
 @hookimpl
-def get_rules():
+def get_rules() -> List[Type[BaseRule]]:
     """Get plugin rules."""
     return [
         Rule_CV01,

@@ -8,8 +8,10 @@ from sqlfluff.core.parser.segments import allow_ephemeral
 
 from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
+    BaseSegment,
     cached_method_for_parse_context,
 )
+from typing import Tuple
 
 
 class GreedyUntil(BaseGrammar):
@@ -176,7 +178,9 @@ class StartsWith(GreedyUntil):
         return self.target.simple(parse_context=parse_context, crumbs=crumbs)
 
     @match_wrapper()
-    def match(self, segments, parse_context):
+    def match(
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> MatchResult:
         """Match if this sequence starts with a match."""
         first_code_idx = None
         # Work through to find the first code segment...

@@ -5,6 +5,7 @@ from typing import List, Optional, cast, Type
 import regex
 
 from sqlfluff.core.parser.segments.raw import CodeSegment
+from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import sp, FunctionalContext
@@ -184,6 +185,7 @@ class Rule_RF06(BaseRule):
 
         # Retrieve NakedIdentifierSegment RegexParser for the dialect.
         naked_identifier_parser = context.dialect._library["NakedIdentifierSegment"]
+        assert isinstance(naked_identifier_parser, BaseSegment)
         NakedIdentifierSegment = cast(
             Type[CodeSegment], context.dialect.get_segment("IdentifierSegment")
         )

@@ -147,7 +147,7 @@ class OutputStreamFormatter:
         """Dispatch configuration output appropriately."""
         self._dispatch(self._format_config(linter))
 
-    def dispatch_persist_filename(self, filename, result) -> None:
+    def dispatch_persist_filename(self, filename: str, result: str) -> None:
         """Dispatch filenames during a persist operation."""
         # Only show the skip records at higher levels of verbosity
         if self.verbosity >= 2 or result != "SKIP":
@@ -194,7 +194,7 @@ class OutputStreamFormatter:
                 )
             )
 
-    def dispatch_compilation_header(self, templater, message) -> None:
+    def dispatch_compilation_header(self, templater: str, message: str) -> None:
         """Dispatch the header displayed before linting."""
         self._dispatch(
             f"=== [{self.colorize(templater, Color.lightgrey)}] {message}"

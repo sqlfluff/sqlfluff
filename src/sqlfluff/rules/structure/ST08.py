@@ -117,7 +117,7 @@ class Rule_ST08(BaseRule):
                 )
         return None
 
-    def _remove_unneeded_brackets(self, context, bracketed):
+    def _remove_unneeded_brackets(self, context: RuleContext, bracketed):
         # Remove the brackets and strip any meta segments.
         anchor = bracketed.get()
         assert anchor
