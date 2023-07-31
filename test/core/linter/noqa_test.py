@@ -113,7 +113,7 @@ def test_parse_noqa_no_dups():
 
 
 @pytest.mark.parametrize(
-    "noqa,violations,expected",
+    "noqa,violations,expected,used_noqas",
     [
         [
             [],
@@ -121,31 +121,37 @@ def test_parse_noqa_no_dups():
             [
                 0,
             ],
+            [],
         ],
         [
             [dict(comment="noqa: LT01", line_no=1)],
             [DummyLintError(1)],
             [],
+            [0],
         ],
         [
             [dict(comment="noqa: LT01", line_no=2)],
             [DummyLintError(1)],
             [0],
+            [],
         ],
         [
             [dict(comment="noqa: LT02", line_no=1)],
             [DummyLintError(1)],
             [0],
+            [],
         ],
         [
             [dict(comment="noqa: enable=LT01", line_no=1)],
             [DummyLintError(1)],
             [0],
+            [],  # TODO
         ],
         [
             [dict(comment="noqa: disable=LT01", line_no=1)],
             [DummyLintError(1)],
             [],
+            [],  # TODO
         ],
         [
             [
@@ -154,6 +160,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(1)],
             [0],
+            [],  # TODO
         ],
         [
             [
@@ -162,6 +169,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(2)],
             [],
+            [],  # TODO
         ],
         [
             [
@@ -170,6 +178,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(3)],
             [],
+            [],  # TODO
         ],
         [
             [
@@ -178,6 +187,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(4)],
             [0],
+            [],  # TODO
         ],
         [
             [
@@ -186,6 +196,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(1)],
             [0],
+            [],  # TODO
         ],
         [
             [
@@ -194,6 +205,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(2)],
             [],
+            [],  # TODO
         ],
         [
             [
@@ -202,6 +214,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(3)],
             [],
+            [],  # TODO
         ],
         [
             [
@@ -210,6 +223,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(4)],
             [0],
+            [],  # TODO
         ],
         [
             [
@@ -223,6 +237,7 @@ def test_parse_noqa_no_dups():
                 DummyLintError(4, code="LT02"),
             ],
             [1, 2, 3],
+            [],  # TODO
         ],
         [
             [
@@ -236,6 +251,7 @@ def test_parse_noqa_no_dups():
                 DummyLintError(4, code="LT02"),
             ],
             [2],
+            [],  # TODO
         ],
         [
             [
@@ -246,6 +262,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(1)],
             [0],
+            [],  # TODO
         ],
         [
             [
@@ -263,6 +280,7 @@ def test_parse_noqa_no_dups():
                 DummyLintError(2),
             ],
             [0, 1],
+            [],  # TODO
         ],
         [
             [
@@ -275,6 +293,7 @@ def test_parse_noqa_no_dups():
                 DummyLintError(1),
             ],
             [0],
+            [],  # TODO
         ],
     ],
     ids=[
@@ -300,7 +319,7 @@ def test_parse_noqa_no_dups():
     ],
 )
 def test_linted_file_ignore_masked_violations(
-    noqa: dict, violations: List[SQLBaseError], expected
+    noqa: dict, violations: List[SQLBaseError], expected, used_noqas
 ):
     """Test that _ignore_masked_violations() correctly filters violations."""
     ignore_mask = [
@@ -309,6 +328,10 @@ def test_linted_file_ignore_masked_violations(
     result = IgnoreMask(ignore_mask).ignore_masked_violations(violations)
     expected_violations = [v for i, v in enumerate(violations) if i in expected]
     assert expected_violations == result
+    # Check whether "used" evaluation works
+    expected_used = [ignore_mask[i] for i, _ in enumerate(noqa) if i in used_noqas]
+    actually_used = [i for i in ignore_mask if i.used]
+    assert actually_used == expected_used
 
 
 def test_linter_noqa():

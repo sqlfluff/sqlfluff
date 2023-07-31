@@ -1,8 +1,9 @@
 """Defines container classes for handling noqa comments."""
 
+from dataclasses import dataclass
 import fnmatch
 import logging
-from typing import NamedTuple, Optional, Tuple, List, Dict, Set, cast
+from typing import Optional, Tuple, List, Dict, Set, cast
 
 from sqlfluff.core.parser import RegexLexer, BaseSegment, RawSegment
 from sqlfluff.core.errors import SQLBaseError, SQLParseError
@@ -12,12 +13,36 @@ from sqlfluff.core.errors import SQLBaseError, SQLParseError
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
 
-class NoQaDirective(NamedTuple):
+@dataclass
+class NoQaDirective:
     """Parsed version of a 'noqa' comment."""
 
     line_no: int  # Source line number
     rules: Optional[Tuple[str, ...]]  # Affected rule names
     action: Optional[str]  # "enable", "disable", or "None"
+    used: bool = False  # Has it been used.
+
+    def _filter_violations_single_line(self, violations: List[SQLBaseError]):
+        """Filter a list of violations based on this single line noqa.
+
+        The "ignore" list is assumed to ONLY contain NoQaDirectives with
+        action=None.
+        """
+        assert not self.action
+        matched_violations = [
+            v
+            for v in violations
+            if (
+                v.line_no == self.line_no
+                and (self.rules is None or v.rule_code() in self.rules)
+            )
+        ]
+        if matched_violations:
+            # Successful match, mark ignore as used.
+            self.used = True
+            return [v for v in violations if v not in matched_violations]
+        else:
+            return violations
 
 
 class IgnoreMask:
@@ -174,20 +199,13 @@ class IgnoreMask:
     def _ignore_masked_violations_single_line(
         violations: List[SQLBaseError], ignore_mask: List[NoQaDirective]
     ):
-        """Returns whether to ignore error for line-specific directives.
+        """Filter a list of violations based on this single line noqa.
 
         The "ignore" list is assumed to ONLY contain NoQaDirectives with
         action=None.
         """
         for ignore in ignore_mask:
-            violations = [
-                v
-                for v in violations
-                if not (
-                    v.line_no == ignore.line_no
-                    and (ignore.rules is None or v.rule_code() in ignore.rules)
-                )
-            ]
+            violations = ignore._filter_violations_single_line(violations)
         return violations
 
     @staticmethod
