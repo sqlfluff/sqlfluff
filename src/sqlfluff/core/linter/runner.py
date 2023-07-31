@@ -31,8 +31,6 @@ class BaseRunner(ABC):
         self,
         linter: Linter,
         config: FluffConfig,
-        linter,
-        config,
     ) -> None:
         self.linter = linter
         self.config = config
