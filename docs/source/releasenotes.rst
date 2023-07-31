@@ -10,8 +10,78 @@ of each individual release, see the detailed changelog_.
 
 .. _changelog: https://github.com/sqlfluff/sqlfluff/blob/main/CHANGELOG.md
 
-.. _upgrading_2_0:
+Upgrading to 2.2
+----------------
 
+This release changes some of the interfaces between SQLFluff core and
+our plugin ecosystem. The only *breaking* change is in the interface
+between SQLFluff and *templater* plugins (which are not common in the
+ecosystem, hence why this is only a minor and not a major release).
+
+For all plugins, we also recommend a different structure for their
+imports (especially for rule plugins which are more common in the
+ecosystem) - for performance and stability reasons. Some users had
+been experiencing very long import times with previous releases as
+a result of the layout of plugin imports. Users with affected plugins
+will begin to see a warning from this release onward, which can be
+resolved for their plugin by updating to a new version of that plugin
+which follows the guidelines.
+
+Templater plugins
+^^^^^^^^^^^^^^^^^
+
+Templaters before this version would pass a :code:`make_template()`
+callable to the slicing methods as part of being able to map the source
+file. This method would accept a :code:`str` and return a
+:code:`jinja2.environment.Template` object to allow the templater to
+render multiple variants of the template to do the slicing operation
+(which allows linting issues found in templated files to be mapped
+accurately back to their position in the unrendered source file).
+This approach is not very generalisable, and did not support templating
+operations with libraries other than :code:`jinja2`.
+
+As a result, we have amended the interface to instead pass a
+:code:`render_func()` callable, which accepts a :code:`str` and returns
+a :code:`str`. This works fine for the :code:`jinja` templater (and
+by extension the :code:`dbt` templater) as they can simply wrap the
+original callable with a method that calls :code:`render()` on the
+original :code:`Template` object. It also however opens up the door
+to other templating engines, and in particular to *remote* templaters
+which might pass unrendered code over a HTTP connection for rendering.
+
+Specifically:
+
+* The :code:`slice_file()` method of the base templater classes no longer
+  accepts an optional :code:`make_template` argument or a
+  :code:`templated_str` argument.
+
+* Instead a :code:`render_func` callable should be passed which can be
+  called to generate the :code:`templated_str` on demand.
+
+* Unlike the optional :code:`make_template` - :code:`render_func` is **not**
+  optional and should always be present.
+
+Rule plugins
+^^^^^^^^^^^^
+
+We recommend that the module in a plugin which defines all
+of the hook implementations (anything using the :code:`@hookimpl` decorator)
+must be able to fully import before any rule implementations are imported.
+More specifically, SQLFluff must be able to both *import* **and**
+*run* any implementations of :code:`get_configs_info()` before any plugin
+rules (i.e. any derivatives of :py:class:`BaseRule <sqlfluff.core.rules.base.BaseRule>`)
+are *imported*. Because of this, we recommend that rules are defined in a
+separate module to the root of the plugin and then only imported *within*
+the :code:`get_rules()` method.
+
+Importing in the main body of the module was previously our recommendation
+and so may be the case for versions of some plugins. If one of your plugins
+does use imports in this way, a warning will be presented from this version
+onward, recommending that you update your plugin.
+
+See the :ref:`developingpluginsref` section of the docs for an example.
+
+.. _upgrading_2_0:
 
 Upgrading from 1.x to 2.0
 -------------------------
