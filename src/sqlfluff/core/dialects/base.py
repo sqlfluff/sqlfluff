@@ -177,7 +177,9 @@ class Dialect:
             # public methods and/or fields as it.
             base_dir = set(dir(self._library[n]))
             subclass = False
-            if issubclass(type(self._library[n]), type) and issubclass(type(cls), type):
+            if issubclass(self._library[n], BaseSegment) and issubclass(
+                cls, BaseSegment
+            ):
                 subclass = issubclass(cls, self._library[n])
                 if not subclass:
                     if self._library[n].type != cls.type:
