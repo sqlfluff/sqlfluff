@@ -1415,7 +1415,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     print("Result length:", payload_length)
 
     if serialize == "human":
-        assert payload_length == 23 if write_file else 32
+        assert payload_length == 25 if write_file else 34
     elif serialize == "none":
         assert payload_length == 1  # There will be a single newline.
     elif serialize == "json":
@@ -1433,7 +1433,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
         # SQLFluff produces trailing newline
         if result[-1] == "":
             del result[-1]
-        assert len(result) == 11
+        assert len(result) == 12
     else:
         raise Exception
 
@@ -1924,8 +1924,10 @@ class TestProgressBars:
 multiple_expected_output = """==== finding fixable violations ====
 == [test/fixtures/linter/multiple_sql_errors.sql] FAIL
 L:  12 | P:   1 | LT02 | Expected indent of 4 spaces. [layout.indent]
+L:  40 | P:  10 | ST09 | Joins should list the left/right table first.
+                       | [structure.first_table]
 ==== fixing violations ====
-1 fixable linting violations found
+2 fixable linting violations found
 Are you sure you wish to attempt to fix these? [Y/n] ...
 Invalid input, please enter 'Y' or 'N'
 Aborting...
@@ -1972,7 +1974,7 @@ def test__cli__fix_multiple_errors_quiet_force():
     normalised_output = result.output.replace("\\", "/")
     assert normalised_output.startswith(
         """== [test/fixtures/linter/multiple_sql_errors.sql] FIXED
-1 fixable linting violations found"""
+2 fixable linting violations found"""
     )
 
 
@@ -1995,7 +1997,7 @@ def test__cli__fix_multiple_errors_quiet_no_force():
     )
     normalised_output = result.output.replace("\\", "/")
     assert normalised_output.startswith(
-        """1 fixable linting violations found
+        """2 fixable linting violations found
 Are you sure you wish to attempt to fix these? [Y/n] ...
 == [test/fixtures/linter/multiple_sql_errors.sql] FIXED
 All Finished"""
