@@ -612,3 +612,7 @@ def test__process_inline_config():
     assert cfg.get("rulez") is None
     cfg.process_inline_config("-- sqlfluff:rulez:LT06", "test.sql")
     assert cfg.get("rulez") == "LT06"
+
+    # Check that Windows paths don't get mangled
+    cfg.process_inline_config("-- sqlfluff:jinja:my_path:c:\\foo", "test.sql")
+    assert cfg.get("my_path", section="jinja") == "c:\\foo"
