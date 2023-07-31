@@ -10,6 +10,34 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.2.0] - 2023-07-31
+
+## Highlights
+
+## What’s Changed
+
+* Move from `make_template` to `render_func` in jinja and dbt [#4942](https://github.com/sqlfluff/sqlfluff/pull/4942) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Streamline imports to reduce initial load times #4917 [#5020](https://github.com/sqlfluff/sqlfluff/pull/5020) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* More mypy strict [#5019](https://github.com/sqlfluff/sqlfluff/pull/5019) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Simple API config and examples [#5018](https://github.com/sqlfluff/sqlfluff/pull/5018) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix some new linting issues [#5021](https://github.com/sqlfluff/sqlfluff/pull/5021) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* A step towards mypy strict [#5014](https://github.com/sqlfluff/sqlfluff/pull/5014) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Materialize: Make RETURNING a reserved keyword [#5017](https://github.com/sqlfluff/sqlfluff/pull/5017) [@bobbyiliev](https://github.com/bobbyiliev)
+* Config from string and load default_config as resource [#5012](https://github.com/sqlfluff/sqlfluff/pull/5012) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Documentation for the test suite (#2180) [#5011](https://github.com/sqlfluff/sqlfluff/pull/5011) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add support to oracle's listagg function [#4999](https://github.com/sqlfluff/sqlfluff/pull/4999) [@joaostorrer](https://github.com/joaostorrer)
+* Assorted typehints [#5013](https://github.com/sqlfluff/sqlfluff/pull/5013) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Refactor: Extract noqa methods and tests. [#5010](https://github.com/sqlfluff/sqlfluff/pull/5010) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* AM06 to ignore aggregate ORDER BY clauses [#5008](https://github.com/sqlfluff/sqlfluff/pull/5008) [@tunetheweb](https://github.com/tunetheweb)
+* Bugfix: Treat Function name properly in grants [#5006](https://github.com/sqlfluff/sqlfluff/pull/5006) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Redshift: Add Qualify Clause [#5002](https://github.com/sqlfluff/sqlfluff/pull/5002) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Clickhouse Dialect - Support Dollar Quoted Literals [#5003](https://github.com/sqlfluff/sqlfluff/pull/5003) [@kaiyannameighu](https://github.com/kaiyannameighu)
+
+## New Contributors
+
+* [@kaiyannameighu](https://github.com/kaiyannameighu) made their first contribution in [#5003](https://github.com/sqlfluff/sqlfluff/pull/5003)
+* [@joaostorrer](https://github.com/joaostorrer) made their first contribution in [#4999](https://github.com/sqlfluff/sqlfluff/pull/4999)
+
 ## [2.1.4] - 2023-07-25
 
 ## Highlights
