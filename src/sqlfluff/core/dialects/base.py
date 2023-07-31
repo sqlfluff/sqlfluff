@@ -179,7 +179,7 @@ class Dialect:
             base_dir = set(dir(segment))
             subclass = False
             if hasattr(segment, "type") and hasattr(cls, "type"):
-                subclass = issubclass(cls, segment)
+                subclass = issubclass(type(cls), type(segment))
                 if not subclass:
                     assert segment.type and cls.type
                     if segment.type != cls.type:
