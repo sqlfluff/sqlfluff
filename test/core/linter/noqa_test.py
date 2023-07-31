@@ -145,13 +145,13 @@ def test_parse_noqa_no_dups():
             [dict(comment="noqa: enable=LT01", line_no=1)],
             [DummyLintError(1)],
             [0],
-            [],  # TODO
+            [],
         ],
         [
             [dict(comment="noqa: disable=LT01", line_no=1)],
             [DummyLintError(1)],
             [],
-            [],  # TODO
+            [0],
         ],
         [
             [
@@ -160,7 +160,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(1)],
             [0],
-            [],  # TODO
+            [],  # The disable wasn't used, neither was the enable.
         ],
         [
             [
@@ -169,7 +169,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(2)],
             [],
-            [],  # TODO
+            [0, 1],  # Both were used.
         ],
         [
             [
@@ -178,7 +178,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(3)],
             [],
-            [],  # TODO
+            [0, 1],  # Both were used.
         ],
         [
             [
@@ -187,7 +187,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(4)],
             [0],
-            [],  # TODO
+            [1],  # The enable was matched, but the disable wasn't used.
         ],
         [
             [
@@ -196,7 +196,12 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(1)],
             [0],
-            [],  # TODO
+            # TODO: This is an odd edge case, where we drop out in our
+            # evaluation too early so see whether the "enable" is ever
+            # matched. In this case _both_ are effectively unused, because
+            # we never evaluate the last one. For a first pass I think this
+            # might be an acceptable edge case.
+            [],
         ],
         [
             [
@@ -205,7 +210,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(2)],
             [],
-            [],  # TODO
+            [0, 1],  # Both were used.
         ],
         [
             [
@@ -214,7 +219,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(3)],
             [],
-            [],  # TODO
+            [0, 1],  # Both were used.
         ],
         [
             [
@@ -223,7 +228,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(4)],
             [0],
-            [],  # TODO
+            [1],  # The enable was matched, but the disable wasn't used.
         ],
         [
             [
@@ -237,7 +242,7 @@ def test_parse_noqa_no_dups():
                 DummyLintError(4, code="LT02"),
             ],
             [1, 2, 3],
-            [],  # TODO
+            [0, 1],  # The enable matched. The disable also matched rules.
         ],
         [
             [
@@ -251,7 +256,7 @@ def test_parse_noqa_no_dups():
                 DummyLintError(4, code="LT02"),
             ],
             [2],
-            [],  # TODO
+            [0, 1],  # The enable matched the disable. The disable also matched
         ],
         [
             [
@@ -262,7 +267,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(1)],
             [0],
-            [],  # TODO
+            [],
         ],
         [
             [
@@ -280,7 +285,7 @@ def test_parse_noqa_no_dups():
                 DummyLintError(2),
             ],
             [0, 1],
-            [],  # TODO
+            [],  # Neither used because wrong code.
         ],
         [
             [
@@ -293,7 +298,20 @@ def test_parse_noqa_no_dups():
                 DummyLintError(1),
             ],
             [0],
-            [],  # TODO
+            [],  # Neither used because wrong code.
+        ],
+        [
+            [
+                dict(
+                    comment="Inline comment before inline ignore -- noqa: LT*",
+                    line_no=1,
+                ),
+            ],
+            [
+                DummyLintError(1),
+            ],
+            [],
+            [0],  # Matched indirectly
         ],
     ],
     ids=[
@@ -315,7 +333,8 @@ def test_parse_noqa_no_dups():
         "4_violations_two_types_disable_all_enable_specific",
         "1_violations_comment_inline_ignore",
         "2_violations_comment_inline_ignore",
-        "1_violations_comment_inline_glob_ignore",
+        "1_violations_comment_inline_glob_ignore_unmatch",
+        "1_violations_comment_inline_glob_ignore_match",
     ],
 )
 def test_linted_file_ignore_masked_violations(

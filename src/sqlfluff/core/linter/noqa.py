@@ -22,8 +22,12 @@ class NoQaDirective:
     action: Optional[str]  # "enable", "disable", or "None"
     used: bool = False  # Has it been used.
 
-    def _filter_violations_single_line(self, violations: List[SQLBaseError]):
+    def _filter_violations_single_line(
+        self, violations: List[SQLBaseError]
+    ) -> List[SQLBaseError]:
         """Filter a list of violations based on this single line noqa.
+
+        Also record whether this class was _used_ in any of that filtering.
 
         The "ignore" list is assumed to ONLY contain NoQaDirectives with
         action=None.
@@ -210,20 +214,39 @@ class IgnoreMask:
 
     @staticmethod
     def _should_ignore_violation_line_range(
-        line_no: int, ignore_rule: List[NoQaDirective]
-    ):
-        """Returns whether to ignore a violation at line_no."""
-        # Loop through the NoQaDirectives to find the state of things at
-        # line_no. Assumptions about "ignore_rule":
-        # - Contains directives for only ONE RULE, i.e. the rule that was
-        #   violated at line_no
-        # - Sorted in ascending order by line number
-        disable = False
-        for ignore in ignore_rule:
-            if ignore.line_no > line_no:
+        line_no: int, ignore_rules: List[NoQaDirective]
+    ) -> Tuple[bool, Optional[NoQaDirective]]:
+        """Returns whether to ignore a violation at line_no.
+
+        Loop through the NoQaDirectives to find the state of things at
+        line_no. Assumptions about "ignore_rules":
+        - Contains directives for only ONE RULE, i.e. the rule that was
+          violated at line_no
+        - Sorted in ascending order by line number
+        """
+        ignore = False
+        last_ignore = None
+        for idx, ignore_rule in enumerate(ignore_rules):
+            if ignore_rule.line_no > line_no:
+                # Peak at the next rule to see if it's a matching disable
+                # and if it is, then mark it as used.
+                if ignore_rule.action == "enable":
+                    # Mark as used
+                    ignore_rule.used = True
                 break
-            disable = ignore.action == "disable"
-        return disable
+
+            if ignore_rule.action == "enable":
+                # First, if this enable did counteract a
+                # corresponding _disable_, then it has been _used_.
+                if last_ignore:
+                    ignore_rule.used = True
+                last_ignore = None
+                ignore = False
+            elif ignore_rule.action == "disable":
+                last_ignore = ignore_rule
+                ignore = True
+
+        return ignore, last_ignore
 
     @classmethod
     def _ignore_masked_violations_line_range(
@@ -250,8 +273,16 @@ class IgnoreMask:
             )
             # Determine whether to ignore the violation, based on the relevant
             # enable/disable directives.
-            if not cls._should_ignore_violation_line_range(v.line_no, ignore_rule):
+            ignore, last_ignore = cls._should_ignore_violation_line_range(
+                v.line_no, ignore_rule
+            )
+            if not ignore:
                 result.append(v)
+            # If there was a previous ignore which mean that we filtered out
+            # a violation, then mark it as used.
+            elif last_ignore:
+                last_ignore.used = True
+
         return result
 
     def ignore_masked_violations(
