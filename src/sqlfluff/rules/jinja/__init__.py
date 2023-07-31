@@ -13,5 +13,5 @@ def get_rules() -> List[Type[BaseRule]]:
     when rules aren't used.
     """
     from sqlfluff.rules.jinja.JJ01 import Rule_JJ01
-    
+
     return [Rule_JJ01]
