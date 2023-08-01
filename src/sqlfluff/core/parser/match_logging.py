@@ -4,7 +4,7 @@ import logging
 from typing import Any, Tuple, TYPE_CHECKING
 from sqlfluff.core.parser.helpers import join_segments_raw_curtailed
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.context import ParseContext
     from sqlfluff.core.parser import BaseSegment
 

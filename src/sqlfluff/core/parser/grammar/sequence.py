@@ -58,7 +58,9 @@ def _all_remaining_metas(
             if e.is_enabled(parse_context):
                 meta_match = e.match(tuple(), parse_context)
                 if meta_match:
-                    return_segments += meta_match.matched_segments
+                    return_segments += cast(
+                        Tuple[MetaSegment, ...], meta_match.matched_segments
+                    )
             continue
         elif not isinstance(e, Matchable) and e.is_meta:
             indent_seg = cast(Type[MetaSegment], e)
@@ -147,7 +149,9 @@ class Sequence(BaseGrammar):
                         and meta_match.unmatched_segments == unmatched_segments
                     ):
                         # If it did, it's just returned a new meta, keep it.
-                        new_metas = meta_match.matched_segments
+                        new_metas = cast(
+                            Tuple[MetaSegment, ...], meta_match.matched_segments
+                        )
 
                 # Do we have a new meta?
                 if new_metas:
