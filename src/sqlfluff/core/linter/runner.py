@@ -153,7 +153,12 @@ class ParallelRunner(BaseRunner):
                         # It's a LintedDir.
                         if self.linter.formatter:
                             self.linter.formatter.dispatch_file_violations(
-                                lint_result.path, lint_result, only_fixable=fix
+                                lint_result.path,
+                                lint_result,
+                                only_fixable=fix,
+                                warn_unused_ignores=self.linter.config.get(
+                                    "warn_unused_ignores"
+                                ),
                             )
                         yield lint_result
             except KeyboardInterrupt:  # pragma: no cover
