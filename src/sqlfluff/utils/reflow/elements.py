@@ -225,7 +225,9 @@ class IndentStats:
     implicit_indents: Tuple[int, ...] = ()
 
     @classmethod
-    def from_combination(cls, first: Optional["IndentStats"], second: "IndentStats"):
+    def from_combination(
+        cls, first: Optional["IndentStats"], second: "IndentStats"
+    ) -> "IndentStats":
         """Create IndentStats from two consecutive IndentStats.
 
         This is mostly used for combining the effects of indent and dedent

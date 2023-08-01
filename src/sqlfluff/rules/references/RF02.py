@@ -1,7 +1,8 @@
 """Implementation of Rule RF02."""
 import regex
 from typing import List, Optional
-
+from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import LintResult
 from sqlfluff.rules.aliasing.AL04 import Rule_AL04
 
@@ -41,12 +42,12 @@ class Rule_RF02(Rule_AL04):
 
     def _lint_references_and_aliases(
         self,
-        table_aliases,
-        standalone_aliases,
+        table_aliases: List[AliasInfo],
+        standalone_aliases: List[str],
         references,
-        col_aliases,
-        using_cols,
-        parent_select,
+        col_aliases: List[ColumnAliasInfo],
+        using_cols: List[str],
+        parent_select: Optional[BaseSegment],
     ) -> Optional[List[LintResult]]:
         # Config type hints
         self.ignore_words_regex: str

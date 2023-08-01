@@ -8,6 +8,7 @@ as document rule configuration.
 """
 
 from sqlfluff.core.plugin.host import get_plugin_manager
+from typing import Any, Dict
 
 STANDARD_CONFIG_INFO_DICT = {
     "tab_space_size": {
@@ -222,7 +223,7 @@ STANDARD_CONFIG_INFO_DICT = {
 }
 
 
-def get_config_info() -> dict:
+def get_config_info() -> Dict[str, Any]:
     """Gets the config from core sqlfluff and sqlfluff plugins and merges them."""
     plugin_manager = get_plugin_manager()
     configs_info = plugin_manager.hook.get_configs_info()

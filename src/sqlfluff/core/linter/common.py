@@ -6,6 +6,7 @@ from typing import (
     Optional,
     Tuple,
     Dict,
+    Any,
 )
 
 from sqlfluff.core.errors import SQLBaseError, SQLTemplaterError
@@ -57,7 +58,7 @@ class ParsedString(NamedTuple):
 
     tree: Optional[BaseSegment]
     violations: List[SQLBaseError]
-    time_dict: dict
+    time_dict: Dict[str, Any]
     templated_file: TemplatedFile
     config: FluffConfig
     fname: str

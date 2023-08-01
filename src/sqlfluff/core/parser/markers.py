@@ -47,19 +47,19 @@ class PositionMarker:
             object.__setattr__(self, "working_line_no", line_no)
             object.__setattr__(self, "working_line_pos", line_pos)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.to_source_string()
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> bool:
         return self.working_loc > other.working_loc  # pragma: no cover TODO?
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         return self.working_loc < other.working_loc  # pragma: no cover TODO?
 
-    def __ge__(self, other):
+    def __ge__(self, other) -> bool:
         return self.working_loc >= other.working_loc  # pragma: no cover TODO?
 
-    def __le__(self, other):
+    def __le__(self, other) -> bool:
         return self.working_loc <= other.working_loc  # pragma: no cover TODO?
 
     @property
@@ -181,9 +181,10 @@ class PositionMarker:
         )
 
     @staticmethod
-    def slice_is_point(test_slice):
+    def slice_is_point(test_slice: slice) -> bool:
         """Is this slice a point."""
-        return test_slice.start == test_slice.stop
+        is_point: bool = test_slice.start == test_slice.stop
+        return is_point
 
     def is_point(self) -> bool:
         """A marker is a point if it has zero length in templated and source file."""

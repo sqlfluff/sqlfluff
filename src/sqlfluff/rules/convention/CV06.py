@@ -93,7 +93,9 @@ class Rule_CV06(BaseRule):
         return before_segment, anchor_segment
 
     @staticmethod
-    def _handle_trailing_inline_comments(parent_segment, anchor_segment):
+    def _handle_trailing_inline_comments(
+        parent_segment: BaseSegment, anchor_segment: BaseSegment
+    ) -> BaseSegment:
         """Adjust anchor_segment to not move trailing inline comment.
 
         We don't want to move inline comments that are on the same line
@@ -102,6 +104,8 @@ class Rule_CV06(BaseRule):
         # See if we have a trailing inline comment on the same line as the preceding
         # segment.
         for comment_segment in parent_segment.recursive_crawl("comment"):
+            assert comment_segment.pos_marker
+            assert anchor_segment.pos_marker
             if (
                 comment_segment.pos_marker.working_line_no
                 == anchor_segment.pos_marker.working_line_no
@@ -111,7 +115,9 @@ class Rule_CV06(BaseRule):
         return anchor_segment
 
     @staticmethod
-    def _is_one_line_statement(parent_segment, segment) -> bool:
+    def _is_one_line_statement(
+        parent_segment: BaseSegment, segment: BaseSegment
+    ) -> bool:
         """Check if the statement containing the provided segment is one line."""
         # Find statement segment containing the current segment.
         statement_segment = next(

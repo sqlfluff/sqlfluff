@@ -177,7 +177,9 @@ class RawSegment(BaseSegment):
             return raw_buff
         return raw_buff
 
-    def stringify(self, ident=0, tabsize=4, code_only=False) -> str:
+    def stringify(
+        self, ident: int = 0, tabsize: int = 4, code_only: bool = False
+    ) -> str:
         """Use indentation to render this segment and its children as a string."""
         preface = self._preface(ident=ident, tabsize=tabsize)
         return preface + "\n"
@@ -290,7 +292,9 @@ class KeywordSegment(CodeSegment):
             source_fixes=source_fixes,
         )
 
-    def edit(self, raw=None, source_fixes=None) -> "KeywordSegment":
+    def edit(
+        self, raw: Optional[str] = None, source_fixes: Optional[List[SourceFix]] = None
+    ) -> "KeywordSegment":
         """Create a new segment, with exactly the same position but different content.
 
         Returns:

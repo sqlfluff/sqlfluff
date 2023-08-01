@@ -1,7 +1,7 @@
 """The code for the Lexer."""
 
 import logging
-from typing import Iterator, Optional, List, Tuple, Union, NamedTuple, Dict
+from typing import Iterator, Optional, List, Tuple, Union, NamedTuple, Dict, Type, Any
 from uuid import UUID, uuid4
 import regex
 
@@ -100,7 +100,7 @@ class TemplateElement(NamedTuple):
             raw=element.raw, template_slice=template_slice, matcher=element.matcher
         )
 
-    def to_segment(self, pos_marker, subslice=None):
+    def to_segment(self, pos_marker: PositionMarker, subslice: Optional[slice] = None):
         """Create a segment from this lexed element."""
         return self.matcher.construct_segment(
             self.raw[subslice] if subslice else self.raw, pos_marker=pos_marker
@@ -118,6 +118,9 @@ class LexMatch(NamedTuple):
         return len(self.elements) > 0
 
 
+LexerType = Union["RegexLexer", "StringLexer"]
+
+
 class StringLexer:
     """This singleton matcher matches strings exactly.
 
@@ -129,12 +132,12 @@ class StringLexer:
 
     def __init__(
         self,
-        name,
-        template,
-        segment_class,
-        subdivider=None,
-        trim_post_subdivide=None,
-        segment_kwargs=None,
+        name: str,
+        template: str,
+        segment_class: Type[RawSegment],
+        subdivider: Optional[LexerType] = None,
+        trim_post_subdivide: Optional[LexerType] = None,
+        segment_kwargs: Optional[Dict[str, Any]] = None,
     ) -> None:
         self.name = name
         self.template = template

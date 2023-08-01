@@ -49,7 +49,7 @@ class BaseParser(Matchable):
         return self.optional
 
     @abstractmethod
-    def _is_first_match(self, segment: BaseSegment):
+    def _is_first_match(self, segment: BaseSegment) -> bool:
         """Does the segment provided match according to the current rules."""
 
     def _make_match_from_segment(self, segment: BaseSegment):
@@ -158,7 +158,7 @@ class StringParser(BaseParser):
             **segment_kwargs,
         )
 
-    def simple(self, parse_context: "ParseContext", crumbs=None):
+    def simple(self, parse_context: "ParseContext", crumbs=None) -> SimpleHintType:
         """Return simple options for this matcher.
 
         Because string matchers are not case sensitive we can
