@@ -1,5 +1,9 @@
 """Errors - these are closely linked to what used to be called violations."""
-from typing import Optional, Tuple, Any, List
+from typing import Optional, Tuple, Any, List, Dict, Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sqlfluff.core.parser import PositionMarker, BaseSegment
+    from sqlfluff.core.rules import BaseRule, LintFix
 
 CheckTuple = Tuple[str, int, int]
 
@@ -12,24 +16,24 @@ class SQLBaseError(ValueError):
 
     def __init__(
         self,
-        *args,
-        pos=None,
-        line_no=0,
-        line_pos=0,
-        ignore=False,
-        fatal=False,
-        warning=False,
-        **kwargs
+        description: Optional[str] = None,
+        pos: Optional["PositionMarker"] = None,
+        line_no: int = 0,
+        line_pos: int = 0,
+        ignore: bool = False,
+        fatal: bool = False,
+        warning: bool = False,
     ) -> None:
         self.fatal = fatal
         self.ignore = ignore
         self.warning = warning
+        self.description = description
         if pos:
             self.line_no, self.line_pos = pos.source_position()
         else:
             self.line_no = line_no
             self.line_pos = line_pos
-        super().__init__(*args, **kwargs)
+        super().__init__(self.desc())
 
     @property
     def fixable(self) -> bool:
@@ -37,43 +41,17 @@ class SQLBaseError(ValueError):
         return False
 
     def rule_code(self) -> str:
-        """Fetch the code of the rule which cause this error.
-
-        NB: This only returns a real code for some subclasses of
-        error, (the ones with a `rule` attribute), but otherwise
-        returns a placeholder value which can be used instead.
-        """
-        if hasattr(self, "rule"):
-            return getattr(self, "rule").code
-
+        """Fetch the code of the rule which cause this error."""
         return self._code or "????"
 
     def desc(self) -> str:
-        """Fetch a description of this violation.
-
-        NB: For violations which don't directly implement a rule
-        this attempts to return the error message linked to whatever
-        caused the violation. Optionally some errors may have their
-        description set directly.
-        """
-        if hasattr(self, "description") and getattr(self, "description", None):
-            # This can only override if it's present AND
-            # if it's non-null.
-            return getattr(self, "description")
-
-        if hasattr(self, "rule"):
-            return getattr(self, "rule").description
-
-        # Return the first element - probably a string message
-        if len(self.args) > 1 and isinstance(self.args, str):  # pragma: no cover TODO?
-            return self.args
-
-        if len(self.args) == 1:
-            return self.args[0]
+        """Fetch a description of this violation."""
+        if self.description:
+            return self.description
 
         return self.__class__.__name__  # pragma: no cover
 
-    def get_info_dict(self):
+    def get_info_dict(self) -> Dict[str, Union[str, int]]:
         """Return a dict of properties.
 
         This is useful in the API for outputting violations.
@@ -98,12 +76,12 @@ class SQLBaseError(ValueError):
         """Return hashable source signature for deduplication."""
         return (self.check_tuple(), self.desc())
 
-    def ignore_if_in(self, ignore_iterable: List[str]):
+    def ignore_if_in(self, ignore_iterable: List[str]) -> None:
         """Ignore this violation if it matches the iterable."""
         if self._identifier in ignore_iterable:
             self.ignore = True
 
-    def warning_if_in(self, warning_iterable: List[str]):
+    def warning_if_in(self, warning_iterable: List[str]) -> None:
         """Warning only for this violation if it matches the iterable.
 
         Designed for rule codes so works with L001, LL0X but also TMP or PRS
@@ -159,12 +137,21 @@ class SQLParseError(SQLBaseError):
     _code = "PRS"
     _identifier = "parsing"
 
-    def __init__(self, *args, segment=None, **kwargs) -> None:
+    def __init__(
+        self,
+        description: Optional[str] = None,
+        segment: Optional["BaseSegment"] = None,
+        line_no: int = 0,
+        line_pos: int = 0,
+    ) -> None:
         # Store the segment on creation - we might need it later
         self.segment = segment
-        if self.segment:
-            kwargs["pos"] = self.segment.pos_marker
-        super().__init__(*args, **kwargs)
+        super().__init__(
+            description=description,
+            pos=segment.pos_marker if segment else None,
+            line_no=line_no,
+            line_pos=line_pos,
+        )
 
 
 class SQLLintError(SQLBaseError):
@@ -184,16 +171,19 @@ class SQLLintError(SQLBaseError):
     _identifier = "linting"
 
     def __init__(
-        self, *args, segment=None, rule=None, fixes=None, description=None, **kwargs
+        self,
+        description: Optional[str] = None,
+        segment: Optional["BaseSegment"] = None,
+        rule: Optional["BaseRule"] = None,
+        fixes: Optional[List["LintFix"]] = None,
     ) -> None:
         # Something about position, message and fix?
         self.segment = segment
-        if self.segment:
-            kwargs["pos"] = self.segment.pos_marker
         self.rule = rule
         self.fixes = fixes or []
-        self.description = description
-        super().__init__(*args, **kwargs)
+        super().__init__(
+            description=description, pos=segment.pos_marker if segment else None
+        )
 
     @property
     def fixable(self) -> bool:
@@ -201,6 +191,34 @@ class SQLLintError(SQLBaseError):
         if self.fixes:
             return True
         return False
+
+    def rule_code(self) -> str:
+        """Fetch the code of the rule which cause this error.
+
+        NB: This only returns a real code for some subclasses of
+        error, (the ones with a `rule` attribute), but otherwise
+        returns a placeholder value which can be used instead.
+        """
+        if self.rule:
+            return self.rule.code
+
+        return self._code or "????"
+
+    def desc(self) -> str:
+        """Fetch a description of this violation.
+
+        NB: For violations which don't directly implement a rule
+        this attempts to return the error message linked to whatever
+        caused the violation. Optionally some errors may have their
+        description set directly.
+        """
+        if self.description:
+            return self.description
+
+        if self.rule:
+            return self.rule.description
+
+        return super().desc()
 
     def source_signature(self) -> Tuple[Any, ...]:
         """Return hashable source signature for deduplication.
@@ -218,7 +236,7 @@ class SQLLintError(SQLBaseError):
         )
         return (self.check_tuple(), self.description, fix_raws, source_fixes)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<SQLLintError: rule {} pos:{!r}, #fixes: {}, description: {}>".format(
             self.rule_code(),
             (self.line_no, self.line_pos),
