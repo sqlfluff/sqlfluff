@@ -11,10 +11,13 @@ and match depth of the current operation.
 from collections import defaultdict
 import logging
 import uuid
-from typing import Optional, TYPE_CHECKING, Dict
+from typing import Optional, TYPE_CHECKING, Dict, Any, Tuple, Type, List
 
 if TYPE_CHECKING:  # pragma: no cover
+    from types import TracebackType
     from sqlfluff.core.parser.match_result import MatchResult
+    from sqlfluff.core.dialects.base import Dialect, ExpandedDialectElementType
+    from sqlfluff.core.config import FluffConfig
 
 # Get the parser logger
 parser_logger = logging.getLogger("sqlfluff.parser")
@@ -31,7 +34,12 @@ class RootParseContext:
     which created it so that it can refer to config within it.
     """
 
-    def __init__(self, dialect, indentation_config=None, recurse=True) -> None:
+    def __init__(
+        self,
+        dialect: "Dialect",
+        indentation_config: Optional[Dict[str, Any]] = None,
+        recurse: bool = True,
+    ) -> None:
         """Store persistent config objects."""
         self.dialect = dialect
         self.recurse = recurse
@@ -39,24 +47,24 @@ class RootParseContext:
         # the intended indentation of certain features. Specifically it is
         # used in the Conditional grammar.
         self.indentation_config = indentation_config or {}
-        # Initialise the denylist
-        self.denylist = ParseDenylist()
         # This is the logger that child objects will latch onto.
         self.logger = parser_logger
         # A uuid for this parse context to enable cache invalidation
         self.uuid = uuid.uuid4()
         # A dict for parse caching. This is reset for each file,
         # but persists for the duration of an individual file parse.
-        self._parse_cache: dict = {}
+        self._parse_cache: Dict[Tuple[Any, ...], "MatchResult"] = {}
         # A dictionary for keeping track of some statistics on parsing
         # for performance optimisation.
         # Focused around BaseGrammar._longest_trimmed_match().
         # Initialise only with "next_counts", the rest will be int
         # and are dealt with in .increment().
-        self.parse_stats: dict = {"next_counts": defaultdict(int)}
+        self.parse_stats: Dict[str, Any] = {"next_counts": defaultdict(int)}
 
     @classmethod
-    def from_config(cls, config, **overrides: Dict[str, bool]) -> "RootParseContext":
+    def from_config(
+        cls, config: "FluffConfig", **overrides: Dict[str, bool]
+    ) -> "RootParseContext":
         """Construct a `RootParseContext` from a `FluffConfig`."""
         indentation_config = config.get_section("indentation") or {}
         try:
@@ -91,7 +99,12 @@ class RootParseContext:
         """
         return ParseContext(root_ctx=self, recurse=self.recurse)
 
-    def __exit__(self, type, value, traceback) -> None:
+    def __exit__(
+        self,
+        type: Optional[Type[BaseException]],
+        value: Optional[BaseException],
+        traceback: Optional["TracebackType"],
+    ) -> None:
         """Clear up the context."""
         pass
 
@@ -124,17 +137,19 @@ class ParseContext:
         "_root_ctx",
     ]
 
-    def __init__(self, root_ctx, recurse=True) -> None:
+    def __init__(self, root_ctx: RootParseContext, recurse: bool = True) -> None:
         self._root_ctx = root_ctx
         self.recurse = recurse
         # The following attributes are only accessible via a copy
         # and not in the init method.
-        self.match_segment = None
+        self.match_segment: Optional[str] = None
         self.match_depth = 0
         self.parse_depth = 0
-        self.terminators: list = []  # NOTE: Includes inherited parent terminators.
+        self.terminators: List[
+            "ExpandedDialectElementType"
+        ] = []  # NOTE: Includes inherited parent terminators.
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         """If the attribute doesn't exist on this, revert to the root."""
         try:
             return getattr(self._root_ctx, name)
@@ -165,7 +180,12 @@ class ParseContext:
         """
         return self
 
-    def __exit__(self, type, value, traceback) -> None:
+    def __exit__(
+        self,
+        type: Optional[Type[BaseException]],
+        value: Optional[BaseException],
+        traceback: Optional["TracebackType"],
+    ) -> None:
         """Clear up the context."""
         pass
 
@@ -190,7 +210,7 @@ class ParseContext:
         """Return True if allowed to recurse."""
         return self.recurse > 1 or self.recurse is True
 
-    def matching_segment(self, name) -> "ParseContext":
+    def matching_segment(self, name: str) -> "ParseContext":
         """Set the name of the current matching segment.
 
         NB: We don't reset the match depth here.
@@ -200,7 +220,7 @@ class ParseContext:
         return ctx
 
     def check_parse_cache(
-        self, loc_key: tuple, matcher_key: str
+        self, loc_key: Tuple[Any, ...], matcher_key: str
     ) -> Optional["MatchResult"]:
         """Check against the parse cache for a pre-existing match.
 
@@ -209,7 +229,7 @@ class ParseContext:
         return self._root_ctx._parse_cache.get((loc_key, matcher_key))
 
     def put_parse_cache(
-        self, loc_key: tuple, matcher_key: str, match: "MatchResult"
+        self, loc_key: Tuple[Any, ...], matcher_key: str, match: "MatchResult"
     ) -> None:
         """Store a match in the cache for later retrieval."""
         self._root_ctx._parse_cache[(loc_key, matcher_key)] = match
@@ -218,7 +238,9 @@ class ParseContext:
         """Increment one of the parse stats by name."""
         self._root_ctx.parse_stats[key] = self._root_ctx.parse_stats.get(key, 0) + 1
 
-    def push_terminators(self, new_terminators: list) -> None:
+    def push_terminators(
+        self, new_terminators: List["ExpandedDialectElementType"]
+    ) -> None:
         """Push any new terminators onto the stack."""
         # Yes, inefficient for now.
         for term in new_terminators:
@@ -228,38 +250,3 @@ class ParseContext:
     def clear_terminators(self) -> None:
         """Clear any inherited terminators from this context."""
         self.terminators = []
-
-
-class ParseDenylist:
-    """Acts as a cache to stop unnecessary matching."""
-
-    def __init__(self) -> None:
-        self._denylist_struct: dict = {}
-
-    def _hashed_version(self) -> dict:  # pragma: no cover TODO?
-        return {
-            k: {hash(e) for e in self._denylist_struct[k]}
-            for k in self._denylist_struct
-        }
-
-    def check(self, seg_name, seg_tuple) -> bool:
-        """Check this seg_tuple against this seg_name.
-
-        Has this seg_tuple already been matched
-        unsuccessfully against this segment name.
-        """
-        if seg_name in self._denylist_struct:  # pragma: no cover TODO?
-            if seg_tuple in self._denylist_struct[seg_name]:
-                return True
-        return False
-
-    def mark(self, seg_name, seg_tuple) -> None:
-        """Mark this seg_tuple as not a match with this seg_name."""
-        if seg_name in self._denylist_struct:
-            self._denylist_struct[seg_name].add(seg_tuple)
-        else:
-            self._denylist_struct[seg_name] = {seg_tuple}
-
-    def clear(self) -> None:
-        """Clear the denylist struct."""
-        self._denylist_struct = {}

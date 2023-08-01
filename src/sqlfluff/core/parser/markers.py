@@ -50,16 +50,16 @@ class PositionMarker:
     def __str__(self) -> str:
         return self.to_source_string()
 
-    def __gt__(self, other) -> bool:
+    def __gt__(self, other: "PositionMarker") -> bool:
         return self.working_loc > other.working_loc  # pragma: no cover TODO?
 
-    def __lt__(self, other) -> bool:
+    def __lt__(self, other: "PositionMarker") -> bool:
         return self.working_loc < other.working_loc  # pragma: no cover TODO?
 
-    def __ge__(self, other) -> bool:
+    def __ge__(self, other: "PositionMarker") -> bool:
         return self.working_loc >= other.working_loc  # pragma: no cover TODO?
 
-    def __le__(self, other) -> bool:
+    def __le__(self, other: "PositionMarker") -> bool:
         return self.working_loc <= other.working_loc  # pragma: no cover TODO?
 
     @property
@@ -81,7 +81,7 @@ class PositionMarker:
         source_point: int,
         templated_point: int,
         templated_file: "TemplatedFile",
-        **kwargs,
+        **kwargs: int,  # kwargs can only contain working_line positions
     ) -> "PositionMarker":
         """Convenience method for creating point markers."""
         return cls(
@@ -96,7 +96,7 @@ class PositionMarker:
         cls,
         start_point_marker: "PositionMarker",
         end_point_marker: "PositionMarker",
-    ):
+    ) -> "PositionMarker":
         """Construct a position marker from the section between two points."""
         return cls(
             slice(
@@ -118,7 +118,7 @@ class PositionMarker:
         )
 
     @classmethod
-    def from_child_markers(cls, *markers) -> "PositionMarker":
+    def from_child_markers(cls, *markers: "PositionMarker") -> "PositionMarker":
         """Create a parent marker from it's children."""
         source_slice = slice(
             min(m.source_slice.start for m in markers),
