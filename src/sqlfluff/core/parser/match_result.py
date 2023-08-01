@@ -3,18 +3,17 @@
 This should be the default response from any `match` method.
 """
 
-from typing import Tuple, TYPE_CHECKING
-from collections import namedtuple
+from dataclasses import dataclass
+from typing import Iterable, Tuple, TYPE_CHECKING
 
 from sqlfluff.core.parser.helpers import join_segments_raw, trim_non_code_segments
 
-if TYPE_CHECKING:
-    from sqlfluff.core.parser.segments import BaseSegment  # pragma: no cover
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.parser.segments import BaseSegment
 
 
-class MatchResult(
-    namedtuple("MatchResult", ["matched_segments", "unmatched_segments"])
-):
+@dataclass(frozen=True)
+class MatchResult:
     """This should be the default response from any `match` method.
 
     Args:
@@ -24,6 +23,9 @@ class MatchResult(
             the `matched_segments` which could not be matched.
 
     """
+
+    matched_segments: Tuple["BaseSegment", ...] = ()
+    unmatched_segments: Tuple["BaseSegment", ...] = ()
 
     @property
     def trimmed_matched_length(self) -> int:
@@ -68,37 +70,10 @@ class MatchResult(
             content,
         )
 
-    def __eq__(self, other) -> bool:
-        """Equals function override.
-
-        This allows comparison to tuples for testing.
-        """
-        if isinstance(other, MatchResult):  # pragma: no cover TODO?
-            return (
-                self.matched_segments == other.matched_segments
-                and self.unmatched_segments == other.unmatched_segments
-            )
-        elif isinstance(other, tuple):  # pragma: no cover TODO?
-            return self.matched_segments == other
-        else:  # pragma: no cover
-            raise TypeError(f"Unexpected equality comparison: type: {type(other)}")
-
     @staticmethod
-    def seg_to_tuple(segs) -> Tuple["BaseSegment", ...]:
+    def seg_to_tuple(segs: Iterable["BaseSegment"]) -> Tuple["BaseSegment", ...]:
         """Munge types to a tuple."""
-        # Is other iterable?
-        try:
-            iterator = iter(segs)
-        except TypeError:  # pragma: no cover
-            is_iterable = False
-        else:
-            is_iterable = True
-
-        if is_iterable:
-            return tuple(iterator)
-        else:  # pragma: no cover TODO?
-            # Blindly make into tuple here.
-            return (segs,)
+        return tuple(iter(segs))
 
     @classmethod
     def from_unmatched(cls, unmatched: Tuple["BaseSegment", ...]) -> "MatchResult":
@@ -115,15 +90,9 @@ class MatchResult(
         """Construct an empty `MatchResult`."""
         return cls(unmatched_segments=(), matched_segments=())
 
-    def __add__(self, other) -> "MatchResult":
-        """Override add for concatenating things onto this match."""
-        if isinstance(other, MatchResult):
-            return self.__class__(
-                matched_segments=self.matched_segments + other.matched_segments,
-                unmatched_segments=self.unmatched_segments,
-            )  # pragma: no cover TODO?
-        else:
-            return self.__class__(
-                matched_segments=self.matched_segments + self.seg_to_tuple(other),
-                unmatched_segments=self.unmatched_segments,
-            )
+    def __add__(self, other: Tuple["BaseSegment", ...]) -> "MatchResult":
+        """Override add for concatenating tuples onto this match."""
+        return self.__class__(
+            matched_segments=self.matched_segments + self.seg_to_tuple(other),
+            unmatched_segments=self.unmatched_segments,
+        )

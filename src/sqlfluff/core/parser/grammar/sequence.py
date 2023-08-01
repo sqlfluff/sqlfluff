@@ -378,8 +378,8 @@ class Bracketed(Sequence):
                     + content_segs
                     + end_match.matched_segments
                 ),
-                start_bracket=start_match.matched_segments,
-                end_bracket=end_match.matched_segments,
+                start_bracket=cast(Tuple[BaseSegment], start_match.matched_segments),
+                end_bracket=cast(Tuple[BaseSegment], end_match.matched_segments),
             )
             trailing_segments = end_match.unmatched_segments
 

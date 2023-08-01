@@ -1206,10 +1206,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         provided which will override any existing parse grammar
         on the segment.
         """
-        # Clear the denylist cache so avoid missteps
-        if parse_context:
-            parse_context.denylist.clear()
-
         # the parse_depth and recurse kwargs control how deep we will recurse for
         # testing.
         if not self.segments:  # pragma: no cover TODO?
@@ -1717,8 +1713,8 @@ class BracketedSegment(BaseSegment):
         # be tuples of length 1. This is because we'll almost always
         # be doing tuple arithmetic with the results and constructing
         # 1-tuples on the fly is very easy to misread.
-        start_bracket: Optional[Tuple[BaseSegment]] = None,
-        end_bracket: Optional[Tuple[BaseSegment]] = None,
+        start_bracket: Tuple[BaseSegment],
+        end_bracket: Tuple[BaseSegment],
         **kwargs,
     ):
         """Stash the bracket segments for later."""
