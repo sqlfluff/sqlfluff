@@ -86,40 +86,20 @@ class Rule_ST09(BaseRule):
 
         children = FunctionalContext(context).segment.children()
 
-        join_clauses = children.select(sp.is_type("join_clause"))
+        # we use recursive_crawl to deal with brackets
+        join_clauses = children.recursive_crawl("join_clause")
 
-        join_on_conditions = join_clauses.children().select(
-            sp.is_type("join_on_condition")
+        join_on_conditions = join_clauses.children().recursive_crawl(
+            "join_on_condition"
         )
 
         # we only care about join_on_condition segments
         if len(join_on_conditions) == 0:
             return None
 
-        # we handle situations where the from keyword is followed by one bracket
-        if (
-            len(children.select(sp.is_type("from_expression_element"))) == 0
-            and len(
-                children.select(sp.is_type("bracketed"))
-                .children()
-                .select(sp.is_type("from_expression_element"))
-            )
-            == 0
-        ):
-            return None
-
-        from_expression__from_expression_element: Any
-
-        if len(children.select(sp.is_type("from_expression_element"))) > 0:
-            from_expression__from_expression_element = children.first(
-                sp.is_type("from_expression_element")
-            )[0]
-        else:
-            from_expression__from_expression_element = (
-                children.select(sp.is_type("bracketed"))
-                .children()
-                .first(sp.is_type("from_expression_element"))[0]
-            )
+        from_expression__from_expression_element: Any = children.recursive_crawl(
+            "from_expression_element"
+        )[0]
 
         # the first alias comes from the from clause
         table_aliases.append(
@@ -141,39 +121,18 @@ class Rule_ST09(BaseRule):
         # STEP 1.
         conditions: List[List[BaseSegment]] = []
 
-        # we handle situations where the on keyword is followed by one bracket
-        if len(join_on_conditions.children().select(sp.is_type("bracketed"))) == 0:
-            join_on_condition__expressions = join_on_conditions.children().select(
-                sp.is_type("expression")
-            )
-        else:
-            join_on_condition__expressions = (
-                join_on_conditions.children()
-                .select(sp.is_type("bracketed"))
-                .children()
-                .select(sp.is_type("expression"))
-            )
+        join_on_condition__expressions = join_on_conditions.children().recursive_crawl(
+            "expression"
+        )
 
-        # we exclude segments of type whitespace or newline
         for expression in join_on_condition__expressions:
             expression_group = []
-            if (
-                len(Segments(expression).children().select(sp.is_type("bracketed")))
-                == 0
-            ):
+            if len(Segments(expression).children().select(sp.is_type("bracketed"))) > 0:
+                continue
+            else:
                 for element in Segments(expression).children():
                     if element.type not in ("whitespace", "newline"):
                         expression_group.append(element)
-            else:
-                for element in (
-                    Segments(expression).children().select(sp.is_type("bracketed"))
-                ):
-                    for sub_element in (
-                        Segments(element).children().select(sp.is_type("expression"))
-                    ):
-                        for sub_sub_element in Segments(sub_element).children():
-                            if sub_sub_element.type not in ("whitespace", "newline"):
-                                expression_group.append(sub_sub_element)
             conditions.append(expression_group)
 
         # STEP 2.
@@ -232,7 +191,7 @@ class Rule_ST09(BaseRule):
             # we might have to replace the comparison operator with a different one
             raw_comparison_operator_opposites = {"<": ">", ">": "<"}
 
-            # there seems to be edge cases where either the first table or the second
+            # there seem to be edge cases where either the first table or the second
             # table is not in table_aliases, in which case we cannot provide any fix
             if first_table not in table_aliases or second_table not in table_aliases:
                 continue
