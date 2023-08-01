@@ -245,6 +245,7 @@ class Linter:
             for unparsable in parsed.iter_unparsables():
                 # No exception has been raised explicitly, but we still create one here
                 # so that we can use the common interface
+                assert unparsable.pos_marker
                 violations.append(
                     SQLParseError(
                         "Line {0[0]}, Position {0[1]}: Found unparsable section: "
@@ -284,13 +285,13 @@ class Linter:
         return result
 
     @staticmethod
-    def _report_conflicting_fixes_same_anchor(message: str):  # pragma: no cover
+    def _report_conflicting_fixes_same_anchor(message: str) -> None:  # pragma: no cover
         # This function exists primarily in order to let us monkeypatch it at
         # runtime (replacing it with a function that raises an exception).
         linter_logger.critical(message)
 
     @staticmethod
-    def _warn_unfixable(code: str):
+    def _warn_unfixable(code: str) -> None:
         linter_logger.warning(
             f"One fix for {code} not applied, it would re-cause the same error."
         )
@@ -573,7 +574,7 @@ class Linter:
         fix: bool = False,
         formatter: Any = None,
         encoding: str = "utf8",
-    ):
+    ) -> LintedFile:
         """Lint a ParsedString and return a LintedFile."""
         violations = parsed.violations
         time_dict = parsed.time_dict

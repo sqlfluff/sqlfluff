@@ -79,7 +79,9 @@ class LintedFile(NamedTuple):
     templated_file: TemplatedFile
     encoding: str
 
-    def check_tuples(self, raise_on_non_linting_violations=True) -> List[CheckTuple]:
+    def check_tuples(
+        self, raise_on_non_linting_violations: bool = True
+    ) -> List[CheckTuple]:
         """Make a list of check_tuples.
 
         This assumes that all the violations found are

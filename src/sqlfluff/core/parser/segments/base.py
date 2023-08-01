@@ -109,7 +109,7 @@ class FixPatch:
     templated_str: str
     source_str: str
 
-    def dedupe_tuple(self) -> tuple:
+    def dedupe_tuple(self) -> Tuple[slice, str]:
         """Generate a tuple of this fix for deduping."""
         return (self.source_slice, self.fixed_raw)
 
@@ -127,7 +127,7 @@ class AnchorEditInfo:
     # First fix of edit_type "replace" in "fixes"
     _first_replace: Optional["LintFix"] = field(default=None)
 
-    def add(self, fix: "LintFix"):
+    def add(self, fix: "LintFix") -> None:
         """Adds the fix and updates stats.
 
         We also allow potentially multiple source fixes on the same
@@ -269,7 +269,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         segments,
         pos_marker: Optional[PositionMarker] = None,
         uuid: Optional[UUID] = None,
-    ):
+    ) -> None:
         # A cache variable for expandable
         self._is_expandable: Optional[bool] = None
 
@@ -307,7 +307,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         self._recalculate_caches()
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, key, value) -> None:
         try:
             if key == "segments":
                 self._recalculate_caches()
@@ -335,7 +335,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             )
         )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(
             (
                 self.__class__.__name__,
@@ -344,7 +344,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             )
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: ({self.pos_marker})>"
 
     # ################ PRIVATE PROPERTIES
@@ -754,7 +754,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return False
 
     @classmethod
-    def structural_simplify(cls, elem) -> Optional["BaseSegment"]:
+    def structural_simplify(cls, elem) -> Optional[dict]:
         """Simplify the structure recursively so it serializes nicely in json/yaml."""
         if len(elem) == 0:
             return None
@@ -1026,7 +1026,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             new_seg.segments = tuple(seg.copy() for seg in self.segments)
         return new_seg
 
-    def as_record(self, **kwargs):
+    def as_record(self, **kwargs) -> Optional[dict]:
         """Return the segment as a structurally simplified record.
 
         This is useful for serialization to yaml or json.
@@ -1038,7 +1038,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """Iterate raw segments, mostly for searching."""
         return [item for s in self.segments for item in s.raw_segments]
 
-    def iter_segments(self, expanding=None, pass_through=False):
+    def iter_segments(
+        self, expanding=None, pass_through=False
+    ) -> Iterator["RawSegment"]:
         """Iterate segments, optionally expanding some children."""
         for s in self.segments:
             if expanding and s.is_type(*expanding):
@@ -1048,7 +1050,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             else:
                 yield s
 
-    def iter_unparsables(self):
+    def iter_unparsables(self) -> Iterator["UnparsableSegment"]:
         """Iterate through any unparsables this segment may contain."""
         for s in self.segments:
             yield from s.iter_unparsables()
@@ -1523,7 +1525,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 )
 
     @staticmethod
-    def _log_apply_fixes_check_issue(message, *args):  # pragma: no cover
+    def _log_apply_fixes_check_issue(message, *args) -> None:  # pragma: no cover
         linter_logger.critical(message, exc_info=True, *args)
 
     def _iter_source_fix_patches(
@@ -1772,14 +1774,14 @@ class UnparsableSegment(BaseSegment):
         self._expected = expected
         super().__init__(*args, **kwargs)
 
-    def _suffix(self):
+    def _suffix(self) -> str:
         """Return any extra output required at the end when logging.
 
         NB Override this for specific subclasses if we want extra output.
         """
         return f"!! Expected: {self._expected!r}"
 
-    def iter_unparsables(self):
+    def iter_unparsables(self) -> Iterator["UnparsableSegment"]:
         """Iterate through any unparsables.
 
         As this is an unparsable, it should yield itself.
