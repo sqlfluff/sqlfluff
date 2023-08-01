@@ -118,7 +118,9 @@ class PositionMarker:
         )
 
     @classmethod
-    def from_child_markers(cls, *markers: Optional["PositionMarker"]) -> "PositionMarker":
+    def from_child_markers(
+        cls, *markers: Optional["PositionMarker"]
+    ) -> "PositionMarker":
         """Create a parent marker from it's children."""
         source_slice = slice(
             min(m.source_slice.start for m in markers if m),

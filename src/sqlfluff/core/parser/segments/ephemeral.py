@@ -29,7 +29,13 @@ class EphemeralSegment(BaseSegment):
 
     type = "ephemeral"
 
-    def __init__(self, segments: Tuple[BaseSegment, ...], pos_marker: Optional[PositionMarker], parse_grammar: Matchable, ephemeral_name: str):
+    def __init__(
+        self,
+        segments: Tuple[BaseSegment, ...],
+        pos_marker: Optional["PositionMarker"],
+        parse_grammar: "Matchable",
+        ephemeral_name: str,
+    ):
         # Stash the parse grammar for now.
         self._parse_grammar = parse_grammar
         self.ephemeral_name = ephemeral_name
@@ -50,13 +56,17 @@ class EphemeralSegment(BaseSegment):
         """
         return True
 
-    def parse(self, parse_context: ParseContext, parse_grammar: Optional[Matchable] = None) -> Tuple[BaseSegment, ...]:
+    def parse(
+        self, parse_context: "ParseContext", parse_grammar: Optional["Matchable"] = None
+    ) -> Tuple[BaseSegment, ...]:
         """Use the parse grammar to find subsegments within this segment.
 
         Return the content of the result, rather than itself.
         """
         # Call the usual parse function, but overriding the parse grammar.
-        parsed_segments = super().parse(parse_context, parse_grammar=self._parse_grammar)
+        parsed_segments = super().parse(
+            parse_context, parse_grammar=self._parse_grammar
+        )
 
         # Check we only got a result of length 1.
         assert len(parsed_segments) == 1
@@ -79,7 +89,11 @@ def allow_ephemeral(func: MatchFuncType) -> MatchFuncType:
     NOTE: This should come inside the match_wrapper.
     """
 
-    def wrapped_match_method(self: "BaseGrammar", segments: Tuple[BaseSegment, ...], parse_context: ParseContext) -> MatchResult:
+    def wrapped_match_method(
+        self: "BaseGrammar",
+        segments: Tuple[BaseSegment, ...],
+        parse_context: "ParseContext",
+    ) -> MatchResult:
         """A wrapper on the match function to do some basic validation."""
         # Use the ephemeral_segment if present. This should only
         # be the case for grammars where `ephemeral_name` is defined.

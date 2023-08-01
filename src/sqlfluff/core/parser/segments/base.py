@@ -1212,7 +1212,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # testing.
         if not self.segments:  # pragma: no cover TODO?
             # This means we're a root segment, just return an unmutated self
-            return self,
+            return (self,)
 
         # Check the Parse Grammar
         parse_grammar = parse_grammar or self.parse_grammar
