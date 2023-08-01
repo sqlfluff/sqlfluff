@@ -1206,10 +1206,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         provided which will override any existing parse grammar
         on the segment.
         """
-        # Clear the denylist cache so avoid missteps
-        if parse_context:
-            parse_context.denylist.clear()
-
         # the parse_depth and recurse kwargs control how deep we will recurse for
         # testing.
         if not self.segments:  # pragma: no cover TODO?
