@@ -228,22 +228,6 @@ class SQLLintError(SQLBaseError):
         """Fetch the code of the rule which cause this error."""
         return self.rule.code
 
-    def desc(self) -> str:
-        """Fetch a description of this violation.
-
-        NB: For violations which don't directly implement a rule
-        this attempts to return the error message linked to whatever
-        caused the violation. Optionally some errors may have their
-        description set directly.
-        """
-        if self.description:
-            return self.description
-
-        if self.rule:
-            return self.rule.description
-
-        return super().desc()
-
     def source_signature(self) -> Tuple[Any, ...]:
         """Return hashable source signature for deduplication.
 
