@@ -1,7 +1,18 @@
-"""Errors - these are closely linked to what used to be called violations."""
+"""Errors - these are closely linked to what used to be called violations.
+
+NOTE: The BaseException class, which ValueError inherits from, defines
+a custom __reduce__() method for picking and unpickling exceptions.
+For the SQLBaseError, and it's dependent classes, we define properties
+of these exceptions which don't work well with that method, which is
+why we redefine __reduce__() on each of these classes. Given the
+circumstances in which they are called, they don't show up on coverage
+tracking.
+
+https://stackoverflow.com/questions/49715881/how-to-pickle-inherited-exceptions
+"""
 from typing import Optional, Tuple, Any, List, Dict, Union, TYPE_CHECKING
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser import PositionMarker, BaseSegment
     from sqlfluff.core.rules import BaseRule, LintFix
 
@@ -36,7 +47,7 @@ class SQLBaseError(ValueError):
             self.line_pos = line_pos
         super().__init__(self.desc())
 
-    def __reduce__(self):
+    def __reduce__(self):  # pragma: no cover
         """Prepare the SQLBaseError for pickling."""
         return type(self), (
             self.description,
@@ -166,7 +177,7 @@ class SQLParseError(SQLBaseError):
             line_pos=line_pos,
         )
 
-    def __reduce__(self):
+    def __reduce__(self):  # pragma: no cover
         """Prepare the SQLParseError for pickling."""
         return type(self), (self.description, self.segment, self.line_no, self.line_pos)
 
@@ -202,7 +213,7 @@ class SQLLintError(SQLBaseError):
             description=description, pos=segment.pos_marker if segment else None
         )
 
-    def __reduce__(self):
+    def __reduce__(self):  # pragma: no cover
         """Prepare the SQLLintError for pickling."""
         return type(self), (self.description, self.segment, self.rule, self.fixes)
 
@@ -214,16 +225,8 @@ class SQLLintError(SQLBaseError):
         return False
 
     def rule_code(self) -> str:
-        """Fetch the code of the rule which cause this error.
-
-        NB: This only returns a real code for some subclasses of
-        error, (the ones with a `rule` attribute), but otherwise
-        returns a placeholder value which can be used instead.
-        """
-        if self.rule:
-            return self.rule.code
-
-        return self._code or "????"
+        """Fetch the code of the rule which cause this error."""
+        return self.rule.code
 
     def desc(self) -> str:
         """Fetch a description of this violation.
