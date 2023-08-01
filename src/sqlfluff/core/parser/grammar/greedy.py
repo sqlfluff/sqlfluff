@@ -60,7 +60,7 @@ class GreedyUntil(BaseGrammar):
     ) -> MatchResult:
         """Matching for GreedyUntil works just how you'd expect."""
         seg_buff = segments
-        seg_bank = ()  # Empty tuple
+        seg_bank: Tuple[BaseSegment, ...] = ()  # Empty tuple
         # If no terminators then just return the whole thing.
         # Shouldn't really happen as GreedyMatch is everything
         # and StartsWith has mandatory terminator
