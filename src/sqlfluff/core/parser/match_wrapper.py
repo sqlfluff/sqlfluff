@@ -11,7 +11,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser import BaseSegment
 
 
-MatchFuncType = Callable[[Any, Tuple["BaseSegment", ...], ParseContext], MatchResult]
+MatchFuncType = Callable[[Any, Tuple["BaseSegment", ...], "ParseContext"], MatchResult]
 
 
 class WrapParseMatchLogObject(ParseMatchLogObject):
