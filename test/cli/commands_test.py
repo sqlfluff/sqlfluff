@@ -1698,7 +1698,7 @@ def test_cli_encoding(encoding, method, expect_success, tmpdir):
 
 
 def test_cli_no_disable_noqa_flag():
-    """Test that unset --disable_noqa flag respects inline noqa comments."""
+    """Test that unset --disable-noqa flag respects inline noqa comments."""
     invoke_assert_code(
         ret_code=0,
         args=[
@@ -1709,7 +1709,7 @@ def test_cli_no_disable_noqa_flag():
 
 
 def test_cli_disable_noqa_flag():
-    """Test that --disable_noqa flag ignores inline noqa comments."""
+    """Test that --disable-noqa flag ignores inline noqa comments."""
     result = invoke_assert_code(
         ret_code=1,
         args=[
@@ -1723,7 +1723,26 @@ def test_cli_disable_noqa_flag():
     raw_output = repr(result.output)
 
     # Linting error is raised even though it is inline ignored.
-    assert r"L:   5 | P:  11 | CP01 |" in raw_output
+    assert r"L:   6 | P:  11 | CP01 |" in raw_output
+
+
+def test_cli_warn_unused_noqa_flag():
+    """Test that --warn-unused-ignores flag works."""
+    result = invoke_assert_code(
+        # Return value should still be success.
+        ret_code=0,
+        args=[
+            lint,
+            [
+                "test/fixtures/cli/disable_noqa_test.sql",
+                "--warn-unused-ignores",
+            ],
+        ],
+    )
+    raw_output = repr(result.output)
+
+    # Warning shown.
+    assert r"L:   5 | P:  18 | NOQA | WARNING: Unused noqa: 'noqa: CP01'" in raw_output
 
 
 def test_cli_get_default_config():

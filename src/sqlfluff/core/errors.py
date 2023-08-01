@@ -227,5 +227,19 @@ class SQLLintError(SQLBaseError):
         )
 
 
+class SQLUnusedNoQaWarning(SQLBaseError):
+    """A warning about an unused noqa directive."""
+
+    _code = "NOQA"
+    _identifier = "noqa"
+
+    def __init__(self, *args, description=None, **kwargs) -> None:
+        # Should have a description.
+        self.description = description
+        # Always a warning.
+        kwargs["warning"] = True
+        super().__init__(*args, **kwargs)
+
+
 class SQLFluffUserError(ValueError):
     """An error which should be fed back to the user."""

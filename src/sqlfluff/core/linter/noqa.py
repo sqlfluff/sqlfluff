@@ -1,23 +1,54 @@
 """Defines container classes for handling noqa comments."""
 
+from dataclasses import dataclass
 import fnmatch
 import logging
-from typing import NamedTuple, Optional, Tuple, List, Dict, Set, cast
+from typing import Optional, Tuple, List, Dict, Set, cast
 
 from sqlfluff.core.parser import RegexLexer, BaseSegment, RawSegment
-from sqlfluff.core.errors import SQLBaseError, SQLParseError
+from sqlfluff.core.errors import SQLBaseError, SQLParseError, SQLUnusedNoQaWarning
 
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
 
-class NoQaDirective(NamedTuple):
+@dataclass
+class NoQaDirective:
     """Parsed version of a 'noqa' comment."""
 
     line_no: int  # Source line number
+    line_pos: int  # Source line position
     rules: Optional[Tuple[str, ...]]  # Affected rule names
     action: Optional[str]  # "enable", "disable", or "None"
+    raw_str: str = ""  # The raw representation of the directive for warnings.
+    used: bool = False  # Has it been used.
+
+    def _filter_violations_single_line(
+        self, violations: List[SQLBaseError]
+    ) -> List[SQLBaseError]:
+        """Filter a list of violations based on this single line noqa.
+
+        Also record whether this class was _used_ in any of that filtering.
+
+        The "ignore" list is assumed to ONLY contain NoQaDirectives with
+        action=None.
+        """
+        assert not self.action
+        matched_violations = [
+            v
+            for v in violations
+            if (
+                v.line_no == self.line_no
+                and (self.rules is None or v.rule_code() in self.rules)
+            )
+        ]
+        if matched_violations:
+            # Successful match, mark ignore as used.
+            self.used = True
+            return [v for v in violations if v not in matched_violations]
+        else:
+            return violations
 
 
 class IgnoreMask:
@@ -32,6 +63,7 @@ class IgnoreMask:
     def _parse_noqa(
         comment: str,
         line_no: int,
+        line_pos: int,
         reference_map: Dict[str, Set[str]],
     ):
         """Extract ignore mask entries from a comment string."""
@@ -101,8 +133,8 @@ class IgnoreMask:
                         rules = tuple(sorted(expanded_rules))
                     else:
                         rules = None
-                    return NoQaDirective(line_no, rules, action)
-            return NoQaDirective(line_no, None, None)
+                    return NoQaDirective(line_no, line_pos, rules, action, comment)
+            return NoQaDirective(line_no, line_pos, None, None, comment)
         return None
 
     @classmethod
@@ -114,8 +146,10 @@ class IgnoreMask:
         """Extract ignore mask entries from a comment segment."""
         # Also trim any whitespace afterward
         comment_content = comment.raw_trimmed().strip()
-        comment_line, _ = comment.pos_marker.source_position()
-        result = cls._parse_noqa(comment_content, comment_line, reference_map)
+        comment_line, comment_pos = comment.pos_marker.source_position()
+        result = cls._parse_noqa(
+            comment_content, comment_line, comment_pos, reference_map
+        )
         if isinstance(result, SQLParseError):
             result.segment = comment
         return result
@@ -158,7 +192,7 @@ class IgnoreMask:
             match = inline_comment_regex.search(line) if line else None
             if match:
                 ignore_entry = cls._parse_noqa(
-                    line[match[0] : match[1]], idx + 1, reference_map
+                    line[match[0] : match[1]], idx + 1, match[0], reference_map
                 )
                 if isinstance(ignore_entry, SQLParseError):
                     violations.append(ignore_entry)  # pragma: no cover
@@ -174,38 +208,50 @@ class IgnoreMask:
     def _ignore_masked_violations_single_line(
         violations: List[SQLBaseError], ignore_mask: List[NoQaDirective]
     ):
-        """Returns whether to ignore error for line-specific directives.
+        """Filter a list of violations based on this single line noqa.
 
         The "ignore" list is assumed to ONLY contain NoQaDirectives with
         action=None.
         """
         for ignore in ignore_mask:
-            violations = [
-                v
-                for v in violations
-                if not (
-                    v.line_no == ignore.line_no
-                    and (ignore.rules is None or v.rule_code() in ignore.rules)
-                )
-            ]
+            violations = ignore._filter_violations_single_line(violations)
         return violations
 
     @staticmethod
     def _should_ignore_violation_line_range(
-        line_no: int, ignore_rule: List[NoQaDirective]
-    ):
-        """Returns whether to ignore a violation at line_no."""
-        # Loop through the NoQaDirectives to find the state of things at
-        # line_no. Assumptions about "ignore_rule":
-        # - Contains directives for only ONE RULE, i.e. the rule that was
-        #   violated at line_no
-        # - Sorted in ascending order by line number
-        disable = False
-        for ignore in ignore_rule:
-            if ignore.line_no > line_no:
+        line_no: int, ignore_rules: List[NoQaDirective]
+    ) -> Tuple[bool, Optional[NoQaDirective]]:
+        """Returns whether to ignore a violation at line_no.
+
+        Loop through the NoQaDirectives to find the state of things at
+        line_no. Assumptions about "ignore_rules":
+        - Contains directives for only ONE RULE, i.e. the rule that was
+          violated at line_no
+        - Sorted in ascending order by line number
+        """
+        ignore = False
+        last_ignore = None
+        for idx, ignore_rule in enumerate(ignore_rules):
+            if ignore_rule.line_no > line_no:
+                # Peak at the next rule to see if it's a matching disable
+                # and if it is, then mark it as used.
+                if ignore_rule.action == "enable":
+                    # Mark as used
+                    ignore_rule.used = True
                 break
-            disable = ignore.action == "disable"
-        return disable
+
+            if ignore_rule.action == "enable":
+                # First, if this enable did counteract a
+                # corresponding _disable_, then it has been _used_.
+                if last_ignore:
+                    ignore_rule.used = True
+                last_ignore = None
+                ignore = False
+            elif ignore_rule.action == "disable":
+                last_ignore = ignore_rule
+                ignore = True
+
+        return ignore, last_ignore
 
     @classmethod
     def _ignore_masked_violations_line_range(
@@ -232,8 +278,16 @@ class IgnoreMask:
             )
             # Determine whether to ignore the violation, based on the relevant
             # enable/disable directives.
-            if not cls._should_ignore_violation_line_range(v.line_no, ignore_rule):
+            ignore, last_ignore = cls._should_ignore_violation_line_range(
+                v.line_no, ignore_rule
+            )
+            if not ignore:
                 result.append(v)
+            # If there was a previous ignore which mean that we filtered out
+            # a violation, then mark it as used.
+            elif last_ignore:
+                last_ignore.used = True
+
         return result
 
     def ignore_masked_violations(
@@ -252,3 +306,15 @@ class IgnoreMask:
         )
         violations = self._ignore_masked_violations_line_range(violations, ignore_range)
         return violations
+
+    def generate_warnings_for_unused(self) -> List[SQLBaseError]:
+        """Generates warnings for any unused NoQaDirectives."""
+        return [
+            SQLUnusedNoQaWarning(
+                line_no=ignore.line_no,
+                line_pos=ignore.line_pos,
+                description=f"Unused noqa: {ignore.raw_str!r}",
+            )
+            for ignore in self._ignore_list
+            if not ignore.used
+        ]
