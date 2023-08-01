@@ -46,7 +46,7 @@ def test__cli__formatters__violation(tmpdir):
         ),
     )
     r = RuleGhost("A", "some-name", "DESC")
-    v = SQLLintError(segment=s, rule=r)
+    v = SQLLintError(description=r.description, segment=s, rule=r)
     formatter = OutputStreamFormatter(
         FileOutput(FluffConfig(require_dialect=False), str(tmpdir / "out.txt")), False
     )

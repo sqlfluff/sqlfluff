@@ -13,6 +13,7 @@ class SQLBaseError(ValueError):
 
     _code: Optional[str] = None
     _identifier = "base"
+    _warning = False  # The default value for `warning`
 
     def __init__(
         self,
@@ -22,11 +23,11 @@ class SQLBaseError(ValueError):
         line_pos: int = 0,
         ignore: bool = False,
         fatal: bool = False,
-        warning: bool = False,
+        warning: Optional[bool] = None,
     ) -> None:
         self.fatal = fatal
         self.ignore = ignore
-        self.warning = warning
+        self.warning: bool = warning if warning is not None else self._warning
         self.description = description
         if pos:
             self.line_no, self.line_pos = pos.source_position()
@@ -270,13 +271,7 @@ class SQLUnusedNoQaWarning(SQLBaseError):
 
     _code = "NOQA"
     _identifier = "noqa"
-
-    def __init__(self, *args, description=None, **kwargs) -> None:
-        # Should have a description.
-        self.description = description
-        # Always a warning.
-        kwargs["warning"] = True
-        super().__init__(*args, **kwargs)
+    _warning = True
 
 
 class SQLFluffUserError(ValueError):
