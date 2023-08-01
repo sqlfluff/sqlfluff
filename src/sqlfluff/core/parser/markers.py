@@ -4,7 +4,7 @@ This class is a construct to keep track of positions within a file.
 """
 
 from dataclasses import dataclass
-from typing import Tuple, TYPE_CHECKING
+from typing import Optional, Tuple, TYPE_CHECKING
 
 from sqlfluff.core.slice_helpers import zero_slice
 
@@ -118,17 +118,17 @@ class PositionMarker:
         )
 
     @classmethod
-    def from_child_markers(cls, *markers: "PositionMarker") -> "PositionMarker":
+    def from_child_markers(cls, *markers: Optional["PositionMarker"]) -> "PositionMarker":
         """Create a parent marker from it's children."""
         source_slice = slice(
-            min(m.source_slice.start for m in markers),
-            max(m.source_slice.stop for m in markers),
+            min(m.source_slice.start for m in markers if m),
+            max(m.source_slice.stop for m in markers if m),
         )
         templated_slice = slice(
-            min(m.templated_slice.start for m in markers),
-            max(m.templated_slice.stop for m in markers),
+            min(m.templated_slice.start for m in markers if m),
+            max(m.templated_slice.stop for m in markers if m),
         )
-        templated_files = {m.templated_file for m in markers}
+        templated_files = {m.templated_file for m in markers if m}
         if len(templated_files) != 1:  # pragma: no cover
             raise ValueError("Attempted to make a parent marker from multiple files.")
         templated_file = templated_files.pop()

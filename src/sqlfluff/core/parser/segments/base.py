@@ -17,6 +17,7 @@ from itertools import chain
 from typing import (
     Any,
     Callable,
+    cast,
     ClassVar,
     Dict,
     Optional,
@@ -266,12 +267,13 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def __init__(
         self,
-        segments,
+        segments: Tuple["BaseSegment", ...],
         pos_marker: Optional[PositionMarker] = None,
         uuid: Optional[UUID] = None,
     ) -> None:
         # A cache variable for expandable
         self._is_expandable: Optional[bool] = None
+        self.segments: Tuple["BaseSegment", ...]
 
         if len(segments) == 0:  # pragma: no cover
             raise RuntimeError(
@@ -465,7 +467,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # If it's a raw, yield it with this segment as the parent
             new_step = [PathStep(self, idx, len(self.segments), code_idxs)]
             if seg.is_type("raw"):
-                buffer.append((seg, new_step))
+                buffer.append((cast("RawSegment", seg), new_step))
             # If it's not, recurse - prepending self to the ancestor stack
             else:
                 buffer.extend(
@@ -1040,7 +1042,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def iter_segments(
         self, expanding=None, pass_through=False
-    ) -> Iterator["RawSegment"]:
+    ) -> Iterator["BaseSegment"]:
         """Iterate segments, optionally expanding some children."""
         for s in self.segments:
             if expanding and s.is_type(*expanding):
@@ -1194,7 +1196,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         self,
         parse_context: ParseContext,
         parse_grammar: Optional[Matchable] = None,
-    ) -> "BaseSegment":
+    ) -> Tuple["BaseSegment", ...]:
         """Use the parse grammar to find subsegments within this segment.
 
         A large chunk of the logic around this can be found in the `expand` method.
@@ -1210,7 +1212,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # testing.
         if not self.segments:  # pragma: no cover TODO?
             # This means we're a root segment, just return an unmutated self
-            return self
+            return self,
 
         # Check the Parse Grammar
         parse_grammar = parse_grammar or self.parse_grammar
@@ -1310,7 +1312,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     parse_context=ctx,
                 )
 
-        return self
+        return (self,)
 
     @staticmethod
     def _is_code_or_meta(segment: "BaseSegment") -> bool:
@@ -1377,7 +1379,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                             )
                             if f.edit_type == "delete":
                                 # We're just getting rid of this segment.
-                                seg = None
+                                pass
                             elif f.edit_type in (
                                 "replace",
                                 "create_before",
@@ -1607,8 +1609,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
             source_idx = self.pos_marker.source_slice.start
             templated_idx = self.pos_marker.templated_slice.start
             insert_buff = ""
-            for seg_idx, segment in enumerate(segments):
+            for segment in segments:
                 # First check for insertions.
+                # At this stage, everything should have a position.
+                assert segment.pos_marker
                 # We know it's an insertion if it has length but not in the templated
                 # file.
                 if segment.raw and segment.pos_marker.is_point():
