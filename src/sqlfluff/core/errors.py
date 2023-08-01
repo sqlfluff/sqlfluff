@@ -35,6 +35,18 @@ class SQLBaseError(ValueError):
             self.line_pos = line_pos
         super().__init__(self.desc())
 
+    def __reduce__(self):
+        """Prepare the SQLBaseError for pickling."""
+        return type(self), (
+            self.description,
+            self.pos,
+            self.line_no,
+            self.line_pos,
+            self.ignore,
+            self.fatal,
+            self.warning,
+        )
+
     @property
     def fixable(self) -> bool:
         """Should this error be considered fixable?"""
@@ -153,6 +165,10 @@ class SQLParseError(SQLBaseError):
             line_pos=line_pos,
         )
 
+    def __reduce__(self):
+        """Prepare the SQLParseError for pickling."""
+        return type(self), (self.description, self.segment, self.line_no, self.line_pos)
+
 
 class SQLLintError(SQLBaseError):
     """An error which occurred during linting.
@@ -172,9 +188,9 @@ class SQLLintError(SQLBaseError):
 
     def __init__(
         self,
-        description: Optional[str] = None,
-        segment: Optional["BaseSegment"] = None,
-        rule: Optional["BaseRule"] = None,
+        description: str,
+        segment: "BaseSegment",
+        rule: "BaseRule",
         fixes: Optional[List["LintFix"]] = None,
     ) -> None:
         # Something about position, message and fix?
@@ -184,6 +200,10 @@ class SQLLintError(SQLBaseError):
         super().__init__(
             description=description, pos=segment.pos_marker if segment else None
         )
+
+    def __reduce__(self):
+        """Prepare the SQLLintError for pickling."""
+        return type(self), (self.description, self.segment, self.rule, self.fixes)
 
     @property
     def fixable(self) -> bool:
