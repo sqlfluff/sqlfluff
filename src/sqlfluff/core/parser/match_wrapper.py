@@ -11,8 +11,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser import BaseSegment
 
 
-MatchFuncType = Callable[..., MatchResult]
-# MatchFuncType = Callable[[Any, Tuple[Any, ...], ParseContext], MatchResult]
+MatchFuncType = Callable[[Any, Tuple["BaseSegment", ...], ParseContext], MatchResult]
 
 
 class WrapParseMatchLogObject(ParseMatchLogObject):
@@ -62,7 +61,7 @@ def match_wrapper(v_level: int = 3) -> Callable[[MatchFuncType], MatchFuncType]:
         ) -> MatchResult:
             """A wrapper on the match function to do some basic validation."""
             # Do the match
-            m = func(self_cls, segments, parse_context=parse_context)
+            m = func(self_cls, segments, parse_context)
 
             name = getattr(self_cls, "__name__", self_cls.__class__.__name__)
 

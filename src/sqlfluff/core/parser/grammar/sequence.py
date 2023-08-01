@@ -142,7 +142,7 @@ class Sequence(BaseGrammar):
                         break
                     # Then if it _is_ active. Match against it.
                     with parse_context.deeper_match() as ctx:
-                        meta_match = elem.match(unmatched_segments, parse_context=ctx)
+                        meta_match = elem.match(unmatched_segments, ctx)
                     # Did it match and leave the unmatched portion the same?
                     if (
                         meta_match
@@ -414,7 +414,7 @@ class Bracketed(Sequence):
         with parse_context.deeper_match() as ctx:
             # Within the brackets, clear any inherited terminators.
             ctx.clear_terminators()
-            content_match = super().match(content_segs, parse_context=ctx)
+            content_match = super().match(content_segs, ctx)
 
         # We require a complete match for the content (hopefully for obvious reasons)
         if content_match.is_complete():
