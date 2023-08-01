@@ -14,7 +14,9 @@ def join_segments_raw(segments: Tuple["BaseSegment", ...]) -> str:
     return "".join(s.raw for s in segments)
 
 
-def join_segments_raw_curtailed(segments: Tuple["BaseSegment", ...], length=20) -> str:
+def join_segments_raw_curtailed(
+    segments: Tuple["BaseSegment", ...], length: int = 20
+) -> str:
     """Make a string up to a certain length from an iterable of segments."""
     return curtail_string(join_segments_raw(segments), length=length)
 
@@ -64,7 +66,7 @@ def trim_non_code_segments(
     return segments[:pre_idx], segments[pre_idx:post_idx], segments[post_idx:]
 
 
-def iter_indices(seq: List, val: Any) -> Iterator[int]:
+def iter_indices(seq: List[Any], val: Any) -> Iterator[int]:
     """Iterate all indices in a list that val occurs at.
 
     Args:
