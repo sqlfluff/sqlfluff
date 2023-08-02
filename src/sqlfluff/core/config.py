@@ -35,7 +35,7 @@ from sqlfluff.core.errors import SQLFluffUserError
 
 import appdirs
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.templaters.base import RawTemplater
 
 if sys.version_info >= (3, 11):
