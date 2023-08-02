@@ -1118,9 +1118,9 @@ class FluffConfig:
 
     def get_templater(
         self, templater_name: str = "jinja", **kwargs: Any
-    ) -> RawTemplater:
+    ) -> "RawTemplater":
         """Fetch a templater by name."""
-        templater_lookup: Dict[str, Type[RawTemplater]] = {
+        templater_lookup: Dict[str, Type["RawTemplater"]] = {
             templater.name: templater
             for templater in chain.from_iterable(
                 self._plugin_manager.hook.get_templaters()
