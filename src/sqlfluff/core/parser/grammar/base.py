@@ -307,7 +307,7 @@ class BaseGrammar(Matchable):
                 )
             else:
                 # Match fresh if no cache hit
-                res_match = matcher.match(segments, parse_context=parse_context)
+                res_match = matcher.match(segments, parse_context)
                 # Cache it for later to for performance.
                 parse_context.put_parse_cache(loc_key, matcher_key, res_match)
 
@@ -347,7 +347,7 @@ class BaseGrammar(Matchable):
                         )
                         for terminator in terminators:
                             terminator_match: MatchResult = terminator.match(
-                                segs, parse_context=parse_context
+                                segs, parse_context
                             )
 
                             if terminator_match.matched_segments:
@@ -944,7 +944,7 @@ class Ref(BaseGrammar):
                 ctx.clear_terminators()
             if self.terminators:
                 ctx.push_terminators(self.terminators)
-            resp = elem.match(segments=segments, parse_context=ctx)
+            resp = elem.match(segments, ctx)
 
         return resp
 
