@@ -524,4 +524,3 @@ class ColumnDefinitionSegment(BaseSegment):
             ),
         ),
     )
-
