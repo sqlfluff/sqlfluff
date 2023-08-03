@@ -307,7 +307,7 @@ class BaseGrammar(Matchable):
                 )
             else:
                 # Match fresh if no cache hit
-                res_match = matcher.match(segments, parse_context=parse_context)
+                res_match = matcher.match(segments, parse_context)
                 # Cache it for later to for performance.
                 parse_context.put_parse_cache(loc_key, matcher_key, res_match)
 
@@ -347,7 +347,7 @@ class BaseGrammar(Matchable):
                         )
                         for terminator in terminators:
                             terminator_match: MatchResult = terminator.match(
-                                segs, parse_context=parse_context
+                                segs, parse_context
                             )
 
                             if terminator_match.matched_segments:
@@ -921,9 +921,6 @@ class Ref(BaseGrammar):
         Matching can be done from either the raw or the segments.
         This raw function can be overridden, or a grammar defined
         on the underlying class.
-
-        The match element of Ref, also implements the caching
-        using the parse_context `denylist` methods.
         """
         elem = self._get_elem(dialect=parse_context.dialect)
 
@@ -940,24 +937,6 @@ class Ref(BaseGrammar):
                 if self.exclude.match(segments, parse_context=ctx):
                     return MatchResult.from_unmatched(segments)
 
-        # First check against the efficiency Cache.
-        # We rely on segments not being mutated within a given
-        # match cycle and so the ids should continue to refer to unchanged
-        # objects.
-        seg_tuple = (id(seg) for seg in segments)
-        self_name = self._get_ref()
-        if parse_context.denylist.check(self_name, seg_tuple):  # pragma: no cover TODO?
-            # This has been tried before.
-            parse_match_logging(
-                self.__class__.__name__,
-                "match",
-                "SKIP",
-                parse_context=parse_context,
-                v_level=3,
-                self_name=self_name,
-            )
-            return MatchResult.from_unmatched(segments)
-
         # Match against that. NB We're not incrementing the match_depth here.
         # References shouldn't really count as a depth of match.
         with parse_context.matching_segment(self._get_ref()) as ctx:
@@ -965,9 +944,8 @@ class Ref(BaseGrammar):
                 ctx.clear_terminators()
             if self.terminators:
                 ctx.push_terminators(self.terminators)
-            resp = elem.match(segments=segments, parse_context=ctx)
-        if not resp:
-            parse_context.denylist.mark(self_name, seg_tuple)
+            resp = elem.match(segments, ctx)
+
         return resp
 
     @classmethod

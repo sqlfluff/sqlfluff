@@ -1,6 +1,12 @@
 """Classes to help with match logging."""
 
+import logging
+from typing import Any, Tuple, TYPE_CHECKING
 from sqlfluff.core.parser.helpers import join_segments_raw_curtailed
+
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.parser.context import ParseContext
+    from sqlfluff.core.parser import BaseSegment
 
 
 class LateLoggingObject:
@@ -12,7 +18,7 @@ class LateLoggingObject:
 
     __slots__ = "v_level", "logger", "msg"
 
-    def __init__(self, logger, msg, v_level=3) -> None:
+    def __init__(self, logger: logging.Logger, msg: str, v_level: int = 3) -> None:
         self.v_level = v_level
         self.logger = logger
         self.msg = msg
@@ -44,7 +50,15 @@ class ParseMatchLogObject(LateLoggingObject):
         "kwargs",
     ]
 
-    def __init__(self, parse_context, grammar, func, msg, v_level=3, **kwargs) -> None:
+    def __init__(
+        self,
+        parse_context: "ParseContext",
+        grammar: str,
+        func: str,
+        msg: str,
+        v_level: int = 3,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(v_level=v_level, logger=parse_context.logger, msg=msg)
         self.context = parse_context
         self.grammar = grammar
@@ -71,7 +85,14 @@ class ParseMatchLogObject(LateLoggingObject):
         return s
 
 
-def parse_match_logging(grammar, func, msg, parse_context, v_level=3, **kwargs) -> None:
+def parse_match_logging(
+    grammar: str,
+    func: str,
+    msg: str,
+    parse_context: "ParseContext",
+    v_level: int = 3,
+    **kwargs: Any,
+) -> None:
     """Log in a particular consistent format for use while matching."""
     # Make a late bound log object so we only do the string manipulation when we need
     # to.
@@ -87,7 +108,7 @@ class LateBoundJoinSegmentsCurtailed:
     until actually required by the logger.
     """
 
-    def __init__(self, segments) -> None:
+    def __init__(self, segments: Tuple["BaseSegment", ...]) -> None:
         self.segments = segments
 
     def __str__(self) -> str:

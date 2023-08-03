@@ -271,6 +271,7 @@ class Linter:
         result: List[SQLBaseError] = []
         for e in linting_errors:
             if isinstance(e, SQLLintError):
+                assert e.segment.pos_marker
                 if (
                     # Is it in a literal section?
                     e.segment.pos_marker.is_literal()
