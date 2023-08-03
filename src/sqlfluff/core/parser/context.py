@@ -166,35 +166,6 @@ class ParseContext:
                 )
             )
 
-    def _copy(self) -> "ParseContext":
-        """Mimic the copy.copy() method but restrict only to local vars."""
-        ctx = self.__class__(root_ctx=self._root_ctx)
-        for key in self.__slots__:
-            if key == "terminators":
-                # For terminators, make sure we actually copy the list.
-                # This makes sure we don't keep a reference to the parent list.
-                setattr(ctx, key, getattr(self, key).copy())
-            else:
-                setattr(ctx, key, getattr(self, key))
-        return ctx
-
-    def __enter__(self) -> "ParseContext":
-        """Enter into the context.
-
-        For the ParseContext, this just returns itself, because
-        we already have the right kind of object.
-        """
-        return self
-
-    def __exit__(
-        self,
-        type: Optional[Type[BaseException]],
-        value: Optional[BaseException],
-        traceback: Optional["TracebackType"],
-    ) -> None:
-        """Clear up the context."""
-        pass
-
     @contextmanager
     def deeper_match(
         self,
@@ -217,16 +188,26 @@ class ParseContext:
                 self.terminators = _freeze_terminators
             self.match_depth -= 1
 
+    @contextmanager
     def deeper_parse(self) -> "ParseContext":
-        """Return a copy with an incremented parse depth."""
-        ctx = self._copy()
-        if not isinstance(ctx.recurse, bool):  # pragma: no cover TODO?
-            ctx.recurse -= 1
-        ctx.parse_depth += 1
-        ctx.match_depth = 0
-        # Clear terminators here. Inner parsing shouldn't inherit terminators.
-        ctx.clear_terminators()
-        return ctx
+        """Increment parse depth."""
+        _match_depth = self.match_depth
+        self.parse_depth += 1
+        self.match_depth = 0
+        _freeze_terminators = []
+        if self.terminators:
+            _freeze_terminators = self.terminators.copy()
+        self.terminators = []
+        if not isinstance(self.recurse, bool):  # pragma: no cover TODO?
+            self.recurse -= 1
+        try:
+            yield self
+        finally:
+            self.parse_depth -= 1
+            self.match_depth = _match_depth
+            if not isinstance(self.recurse, bool):  # pragma: no cover TODO?
+                self.recurse += 1
+            self.terminators = _freeze_terminators
 
     def may_recurse(self) -> bool:
         """Return True if allowed to recurse."""
@@ -281,7 +262,3 @@ class ParseContext:
         for term in new_terminators:
             if term not in self.terminators:
                 self.terminators.append(term)
-
-    def clear_terminators(self) -> None:
-        """Clear any inherited terminators from this context."""
-        self.terminators = []
