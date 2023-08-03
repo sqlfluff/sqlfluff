@@ -77,8 +77,9 @@ def _dialect_specific_segment_parses(dialect, segmentref, raw, caplog):
         # Perform the match (THIS IS THE MEAT OF THE TEST)
         with RootParseContext.from_config(config) as ctx:
             with caplog.at_level(logging.DEBUG):
-                parsed = seg.parse(parse_context=ctx)
-        print(parsed)
+                result = seg.parse(parse_context=ctx)
+        print(result)
+        parsed = result[0]
         assert isinstance(parsed, Seg)
 
     # Check we get a good response
