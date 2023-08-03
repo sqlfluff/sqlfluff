@@ -232,18 +232,27 @@ class ParseContext:
         """Return True if allowed to recurse."""
         return self.recurse > 1 or self.recurse is True
 
+    @contextmanager
     def matching_segment(self, name: str, clear_terminators=False, push_terminators=None) -> "ParseContext":
         """Set the name of the current matching segment.
 
         NB: We don't reset the match depth here.
         """
-        ctx = self._copy()
-        ctx.match_segment = name
+        old_name = self.match_segment
+        _freeze_terminators = []
+        if self.terminators:
+            _freeze_terminators = self.terminators.copy()
         if clear_terminators:
-            ctx.clear_terminators()
+            self.terminators = []
         if push_terminators:
-            ctx.push_terminators(push_terminators)
-        return ctx
+            self.push_terminators(push_terminators)
+        try:
+            yield self
+        finally:
+            if clear_terminators or push_terminators:
+                self.terminators = _freeze_terminators
+            # Reset back to old name
+            self.match_segment = old_name
 
     def check_parse_cache(
         self, loc_key: Tuple[Any, ...], matcher_key: str
