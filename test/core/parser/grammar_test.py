@@ -11,7 +11,7 @@ from sqlfluff.core.parser import (
     WhitespaceSegment,
     Indent,
 )
-from sqlfluff.core.parser.context import RootParseContext
+from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.anyof import AnySetOf
 from sqlfluff.core.parser.segments import EphemeralSegment, BaseSegment
 from sqlfluff.core.parser.grammar.base import BaseGrammar
@@ -67,10 +67,10 @@ def test__parser__grammar__base__longest_trimmed_match__basic(
     # Make the matcher keywords
     matchers = [StringParser(keyword, KeywordSegment) for keyword in matcher_keywords]
 
-    with RootParseContext(dialect=None) as ctx:
-        m, _ = BaseGrammar._longest_trimmed_match(
-            seg_list[seg_list_slice], matchers, ctx, trim_noncode=trim_noncode
-        )
+    ctx = ParseContext(dialect=None)
+    m, _ = BaseGrammar._longest_trimmed_match(
+        seg_list[seg_list_slice], matchers, ctx, trim_noncode=trim_noncode
+    )
 
     # Make the check tuple
     expected_result = make_result_tuple(
@@ -93,10 +93,10 @@ def test__parser__grammar__base__longest_trimmed_match__adv(seg_list, caplog):
         OneOf(bs, fs),
         Sequence(bs, fs),  # Another to check we return the first
     ]
-    with RootParseContext(dialect=None) as ctx:
-        # Matching the first element of the list
-        with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
-            match, matcher = BaseGrammar._longest_trimmed_match(seg_list, matchers, ctx)
+    ctx = ParseContext(dialect=None)
+    # Matching the first element of the list
+    with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
+        match, matcher = BaseGrammar._longest_trimmed_match(seg_list, matchers, ctx)
     # Check we got a match
     assert match
     # Check we got the right one.
@@ -128,12 +128,12 @@ def test__parser__grammar__base__look_ahead_match(
     # Fetch the matching keyword from above by index
     winning_matcher = matchers[matcher_keywords.index(winning_matcher)]
 
-    with RootParseContext(dialect=None) as ctx:
-        m = BaseGrammar._look_ahead_match(
-            seg_list[seg_list_slice],
-            matchers,
-            ctx,
-        )
+    ctx = ParseContext(dialect=None)
+    m = BaseGrammar._look_ahead_match(
+        seg_list[seg_list_slice],
+        matchers,
+        ctx,
+    )
 
     # Check structure of the response.
     assert isinstance(m, tuple)
@@ -171,14 +171,14 @@ def test__parser__grammar__base__ephemeral_segment(seg_list):
     """
     g = BaseGrammar(ephemeral_name="TestGrammar")
 
-    with RootParseContext(dialect=None) as ctx:
-        m = g.match(seg_list, ctx)
-        # Check we get an ephemeral segment
-        assert isinstance(m.matched_segments[0], EphemeralSegment)
-        assert len(m.matched_segments) == 1
-        chkpoint = m.matched_segments[0]
-        # Check it's got the same content.
-        assert chkpoint.segments == seg_list
+    ctx = ParseContext(dialect=None)
+    m = g.match(seg_list, ctx)
+    # Check we get an ephemeral segment
+    assert isinstance(m.matched_segments[0], EphemeralSegment)
+    assert len(m.matched_segments) == 1
+    chkpoint = m.matched_segments[0]
+    # Check it's got the same content.
+    assert chkpoint.segments == seg_list
 
 
 def test__parser__grammar__oneof__ephemeral_segment(seg_list):
@@ -189,21 +189,21 @@ def test__parser__grammar__oneof__ephemeral_segment(seg_list):
             StringParser("bar", KeywordSegment), ephemeral_name="foofoo"
         )
 
-    with RootParseContext(dialect=None) as ctx:
-        m = TestSegment.match(seg_list[:1], ctx)
-        # Make sure we've matched
-        assert m
-        seg = m.matched_segments[0]
-        assert isinstance(seg, TestSegment)
-        # Check the content is ephemeral
-        assert isinstance(seg.segments[0], EphemeralSegment)
-        assert seg.segments[0].ephemeral_name == "foofoo"
-        # Expand the segment
-        res = seg.parse(ctx)
-        # Check we still have a test segment
-        assert isinstance(res, TestSegment)
-        # But that it contains a keyword segment now
-        assert isinstance(res.segments[0], KeywordSegment)
+    ctx = ParseContext(dialect=None)
+    m = TestSegment.match(seg_list[:1], ctx)
+    # Make sure we've matched
+    assert m
+    seg = m.matched_segments[0]
+    assert isinstance(seg, TestSegment)
+    # Check the content is ephemeral
+    assert isinstance(seg.segments[0], EphemeralSegment)
+    assert seg.segments[0].ephemeral_name == "foofoo"
+    # Expand the segment
+    res = seg.parse(ctx)
+    # Check we still have a test segment
+    assert isinstance(res, TestSegment)
+    # But that it contains a keyword segment now
+    assert isinstance(res.segments[0], KeywordSegment)
 
 
 def test__parser__grammar__base__bracket_sensitive_look_ahead_match(
@@ -213,35 +213,35 @@ def test__parser__grammar__base__bracket_sensitive_look_ahead_match(
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
     # We need a dialect here to do bracket matching
-    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        # Basic version, we should find bar first
-        pre_section, match, matcher = BaseGrammar._bracket_sensitive_look_ahead_match(
-            bracket_seg_list, [fs, bs], ctx
-        )
-        assert pre_section == ()
-        assert matcher == bs
-        # NB the middle element is a match object
-        assert match.matched_segments == (
-            KeywordSegment("bar", bracket_seg_list[0].pos_marker),
-        )
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    # Basic version, we should find bar first
+    pre_section, match, matcher = BaseGrammar._bracket_sensitive_look_ahead_match(
+        bracket_seg_list, [fs, bs], ctx
+    )
+    assert pre_section == ()
+    assert matcher == bs
+    # NB the middle element is a match object
+    assert match.matched_segments == (
+        KeywordSegment("bar", bracket_seg_list[0].pos_marker),
+    )
 
-        # Look ahead for foo, we should find the one AFTER the brackets, not the
-        # on IN the brackets.
-        pre_section, match, matcher = BaseGrammar._bracket_sensitive_look_ahead_match(
-            bracket_seg_list, [fs], ctx
-        )
-        # NB: The bracket segments will have been mutated, so we can't directly compare.
-        # Make sure we've got a bracketed section in there.
-        assert len(pre_section) == 5
-        assert pre_section[2].is_type("bracketed")
-        assert len(pre_section[2].segments) == 4
-        assert matcher == fs
-        # We shouldn't match the whitespace with the keyword
-        assert match.matched_segments == (
-            KeywordSegment("foo", bracket_seg_list[8].pos_marker),
-        )
-        # Check that the unmatched segments are nothing.
-        assert not match.unmatched_segments
+    # Look ahead for foo, we should find the one AFTER the brackets, not the
+    # on IN the brackets.
+    pre_section, match, matcher = BaseGrammar._bracket_sensitive_look_ahead_match(
+        bracket_seg_list, [fs], ctx
+    )
+    # NB: The bracket segments will have been mutated, so we can't directly compare.
+    # Make sure we've got a bracketed section in there.
+    assert len(pre_section) == 5
+    assert pre_section[2].is_type("bracketed")
+    assert len(pre_section[2].segments) == 4
+    assert matcher == fs
+    # We shouldn't match the whitespace with the keyword
+    assert match.matched_segments == (
+        KeywordSegment("foo", bracket_seg_list[8].pos_marker),
+    )
+    # Check that the unmatched segments are nothing.
+    assert not match.unmatched_segments
 
 
 def test__parser__grammar__base__bracket_fail_with_open_paren_close_square_mismatch(
@@ -254,26 +254,26 @@ def test__parser__grammar__base__bracket_fail_with_open_paren_close_square_misma
     """
     fs = StringParser("foo", KeywordSegment)
     # We need a dialect here to do bracket matching
-    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        # Basic version, we should find bar first
-        with pytest.raises(SQLParseError) as sql_parse_error:
-            BaseGrammar._bracket_sensitive_look_ahead_match(
-                generate_test_segments(
-                    [
-                        "select",
-                        " ",
-                        "*",
-                        " ",
-                        "from",
-                        "(",
-                        "foo",
-                        "]",  # Bracket types don't match (parens vs square)
-                    ]
-                ),
-                [fs],
-                ctx,
-            )
-        assert sql_parse_error.match("Found unexpected end bracket")
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    # Basic version, we should find bar first
+    with pytest.raises(SQLParseError) as sql_parse_error:
+        BaseGrammar._bracket_sensitive_look_ahead_match(
+            generate_test_segments(
+                [
+                    "select",
+                    " ",
+                    "*",
+                    " ",
+                    "from",
+                    "(",
+                    "foo",
+                    "]",  # Bracket types don't match (parens vs square)
+                ]
+            ),
+            [fs],
+            ctx,
+        )
+    assert sql_parse_error.match("Found unexpected end bracket")
 
 
 def test__parser__grammar__base__bracket_fail_with_unexpected_end_bracket(
@@ -285,32 +285,32 @@ def test__parser__grammar__base__bracket_fail_with_unexpected_end_bracket(
     """
     fs = StringParser("foo", KeywordSegment)
     # We need a dialect here to do bracket matching
-    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        _, match, _ = BaseGrammar._bracket_sensitive_look_ahead_match(
-            generate_test_segments(
-                [
-                    "bar",
-                    "(",  # This bracket pair should be mutated
-                    ")",
-                    " ",
-                    ")",  # This is the unmatched bracket
-                    " ",
-                    "foo",
-                ]
-            ),
-            [fs],
-            ctx,
-        )
-        # Check we don't match (even though there's a foo at the end)
-        assert not match
-        # Check the first bracket pair have been mutated.
-        segs = match.unmatched_segments
-        assert segs[1].is_type("bracketed")
-        assert segs[1].raw == "()"
-        assert len(segs[1].segments) == 2
-        # Check the trailing foo hasn't been mutated
-        assert segs[5].raw == "foo"
-        assert not isinstance(segs[5], KeywordSegment)
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    _, match, _ = BaseGrammar._bracket_sensitive_look_ahead_match(
+        generate_test_segments(
+            [
+                "bar",
+                "(",  # This bracket pair should be mutated
+                ")",
+                " ",
+                ")",  # This is the unmatched bracket
+                " ",
+                "foo",
+            ]
+        ),
+        [fs],
+        ctx,
+    )
+    # Check we don't match (even though there's a foo at the end)
+    assert not match
+    # Check the first bracket pair have been mutated.
+    segs = match.unmatched_segments
+    assert segs[1].is_type("bracketed")
+    assert segs[1].raw == "()"
+    assert len(segs[1].segments) == 2
+    # Check the trailing foo hasn't been mutated
+    assert segs[5].raw == "foo"
+    assert not isinstance(segs[5], KeywordSegment)
 
 
 def test__parser__grammar__ref_eq():
@@ -333,11 +333,11 @@ def test__parser__grammar_ref_exclude(generate_test_segments, fresh_ansi_dialect
     """Test the Ref grammar exclude option."""
     ni = Ref("NakedIdentifierSegment", exclude=Ref.keyword("ABS"))
     ts = generate_test_segments(["ABS", "ABSOLUTE"])
-    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        # Asset ABS does not match, due to the exclude
-        assert not ni.match([ts[0]], parse_context=ctx)
-        # Asset ABSOLUTE does match
-        assert ni.match([ts[1]], parse_context=ctx)
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    # Asset ABS does not match, due to the exclude
+    assert not ni.match([ts[0]], parse_context=ctx)
+    # Asset ABSOLUTE does match
+    assert ni.match([ts[1]], parse_context=ctx)
 
 
 def test__parser__grammar__oneof__copy():
@@ -370,13 +370,13 @@ def test__parser__grammar_oneof(seg_list, allow_gaps):
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
     g = OneOf(fs, bs, allow_gaps=allow_gaps)
-    with RootParseContext(dialect=None) as ctx:
-        # Check directly
-        assert g.match(seg_list, parse_context=ctx).matched_segments == (
-            KeywordSegment("bar", seg_list[0].pos_marker),
-        )
-        # Check with a bit of whitespace
-        assert not g.match(seg_list[1:], parse_context=ctx)
+    ctx = ParseContext(dialect=None)
+    # Check directly
+    assert g.match(seg_list, parse_context=ctx).matched_segments == (
+        KeywordSegment("bar", seg_list[0].pos_marker),
+    )
+    # Check with a bit of whitespace
+    assert not g.match(seg_list[1:], parse_context=ctx)
 
 
 def test__parser__grammar_oneof_templated(seg_list):
@@ -388,10 +388,10 @@ def test__parser__grammar_oneof_templated(seg_list):
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
     g = OneOf(fs, bs)
-    with RootParseContext(dialect=None) as ctx:
-        # This shouldn't match, but it *ALSO* shouldn't raise an exception.
-        # https://github.com/sqlfluff/sqlfluff/issues/780
-        assert not g.match(seg_list[5:], parse_context=ctx)
+    ctx = ParseContext(dialect=None)
+    # This shouldn't match, but it *ALSO* shouldn't raise an exception.
+    # https://github.com/sqlfluff/sqlfluff/issues/780
+    assert not g.match(seg_list[5:], parse_context=ctx)
 
 
 def test__parser__grammar_oneof_exclude(seg_list):
@@ -399,11 +399,11 @@ def test__parser__grammar_oneof_exclude(seg_list):
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
     g = OneOf(bs, exclude=Sequence(bs, fs))
-    with RootParseContext(dialect=None) as ctx:
-        # Just against the first alone
-        assert g.match(seg_list[:1], parse_context=ctx)
-        # Now with the bit to exclude included
-        assert not g.match(seg_list, parse_context=ctx)
+    ctx = ParseContext(dialect=None)
+    # Just against the first alone
+    assert g.match(seg_list[:1], parse_context=ctx)
+    # Now with the bit to exclude included
+    assert not g.match(seg_list, parse_context=ctx)
 
 
 def test__parser__grammar_oneof_take_longest_match(seg_list):
@@ -419,14 +419,14 @@ def test__parser__grammar_oneof_take_longest_match(seg_list):
     # Even if fooRegex comes first, fooBaar
     # is a longer match and should be taken
     g = OneOf(fooRegex, fooBaar)
-    with RootParseContext(dialect=None) as ctx:
-        assert fooRegex.match(seg_list[2:], parse_context=ctx).matched_segments == (
-            KeywordSegment("foo", seg_list[2].pos_marker),
-        )
-        assert g.match(seg_list[2:], parse_context=ctx).matched_segments == (
-            KeywordSegment("foo", seg_list[2].pos_marker),
-            KeywordSegment("baar", seg_list[3].pos_marker),
-        )
+    ctx = ParseContext(dialect=None)
+    assert fooRegex.match(seg_list[2:], parse_context=ctx).matched_segments == (
+        KeywordSegment("foo", seg_list[2].pos_marker),
+    )
+    assert g.match(seg_list[2:], parse_context=ctx).matched_segments == (
+        KeywordSegment("foo", seg_list[2].pos_marker),
+        KeywordSegment("baar", seg_list[3].pos_marker),
+    )
 
 
 def test__parser__grammar_oneof_take_first(seg_list):
@@ -438,13 +438,13 @@ def test__parser__grammar_oneof_take_first(seg_list):
     # so we test that order matters
     g1 = OneOf(fooRegex, foo)
     g2 = OneOf(foo, fooRegex)
-    with RootParseContext(dialect=None) as ctx:
-        assert g1.match(seg_list[2:], parse_context=ctx).matched_segments == (
-            KeywordSegment("foo", seg_list[2].pos_marker),
-        )
-        assert g2.match(seg_list[2:], parse_context=ctx).matched_segments == (
-            KeywordSegment("foo", seg_list[2].pos_marker),
-        )
+    ctx = ParseContext(dialect=None)
+    assert g1.match(seg_list[2:], parse_context=ctx).matched_segments == (
+        KeywordSegment("foo", seg_list[2].pos_marker),
+    )
+    assert g2.match(seg_list[2:], parse_context=ctx).matched_segments == (
+        KeywordSegment("foo", seg_list[2].pos_marker),
+    )
 
 
 def test__parser__grammar_startswith_a():
@@ -469,10 +469,10 @@ def test__parser__grammar_startswith_b(
     baar = StringParser("baar", KeywordSegment)
     bar = StringParser("bar", KeywordSegment)
     grammar = StartsWith(bar, terminator=baar, include_terminator=include_terminator)
-    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
-            m = grammar.match(seg_list, parse_context=ctx)
-            assert len(m) == match_length
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
+        m = grammar.match(seg_list, parse_context=ctx)
+        assert len(m) == match_length
 
 
 def test__parser__grammar_sequence(seg_list, caplog):
@@ -484,24 +484,24 @@ def test__parser__grammar_sequence(seg_list, caplog):
     if getenv("SQLFLUFF_TESTENV", ""):
         assert g.test_env
     gc = Sequence(bs, fs, allow_gaps=False)
-    with RootParseContext(dialect=None) as ctx:
-        with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
-            # Should be able to match the list using the normal matcher
-            logging.info("#### TEST 1")
-            m = g.match(seg_list, parse_context=ctx)
-            assert m
-            assert len(m) == 3
-            assert m.matched_segments == (
-                KeywordSegment("bar", seg_list[0].pos_marker),
-                seg_list[1],  # This will be the whitespace segment
-                KeywordSegment("foo", seg_list[2].pos_marker),
-            )
-            # Shouldn't with the allow_gaps matcher
-            logging.info("#### TEST 2")
-            assert not gc.match(seg_list, parse_context=ctx)
-            # Shouldn't match even on the normal one if we don't start at the beginning
-            logging.info("#### TEST 2")
-            assert not g.match(seg_list[1:], parse_context=ctx)
+    ctx = ParseContext(dialect=None)
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
+        # Should be able to match the list using the normal matcher
+        logging.info("#### TEST 1")
+        m = g.match(seg_list, parse_context=ctx)
+        assert m
+        assert len(m) == 3
+        assert m.matched_segments == (
+            KeywordSegment("bar", seg_list[0].pos_marker),
+            seg_list[1],  # This will be the whitespace segment
+            KeywordSegment("foo", seg_list[2].pos_marker),
+        )
+        # Shouldn't with the allow_gaps matcher
+        logging.info("#### TEST 2")
+        assert not gc.match(seg_list, parse_context=ctx)
+        # Shouldn't match even on the normal one if we don't start at the beginning
+        logging.info("#### TEST 2")
+        assert not g.match(seg_list[1:], parse_context=ctx)
 
 
 def test__parser__grammar_sequence_nested(seg_list, caplog):
@@ -510,20 +510,20 @@ def test__parser__grammar_sequence_nested(seg_list, caplog):
     fs = StringParser("foo", KeywordSegment)
     bas = StringParser("baar", KeywordSegment)
     g = Sequence(Sequence(bs, fs), bas)
-    with RootParseContext(dialect=None) as ctx:
-        with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
-            # Matching the start of the list shouldn't work
-            logging.info("#### TEST 1")
-            assert not g.match(seg_list[:2], parse_context=ctx)
-            # Matching the whole list should, and the result should be flat
-            logging.info("#### TEST 2")
-            assert g.match(seg_list, parse_context=ctx).matched_segments == (
-                KeywordSegment("bar", seg_list[0].pos_marker),
-                seg_list[1],  # This will be the whitespace segment
-                KeywordSegment("foo", seg_list[2].pos_marker),
-                KeywordSegment("baar", seg_list[3].pos_marker)
-                # NB: No whitespace at the end, this shouldn't be consumed.
-            )
+    ctx = ParseContext(dialect=None)
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
+        # Matching the start of the list shouldn't work
+        logging.info("#### TEST 1")
+        assert not g.match(seg_list[:2], parse_context=ctx)
+        # Matching the whole list should, and the result should be flat
+        logging.info("#### TEST 2")
+        assert g.match(seg_list, parse_context=ctx).matched_segments == (
+            KeywordSegment("bar", seg_list[0].pos_marker),
+            seg_list[1],  # This will be the whitespace segment
+            KeywordSegment("foo", seg_list[2].pos_marker),
+            KeywordSegment("baar", seg_list[3].pos_marker)
+            # NB: No whitespace at the end, this shouldn't be consumed.
+        )
 
 
 def test__parser__grammar_sequence_indent(seg_list, caplog):
@@ -531,13 +531,13 @@ def test__parser__grammar_sequence_indent(seg_list, caplog):
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
     g = Sequence(Indent, bs, fs)
-    with RootParseContext(dialect=None) as ctx:
-        with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
-            m = g.match(seg_list, parse_context=ctx)
-            assert m
-            # check we get an indent.
-            assert isinstance(m.matched_segments[0], Indent)
-            assert isinstance(m.matched_segments[1], KeywordSegment)
+    ctx = ParseContext(dialect=None)
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
+        m = g.match(seg_list, parse_context=ctx)
+        assert m
+        # check we get an indent.
+        assert isinstance(m.matched_segments[0], Indent)
+        assert isinstance(m.matched_segments[1], KeywordSegment)
 
 
 def test__parser__grammar_sequence_indent_conditional(seg_list, caplog):
@@ -553,18 +553,18 @@ def test__parser__grammar_sequence_indent_conditional(seg_list, caplog):
         Conditional(Indent, indented_joins=True),
         fs,
     )
-    with RootParseContext(dialect=None) as ctx:
-        with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
-            m = g.match(seg_list, parse_context=ctx)
-            assert m
-            # Check we get an Indent.
-            assert isinstance(m.matched_segments[0], Indent)
-            assert isinstance(m.matched_segments[1], KeywordSegment)
-            # check the whitespace is still there
-            assert isinstance(m.matched_segments[2], WhitespaceSegment)
-            # Check the second Indent does not appear
-            assert not isinstance(m.matched_segments[3], Indent)
-            assert isinstance(m.matched_segments[3], KeywordSegment)
+    ctx = ParseContext(dialect=None)
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
+        m = g.match(seg_list, parse_context=ctx)
+        assert m
+        # Check we get an Indent.
+        assert isinstance(m.matched_segments[0], Indent)
+        assert isinstance(m.matched_segments[1], KeywordSegment)
+        # check the whitespace is still there
+        assert isinstance(m.matched_segments[2], WhitespaceSegment)
+        # Check the second Indent does not appear
+        assert not isinstance(m.matched_segments[3], Indent)
+        assert isinstance(m.matched_segments[3], KeywordSegment)
 
 
 @pytest.mark.parametrize(
@@ -610,11 +610,11 @@ def test__parser__grammar_delimited(
         allow_trailing=allow_trailing,
         min_delimiters=min_delimiters,
     )
-    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
-            # Matching with whitespace shouldn't match if we need at least one delimiter
-            m = g.match(seg_list, parse_context=ctx)
-            assert len(m) == match_len
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
+        # Matching with whitespace shouldn't match if we need at least one delimiter
+        m = g.match(seg_list, parse_context=ctx)
+        assert len(m) == match_len
 
 
 @pytest.mark.parametrize(
@@ -638,46 +638,46 @@ def test__parser__grammar_greedyuntil(
         StringParser(keyword, KeywordSegment),
         enforce_whitespace_preceding_terminator=enforce_ws,
     )
-    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        assert (
-            grammar.match(seg_list, parse_context=ctx).matched_segments
-            == seg_list[:slice_len]
-        )
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    assert (
+        grammar.match(seg_list, parse_context=ctx).matched_segments
+        == seg_list[:slice_len]
+    )
 
 
 def test__parser__grammar_greedyuntil_bracketed(bracket_seg_list, fresh_ansi_dialect):
     """Test the GreedyUntil grammar with brackets."""
     fs = StringParser("foo", KeywordSegment)
     g = GreedyUntil(fs)
-    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        # Check that we can make it past the brackets
-        match = g.match(bracket_seg_list, parse_context=ctx)
-        assert len(match) == 4
-        # Check we successfully constructed a bracketed segment
-        assert match.matched_segments[2].is_type("bracketed")
-        assert match.matched_segments[2].raw == "(foo    )"
-        # Check that the unmatched segments is foo AND the whitespace
-        assert len(match.unmatched_segments) == 2
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    # Check that we can make it past the brackets
+    match = g.match(bracket_seg_list, parse_context=ctx)
+    assert len(match) == 4
+    # Check we successfully constructed a bracketed segment
+    assert match.matched_segments[2].is_type("bracketed")
+    assert match.matched_segments[2].raw == "(foo    )"
+    # Check that the unmatched segments is foo AND the whitespace
+    assert len(match.unmatched_segments) == 2
 
 
 def test__parser__grammar_anything(seg_list, fresh_ansi_dialect):
     """Test the Anything grammar."""
-    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        assert Anything().match(seg_list, parse_context=ctx)
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    assert Anything().match(seg_list, parse_context=ctx)
 
 
 def test__parser__grammar_nothing(seg_list, fresh_ansi_dialect):
     """Test the Nothing grammar."""
-    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        assert not Nothing().match(seg_list, parse_context=ctx)
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    assert not Nothing().match(seg_list, parse_context=ctx)
 
 
 def test__parser__grammar_noncode(seg_list, fresh_ansi_dialect):
     """Test the NonCodeMatcher."""
-    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        m = NonCodeMatcher().match(seg_list[1:], parse_context=ctx)
-        # NonCode Matcher doesn't work with simple
-        assert NonCodeMatcher().simple(ctx) is None
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    m = NonCodeMatcher().match(seg_list[1:], parse_context=ctx)
+    # NonCode Matcher doesn't work with simple
+    assert NonCodeMatcher().simple(ctx) is None
     # We should match one and only one segment
     assert len(m) == 1
 
@@ -690,12 +690,12 @@ def test__parser__grammar_anysetof(generate_test_segments):
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
     g = AnySetOf(fs, bs)
-    with RootParseContext(dialect=None) as ctx:
-        # Check directly
-        assert g.match(seg_list, parse_context=ctx).matched_segments == (
-            KeywordSegment("bar", seg_list[0].pos_marker),
-            WhitespaceSegment("  \t ", seg_list[1].pos_marker),
-            KeywordSegment("foo", seg_list[2].pos_marker),
-        )
-        # Check with a bit of whitespace
-        assert not g.match(seg_list[1:], parse_context=ctx)
+    ctx = ParseContext(dialect=None)
+    # Check directly
+    assert g.match(seg_list, parse_context=ctx).matched_segments == (
+        KeywordSegment("bar", seg_list[0].pos_marker),
+        WhitespaceSegment("  \t ", seg_list[1].pos_marker),
+        KeywordSegment("foo", seg_list[2].pos_marker),
+    )
+    # Check with a bit of whitespace
+    assert not g.match(seg_list[1:], parse_context=ctx)

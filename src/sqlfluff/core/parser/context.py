@@ -12,102 +12,15 @@ from collections import defaultdict
 from contextlib import contextmanager
 import logging
 import uuid
-from typing import Iterator, Optional, TYPE_CHECKING, Dict, Any, Tuple, Type, Sequence
+from typing import Iterator, Optional, TYPE_CHECKING, Dict, Any, Tuple, Sequence
 
 if TYPE_CHECKING:  # pragma: no cover
-    from types import TracebackType
     from sqlfluff.core.parser.match_result import MatchResult
     from sqlfluff.core.dialects.base import Dialect, ExpandedDialectElementType
     from sqlfluff.core.config import FluffConfig
 
 # Get the parser logger
 parser_logger = logging.getLogger("sqlfluff.parser")
-
-
-class RootParseContext:
-    """Object to handle the context at hand during parsing.
-
-    The root context holds the persistent config which stays
-    consistent through a parsing operation. It also produces
-    the individual contexts that are used at different layers.
-
-    Each ParseContext maintains a reference to the RootParseContext
-    which created it so that it can refer to config within it.
-    """
-
-    def __init__(
-        self,
-        dialect: "Dialect",
-        indentation_config: Optional[Dict[str, Any]] = None,
-        recurse: bool = True,
-    ) -> None:
-        """Store persistent config objects."""
-        self.dialect = dialect
-        self.recurse = recurse
-        # Indentation config is used by Indent and Dedent and used to control
-        # the intended indentation of certain features. Specifically it is
-        # used in the Conditional grammar.
-        self.indentation_config = indentation_config or {}
-        # This is the logger that child objects will latch onto.
-        self.logger = parser_logger
-        # A uuid for this parse context to enable cache invalidation
-        self.uuid = uuid.uuid4()
-        # A dict for parse caching. This is reset for each file,
-        # but persists for the duration of an individual file parse.
-        self._parse_cache: Dict[Tuple[Any, ...], "MatchResult"] = {}
-        # A dictionary for keeping track of some statistics on parsing
-        # for performance optimisation.
-        # Focused around BaseGrammar._longest_trimmed_match().
-        # Initialise only with "next_counts", the rest will be int
-        # and are dealt with in .increment().
-        self.parse_stats: Dict[str, Any] = {"next_counts": defaultdict(int)}
-
-    @classmethod
-    def from_config(
-        cls, config: "FluffConfig", **overrides: Dict[str, bool]
-    ) -> "RootParseContext":
-        """Construct a `RootParseContext` from a `FluffConfig`."""
-        indentation_config = config.get_section("indentation") or {}
-        try:
-            indentation_config = {k: bool(v) for k, v in indentation_config.items()}
-        except TypeError:  # pragma: no cover
-            raise TypeError(
-                "One of the configuration keys in the `indentation` section is not "
-                "True or False: {!r}".format(indentation_config)
-            )
-        ctx = cls(
-            dialect=config.get("dialect_obj"),
-            recurse=config.get("recurse"),
-            indentation_config=indentation_config,
-        )
-        # Set any overrides in the creation
-        for key in overrides:
-            if overrides[key] is not None:
-                setattr(ctx, key, overrides[key])
-        return ctx
-
-    def __enter__(self) -> "ParseContext":
-        """Enter into the context.
-
-        Here we return a basic ParseContext with initial values,
-        initialising just the recurse value.
-
-        Note: The RootParseContext is usually entered at the beginning
-        of the parse operation as follows::
-
-            with RootParseContext.from_config(...) as ctx:
-                parsed = file_segment.parse(parse_context=ctx)
-        """
-        return ParseContext(root_ctx=self, recurse=self.recurse)
-
-    def __exit__(
-        self,
-        type: Optional[Type[BaseException]],
-        value: Optional[BaseException],
-        traceback: Optional["TracebackType"],
-    ) -> None:
-        """Clear up the context."""
-        pass
 
 
 class ParseContext:
@@ -132,9 +45,31 @@ class ParseContext:
     itself).
     """
 
-    def __init__(self, root_ctx: RootParseContext, recurse: bool = True) -> None:
-        self._root_ctx = root_ctx
+    def __init__(
+        self,
+        dialect: "Dialect",
+        indentation_config: Optional[Dict[str, Any]] = None,
+        recurse: bool = True,
+    ) -> None:
+        self.dialect = dialect
         self.recurse = recurse
+        # Indentation config is used by Indent and Dedent and used to control
+        # the intended indentation of certain features. Specifically it is
+        # used in the Conditional grammar.
+        self.indentation_config = indentation_config or {}
+        # This is the logger that child objects will latch onto.
+        self.logger = parser_logger
+        # A uuid for this parse context to enable cache invalidation
+        self.uuid = uuid.uuid4()
+        # A dict for parse caching. This is reset for each file,
+        # but persists for the duration of an individual file parse.
+        self._parse_cache: Dict[Tuple[Any, ...], "MatchResult"] = {}
+        # A dictionary for keeping track of some statistics on parsing
+        # for performance optimisation.
+        # Focused around BaseGrammar._longest_trimmed_match().
+        # Initialise only with "next_counts", the rest will be int
+        # and are dealt with in .increment().
+        self.parse_stats: Dict[str, Any] = {"next_counts": defaultdict(int)}
         # The following attributes are only accessible via a copy
         # and not in the init method.
         self.match_segment: Optional[str] = None
@@ -147,16 +82,29 @@ class ParseContext:
         # NOTE: Includes inherited parent terminators.
         self.terminators: Tuple["ExpandedDialectElementType", ...] = ()
 
-    def __getattr__(self, name: str) -> Any:
-        """If the attribute doesn't exist on this, revert to the root."""
+    @classmethod
+    def from_config(
+        cls, config: "FluffConfig", **overrides: Dict[str, bool]
+    ) -> "ParseContext":
+        """Construct a `ParseContext` from a `FluffConfig`."""
+        indentation_config = config.get_section("indentation") or {}
         try:
-            return getattr(self._root_ctx, name)
-        except AttributeError:  # pragma: no cover
-            raise AttributeError(
-                "Attribute {!r} not found in {!r} or {!r}".format(
-                    name, type(self).__name__, type(self._root_ctx).__name__
-                )
+            indentation_config = {k: bool(v) for k, v in indentation_config.items()}
+        except TypeError:  # pragma: no cover
+            raise TypeError(
+                "One of the configuration keys in the `indentation` section is not "
+                "True or False: {!r}".format(indentation_config)
             )
+        ctx = cls(
+            dialect=config.get("dialect_obj"),
+            recurse=config.get("recurse"),
+            indentation_config=indentation_config,
+        )
+        # Set any overrides in the creation
+        for key in overrides:
+            if overrides[key] is not None:
+                setattr(ctx, key, overrides[key])
+        return ctx
 
     def _set_terminators(
         self,
@@ -265,14 +213,14 @@ class ParseContext:
 
         If no match is found in the cache, this returns None.
         """
-        return self._root_ctx._parse_cache.get((loc_key, matcher_key))
+        return self._parse_cache.get((loc_key, matcher_key))
 
     def put_parse_cache(
         self, loc_key: Tuple[Any, ...], matcher_key: str, match: "MatchResult"
     ) -> None:
         """Store a match in the cache for later retrieval."""
-        self._root_ctx._parse_cache[(loc_key, matcher_key)] = match
+        self._parse_cache[(loc_key, matcher_key)] = match
 
     def increment(self, key: str, default: int = 0) -> None:
         """Increment one of the parse stats by name."""
-        self._root_ctx.parse_stats[key] = self._root_ctx.parse_stats.get(key, 0) + 1
+        self.parse_stats[key] = self.parse_stats.get(key, 0) + 1
