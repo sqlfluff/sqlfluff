@@ -20,6 +20,7 @@ from typing import Callable, List, Tuple, Iterator
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff.core.linter import LintedFile, RenderedFile
+from sqlfluff.core.plugin.host import is_main_process
 
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
@@ -179,6 +180,12 @@ class ParallelRunner(BaseRunner):
         # in the main thread.
         except Exception as e:
             return DelayedException(e, fname=fname)
+
+    @classmethod
+    def _init_global(cls, config) -> None:  # pragma: no cover
+        """For the parallel runners indicate that we're not in the main thread."""
+        is_main_process.set(False)
+        super()._init_global(config)
 
     @classmethod
     def _create_pool(cls, *args, **kwargs):
