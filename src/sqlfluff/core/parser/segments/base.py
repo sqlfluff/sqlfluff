@@ -1734,7 +1734,7 @@ class BracketedSegment(BaseSegment):
             )
             if persistent
         ]
-        simple_raws = set()
+        simple_raws: Set[str] = set()
         for ref in start_brackets:
             bracket_simple = parse_context.dialect.ref(ref).simple(
                 parse_context, crumbs=crumbs
