@@ -172,12 +172,13 @@ class ParseContext:
         push_terminators: Optional[List["ExpandedDialectElementType"]] = None,
     ):
         _appended = 0
-        # COPY FOR NOW (HAS TO FOR THE HACK)
-        _terminators = (
-            self.terminators.copy()
-        )  # Retain a reference to the original list.
+        _terminators = self.terminators  # Retain a reference to the original list.
         if clear_terminators:
-            self.terminators = push_terminators if push_terminators else []
+            # NOTE: It's really important that we .copy() on the way in, because
+            # we don't know what else has a reference to the input list, and
+            # we rely a lot in this code on having full control over the
+            # list of terminators.
+            self.terminators = push_terminators.copy() if push_terminators else []
         elif push_terminators:
             # Yes, inefficient for now.
             for terminator in push_terminators:
@@ -215,8 +216,6 @@ class ParseContext:
         try:
             yield self
         finally:
-            if not clear_terminators and push_terminators and not _append:
-                self.terminators = _terms  ## THIS MAKES IT WORK (BUT IT SHOULDN'T) HACK
             self._reset_terminators(
                 _append, _terms, clear_terminators=clear_terminators
             )
