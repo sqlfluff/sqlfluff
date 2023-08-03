@@ -12,7 +12,7 @@ from collections import defaultdict
 from contextlib import contextmanager
 import logging
 import uuid
-from typing import Optional, TYPE_CHECKING, Dict, Any, Tuple, Type, List
+from typing import Iterator, Optional, TYPE_CHECKING, Dict, Any, Tuple, Type, List
 
 if TYPE_CHECKING:  # pragma: no cover
     from types import TracebackType
@@ -22,6 +22,9 @@ if TYPE_CHECKING:  # pragma: no cover
 
 # Get the parser logger
 parser_logger = logging.getLogger("sqlfluff.parser")
+
+
+TerminatorsType = List["ExpandedDialectElementType"]
 
 
 class RootParseContext:
@@ -151,9 +154,9 @@ class ParseContext:
         self.match_segment: Optional[str] = None
         self.match_depth = 0
         self.parse_depth = 0
-        self.terminators: List[
-            "ExpandedDialectElementType"
-        ] = []  # NOTE: Includes inherited parent terminators.
+        self.terminators: TerminatorsType = (
+            []
+        )  # NOTE: Includes inherited parent terminators.
 
     def __getattr__(self, name: str) -> Any:
         """If the attribute doesn't exist on this, revert to the root."""
@@ -169,8 +172,8 @@ class ParseContext:
     def _set_terminators(
         self,
         clear_terminators: bool = False,
-        push_terminators: Optional[List["ExpandedDialectElementType"]] = None,
-    ):
+        push_terminators: Optional[TerminatorsType] = None,
+    ) -> Tuple[int, TerminatorsType]:
         _appended = 0
         _terminators = self.terminators  # Retain a reference to the original list.
         if clear_terminators:
@@ -189,10 +192,10 @@ class ParseContext:
 
     def _reset_terminators(
         self,
-        appended,
-        terminators,
+        appended: int,
+        terminators: TerminatorsType,
         clear_terminators: bool = False,
-    ):
+    ) -> None:
         # If we totally reset them, just reinstate the old object.
         if clear_terminators:
             self.terminators = terminators
@@ -208,8 +211,8 @@ class ParseContext:
     def deeper_match(
         self,
         clear_terminators: bool = False,
-        push_terminators: Optional[List["ExpandedDialectElementType"]] = None,
-    ) -> "ParseContext":
+        push_terminators: Optional[TerminatorsType] = None,
+    ) -> Iterator["ParseContext"]:
         """Increment match depth."""
         self.match_depth += 1
         _append, _terms = self._set_terminators(clear_terminators, push_terminators)
@@ -222,7 +225,7 @@ class ParseContext:
             self.match_depth -= 1
 
     @contextmanager
-    def deeper_parse(self) -> "ParseContext":
+    def deeper_parse(self) -> Iterator["ParseContext"]:
         """Increment parse depth."""
         _match_depth = self.match_depth
         self.parse_depth += 1
@@ -248,8 +251,8 @@ class ParseContext:
         self,
         name: str,
         clear_terminators: bool = False,
-        push_terminators: Optional[List["ExpandedDialectElementType"]] = None,
-    ) -> "ParseContext":
+        push_terminators: Optional[TerminatorsType] = None,
+    ) -> Iterator["ParseContext"]:
         """Set the name of the current matching segment.
 
         NB: We don't reset the match depth here.
