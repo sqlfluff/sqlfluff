@@ -15,6 +15,10 @@ from sqlfluff.core.plugin import plugin_base_name, project_name
 
 _plugin_manager = ContextVar("_plugin_manager", default=None)
 plugins_loaded = ContextVar("plugins_loaded", default=False)
+# NOTE: The is_main_process context var is defined here, but
+# we rely on each parallel runner (found in `runner.py`) to
+# maintain the value of this variable.
+is_main_process = ContextVar("is_main_process", default=True)
 
 
 def get_plugin_manager() -> pluggy.PluginManager:
