@@ -927,23 +927,20 @@ class Ref(BaseGrammar):
         # First if we have an *exclude* option, we should check that
         # which would prevent the rest of this grammar from matching.
         if self.exclude:
-            with parse_context.deeper_match() as ctx:
-                # NOTE: Not covered because `exclude` and `teminators` aren't
-                # currently used together in any dialect.
-                if self.reset_terminators:  # pragma: no cover
-                    ctx.clear_terminators()
-                if self.terminators:  # pragma: no cover
-                    ctx.push_terminators(self.terminators)
+            with parse_context.deeper_match(
+                clear_terminators=self.reset_terminators,
+                push_terminators=self.terminators,
+            ) as ctx:
                 if self.exclude.match(segments, parse_context=ctx):
                     return MatchResult.from_unmatched(segments)
 
         # Match against that. NB We're not incrementing the match_depth here.
         # References shouldn't really count as a depth of match.
-        with parse_context.matching_segment(self._get_ref()) as ctx:
-            if self.reset_terminators:
-                ctx.clear_terminators()
-            if self.terminators:
-                ctx.push_terminators(self.terminators)
+        with parse_context.matching_segment(
+            self._get_ref(),
+            clear_terminators=self.reset_terminators,
+            push_terminators=self.terminators,
+        ) as ctx:
             resp = elem.match(segments, ctx)
 
         return resp
