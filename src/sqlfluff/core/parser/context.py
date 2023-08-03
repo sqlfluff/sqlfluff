@@ -9,6 +9,7 @@ and match depth of the current operation.
 """
 
 from collections import defaultdict
+from contextlib import contextmanager
 import logging
 import uuid
 from typing import Optional, TYPE_CHECKING, Dict, Any, Tuple, Type, List
@@ -120,6 +121,11 @@ class ParseContext:
     The manipulation of the stack config is done using a context
     manager and layered config objects inside the context.
 
+    NOTE: We use context managers here to avoid _copying_
+    the context, just to mutate it safely. This is significantly
+    more performant than the copy operation, but does require some
+    care to use properly.
+
     When fetching elements from the context, we first look
     at the top level stack config object and the persistent
     config values (stored as attributes of the ParseContext
@@ -189,15 +195,27 @@ class ParseContext:
         """Clear up the context."""
         pass
 
-    def deeper_match(self, clear_terminators=False, push_terminators=None) -> "ParseContext":
-        """Return a copy with an incremented match depth."""
-        ctx = self._copy()
-        ctx.match_depth += 1
+    @contextmanager
+    def deeper_match(
+        self,
+        clear_terminators: bool = False,
+        push_terminators: Optional[List["ExpandedDialectElementType"]] = None,
+    ) -> "ParseContext":
+        """Increment match depth."""
+        self.match_depth += 1
+        _freeze_terminators = []
+        if self.terminators:
+            _freeze_terminators = self.terminators.copy()
         if clear_terminators:
-            ctx.clear_terminators()
+            self.terminators = []
         if push_terminators:
-            ctx.push_terminators(push_terminators)
-        return ctx
+            self.push_terminators(push_terminators)
+        try:
+            yield self
+        finally:
+            if clear_terminators or push_terminators:
+                self.terminators = _freeze_terminators
+            self.match_depth -= 1
 
     def deeper_parse(self) -> "ParseContext":
         """Return a copy with an incremented parse depth."""
