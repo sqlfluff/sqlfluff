@@ -5,6 +5,7 @@ This inherits from the ansi dialect.
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    Anything,
     BaseFileSegment,
     BaseSegment,
     Bracketed,
@@ -498,4 +499,28 @@ class NamedArgumentSegment(BaseSegment):
         Ref("NakedIdentifierSegment"),
         Ref("RightArrowSegment"),
         Ref("ExpressionSegment"),
+    )
+
+
+class ColumnDefinitionSegment(BaseSegment):
+    """A column definition, e.g. for CREATE TABLE or ALTER TABLE."""
+
+    type = "column_definition"
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        OneOf(
+            AnyNumberOf(
+                Sequence(
+                    Ref("ColumnConstraintSegment"),
+                    Ref.keyword("ENABLE", optional=True),
+                )
+            ),
+            Sequence(
+                Ref("DatatypeSegment"),  # Column type
+                Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+                AnyNumberOf(
+                    Ref("ColumnConstraintSegment", optional=True),
+                ),
+            ),
+        ),
     )
