@@ -30,7 +30,7 @@ class Parser:
         recurse=True,
         fname: Optional[str] = None,
         parse_statistics: bool = False,
-    ) -> Optional[Tuple["BaseSegment", ...]]:
+    ) -> Optional["BaseSegment"]:
         """Parse a series of lexed tokens using the current dialect."""
         if not segments:  # pragma: no cover
             # This should normally never happen because there will usually
@@ -66,4 +66,9 @@ class Parser:
                     ctx.logger.warning(f"{val}: {key!r}")
                 ctx.logger.warning("==== End Parse Statistics ====")
 
-        return parsed
+        if not parsed:
+            return None
+        elif len(parsed) == 1:
+            return parsed[0]
+        else:  # pragma: no cover
+            raise ValueError(f"Unexpected longer root parse result [{len(parsed)}].")
