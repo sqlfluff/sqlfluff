@@ -1223,14 +1223,9 @@ class AlterTableStatementSegment(BaseSegment):
                 ),
                 # Add column
                 Sequence(
-                    OneOf("ADD"),
+                    "ADD",
                     Ref.keyword("COLUMN", optional=True),
-                    Sequence(
-                        Ref.keyword("IF"),
-                        Ref.keyword("NOT"),
-                        Ref.keyword("EXISTS"),
-                        optional=True,
-                    ),
+                    Ref("IfNotExistsGrammar", optional=True),
                     Ref("ColumnDefinitionSegment"),
                     OneOf(
                         Sequence(
@@ -1242,7 +1237,7 @@ class AlterTableStatementSegment(BaseSegment):
                     ),
                 ),
                 Sequence(
-                    OneOf("MODIFY"),
+                    "MODIFY",
                     Ref.keyword("COLUMN", optional=True),
                     Ref("ColumnDefinitionSegment"),
                     OneOf(
