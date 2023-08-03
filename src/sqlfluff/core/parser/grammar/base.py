@@ -266,7 +266,7 @@ class BaseGrammar(Matchable):
             parse_context.increment("ltm_calls_w_ctx_terms")
             terminators = parse_context.terminators
         else:
-            terminators = []
+            terminators = ()
 
         # Have we been passed an empty list?
         if len(segments) == 0:  # pragma: no cover

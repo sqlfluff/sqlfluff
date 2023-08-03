@@ -12,7 +12,7 @@ from collections import defaultdict
 from contextlib import contextmanager
 import logging
 import uuid
-from typing import Iterator, Optional, TYPE_CHECKING, Dict, Any, Tuple, Type, List
+from typing import Iterator, Optional, TYPE_CHECKING, Dict, Any, Tuple, Type, Sequence
 
 if TYPE_CHECKING:  # pragma: no cover
     from types import TracebackType
@@ -22,9 +22,6 @@ if TYPE_CHECKING:  # pragma: no cover
 
 # Get the parser logger
 parser_logger = logging.getLogger("sqlfluff.parser")
-
-
-TerminatorsType = List["ExpandedDialectElementType"]
 
 
 class RootParseContext:
@@ -135,17 +132,6 @@ class ParseContext:
     itself).
     """
 
-    # We create and destroy many ParseContexts, so we limit the slots
-    # to improve performance.
-    __slots__ = [
-        "match_depth",
-        "parse_depth",
-        "match_segment",
-        "recurse",
-        "terminators",
-        "_root_ctx",
-    ]
-
     def __init__(self, root_ctx: RootParseContext, recurse: bool = True) -> None:
         self._root_ctx = root_ctx
         self.recurse = recurse
@@ -154,9 +140,12 @@ class ParseContext:
         self.match_segment: Optional[str] = None
         self.match_depth = 0
         self.parse_depth = 0
-        self.terminators: TerminatorsType = (
-            []
-        )  # NOTE: Includes inherited parent terminators.
+        # self.terminators is a tuple to afford some level of isolation
+        # and protection from edits to outside the context. This introduces
+        # a little more overhead than a list, but we manage this by only
+        # copying it when necessary.
+        # NOTE: Includes inherited parent terminators.
+        self.terminators: Tuple["ExpandedDialectElementType", ...] = ()
 
     def __getattr__(self, name: str) -> Any:
         """If the attribute doesn't exist on this, revert to the root."""
@@ -172,28 +161,30 @@ class ParseContext:
     def _set_terminators(
         self,
         clear_terminators: bool = False,
-        push_terminators: Optional[TerminatorsType] = None,
-    ) -> Tuple[int, TerminatorsType]:
+        push_terminators: Optional[Sequence["ExpandedDialectElementType"]] = None,
+    ) -> Tuple[int, Tuple["ExpandedDialectElementType", ...]]:
         _appended = 0
-        _terminators = self.terminators  # Retain a reference to the original list.
-        if clear_terminators:
+        # Retain a reference to the original terminators.
+        _terminators = self.terminators
+        # Note: only need to reset if clear _and not already clear_.
+        if clear_terminators and self.terminators:
             # NOTE: It's really important that we .copy() on the way in, because
             # we don't know what else has a reference to the input list, and
             # we rely a lot in this code on having full control over the
             # list of terminators.
-            self.terminators = push_terminators.copy() if push_terminators else []
+            self.terminators = tuple(push_terminators) if push_terminators else ()
         elif push_terminators:
             # Yes, inefficient for now.
             for terminator in push_terminators:
                 if terminator not in self.terminators:
-                    self.terminators.append(terminator)
+                    self.terminators += (terminator,)
                     _appended += 1
         return _appended, _terminators
 
     def _reset_terminators(
         self,
         appended: int,
-        terminators: TerminatorsType,
+        terminators: Tuple["ExpandedDialectElementType", ...],
         clear_terminators: bool = False,
     ) -> None:
         # If we totally reset them, just reinstate the old object.
@@ -211,7 +202,7 @@ class ParseContext:
     def deeper_match(
         self,
         clear_terminators: bool = False,
-        push_terminators: Optional[TerminatorsType] = None,
+        push_terminators: Optional[Sequence["ExpandedDialectElementType"]] = None,
     ) -> Iterator["ParseContext"]:
         """Increment match depth."""
         self.match_depth += 1
@@ -251,7 +242,7 @@ class ParseContext:
         self,
         name: str,
         clear_terminators: bool = False,
-        push_terminators: Optional[TerminatorsType] = None,
+        push_terminators: Optional[Sequence["ExpandedDialectElementType"]] = None,
     ) -> Iterator["ParseContext"]:
         """Set the name of the current matching segment.
 
