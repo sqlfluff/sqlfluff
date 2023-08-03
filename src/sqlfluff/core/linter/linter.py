@@ -227,7 +227,10 @@ class Linter:
         # Parse the file and log any problems
         try:
             result: Optional[Tuple[BaseSegment, ...]] = parser.parse(
-                tokens,
+                # Regardless of how the sequence was passed in, we should
+                # coerce it to a tuple here, before we head deeper into
+                # the parsing process.
+                tuple(tokens),
                 recurse=recurse,
                 fname=fname,
                 parse_statistics=parse_statistics,
