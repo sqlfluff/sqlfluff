@@ -214,12 +214,18 @@ class ParseContext:
         return self.recurse > 1 or self.recurse is True
 
     @contextmanager
-    def matching_segment(self, name: str, clear_terminators=False, push_terminators=None) -> "ParseContext":
+    def matching_segment(
+        self,
+        name: str,
+        clear_terminators: bool = False,
+        push_terminators: Optional[List["ExpandedDialectElementType"]] = None,
+    ) -> "ParseContext":
         """Set the name of the current matching segment.
 
         NB: We don't reset the match depth here.
         """
         old_name = self.match_segment
+        self.match_segment = name
         _freeze_terminators = []
         if self.terminators:
             _freeze_terminators = self.terminators.copy()
