@@ -10,7 +10,7 @@ tracking.
 
 https://stackoverflow.com/questions/49715881/how-to-pickle-inherited-exceptions
 """
-from typing import Optional, Tuple, Any, List, Dict, Union, TYPE_CHECKING
+from typing import Optional, Tuple, Any, List, Dict, Type, Union, TYPE_CHECKING
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser import PositionMarker, BaseSegment
@@ -49,7 +49,7 @@ class SQLBaseError(ValueError):
 
     def __reduce__(
         self,
-    ) -> Tuple[type["SQLBaseError"], Tuple[Any, ...]]:  # pragma: no cover
+    ) -> Tuple[Type["SQLBaseError"], Tuple[Any, ...]]:  # pragma: no cover
         """Prepare the SQLBaseError for pickling."""
         return type(self), (
             self.description,
@@ -181,7 +181,7 @@ class SQLParseError(SQLBaseError):
 
     def __reduce__(
         self,
-    ) -> Tuple[type["SQLParseError"], Tuple[Any, ...]]:  # pragma: no cover
+    ) -> Tuple[Type["SQLParseError"], Tuple[Any, ...]]:  # pragma: no cover
         """Prepare the SQLParseError for pickling."""
         return type(self), (self.description, self.segment, self.line_no, self.line_pos)
 
@@ -219,7 +219,7 @@ class SQLLintError(SQLBaseError):
 
     def __reduce__(
         self,
-    ) -> Tuple[type["SQLLintError"], Tuple[Any, ...]]:  # pragma: no cover
+    ) -> Tuple[Type["SQLLintError"], Tuple[Any, ...]]:  # pragma: no cover
         """Prepare the SQLLintError for pickling."""
         return type(self), (self.description, self.segment, self.rule, self.fixes)
 
