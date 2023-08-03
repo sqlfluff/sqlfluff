@@ -123,8 +123,8 @@ class AnchorEditInfo:
     replace: int = field(default=0)
     create_before: int = field(default=0)
     create_after: int = field(default=0)
-    fixes: List = field(default_factory=list)
-    source_fixes: List = field(default_factory=list)
+    fixes: List["LintFix"] = field(default_factory=list)
+    source_fixes: List[SourceFix] = field(default_factory=list)
     # First fix of edit_type "replace" in "fixes"
     _first_replace: Optional["LintFix"] = field(default=None)
 
@@ -1347,22 +1347,20 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
                                 # We're doing a replacement (it could be a single
                                 # segment or an iterable)
+                                assert f.edit, f"Edit {f.edit_type!r} requires `edit`."
                                 consumed_pos = False
-                                if isinstance(f.edit, BaseSegment):
-                                    seg_buffer.append(f.edit)  # pragma: no cover TODO?
-                                else:
-                                    for s in f.edit:
-                                        seg_buffer.append(s)
-                                        # If one of them has the same raw representation
-                                        # then the first that matches gets to take the
-                                        # original position marker.
-                                        if (
-                                            f.edit_type == "replace"
-                                            and s.raw == seg.raw
-                                            and not consumed_pos
-                                        ):
-                                            seg_buffer[-1].pos_marker = seg.pos_marker
-                                            consumed_pos = True
+                                for s in f.edit:
+                                    seg_buffer.append(s)
+                                    # If one of them has the same raw representation
+                                    # then the first that matches gets to take the
+                                    # original position marker.
+                                    if (
+                                        f.edit_type == "replace"
+                                        and s.raw == seg.raw
+                                        and not consumed_pos
+                                    ):
+                                        seg_buffer[-1].pos_marker = seg.pos_marker
+                                        consumed_pos = True
 
                                 if f.edit_type == "create_before":
                                     # in the case of a creation before, also add this

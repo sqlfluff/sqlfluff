@@ -486,8 +486,8 @@ class Linter:
                             for uuid, info in anchor_info.items():
                                 if not info.is_valid:
                                     message += f"\n{uuid}:"
-                                    for fix in info.fixes:
-                                        message += f"\n    {fix}"
+                                    for _fix in info.fixes:
+                                        message += f"\n    {_fix}"
                             cls._report_conflicting_fixes_same_anchor(message)
                             for lint_result in linting_errors:
                                 lint_result.fixes = []
