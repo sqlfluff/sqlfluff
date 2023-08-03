@@ -554,12 +554,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 curtail_string(stmt.raw, length=40),
             )
             parse_context.logger.info(frame_msg(parse_depth_msg))
-            res = stmt.parse(parse_context=parse_context)
-            if isinstance(res, BaseSegment):
-                segs += (res,)
-            else:
-                # We might get back an iterable of segments
-                segs += tuple(res)
+            segs += stmt.parse(parse_context=parse_context)
 
         # Basic Validation
         check_still_complete(segments, segs, ())

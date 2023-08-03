@@ -240,7 +240,7 @@ class Linter:
             violations.append(err)
             return None, violations
 
-        if parsed is None:
+        if parsed is None:  # pragma: no cover
             return None, violations
 
         linter_logger.info("\n###\n#\n# {}\n#\n###".format("Parsed Tree:"))

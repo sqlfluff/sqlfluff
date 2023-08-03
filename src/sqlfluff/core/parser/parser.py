@@ -66,7 +66,7 @@ class Parser:
                     ctx.logger.warning(f"{val}: {key!r}")
                 ctx.logger.warning("==== End Parse Statistics ====")
 
-        if not parsed:
+        if not parsed:  # pragma: no cover
             return None
         elif len(parsed) == 1:
             return parsed[0]
