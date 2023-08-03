@@ -41,7 +41,9 @@ def test__parser__parse_parse(seg_list, caplog):
         # Now parse that segment, with debugging because this is
         # where we'll need to debug if things fail.
         with caplog.at_level(logging.DEBUG):
-            res = seg.parse(parse_context=ctx)
+            result = seg.parse(parse_context=ctx)
+        assert isinstance(result, tuple)
+        res = result[0]
         # Check it's still a BasicSegment
         assert isinstance(res, BasicSegment)
         # Check that we now have a keyword inside

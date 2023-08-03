@@ -1,6 +1,6 @@
 """Defines the Parser class."""
 
-from typing import Optional, Sequence, Tuple, Type, TYPE_CHECKING
+from typing import Optional, Sequence, Type, TYPE_CHECKING
 
 from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.config import FluffConfig
