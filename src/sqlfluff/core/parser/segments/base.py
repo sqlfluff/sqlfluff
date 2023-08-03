@@ -52,9 +52,9 @@ from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.templaters.base import TemplatedFile
 
-if TYPE_CHECKING:
-    from sqlfluff.core.rules import LintFix  # pragma: no cover
-    from sqlfluff.core.parser.segments import RawSegment  # pragma: no cover
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.rules import LintFix
+    from sqlfluff.core.parser.segments import RawSegment
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
@@ -271,39 +271,23 @@ class BaseSegment(metaclass=SegmentMetaclass):
         pos_marker: Optional[PositionMarker] = None,
         uuid: Optional[UUID] = None,
     ) -> None:
-        # A cache variable for expandable
-        self._is_expandable: Optional[bool] = None
-        self.segments: Tuple["BaseSegment", ...]
-
         if len(segments) == 0:  # pragma: no cover
             raise RuntimeError(
                 "Setting {} with a zero length segment set. This shouldn't "
                 "happen.".format(self.__class__)
             )
 
-        if hasattr(segments, "matched_segments"):  # pragma: no cover TODO?
-            # Safely extract segments from a match
-            self.segments = segments.matched_segments
-        elif isinstance(segments, tuple):
-            self.segments = segments
-        elif isinstance(segments, list):
-            self.segments = tuple(segments)
-        else:  # pragma: no cover
-            raise TypeError(f"Unexpected type passed to BaseSegment: {type(segments)}")
-
         if not pos_marker:
-            # If no pos given, it's the pos of the first segment.
-            if isinstance(segments, (tuple, list)):
-                if all(seg.pos_marker for seg in segments):
-                    pos_marker = PositionMarker.from_child_markers(
-                        *(seg.pos_marker for seg in segments)
-                    )
-            else:  # pragma: no cover
-                raise TypeError(
-                    f"Unexpected type passed to BaseSegment: {type(segments)}"
+            # If no pos given, work it out from the children.
+            if all(seg.pos_marker for seg in segments):
+                pos_marker = PositionMarker.from_child_markers(
+                    *(seg.pos_marker for seg in segments)
                 )
 
         self.pos_marker = pos_marker
+        self.segments: Tuple["BaseSegment", ...] = segments
+        # A cache variable for expandable
+        self._is_expandable: Optional[bool] = None
         # Tracker for matching when things start moving.
         self.uuid = uuid or uuid4()
 
@@ -515,11 +499,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         )
 
     # ################ STATIC METHODS
-
-    @staticmethod
-    def segs_to_tuple(segs, **kwargs):  # pragma: no cover TODO?
-        """Return a tuple structure from an iterable of segments."""
-        return tuple(seg.to_tuple(**kwargs) for seg in segs)
 
     def _suffix(self) -> str:
         """Return any extra output required at the end when logging.
@@ -823,31 +802,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
             with parse_context.deeper_match() as ctx:
                 m = cls.match_grammar.match(segments=segments, parse_context=ctx)
 
-            # Calling unify here, allows the MatchResult class to do all the type
-            # checking.
-            if not isinstance(m, MatchResult):  # pragma: no cover
-                raise TypeError(
-                    "[PD:{} MD:{}] {}.match. Result is {}, not a MatchResult!".format(
-                        parse_context.parse_depth,
-                        parse_context.match_depth,
-                        cls.__name__,
-                        type(m),
-                    )
-                )
-            # Once unified we can deal with it just as a MatchResult
             if m.has_match():
-                try:
-                    return MatchResult(
-                        (cls(segments=m.matched_segments),), m.unmatched_segments
-                    )
-                except TypeError as err:  # pragma: no cover
-                    # This is an error to assist with debugging dialect design.
-                    # It's most likely that the match_grammar has been set on
-                    # a raw segment which shouldn't happen.
-                    raise TypeError(
-                        f"Error in instantiating {cls.__module__}.{cls.__name__}. Have "
-                        f"you defined a match_grammar on a RawSegment? : {str(err)}"
-                    )
+                return MatchResult(
+                    (cls(segments=m.matched_segments),), m.unmatched_segments
+                )
             else:
                 return MatchResult.from_unmatched(segments)
         else:  # pragma: no cover
@@ -1244,13 +1202,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # NOTE: No match_depth kwarg, because this is the start of the matching.
             with parse_context.matching_segment(self.__class__.__name__) as ctx:
                 m = parse_grammar.match(segments=segments, parse_context=ctx)
-
-            if not isinstance(m, MatchResult):  # pragma: no cover
-                raise TypeError(
-                    "[PD:{}] {}.match. Result is {}, not a MatchResult!".format(
-                        parse_context.parse_depth, self.__class__.__name__, type(m)
-                    )
-                )
 
             # Basic Validation, that we haven't dropped anything.
             check_still_complete(segments, m.matched_segments, m.unmatched_segments)
