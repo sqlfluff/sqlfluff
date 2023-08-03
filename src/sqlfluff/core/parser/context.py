@@ -189,10 +189,14 @@ class ParseContext:
         """Clear up the context."""
         pass
 
-    def deeper_match(self) -> "ParseContext":
+    def deeper_match(self, clear_terminators=False, push_terminators=None) -> "ParseContext":
         """Return a copy with an incremented match depth."""
         ctx = self._copy()
         ctx.match_depth += 1
+        if clear_terminators:
+            ctx.clear_terminators()
+        if push_terminators:
+            ctx.push_terminators(push_terminators)
         return ctx
 
     def deeper_parse(self) -> "ParseContext":
@@ -210,13 +214,17 @@ class ParseContext:
         """Return True if allowed to recurse."""
         return self.recurse > 1 or self.recurse is True
 
-    def matching_segment(self, name: str) -> "ParseContext":
+    def matching_segment(self, name: str, clear_terminators=False, push_terminators=None) -> "ParseContext":
         """Set the name of the current matching segment.
 
         NB: We don't reset the match depth here.
         """
         ctx = self._copy()
         ctx.match_segment = name
+        if clear_terminators:
+            ctx.clear_terminators()
+        if push_terminators:
+            ctx.push_terminators(push_terminators)
         return ctx
 
     def check_parse_cache(
