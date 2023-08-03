@@ -53,6 +53,7 @@ class SQLBaseError(ValueError):
         """Prepare the SQLBaseError for pickling."""
         return type(self), (
             self.description,
+            None,
             self.line_no,
             self.line_pos,
             self.ignore,
