@@ -49,7 +49,7 @@ from sqlfluff.core.parser.segments.base import SourceFix
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import BaseCrawler
 from sqlfluff.core.rules.config_info import get_config_info
-from sqlfluff.core.plugin.host import plugins_loaded
+from sqlfluff.core.plugin.host import plugins_loaded, is_main_process
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
 # The ghost of a rule (mostly used for testing)
@@ -576,9 +576,12 @@ class RuleMetaclass(type):
         # NOTE: We should only validate and add config keywords
         # into the docstring if the plugin loading methods have
         # fully completed (i.e. plugins_loaded.get() is True).
-        if name == "BaseRule":
-            # Except if it's the base rule, in which case we shouldn't try and
-            # apply configuration _anyway_.
+        if name == "BaseRule" or not is_main_process.get():
+            # Except if it's the base rule, or we're not in the main process/thread
+            # in which case we shouldn't try and alter the docstrings anyway.
+            # NOTE: The order of imports within child threads/processes is less
+            # controllable, and so we should just avoid checking whether plugins
+            # are already loaded.
             pass
         elif not plugins_loaded.get():
             # Show a warning if a plugin has their imports set up in a suboptimal

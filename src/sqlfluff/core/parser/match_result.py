@@ -4,7 +4,7 @@ This should be the default response from any `match` method.
 """
 
 from dataclasses import dataclass
-from typing import Iterable, Tuple, TYPE_CHECKING
+from typing import Tuple, TYPE_CHECKING
 
 from sqlfluff.core.parser.helpers import join_segments_raw, trim_non_code_segments
 
@@ -70,20 +70,15 @@ class MatchResult:
             content,
         )
 
-    @staticmethod
-    def seg_to_tuple(segs: Iterable["BaseSegment"]) -> Tuple["BaseSegment", ...]:
-        """Munge types to a tuple."""
-        return tuple(iter(segs))
-
     @classmethod
     def from_unmatched(cls, unmatched: Tuple["BaseSegment", ...]) -> "MatchResult":
         """Construct a `MatchResult` from just unmatched segments."""
-        return cls(matched_segments=(), unmatched_segments=cls.seg_to_tuple(unmatched))
+        return cls(matched_segments=(), unmatched_segments=unmatched)
 
     @classmethod
     def from_matched(cls, matched: Tuple["BaseSegment", ...]) -> "MatchResult":
         """Construct a `MatchResult` from just matched segments."""
-        return cls(unmatched_segments=(), matched_segments=cls.seg_to_tuple(matched))
+        return cls(unmatched_segments=(), matched_segments=matched)
 
     @classmethod
     def from_empty(cls) -> "MatchResult":
@@ -93,6 +88,6 @@ class MatchResult:
     def __add__(self, other: Tuple["BaseSegment", ...]) -> "MatchResult":
         """Override add for concatenating tuples onto this match."""
         return self.__class__(
-            matched_segments=self.matched_segments + self.seg_to_tuple(other),
+            matched_segments=self.matched_segments + other,
             unmatched_segments=self.unmatched_segments,
         )
