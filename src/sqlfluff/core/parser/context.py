@@ -166,6 +166,43 @@ class ParseContext:
                 )
             )
 
+    def _set_terminators(
+        self,
+        clear_terminators: bool = False,
+        push_terminators: Optional[List["ExpandedDialectElementType"]] = None,
+    ):
+        _appended = 0
+        # COPY FOR NOW (HAS TO FOR THE HACK)
+        _terminators = (
+            self.terminators.copy()
+        )  # Retain a reference to the original list.
+        if clear_terminators:
+            self.terminators = push_terminators if push_terminators else []
+        elif push_terminators:
+            # Yes, inefficient for now.
+            for terminator in push_terminators:
+                if terminator not in self.terminators:
+                    self.terminators.append(terminator)
+                    _appended += 1
+        return _appended, _terminators
+
+    def _reset_terminators(
+        self,
+        appended,
+        terminators,
+        clear_terminators: bool = False,
+    ):
+        # If we totally reset them, just reinstate the old object.
+        if clear_terminators:
+            self.terminators = terminators
+        # If we didn't, then trim any added ones.
+        # NOTE: Because we dedupe, just because we had push_terminators
+        # doesn't mean any of them actually got added here - we only trim
+        # the number that actually got appended.
+        elif appended:
+            # Trim back to original length.
+            self.terminators = self.terminators[:-appended]
+
     @contextmanager
     def deeper_match(
         self,
@@ -174,18 +211,15 @@ class ParseContext:
     ) -> "ParseContext":
         """Increment match depth."""
         self.match_depth += 1
-        _freeze_terminators = []
-        if self.terminators:
-            _freeze_terminators = self.terminators.copy()
-        if clear_terminators:
-            self.terminators = []
-        if push_terminators:
-            self.push_terminators(push_terminators)
+        _append, _terms = self._set_terminators(clear_terminators, push_terminators)
         try:
             yield self
         finally:
-            if clear_terminators or push_terminators:
-                self.terminators = _freeze_terminators
+            if not clear_terminators and push_terminators and not _append:
+                self.terminators = _terms  ## THIS MAKES IT WORK (BUT IT SHOULDN'T) HACK
+            self._reset_terminators(
+                _append, _terms, clear_terminators=clear_terminators
+            )
             self.match_depth -= 1
 
     @contextmanager
@@ -194,10 +228,7 @@ class ParseContext:
         _match_depth = self.match_depth
         self.parse_depth += 1
         self.match_depth = 0
-        _freeze_terminators = []
-        if self.terminators:
-            _freeze_terminators = self.terminators.copy()
-        self.terminators = []
+        _append, _terms = self._set_terminators(clear_terminators=True)
         if not isinstance(self.recurse, bool):  # pragma: no cover TODO?
             self.recurse -= 1
         try:
@@ -207,7 +238,7 @@ class ParseContext:
             self.match_depth = _match_depth
             if not isinstance(self.recurse, bool):  # pragma: no cover TODO?
                 self.recurse += 1
-            self.terminators = _freeze_terminators
+            self._reset_terminators(_append, _terms, clear_terminators=True)
 
     def may_recurse(self) -> bool:
         """Return True if allowed to recurse."""
@@ -226,18 +257,11 @@ class ParseContext:
         """
         old_name = self.match_segment
         self.match_segment = name
-        _freeze_terminators = []
-        if self.terminators:
-            _freeze_terminators = self.terminators.copy()
-        if clear_terminators:
-            self.terminators = []
-        if push_terminators:
-            self.push_terminators(push_terminators)
+        _append, _terms = self._set_terminators(clear_terminators, push_terminators)
         try:
             yield self
         finally:
-            if clear_terminators or push_terminators:
-                self.terminators = _freeze_terminators
+            self._reset_terminators(_append, _terms, clear_terminators)
             # Reset back to old name
             self.match_segment = old_name
 
@@ -259,12 +283,3 @@ class ParseContext:
     def increment(self, key: str, default: int = 0) -> None:
         """Increment one of the parse stats by name."""
         self._root_ctx.parse_stats[key] = self._root_ctx.parse_stats.get(key, 0) + 1
-
-    def push_terminators(
-        self, new_terminators: List["ExpandedDialectElementType"]
-    ) -> None:
-        """Push any new terminators onto the stack."""
-        # Yes, inefficient for now.
-        for term in new_terminators:
-            if term not in self.terminators:
-                self.terminators.append(term)
