@@ -4,7 +4,7 @@ This should be the default response from any `match` method.
 """
 
 from dataclasses import dataclass
-from typing import Iterable, Tuple, TYPE_CHECKING
+from typing import Tuple, TYPE_CHECKING
 
 from sqlfluff.core.parser.helpers import join_segments_raw, trim_non_code_segments
 
