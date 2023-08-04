@@ -227,7 +227,10 @@ class Linter:
         # Parse the file and log any problems
         try:
             parsed: Optional[BaseSegment] = parser.parse(
-                tokens,
+                # Regardless of how the sequence was passed in, we should
+                # coerce it to a tuple here, before we head deeper into
+                # the parsing process.
+                tuple(tokens),
                 recurse=recurse,
                 fname=fname,
                 parse_statistics=parse_statistics,
@@ -237,29 +240,31 @@ class Linter:
             violations.append(err)
             return None, violations
 
-        if parsed:
-            linter_logger.info("\n###\n#\n# {}\n#\n###".format("Parsed Tree:"))
-            linter_logger.info("\n" + parsed.stringify())
-            # We may succeed parsing, but still have unparsable segments. Extract them
-            # here.
-            for unparsable in parsed.iter_unparsables():
-                # No exception has been raised explicitly, but we still create one here
-                # so that we can use the common interface
-                assert unparsable.pos_marker
-                violations.append(
-                    SQLParseError(
-                        "Line {0[0]}, Position {0[1]}: Found unparsable section: "
-                        "{1!r}".format(
-                            unparsable.pos_marker.working_loc,
-                            unparsable.raw
-                            if len(unparsable.raw) < 40
-                            else unparsable.raw[:40] + "...",
-                        ),
-                        segment=unparsable,
-                    )
+        if parsed is None:  # pragma: no cover
+            return None, violations
+
+        linter_logger.info("\n###\n#\n# {}\n#\n###".format("Parsed Tree:"))
+        linter_logger.info("\n" + parsed.stringify())
+        # We may succeed parsing, but still have unparsable segments. Extract them
+        # here.
+        for unparsable in parsed.iter_unparsables():
+            # No exception has been raised explicitly, but we still create one here
+            # so that we can use the common interface
+            assert unparsable.pos_marker
+            violations.append(
+                SQLParseError(
+                    "Line {0[0]}, Position {0[1]}: Found unparsable section: "
+                    "{1!r}".format(
+                        unparsable.pos_marker.working_loc,
+                        unparsable.raw
+                        if len(unparsable.raw) < 40
+                        else unparsable.raw[:40] + "...",
+                    ),
+                    segment=unparsable,
                 )
-                linter_logger.info("Found unparsable segment...")
-                linter_logger.info(unparsable.stringify())
+            )
+            linter_logger.info("Found unparsable segment...")
+            linter_logger.info(unparsable.stringify())
         return parsed, violations
 
     @staticmethod
@@ -479,8 +484,8 @@ class Linter:
                             for uuid, info in anchor_info.items():
                                 if not info.is_valid:
                                     message += f"\n{uuid}:"
-                                    for fix in info.fixes:
-                                        message += f"\n    {fix}"
+                                    for _fix in info.fixes:
+                                        message += f"\n    {_fix}"
                             cls._report_conflicting_fixes_same_anchor(message)
                             for lint_result in linting_errors:
                                 lint_result.fixes = []

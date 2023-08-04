@@ -353,13 +353,14 @@ class Rule_LT09(BaseRule):
                         for seg in move_after_select_clause
                         if seg not in all_deletes
                     ]
-                    fixes_.append(
-                        LintFix.create_after(
-                            select_clause[0],
-                            ([NewlineSegment()] if add_newline else [])
-                            + list(move_after_select_clause),
+                    if move_after_select_clause or add_newline:
+                        fixes_.append(
+                            LintFix.create_after(
+                                select_clause[0],
+                                ([NewlineSegment()] if add_newline else [])
+                                + list(move_after_select_clause),
+                            )
                         )
-                    )
                     return fixes_
 
                 if select_stmt.segments[after_select_clause_idx].is_type("newline"):

@@ -1112,7 +1112,7 @@ class BaseRule(metaclass=RuleMetaclass):
                     [child for child in seg.segments if not child.is_meta]
                 )
             # Always check against the full set of children.
-            children_lists.append(seg.segments)
+            children_lists.append(list(seg.segments))
             children: List[BaseSegment]
             for children in children_lists:
                 if edit_type == "create_before" and children[0] is child:
