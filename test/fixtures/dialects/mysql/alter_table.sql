@@ -55,3 +55,9 @@ ALTER TABLE `foo`.`bar` RENAME INDEX `index_name` to `new_index_name`;
 ALTER TABLE `foo`.`bar` RENAME KEY `key_name` to `new_key_name`;
 
 ALTER TABLE `x` ADD CONSTRAINT FOREIGN KEY(`xk`) REFERENCES `y`(`yk`);
+
+ALTER TABLE `users`
+    ADD COLUMN `active` tinyint(1) DEFAULT '0';
+
+ALTER TABLE `users`
+    ADD COLUMN IF NOT EXISTS `active` tinyint(1) DEFAULT '0';
