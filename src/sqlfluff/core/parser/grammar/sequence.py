@@ -423,13 +423,11 @@ class Bracketed(Sequence):
             # Have we already got indents?
             meta_idx = None
             for idx, _seg in enumerate(bracket_segment.segments):
-                if (
-                    _seg.is_meta
-                    and cast(MetaSegment, _seg).indent_val > 0
-                    and not cast(MetaSegment, _seg).is_template
-                ):
-                    meta_idx = idx
-                    break
+                if _seg.is_meta:
+                    _meta_seg = cast(MetaSegment, _seg)
+                    if _meta_seg.indent_val > 0 and not _meta_seg._is_template:
+                        meta_idx = idx
+                        break
             # If we've already got indents, don't add more.
             if meta_idx:
                 bracket_segment.segments = BaseSegment._position_segments(

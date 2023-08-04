@@ -799,6 +799,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
             if m.has_match():
                 return MatchResult(
+                    # Return result of the match_grammar match, wrapped in a new
+                    # instance of this segment. The matched portion of the
+                    # MatchResult from the match_grammar, becomes the children
+                    # (i.e. the `segments`) of that new segment.
                     (cls(segments=m.matched_segments),), m.unmatched_segments
                 )
             else:
