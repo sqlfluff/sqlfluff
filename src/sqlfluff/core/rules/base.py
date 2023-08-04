@@ -79,7 +79,7 @@ class RuleLoggingAdapter(_LoggerAdapter):
 
     def process(self, msg: str, kwargs: Any) -> Tuple[str, Any]:
         """Add the code element to the logging message before emit."""
-        return "[{}] {}".format(self.extra["code"], msg), kwargs
+        return "[{}] {}".format(self.extra["code"] if self.extra else "", msg), kwargs
 
 
 class LintResult:
