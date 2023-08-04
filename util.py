@@ -257,7 +257,8 @@ def release(new_version_num):
 
     for filename in ["setup.cfg", "plugins/sqlfluff-templater-dbt/setup.cfg"]:
         input_file = open(filename, "r").readlines()
-        write_file = open(filename, "w")
+        # Regardless of platform, write newlines as \n
+        write_file = open(filename, "w", newline="\n")
         for line in input_file:
             for key in ["stable_version", "version"]:
                 if line.startswith(key):
@@ -270,7 +271,8 @@ def release(new_version_num):
 
     for filename in ["docs/source/gettingstarted.rst"]:
         input_file = open(filename, "r").readlines()
-        write_file = open(filename, "w")
+        # Regardless of platform, write newlines as \n
+        write_file = open(filename, "w", newline="\n")
         change_next_line = False
         for line in input_file:
             if change_next_line:
