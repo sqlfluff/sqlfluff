@@ -5,6 +5,7 @@ This inherits from the ansi dialect.
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    Anything,
     BaseFileSegment,
     BaseSegment,
     Bracketed,
@@ -77,8 +78,17 @@ oracle_dialect.insert_lexer_matchers(
     before="code",
 )
 
+oracle_dialect.insert_lexer_matchers(
+    # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
+    [
+        StringLexer("right_arrow", "=>", CodeSegment),
+    ],
+    before="equals",
+)
+
 oracle_dialect.add(
     AtSignSegment=StringParser("@", SymbolSegment, type="at_sign"),
+    RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
 )
 
 oracle_dialect.replace(
@@ -104,6 +114,10 @@ oracle_dialect.replace(
         Ref("WithinGroupClauseSegment"),
         Ref("FilterClauseGrammar"),
         Ref("OverClauseSegment", optional=True),
+    ),
+    FunctionContentsExpressionGrammar=OneOf(
+        Ref("ExpressionSegment"),
+        Ref("NamedArgumentSegment"),
     ),
     FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
         insert=[
@@ -469,6 +483,44 @@ class ListaggOverflowClauseSegment(BaseSegment):
                 Ref("SingleQuotedIdentifierSegment", optional=True),
                 OneOf("WITH", "WITHOUT", optional=True),
                 Ref.keyword("COUNT", optional=True),
+            ),
+        ),
+    )
+
+
+class NamedArgumentSegment(BaseSegment):
+    """Named argument to a function.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/lnpls/plsql-subprograms.html#GUID-A7D51201-1711-4F33-827F-70042700801F
+    """
+
+    type = "named_argument"
+    match_grammar = Sequence(
+        Ref("NakedIdentifierSegment"),
+        Ref("RightArrowSegment"),
+        Ref("ExpressionSegment"),
+    )
+
+
+class ColumnDefinitionSegment(BaseSegment):
+    """A column definition, e.g. for CREATE TABLE or ALTER TABLE."""
+
+    type = "column_definition"
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        OneOf(
+            AnyNumberOf(
+                Sequence(
+                    Ref("ColumnConstraintSegment"),
+                    Ref.keyword("ENABLE", optional=True),
+                )
+            ),
+            Sequence(
+                Ref("DatatypeSegment"),  # Column type
+                Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+                AnyNumberOf(
+                    Ref("ColumnConstraintSegment", optional=True),
+                ),
             ),
         ),
     )

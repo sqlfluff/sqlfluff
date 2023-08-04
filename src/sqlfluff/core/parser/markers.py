@@ -47,19 +47,19 @@ class PositionMarker:
             object.__setattr__(self, "working_line_no", line_no)
             object.__setattr__(self, "working_line_pos", line_pos)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.to_source_string()
 
-    def __gt__(self, other):
+    def __gt__(self, other: "PositionMarker") -> bool:
         return self.working_loc > other.working_loc  # pragma: no cover TODO?
 
-    def __lt__(self, other):
+    def __lt__(self, other: "PositionMarker") -> bool:
         return self.working_loc < other.working_loc  # pragma: no cover TODO?
 
-    def __ge__(self, other):
+    def __ge__(self, other: "PositionMarker") -> bool:
         return self.working_loc >= other.working_loc  # pragma: no cover TODO?
 
-    def __le__(self, other):
+    def __le__(self, other: "PositionMarker") -> bool:
         return self.working_loc <= other.working_loc  # pragma: no cover TODO?
 
     @property
@@ -81,7 +81,7 @@ class PositionMarker:
         source_point: int,
         templated_point: int,
         templated_file: "TemplatedFile",
-        **kwargs,
+        **kwargs: int,  # kwargs can only contain working_line positions
     ) -> "PositionMarker":
         """Convenience method for creating point markers."""
         return cls(
@@ -96,7 +96,7 @@ class PositionMarker:
         cls,
         start_point_marker: "PositionMarker",
         end_point_marker: "PositionMarker",
-    ):
+    ) -> "PositionMarker":
         """Construct a position marker from the section between two points."""
         return cls(
             slice(
@@ -118,7 +118,7 @@ class PositionMarker:
         )
 
     @classmethod
-    def from_child_markers(cls, *markers) -> "PositionMarker":
+    def from_child_markers(cls, *markers: "PositionMarker") -> "PositionMarker":
         """Create a parent marker from it's children."""
         source_slice = slice(
             min(m.source_slice.start for m in markers),
@@ -181,9 +181,10 @@ class PositionMarker:
         )
 
     @staticmethod
-    def slice_is_point(test_slice):
+    def slice_is_point(test_slice: slice) -> bool:
         """Is this slice a point."""
-        return test_slice.start == test_slice.stop
+        is_point: bool = test_slice.start == test_slice.stop
+        return is_point
 
     def is_point(self) -> bool:
         """A marker is a point if it has zero length in templated and source file."""

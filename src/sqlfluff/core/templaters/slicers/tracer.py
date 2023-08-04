@@ -6,7 +6,7 @@ This is a newer slicing algorithm that handles cases heuristic.py does not.
 from dataclasses import dataclass, field
 import logging
 import regex
-from typing import Callable, cast, Dict, List, NamedTuple, Optional, Tuple
+from typing import Callable, cast, Dict, List, NamedTuple, Optional, Tuple, Union
 
 from jinja2 import Environment
 from jinja2.exceptions import TemplateSyntaxError
@@ -128,7 +128,7 @@ class JinjaTracer:
         templated_str = self.render_func(self.raw_str) + append_to_templated
         return JinjaTrace(templated_str, self.raw_sliced, self.sliced_file)
 
-    def find_slice_index(self, slice_identifier) -> int:
+    def find_slice_index(self, slice_identifier: Union[int, str]) -> int:
         """Given a slice identifier, return its index.
 
         A slice identifier is a string like 00000000000000000000000000000002.
@@ -144,7 +144,9 @@ class JinjaTracer:
             )
         return raw_slices_search_result[0]
 
-    def move_to_slice(self, target_slice_idx, target_slice_length) -> None:
+    def move_to_slice(
+        self, target_slice_idx: int, target_slice_length: Union[int, str]
+    ) -> None:
         """Given a template location, walk execution to that point."""
         while self.program_counter < len(self.raw_sliced):
             self.record_trace(
@@ -524,7 +526,9 @@ class JinjaAnalyzer:
         self.idx_raw += len(raw)
 
     @staticmethod
-    def extract_block_type(tag_name, block_subtype):
+    def extract_block_type(
+        tag_name: str, block_subtype: Optional[str] = None
+    ) -> Tuple[str, Optional[str]]:
         """Determine block type."""
         # :TRICKY: Syntactically, the Jinja {% include %} directive looks like
         # a block, but its behavior is basically syntactic sugar for

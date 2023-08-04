@@ -79,7 +79,9 @@ class LintedFile(NamedTuple):
     templated_file: TemplatedFile
     encoding: str
 
-    def check_tuples(self, raise_on_non_linting_violations=True) -> List[CheckTuple]:
+    def check_tuples(
+        self, raise_on_non_linting_violations: bool = True
+    ) -> List[CheckTuple]:
         """Make a list of check_tuples.
 
         This assumes that all the violations found are
@@ -126,6 +128,7 @@ class LintedFile(NamedTuple):
         types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
         filter_ignore: bool = True,
         filter_warning: bool = True,
+        warn_unused_ignores: bool = False,
         fixable: Optional[bool] = None,
     ) -> list:
         """Get a list of violations, respecting filters and ignore options.
@@ -164,6 +167,9 @@ class LintedFile(NamedTuple):
         # Filter warning violations
         if filter_warning:
             violations = [v for v in violations if not v.warning]
+        # Add warnings for unneeded noqa if applicable
+        if warn_unused_ignores and not filter_warning and self.ignore_mask:
+            violations += self.ignore_mask.generate_warnings_for_unused()
         return violations
 
     def num_violations(self, **kwargs) -> int:

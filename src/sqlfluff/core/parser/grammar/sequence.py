@@ -58,7 +58,9 @@ def _all_remaining_metas(
             if e.is_enabled(parse_context):
                 meta_match = e.match(tuple(), parse_context)
                 if meta_match:
-                    return_segments += meta_match.matched_segments
+                    return_segments += cast(
+                        Tuple[MetaSegment, ...], meta_match.matched_segments
+                    )
             continue
         elif not isinstance(e, Matchable) and e.is_meta:
             indent_seg = cast(Type[MetaSegment], e)
@@ -140,14 +142,16 @@ class Sequence(BaseGrammar):
                         break
                     # Then if it _is_ active. Match against it.
                     with parse_context.deeper_match() as ctx:
-                        meta_match = elem.match(unmatched_segments, parse_context=ctx)
+                        meta_match = elem.match(unmatched_segments, ctx)
                     # Did it match and leave the unmatched portion the same?
                     if (
                         meta_match
                         and meta_match.unmatched_segments == unmatched_segments
                     ):
                         # If it did, it's just returned a new meta, keep it.
-                        new_metas = meta_match.matched_segments
+                        new_metas = cast(
+                            Tuple[MetaSegment, ...], meta_match.matched_segments
+                        )
 
                 # Do we have a new meta?
                 if new_metas:
@@ -378,8 +382,8 @@ class Bracketed(Sequence):
                     + content_segs
                     + end_match.matched_segments
                 ),
-                start_bracket=start_match.matched_segments,
-                end_bracket=end_match.matched_segments,
+                start_bracket=cast(Tuple[BaseSegment], start_match.matched_segments),
+                end_bracket=cast(Tuple[BaseSegment], end_match.matched_segments),
             )
             trailing_segments = end_match.unmatched_segments
 
@@ -410,7 +414,7 @@ class Bracketed(Sequence):
         with parse_context.deeper_match() as ctx:
             # Within the brackets, clear any inherited terminators.
             ctx.clear_terminators()
-            content_match = super().match(content_segs, parse_context=ctx)
+            content_match = super().match(content_segs, ctx)
 
         # We require a complete match for the content (hopefully for obvious reasons)
         if content_match.is_complete():

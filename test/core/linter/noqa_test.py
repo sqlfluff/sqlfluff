@@ -36,22 +36,35 @@ def test__linter__raises_malformed_noqa():
     "input,expected",
     [
         ("", None),
-        ("noqa", NoQaDirective(0, None, None)),
+        ("noqa", NoQaDirective(0, 0, None, None, "noqa")),
         ("noqa?", SQLParseError),
-        ("noqa:", NoQaDirective(0, None, None)),
-        ("noqa:LT01,LT02", NoQaDirective(0, ("LT01", "LT02"), None)),
-        ("noqa: enable=LT01", NoQaDirective(0, ("LT01",), "enable")),
-        ("noqa: disable=CP01", NoQaDirective(0, ("CP01",), "disable")),
-        ("noqa: disable=all", NoQaDirective(0, None, "disable")),
+        ("noqa:", NoQaDirective(0, 0, None, None, "noqa:")),
+        (
+            "noqa:LT01,LT02",
+            NoQaDirective(0, 0, ("LT01", "LT02"), None, "noqa:LT01,LT02"),
+        ),
+        (
+            "noqa: enable=LT01",
+            NoQaDirective(0, 0, ("LT01",), "enable", "noqa: enable=LT01"),
+        ),
+        (
+            "noqa: disable=CP01",
+            NoQaDirective(0, 0, ("CP01",), "disable", "noqa: disable=CP01"),
+        ),
+        (
+            "noqa: disable=all",
+            NoQaDirective(0, 0, None, "disable", "noqa: disable=all"),
+        ),
         ("noqa: disable", SQLParseError),
         (
             "Inline comment before inline ignore -- noqa:LT01,LT02",
-            NoQaDirective(0, ("LT01", "LT02"), None),
+            NoQaDirective(0, 0, ("LT01", "LT02"), None, "noqa:LT01,LT02"),
         ),
         # Test selection with rule globs
         (
             "noqa:L04*",
             NoQaDirective(
+                0,
                 0,
                 (
                     "AM04",  # L044 is an alias of AM04
@@ -66,37 +79,46 @@ def test__linter__raises_malformed_noqa():
                     "ST05",  # L042 is an alias of ST05
                 ),
                 None,
+                "noqa:L04*",
             ),
         ),
         # Test selection with aliases.
         (
             "noqa:L002",
-            NoQaDirective(0, ("LT02",), None),
+            NoQaDirective(0, 0, ("LT02",), None, "noqa:L002"),
         ),
         # Test selection with alias globs.
         (
             "noqa:L00*",
             NoQaDirective(
                 0,
+                0,
                 ("LT01", "LT02", "LT03", "LT12"),
                 None,
+                "noqa:L00*",
             ),
         ),
         # Test selection with names.
         (
             "noqa:capitalisation.keywords",
-            NoQaDirective(0, ("CP01",), None),
+            NoQaDirective(0, 0, ("CP01",), None, "noqa:capitalisation.keywords"),
         ),
         # Test selection with groups.
         (
             "noqa:capitalisation",
-            NoQaDirective(0, ("CP01", "CP02", "CP03", "CP04", "CP05"), None),
+            NoQaDirective(
+                0,
+                0,
+                ("CP01", "CP02", "CP03", "CP04", "CP05"),
+                None,
+                "noqa:capitalisation",
+            ),
         ),
     ],
 )
 def test_parse_noqa(input, expected):
     """Test correct of "noqa" comments."""
-    result = IgnoreMask._parse_noqa(input, 0, reference_map=dummy_rule_map)
+    result = IgnoreMask._parse_noqa(input, 0, 0, reference_map=dummy_rule_map)
     if not isinstance(expected, type):
         assert result == expected
     else:
@@ -107,13 +129,13 @@ def test_parse_noqa(input, expected):
 def test_parse_noqa_no_dups():
     """Test overlapping glob expansions don't return duplicate rules in noqa."""
     result = IgnoreMask._parse_noqa(
-        comment="noqa:L0*5,L01*", line_no=0, reference_map=dummy_rule_map
+        comment="noqa:L0*5,L01*", line_no=0, line_pos=0, reference_map=dummy_rule_map
     )
     assert len(result.rules) == len(set(result.rules))
 
 
 @pytest.mark.parametrize(
-    "noqa,violations,expected",
+    "noqa,violations,expected,used_noqas",
     [
         [
             [],
@@ -121,31 +143,37 @@ def test_parse_noqa_no_dups():
             [
                 0,
             ],
+            [],
         ],
         [
             [dict(comment="noqa: LT01", line_no=1)],
             [DummyLintError(1)],
             [],
+            [0],
         ],
         [
             [dict(comment="noqa: LT01", line_no=2)],
             [DummyLintError(1)],
             [0],
+            [],
         ],
         [
             [dict(comment="noqa: LT02", line_no=1)],
             [DummyLintError(1)],
             [0],
+            [],
         ],
         [
             [dict(comment="noqa: enable=LT01", line_no=1)],
             [DummyLintError(1)],
             [0],
+            [],
         ],
         [
             [dict(comment="noqa: disable=LT01", line_no=1)],
             [DummyLintError(1)],
             [],
+            [0],
         ],
         [
             [
@@ -154,6 +182,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(1)],
             [0],
+            [],  # The disable wasn't used, neither was the enable.
         ],
         [
             [
@@ -162,6 +191,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(2)],
             [],
+            [0, 1],  # Both were used.
         ],
         [
             [
@@ -170,6 +200,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(3)],
             [],
+            [0, 1],  # Both were used.
         ],
         [
             [
@@ -178,6 +209,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(4)],
             [0],
+            [1],  # The enable was matched, but the disable wasn't used.
         ],
         [
             [
@@ -186,6 +218,12 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(1)],
             [0],
+            # TODO: This is an odd edge case, where we drop out in our
+            # evaluation too early so see whether the "enable" is ever
+            # matched. In this case _both_ are effectively unused, because
+            # we never evaluate the last one. For a first pass I think this
+            # might be an acceptable edge case.
+            [],
         ],
         [
             [
@@ -194,6 +232,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(2)],
             [],
+            [0, 1],  # Both were used.
         ],
         [
             [
@@ -202,6 +241,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(3)],
             [],
+            [0, 1],  # Both were used.
         ],
         [
             [
@@ -210,6 +250,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(4)],
             [0],
+            [1],  # The enable was matched, but the disable wasn't used.
         ],
         [
             [
@@ -223,6 +264,7 @@ def test_parse_noqa_no_dups():
                 DummyLintError(4, code="LT02"),
             ],
             [1, 2, 3],
+            [0, 1],  # The enable matched. The disable also matched rules.
         ],
         [
             [
@@ -236,6 +278,7 @@ def test_parse_noqa_no_dups():
                 DummyLintError(4, code="LT02"),
             ],
             [2],
+            [0, 1],  # The enable matched the disable. The disable also matched
         ],
         [
             [
@@ -246,6 +289,7 @@ def test_parse_noqa_no_dups():
             ],
             [DummyLintError(1)],
             [0],
+            [],
         ],
         [
             [
@@ -263,6 +307,7 @@ def test_parse_noqa_no_dups():
                 DummyLintError(2),
             ],
             [0, 1],
+            [],  # Neither used because wrong code.
         ],
         [
             [
@@ -275,6 +320,20 @@ def test_parse_noqa_no_dups():
                 DummyLintError(1),
             ],
             [0],
+            [],  # Neither used because wrong code.
+        ],
+        [
+            [
+                dict(
+                    comment="Inline comment before inline ignore -- noqa: LT*",
+                    line_no=1,
+                ),
+            ],
+            [
+                DummyLintError(1),
+            ],
+            [],
+            [0],  # Matched indirectly
         ],
     ],
     ids=[
@@ -296,19 +355,25 @@ def test_parse_noqa_no_dups():
         "4_violations_two_types_disable_all_enable_specific",
         "1_violations_comment_inline_ignore",
         "2_violations_comment_inline_ignore",
-        "1_violations_comment_inline_glob_ignore",
+        "1_violations_comment_inline_glob_ignore_unmatch",
+        "1_violations_comment_inline_glob_ignore_match",
     ],
 )
 def test_linted_file_ignore_masked_violations(
-    noqa: dict, violations: List[SQLBaseError], expected
+    noqa: dict, violations: List[SQLBaseError], expected, used_noqas
 ):
     """Test that _ignore_masked_violations() correctly filters violations."""
     ignore_mask = [
-        IgnoreMask._parse_noqa(reference_map=dummy_rule_map, **c) for c in noqa
+        IgnoreMask._parse_noqa(reference_map=dummy_rule_map, line_pos=0, **c)
+        for c in noqa
     ]
     result = IgnoreMask(ignore_mask).ignore_masked_violations(violations)
     expected_violations = [v for i, v in enumerate(violations) if i in expected]
     assert expected_violations == result
+    # Check whether "used" evaluation works
+    expected_used = [ignore_mask[i] for i, _ in enumerate(noqa) if i in used_noqas]
+    actually_used = [i for i in ignore_mask if i.used]
+    assert actually_used == expected_used
 
 
 def test_linter_noqa():

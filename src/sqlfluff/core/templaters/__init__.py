@@ -8,9 +8,10 @@ from sqlfluff.core.templaters.base import RawTemplater, RawFileSlice
 from sqlfluff.core.templaters.jinja import JinjaTemplater
 from sqlfluff.core.templaters.python import PythonTemplater
 from sqlfluff.core.templaters.placeholder import PlaceholderTemplater
+from typing import Iterator, Type
 
 
-def core_templaters():
+def core_templaters() -> Iterator[Type[RawTemplater]]:
     """Returns the templater tuples for the core templaters."""
     yield from [RawTemplater, JinjaTemplater, PythonTemplater, PlaceholderTemplater]
 

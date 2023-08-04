@@ -14,6 +14,7 @@ from diff_cover.violationsreporters.base import (
     QualityReporter,
     Violation,
 )
+from typing import List
 
 
 logger = logging.getLogger(__name__)
@@ -78,7 +79,7 @@ class SQLFluffViolationReporter(QualityReporter):
             logger.warning("Not running SQLFluff: No files to check")
         return self.violations_dict
 
-    def _run_sqlfluff(self, src_paths):
+    def _run_sqlfluff(self, src_paths) -> List[str]:
         # Prepare the SQLFluff command to run.
         command = copy.deepcopy(self.driver.command)
         if self.options:

@@ -359,6 +359,12 @@ def lint_options(f: Callable) -> Callable:
             "future releases without warning."
         ),
     )(f)
+    f = click.option(
+        "--warn-unused-ignores",
+        is_flag=True,
+        default=False,
+        help="Warn about unneeded '-- noqa:' comments.",
+    )(f)
     return f
 
 
@@ -392,10 +398,18 @@ def get_config(
                 )
             )
             sys.exit(EXIT_ERROR)
+
     from_root_kwargs = {}
     if "require_dialect" in kwargs:
         from_root_kwargs["require_dialect"] = kwargs.pop("require_dialect")
+
     library_path = kwargs.pop("library_path", None)
+
+    if not kwargs.get("warn_unused_ignores", True):
+        # If it's present AND True, then keep it, otherwise remove this so
+        # that we default to the root config.
+        del kwargs["warn_unused_ignores"]
+
     # Instantiate a config object (filtering out the nulls)
     overrides = {k: kwargs[k] for k in kwargs if kwargs[k] is not None}
     if library_path is not None:
@@ -737,7 +751,7 @@ def do_fixes(
     return False  # pragma: no cover
 
 
-def _stdin_fix(linter: Linter, formatter, fix_even_unparsable) -> None:
+def _stdin_fix(linter: Linter, formatter, fix_even_unparsable: bool) -> None:
     """Handle fixing from stdin."""
     exit_code = EXIT_SUCCESS
     stdin = sys.stdin.read()

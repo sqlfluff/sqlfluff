@@ -3,6 +3,7 @@
 from uuid import UUID
 
 from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.segments.raw import RawSegment, SourceFix
 from sqlfluff.core.parser.context import ParseContext
@@ -55,7 +56,7 @@ class MetaSegment(RawSegment):
 
     @classmethod
     @match_wrapper()
-    def match(cls, segments, parse_context) -> NotImplementedError:  # pragma: no cover
+    def match(cls, segments, parse_context) -> MatchResult:  # pragma: no cover
         """This will never be called. If it is then we're using it wrong."""
         raise NotImplementedError(
             "{} has no match method, it should only be used in a Sequence!".format(

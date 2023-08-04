@@ -147,7 +147,7 @@ class OutputStreamFormatter:
         """Dispatch configuration output appropriately."""
         self._dispatch(self._format_config(linter))
 
-    def dispatch_persist_filename(self, filename, result) -> None:
+    def dispatch_persist_filename(self, filename: str, result: str) -> None:
         """Dispatch filenames during a persist operation."""
         # Only show the skip records at higher levels of verbosity
         if self.verbosity >= 2 or result != "SKIP":
@@ -194,7 +194,7 @@ class OutputStreamFormatter:
                 )
             )
 
-    def dispatch_compilation_header(self, templater, message) -> None:
+    def dispatch_compilation_header(self, templater: str, message: str) -> None:
         """Dispatch the header displayed before linting."""
         self._dispatch(
             f"=== [{self.colorize(templater, Color.lightgrey)}] {message}"
@@ -250,7 +250,11 @@ class OutputStreamFormatter:
         return str_buffer
 
     def dispatch_file_violations(
-        self, fname: str, linted_file: LintedFile, only_fixable: bool
+        self,
+        fname: str,
+        linted_file: LintedFile,
+        only_fixable: bool,
+        warn_unused_ignores: bool,
     ) -> None:
         """Dispatch any violations found in a file."""
         if self.verbosity < 0:
@@ -258,7 +262,9 @@ class OutputStreamFormatter:
         s = self._format_file_violations(
             fname,
             linted_file.get_violations(
-                fixable=True if only_fixable else None, filter_warning=False
+                fixable=True if only_fixable else None,
+                filter_warning=False,
+                warn_unused_ignores=warn_unused_ignores,
             ),
         )
         self._dispatch(s)

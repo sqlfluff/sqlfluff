@@ -18,7 +18,7 @@ def is_slice_type(
 ) -> Callable[[TemplatedFileSlice], bool]:
     """Returns a function that determines if segment is one the types."""
 
-    def _(raw_slice: TemplatedFileSlice):
+    def _(raw_slice: TemplatedFileSlice) -> bool:
         return any(raw_slice.slice_type == slice_type for slice_type in slice_types)
 
     return _
