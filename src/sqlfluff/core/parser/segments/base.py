@@ -802,7 +802,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     # instance of this segment. The matched portion of the
                     # MatchResult from the match_grammar, becomes the children
                     # (i.e. the `segments`) of that new segment.
-                    (cls(segments=m.matched_segments),), m.unmatched_segments
+                    (cls(segments=m.matched_segments),),
+                    m.unmatched_segments,
                 )
             else:
                 return MatchResult.from_unmatched(segments)
