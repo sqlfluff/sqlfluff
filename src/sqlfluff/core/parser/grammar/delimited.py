@@ -150,9 +150,12 @@ class Delimited(OneOf):
                         )
                         break
 
-                with parse_context.deeper_match() as ctx:
-                    if delimiter_matchers and elements != delimiter_matchers:
-                        ctx.push_terminators(delimiter_matchers)
+                _push_terminators = []
+                if delimiter_matchers and elements != delimiter_matchers:
+                    _push_terminators = delimiter_matchers
+                with parse_context.deeper_match(
+                    push_terminators=_push_terminators
+                ) as ctx:
                     match, _ = self._longest_trimmed_match(
                         segments=seg_content,
                         matchers=elements,
