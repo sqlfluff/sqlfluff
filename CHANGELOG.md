@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [2.2.0] - 2023-07-31
+## [2.2.0] - 2023-08-04
 
 ## Highlights
 
@@ -32,20 +32,40 @@ For more details (especially if you're a plugin maintainer) see our
 [release notes](https://docs.sqlfluff.com/en/latest/releasenotes.html).
 
 Additionally this release includes:
+- Some internal performance gains which may cumulatively save
+  roughly 10% of the time spent in the parsing phase of larger files.
 - Improvements to the Simple API, including the ability to pass in
   a `FluffConfig` object directly, and better support for parsing
   config files directly from strings (see
   [the included example](examples/05_simple_api_config.py)).
 - A bugfix for `AM06`.
-- Improvements to Redshift, Oracle, Clickhouse & Materialize dialects.
+- A new `--warn-unused-ignores` CLI option (and corresponding config
+  setting) to allow warnings to be shown if any `noqa` comments in
+  SQL files are unused.
+- Improvements to Redshift, Oracle, Clickhouse, Materialize &
+  MySQL dialects.
 - A selection of internal improvements, documentation and type hints.
 
-Thanks also to [@kaiyannameighu](https://github.com/kaiyannameighu) &
+Thanks also to [@kaiyannameighu](https://github.com/kaiyannameighu),
+[@aglebov](https://github.com/aglebov) &
 [@joaostorrer](https://github.com/joaostorrer) who made their first
 contributions as part of this release! 🎉🎉🎉
 
 ## What’s Changed
 
+* Adding support to use `ADD COLUMN IF NOT EXISTS` syntax on `ALTER TABLE` [#5035](https://github.com/sqlfluff/sqlfluff/pull/5035) [@wfelipew](https://github.com/wfelipew)
+* Closes #4815 [#5042](https://github.com/sqlfluff/sqlfluff/pull/5042) [@joaostorrer](https://github.com/joaostorrer)
+* Fix for multiprocessing warnings. [#5032](https://github.com/sqlfluff/sqlfluff/pull/5032) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Mypy gain: Remove unnecessary tuple construction in MatchResult [#5045](https://github.com/sqlfluff/sqlfluff/pull/5045) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* mypy strict in config [#5036](https://github.com/sqlfluff/sqlfluff/pull/5036) [@pwildenhain](https://github.com/pwildenhain)
+* strict mypy: match_wrapper & match_logging [#5033](https://github.com/sqlfluff/sqlfluff/pull/5033) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* MyPy on errors, helpers, markers & context + remove ParseContext.denylist [#5030](https://github.com/sqlfluff/sqlfluff/pull/5030) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Warn on unused `noqa` directives [#5029](https://github.com/sqlfluff/sqlfluff/pull/5029) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Even more mypy strict [#5023](https://github.com/sqlfluff/sqlfluff/pull/5023) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Handle windows paths better in config files. [#5022](https://github.com/sqlfluff/sqlfluff/pull/5022) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix for parsing of Oracle functions with named arguments [#5027](https://github.com/sqlfluff/sqlfluff/pull/5027) [@joaostorrer](https://github.com/joaostorrer)
+* DOC: Fix .sqlfluff example in Getting Started [#5026](https://github.com/sqlfluff/sqlfluff/pull/5026) [@aglebov](https://github.com/aglebov)
+* Fix: Add exception to the warning & config for the BaseRule. [#5025](https://github.com/sqlfluff/sqlfluff/pull/5025) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Move from `make_template` to `render_func` in jinja and dbt [#4942](https://github.com/sqlfluff/sqlfluff/pull/4942) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Streamline imports to reduce initial load times #4917 [#5020](https://github.com/sqlfluff/sqlfluff/pull/5020) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * More mypy strict [#5019](https://github.com/sqlfluff/sqlfluff/pull/5019) [@WittierDinosaur](https://github.com/WittierDinosaur)
@@ -63,10 +83,11 @@ contributions as part of this release! 🎉🎉🎉
 * Redshift: Add Qualify Clause [#5002](https://github.com/sqlfluff/sqlfluff/pull/5002) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * Clickhouse Dialect - Support Dollar Quoted Literals [#5003](https://github.com/sqlfluff/sqlfluff/pull/5003) [@kaiyannameighu](https://github.com/kaiyannameighu)
 
-## New Contributors
 
+## New Contributors
 * [@kaiyannameighu](https://github.com/kaiyannameighu) made their first contribution in [#5003](https://github.com/sqlfluff/sqlfluff/pull/5003)
 * [@joaostorrer](https://github.com/joaostorrer) made their first contribution in [#4999](https://github.com/sqlfluff/sqlfluff/pull/4999)
+* [@aglebov](https://github.com/aglebov) made their first contribution in [#5026](https://github.com/sqlfluff/sqlfluff/pull/5026)
 
 ## [2.1.4] - 2023-07-25
 

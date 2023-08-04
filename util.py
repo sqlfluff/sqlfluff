@@ -123,13 +123,19 @@ def benchmark(cmd, runs, from_file):
 @cli.command()
 @click.argument("new_version_num")
 def release(new_version_num):
-    """Change version number in the cfg files."""
+    """Change version number in the cfg files.
+
+    NOTE: For fine grained personal access tokens, this requires
+    _write_ access to the "contents" scope. For dome reason, if you
+    only grant the _read_ access, you can't see any *draft* PRs
+    which are necessary for this script to run.
+    """
     api = GhApi(
         owner=os.environ["GITHUB_REPOSITORY_OWNER"],
         repo="sqlfluff",
         token=os.environ["GITHUB_TOKEN"],
     )
-    releases = api.repos.list_releases()
+    releases = api.repos.list_releases(per_page=100)
 
     latest_draft_release = None
     for rel in releases:
