@@ -1838,6 +1838,37 @@ class ShowDatasharesStatementSegment(BaseSegment):
     )
 
 
+class GrantUsageDatashareStatementSegment(BaseSegment):
+    """A `GRANT DATASHARES` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_GRANT.html
+    section "Granting datashare permissions"
+    Note: According to docummentation, multiple accounts and namespaces can be
+          specified. However, tests using redshift instance showed this causes a syntax
+          error.
+    """
+
+    type = "grant_datashare_statement"
+    match_grammar = Sequence(
+        OneOf("GRANT", "REVOKE"),
+        "USAGE",
+        "ON",
+        "DATASHARE",
+        Ref("ObjectReferenceSegment"),
+        OneOf("TO", "FROM"),
+        OneOf(
+            Sequence("NAMESPACE", Ref("QuotedLiteralSegment")),
+            Sequence(
+                "ACCOUNT",
+                Sequence(
+                    Ref("QuotedLiteralSegment"),
+                    Sequence("VIA", "DATA", "CATALOG", optional=True),
+                ),
+            ),
+        ),
+    )
+
+
 class CreateRlsPolicyStatementSegment(BaseSegment):
     """A `CREATE RLS POLICY` statement.
 
@@ -2022,6 +2053,7 @@ class StatementSegment(postgres.StatementSegment):
             Ref("ManageRlsPolicyStatementSegment"),
             Ref("DropRlsPolicyStatementSegment"),
             Ref("CreateExternalFunctionStatementSegment"),
+            Ref("GrantUsageDatashareStatementSegment"),
         ],
     )
 

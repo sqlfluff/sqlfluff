@@ -13,6 +13,9 @@ if TYPE_CHECKING:  # pragma: no cover
 class Matchable(ABC):
     """A base object defining the matching interface."""
 
+    # Matchables are expected to have a type
+    type: Optional[str]
+
     @abstractmethod
     def is_optional(self) -> bool:
         """Return whether this element is optional."""

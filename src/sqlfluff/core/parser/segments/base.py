@@ -39,7 +39,6 @@ from sqlfluff.core.string_helpers import (
     curtail_string,
 )
 
-from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_logging import parse_match_logging
 from sqlfluff.core.parser.match_wrapper import match_wrapper
@@ -1447,28 +1446,27 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def _validate_segment_after_fixes(self, rule_code, dialect, fixes_applied, segment):
         """Checks correctness of new segment against match or parse grammar."""
-        root_parse_context = RootParseContext(dialect=dialect)
-        with root_parse_context as parse_context:
-            try:
-                # :HACK: Calling parse() corrupts the segment 'r'
-                # in some cases, e.g. adding additional Dedent child
-                # segments. Here, we work around this by calling
-                # parse() on a "backup copy" of the segment.
-                r_copy = deepcopy(segment)
-                for seg in r_copy.segments:
-                    seg.pos_marker = replace(
-                        seg.pos_marker,
-                        templated_file=self.pos_marker.templated_file,
-                    )
-                r_copy.parse(parse_context)
-            except ValueError:  # pragma: no cover
-                self._log_apply_fixes_check_issue(
-                    "After %s fixes were applied, segment %r failed the "
-                    "parse() check. Fixes: %r",
-                    rule_code,
-                    r_copy,
-                    fixes_applied,
+        ctx = ParseContext(dialect=dialect)
+        try:
+            # :HACK: Calling parse() corrupts the segment 'r'
+            # in some cases, e.g. adding additional Dedent child
+            # segments. Here, we work around this by calling
+            # parse() on a "backup copy" of the segment.
+            r_copy = deepcopy(segment)
+            for seg in r_copy.segments:
+                seg.pos_marker = replace(
+                    seg.pos_marker,
+                    templated_file=self.pos_marker.templated_file,
                 )
+            r_copy.parse(ctx)
+        except ValueError:  # pragma: no cover
+            self._log_apply_fixes_check_issue(
+                "After %s fixes were applied, segment %r failed the "
+                "parse() check. Fixes: %r",
+                rule_code,
+                r_copy,
+                fixes_applied,
+            )
 
     @staticmethod
     def _log_apply_fixes_check_issue(message, *args) -> None:  # pragma: no cover
@@ -1688,7 +1686,7 @@ class BracketedSegment(BaseSegment):
             )
             if persistent
         ]
-        simple_raws = set()
+        simple_raws: Set[str] = set()
         for ref in start_brackets:
             bracket_simple = parse_context.dialect.ref(ref).simple(
                 parse_context, crumbs=crumbs
