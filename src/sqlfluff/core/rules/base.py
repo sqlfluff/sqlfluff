@@ -255,7 +255,7 @@ class LintFix:
             detail = f"delete:{self.anchor.raw!r}"
         elif self.edit_type in ("replace", "create_before", "create_after"):
             if hasattr(self.edit, "raw"):
-                seg = cast(BaseSegment, self.edit)
+                seg = cast(BaseSegment, self.edit)  # pragma: no cover
                 new_detail = seg.raw  # pragma: no cover TODO?
             else:
                 seg_list = cast(List[BaseSegment], self.edit)
@@ -286,7 +286,7 @@ class LintFix:
         # We have to assert this here rather in the type annotation so we don't
         # violate the Liskov substitution principle.
         # More context here: https://stackoverflow.com/a/37557540/11381493
-        if not isinstance(other, LintFix):
+        if not isinstance(other, LintFix):  # pragma: no cover
             return NotImplemented
 
         if not self.edit_type == other.edit_type:
