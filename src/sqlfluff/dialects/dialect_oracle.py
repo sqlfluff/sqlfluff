@@ -34,7 +34,18 @@ oracle_dialect = ansi_dialect.copy_as("oracle")
 
 oracle_dialect.sets("unreserved_keywords").difference_update(["COMMENT"])
 oracle_dialect.sets("reserved_keywords").update(
-    ["COMMENT", "ON", "UPDATE", "INDEXTYPE", "PROMPT", "FORCE", "OVERFLOW", "ERROR"]
+    [
+        "COMMENT",
+        "ON",
+        "UPDATE",
+        "INDEXTYPE",
+        "PROMPT",
+        "FORCE",
+        "OVERFLOW",
+        "ERROR",
+        "PRIVATE",
+        "DEFINITION",
+    ]
 )
 
 oracle_dialect.sets("unreserved_keywords").update(
@@ -89,6 +100,14 @@ oracle_dialect.insert_lexer_matchers(
 oracle_dialect.add(
     AtSignSegment=StringParser("@", SymbolSegment, type="at_sign"),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    OnCommitGrammar=Sequence(
+        "ON",
+        "COMMIT",
+        OneOf(
+            Sequence(OneOf("DROP", "PRESERVE"), Ref.keyword("DEFINITION")),
+            Sequence(OneOf("DELETE", "PRESERVE"), Ref.keyword("ROWS")),
+        ),
+    ),
 )
 
 oracle_dialect.replace(
@@ -123,6 +142,11 @@ oracle_dialect.replace(
         insert=[
             Ref("ListaggOverflowClauseSegment"),
         ]
+    ),
+    TemporaryGrammar=Sequence(
+        OneOf("GLOBAL", "PRIVATE"),
+        Ref.keyword("TEMPORARY"),
+        optional=True,
     ),
 )
 
@@ -499,6 +523,49 @@ class NamedArgumentSegment(BaseSegment):
         Ref("NakedIdentifierSegment"),
         Ref("RightArrowSegment"),
         Ref("ExpressionSegment"),
+    )
+
+
+class CreateTableStatementSegment(BaseSegment):
+    """A CREATE TABLE statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/CREATE-TABLE.html
+    https://oracle-base.com/articles/misc/temporary-tables
+    https://oracle-base.com/articles/18c/private-temporary-tables-18c
+    """
+
+    type = "create_table_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            # Columns and comment syntax:
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref("TableConstraintSegment"),
+                            Ref("ColumnDefinitionSegment"),
+                        ),
+                    )
+                ),
+                Ref("CommentClauseSegment", optional=True),
+                Ref("OnCommitGrammar", optional=True),
+            ),
+            # Create AS syntax:
+            Sequence(
+                Ref("OnCommitGrammar", optional=True),
+                "AS",
+                OptionallyBracketed(Ref("SelectableGrammar")),
+            ),
+            # Create like syntax
+            Sequence("LIKE", Ref("TableReferenceSegment")),
+        ),
+        Ref("TableEndClauseSegment", optional=True),
     )
 
 
