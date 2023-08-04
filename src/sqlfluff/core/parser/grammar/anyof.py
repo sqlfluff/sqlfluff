@@ -164,11 +164,9 @@ class AnyNumberOf(BaseGrammar):
         if not available_options:
             return MatchResult.from_unmatched(segments), None
 
-        with parse_context.deeper_match() as ctx:
-            if self.reset_terminators:
-                ctx.clear_terminators()
-            if self.terminators:
-                ctx.push_terminators(self.terminators)
+        with parse_context.deeper_match(
+            clear_terminators=self.reset_terminators, push_terminators=self.terminators
+        ) as ctx:
             match, matched_option = self._longest_trimmed_match(
                 segments,
                 available_options,
