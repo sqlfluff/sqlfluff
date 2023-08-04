@@ -1,12 +1,15 @@
 """Defines the Parser class."""
 
-from typing import Optional, Sequence, TYPE_CHECKING
+from typing import Optional, Sequence, Type, TYPE_CHECKING
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.config import FluffConfig
 
-if TYPE_CHECKING:
-    from sqlfluff.core.parser.segments import BaseSegment  # pragma: no cover
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.parser.segments import (
+        BaseSegment,
+        BaseFileSegment,
+    )
 
 
 class Parser:
@@ -17,7 +20,9 @@ class Parser:
     ):
         # Allow optional config and dialect
         self.config = FluffConfig.from_kwargs(config=config, dialect=dialect)
-        self.RootSegment = self.config.get("dialect_obj").get_root_segment()
+        self.RootSegment: Type[BaseFileSegment] = self.config.get(
+            "dialect_obj"
+        ).get_root_segment()
 
     def parse(
         self,
@@ -64,4 +69,9 @@ class Parser:
                 ctx.logger.warning(f"{val}: {key!r}")
             ctx.logger.warning("==== End Parse Statistics ====")
 
-        return parsed
+        if not parsed:  # pragma: no cover
+            return None
+        elif len(parsed) == 1:
+            return parsed[0]
+        else:  # pragma: no cover
+            raise ValueError(f"Unexpected longer root parse result [{len(parsed)}].")

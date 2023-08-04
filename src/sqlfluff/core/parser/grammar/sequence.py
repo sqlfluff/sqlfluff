@@ -419,14 +419,12 @@ class Bracketed(Sequence):
             # We need to realign the meta segments so the pos markers are correct.
             # Have we already got indents?
             meta_idx = None
-            for idx, seg in enumerate(bracket_segment.segments):
-                if (
-                    seg.is_meta
-                    and cast(MetaSegment, seg).indent_val > 0
-                    and not cast(MetaSegment, seg).is_template
-                ):
-                    meta_idx = idx
-                    break
+            for idx, _seg in enumerate(bracket_segment.segments):
+                if _seg.is_meta:
+                    _meta_seg = cast(MetaSegment, _seg)
+                    if _meta_seg.indent_val > 0 and not _meta_seg.is_template:
+                        meta_idx = idx
+                        break
             # If we've already got indents, don't add more.
             if meta_idx:
                 bracket_segment.segments = BaseSegment._position_segments(

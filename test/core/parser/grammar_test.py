@@ -199,7 +199,9 @@ def test__parser__grammar__oneof__ephemeral_segment(seg_list):
     assert isinstance(seg.segments[0], EphemeralSegment)
     assert seg.segments[0].ephemeral_name == "foofoo"
     # Expand the segment
-    res = seg.parse(ctx)
+    result = seg.parse(ctx)
+    assert isinstance(result, tuple)
+    res = result[0]
     # Check we still have a test segment
     assert isinstance(res, TestSegment)
     # But that it contains a keyword segment now
