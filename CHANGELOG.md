@@ -47,12 +47,16 @@ Additionally this release includes:
 - A selection of internal improvements, documentation and type hints.
 
 Thanks also to [@kaiyannameighu](https://github.com/kaiyannameighu),
+[@josef-v](https://github.com/josef-v),
 [@aglebov](https://github.com/aglebov) &
 [@joaostorrer](https://github.com/joaostorrer) who made their first
 contributions as part of this release! 🎉🎉🎉
 
 ## What’s Changed
 
+* Redshift-dialect: Support GRANT USAGE ON DATASHARE [#5007](https://github.com/sqlfluff/sqlfluff/pull/5007) [@josef-v](https://github.com/josef-v)
+* :white_check_mark: Add strict typing for errors module [#5047](https://github.com/sqlfluff/sqlfluff/pull/5047) [@pwildenhain](https://github.com/pwildenhain)
+* Less copying in the ParseContext [#5046](https://github.com/sqlfluff/sqlfluff/pull/5046) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Adding support to use `ADD COLUMN IF NOT EXISTS` syntax on `ALTER TABLE` [#5035](https://github.com/sqlfluff/sqlfluff/pull/5035) [@wfelipew](https://github.com/wfelipew)
 * Closes #4815 [#5042](https://github.com/sqlfluff/sqlfluff/pull/5042) [@joaostorrer](https://github.com/joaostorrer)
 * Fix for multiprocessing warnings. [#5032](https://github.com/sqlfluff/sqlfluff/pull/5032) [@alanmcruickshank](https://github.com/alanmcruickshank)
@@ -88,6 +92,7 @@ contributions as part of this release! 🎉🎉🎉
 * [@kaiyannameighu](https://github.com/kaiyannameighu) made their first contribution in [#5003](https://github.com/sqlfluff/sqlfluff/pull/5003)
 * [@joaostorrer](https://github.com/joaostorrer) made their first contribution in [#4999](https://github.com/sqlfluff/sqlfluff/pull/4999)
 * [@aglebov](https://github.com/aglebov) made their first contribution in [#5026](https://github.com/sqlfluff/sqlfluff/pull/5026)
+* [@josef-v](https://github.com/josef-v) made their first contribution in [#5007](https://github.com/sqlfluff/sqlfluff/pull/5007)
 
 ## [2.1.4] - 2023-07-25
 
