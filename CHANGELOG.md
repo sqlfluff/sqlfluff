@@ -54,6 +54,8 @@ contributions as part of this release! 🎉🎉🎉
 
 ## What’s Changed
 
+* Mypy: Ephemeral + Tuple Return on .parse() [#5044](https://github.com/sqlfluff/sqlfluff/pull/5044) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add support to oracle's global and private temporary tables [#5039](https://github.com/sqlfluff/sqlfluff/pull/5039) [@joaostorrer](https://github.com/joaostorrer)
 * Redshift-dialect: Support GRANT USAGE ON DATASHARE [#5007](https://github.com/sqlfluff/sqlfluff/pull/5007) [@josef-v](https://github.com/josef-v)
 * :white_check_mark: Add strict typing for errors module [#5047](https://github.com/sqlfluff/sqlfluff/pull/5047) [@pwildenhain](https://github.com/pwildenhain)
 * Less copying in the ParseContext [#5046](https://github.com/sqlfluff/sqlfluff/pull/5046) [@alanmcruickshank](https://github.com/alanmcruickshank)
