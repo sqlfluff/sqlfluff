@@ -110,7 +110,7 @@ class LintResult:
         self,
         anchor: Optional[BaseSegment] = None,
         fixes: Optional[List["LintFix"]] = None,
-        memory: Optional[Iterable[Any]] = None,
+        memory: Optional[Any] = None,
         description: Optional[str] = None,
         source: Optional[str] = None,
     ):
@@ -254,12 +254,8 @@ class LintFix:
         if self.edit_type == "delete":
             detail = f"delete:{self.anchor.raw!r}"
         elif self.edit_type in ("replace", "create_before", "create_after"):
-            if hasattr(self.edit, "raw"):
-                seg = cast(BaseSegment, self.edit)  # pragma: no cover
-                new_detail = seg.raw  # pragma: no cover TODO?
-            else:
-                seg_list = cast(List[BaseSegment], self.edit)
-                new_detail = "".join(s.raw for s in seg_list)
+            seg_list = cast(List[BaseSegment], self.edit)
+            new_detail = "".join(s.raw for s in seg_list)
 
             if self.edit_type == "replace":
                 if self.is_just_source_edit():
