@@ -148,6 +148,15 @@ oracle_dialect.replace(
         Ref.keyword("TEMPORARY"),
         optional=True,
     ),
+    ParameterNameSegment=RegexParser(
+        r'[A-Z_][A-Z0-9_$]*|"[^"]*"', CodeSegment, type="parameter"
+    ),
+    LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
+        insert=[
+            Ref("SqlplusVariableGrammar"),
+        ],
+        before=Ref("ArrayLiteralSegment"),
+    ),
 )
 
 
@@ -590,4 +599,20 @@ class ColumnDefinitionSegment(BaseSegment):
                 ),
             ),
         ),
+    )
+
+
+class SqlplusVariableGrammar(BaseSegment):
+    """SQLPlus Bind Variables :thing.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqpug/using-substitution-variables-sqlplus.html
+    """
+
+    type = "sqlplus_variable"
+
+    match_grammar = Sequence(
+        OptionallyBracketed(
+            Ref("ColonSegment"),
+            Ref("ParameterNameSegment"),
+        )
     )
