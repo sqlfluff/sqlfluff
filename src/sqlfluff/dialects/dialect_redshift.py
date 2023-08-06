@@ -2572,8 +2572,11 @@ class CreateViewStatementSegment(BaseSegment):
     )
 
 
-class CreateMaterializedViewStatementSegment(postgres.CreateMaterializedViewStatementSegment):
+class CreateMaterializedViewStatementSegment(
+    postgres.CreateMaterializedViewStatementSegment
+):
     """A `CREATE MATERIALIZED VIEW` statement.
+
     # https://docs.aws.amazon.com/redshift/latest/dg/materialized-view-create-sql-command.html
     """
 
@@ -2595,7 +2598,6 @@ class CreateMaterializedViewStatementSegment(postgres.CreateMaterializedViewStat
         ),
         Ref("WithDataClauseSegment", optional=True),
     )
-
 
 
 class CreateExternalFunctionStatementSegment(BaseSegment):
