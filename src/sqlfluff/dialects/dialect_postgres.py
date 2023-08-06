@@ -2368,6 +2368,8 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
+        Sequence("BACKUP", OneOf("YES", "NO"), optional=True),
+        Sequence("AUTO", "REFRESH", OneOf("YES", "NO"), optional=True),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         Sequence("USING", Ref("ParameterNameSegment"), optional=True),
         Sequence("WITH", Ref("RelationOptionsSegment"), optional=True),
