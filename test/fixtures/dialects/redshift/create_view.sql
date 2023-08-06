@@ -8,7 +8,6 @@ with no schema binding;
 create materialized view mat_view_example
 backup yes
 auto refresh no
-as 
+as
 select col1
-from example_table
-;
+from example_table;
