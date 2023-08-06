@@ -3,5 +3,3 @@ select * from public.sales
 union all
 select * from spectrum.sales
 with no schema binding;
-
-
