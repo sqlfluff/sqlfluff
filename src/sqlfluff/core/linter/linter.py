@@ -770,9 +770,7 @@ class Linter:
         if self.formatter:
             self.formatter.dispatch_parse_header(fname)
 
-        return self.parse_rendered(
-            rendered, parse_statistics=parse_statistics
-        )
+        return self.parse_rendered(rendered, parse_statistics=parse_statistics)
 
     def fix(
         self,
