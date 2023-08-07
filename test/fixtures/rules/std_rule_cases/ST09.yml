@@ -21,7 +21,16 @@ test_pass_ignored_subconditions:
     left join bar
         on bar.a between foo.a and foo.b
 
-test_pass_left_table_first:
+test_pass_unqualified_column_reference:
+  pass_str:
+    select
+        foo.a,
+        bar.b
+    from foo
+    left join bar
+        on bar.b = a
+
+test_pass_earlier_table_first:
   pass_str: |
     select
         foo.a,
@@ -30,7 +39,7 @@ test_pass_left_table_first:
     left join bar
         on foo.a = bar.a
 
-test_pass_right_table_first:
+test_pass_later_table_first:
   pass_str: |
     select
         foo.a,
@@ -44,7 +53,7 @@ test_pass_right_table_first:
       structure.first_table:
         preferred_first_table_in_join_clause: later
 
-test_fail_left_table_first:
+test_fail_earlier_table_first:
   fail_str: |
     select
         foo.a,
@@ -66,7 +75,7 @@ test_fail_left_table_first:
       structure.first_table:
         preferred_first_table_in_join_clause: later
 
-test_fail_right_table_first:
+test_fail_later_table_first:
   fail_str: |
     select
         foo.a,
@@ -83,7 +92,101 @@ test_fail_right_table_first:
     left join bar
         on foo.a = bar.a
 
-test_fail_right_table_first_multiple_subconditions:
+test_fail_later_table_first_left_outer:
+  fail_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    left outer join bar
+        on bar.a = foo.a
+
+  fix_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    left outer join bar
+        on foo.a = bar.a
+
+test_fail_later_table_first_inner:
+  fail_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    inner join bar
+        on bar.a = foo.a
+
+  fix_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    inner join bar
+        on foo.a = bar.a
+
+test_fail_later_table_first_right:
+  fail_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    right join bar
+        on bar.a = foo.a
+
+  fix_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    right join bar
+        on foo.a = bar.a
+
+test_fail_later_table_first_right_outer:
+  fail_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    right outer join bar
+        on bar.a = foo.a
+
+  fix_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    right outer join bar
+        on foo.a = bar.a
+
+test_fail_later_table_first_full_outer:
+  fail_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    full outer join bar
+        on bar.a = foo.a
+
+  fix_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    full outer join bar
+        on foo.a = bar.a
+
+test_pass_later_table_first_cross:
+  pass_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    cross join bar
+    where bar.a = foo.a
+
+test_fail_later_table_first_multiple_subconditions:
   fail_str: |
     select
         foo.a,
@@ -104,7 +207,7 @@ test_fail_right_table_first_multiple_subconditions:
         on foo.a = bar.a
         and foo.b = bar.b
 
-test_fail_right_table_first_multiple_comparison_operators:
+test_fail_later_table_first_multiple_comparison_operators:
   fail_str: |
     select
         foo.a,
@@ -135,7 +238,7 @@ test_fail_right_table_first_multiple_comparison_operators:
         and foo.b <= baz.b
         and foo.c > baz.c
 
-test_fail_right_table_first_subquery:
+test_fail_later_table_first_subquery:
   fail_str: |
     select
         foo.a,
@@ -166,7 +269,7 @@ test_fail_right_table_first_subquery:
     left join bar
         on foo.a = bar.a
 
-test_fail_right_table_first_cte:
+test_fail_later_table_first_cte:
   fail_str: |
     with foo as (
         select
@@ -199,7 +302,7 @@ test_fail_right_table_first_cte:
     left join bar
         on foo.a = bar.a
 
-test_fail_right_table_no_join_clause_in_cte:
+test_fail_later_table_no_join_clause_in_cte:
   fail_str: |
     with foo as (
         select * from bar
@@ -222,7 +325,7 @@ test_fail_right_table_no_join_clause_in_cte:
     left join baz
         on foo.a = baz.a
 
-test_fail_right_table_no_join_clause_in_main_query:
+test_fail_later_table_no_join_clause_in_main_query:
   fail_str: |
     with foo as (
         select
@@ -247,7 +350,7 @@ test_fail_right_table_no_join_clause_in_main_query:
         b
     from foo
 
-test_fail_right_table_first_brackets_after_on:
+test_fail_later_table_first_brackets_after_on:
   fail_str: |
     select
         foo.a,
@@ -264,7 +367,7 @@ test_fail_right_table_first_brackets_after_on:
     left join bar
         on (foo.a = bar.a)
 
-test_fail_right_table_first_brackets_after_from:
+test_fail_later_table_first_brackets_after_from:
   fail_str: |
     select
         foo.a,

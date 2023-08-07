@@ -130,12 +130,9 @@ class Rule_ST09(BaseRule):
 
         for expression in join_on_condition__expressions:
             expression_group = []
-            if len(expression.get_children("bracketed")) > 0:
-                continue
-            else:
-                for element in Segments(expression).children():
-                    if element.type not in ("whitespace", "newline"):
-                        expression_group.append(element)
+            for element in Segments(expression).children():
+                if element.type not in ("whitespace", "newline"):
+                    expression_group.append(element)
             conditions.append(expression_group)
 
         # STEP 2.
