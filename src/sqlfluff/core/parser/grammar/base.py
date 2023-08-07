@@ -326,7 +326,7 @@ class BaseGrammar(Matchable):
            operations. As we make progress through a file there will often not be a
            cached value already available, and so this cache has the greatest impact
            within poorly optimised (or highly nested) expressions.
-        2. Terminators. By default, _all_ the options are evaluated, and then the
+        3. Terminators. By default, _all_ the options are evaluated, and then the
            longest (the `best`) is returned. The exception to this is when the match
            is `complete` (i.e. it matches _all_ the remaining segments), or when a
            match is followed by a valid terminator (i.e. a segment which indicates
