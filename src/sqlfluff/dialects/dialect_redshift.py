@@ -2572,6 +2572,34 @@ class CreateViewStatementSegment(BaseSegment):
     )
 
 
+class CreateMaterializedViewStatementSegment(
+    postgres.CreateMaterializedViewStatementSegment
+):
+    """A `CREATE MATERIALIZED VIEW` statement.
+
+    # https://docs.aws.amazon.com/redshift/latest/dg/materialized-view-create-sql-command.html
+    """
+
+    type = "create_materialized_view_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        Sequence("BACKUP", OneOf("YES", "NO"), optional=True),
+        Ref("TableAttributeSegment", optional=True),
+        Sequence("AUTO", "REFRESH", OneOf("YES", "NO"), optional=True),
+        "AS",
+        OneOf(
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            OptionallyBracketed(Sequence("TABLE", Ref("TableReferenceSegment"))),
+            Ref("ValuesClauseSegment"),
+            OptionallyBracketed(Sequence("EXECUTE", Ref("FunctionSegment"))),
+        ),
+        Ref("WithDataClauseSegment", optional=True),
+    )
+
+
 class CreateExternalFunctionStatementSegment(BaseSegment):
     """A `CREATE EXTERNAL FUNCTION` segment.
 
