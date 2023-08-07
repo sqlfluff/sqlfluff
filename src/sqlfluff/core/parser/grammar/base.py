@@ -7,6 +7,7 @@ from typing import (
     List,
     Optional,
     Union,
+    Set,
     Type,
     Tuple,
     Any,
@@ -234,6 +235,17 @@ class BaseGrammar(Matchable):
         self, parse_context: ParseContext, crumbs: Optional[List[str]] = None
     ) -> SimpleHintType:
         """Does this matcher support a lowercase hash matching route?"""
+        return None
+
+    @staticmethod
+    def _first_non_whitespace(segments) -> Optional[Tuple[str, Set[str]]]:
+        """Return the upper first non-whitespace segment in the iterable."""
+        for segment in segments:
+            if segment.first_non_whitespace_segment_raw_upper:
+                return (
+                    segment.first_non_whitespace_segment_raw_upper,
+                    segment.class_types,
+                )
         return None
 
     @classmethod

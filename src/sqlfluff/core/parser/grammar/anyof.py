@@ -1,6 +1,6 @@
 """AnyNumberOf and OneOf."""
 
-from typing import List, Optional, Tuple, Set
+from typing import List, Optional, Tuple
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (
@@ -11,7 +11,6 @@ from sqlfluff.core.parser.grammar.base import (
 from sqlfluff.core.parser.grammar.types import SimpleHintType
 from sqlfluff.core.parser.grammar.sequence import Sequence, Bracketed
 from sqlfluff.core.parser.helpers import trim_non_code_segments
-from sqlfluff.core.parser.match_logging import parse_match_logging
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
@@ -62,17 +61,6 @@ class AnyNumberOf(BaseGrammar):
         case, if min_times is zero then this is also optional.
         """
         return self.optional or self.min_times == 0
-
-    @staticmethod
-    def _first_non_whitespace(segments) -> Optional[Tuple[str, Set[str]]]:
-        """Return the upper first non-whitespace segment in the iterable."""
-        for segment in segments:
-            if segment.first_non_whitespace_segment_raw_upper:
-                return (
-                    segment.first_non_whitespace_segment_raw_upper,
-                    segment.class_types,
-                )
-        return None
 
     def _match_once(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
