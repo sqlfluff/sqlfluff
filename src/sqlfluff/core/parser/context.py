@@ -217,7 +217,7 @@ class ParseContext:
             # And old stack
             self._match_stack = _match_stack
 
-    def stack(self) -> Tuple[Tuple[str, ...], Tuple[str, ...]]:
+    def stack(self) -> Tuple[Tuple[str, ...], Tuple[str, ...]]:  # pragma: no cover
         """Return stacks as a tuples so that it can't be edited."""
         return tuple(self._parse_stack), tuple(self._match_stack)
 
