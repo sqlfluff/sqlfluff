@@ -7,23 +7,26 @@ from sqlfluff.utils.functional import Segments, sp, FunctionalContext
 
 
 class Rule_ST09(BaseRule):
-    """Joins should list the left/right table first.
+    """Joins should list the table referenced earlier/later first.
 
     This rule will break conditions from join clauses down into subconditions
     using the "and" and "or" binary operators.
 
-    Subconditions that are made up of a column reference, a comparison operator
-    and another column reference are then evaluated to check whether they list
-    the left - or right, depending on the ``preferred_first_table_in_join_clause``
-    configuration - table first.
+    Subconditions that are made up of a qualified column reference,
+    a comparison operator and another qualified column reference
+    are then evaluated to check whether they list the table that was referenced
+    earlier - or later, depending on the ``preferred_first_table_in_join_clause``
+    configuration.
 
     Subconditions that do not follow that pattern are ignored by this rule.
 
+    Note that this rule currently does not support joins in the ``WHERE`` clause.
+
     **Anti-pattern**
 
-    In this example, the right tables are listed first
+    In this example, the tables that were referenced later are listed first
     and the ``preferred_first_table_in_join_clause`` configuration
-    is set to ``left``.
+    is set to ``earlier``.
 
     .. code-block:: sql
 
@@ -33,14 +36,14 @@ class Rule_ST09(BaseRule):
             bar.c
         from foo
         left join bar
-            -- This subcondition does not list the left table first:
+            -- This subcondition does not list the table referenced earlier first:
             on bar.a = foo.a
             -- Neither does this subcondition:
             and bar.b = foo.b
 
     **Best practice**
 
-    List the left tables first.
+    List the tables that were referenced earlier first.
 
     .. code-block:: sql
 
@@ -68,12 +71,12 @@ class Rule_ST09(BaseRule):
         1. Grab all conditions from the different join_on_condition segments.
         2. Break conditions down into subconditions using the "and" and "or"
         binary operators.
-        3. Keep subconditions that are made up of a column_reference,
-        a comparison_operator and another column_reference segments.
+        3. Keep subconditions that are made up of a qualified column_reference,
+        a comparison_operator and another qualified column_reference segments.
         4. Check whether the table associated with the first column_reference segment
         has a greater index in table_aliases than the second column_reference segment.
         If so, populate the fixes list (lower index instead of greater index
-        if preferred_first_table_in_join_clause == "right").
+        if preferred_first_table_in_join_clause == "later").
         5.a. If fixes is empty the rule passes.
         5.b. If fixes isn't empty we return a LintResult object with fixable violations.
         """
@@ -127,7 +130,7 @@ class Rule_ST09(BaseRule):
 
         for expression in join_on_condition__expressions:
             expression_group = []
-            if len(Segments(expression).children().select(sp.is_type("bracketed"))) > 0:
+            if len(expression.get_children("bracketed")) > 0:
                 continue
             else:
                 for element in Segments(expression).children():
@@ -162,27 +165,22 @@ class Rule_ST09(BaseRule):
         fixes: List[LintFix] = []
 
         for subcondition in column_operator_column_subconditions:
-            comparison_operator = Segments(subcondition[1])
-            first_column_reference = Segments(subcondition[0])
-            second_column_reference = Segments(subcondition[2])
-            raw_comparison_operators = comparison_operator.children().select(
-                sp.is_type("raw_comparison_operator")
+            comparison_operator = subcondition[1]
+            first_column_reference = subcondition[0]
+            second_column_reference = subcondition[2]
+            raw_comparison_operators = comparison_operator.get_children(
+                "raw_comparison_operator"
             )
 
-            # there can be instances where the alias is not specified
-            # in the join on condition in which case we don't do anything
-            if "." not in [
-                child.raw for child in first_column_reference.children()
-            ] or "." not in [child.raw for child in second_column_reference.children()]:
-                continue
-
             first_table = (
-                first_column_reference.children()
+                Segments(first_column_reference)
+                .children()
                 .first(sp.is_type("naked_identifier"))[0]
                 .raw_upper
             )
             second_table = (
-                second_column_reference.children()
+                Segments(second_column_reference)
+                .children()
                 .first(sp.is_type("naked_identifier"))[0]
                 .raw_upper
             )
@@ -198,23 +196,23 @@ class Rule_ST09(BaseRule):
 
             if (
                 table_aliases.index(first_table) > table_aliases.index(second_table)
-                and self.preferred_first_table_in_join_clause == "left"
+                and self.preferred_first_table_in_join_clause == "earlier"
             ) or (
                 table_aliases.index(first_table) < table_aliases.index(second_table)
-                and self.preferred_first_table_in_join_clause == "right"
+                and self.preferred_first_table_in_join_clause == "later"
             ):
                 fixes = (
                     fixes
                     + [
                         LintFix.replace(
-                            first_column_reference[0],
-                            [second_column_reference[0]],
+                            first_column_reference,
+                            [second_column_reference],
                         )
                     ]
                     + [
                         LintFix.replace(
-                            second_column_reference[0],
-                            [first_column_reference[0]],
+                            second_column_reference,
+                            [first_column_reference],
                         )
                     ]
                     + (
@@ -271,14 +269,16 @@ class Rule_ST09(BaseRule):
 
     @staticmethod
     def _is_column_operator_column_sequence(segment_list: List[BaseSegment]) -> bool:
-        # Check if list is made up of a column_reference segment,
-        # a comparison_operator segment and another column_reference segment
+        # Check if list is made up of a qualified column_reference segment,
+        # a comparison_operator segment and another qualified column_reference segment
         if len(segment_list) != 3:
             return False
         if (
             segment_list[0].type == "column_reference"
+            and "." in [child.raw for child in segment_list[0].get_children("dot")]
             and segment_list[1].type == "comparison_operator"
             and segment_list[2].type == "column_reference"
+            and "." in [child.raw for child in segment_list[0].get_children("dot")]
         ):
             return True
         return False

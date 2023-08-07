@@ -42,7 +42,7 @@ test_pass_right_table_first:
   configs:
     rules:
       structure.first_table:
-        preferred_first_table_in_join_clause: right
+        preferred_first_table_in_join_clause: later
 
 test_fail_left_table_first:
   fail_str: |
@@ -64,7 +64,7 @@ test_fail_left_table_first:
   configs:
     rules:
       structure.first_table:
-        preferred_first_table_in_join_clause: right
+        preferred_first_table_in_join_clause: later
 
 test_fail_right_table_first:
   fail_str: |
