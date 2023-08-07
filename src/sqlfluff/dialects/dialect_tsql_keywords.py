@@ -47,7 +47,6 @@ RESERVED_KEYWORDS = [
     "CURRENT_USER",
     "CURSOR",
     "DATABASE",
-    "DAY",
     "DBCC",
     "DEALLOCATE",
     "DECLARE",
@@ -555,4 +554,5 @@ UNRESERVED_KEYWORDS = [
     "XMLSCHEMA",
     "XSINIL",
     "ZONE",
+    "DAY", 
 ]
