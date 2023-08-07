@@ -60,10 +60,16 @@ def match_wrapper(v_level: int = 3) -> Callable[[MatchFuncType], MatchFuncType]:
             parse_context: "ParseContext",
         ) -> MatchResult:
             """A wrapper on the match function to do some basic validation."""
-            # Do the match
-            m = func(self_cls, segments, parse_context)
-
             name = getattr(self_cls, "__name__", self_cls.__class__.__name__)
+
+            # Do the match
+            try:
+                m = func(self_cls, segments, parse_context)
+            except Exception as err:  # pragma: no cover
+                # NOTE: only available in python 3.11.
+                if hasattr(err, "add_note"):
+                    err.add_note(f" Within {name!r}.")
+                raise err
 
             # Validate result
             if not isinstance(m, MatchResult):  # pragma: no cover

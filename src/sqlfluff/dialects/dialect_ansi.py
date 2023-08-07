@@ -4236,7 +4236,7 @@ class PathSegment(BaseSegment):
         Sequence(
             Ref("SlashSegment"),
             Delimited(
-                Ref("CodeSegment"),
+                TypedParser("code", CodeSegment, type="path_segment"),
                 delimiter=Ref("SlashSegment"),
                 allow_gaps=False,
             ),
