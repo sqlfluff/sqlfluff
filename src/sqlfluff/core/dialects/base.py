@@ -1,7 +1,7 @@
 """Defines the base dialect class."""
 
 import sys
-from typing import Set, Union, Type, Dict, Any, Optional, List
+from typing import Set, Union, Type, Dict, Any, Optional, List, cast
 
 from sqlfluff.core.parser import (
     KeywordSegment,
@@ -33,7 +33,7 @@ class Dialect:
         name: str,
         root_segment_name: str,
         lexer_matchers: Optional[List[LexerType]] = None,
-        library=None,
+        library: Optional[Dict[str, DialectElementType]] = None,
         sets: Optional[Dict[str, Set[str]]] = None,
         inherits_from: Optional[str] = None,
     ) -> None:
@@ -89,7 +89,7 @@ class Dialect:
         expanded_copy.expanded = True
         return expanded_copy
 
-    def sets(self, label: str) -> Set:
+    def sets(self, label: str) -> Set[str]:
         """Allows access to sets belonging to this dialect.
 
         These sets belong to the dialect and are copied for sub
@@ -154,7 +154,7 @@ class Dialect:
                 raise ValueError(f"{n!r} is already registered in {self!r}")
             self._library[n] = kwargs[n]
 
-    def replace(self, **kwargs) -> None:
+    def replace(self, **kwargs: DialectElementType) -> None:
         """Override a segment on the dialect directly.
 
         Usage is very similar to add, but elements specified must already exist.
@@ -178,14 +178,15 @@ class Dialect:
             base_dir = set(dir(self._library[n]))
             subclass = False
             if isinstance(self._library[n], type) and isinstance(cls, type):
-                assert issubclass(self._library[n], BaseSegment)
+                seg = cast(Type["BaseSegment"], self._library[n])
+                assert issubclass(seg, BaseSegment)
                 assert issubclass(cls, BaseSegment)
-                subclass = issubclass(cls, self._library[n])
+                subclass = issubclass(cls, seg)
                 if not subclass:
-                    if self._library[n].type != cls.type:
+                    if seg.type != cls.type:
                         raise ValueError(  # pragma: no cover
                             f"Cannot replace {n!r} because 'type' property does not "
-                            f"match: {cls.type} != {self._library[n].type}"
+                            f"match: {cls.type} != {seg.type}"
                         )
 
                     cls_dir = set(dir(cls))
@@ -230,7 +231,8 @@ class Dialect:
                 if k not in self._library:
                     self.add(**{k: v})
                 else:
-                    self.replace(**{k: v})
+                    non_seg_v = cast(Union[Matchable, SegmentGenerator], v)
+                    self.replace(**{k: non_seg_v})
 
     def get_grammar(self, name: str) -> BaseGrammar:
         """Allow access to grammars pre-expansion.
@@ -255,7 +257,7 @@ class Dialect:
         """
         if name not in self._library:  # pragma: no cover
             raise ValueError(f"Element {name} not found in dialect.")
-        segment = self._library[name]
+        segment = cast(Type["BaseSegment"], self._library[name])
 
         if issubclass(segment, BaseSegment):
             return segment
