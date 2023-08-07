@@ -23,3 +23,12 @@ FOREIGN KEY (column_name) REFERENCES other_table_name (other_column_name);
 
 -- drop_constraint_clause
 ALTER TABLE table_name DROP CONSTRAINT constraint_name;
+
+ALTER TABLE table_name
+MODIFY (column_name NOT NULL ENABLE);
+
+ALTER TABLE table_name MODIFY
+(column_name DEFAULT 10);
+
+ALTER TABLE table_name
+MODIFY (column_name DEFAULT 10 NOT NULL ENABLE);

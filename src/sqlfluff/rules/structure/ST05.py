@@ -163,7 +163,7 @@ class Rule_ST05(BaseRule):
             )
             this_seg_clone = clone_map[from_expression]
             new_table_ref = _create_table_ref(alias_name, context.dialect)
-            this_seg_clone.segments = [new_table_ref]
+            this_seg_clone.segments = (new_table_ref,)
             ctes.replace_with_clone(subquery_parent, clone_map)
 
             # Issue 3617: In T-SQL (and possibly other dialects) the automated fix

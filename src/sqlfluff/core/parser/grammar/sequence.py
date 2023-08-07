@@ -356,10 +356,9 @@ class Bracketed(Sequence):
                 # Can't find the opening bracket. No Match.
                 return MatchResult.from_unmatched(segments)
 
-            # Look for the closing bracket
-            with parse_context.deeper_match() as ctx:
-                # Within the brackets, clear any inherited terminators.
-                ctx.clear_terminators()
+            # Look for the closing bracket.
+            # Within the brackets, clear any inherited terminators.
+            with parse_context.deeper_match(clear_terminators=True) as ctx:
                 content_segs, end_match, _ = self._bracket_sensitive_look_ahead_match(
                     segments=seg_buff,
                     matchers=[end_bracket],
@@ -410,10 +409,8 @@ class Bracketed(Sequence):
                 return MatchResult.from_unmatched(segments)
 
         # Match the content using super. Sequence will interpret the content of the
-        # elements.
-        with parse_context.deeper_match() as ctx:
-            # Within the brackets, clear any inherited terminators.
-            ctx.clear_terminators()
+        # elements. Within the brackets, clear any inherited terminators.
+        with parse_context.deeper_match(clear_terminators=True) as ctx:
             content_match = super().match(content_segs, ctx)
 
         # We require a complete match for the content (hopefully for obvious reasons)
@@ -422,14 +419,12 @@ class Bracketed(Sequence):
             # We need to realign the meta segments so the pos markers are correct.
             # Have we already got indents?
             meta_idx = None
-            for idx, seg in enumerate(bracket_segment.segments):
-                if (
-                    seg.is_meta
-                    and cast(MetaSegment, seg).indent_val > 0
-                    and not cast(MetaSegment, seg).is_template
-                ):
-                    meta_idx = idx
-                    break
+            for idx, _seg in enumerate(bracket_segment.segments):
+                if _seg.is_meta:
+                    _meta_seg = cast(MetaSegment, _seg)
+                    if _meta_seg.indent_val > 0 and not _meta_seg.is_template:
+                        meta_idx = idx
+                        break
             # If we've already got indents, don't add more.
             if meta_idx:
                 bracket_segment.segments = BaseSegment._position_segments(

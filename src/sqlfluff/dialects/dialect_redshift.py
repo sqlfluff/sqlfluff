@@ -1838,6 +1838,37 @@ class ShowDatasharesStatementSegment(BaseSegment):
     )
 
 
+class GrantUsageDatashareStatementSegment(BaseSegment):
+    """A `GRANT DATASHARES` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_GRANT.html
+    section "Granting datashare permissions"
+    Note: According to docummentation, multiple accounts and namespaces can be
+          specified. However, tests using redshift instance showed this causes a syntax
+          error.
+    """
+
+    type = "grant_datashare_statement"
+    match_grammar = Sequence(
+        OneOf("GRANT", "REVOKE"),
+        "USAGE",
+        "ON",
+        "DATASHARE",
+        Ref("ObjectReferenceSegment"),
+        OneOf("TO", "FROM"),
+        OneOf(
+            Sequence("NAMESPACE", Ref("QuotedLiteralSegment")),
+            Sequence(
+                "ACCOUNT",
+                Sequence(
+                    Ref("QuotedLiteralSegment"),
+                    Sequence("VIA", "DATA", "CATALOG", optional=True),
+                ),
+            ),
+        ),
+    )
+
+
 class CreateRlsPolicyStatementSegment(BaseSegment):
     """A `CREATE RLS POLICY` statement.
 
@@ -2022,6 +2053,7 @@ class StatementSegment(postgres.StatementSegment):
             Ref("ManageRlsPolicyStatementSegment"),
             Ref("DropRlsPolicyStatementSegment"),
             Ref("CreateExternalFunctionStatementSegment"),
+            Ref("GrantUsageDatashareStatementSegment"),
         ],
     )
 
@@ -2537,6 +2569,34 @@ class CreateViewStatementSegment(BaseSegment):
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
+    )
+
+
+class CreateMaterializedViewStatementSegment(
+    postgres.CreateMaterializedViewStatementSegment
+):
+    """A `CREATE MATERIALIZED VIEW` statement.
+
+    # https://docs.aws.amazon.com/redshift/latest/dg/materialized-view-create-sql-command.html
+    """
+
+    type = "create_materialized_view_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        Sequence("BACKUP", OneOf("YES", "NO"), optional=True),
+        Ref("TableAttributeSegment", optional=True),
+        Sequence("AUTO", "REFRESH", OneOf("YES", "NO"), optional=True),
+        "AS",
+        OneOf(
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            OptionallyBracketed(Sequence("TABLE", Ref("TableReferenceSegment"))),
+            Ref("ValuesClauseSegment"),
+            OptionallyBracketed(Sequence("EXECUTE", Ref("FunctionSegment"))),
+        ),
+        Ref("WithDataClauseSegment", optional=True),
     )
 
 

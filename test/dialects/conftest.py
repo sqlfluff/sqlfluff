@@ -9,7 +9,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     RawSegment,
 )
-from sqlfluff.core.parser.context import RootParseContext
+from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
 
@@ -62,9 +62,9 @@ def _dialect_specific_segment_parses(dialect, segmentref, raw, caplog):
     # derivatives or not.
     if isinstance(Seg, Matchable) or issubclass(Seg, RawSegment):
         print("Raw/Parser route...")
-        with RootParseContext.from_config(config) as ctx:
-            with caplog.at_level(logging.DEBUG):
-                parsed = Seg.match(segments=seg_list, parse_context=ctx)
+        ctx = ParseContext.from_config(config)
+        with caplog.at_level(logging.DEBUG):
+            parsed = Seg.match(segments=seg_list, parse_context=ctx)
         assert isinstance(parsed, MatchResult)
         assert len(parsed.matched_segments) == 1
         print(parsed)
@@ -75,10 +75,11 @@ def _dialect_specific_segment_parses(dialect, segmentref, raw, caplog):
         # Construct an unparsed segment
         seg = Seg(seg_list, pos_marker=seg_list[0].pos_marker)
         # Perform the match (THIS IS THE MEAT OF THE TEST)
-        with RootParseContext.from_config(config) as ctx:
-            with caplog.at_level(logging.DEBUG):
-                parsed = seg.parse(parse_context=ctx)
-        print(parsed)
+        ctx = ParseContext.from_config(config)
+        with caplog.at_level(logging.DEBUG):
+            result = seg.parse(parse_context=ctx)
+        print(result)
+        parsed = result[0]
         assert isinstance(parsed, Seg)
 
     # Check we get a good response
@@ -102,9 +103,9 @@ def _dialect_specific_segment_not_match(dialect, segmentref, raw, caplog):
     seg_list = lex(raw, config=config)
     Seg = validate_segment(segmentref, config=config)
 
-    with RootParseContext.from_config(config) as ctx:
-        with caplog.at_level(logging.DEBUG):
-            match = Seg.match(segments=seg_list, parse_context=ctx)
+    ctx = ParseContext.from_config(config)
+    with caplog.at_level(logging.DEBUG):
+        match = Seg.match(segments=seg_list, parse_context=ctx)
 
     assert not match
 

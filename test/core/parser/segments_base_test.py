@@ -10,7 +10,7 @@ from sqlfluff.core.parser import (
 )
 from sqlfluff.core.parser.segments.base import PathStep
 from sqlfluff.core.templaters import TemplatedFile
-from sqlfluff.core.parser.context import RootParseContext
+from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.rules.base import LintFix
 
 
@@ -155,7 +155,7 @@ def test__parser__base_segments_stubs():
 def test__parser__base_segments_raw(raw_seg):
     """Test raw segments behave as expected."""
     # Check Segment Return
-    assert raw_seg.segments == []
+    assert raw_seg.segments == ()
     assert raw_seg.raw == "foobar"
     # Check Formatting and Stringification
     assert str(raw_seg) == repr(raw_seg) == "<CodeSegment: ([L:  1, P:  1]) 'foobar'>"
@@ -182,9 +182,10 @@ def test__parser__base_segments_base(raw_seg_list, fresh_ansi_dialect):
         base_seg.pos_marker.end_point_marker()
         == raw_seg_list[-1].pos_marker.end_point_marker()
     )
-    with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
-        # Expand and given we don't have a grammar we should get the same thing
-        assert base_seg.parse(parse_context=ctx) == base_seg
+
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    # Expand and given we don't have a grammar we should get the same thing
+    assert base_seg.parse(parse_context=ctx)[0] == base_seg
     # Check that we correctly reconstruct the raw
     assert base_seg.raw == "foobar.barfoo"
     # Check tuple

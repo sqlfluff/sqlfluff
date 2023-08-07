@@ -10,7 +10,7 @@ as document rule configuration.
 from sqlfluff.core.plugin.host import get_plugin_manager
 from typing import Any, Dict
 
-STANDARD_CONFIG_INFO_DICT = {
+STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
     "tab_space_size": {
         "validation": range(100),
         "definition": (

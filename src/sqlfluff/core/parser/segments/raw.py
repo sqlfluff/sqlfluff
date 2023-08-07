@@ -47,6 +47,8 @@ class RawSegment(BaseSegment):
         # because it might *initially* be unset, but it will be reset
         # later.
         self.pos_marker: PositionMarker = pos_marker  # type: ignore
+        # Set the segments attribute to be an empty tuple.
+        self.segments = ()
         # if a surrogate type is provided, store it for later.
         self._surrogate_type = type
         # What should we trim off the ends to get to content
@@ -113,14 +115,6 @@ class RawSegment(BaseSegment):
     def raw_segments(self) -> List["RawSegment"]:
         """Returns self to be compatible with calls to its superclass."""
         return [self]
-
-    @property
-    def segments(self) -> List["BaseSegment"]:
-        """Return an empty list of child segments.
-
-        This is in case something tries to iterate on this segment.
-        """
-        return []
 
     @property
     def class_types(self) -> Set[str]:

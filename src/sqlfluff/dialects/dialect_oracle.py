@@ -5,6 +5,7 @@ This inherits from the ansi dialect.
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    Anything,
     BaseFileSegment,
     BaseSegment,
     Bracketed,
@@ -33,7 +34,18 @@ oracle_dialect = ansi_dialect.copy_as("oracle")
 
 oracle_dialect.sets("unreserved_keywords").difference_update(["COMMENT"])
 oracle_dialect.sets("reserved_keywords").update(
-    ["COMMENT", "ON", "UPDATE", "INDEXTYPE", "PROMPT", "FORCE", "OVERFLOW", "ERROR"]
+    [
+        "COMMENT",
+        "ON",
+        "UPDATE",
+        "INDEXTYPE",
+        "PROMPT",
+        "FORCE",
+        "OVERFLOW",
+        "ERROR",
+        "PRIVATE",
+        "DEFINITION",
+    ]
 )
 
 oracle_dialect.sets("unreserved_keywords").update(
@@ -88,6 +100,14 @@ oracle_dialect.insert_lexer_matchers(
 oracle_dialect.add(
     AtSignSegment=StringParser("@", SymbolSegment, type="at_sign"),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    OnCommitGrammar=Sequence(
+        "ON",
+        "COMMIT",
+        OneOf(
+            Sequence(OneOf("DROP", "PRESERVE"), Ref.keyword("DEFINITION")),
+            Sequence(OneOf("DELETE", "PRESERVE"), Ref.keyword("ROWS")),
+        ),
+    ),
 )
 
 oracle_dialect.replace(
@@ -122,6 +142,20 @@ oracle_dialect.replace(
         insert=[
             Ref("ListaggOverflowClauseSegment"),
         ]
+    ),
+    TemporaryGrammar=Sequence(
+        OneOf("GLOBAL", "PRIVATE"),
+        Ref.keyword("TEMPORARY"),
+        optional=True,
+    ),
+    ParameterNameSegment=RegexParser(
+        r'[A-Z_][A-Z0-9_$]*|"[^"]*"', CodeSegment, type="parameter"
+    ),
+    LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
+        insert=[
+            Ref("SqlplusVariableGrammar"),
+        ],
+        before=Ref("ArrayLiteralSegment"),
     ),
 )
 
@@ -498,4 +532,87 @@ class NamedArgumentSegment(BaseSegment):
         Ref("NakedIdentifierSegment"),
         Ref("RightArrowSegment"),
         Ref("ExpressionSegment"),
+    )
+
+
+class CreateTableStatementSegment(BaseSegment):
+    """A CREATE TABLE statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/CREATE-TABLE.html
+    https://oracle-base.com/articles/misc/temporary-tables
+    https://oracle-base.com/articles/18c/private-temporary-tables-18c
+    """
+
+    type = "create_table_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            # Columns and comment syntax:
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref("TableConstraintSegment"),
+                            Ref("ColumnDefinitionSegment"),
+                        ),
+                    )
+                ),
+                Ref("CommentClauseSegment", optional=True),
+                Ref("OnCommitGrammar", optional=True),
+            ),
+            # Create AS syntax:
+            Sequence(
+                Ref("OnCommitGrammar", optional=True),
+                "AS",
+                OptionallyBracketed(Ref("SelectableGrammar")),
+            ),
+            # Create like syntax
+            Sequence("LIKE", Ref("TableReferenceSegment")),
+        ),
+        Ref("TableEndClauseSegment", optional=True),
+    )
+
+
+class ColumnDefinitionSegment(BaseSegment):
+    """A column definition, e.g. for CREATE TABLE or ALTER TABLE."""
+
+    type = "column_definition"
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        OneOf(
+            AnyNumberOf(
+                Sequence(
+                    Ref("ColumnConstraintSegment"),
+                    Ref.keyword("ENABLE", optional=True),
+                )
+            ),
+            Sequence(
+                Ref("DatatypeSegment"),  # Column type
+                Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+                AnyNumberOf(
+                    Ref("ColumnConstraintSegment", optional=True),
+                ),
+            ),
+        ),
+    )
+
+
+class SqlplusVariableGrammar(BaseSegment):
+    """SQLPlus Bind Variables :thing.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqpug/using-substitution-variables-sqlplus.html
+    """
+
+    type = "sqlplus_variable"
+
+    match_grammar = Sequence(
+        OptionallyBracketed(
+            Ref("ColonSegment"),
+            Ref("ParameterNameSegment"),
+        )
     )
