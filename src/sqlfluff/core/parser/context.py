@@ -81,9 +81,7 @@ class ParseContext:
         self.terminators: Tuple["ExpandedDialectElementType", ...] = ()
 
     @classmethod
-    def from_config(
-        cls, config: "FluffConfig", **overrides: Dict[str, bool]
-    ) -> "ParseContext":
+    def from_config(cls, config: "FluffConfig") -> "ParseContext":
         """Construct a `ParseContext` from a `FluffConfig`."""
         indentation_config = config.get_section("indentation") or {}
         try:
@@ -93,15 +91,10 @@ class ParseContext:
                 "One of the configuration keys in the `indentation` section is not "
                 "True or False: {!r}".format(indentation_config)
             )
-        ctx = cls(
+        return cls(
             dialect=config.get("dialect_obj"),
             indentation_config=indentation_config,
         )
-        # Set any overrides in the creation
-        for key in overrides:
-            if overrides[key] is not None:
-                setattr(ctx, key, overrides[key])
-        return ctx
 
     def _set_terminators(
         self,
