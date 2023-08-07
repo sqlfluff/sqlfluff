@@ -1146,9 +1146,6 @@ def quoted_presenter(dumper, data):
 @core_options
 @click.argument("path", nargs=1, type=click.Path(allow_dash=True))
 @click.option(
-    "--recurse", default=0, help="The depth to recursively parse to (0 for unlimited)"
-)
-@click.option(
     "-c",
     "--code-only",
     is_flag=True,
@@ -1236,7 +1233,6 @@ def parse(
     output_stream = make_output_stream(c, format, write_output)
     lnt, formatter = get_linter_and_formatter(c, output_stream)
     verbose = c.get("verbose")
-    recurse = c.get("recurse")
 
     progress_bar_configuration.disable_progress_bar = True
 
@@ -1271,7 +1267,6 @@ def parse(
                 lnt.parse_string(
                     sys.stdin.read(),
                     "stdin",
-                    recurse=recurse,
                     config=lnt.config,
                     parse_statistics=parse_statistics,
                 ),
@@ -1281,7 +1276,6 @@ def parse(
             parsed_strings = list(
                 lnt.parse_path(
                     path=path,
-                    recurse=recurse,
                     parse_statistics=parse_statistics,
                 )
             )

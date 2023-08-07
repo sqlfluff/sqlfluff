@@ -218,7 +218,6 @@ class Linter:
     def _parse_tokens(
         tokens: Sequence[BaseSegment],
         config: FluffConfig,
-        recurse: bool = True,
         fname: Optional[str] = None,
         parse_statistics: bool = False,
     ) -> Tuple[Optional[BaseSegment], List[SQLParseError]]:
@@ -231,7 +230,6 @@ class Linter:
                 # coerce it to a tuple here, before we head deeper into
                 # the parsing process.
                 tuple(tokens),
-                recurse=recurse,
                 fname=fname,
                 parse_statistics=parse_statistics,
             )
@@ -309,7 +307,6 @@ class Linter:
     def parse_rendered(
         cls,
         rendered: RenderedFile,
-        recurse: bool = True,
         parse_statistics: bool = False,
     ) -> ParsedString:
         """Parse a rendered file."""
@@ -331,7 +328,6 @@ class Linter:
             parsed, pvs = cls._parse_tokens(
                 tokens,
                 rendered.config,
-                recurse=recurse,
                 fname=rendered.fname,
                 parse_statistics=parse_statistics,
             )
@@ -751,7 +747,6 @@ class Linter:
         self,
         in_str: str,
         fname: str = "<string>",
-        recurse: bool = True,
         config: Optional[FluffConfig] = None,
         encoding: str = "utf-8",
         parse_statistics: bool = False,
@@ -776,7 +771,7 @@ class Linter:
             self.formatter.dispatch_parse_header(fname)
 
         return self.parse_rendered(
-            rendered, recurse=recurse, parse_statistics=parse_statistics
+            rendered, parse_statistics=parse_statistics
         )
 
     def fix(
@@ -1109,7 +1104,6 @@ class Linter:
     def parse_path(
         self,
         path: str,
-        recurse: bool = True,
         parse_statistics: bool = False,
     ) -> Iterator[ParsedString]:
         """Parse a path of sql files.
@@ -1131,7 +1125,6 @@ class Linter:
             yield self.parse_string(
                 raw_file,
                 fname=fname,
-                recurse=recurse,
                 config=config,
                 encoding=encoding,
                 parse_statistics=parse_statistics,

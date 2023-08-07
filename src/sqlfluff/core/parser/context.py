@@ -49,10 +49,8 @@ class ParseContext:
         self,
         dialect: "Dialect",
         indentation_config: Optional[Dict[str, Any]] = None,
-        recurse: bool = True,
     ) -> None:
         self.dialect = dialect
-        self.recurse = recurse
         # Indentation config is used by Indent and Dedent and used to control
         # the intended indentation of certain features. Specifically it is
         # used in the Conditional grammar.
@@ -97,7 +95,6 @@ class ParseContext:
             )
         ctx = cls(
             dialect=config.get("dialect_obj"),
-            recurse=config.get("recurse"),
             indentation_config=indentation_config,
         )
         # Set any overrides in the creation
@@ -170,20 +167,12 @@ class ParseContext:
         self.parse_depth += 1
         self.match_depth = 0
         _append, _terms = self._set_terminators(clear_terminators=True)
-        if not isinstance(self.recurse, bool):  # pragma: no cover TODO?
-            self.recurse -= 1
         try:
             yield self
         finally:
             self.parse_depth -= 1
             self.match_depth = _match_depth
-            if not isinstance(self.recurse, bool):  # pragma: no cover TODO?
-                self.recurse += 1
             self._reset_terminators(_append, _terms, clear_terminators=True)
-
-    def may_recurse(self) -> bool:
-        """Return True if allowed to recurse."""
-        return self.recurse > 1 or self.recurse is True
 
     @contextmanager
     def matching_segment(
