@@ -7,6 +7,7 @@ from typing import (
     List,
     Optional,
     Union,
+    Set,
     Type,
     Tuple,
     Any,
@@ -236,6 +237,76 @@ class BaseGrammar(Matchable):
         """Does this matcher support a lowercase hash matching route?"""
         return None
 
+    @staticmethod
+    def _first_non_whitespace(segments) -> Optional[Tuple[str, Set[str]]]:
+        """Return the upper first non-whitespace segment in the iterable."""
+        for segment in segments:
+            if segment.first_non_whitespace_segment_raw_upper:
+                return (
+                    segment.first_non_whitespace_segment_raw_upper,
+                    segment.class_types,
+                )
+        return None
+
+    @classmethod
+    def _prune_options(
+        cls,
+        options: List[MatchableType],
+        segments: Tuple[BaseSegment, ...],
+        parse_context: ParseContext,
+    ) -> List[MatchableType]:
+        """Use the simple matchers to prune which options to match on.
+
+        Works in the context of a grammar making choices between options
+        such as AnyOf or the content of Delimited.
+        """
+        available_options = []
+        prune_buff = []
+
+        # Find the first code element to match against.
+        first_segment = cls._first_non_whitespace(segments)
+        # If we don't have an appropriate option to match against,
+        # then we should just return immediately. Nothing will match.
+        if not first_segment:
+            return options
+        first_raw, first_types = first_segment
+
+        for opt in options:
+            simple = opt.simple(parse_context=parse_context)
+            if simple is None:
+                # This element is not simple, we have to do a
+                # full match with it...
+                available_options.append(opt)
+                continue
+
+            # Otherwise we have a simple option, so let's use
+            # it for pruning.
+            simple_raws, simple_types = simple
+            matched = False
+
+            # We want to know if the first meaningful element of the str_buff
+            # matches the option, based on either simple _raw_ matching or
+            # simple _type_ matching.
+
+            # Match Raws
+            if simple_raws and first_raw in simple_raws:
+                # If we get here, it's matched the FIRST element of the string buffer.
+                available_options.append(opt)
+                matched = True
+
+            # Match Types
+            if simple_types and not matched and first_types.intersection(simple_types):
+                # If we get here, it's matched the FIRST element of the string buffer.
+                available_options.append(opt)
+                matched = True
+
+            if not matched:
+                # Ditch this option, the simple match has failed
+                prune_buff.append(opt)
+                continue
+
+        return available_options
+
     @classmethod
     def _longest_trimmed_match(
         cls,
@@ -253,9 +324,45 @@ class BaseGrammar(Matchable):
         Returns:
             `tuple` of (match_object, matcher).
 
-        NOTE: This matching method is the workhorse of the parser. It's performance
-        can be monitored using the `parse_stats` object on the context.
+        NOTE: This matching method is the workhorse of the parser. It drives the
+        functionality of the AnyOf & AnyNumberOf grammars, and therefore by extension
+        the degree of branching within the parser. It's performance can be monitored
+        using the `parse_stats` object on the context.
+
+        The things which determine the performance of this method are:
+        1. Pruning. This method uses `_prune_options()` to filter down which matchable
+           options proceed to the full matching step. Ideally only very few do and this
+           can handle the majority of the filtering.
+        2. Caching. This method uses the parse cache (`check_parse_cache` and
+           `put_parse_cache`) on the ParseContext to speed up repetitive matching
+           operations. As we make progress through a file there will often not be a
+           cached value already available, and so this cache has the greatest impact
+           within poorly optimised (or highly nested) expressions.
+        3. Terminators. By default, _all_ the options are evaluated, and then the
+           longest (the `best`) is returned. The exception to this is when the match
+           is `complete` (i.e. it matches _all_ the remaining segments), or when a
+           match is followed by a valid terminator (i.e. a segment which indicates
+           that the match is _effectively_ complete). In these latter scenarios, the
+           _first_ complete or terminated match is returned. In the ideal case, the
+           only matcher which is evaluated should be the "correct" one, and then no
+           others should be attempted.
         """
+        # Have we been passed an empty list?
+        if len(segments) == 0:  # pragma: no cover
+            return MatchResult.from_empty(), None
+        # If presented with no options, return no match
+        elif not matchers:
+            return MatchResult.from_unmatched(segments), None
+
+        # Prune available options, based on their simple representation for efficiency.
+        available_options = cls._prune_options(
+            matchers, segments, parse_context=parse_context
+        )
+
+        # If we've pruned all the options, return no match
+        if not available_options:
+            return MatchResult.from_unmatched(segments), None
+
         terminated = False
 
         parse_context.increment("ltm_calls")
@@ -267,10 +374,6 @@ class BaseGrammar(Matchable):
             terminators = parse_context.terminators
         else:
             terminators = ()
-
-        # Have we been passed an empty list?
-        if len(segments) == 0:  # pragma: no cover
-            return MatchResult.from_empty(), None
 
         # If gaps are allowed, trim the ends.
         if trim_noncode:
@@ -289,8 +392,9 @@ class BaseGrammar(Matchable):
         )
 
         best_match_length = 0
+        best_match: Optional[Tuple[MatchResult, MatchableType]] = None
         # iterate at this position across all the matchers
-        for idx, matcher in enumerate(matchers):
+        for idx, matcher in enumerate(available_options):
             # Check parse cache.
             matcher_key = matcher.cache_key()
             res_match: Optional[MatchResult] = parse_context.check_parse_cache(
@@ -336,7 +440,7 @@ class BaseGrammar(Matchable):
                     # end earlier, and claim an effectively "complete" match.
                     # NOTE: This means that by specifying terminators, we can
                     # significantly increase performance.
-                    if idx == len(matchers) - 1:
+                    if idx == len(available_options) - 1:
                         # If it's the last option - no need to check terminators.
                         # We're going to end anyway, so we can skip that step.
                         terminated = True
@@ -370,6 +474,7 @@ class BaseGrammar(Matchable):
         # If we get here, then there wasn't a complete match. If we
         # has a best_match, return that.
         if best_match_length > 0:
+            assert best_match
             # If not terminated, keep track of what the next token would
             # have been if we had been able to terminate using it.
             if not terminated:
