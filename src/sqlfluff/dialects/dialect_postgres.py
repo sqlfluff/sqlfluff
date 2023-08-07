@@ -1429,6 +1429,58 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     )
 
 
+class LimitClauseSegment(BaseSegment):
+    """A `LIMIT` clause like in `SELECT`."""
+
+    type = "limit_clause"
+    match_grammar: Matchable = Sequence(
+        "LIMIT",
+        Indent,
+        OneOf(
+            OptionallyBracketed(
+                Sequence(
+                    # Allow a number by itself OR
+                    Ref("NumericLiteralSegment"),
+                    # Arithmetic operations followed by a number any number of times
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("ArithmeticBinaryOperatorGrammar"),
+                            Ref("NumericLiteralSegment"),
+                        ),
+                        optional=True,
+                    ),
+                )
+            ),
+            "ALL",
+        ),
+        OneOf(
+            Sequence(
+                "OFFSET",
+                OptionallyBracketed(
+                    Sequence(
+                        # Allow a number by itself OR
+                        Ref("NumericLiteralSegment"),
+                        # Arithmetic operations followed by a number any number of times
+                        AnyNumberOf(
+                            Sequence(
+                                Ref("ArithmeticBinaryOperatorGrammar"),
+                                Ref("NumericLiteralSegment"),
+                            ),
+                            optional=True,
+                        ),
+                    )
+                ),
+            ),
+            Sequence(
+                Ref("CommaSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            optional=True,
+        ),
+        Dedent,
+    )
+
+
 class SelectClauseSegment(ansi.SelectClauseSegment):
     """Overrides ANSI to allow INTO as a terminator."""
 
