@@ -306,7 +306,12 @@ def test__linter__linting_parallel_thread(force_error, monkeypatch):
         dialect="ansi",
     )
     result = lntr.lint_paths(
-        ("test/fixtures/linter/comma_errors.sql",),
+        # NOTE: Lint more than one file to make sure we enabled the multithreaded
+        # code path.
+        (
+            "test/fixtures/linter/comma_errors.sql",
+            "test/fixtures/linter/whitespace_errors.sql",
+        ),
         processes=2,
     )
 
