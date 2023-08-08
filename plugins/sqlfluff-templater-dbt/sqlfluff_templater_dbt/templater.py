@@ -170,7 +170,16 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_manifest(self):
         """Loads the dbt manifest."""
-        from dbt.exceptions import DbtProjectError, UninstalledPackagesFoundError
+        from dbt.exceptions import DbtProjectError
+
+        # NOTE: The uninstalled packages error only exists from around
+        # dbt 1.4 onwards. Before that we'll just get a slightly uglier
+        # error - not a breaking issue.
+        try:
+            from dbt.exceptions import UninstalledPackagesFoundError
+            summary_errors = (DbtProjectError, UninstalledPackagesFoundError)
+        except ImportError:
+            summary_errors = (DbtProjectError,)
 
         # Set dbt not to run tracking. We don't load
         # a full project and so some tracking routines
@@ -192,10 +201,7 @@ class DbtTemplater(JinjaTemplater):
             if self.dbt_version_tuple < (1, 4):
                 os.chdir(self.project_dir)
             self.dbt_manifest = ManifestLoader.get_full_manifest(self.dbt_config)
-        except (
-            DbtProjectError,
-            UninstalledPackagesFoundError,
-        ) as err:  # pragma: no cover
+        except summary_errors as err:  # pragma: no cover
             raise SQLFluffUserError(f"{err.__class__.__name__}: {err}")
         finally:
             if self.dbt_version_tuple < (1, 4):
