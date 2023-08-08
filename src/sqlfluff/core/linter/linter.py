@@ -1052,6 +1052,10 @@ class Linter:
         files_count = len(expanded_paths)
         if processes is None:
             processes = self.config.get("processes", default=1)
+        # Hard set processes to 1 if only 1 file is queued.
+        # The overhead will never be worth it with one file.
+        if files_count == 1:
+            processes = 1
 
         # to avoid circular import
         from sqlfluff.core.linter.runner import get_runner
