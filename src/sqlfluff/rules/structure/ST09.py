@@ -3,7 +3,7 @@ from typing import Optional, Tuple, List, Any
 from sqlfluff.core.parser.segments.raw import BaseSegment, SymbolSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import Segments, sp, FunctionalContext
+from sqlfluff.utils.functional import Segments, FunctionalContext
 
 
 class Rule_ST09(BaseRule):
@@ -169,18 +169,10 @@ class Rule_ST09(BaseRule):
                 "raw_comparison_operator"
             )
 
-            first_table = (
-                Segments(first_column_reference)
-                .children()
-                .first(sp.is_type("naked_identifier"))[0]
-                .raw_upper
-            )
-            second_table = (
-                Segments(second_column_reference)
-                .children()
-                .first(sp.is_type("naked_identifier"))[0]
-                .raw_upper
-            )
+            first_table = first_column_reference.get_child("naked_identifier").raw_upper
+            second_table = second_column_reference.get_child(
+                "naked_identifier"
+            ).raw_upper
 
             # if we swap the two column references around the comparison operator
             # we might have to replace the comparison operator with a different one
@@ -272,10 +264,10 @@ class Rule_ST09(BaseRule):
             return False
         if (
             segment_list[0].type == "column_reference"
-            and len(segment_list[0].get_children("dot")) > 0
+            and "dot" in segment_list[0].direct_descendant_type_set
             and segment_list[1].type == "comparison_operator"
             and segment_list[2].type == "column_reference"
-            and len(segment_list[2].get_children("dot")) > 0
+            and "dot" in segment_list[2].direct_descendant_type_set
         ):
             return True
         return False
