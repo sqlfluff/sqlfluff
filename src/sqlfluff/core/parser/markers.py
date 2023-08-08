@@ -62,6 +62,11 @@ class PositionMarker:
     def __le__(self, other: "PositionMarker") -> bool:
         return self.working_loc <= other.working_loc  # pragma: no cover TODO?
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, PositionMarker):
+            return False
+        return self.working_loc == other.working_loc
+
     @property
     def working_loc(self) -> Tuple[int, int]:
         """Location tuple for the working position."""
