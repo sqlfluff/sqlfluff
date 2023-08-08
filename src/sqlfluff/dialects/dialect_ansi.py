@@ -2485,6 +2485,7 @@ class LimitClauseSegment(BaseSegment):
                 Ref("NumericLiteralSegment"),
                 # An arbitrary expression
                 Ref("ExpressionSegment"),
+                "ALL"
             )
         ),
         OneOf(
