@@ -113,6 +113,35 @@ class DbtTemplater(JinjaTemplater):
         """Gets the dbt version."""
         return int(self._dbt_version.major), int(self._dbt_version.minor)
 
+    def try_silence_dbt_logs(self) -> None:
+        """Attempt to silence dbt logs.
+
+        During normal operation dbt is likely to log output such as:
+
+        .. code-block::
+
+           14:13:10  Registered adapter: snowflake=1.6.0
+
+        This is emitted by dbt directly to stdout/stderr, and so for us
+        to silence it (e.g. when outputting to json or yaml) we need to
+        reach into the internals of dbt and silence it directly.
+
+        https://github.com/sqlfluff/sqlfluff/issues/5054
+
+        NOTE: We wrap this in a try clause so that if the API changes
+        within dbt that we don't get a direct fail. This was tested on
+        dbt-code==1.6.0.
+        """
+        # First check whether we need to silence the logs. If a formatter
+        # is present then assume that it's not a problem
+        if not self.formatter:
+            try:
+                from dbt.events.functions import cleanup_event_logger
+
+                cleanup_event_logger()
+            except ImportError:
+                pass
+
     @cached_property
     def dbt_config(self):
         """Loads the dbt config."""
@@ -120,6 +149,10 @@ class DbtTemplater(JinjaTemplater):
         from dbt.config import read_user_config
         from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
         from dbt.adapters.factory import register_adapter
+
+        # Attempt to silence internal logging at this point.
+        # https://github.com/sqlfluff/sqlfluff/issues/5054
+        self.try_silence_dbt_logs()
 
         if self.dbt_version_tuple >= (1, 5):
             user_config = None
