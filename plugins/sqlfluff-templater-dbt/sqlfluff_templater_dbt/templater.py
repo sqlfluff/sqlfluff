@@ -113,6 +113,35 @@ class DbtTemplater(JinjaTemplater):
         """Gets the dbt version."""
         return int(self._dbt_version.major), int(self._dbt_version.minor)
 
+    def try_silence_dbt_logs(self) -> None:
+        """Attempt to silence dbt logs.
+
+        During normal operation dbt is likely to log output such as:
+
+        .. code-block::
+
+           14:13:10  Registered adapter: snowflake=1.6.0
+
+        This is emitted by dbt directly to stdout/stderr, and so for us
+        to silence it (e.g. when outputting to json or yaml) we need to
+        reach into the internals of dbt and silence it directly.
+
+        https://github.com/sqlfluff/sqlfluff/issues/5054
+
+        NOTE: We wrap this in a try clause so that if the API changes
+        within dbt that we don't get a direct fail. This was tested on
+        dbt-code==1.6.0.
+        """
+        # First check whether we need to silence the logs. If a formatter
+        # is present then assume that it's not a problem
+        if not self.formatter:
+            try:
+                from dbt.events.functions import cleanup_event_logger
+
+                cleanup_event_logger()
+            except ImportError:
+                pass
+
     @cached_property
     def dbt_config(self):
         """Loads the dbt config."""
@@ -120,6 +149,10 @@ class DbtTemplater(JinjaTemplater):
         from dbt.config import read_user_config
         from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
         from dbt.adapters.factory import register_adapter
+
+        # Attempt to silence internal logging at this point.
+        # https://github.com/sqlfluff/sqlfluff/issues/5054
+        self.try_silence_dbt_logs()
 
         if self.dbt_version_tuple >= (1, 5):
             user_config = None
@@ -172,6 +205,16 @@ class DbtTemplater(JinjaTemplater):
         """Loads the dbt manifest."""
         from dbt.exceptions import DbtProjectError
 
+        # NOTE: The uninstalled packages error only exists from around
+        # dbt 1.4 onwards. Before that we'll just get a slightly uglier
+        # error - not a breaking issue.
+        try:
+            from dbt.exceptions import UninstalledPackagesFoundError
+
+            summary_errors = (DbtProjectError, UninstalledPackagesFoundError)
+        except ImportError:
+            summary_errors = (DbtProjectError,)
+
         # Set dbt not to run tracking. We don't load
         # a full project and so some tracking routines
         # may fail.
@@ -192,8 +235,8 @@ class DbtTemplater(JinjaTemplater):
             if self.dbt_version_tuple < (1, 4):
                 os.chdir(self.project_dir)
             self.dbt_manifest = ManifestLoader.get_full_manifest(self.dbt_config)
-        except DbtProjectError as err:  # pragma: no cover
-            raise SQLFluffUserError(f"DbtProjectError: {err}")
+        except summary_errors as err:  # pragma: no cover
+            raise SQLFluffUserError(f"{err.__class__.__name__}: {err}")
         finally:
             if self.dbt_version_tuple < (1, 4):
                 os.chdir(old_cwd)
@@ -587,7 +630,10 @@ class DbtTemplater(JinjaTemplater):
                     manifest=self.dbt_manifest,
                 )
             except Exception as err:  # pragma: no cover
-                templater_logger.exception(
+                # NOTE: We use .error() here rather than .exception() because
+                # for most users, the trace which accompanies the latter isn't
+                # particularly helpful.
+                templater_logger.error(
                     "Fatal dbt compilation error on %s. This occurs most often "
                     "during incorrect sorting of ephemeral models before linting. "
                     "Please report this error on github at "
@@ -599,7 +645,11 @@ class DbtTemplater(JinjaTemplater):
                 raise SQLFluffSkipFile(  # pragma: no cover
                     f"Skipped file {fname} because dbt raised a fatal "
                     f"exception during compilation: {err!s}"
-                ) from err
+                )
+                # NOTE: We don't do a `raise ... from err` here because the
+                # full trace is not useful for most users. In debugging
+                # issues here it may be valuable to add the `from err` part
+                # after the above `raise` statement.
             finally:
                 # Undo the monkeypatch.
                 Environment.from_string = old_from_string
