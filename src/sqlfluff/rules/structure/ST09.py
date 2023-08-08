@@ -272,10 +272,10 @@ class Rule_ST09(BaseRule):
             return False
         if (
             segment_list[0].type == "column_reference"
-            and "." in [child.raw for child in segment_list[0].get_children("dot")]
+            and len(segment_list[0].get_children("dot")) > 0
             and segment_list[1].type == "comparison_operator"
             and segment_list[2].type == "column_reference"
-            and "." in [child.raw for child in segment_list[0].get_children("dot")]
+            and len(segment_list[2].get_children("dot")) > 0
         ):
             return True
         return False
