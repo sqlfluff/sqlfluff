@@ -20,7 +20,8 @@ class Rule_ST09(BaseRule):
 
     Subconditions that do not follow that pattern are ignored by this rule.
 
-    Note that this rule currently does not support joins in the ``WHERE`` clause.
+    .. note::
+       Joins in ``WHERE`` clauses are currently not supported by this rule.
 
     **Anti-pattern**
 
@@ -36,7 +37,8 @@ class Rule_ST09(BaseRule):
             bar.c
         from foo
         left join bar
-            -- This subcondition does not list the table referenced earlier first:
+            -- This subcondition does not list
+            -- the table referenced earlier first:
             on bar.a = foo.a
             -- Neither does this subcondition:
             and bar.b = foo.b
