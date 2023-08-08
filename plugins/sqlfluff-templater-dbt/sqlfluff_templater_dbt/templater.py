@@ -177,6 +177,7 @@ class DbtTemplater(JinjaTemplater):
         # error - not a breaking issue.
         try:
             from dbt.exceptions import UninstalledPackagesFoundError
+
             summary_errors = (DbtProjectError, UninstalledPackagesFoundError)
         except ImportError:
             summary_errors = (DbtProjectError,)
