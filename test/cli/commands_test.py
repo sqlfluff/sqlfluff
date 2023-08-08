@@ -1946,8 +1946,8 @@ class TestProgressBars:
 multiple_expected_output = """==== finding fixable violations ====
 == [test/fixtures/linter/multiple_sql_errors.sql] FAIL
 L:  12 | P:   1 | LT02 | Expected indent of 4 spaces. [layout.indent]
-L:  40 | P:  10 | ST09 | Joins should list the table referenced earlier/later
-                       | first. [structure.first_table]
+L:  40 | P:  10 | ST09 | Joins should list the table referenced earlier first.
+                       | [structure.first_table]
 ==== fixing violations ====
 2 fixable linting violations found
 Are you sure you wish to attempt to fix these? [Y/n] ...

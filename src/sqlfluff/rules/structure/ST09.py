@@ -240,7 +240,14 @@ class Rule_ST09(BaseRule):
 
         # STEP 5.b.
         else:
-            return LintResult(anchor=context.segment, fixes=fixes)
+            return LintResult(
+                anchor=context.segment,
+                fixes=fixes,
+                description=(
+                    "Joins should list the table referenced "
+                    f"{self.preferred_first_table_in_join_clause} first."
+                ),
+            )
 
     @staticmethod
     def _split_list_by_segment_type(
