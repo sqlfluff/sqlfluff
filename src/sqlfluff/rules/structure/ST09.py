@@ -1,9 +1,13 @@
 """Implementation of Rule ST09."""
-from typing import Optional, Tuple, List, Any
+from typing import Optional, Tuple, List, cast
 from sqlfluff.core.parser.segments.raw import BaseSegment, SymbolSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import Segments, FunctionalContext
+from sqlfluff.dialects.dialect_ansi import (
+    FromExpressionElementSegment,
+    JoinClauseSegment,
+)
 
 
 class Rule_ST09(BaseRule):
@@ -102,21 +106,22 @@ class Rule_ST09(BaseRule):
         if len(join_on_conditions) == 0:
             return None
 
-        from_expression__from_expression_element: Any = children.recursive_crawl(
-            "from_expression_element"
-        )[0]
-
         # the first alias comes from the from clause
-        table_aliases.append(
-            from_expression__from_expression_element.get_eventual_alias().ref_str
+        from_expression_alias: str = (
+            cast(
+                FromExpressionElementSegment,
+                children.recursive_crawl("from_expression_element")[0],
+            )
+            .get_eventual_alias()
+            .ref_str
         )
 
-        # the rest of the aliases come from the different join clauses
-        join_clause_list: List[Any] = [clause for clause in join_clauses]
+        table_aliases.append(from_expression_alias)
 
+        # the rest of the aliases come from the different join clauses
         join_clause_aliases: List[str] = [
-            join_clause_list[i].get_eventual_aliases()[0][1].ref_str
-            for i in range(len(join_clause_list))
+            cast(JoinClauseSegment, join_clause).get_eventual_aliases()[0][1].ref_str
+            for join_clause in [clause for clause in join_clauses]
         ]
 
         table_aliases = table_aliases + join_clause_aliases
