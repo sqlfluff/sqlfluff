@@ -162,7 +162,9 @@ class Rule_ST09(BaseRule):
         column_operator_column_subconditions: List[List[BaseSegment]] = [
             subcondition
             for subcondition in subconditions_flattened
-            if self._is_column_operator_column_sequence(subcondition)
+            if self._is_qualified_column_operator_qualified_column_sequence(
+                subcondition
+            )
         ]
 
         # STEP 4.
@@ -264,7 +266,9 @@ class Rule_ST09(BaseRule):
         return new_list
 
     @staticmethod
-    def _is_column_operator_column_sequence(segment_list: List[BaseSegment]) -> bool:
+    def _is_qualified_column_operator_qualified_column_sequence(
+        segment_list: List[BaseSegment],
+    ) -> bool:
         # Check if list is made up of a qualified column_reference segment,
         # a comparison_operator segment and another qualified column_reference segment
         if len(segment_list) != 3:
