@@ -2479,9 +2479,24 @@ class LimitClauseSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "LIMIT",
         Indent,
-        Ref("NumericLiteralSegment"),
+        OptionallyBracketed(
+            OneOf(
+                # Allow a number by itself OR
+                Ref("NumericLiteralSegment"),
+                # An arbitrary expression
+                Ref("ExpressionSegment"),
+            )
+        ),
         OneOf(
-            Sequence("OFFSET", Ref("NumericLiteralSegment")),
+            Sequence(
+                "OFFSET",
+                OneOf(
+                    # Allow a number by itself OR
+                    Ref("NumericLiteralSegment"),
+                    # An arbitrary expression
+                    Ref("ExpressionSegment"),
+                ),
+            ),
             Sequence(
                 Ref("CommaSegment"),
                 Ref("NumericLiteralSegment"),
