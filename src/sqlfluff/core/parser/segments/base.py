@@ -1241,7 +1241,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # Build the step.
             step = PathStep(self, idx, len(self.segments), self._code_indices)
             # Have we found the target?
-            if seg is midpoint:
+            # NOTE: Check for _equality_ not _identity_ here as that's most reliable.
+            if seg == midpoint:
                 return [step] + lower_path
             # Is there a path to the target?
             res = seg.path_to(midpoint)
