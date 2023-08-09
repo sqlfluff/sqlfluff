@@ -1,5 +1,6 @@
 """Test the BaseSegment class."""
 
+import pickle
 import pytest
 
 from sqlfluff.core.parser import (
@@ -207,3 +208,14 @@ def test__parser__base_segments_base_compare(DummySegment, DummyAuxSegment):
     assert ds1 == ds2
     # Check a different match on the same details are not the same
     assert ds1 != dsa2
+
+
+def test__parser__base_segments_pickle_safe(raw_seg_list):
+    """Test pickling and unpickling of BaseSegment."""
+    test_seg = BaseSegment([BaseSegment(raw_seg_list)])
+    test_seg.populate_parents()
+    pickled = pickle.dumps(test_seg)
+    result_seg = pickle.loads(pickled)
+    assert test_seg == result_seg
+    # Check specifically the treatment of the parent position.
+    assert result_seg.segments[0].get_parent() is result_seg

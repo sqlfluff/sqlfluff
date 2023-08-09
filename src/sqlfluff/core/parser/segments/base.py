@@ -341,6 +341,18 @@ class BaseSegment(metaclass=SegmentMetaclass):
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: ({self.pos_marker})>"
 
+    def __getstate__(self):
+        s = self.__dict__.copy()
+        # Kill the parent ref. It won't pickle well.
+        s["_parent"] = None
+        return s
+
+    def __setstate__(self, state):
+        self.__dict__ = state.copy()
+        # Once state is ingested - repopulate, NOT recursing.
+        # Child segments will do it for themselves on unpickling.
+        self.populate_parents(recurse=False)
+
     # ################ PRIVATE PROPERTIES
 
     @property
@@ -867,12 +879,13 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     # ################ PUBLIC INSTANCE METHODS
 
-    def populate_parents(self) -> None:
+    def populate_parents(self, recurse=True) -> None:
         """Populate parents for all segments."""
         for seg in self.segments:
             seg.set_parent(self)
-            # Recurse
-            seg.populate_parents()
+            # Recurse if not disabled
+            if recurse:
+                seg.populate_parents(recurse=recurse)
 
     def set_parent(self, parent: "BaseSegment") -> None:
         """Set the weak reference to the parent.
