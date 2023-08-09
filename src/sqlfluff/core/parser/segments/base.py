@@ -265,7 +265,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # _preface_modifier used in ._preface()
     _preface_modifier: str = ""
     # Optional reference to the parent. Stored as a weakref.
-    _parent: Optional[weakref.ReferenceType["BaseSegment"]] = None
+    _parent: Optional[weakref.ReferenceType] = None
 
     def __init__(
         self,
@@ -913,7 +913,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         _parent = self._parent()
         if not _parent or self not in _parent.segments:
             return None
-        return _parent
+        return cast(BaseSegment, _parent)
 
     def get_type(self) -> str:
         """Returns the type of this segment as a string."""
