@@ -14,6 +14,20 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This is primarily a bugfix release for 2.2.0 which introduced
+a bug in the `exit_code` returned by linting commands which ignored errors
+while setting `processes > 1`.
+
+In addition to that this release introduces bugfixes for:
+- Errors raised by two specific `dbt` exceptions.
+- Issues with unwanted logging output when using `-f yaml` or `-f json`
+  alongside the `dbt` templater.
+
+This also introduces dialect improvements for Oracle and for `LIMIT` clauses.
+
+Thanks also to [@adityapat3l](https://github.com/adityapat3l) who made their
+first contribution as part of this release! 🎉🎉🎉
+
 ## What’s Changed
 
 * Split apart the grammar tests [#5078](https://github.com/sqlfluff/sqlfluff/pull/5078) [@alanmcruickshank](https://github.com/alanmcruickshank)
