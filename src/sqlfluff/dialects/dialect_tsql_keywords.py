@@ -554,5 +554,5 @@ UNRESERVED_KEYWORDS = [
     "XMLSCHEMA",
     "XSINIL",
     "ZONE",
-    "DAY", 
+    "DAY",
 ]
