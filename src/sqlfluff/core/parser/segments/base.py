@@ -265,7 +265,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # _preface_modifier used in ._preface()
     _preface_modifier: str = ""
     # Optional reference to the parent. Stored as a weakref.
-    _parent: Optional[weakref.ReferenceType["BaseSegment"]]
+    _parent: Optional[weakref.ReferenceType["BaseSegment"]] = None
 
     def __init__(
         self,
@@ -308,6 +308,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def __eq__(self, other):
         # NB: this should also work for RawSegment
+        if not isinstance(other, BaseSegment):
+            return False  # pragma: no cover
+        # If the uuids match, then we can easily return early.
+        if self.uuid == other.uuid:
+            return True
         return (
             # Same class NAME. (could be constructed elsewhere)
             self.__class__.__name__ == other.__class__.__name__
@@ -375,6 +380,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
     def is_code(self) -> bool:
         """Return True if this segment contains any code."""
         return any(seg.is_code for seg in self.segments)
+
+    @cached_property
+    def _code_indices(self) -> Tuple[int, ...]:
+        """The indices of code elements.
+
+        This is used in the path_to algorithm for tree traversal.
+        """
+        return tuple(idx for idx, seg in enumerate(self.segments) if seg.is_code)
 
     @cached_property
     def is_comment(self) -> bool:  # pragma: no cover TODO?
@@ -831,8 +844,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
             "first_non_whitespace_segment_raw_upper",
             "source_fixes",
             "full_type_set",
-            "descendant_type_set ",
-            "direct_descendant_type_set ",
+            "descendant_type_set",
+            "direct_descendant_type_set",
+            "_code_indices",
         ]:
             self.__dict__.pop(key, None)
 
@@ -1158,32 +1172,68 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         Technically this could be seen as a "half open interval" of the path between
         two segments: in that it includes the root segment, but not the leaf.
+
+        We first use any existing parent references to work upward, and then if that
+        doesn't take us far enough we fill in from the top (setting any missing
+        references as we go). This tries to be as efficient in that process as
+        possible.
         """
         # Return empty if they are the same segment.
         if self is other:
             return []  # pragma: no cover
 
-        # Are we in the right ballpark?
-        # NOTE: Comparisons have a higher precedence than `not`.
-        if not self.get_start_loc() <= other.get_start_loc() <= self.get_end_loc():
-            return []
-
         # Do we have any child segments at all?
         if not self.segments:
             return []
 
-        # Check code idxs
-        code_idxs = tuple(idx for idx, seg in enumerate(self.segments) if seg.is_code)
+        # Identifying the highest parent we can using any preset parent values.
+        midpoint = other
+        lower_path = []
+        while True:
+            _higher = midpoint.get_parent()
+            # Search until we either find this segment or we run out of road.
+            if not _higher or _higher is self:
+                break
+            lower_path.append(
+                PathStep(
+                    _higher,
+                    _higher.segments.index(midpoint),
+                    len(_higher.segments),
+                    _higher._code_indices,
+                )
+            )
+            midpoint = _higher
+
+        # Reverse the path so far
+        lower_path.reverse()
+
+        # Have we already found the parent?
+        if midpoint is self:
+            return lower_path
+        # Have we gone all the way up to the file segment?
+        elif isinstance(midpoint, BaseFileSegment):
+            return []
+        # Are we in the right ballpark?
+        # NOTE: Comparisons have a higher precedence than `not`.
+        elif not self.get_start_loc() <= midpoint.get_start_loc() <= self.get_end_loc():
+            return []
+
+        # From here, we've worked "up" as far as we can, we now work "down".
+        # When working down, we only need to go as far as the `midpoint`.
+
         # Check through each of the child segments
         for idx, seg in enumerate(self.segments):
-            step = PathStep(self, idx, len(self.segments), code_idxs)
+            # Set the parent if it's not already set.
+            seg.set_parent(self)
+            # Build the step.
+            step = PathStep(self, idx, len(self.segments), self._code_indices)
             # Have we found the target?
-            if seg is other:
-                return [step]
+            if seg is midpoint:
+                return [step] + lower_path
             # Is there a path to the target?
-            res = seg.path_to(other)
+            res = seg.path_to(midpoint)
             if res:
-                return [step] + res
+                return [step] + res + lower_path
 
         # Not found.
         return []  # pragma: no cover
