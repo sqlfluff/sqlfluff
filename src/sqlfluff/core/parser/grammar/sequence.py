@@ -141,7 +141,9 @@ class Sequence(BaseGrammar):
                         # If it's not active, skip it.
                         break
                     # Then if it _is_ active. Match against it.
-                    with parse_context.deeper_match() as ctx:
+                    with parse_context.deeper_match(
+                        name=f"Sequence-Meta-@{idx}"
+                    ) as ctx:
                         meta_match = elem.match(unmatched_segments, ctx)
                     # Did it match and leave the unmatched portion the same?
                     if (
@@ -188,7 +190,7 @@ class Sequence(BaseGrammar):
 
                 # We've already dealt with potential whitespace above, so carry on
                 # to matching
-                with parse_context.deeper_match() as ctx:
+                with parse_context.deeper_match(name=f"Sequence-@{idx}") as ctx:
                     elem_match = elem.match(mid_seg, parse_context=ctx)
 
                 if not elem_match.has_match():
@@ -348,7 +350,7 @@ class Bracketed(Sequence):
         # Otherwise try and match the segments directly.
         else:
             # Look for the first bracket
-            with parse_context.deeper_match() as ctx:
+            with parse_context.deeper_match(name="Bracketed-First") as ctx:
                 start_match = start_bracket.match(seg_buff, parse_context=ctx)
             if start_match:
                 seg_buff = start_match.unmatched_segments
@@ -358,7 +360,9 @@ class Bracketed(Sequence):
 
             # Look for the closing bracket.
             # Within the brackets, clear any inherited terminators.
-            with parse_context.deeper_match(clear_terminators=True) as ctx:
+            with parse_context.deeper_match(
+                name="Bracketed-End", clear_terminators=True
+            ) as ctx:
                 content_segs, end_match, _ = self._bracket_sensitive_look_ahead_match(
                     segments=seg_buff,
                     matchers=[end_bracket],
@@ -410,7 +414,9 @@ class Bracketed(Sequence):
 
         # Match the content using super. Sequence will interpret the content of the
         # elements. Within the brackets, clear any inherited terminators.
-        with parse_context.deeper_match(clear_terminators=True) as ctx:
+        with parse_context.deeper_match(
+            name="Bracketed", clear_terminators=True
+        ) as ctx:
             content_match = super().match(content_segs, ctx)
 
         # We require a complete match for the content (hopefully for obvious reasons)
