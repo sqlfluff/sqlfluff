@@ -1203,8 +1203,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
         lower_path = []
         while True:
             _higher = midpoint.get_parent()
-            # Search until we either find this segment or we run out of road.
-            if not _higher or _higher == self:
+            # If we've run out of parents, stop for now.
+            if not _higher:
                 break
             lower_path.append(
                 PathStep(
@@ -1215,6 +1215,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 )
             )
             midpoint = _higher
+            # If we're found the target segment we can also stop.
+            if midpoint == self:
+                break
 
         # Reverse the path so far
         lower_path.reverse()
