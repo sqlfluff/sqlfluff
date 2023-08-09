@@ -22,7 +22,7 @@ class SegmentGenerator:
     inheritance.
     """
 
-    def __init__(self, func: Callable[[Dialect], Matchable]) -> None:
+    def __init__(self, func: Callable[["Dialect"], "Matchable"]) -> None:
         self.func = func
 
     # For all functions, use the function call
