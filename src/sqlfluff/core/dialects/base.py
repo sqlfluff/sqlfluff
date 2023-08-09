@@ -1,7 +1,8 @@
 """Defines the base dialect class."""
 
 import sys
-from typing import Set, Tuple, Union, Type, Dict, Any, Optional, List, cast
+from typing import Set, Tuple, Union, Type, Dict, Any, Optional, List, cast, overload
+from typing_extensions import Literal
 
 from sqlfluff.core.parser import (
     KeywordSegment,
@@ -34,7 +35,7 @@ class Dialect:
         root_segment_name: str,
         lexer_matchers: Optional[List[LexerType]] = None,
         library: Optional[Dict[str, DialectElementType]] = None,
-        sets: Optional[Dict[str, Set[str]]] = None,
+        sets: Optional[Dict[str, Set[Union[str, Tuple[str, str, str, bool]]]]] = None,
         inherits_from: Optional[str] = None,
     ) -> None:
         self._library = library or {}
@@ -90,7 +91,17 @@ class Dialect:
         expanded_copy.expanded = True
         return expanded_copy
 
-    def sets(self, label: str) -> Set[Union[str, Tuple[str, str, str, bool]]]:
+    @overload
+    def sets(
+        self, label: Literal["bracket_pairs", "angle_bracket_pairs"]
+    ) -> Set[Tuple[str, str, str, bool]]:
+        ...
+
+    @overload
+    def sets(self, label: str) -> Set[str]:
+        ...
+
+    def sets(self, label):
         """Allows access to sets belonging to this dialect.
 
         These sets belong to the dialect and are copied for sub
