@@ -69,7 +69,6 @@ class Rule_AL08(BaseRule):
         `_lint_references_and_aliases` method.
         """
         self.case_sensitive: bool
-        self.logger.warning(f"CONFIG: {self.case_sensitive}")
         assert context.segment.is_type("select_clause")
 
         used_aliases: Dict[str, BaseSegment] = {}
@@ -103,7 +102,6 @@ class Rule_AL08(BaseRule):
             _key = column_alias.raw if self.case_sensitive else column_alias.raw_upper
             # Strip any quote tokens
             _key = _key.strip("\"'`")
-            self.logger.warning(f"KEY: {_key}")
             # Otherwise check whether it's been used before
             if _key in used_aliases:
                 # It has.
