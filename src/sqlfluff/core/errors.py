@@ -47,9 +47,15 @@ class SQLBaseError(ValueError):
             self.line_pos = line_pos
         super().__init__(self.desc())
 
+    def __eq__(self, other) -> bool:
+        """Errors compare equal if they are the same type and same content."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
     def __reduce__(
         self,
-    ) -> Tuple[Type["SQLBaseError"], Tuple[Any, ...]]:  # pragma: no cover
+    ) -> Tuple[Type["SQLBaseError"], Tuple[Any, ...]]:
         """Prepare the SQLBaseError for pickling."""
         return type(self), (
             self.description,
@@ -169,6 +175,9 @@ class SQLParseError(SQLBaseError):
         segment: Optional["BaseSegment"] = None,
         line_no: int = 0,
         line_pos: int = 0,
+        ignore: bool = False,
+        fatal: bool = False,
+        warning: Optional[bool] = None,
     ) -> None:
         # Store the segment on creation - we might need it later
         self.segment = segment
@@ -177,13 +186,24 @@ class SQLParseError(SQLBaseError):
             pos=segment.pos_marker if segment else None,
             line_no=line_no,
             line_pos=line_pos,
+            ignore=ignore,
+            fatal=fatal,
+            warning=warning,
         )
 
     def __reduce__(
         self,
-    ) -> Tuple[Type["SQLParseError"], Tuple[Any, ...]]:  # pragma: no cover
+    ) -> Tuple[Type["SQLParseError"], Tuple[Any, ...]]:
         """Prepare the SQLParseError for pickling."""
-        return type(self), (self.description, self.segment, self.line_no, self.line_pos)
+        return type(self), (
+            self.description,
+            self.segment,
+            self.line_no,
+            self.line_pos,
+            self.ignore,
+            self.fatal,
+            self.warning,
+        )
 
 
 class SQLLintError(SQLBaseError):
@@ -208,20 +228,34 @@ class SQLLintError(SQLBaseError):
         segment: "BaseSegment",
         rule: "BaseRule",
         fixes: Optional[List["LintFix"]] = None,
+        ignore: bool = False,
+        fatal: bool = False,
+        warning: Optional[bool] = None,
     ) -> None:
-        # Something about position, message and fix?
         self.segment = segment
         self.rule = rule
         self.fixes = fixes or []
         super().__init__(
-            description=description, pos=segment.pos_marker if segment else None
+            description=description,
+            pos=segment.pos_marker if segment else None,
+            ignore=ignore,
+            fatal=fatal,
+            warning=warning,
         )
 
     def __reduce__(
         self,
-    ) -> Tuple[Type["SQLLintError"], Tuple[Any, ...]]:  # pragma: no cover
+    ) -> Tuple[Type["SQLLintError"], Tuple[Any, ...]]:
         """Prepare the SQLLintError for pickling."""
-        return type(self), (self.description, self.segment, self.rule, self.fixes)
+        return type(self), (
+            self.description,
+            self.segment,
+            self.rule,
+            self.fixes,
+            self.ignore,
+            self.fatal,
+            self.warning,
+        )
 
     @property
     def fixable(self) -> bool:
