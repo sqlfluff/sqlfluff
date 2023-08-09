@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
     from sqlfluff.core.dialects.base import Dialect
-    from sqlfluff.core.parser.grammar.base import BaseGrammar
+    from sqlfluff.core.parser.matchable import Matchable
 
 
 class SegmentGenerator:
@@ -22,11 +22,11 @@ class SegmentGenerator:
     inheritance.
     """
 
-    def __init__(self, func: Callable) -> None:
+    def __init__(self, func: Callable[[Dialect], Matchable]) -> None:
         self.func = func
 
     # For all functions, use the function call
-    def expand(self, dialect: "Dialect") -> "BaseGrammar":
+    def expand(self, dialect: "Dialect") -> "Matchable":
         """Expand this object into its true dialect object.
 
         The inner function is passed an instance of the current dialect

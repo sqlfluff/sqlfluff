@@ -1,7 +1,7 @@
 """Defines the base dialect class."""
 
 import sys
-from typing import Set, Union, Type, Dict, Any, Optional, List, cast
+from typing import Set, Tuple, Union, Type, Dict, Any, Optional, List, cast
 
 from sqlfluff.core.parser import (
     KeywordSegment,
@@ -82,14 +82,15 @@ class Dialect:
             "reserved_keywords",
         ]:  # e.g. reserved_keywords, (JOIN, ...)
             # Make sure the values are available as KeywordSegments
-            for kw in expanded_copy.sets(keyword_set):
+            keyword_sets = cast(Set[str], expanded_copy.sets(keyword_set))
+            for kw in keyword_sets:
                 n = kw.capitalize() + "KeywordSegment"
                 if n not in expanded_copy._library:
                     expanded_copy._library[n] = StringParser(kw.lower(), KeywordSegment)
         expanded_copy.expanded = True
         return expanded_copy
 
-    def sets(self, label: str) -> Set[str]:
+    def sets(self, label: str) -> Set[Union[str, Tuple[str, str, str, bool]]]:
         """Allows access to sets belonging to this dialect.
 
         These sets belong to the dialect and are copied for sub
