@@ -16,7 +16,7 @@ test_fail_alias_refs:
   fail_str: |
     select
       foo,
-      b as foo,
+      b as foo
 
 test_fail_locs:
   fail_str: |
@@ -42,3 +42,29 @@ test_fail_locs:
       line_no: 6
       line_pos: 5
       name: aliasing.unique.column
+
+test_fail_alias_quoted:
+  fail_str: |
+    select
+      foo,
+      b as "foo"
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_alias_case:
+  fail_str: |
+    select
+      foo,
+      b as FOO
+
+test_pass_alias_case:
+  pass_str: |
+    select
+      foo,
+      b as FOO
+
+  configs:
+    rules:
+      aliasing.unique.column:
+        case_sensitive: true

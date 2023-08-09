@@ -57,6 +57,7 @@ class Rule_AL08(BaseRule):
     aliases = ()
     groups: Tuple[str, ...] = ("all", "core", "aliasing", "aliasing.unique")
     crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
+    config_keywords = ["case_sensitive"]
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         """Get References and Aliases and allow linting.
@@ -67,6 +68,8 @@ class Rule_AL08(BaseRule):
         Subclasses of this rule should override the
         `_lint_references_and_aliases` method.
         """
+        self.case_sensitive: bool
+        self.logger.warning(f"CONFIG: {self.case_sensitive}")
         assert context.segment.is_type("select_clause")
 
         used_aliases: Dict[str, BaseSegment] = {}
@@ -96,10 +99,15 @@ class Rule_AL08(BaseRule):
             if not column_alias:
                 continue
 
+            # Apply case sensitivity
+            _key = column_alias.raw if self.case_sensitive else column_alias.raw_upper
+            # Strip any quote tokens
+            _key = _key.strip("\"'`")
+            self.logger.warning(f"KEY: {_key}")
             # Otherwise check whether it's been used before
-            if column_alias.raw in used_aliases:
+            if _key in used_aliases:
                 # It has.
-                previous = used_aliases[column_alias.raw]
+                previous = used_aliases[_key]
                 assert previous.pos_marker
                 violations.append(
                     LintResult(
@@ -113,6 +121,6 @@ class Rule_AL08(BaseRule):
                 )
             else:
                 # It's not, save it to check against others.
-                used_aliases[column_alias.raw] = clause_element
+                used_aliases[_key] = clause_element
 
         return violations

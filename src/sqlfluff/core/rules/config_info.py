@@ -46,6 +46,10 @@ STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
             "Run this rule even for dialects where this rule is disabled by default."
         ),
     },
+    "case_sensitive": {
+        "validation": [True, False],
+        "definition": ("Whether this rule is case sensitive or not."),
+    },
     "unquoted_identifiers_policy": {
         "validation": ["all", "aliases", "column_aliases"],
         "definition": "Types of unquoted identifiers to flag violations for.",
