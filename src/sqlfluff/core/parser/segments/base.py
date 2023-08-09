@@ -288,10 +288,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         self.pos_marker = pos_marker
         self.segments: Tuple["BaseSegment", ...] = segments
-        # Work through the new segments and populate parent references
-        # where we can.
-        for segment in self.segments:
-            segment.set_parent(self)
 
         # A cache variable for expandable
         self._is_expandable: Optional[bool] = None
@@ -857,9 +853,20 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     # ################ PUBLIC INSTANCE METHODS
 
+    def populate_parents(self) -> None:
+        """Populate parents for all segments."""
+        for seg in self.segments:
+            seg.set_parent(self)
+            # Recurse
+            seg.populate_parents()
+
     def set_parent(self, parent: "BaseSegment") -> None:
-        """Set the weak reference to the parent."""
-        assert self in parent.segments, "Tried to set invalid parent."
+        """Set the weak reference to the parent.
+
+        NOTE: Don't validate on set, because we might not have fully
+        initialised the parent yet (because we call this method during
+        the instantiation of the parent).
+        """
         self._parent = weakref.ref(parent)
 
     def get_parent(self) -> Optional["BaseSegment"]:
@@ -1293,6 +1300,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     self.segments,
                     parse_context=ctx,
                 )
+            # Once parsed, populate any parent relationships.
+            for _seg in self.segments:
+                _seg.populate_parents()
 
         return (self,)
 
