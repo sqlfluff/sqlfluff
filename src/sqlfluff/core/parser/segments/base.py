@@ -1204,7 +1204,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         while True:
             _higher = midpoint.get_parent()
             # Search until we either find this segment or we run out of road.
-            if not _higher or _higher is self:
+            if not _higher or _higher == self:
                 break
             lower_path.append(
                 PathStep(
