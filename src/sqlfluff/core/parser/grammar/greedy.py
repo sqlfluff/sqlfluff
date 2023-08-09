@@ -68,7 +68,7 @@ class GreedyUntil(BaseGrammar):
             return MatchResult.from_matched(segments)
 
         while True:
-            with parse_context.deeper_match() as ctx:
+            with parse_context.deeper_match(name="GreedyUntil") as ctx:
                 pre, mat, matcher = cls._bracket_sensitive_look_ahead_match(
                     seg_buff, matchers, parse_context=ctx
                 )
@@ -192,7 +192,7 @@ class StartsWith(GreedyUntil):
             # We've trying to match on a sequence of segments which contain no code.
             # That means this isn't a match.
             return MatchResult.from_unmatched(segments)  # pragma: no cover TODO?
-        with parse_context.deeper_match() as ctx:
+        with parse_context.deeper_match(name="StartsWith") as ctx:
             match = self.target.match(
                 segments=segments[first_code_idx:], parse_context=ctx
             )
