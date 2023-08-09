@@ -288,7 +288,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         self.pos_marker = pos_marker
         self.segments: Tuple["BaseSegment", ...] = segments
-
         # A cache variable for expandable
         self._is_expandable: Optional[bool] = None
         # Tracker for matching when things start moving.
@@ -1221,7 +1220,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         lower_path.reverse()
 
         # Have we already found the parent?
-        if midpoint is self:
+        if midpoint == self:
             return lower_path
         # Have we gone all the way up to the file segment?
         elif isinstance(midpoint, BaseFileSegment):
