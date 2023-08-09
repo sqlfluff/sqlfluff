@@ -1227,7 +1227,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             return lower_path
         # Have we gone all the way up to the file segment?
         elif isinstance(midpoint, BaseFileSegment):
-            return []
+            return []  # pragma: no cover
         # Are we in the right ballpark?
         # NOTE: Comparisons have a higher precedence than `not`.
         elif not self.get_start_loc() <= midpoint.get_start_loc() <= self.get_end_loc():
