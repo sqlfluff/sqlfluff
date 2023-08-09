@@ -29,6 +29,7 @@ from typing import (
 )
 import logging
 from uuid import UUID, uuid4
+import weakref
 
 from tqdm import tqdm
 
@@ -263,6 +264,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
     _cache_key: str
     # _preface_modifier used in ._preface()
     _preface_modifier: str = ""
+    # Optional reference to the parent. Stored as a weakref.
+    _parent: Optional[weakref.ReferenceType["BaseSegment"]]
 
     def __init__(
         self,
@@ -285,6 +288,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         self.pos_marker = pos_marker
         self.segments: Tuple["BaseSegment", ...] = segments
+        # Work through the new segments and populate parent references
+        # where we can.
+        for segment in self.segments:
+            segment.set_parent(self)
+
         # A cache variable for expandable
         self._is_expandable: Optional[bool] = None
         # Tracker for matching when things start moving.
@@ -849,6 +857,30 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     # ################ PUBLIC INSTANCE METHODS
 
+    def set_parent(self, parent: "BaseSegment") -> None:
+        """Set the weak reference to the parent."""
+        assert self in parent.segments, "Tried to set invalid parent."
+        self._parent = weakref.ref(parent)
+
+    def get_parent(self) -> Optional["BaseSegment"]:
+        """Get the parent segment, with some validation.
+
+        This is provided as a performance optimisation when searching
+        through the syntax tree. Any methods which depend on this should
+        have an alternative way of assessing position, and ideally also
+        set the parent of any segments found without them.
+
+        NOTE: We only store a weak reference to the parent so it might
+        not be present. We also validate here that it's _still_ the parent
+        and potentially also return None if those checks fail.
+        """
+        if not self._parent:
+            return None
+        _parent = self._parent()
+        if not _parent or self not in _parent.segments:
+            return None
+        return _parent
+
     def get_type(self) -> str:
         """Returns the type of this segment as a string."""
         return self.type
@@ -1343,6 +1375,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                                     # of a create_before/create_after pair, also add
                                     # this segment before the edit.
                                     seg_buffer.append(seg)
+                                    seg.set_parent(self)
 
                                 # We're doing a replacement (it could be a single
                                 # segment or an iterable)
@@ -1350,6 +1383,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                                 consumed_pos = False
                                 for s in f.edit:
                                     seg_buffer.append(s)
+                                    s.set_parent(self)
                                     # If one of them has the same raw representation
                                     # then the first that matches gets to take the
                                     # original position marker.
@@ -1365,6 +1399,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                                     # in the case of a creation before, also add this
                                     # segment on the end
                                     seg_buffer.append(seg)
+                                    seg.set_parent(self)
 
                             else:  # pragma: no cover
                                 raise ValueError(
@@ -1374,6 +1409,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                                 )
                     else:
                         seg_buffer.append(seg)
+                        seg.set_parent(self)
                 # Invalidate any caches
                 self.invalidate_caches()
 
