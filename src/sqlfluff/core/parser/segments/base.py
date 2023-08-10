@@ -793,7 +793,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         if cls.match_grammar:
             # Call the private method
-            with parse_context.deeper_match() as ctx:
+            with parse_context.deeper_match(name=cls.__name__) as ctx:
                 m = cls.match_grammar.match(segments=segments, parse_context=ctx)
 
             if m.has_match():
@@ -1199,7 +1199,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     )
 
             # NOTE: No match_depth kwarg, because this is the start of the matching.
-            with parse_context.matching_segment(self.__class__.__name__) as ctx:
+            with parse_context.deeper_match(name=self.__class__.__name__) as ctx:
                 m = parse_grammar.match(segments=segments, parse_context=ctx)
 
             # Basic Validation, that we haven't dropped anything.
@@ -1249,8 +1249,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 parse_context.parse_depth + 1, self.__class__.__name__, self.stringify()
             )
         )
+
         parse_context.logger.debug(parse_depth_msg)
-        with parse_context.deeper_parse() as ctx:
+        with parse_context.deeper_parse(name=self.__class__.__name__) as ctx:
             self.segments = self.expand(
                 self.segments,
                 parse_context=ctx,

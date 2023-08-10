@@ -379,6 +379,20 @@ def test__cli__command_render_stdin():
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
+        # Check ignoring linting (multiprocess)
+        # https://github.com/sqlfluff/sqlfluff/issues/5066
+        (
+            lint,
+            [
+                "-n",
+                "--ignore",
+                "linting",
+                "-p",
+                "2",
+                "test/fixtures/linter/operator_errors.sql",
+                "test/fixtures/linter/comma_errors.sql",
+            ],
+        ),
         # Check linting works in specifying multiple rules
         (
             lint,

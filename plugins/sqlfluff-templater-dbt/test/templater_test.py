@@ -1,6 +1,7 @@
 """Tests for the dbt templater."""
 
 from copy import deepcopy
+import json
 import glob
 import os
 import logging
@@ -13,6 +14,9 @@ import pytest
 from sqlfluff.core import FluffConfig, Lexer, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff.utils.testing.logging import fluff_log_catcher
+from sqlfluff.utils.testing.cli import invoke_assert_code
+from sqlfluff.cli.commands import lint
+
 from test.fixtures.dbt.templater import (  # noqa: F401
     DBT_FLUFF_CONFIG,
     dbt_templater,
@@ -513,3 +517,40 @@ def test__context_in_config_is_loaded(
 
     assert violations == []
     assert str(var_value) in processed.templated_str
+
+
+def test__dbt_log_supression():
+    """Test that when we try and parse in JSON format we get JSON.
+
+    This actually tests that we can successfully suppress unwanted
+    logging from dbt.
+    """
+    oldcwd = os.getcwd()
+    try:
+        os.chdir("plugins/sqlfluff-templater-dbt/test/fixtures/dbt")
+        result = invoke_assert_code(
+            ret_code=1,
+            args=[
+                lint,
+                [
+                    "--disable-progress-bar",
+                    "dbt_project/models/my_new_project/operator_errors.sql",
+                    "-f",
+                    "json",
+                ],
+            ],
+        )
+    finally:
+        os.chdir(oldcwd)
+    # Check that the full output parses as json
+    parsed = json.loads(result.output)
+    assert isinstance(parsed, list)
+    assert len(parsed) == 1
+    first_file = parsed[0]
+    assert isinstance(first_file, dict)
+    # NOTE: Path translation for linux/windows.
+    assert (
+        first_file["filepath"].replace("\\", "/")
+        == "dbt_project/models/my_new_project/operator_errors.sql"
+    )
+    assert len(first_file["violations"]) == 2

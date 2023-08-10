@@ -12,7 +12,7 @@ from collections import defaultdict
 from contextlib import contextmanager
 import logging
 import uuid
-from typing import Iterator, Optional, TYPE_CHECKING, Dict, Any, Tuple, Sequence
+from typing import Iterator, Optional, TYPE_CHECKING, Dict, Any, Tuple, Sequence, List
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.match_result import MatchResult
@@ -70,7 +70,11 @@ class ParseContext:
         self.parse_stats: Dict[str, Any] = {"next_counts": defaultdict(int)}
         # The following attributes are only accessible via a copy
         # and not in the init method.
-        self.match_segment: Optional[str] = None
+        # NOTE: We default to the name `File` which is not
+        # particularly informative, does indicate the root segment.
+        self.match_segment: str = "File"
+        self._match_stack: List[str] = []
+        self._parse_stack: List[str] = []
         self.match_depth = 0
         self.parse_depth = 0
         # self.terminators is a tuple to afford some level of isolation
@@ -139,10 +143,26 @@ class ParseContext:
     @contextmanager
     def deeper_match(
         self,
+        name: str,
         clear_terminators: bool = False,
         push_terminators: Optional[Sequence["ExpandedDialectElementType"]] = None,
     ) -> Iterator["ParseContext"]:
-        """Increment match depth."""
+        """Increment match depth.
+
+        Args:
+            name (:obj:`str`): Name of segment we are starting to parse.
+                NOTE: This value is entirely used for tracking and logging
+                purposes.
+            clear_terminators (:obj:`bool`, optional): Whether to force
+                clear any inherited terminators. This is useful in structures
+                like brackets, where outer terminators shouldn't apply while
+                within. Terminators are stashed until we return back out of
+                this context.
+            push_terminators (:obj:`Sequence` of :obj:`Matchable`): Additional
+                terminators to add to the environment while in this context.
+        """
+        self._match_stack.append(self.match_segment)
+        self.match_segment = name
         self.match_depth += 1
         _append, _terms = self._set_terminators(clear_terminators, push_terminators)
         try:
@@ -152,11 +172,23 @@ class ParseContext:
                 _append, _terms, clear_terminators=clear_terminators
             )
             self.match_depth -= 1
+            # Reset back to old name
+            self.match_segment = self._match_stack.pop()
 
     @contextmanager
-    def deeper_parse(self) -> Iterator["ParseContext"]:
-        """Increment parse depth."""
+    def deeper_parse(self, name: str) -> Iterator["ParseContext"]:
+        """Increment parse depth.
+
+        Args:
+            name (:obj:`str`): Name of segment we are starting to parse.
+                NOTE: This value is entirely used for tracking and logging
+                purposes.
+        """
         _match_depth = self.match_depth
+        _match_stack = self._match_stack
+        self._parse_stack.append(self.match_segment)
+        self._match_stack = []  # Reset Parse Stack
+        self.match_segment = name
         self.parse_depth += 1
         self.match_depth = 0
         _append, _terms = self._set_terminators(clear_terminators=True)
@@ -166,27 +198,14 @@ class ParseContext:
             self.parse_depth -= 1
             self.match_depth = _match_depth
             self._reset_terminators(_append, _terms, clear_terminators=True)
-
-    @contextmanager
-    def matching_segment(
-        self,
-        name: str,
-        clear_terminators: bool = False,
-        push_terminators: Optional[Sequence["ExpandedDialectElementType"]] = None,
-    ) -> Iterator["ParseContext"]:
-        """Set the name of the current matching segment.
-
-        NB: We don't reset the match depth here.
-        """
-        old_name = self.match_segment
-        self.match_segment = name
-        _append, _terms = self._set_terminators(clear_terminators, push_terminators)
-        try:
-            yield self
-        finally:
-            self._reset_terminators(_append, _terms, clear_terminators)
             # Reset back to old name
-            self.match_segment = old_name
+            self.match_segment = self._parse_stack.pop()
+            # And old stack
+            self._match_stack = _match_stack
+
+    def stack(self) -> Tuple[Tuple[str, ...], Tuple[str, ...]]:  # pragma: no cover
+        """Return stacks as a tuples so that it can't be edited."""
+        return tuple(self._parse_stack), tuple(self._match_stack)
 
     def check_parse_cache(
         self, loc_key: Tuple[Any, ...], matcher_key: str
