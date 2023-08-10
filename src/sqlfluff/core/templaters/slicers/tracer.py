@@ -3,6 +3,9 @@
 This is a newer slicing algorithm that handles cases heuristic.py does not.
 """
 
+# Import annotations for py 3.7 to allow `regex.Match[str]`
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 import logging
 import regex
@@ -74,7 +77,7 @@ class JinjaTracer:
         )
         trace_template_output = self.render_func(trace_template_str)
         # Split output by section. Each section has two possible formats.
-        trace_entries: List[regex.Match] = list(
+        trace_entries: List[regex.Match[str]] = list(
             regex.finditer(r"\0", trace_template_output)
         )
         # If the file has no templated entries, we should just iterate
@@ -100,14 +103,13 @@ class JinjaTracer:
                 # E.g. "00000000000000000000000000000001_83". The number after
                 # "_" is the length (in characters) of a corresponding literal
                 # in raw_str.
-                value = [m_id.group(1), int(m_id.group(3)), True]
+                alt_id, slice_length = m_id.group(1), int(m_id.group(3))
             else:
                 # E.g. "00000000000000000000000000000002 a < 10". The characters
                 # after the slice ID are executable code from raw_str.
-                value = [m_id.group(0), p[len(m_id.group(0)) + 1 :], False]
-            alt_id, content_info, literal = value
+                alt_id, slice_length = m_id.group(0), len(p[len(m_id.group(0)) + 1 :])
+
             target_slice_idx = self.find_slice_index(alt_id)
-            slice_length = content_info if literal else len(str(content_info))
             target_inside_block = self.raw_slice_info[
                 self.raw_sliced[target_slice_idx]
             ].inside_block
@@ -144,9 +146,7 @@ class JinjaTracer:
             )
         return raw_slices_search_result[0]
 
-    def move_to_slice(
-        self, target_slice_idx: int, target_slice_length: Union[int, str]
-    ) -> None:
+    def move_to_slice(self, target_slice_idx: int, target_slice_length: int) -> None:
         """Given a template location, walk execution to that point."""
         while self.program_counter < len(self.raw_sliced):
             self.record_trace(
@@ -175,7 +175,10 @@ class JinjaTracer:
                 self.program_counter = candidates[0]
 
     def record_trace(
-        self, target_slice_length, slice_idx=None, slice_type=None
+        self,
+        target_slice_length: int,
+        slice_idx: Optional[int] = None,
+        slice_type: Optional[str] = None,
     ) -> None:
         """Add the specified (default: current) location to the trace."""
         if slice_idx is None:
@@ -228,7 +231,7 @@ class JinjaAnalyzer:
         self.slice_id += 1
         return result
 
-    def slice_info_for_literal(self, length, prefix="") -> RawSliceInfo:
+    def slice_info_for_literal(self, length: int, prefix: str = "") -> RawSliceInfo:
         """Returns a RawSliceInfo for a literal.
 
         In the alternate template, literals are replaced with a uniquely
@@ -251,8 +254,8 @@ class JinjaAnalyzer:
         self,
         block_type: str,
         trimmed_parts: List[str],
-        m_open: Optional[regex.Match],
-        m_close: Optional[regex.Match],
+        m_open: Optional[regex.Match[str]],
+        m_close: Optional[regex.Match[str]],
         tag_contents: List[str],
     ) -> Tuple[Optional[RawSliceInfo], str]:
         """Based on block tag, update whether in a set/call/macro/block section."""
@@ -479,7 +482,10 @@ class JinjaAnalyzer:
         )
 
     def track_templated(
-        self, m_open: regex.Match, m_close: regex.Match, tag_contents: List[str]
+        self,
+        m_open: regex.Match[str],
+        m_close: regex.Match[str],
+        tag_contents: List[str],
     ) -> RawSliceInfo:
         """Compute tracking info for Jinja templated region, e.g. {{ foo }}."""
         unique_alternate_id = self.next_slice_id()
@@ -494,7 +500,10 @@ class JinjaAnalyzer:
         return self.make_raw_slice_info(unique_alternate_id, alternate_code)
 
     def track_call(
-        self, m_open: regex.Match, m_close: regex.Match, tag_contents: List[str]
+        self,
+        m_open: regex.Match[str],
+        m_close: regex.Match[str],
+        tag_contents: List[str],
     ) -> RawSliceInfo:
         """Set up tracking for "{% call ... %}"."""
         unique_alternate_id = self.next_slice_id()
@@ -550,8 +559,8 @@ class JinjaAnalyzer:
     @staticmethod
     def extract_tag_contents(
         str_parts: List[str],
-        m_close: regex.Match,
-        m_open: regex.Match,
+        m_close: regex.Match[str],
+        m_open: regex.Match[str],
         str_buff: str,
     ) -> List[str]:
         """Given Jinja tag info, return the stuff inside the braces.

@@ -2,7 +2,7 @@
 
 import logging
 from bisect import bisect_left
-from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple, Iterable
+from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple, Iterable, Any
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff.core.slice_helpers import zero_slice
@@ -203,7 +203,7 @@ class TemplatedFile:
                 )
 
     @classmethod
-    def from_string(cls, raw) -> "TemplatedFile":
+    def from_string(cls, raw: str) -> "TemplatedFile":
         """Create TemplatedFile from a string."""
         return cls(source_str=raw, fname="<string>")
 
@@ -465,7 +465,7 @@ class RawTemplater:
     name = "raw"
     templater_selector = "templater"
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Dict[str, Any]) -> None:
         """Placeholder init function.
 
         Here we should load any initial config found in the root directory. The init
@@ -512,13 +512,13 @@ class RawTemplater:
         """
         return TemplatedFile(in_str, fname=fname), []
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         """Return true if `other` is of the same class as this one.
 
         NB: This is useful in comparing configs.
         """
         return isinstance(other, self.__class__)
 
-    def config_pairs(self) -> list:
+    def config_pairs(self) -> List[Tuple[str, str]]:
         """Returns info about the given templater for output by the cli."""
         return [("templater", self.name)]
