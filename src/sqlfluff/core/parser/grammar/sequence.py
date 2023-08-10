@@ -287,7 +287,7 @@ class Bracketed(Sequence):
         """Rehydrate the bracket segments in question."""
         bracket_pairs = cast(
             Set[Tuple[str, str, str, bool]],
-            parse_context.dialect.sets(self.bracket_pairs_set),
+            parse_context.dialect.bracket_sets(self.bracket_pairs_set),
         )
         for bracket_type, start_ref, end_ref, persists in bracket_pairs:
             if bracket_type == self.bracket_type:

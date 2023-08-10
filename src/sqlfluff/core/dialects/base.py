@@ -1,7 +1,7 @@
 """Defines the base dialect class."""
 
 import sys
-from typing import Set, Tuple, Union, Type, Dict, Any, Optional, List, cast, overload
+from typing import Set, Tuple, Union, Type, Dict, Any, Optional, List, cast
 from typing_extensions import Literal
 
 from sqlfluff.core.parser import (
@@ -83,7 +83,7 @@ class Dialect:
             "reserved_keywords",
         ]:  # e.g. reserved_keywords, (JOIN, ...)
             # Make sure the values are available as KeywordSegments
-            keyword_sets = cast(Set[str], expanded_copy.sets(keyword_set))
+            keyword_sets = expanded_copy.sets(keyword_set)
             for kw in keyword_sets:
                 n = kw.capitalize() + "KeywordSegment"
                 if n not in expanded_copy._library:
@@ -91,17 +91,7 @@ class Dialect:
         expanded_copy.expanded = True
         return expanded_copy
 
-    @overload
-    def sets(
-        self, label: Literal["bracket_pairs", "angle_bracket_pairs"]
-    ) -> Set[Tuple[str, str, str, bool]]:
-        ...
-
-    @overload
     def sets(self, label: str) -> Set[str]:
-        ...
-
-    def sets(self, label):
         """Allows access to sets belonging to this dialect.
 
         These sets belong to the dialect and are copied for sub
@@ -109,9 +99,27 @@ class Dialect:
         dialect objects to create some of the bulk-produced rules.
 
         """
+        assert label not in (
+            "bracket_pairs",
+            "angle_bracket_pairs",
+        ), f"Use `bracket_sets` to retrieve { label } set."
+
         if label not in self._sets:
             self._sets[label] = set()
-        return self._sets[label]
+        return cast(Set[str], self._sets[label])
+
+    def bracket_sets(
+        self, label: Literal["bracket_pairs", "angle_bracket_pairs"]
+    ) -> Set[Tuple[str, str, str, bool]]:
+        """Allows access to bracket sets belonging to this dialect."""
+        assert label in (
+            "bracket_pairs",
+            "angle_bracket_pairs",
+        ), "Invalid bracket set. Consider using `sets` instead."
+
+        if label not in self._sets:
+            self._sets[label] = set()
+        return cast(Set[Tuple[str, str, str, bool]], self._sets[label])
 
     def update_keywords_set_from_multiline_string(
         self, set_label: str, values: str

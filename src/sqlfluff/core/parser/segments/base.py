@@ -1682,7 +1682,7 @@ class BracketedSegment(BaseSegment):
         """Simple methods for bracketed and the persistent brackets."""
         start_brackets = [
             start_bracket
-            for _, start_bracket, _, persistent in parse_context.dialect.sets(
+            for _, start_bracket, _, persistent in parse_context.dialect.bracket_sets(
                 "bracket_pairs"
             )
             if persistent

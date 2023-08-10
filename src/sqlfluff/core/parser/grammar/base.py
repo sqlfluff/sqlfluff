@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
     List,
+    Literal,
     Optional,
     Union,
     Set,
@@ -627,7 +628,9 @@ class BaseGrammar(Matchable):
         parse_context: ParseContext,
         start_bracket: Optional[Matchable] = None,
         end_bracket: Optional[Matchable] = None,
-        bracket_pairs_set: str = "bracket_pairs",
+        bracket_pairs_set: Literal[
+            "bracket_pairs", "angle_bracket_pairs"
+        ] = "bracket_pairs",
     ) -> Tuple[Tuple[BaseSegment, ...], MatchResult, Optional[MatchableType]]:
         """Same as `_look_ahead_match` but with bracket counting.
 
@@ -651,7 +654,7 @@ class BaseGrammar(Matchable):
         # dialect. We use zip twice to "unzip" them. We ignore the first
         # argument because that's just the name.
         _, start_bracket_refs, end_bracket_refs, persists = zip(
-            *parse_context.dialect.sets(bracket_pairs_set)
+            *parse_context.dialect.bracket_sets(bracket_pairs_set)
         )
         # These are matchables, probably StringParsers.
         start_brackets = [
