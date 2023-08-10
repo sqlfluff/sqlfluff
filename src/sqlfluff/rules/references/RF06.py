@@ -187,7 +187,7 @@ class Rule_RF06(BaseRule):
 
         # Retrieve NakedIdentifierSegment RegexParser for the dialect.
         naked_identifier_parser = cast(
-            RegexParser, context.dialect._library["NakedIdentifierSegment"]
+            "RegexParser", context.dialect._library["NakedIdentifierSegment"]
         )
         anti_template = cast(str, naked_identifier_parser.anti_template)
         NakedIdentifierSegment = cast(
