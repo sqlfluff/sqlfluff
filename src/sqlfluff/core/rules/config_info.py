@@ -213,6 +213,13 @@ STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
         "validation": ["consistent", "shorthand", "convert", "cast"],
         "definition": ("The expectation for using sql type casting"),
     },
+    "preferred_first_table_in_join_clause": {
+        "validation": ["earlier", "later"],
+        "definition": (
+            "Which table to list first when joining two tables. "
+            "Defaults to ``earlier``."
+        ),
+    },
 }
 
 
