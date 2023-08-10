@@ -38,7 +38,7 @@ hive_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 # hive_dialect.sets("reserved_keywords").clear()
 hive_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
-hive_dialect.sets("angle_bracket_pairs").update(
+hive_dialect.bracket_sets("angle_bracket_pairs").update(
     [
         ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
     ]
