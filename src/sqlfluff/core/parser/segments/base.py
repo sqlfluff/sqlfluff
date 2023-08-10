@@ -7,6 +7,8 @@ Here we define:
   function failed on this block of segments and to prevent further
   analysis.
 """
+# Import annotations for py 3.7 to allow `weakref.ReferenceType["BaseSegment"]`
+from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import MutableSet
@@ -265,7 +267,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # _preface_modifier used in ._preface()
     _preface_modifier: str = ""
     # Optional reference to the parent. Stored as a weakref.
-    _parent: Optional[weakref.ReferenceType] = None
+    _parent: Optional[weakref.ReferenceType["BaseSegment"]] = None
 
     def __init__(
         self,
@@ -912,7 +914,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         _parent = self._parent()
         if not _parent or self not in _parent.segments:
             return None
-        return cast(BaseSegment, _parent)
+        return _parent
 
     def get_type(self) -> str:
         """Returns the type of this segment as a string."""
