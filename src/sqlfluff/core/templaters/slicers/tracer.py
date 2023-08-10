@@ -104,7 +104,7 @@ class JinjaTracer:
             else:
                 # E.g. "00000000000000000000000000000002 a < 10". The characters
                 # after the slice ID are executable code from raw_str.
-                alt_id, slice_length = m_id.group(0), len(p[len(m_id.group(0)) + 1:])
+                alt_id, slice_length = m_id.group(0), len(p[len(m_id.group(0)) + 1 :])
 
             target_slice_idx = self.find_slice_index(alt_id)
             target_inside_block = self.raw_slice_info[
@@ -143,9 +143,7 @@ class JinjaTracer:
             )
         return raw_slices_search_result[0]
 
-    def move_to_slice(
-        self, target_slice_idx: int, target_slice_length: int
-    ) -> None:
+    def move_to_slice(self, target_slice_idx: int, target_slice_length: int) -> None:
         """Given a template location, walk execution to that point."""
         while self.program_counter < len(self.raw_sliced):
             self.record_trace(
@@ -174,7 +172,10 @@ class JinjaTracer:
                 self.program_counter = candidates[0]
 
     def record_trace(
-        self, target_slice_length: int, slice_idx: Optional[int] = None, slice_type: Optional[str] = None
+        self,
+        target_slice_length: int,
+        slice_idx: Optional[int] = None,
+        slice_type: Optional[str] = None,
     ) -> None:
         """Add the specified (default: current) location to the trace."""
         if slice_idx is None:
@@ -478,7 +479,10 @@ class JinjaAnalyzer:
         )
 
     def track_templated(
-        self, m_open: regex.Match[str], m_close: regex.Match[str], tag_contents: List[str]
+        self,
+        m_open: regex.Match[str],
+        m_close: regex.Match[str],
+        tag_contents: List[str],
     ) -> RawSliceInfo:
         """Compute tracking info for Jinja templated region, e.g. {{ foo }}."""
         unique_alternate_id = self.next_slice_id()
@@ -493,7 +497,10 @@ class JinjaAnalyzer:
         return self.make_raw_slice_info(unique_alternate_id, alternate_code)
 
     def track_call(
-        self, m_open: regex.Match[str], m_close: regex.Match[str], tag_contents: List[str]
+        self,
+        m_open: regex.Match[str],
+        m_close: regex.Match[str],
+        tag_contents: List[str],
     ) -> RawSliceInfo:
         """Set up tracking for "{% call ... %}"."""
         unique_alternate_id = self.next_slice_id()
