@@ -1242,25 +1242,20 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     )
                     + post_nc
                 )
-        # Recurse if allowed (using the expand method to deal with the expansion)
-        parse_context.logger.debug(
-            "{}.parse: Done Parse. Plotting Recursion. Recurse={!r}".format(
-                self.__class__.__name__, parse_context.recurse
-            )
-        )
+
         parse_depth_msg = (
             "###\n#\n# Beginning Parse Depth {}: {}\n#\n###\nInitial Structure:\n"
             "{}".format(
                 parse_context.parse_depth + 1, self.__class__.__name__, self.stringify()
             )
         )
-        if parse_context.may_recurse():
-            parse_context.logger.debug(parse_depth_msg)
-            with parse_context.deeper_parse(name=self.__class__.__name__) as ctx:
-                self.segments = self.expand(
-                    self.segments,
-                    parse_context=ctx,
-                )
+
+        parse_context.logger.debug(parse_depth_msg)
+        with parse_context.deeper_parse(name=self.__class__.__name__) as ctx:
+            self.segments = self.expand(
+                self.segments,
+                parse_context=ctx,
+            )
 
         return (self,)
 
