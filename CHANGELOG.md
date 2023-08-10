@@ -10,6 +10,44 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.2.1] - 2023-08-09
+
+## Highlights
+
+This is primarily a bugfix release for 2.2.0 which introduced
+a bug in the `exit_code` returned by linting commands which ignored errors
+while setting `processes > 1`.
+
+In addition to that this release introduces bugfixes for:
+- Errors raised by two specific `dbt` exceptions.
+- Issues with unwanted logging output when using `-f yaml` or `-f json`
+  alongside the `dbt` templater.
+
+This also introduces dialect improvements for Oracle and for `LIMIT` clauses.
+
+Thanks also to [@adityapat3l](https://github.com/adityapat3l) who made their
+first contribution as part of this release! 🎉🎉🎉
+
+## What’s Changed
+
+* Split apart the grammar tests [#5078](https://github.com/sqlfluff/sqlfluff/pull/5078) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Resolve pickling of errors #5066 [#5074](https://github.com/sqlfluff/sqlfluff/pull/5074) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Better context based tracking [#5064](https://github.com/sqlfluff/sqlfluff/pull/5064) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* fixing limit handling for bracketed arithmathic operations [#5068](https://github.com/sqlfluff/sqlfluff/pull/5068) [@adityapat3l](https://github.com/adityapat3l)
+* Never run in multiprocessing mode with only 1 file. [#5071](https://github.com/sqlfluff/sqlfluff/pull/5071) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add dbt 1.6 tests [#5073](https://github.com/sqlfluff/sqlfluff/pull/5073) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Handle two kinds of dbt errors more gracefully [#5072](https://github.com/sqlfluff/sqlfluff/pull/5072) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Try to silence dbt logging #5054 [#5070](https://github.com/sqlfluff/sqlfluff/pull/5070) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Move `_prune_options` within `_longest_trimmed_match`. [#5063](https://github.com/sqlfluff/sqlfluff/pull/5063) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix issue 4998 - Add backup and auto refresh grammar to redshift materialized view [#5060](https://github.com/sqlfluff/sqlfluff/pull/5060) [@adityapat3l](https://github.com/adityapat3l)
+* Add mypy strict typing for sqlfluff.core.rules [#5048](https://github.com/sqlfluff/sqlfluff/pull/5048) [@pwildenhain](https://github.com/pwildenhain)
+* :arrow_up: Bump mypy version in pre-commit [#5055](https://github.com/sqlfluff/sqlfluff/pull/5055) [@pwildenhain](https://github.com/pwildenhain)
+* Add SQL Plus bind variable support (Oracle) [#5053](https://github.com/sqlfluff/sqlfluff/pull/5053) [@joaostorrer](https://github.com/joaostorrer)
+
+## New Contributors
+
+* [@adityapat3l](https://github.com/adityapat3l) made their first contribution in [#5060](https://github.com/sqlfluff/sqlfluff/pull/5060)
+
 ## [2.2.0] - 2023-08-04
 
 ## Highlights
