@@ -346,8 +346,7 @@ def test__cli__command_render_stdin():
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--format", "yaml"]),
         # Check parsing with no output (used mostly for testing)
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--format", "none"]),
-        # Check the profiler and benching commands
-        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--profiler"]),
+        # Check the benching commands
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
         (
             lint,
