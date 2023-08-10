@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
     List,
-    Literal,
     Optional,
     Union,
     Set,
@@ -14,6 +13,7 @@ from typing import (
     Any,
     cast,
 )
+from typing_extensions import Literal
 from uuid import uuid4
 
 from sqlfluff.core.errors import SQLParseError
