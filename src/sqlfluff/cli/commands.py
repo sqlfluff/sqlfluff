@@ -13,10 +13,6 @@ import yaml
 
 import click
 
-# For the profiler
-import pstats
-from io import StringIO
-
 # To enable colour cross platform
 import colorama
 from tqdm import tqdm
@@ -1184,9 +1180,6 @@ def quoted_presenter(dumper, data):
     ),
 )
 @click.option(
-    "--profiler", is_flag=True, help="Set this flag to engage the python profiler."
-)
-@click.option(
     "--parse-statistics",
     is_flag=True,
     help=(
@@ -1208,7 +1201,6 @@ def parse(
     include_meta: bool,
     format: str,
     write_output: Optional[str],
-    profiler: bool,
     bench: bool,
     nofail: bool,
     logger: Optional[logging.Logger] = None,
@@ -1245,18 +1237,6 @@ def parse(
         logger=logger,
         stderr_output=non_human_output,
     )
-
-    # TODO: do this better
-
-    if profiler:
-        # Set up the profiler if required
-        try:
-            import cProfile
-        except ImportError:  # pragma: no cover
-            click.echo("The cProfiler is not available on your platform.")
-            sys.exit(EXIT_ERROR)
-        pr = cProfile.Profile()
-        pr.enable()
 
     t0 = time.monotonic()
 
@@ -1313,14 +1293,6 @@ def parse(
 
         # Dump the output to stdout or to file as appropriate.
         dump_file_payload(write_output, file_output)
-    if profiler:
-        pr.disable()
-        profiler_buffer = StringIO()
-        ps = pstats.Stats(pr, stream=profiler_buffer).sort_stats("cumulative")
-        ps.print_stats()
-        click.echo("==== profiler stats ====")
-        # Only print the first 50 lines of it
-        click.echo("\n".join(profiler_buffer.getvalue().split("\n")[:50]))
 
     if violations_count > 0 and not nofail:
         sys.exit(EXIT_FAIL)  # pragma: no cover
