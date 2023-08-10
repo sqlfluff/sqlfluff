@@ -7,7 +7,7 @@ Helpful when using the sets attribute of the dialect.
 from typing import TYPE_CHECKING, Callable
 
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.dialects.base import Dialect
     from sqlfluff.core.parser.matchable import Matchable
 
