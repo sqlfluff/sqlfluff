@@ -1,4 +1,4 @@
-"""AnyNumberOf and OneOf."""
+"""AnyNumberOf, OneOf, OptionallyBracketed & AnySetOf."""
 
 from typing import List, Optional, Tuple
 
