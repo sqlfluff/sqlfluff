@@ -10,6 +10,20 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.3.0] - 2023-08-10
+
+## Highlights
+
+## What’s Changed
+
+* Add new rule ST09: Joins should list the table referenced earlier (default)/later first [#4974](https://github.com/sqlfluff/sqlfluff/pull/4974) [@thibonacci](https://github.com/thibonacci)
+* Remove the internal cProfiler option [#5081](https://github.com/sqlfluff/sqlfluff/pull/5081) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Optimisation on select analysis [#5082](https://github.com/sqlfluff/sqlfluff/pull/5082) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
+## New Contributors
+
+* [@thibonacci](https://github.com/thibonacci) made their first contribution in [#4974](https://github.com/sqlfluff/sqlfluff/pull/4974)
+
 ## [2.2.1] - 2023-08-09
 
 ## Highlights
