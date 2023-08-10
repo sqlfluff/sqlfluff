@@ -64,7 +64,7 @@ class Rule_ST09(BaseRule):
     """
 
     name = "structure.first_table"
-    aliases = ("L070",)
+    aliases = ()
     groups: Tuple[str, ...] = ("all", "structure")
     config_keywords = ["preferred_first_table_in_join_clause"]
     crawl_behaviour = SegmentSeekerCrawler({"from_expression"})
