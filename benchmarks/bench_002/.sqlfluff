@@ -5,7 +5,6 @@ dialect = bigquery
 templater = jinja
 rules = None
 exclude_rules = None
-recurse = 0
 
 [sqlfluff:templater:jinja:macros]
 
