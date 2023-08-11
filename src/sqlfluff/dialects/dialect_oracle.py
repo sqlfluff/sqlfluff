@@ -616,3 +616,19 @@ class SqlplusVariableGrammar(BaseSegment):
             Ref("ParameterNameSegment"),
         )
     )
+
+
+class FetchClauseSegment(BaseSegment):
+    """A `FETCH` clause like in `SELECT."""
+
+    type = "fetch_clause"
+    match_grammar: Matchable = Sequence(
+        "FETCH",
+        OneOf(
+            "FIRST",
+            "NEXT",
+        ),
+        Ref("NumericLiteralSegment", optional=True),
+        OneOf("ROW", "ROWS"),
+        "ONLY",
+    )
