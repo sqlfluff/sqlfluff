@@ -10,53 +10,46 @@ Here we define:
 # Import annotations for py 3.7 to allow `weakref.ReferenceType["BaseSegment"]`
 from __future__ import annotations
 
+import logging
+import weakref
 from collections import defaultdict
 from collections.abc import MutableSet
-from copy import deepcopy, copy
+from copy import copy, deepcopy
 from dataclasses import dataclass, field, replace
 from io import StringIO
 from itertools import chain
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
-    cast,
     ClassVar,
     Dict,
-    Optional,
-    List,
-    Tuple,
     Iterator,
+    List,
+    Optional,
     Set,
-    TYPE_CHECKING,
+    Tuple,
+    cast,
 )
-import logging
 from uuid import UUID, uuid4
-import weakref
 
 from tqdm import tqdm
 
 from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.config import progress_bar_configuration
-from sqlfluff.core.string_helpers import (
-    frame_msg,
-    curtail_string,
-)
-
-from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.match_logging import parse_match_logging
-from sqlfluff.core.parser.match_wrapper import match_wrapper
-from sqlfluff.core.parser.helpers import (
-    check_still_complete,
-    trim_non_code_segments,
-)
-from sqlfluff.core.parser.matchable import Matchable
-from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.context import ParseContext
+from sqlfluff.core.parser.helpers import check_still_complete, trim_non_code_segments
+from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.parser.match_logging import parse_match_logging
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.matchable import Matchable
+from sqlfluff.core.string_helpers import curtail_string, frame_msg
 from sqlfluff.core.templaters.base import TemplatedFile
 
 if TYPE_CHECKING:  # pragma: no cover
-    from sqlfluff.core.rules import LintFix
     from sqlfluff.core.parser.segments import RawSegment
+    from sqlfluff.core.rules import LintFix
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
@@ -352,7 +345,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         self.__dict__ = state.copy()
         # Once state is ingested - repopulate, NOT recursing.
         # Child segments will do it for themselves on unpickling.
-        self.populate_parents(recurse=False)
+        self.set_as_parent(recurse=False)
 
     # ################ PRIVATE PROPERTIES
 
@@ -880,13 +873,13 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     # ################ PUBLIC INSTANCE METHODS
 
-    def populate_parents(self, recurse=True) -> None:
-        """Populate parents for all segments."""
+    def set_as_parent(self, recurse=True) -> None:
+        """Set this segment as parent for child all segments."""
         for seg in self.segments:
             seg.set_parent(self)
             # Recurse if not disabled
             if recurse:
-                seg.populate_parents(recurse=recurse)
+                seg.set_as_parent(recurse=recurse)
 
     def set_parent(self, parent: "BaseSegment") -> None:
         """Set the weak reference to the parent.
@@ -1364,7 +1357,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             )
         # Once parsed, populate any parent relationships.
         for _seg in self.segments:
-            _seg.populate_parents()
+            _seg.set_as_parent()
 
         return (self,)
 

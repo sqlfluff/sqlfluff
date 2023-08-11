@@ -1,17 +1,14 @@
 """Test the BaseSegment class."""
 
 import pickle
+
 import pytest
 
-from sqlfluff.core.parser import (
-    PositionMarker,
-    RawSegment,
-    BaseSegment,
-)
-from sqlfluff.core.parser.segments.base import PathStep
-from sqlfluff.core.templaters import TemplatedFile
+from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.parser.context import ParseContext
+from sqlfluff.core.parser.segments.base import PathStep
 from sqlfluff.core.rules.base import LintFix
+from sqlfluff.core.templaters import TemplatedFile
 
 
 def test__parser__base_segments_type(DummySegment):
@@ -213,7 +210,7 @@ def test__parser__base_segments_base_compare(DummySegment, DummyAuxSegment):
 def test__parser__base_segments_pickle_safe(raw_seg_list):
     """Test pickling and unpickling of BaseSegment."""
     test_seg = BaseSegment([BaseSegment(raw_seg_list)])
-    test_seg.populate_parents()
+    test_seg.set_as_parent()
     pickled = pickle.dumps(test_seg)
     result_seg = pickle.loads(pickled)
     assert test_seg == result_seg
