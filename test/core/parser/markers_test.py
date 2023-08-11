@@ -2,8 +2,8 @@
 
 import pytest
 
-from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.templaters import TemplatedFile
 
 
 @pytest.mark.parametrize(
@@ -57,7 +57,7 @@ def test_markers__comparison():
     c_pos = PositionMarker(slice(2, 3), slice(2, 3), templ)
     all_pos = (a_pos, b_pos, c_pos)
     # Check equality
-    assert all(p == p for p in (a_pos, b_pos, c_pos))
+    assert all(p == p for p in all_pos)
     # Check inequality
     assert a_pos != b_pos and a_pos != c_pos and b_pos != c_pos
     # Check less than
@@ -67,6 +67,6 @@ def test_markers__comparison():
     assert c_pos > a_pos and c_pos > b_pos
     assert not a_pos > c_pos
     # Check less than or equal
-    assert all(a_pos <= p for p in (a_pos, b_pos, c_pos))
+    assert all(a_pos <= p for p in all_pos)
     # Check greater than or equal
-    assert all(c_pos >= p for p in (a_pos, b_pos, c_pos))
+    assert all(c_pos >= p for p in all_pos)
