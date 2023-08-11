@@ -27,7 +27,6 @@ class Parser:
     def parse(
         self,
         segments: Sequence["BaseSegment"],
-        recurse=True,
         fname: Optional[str] = None,
         parse_statistics: bool = False,
     ) -> Optional["BaseSegment"]:
@@ -44,7 +43,7 @@ class Parser:
         # NOTE: This is the only time we use the parse context not in the
         # context of a context manager. That's because it's the initial
         # instantiation.
-        ctx = ParseContext.from_config(config=self.config, recurse=recurse)
+        ctx = ParseContext.from_config(config=self.config)
         parsed = root_segment.parse(parse_context=ctx)
 
         if parse_statistics:  # pragma: no cover

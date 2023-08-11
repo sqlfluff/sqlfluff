@@ -49,10 +49,8 @@ class ParseContext:
         self,
         dialect: "Dialect",
         indentation_config: Optional[Dict[str, Any]] = None,
-        recurse: bool = True,
     ) -> None:
         self.dialect = dialect
-        self.recurse = recurse
         # Indentation config is used by Indent and Dedent and used to control
         # the intended indentation of certain features. Specifically it is
         # used in the Conditional grammar.
@@ -87,9 +85,7 @@ class ParseContext:
         self.terminators: Tuple["ExpandedDialectElementType", ...] = ()
 
     @classmethod
-    def from_config(
-        cls, config: "FluffConfig", **overrides: Dict[str, bool]
-    ) -> "ParseContext":
+    def from_config(cls, config: "FluffConfig") -> "ParseContext":
         """Construct a `ParseContext` from a `FluffConfig`."""
         indentation_config = config.get_section("indentation") or {}
         try:
@@ -99,16 +95,10 @@ class ParseContext:
                 "One of the configuration keys in the `indentation` section is not "
                 "True or False: {!r}".format(indentation_config)
             )
-        ctx = cls(
+        return cls(
             dialect=config.get("dialect_obj"),
-            recurse=config.get("recurse"),
             indentation_config=indentation_config,
         )
-        # Set any overrides in the creation
-        for key in overrides:
-            if overrides[key] is not None:
-                setattr(ctx, key, overrides[key])
-        return ctx
 
     def _set_terminators(
         self,
@@ -202,15 +192,11 @@ class ParseContext:
         self.parse_depth += 1
         self.match_depth = 0
         _append, _terms = self._set_terminators(clear_terminators=True)
-        if not isinstance(self.recurse, bool):  # pragma: no cover TODO?
-            self.recurse -= 1
         try:
             yield self
         finally:
             self.parse_depth -= 1
             self.match_depth = _match_depth
-            if not isinstance(self.recurse, bool):  # pragma: no cover TODO?
-                self.recurse += 1
             self._reset_terminators(_append, _terms, clear_terminators=True)
             # Reset back to old name
             self.match_segment = self._parse_stack.pop()
@@ -220,10 +206,6 @@ class ParseContext:
     def stack(self) -> Tuple[Tuple[str, ...], Tuple[str, ...]]:  # pragma: no cover
         """Return stacks as a tuples so that it can't be edited."""
         return tuple(self._parse_stack), tuple(self._match_stack)
-
-    def may_recurse(self) -> bool:
-        """Return True if allowed to recurse."""
-        return self.recurse > 1 or self.recurse is True
 
     def check_parse_cache(
         self, loc_key: Tuple[Any, ...], matcher_key: str
