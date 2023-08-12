@@ -32,7 +32,7 @@ class BaseParser(Matchable):
         **segment_kwargs,
     ) -> None:
         self.raw_class = raw_class
-        self.type = type
+        self.type: str = type or raw_class.type
         self.optional = optional
         self.segment_kwargs = segment_kwargs or {}
         # Generate a cache key
@@ -74,9 +74,7 @@ class BaseParser(Matchable):
         Used in the context of matching against the first in a sequence.
         """
         # Is the segment already of this type?
-        if isinstance(segment, self.raw_class) and segment.is_type(
-            self.type or self.raw_class.type
-        ):
+        if isinstance(segment, self.raw_class) and segment.is_type(self.type):
             return segment
         # Does it match?
         elif self._is_first_match(segment):
