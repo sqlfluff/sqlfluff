@@ -1,15 +1,24 @@
 """Implementation of Rule AL08."""
 
-from typing import Optional, Tuple, Dict
+from typing import Dict, Optional, Tuple
+
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules import BaseRule, LintResult, RuleContext, EvalResultType
+from sqlfluff.core.rules import BaseRule, EvalResultType, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
 class Rule_AL08(BaseRule):
     """Column aliases should be unique within each clause.
 
-    Reusing column aliases is very likely a coding error.
+    Reusing column aliases is very likely a coding error. Note that while
+    in many dialects, quoting an identifier makes it case-sensitive
+    this rule always compares in a case-insensitive way. This is because
+    columns with the same name, but different case, are still confusing
+    and potentially ambiguous to other readers.
+
+    In situations where it is *necessary* to have columns with the same
+    name (whether they differ in case or not) we recommend disabling this
+    rule for either just the line, or the whole file.
 
     **Anti-pattern**
 
@@ -57,18 +66,9 @@ class Rule_AL08(BaseRule):
     aliases = ()
     groups: Tuple[str, ...] = ("all", "core", "aliasing", "aliasing.unique")
     crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
-    config_keywords = ["case_sensitive"]
 
     def _eval(self, context: RuleContext) -> EvalResultType:
-        """Get References and Aliases and allow linting.
-
-        This rule covers a lot of potential cases of odd usages of
-        references, see the code for each of the potential cases.
-
-        Subclasses of this rule should override the
-        `_lint_references_and_aliases` method.
-        """
-        self.case_sensitive: bool
+        """Walk through select clauses, looking for matching identifiers."""
         assert context.segment.is_type("select_clause")
 
         used_aliases: Dict[str, BaseSegment] = {}
@@ -92,14 +92,17 @@ class Rule_AL08(BaseRule):
             else:
                 column_reference = clause_element.get_child("column_reference")
                 if column_reference:
-                    column_alias = column_reference
+                    # We don't want the whole reference, just the last section.
+                    # If it is qualified, take the last bit. Otherwise, we still
+                    # take the last bit but it shouldn't make a difference.
+                    column_alias = column_reference.segments[-1]
 
             # If we don't have an alias to work with, just skip this element
             if not column_alias:
                 continue
 
-            # Apply case sensitivity
-            _key = column_alias.raw if self.case_sensitive else column_alias.raw_upper
+            # NOTE: Always case insensitive, see docstring for why.
+            _key = column_alias.raw_upper
             # Strip any quote tokens
             _key = _key.strip("\"'`")
             # Otherwise check whether it's been used before

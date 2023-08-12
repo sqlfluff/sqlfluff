@@ -58,13 +58,17 @@ test_fail_alias_case:
       foo,
       b as FOO
 
-test_pass_alias_case:
+test_fail_qualified:
+  fail_str: |
+    select
+      a.foo
+      , b as foo
+    from a
+
+test_pass_table_names:
   pass_str: |
     select
-      foo,
-      b as FOO
-
-  configs:
-    rules:
-      aliasing.unique.column:
-        case_sensitive: true
+      a.b,
+      b.c,
+      c.d
+    from a, b, c

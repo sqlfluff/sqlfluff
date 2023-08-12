@@ -7,8 +7,9 @@ This mapping is used to validate rule config inputs, as well
 as document rule configuration.
 """
 
-from sqlfluff.core.plugin.host import get_plugin_manager
 from typing import Any, Dict
+
+from sqlfluff.core.plugin.host import get_plugin_manager
 
 STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
     "tab_space_size": {
@@ -45,10 +46,6 @@ STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
         "definition": (
             "Run this rule even for dialects where this rule is disabled by default."
         ),
-    },
-    "case_sensitive": {
-        "validation": [True, False],
-        "definition": ("Whether this rule is case sensitive or not."),
     },
     "unquoted_identifiers_policy": {
         "validation": ["all", "aliases", "column_aliases"],
