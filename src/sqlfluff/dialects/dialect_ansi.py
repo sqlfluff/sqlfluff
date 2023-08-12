@@ -275,7 +275,7 @@ ansi_dialect.update_keywords_set_from_multiline_string(
 # of bracket is persisted during matching to speed up other
 # parts of the matching process. Round brackets are the most
 # common and match the largest areas and so are sufficient.
-ansi_dialect.sets("bracket_pairs").update(
+ansi_dialect.bracket_sets("bracket_pairs").update(
     [
         ("round", "StartBracketSegment", "EndBracketSegment", True),
         ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", False),
@@ -2551,7 +2551,7 @@ class FetchClauseSegment(BaseSegment):
             "FIRST",
             "NEXT",
         ),
-        Ref("NumericLiteralSegment"),
+        Ref("NumericLiteralSegment", optional=True),
         OneOf("ROW", "ROWS"),
         "ONLY",
     )
