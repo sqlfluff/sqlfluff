@@ -1,44 +1,17 @@
-"""The Test file for The New Parser (Base Segment Classes)."""
+"""Test the BaseSegment class."""
+
+import pickle
 
 import pytest
 
-from sqlfluff.core.parser import (
-    PositionMarker,
-    RawSegment,
-    BaseSegment,
-    BaseFileSegment,
-)
-from sqlfluff.core.parser.segments.base import PathStep
-from sqlfluff.core.templaters import TemplatedFile
+from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.parser.context import ParseContext
+from sqlfluff.core.parser.segments.base import PathStep
 from sqlfluff.core.rules.base import LintFix
+from sqlfluff.core.templaters import TemplatedFile
 
 
-@pytest.fixture(scope="module")
-def raw_seg_list(generate_test_segments):
-    """Construct a list of raw segments as a fixture."""
-    return generate_test_segments(["foobar", ".barfoo"])
-
-
-@pytest.fixture(scope="module")
-def raw_seg(raw_seg_list):
-    """Construct a raw segment as a fixture."""
-    return raw_seg_list[0]
-
-
-class DummySegment(BaseSegment):
-    """A dummy segment for testing with no grammar."""
-
-    type = "dummy"
-
-
-class DummyAuxSegment(BaseSegment):
-    """A different dummy segment for testing with no grammar."""
-
-    type = "dummy_aux"
-
-
-def test__parser__base_segments_type():
+def test__parser__base_segments_type(DummySegment):
     """Test the .is_type() method."""
     assert BaseSegment.class_is_type("base")
     assert not BaseSegment.class_is_type("foo")
@@ -48,24 +21,30 @@ def test__parser__base_segments_type():
     assert DummySegment.class_is_type("base", "foo", "bar")
 
 
-def test__parser__base_segments_class_types():
+def test__parser__base_segments_class_types(DummySegment):
     """Test the metaclass ._class_types attribute."""
     assert DummySegment._class_types == {"dummy", "base"}
 
 
-def test__parser__base_segments_descendant_type_set(raw_seg_list):
+def test__parser__base_segments_descendant_type_set(
+    raw_seg_list, DummySegment, DummyAuxSegment
+):
     """Test the .descendant_type_set() method."""
     test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
     assert test_seg.descendant_type_set == {"raw", "base", "dummy_aux"}
 
 
-def test__parser__base_segments_direct_descendant_type_set(raw_seg_list):
+def test__parser__base_segments_direct_descendant_type_set(
+    raw_seg_list, DummySegment, DummyAuxSegment
+):
     """Test the .direct_descendant_type_set() method."""
     test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
     assert test_seg.direct_descendant_type_set == {"base", "dummy_aux"}
 
 
-def test__parser__base_segments_count_segments(raw_seg_list):
+def test__parser__base_segments_count_segments(
+    raw_seg_list, DummySegment, DummyAuxSegment
+):
     """Test the .count_segments() method."""
     test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
     assert test_seg.count_segments() == 4
@@ -122,7 +101,7 @@ def test__parser_base_segments_compute_anchor_edit_info(raw_seg_list):
     )
 
 
-def test__parser__base_segments_path_to(raw_seg_list):
+def test__parser__base_segments_path_to(raw_seg_list, DummySegment, DummyAuxSegment):
     """Test the .path_to() method."""
     test_seg_a = DummyAuxSegment(raw_seg_list)
     test_seg_b = DummySegment([test_seg_a])
@@ -170,7 +149,7 @@ def test__parser__base_segments_raw(raw_seg):
     assert raw_seg.to_tuple(show_raw=True) == ("raw", "foobar")
 
 
-def test__parser__base_segments_base(raw_seg_list, fresh_ansi_dialect):
+def test__parser__base_segments_base(raw_seg_list, fresh_ansi_dialect, DummySegment):
     """Test base segments behave as expected."""
     base_seg = DummySegment(raw_seg_list)
     # Check we assume the position correctly
@@ -212,7 +191,7 @@ def test__parser__base_segments_raw_compare():
     assert rs1 == rs2
 
 
-def test__parser__base_segments_base_compare():
+def test__parser__base_segments_base_compare(DummySegment, DummyAuxSegment):
     """Test comparison of base segments."""
     template = TemplatedFile.from_string("foobar")
     rs1 = RawSegment("foobar", PositionMarker(slice(0, 6), slice(0, 6), template))
@@ -228,35 +207,12 @@ def test__parser__base_segments_base_compare():
     assert ds1 != dsa2
 
 
-def test__parser__base_segments_file(raw_seg_list):
-    """Test BaseFileSegment to behave as expected."""
-    base_seg = BaseFileSegment(raw_seg_list, fname="/some/dir/file.sql")
-    assert base_seg.type == "file"
-    assert base_seg.file_path == "/some/dir/file.sql"
-    assert base_seg.can_start_end_non_code
-    assert base_seg.allow_empty
-
-
-def test__parser__raw_get_raw_segments(raw_seg_list):
-    """Test niche case of calling get_raw_segments on a raw segment."""
-    for s in raw_seg_list:
-        assert s.get_raw_segments() == [s]
-
-
-def test__parser__raw_segments_with_ancestors(raw_seg_list):
-    """Test raw_segments_with_ancestors.
-
-    This is used in the reflow module to assess parse depth.
-    """
-    test_seg = DummySegment([DummyAuxSegment(raw_seg_list[:1]), raw_seg_list[1]])
-    # Result should be the same raw segment, but with appropriate parents
-    assert test_seg.raw_segments_with_ancestors == [
-        (
-            raw_seg_list[0],
-            [
-                PathStep(test_seg, 0, 2, (0, 1)),
-                PathStep(test_seg.segments[0], 0, 1, (0,)),
-            ],
-        ),
-        (raw_seg_list[1], [PathStep(test_seg, 1, 2, (0, 1))]),
-    ]
+def test__parser__base_segments_pickle_safe(raw_seg_list):
+    """Test pickling and unpickling of BaseSegment."""
+    test_seg = BaseSegment([BaseSegment(raw_seg_list)])
+    test_seg.set_as_parent()
+    pickled = pickle.dumps(test_seg)
+    result_seg = pickle.loads(pickled)
+    assert test_seg == result_seg
+    # Check specifically the treatment of the parent position.
+    assert result_seg.segments[0].get_parent() is result_seg
