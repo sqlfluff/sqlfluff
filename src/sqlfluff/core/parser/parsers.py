@@ -4,15 +4,16 @@ Matchable objects which return individual segments.
 """
 
 from abc import abstractmethod
+from typing import Collection, Optional, Tuple, Type, Union
 from uuid import uuid4
+
 import regex
-from typing import Collection, Type, Optional, Tuple, Union
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.types import SimpleHintType
-from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.segments import RawSegment, BaseSegment
+from sqlfluff.core.parser.matchable import Matchable
+from sqlfluff.core.parser.segments import BaseSegment, RawSegment
 
 
 class BaseParser(Matchable):
@@ -73,7 +74,9 @@ class BaseParser(Matchable):
         Used in the context of matching against the first in a sequence.
         """
         # Is the segment already of this type?
-        if isinstance(segment, self.raw_class) and segment.is_type(self.type):
+        if isinstance(segment, self.raw_class) and segment.is_type(
+            self.type or self.raw_class.type
+        ):
             return segment
         # Does it match?
         elif self._is_first_match(segment):
