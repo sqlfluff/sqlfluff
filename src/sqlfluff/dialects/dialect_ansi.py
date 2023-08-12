@@ -2551,7 +2551,7 @@ class FetchClauseSegment(BaseSegment):
             "FIRST",
             "NEXT",
         ),
-        Ref("NumericLiteralSegment"),
+        Ref("NumericLiteralSegment", optional=True),
         OneOf("ROW", "ROWS"),
         "ONLY",
     )
