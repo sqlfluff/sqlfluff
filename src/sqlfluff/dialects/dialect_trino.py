@@ -5,9 +5,11 @@ See https://trino.io/docs/current/language.html
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
+    AnyNumberOf,
     Anything,
     BaseSegment,
     Bracketed,
+    Dedent,
     Delimited,
     Matchable,
     Nothing,
@@ -55,6 +57,18 @@ trino_dialect.replace(
     LikeGrammar=Sequence("LIKE"),
     # TODO: There are no custom SQL functions in Trino! How to handle this?
     MLTableExpressionSegment=Nothing(),
+    FromClauseTerminatorGrammar=OneOf(
+        "WHERE",
+        "LIMIT",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
+        "HAVING",
+        "WINDOW",
+        Ref("SetOperatorSegment"),
+        Ref("WithNoSchemaBindingClauseSegment"),
+        Ref("WithDataClauseSegment"),
+        "FETCH",
+    ),
     OrderByClauseTerminators=OneOf(
         "LIMIT",
         "HAVING",
@@ -79,6 +93,19 @@ trino_dialect.replace(
         "WINDOW",
         "FETCH",
     ),
+    HavingClauseTerminatorGrammar=OneOf(
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        "WINDOW",
+        "FETCH",
+    ),
+    GroupByClauseTerminatorGrammar=OneOf(
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        "HAVING",
+        "WINDOW",
+        "FETCH",
+    ),
     # NOTE: This block was copy/pasted from dialect_ansi.py with these changes made:
     #  - "PRIOR" keyword removed
     Expression_A_Unary_Operator_Grammar=OneOf(
@@ -88,6 +115,55 @@ trino_dialect.replace(
         ),
         Ref("TildeSegment"),
         Ref("NotOperatorGrammar"),
+    ),
+    FunctionContentsGrammar=AnyNumberOf(
+        Ref("ExpressionSegment"),
+        # A Cast-like function
+        Sequence(Ref("ExpressionSegment"), "AS", Ref("DatatypeSegment")),
+        # Trim function
+        Sequence(
+            Ref("TrimParametersGrammar"),
+            Ref("ExpressionSegment", optional=True, exclude=Ref.keyword("FROM")),
+            "FROM",
+            Ref("ExpressionSegment"),
+        ),
+        # An extract-like or substring-like function
+        Sequence(
+            OneOf(Ref("DatetimeUnitSegment"), Ref("ExpressionSegment")),
+            "FROM",
+            Ref("ExpressionSegment"),
+        ),
+        Sequence(
+            # Allow an optional distinct keyword here.
+            Ref.keyword("DISTINCT", optional=True),
+            OneOf(
+                # Most functions will be using the delimited route
+                # but for COUNT(*) or similar we allow the star segment
+                # here.
+                Ref("StarSegment"),
+                Delimited(Ref("FunctionContentsExpressionGrammar")),
+            ),
+        ),
+        Ref(
+            "OrderByClauseSegment"
+        ),  # used by string_agg (postgres), group_concat (exasol),listagg (snowflake)..
+        # like a function call: POSITION ( 'QL' IN 'SQL')
+        Sequence(
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("SingleIdentifierGrammar"),
+                Ref("ColumnReferenceSegment"),
+            ),
+            "IN",
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("SingleIdentifierGrammar"),
+                Ref("ColumnReferenceSegment"),
+            ),
+        ),
+        Ref("IgnoreRespectNullsGrammar"),
+        Ref("IndexColumnDefinitionSegment"),
+        Ref("EmptyStructLiteralSegment"),
     ),
 )
 
@@ -157,14 +233,27 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
     parse_grammar = ansi.SelectClauseSegment.parse_grammar
 
 
+class OverlapsClauseSegment(BaseSegment):
+    """An `OVERLAPS` clause like in `SELECT."""
+
+    type = "overlaps_clause"
+    match_grammar: Matchable = Nothing()
+
+
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """A `SELECT` statement without any ORDER clauses or later."""
 
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar
-    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
-        remove=[
-            Ref("OverlapsClauseSegment", optional=True),
-        ]
+    parse_grammar: Matchable = Sequence(
+        Ref("SelectClauseSegment"),
+        # Dedent for the indent in the select clause.
+        # It's here so that it can come AFTER any whitespace.
+        Dedent,
+        Ref("FromClauseSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("GroupByClauseSegment", optional=True),
+        Ref("HavingClauseSegment", optional=True),
+        Ref("NamedWindowSegment", optional=True),
     )
 
 
