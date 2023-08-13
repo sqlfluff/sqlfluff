@@ -1,14 +1,14 @@
 """Indent and Dedent classes."""
 
+from typing import List, Optional, Tuple
 from uuid import UUID
 
+from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import RawSegment, SourceFix
-from sqlfluff.core.parser.context import ParseContext
-from typing import Optional, List
-
 from sqlfluff.core.templaters.base import TemplatedFile
 
 
@@ -56,7 +56,9 @@ class MetaSegment(RawSegment):
 
     @classmethod
     @match_wrapper()
-    def match(cls, segments, parse_context) -> MatchResult:  # pragma: no cover
+    def match(
+        cls, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> MatchResult:  # pragma: no cover
         """This will never be called. If it is then we're using it wrong."""
         raise NotImplementedError(
             "{} has no match method, it should only be used in a Sequence!".format(
@@ -65,7 +67,9 @@ class MetaSegment(RawSegment):
         )
 
     @classmethod
-    def simple(cls, parse_context: ParseContext, crumbs=None) -> None:
+    def simple(
+        cls, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
+    ) -> None:
         """Does this matcher support an uppercase hash matching route?
 
         This should be true if the MATCH grammar is simple. Most more
@@ -197,7 +201,7 @@ class TemplateSegment(MetaSegment):
         block_type: str,
         templated_file: TemplatedFile,
         block_uuid: Optional[UUID] = None,
-    ):
+    ) -> "TemplateSegment":
         """Construct template segment from slice of a source file."""
         pos_marker = PositionMarker(
             source_slice,
@@ -211,17 +215,23 @@ class TemplateSegment(MetaSegment):
             block_uuid=block_uuid,
         )
 
-    def to_tuple(self, code_only=False, show_raw=False, include_meta=False) -> tuple:
+    def to_tuple(
+        self,
+        code_only: bool = False,
+        show_raw: bool = False,
+        include_meta: bool = False,
+    ) -> Tuple[str, str]:
         """Return a tuple structure from this segment.
 
         Unlike most segments, we return the _source_ content for placeholders
         if viewing metas is allowed. This allows verification of the content
         of those placeholders for inspection or debugging.
+
+        NOTE: This method does not use the `include_meta` argument. This method
+        relies on any parent segment to do filtering associated with whether to
+        include or not include meta segments.
         """
-        if include_meta:
-            return (self.get_type(), self.source_str)
-        else:  # pragma: no cover TODO?
-            return (self.get_type(), self.raw)
+        return (self.get_type(), self.source_str)
 
     def edit(
         self,

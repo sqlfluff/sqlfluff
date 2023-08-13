@@ -1,26 +1,28 @@
 """The code for the Lexer."""
 
 import logging
-from typing import Iterator, Optional, List, Tuple, Union, NamedTuple, Dict, Type, Any
+from typing import Any, Dict, Iterator, List, NamedTuple, Optional, Tuple, Type, Union
 from uuid import UUID, uuid4
+
 import regex
 
+from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.errors import SQLLexError
+from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments import (
     BaseSegment,
-    RawSegment,
-    Indent,
     Dedent,
+    EndOfFile,
+    Indent,
+    MetaSegment,
+    RawSegment,
+    TemplateLoop,
     TemplateSegment,
     UnlexableSegment,
-    EndOfFile,
-    TemplateLoop,
 )
-from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.errors import SQLLexError
-from sqlfluff.core.templaters import TemplatedFile
-from sqlfluff.core.config import FluffConfig
-from sqlfluff.core.templaters.base import TemplatedFileSlice
 from sqlfluff.core.slice_helpers import is_zero_slice, offset_slice, to_tuple
+from sqlfluff.core.templaters import TemplatedFile
+from sqlfluff.core.templaters.base import TemplatedFileSlice
 
 # Instantiate the lexer logger
 lexer_logger = logging.getLogger("sqlfluff.lexer")
@@ -100,7 +102,9 @@ class TemplateElement(NamedTuple):
             raw=element.raw, template_slice=template_slice, matcher=element.matcher
         )
 
-    def to_segment(self, pos_marker: PositionMarker, subslice: Optional[slice] = None):
+    def to_segment(
+        self, pos_marker: PositionMarker, subslice: Optional[slice] = None
+    ) -> RawSegment:
         """Create a segment from this lexed element."""
         return self.matcher.construct_segment(
             self.raw[subslice] if subslice else self.raw, pos_marker=pos_marker
@@ -270,7 +274,7 @@ class StringLexer:
         else:
             return LexMatch(forward_string, [])
 
-    def construct_segment(self, raw, pos_marker):
+    def construct_segment(self, raw: str, pos_marker: PositionMarker) -> RawSegment:
         """Construct a segment using the given class a properties."""
         return self.segment_class(raw=raw, pos_marker=pos_marker, **self.segment_kwargs)
 
@@ -321,7 +325,7 @@ def _handle_zero_length_slice(
     block_stack: BlockTracker,
     templated_file: TemplatedFile,
     add_indents: bool,
-):
+) -> Iterator[MetaSegment]:
     """Generate placeholders and loop segments from a zero length slice.
 
     This method checks for:
