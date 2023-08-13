@@ -1,6 +1,6 @@
 """Implementation of Rule RF06."""
 
-from typing import List, Optional, cast, Type
+from typing import TYPE_CHECKING, List, Optional, cast, Type
 
 import regex
 
@@ -8,6 +8,9 @@ from sqlfluff.core.parser.segments.raw import CodeSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import sp, FunctionalContext
+
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.parser.parsers import RegexParser
 
 
 class Rule_RF06(BaseRule):
@@ -183,7 +186,10 @@ class Rule_RF06(BaseRule):
         # (meaning prefer_quoted_identifiers=False).
 
         # Retrieve NakedIdentifierSegment RegexParser for the dialect.
-        naked_identifier_parser = context.dialect._library["NakedIdentifierSegment"]
+        naked_identifier_parser = cast(
+            "RegexParser", context.dialect._library["NakedIdentifierSegment"]
+        )
+        anti_template = cast(str, naked_identifier_parser.anti_template)
         NakedIdentifierSegment = cast(
             Type[CodeSegment], context.dialect.get_segment("IdentifierSegment")
         )
@@ -199,7 +205,7 @@ class Rule_RF06(BaseRule):
             is not None
         ) and (
             regex.fullmatch(
-                naked_identifier_parser.anti_template,
+                anti_template,
                 identifier_contents,
                 regex.IGNORECASE,
             )

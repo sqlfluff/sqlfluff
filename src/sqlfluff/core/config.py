@@ -181,6 +181,10 @@ REMOVED_CONFIGS = [
         ("rules", "L003", "lint_templated_tokens"),
         "No longer used.",
     ),
+    _RemovedConfig(
+        ("core", "recurse"),
+        "Removed as unused in production and unnecessary for debugging.",
+    ),
 ]
 
 
@@ -943,9 +947,6 @@ class FluffConfig:
                 )
             else:
                 self._configs["core"][out_key] = []
-        # Configure Recursion
-        if self._configs["core"].get("recurse", 0) == 0:
-            self._configs["core"]["recurse"] = True
 
         # Dialect and Template selection.
         dialect: Optional[str] = self._configs["core"]["dialect"]

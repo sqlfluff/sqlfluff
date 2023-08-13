@@ -103,7 +103,7 @@ snowflake_dialect.insert_lexer_matchers(
     before="like_operator",
 )
 
-snowflake_dialect.sets("bracket_pairs").add(
+snowflake_dialect.bracket_sets("bracket_pairs").add(
     ("exclude", "StartExcludeBracketSegment", "EndExcludeBracketSegment", True)
 )
 

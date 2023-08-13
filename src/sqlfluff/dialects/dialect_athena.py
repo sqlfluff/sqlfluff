@@ -46,7 +46,7 @@ athena_dialect.insert_lexer_matchers(
     before="like_operator",
 )
 
-athena_dialect.sets("angle_bracket_pairs").update(
+athena_dialect.bracket_sets("angle_bracket_pairs").update(
     [
         ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
     ]

@@ -2,7 +2,7 @@
 
 # NOTE: We rename the typing.Sequence here so it doesn't collide
 # with the grammar class that we're defining.
-from typing import Optional, Tuple, cast, Type, Sequence as _Sequence
+from typing import Optional, Set, Tuple, cast, Type, Sequence as _Sequence
 
 from sqlfluff.core.errors import SQLParseError
 
@@ -230,7 +230,7 @@ class Sequence(BaseGrammar):
         # If we get to here, we've matched all of the elements (or skipped them)
         # but still have some segments left (or perhaps have precisely zero left).
         # In either case, we're golden. Return successfully, with any leftovers as
-        # the unmatched elements. Meta all go at the end regardless of wny trailing
+        # the unmatched elements. Meta all go at the end regardless of any trailing
         # whitespace.
 
         return MatchResult(
@@ -285,9 +285,11 @@ class Bracketed(Sequence):
 
     def get_bracket_from_dialect(self, parse_context: ParseContext):
         """Rehydrate the bracket segments in question."""
-        for bracket_type, start_ref, end_ref, persists in parse_context.dialect.sets(
-            self.bracket_pairs_set
-        ):
+        bracket_pairs = cast(
+            Set[Tuple[str, str, str, bool]],
+            parse_context.dialect.bracket_sets(self.bracket_pairs_set),
+        )
+        for bracket_type, start_ref, end_ref, persists in bracket_pairs:
             if bracket_type == self.bracket_type:
                 start_bracket = parse_context.dialect.ref(start_ref)
                 end_bracket = parse_context.dialect.ref(end_ref)

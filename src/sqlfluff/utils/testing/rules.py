@@ -114,7 +114,7 @@ def assert_rule_pass_in_sql(code, sql, configs=None, msg=None):
 
     # This section is mainly for aid in debugging.
     rendered = linter.render_string(sql, fname="<STR>", config=cfg, encoding="utf-8")
-    parsed = linter.parse_rendered(rendered, recurse=True)
+    parsed = linter.parse_rendered(rendered)
     if parsed.violations:
         if msg:
             print(msg)  # pragma: no cover

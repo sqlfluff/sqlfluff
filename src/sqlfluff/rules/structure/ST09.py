@@ -178,9 +178,11 @@ class Rule_ST09(BaseRule):
                 "raw_comparison_operator"
             )
 
-            first_table = first_column_reference.get_child("naked_identifier").raw_upper
+            first_table = first_column_reference.get_child(
+                "naked_identifier", "quoted_identifier"
+            ).raw_upper
             second_table = second_column_reference.get_child(
-                "naked_identifier"
+                "naked_identifier", "quoted_identifier"
             ).raw_upper
 
             # if we swap the two column references around the comparison operator
