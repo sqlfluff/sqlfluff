@@ -2,6 +2,7 @@
 
 import configparser
 import json
+import logging
 import os
 import pathlib
 import re
@@ -11,7 +12,6 @@ import subprocess
 import sys
 import tempfile
 import textwrap
-import logging
 from unittest.mock import MagicMock, patch
 
 import chardet
@@ -24,18 +24,18 @@ from click.testing import CliRunner
 # We import the library directly here to get the version
 import sqlfluff
 from sqlfluff.cli.commands import (
-    lint,
-    version,
-    rules,
-    fix,
     cli_format,
-    parse,
     dialects,
+    fix,
     get_config,
+    lint,
+    parse,
     render,
+    rules,
+    version,
 )
-from sqlfluff.core.rules import BaseRule, LintFix, LintResult
 from sqlfluff.core.parser.segments.raw import CommentSegment
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult
 from sqlfluff.utils.testing.cli import invoke_assert_code
 
 re_ansi_escape = re.compile(r"\x1b[^m]*m")
@@ -1960,7 +1960,7 @@ multiple_expected_output = """==== finding fixable violations ====
 == [test/fixtures/linter/multiple_sql_errors.sql] FAIL
 L:  12 | P:   1 | LT02 | Expected indent of 4 spaces. [layout.indent]
 L:  40 | P:  10 | ST09 | Joins should list the table referenced earlier first.
-                       | [structure.first_table]
+                       | [structure.join_condition_order]
 ==== fixing violations ====
 2 fixable linting violations found
 Are you sure you wish to attempt to fix these? [Y/n] ...

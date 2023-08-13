@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aeb7acea73d669a0a20a1a1a8280c6f23521a663b9ab9fd3c40d4c110312b983
+_hash: 2b5704dab85931563d9a29f1d454c0ee1fbb3a2278481306089d4be3505ddc96
 file:
 - batch:
     statement:
@@ -496,5 +496,63 @@ file:
         - dot: .
         - quoted_identifier: '[EC DC]'
       - statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[table]'
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            quoted_identifier: '[name]'
+            data_type:
+              data_type_identifier: '[varchar]'
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '100'
+                  end_bracket: )
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            quoted_identifier: '[month_num]'
+            data_type:
+              data_type_identifier: '[int]'
+            column_constraint_segment:
+              keyword: 'NULL'
+        - end_bracket: )
+      - table_distribution_index_clause:
+          keyword: WITH
+          bracketed:
+            start_bracket: (
+            table_distribution_clause:
+            - keyword: DISTRIBUTION
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - keyword: REPLICATE
+            comma: ','
+            table_index_clause:
+            - keyword: CLUSTERED
+            - keyword: INDEX
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                  quoted_identifier: '[name]'
+              - keyword: ASC
+              - comma: ','
+              - column_reference:
+                  quoted_identifier: '[month_num]'
+              - keyword: ASC
+              - end_bracket: )
+            end_bracket: )
 - go_statement:
     keyword: GO
