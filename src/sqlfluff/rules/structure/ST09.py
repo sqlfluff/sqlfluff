@@ -1,13 +1,14 @@
 """Implementation of Rule ST09."""
-from typing import Optional, Tuple, List, cast
+from typing import List, Optional, Tuple, cast
+
 from sqlfluff.core.parser.segments.raw import BaseSegment, SymbolSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import Segments, FunctionalContext
 from sqlfluff.dialects.dialect_ansi import (
     FromExpressionElementSegment,
     JoinClauseSegment,
 )
+from sqlfluff.utils.functional import FunctionalContext, Segments
 
 
 class Rule_ST09(BaseRule):
@@ -63,7 +64,7 @@ class Rule_ST09(BaseRule):
             and foo.b = bar.b
     """
 
-    name = "structure.first_table"
+    name = "structure.join_condition_order"
     aliases = ()
     groups: Tuple[str, ...] = ("all", "structure")
     config_keywords = ["preferred_first_table_in_join_clause"]
