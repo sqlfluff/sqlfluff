@@ -1,7 +1,8 @@
-"""Keywords in the Trino Dialect. 
+"""Keywords in the Trino Dialect.
 
 - https://trino.io/docs/current/language/reserved.html
-- https://github.com/trinodb/trino/blob/master/core/trino-parser/src/main/antlr4/io/trino/sql/parser/SqlBase.g4
+- https://github.com/trinodb/trino/blob/
+    master/core/trino-parser/src/main/antlr4/io/trino/sql/parser/SqlBase.g4
 """
 
 trino_reserved_keywords = """ALTER
