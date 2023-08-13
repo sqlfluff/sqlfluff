@@ -80,7 +80,7 @@ class BaseParser(Matchable):
             return None
         # If it does, we might have already matched it. Is it the right type
         # already? If so, just return it unchanged.
-        if isinstance(segment, self.raw_class):
+        if isinstance(segment, self.raw_class) and segment.type == self.type:
             return segment
         # Otherwise create a new match segment
         return self._make_match_from_segment(segment)
