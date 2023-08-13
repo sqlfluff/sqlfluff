@@ -53,32 +53,37 @@ class BaseParser(Matchable):
     def _is_first_match(self, segment: BaseSegment) -> bool:
         """Does the segment provided match according to the current rules."""
 
-    def _make_match_from_segment(self, segment: BaseSegment):
+    def _make_match_from_segment(self, segment: BaseSegment) -> RawSegment:
         """Make a MatchResult from the first segment in the given list.
 
         This is a helper function for reuse by other parsers.
         """
-        # Construct the segment object
-        new_seg = self.raw_class(
+        return self.raw_class(
             raw=segment.raw,
             pos_marker=segment.pos_marker,
             type=self.type,
             **self.segment_kwargs,
         )
-        # Return as a tuple
-        return new_seg
 
-    def _match_single(self, segment: BaseSegment):
+    def _match_single(self, segment: BaseSegment) -> Optional[RawSegment]:
         """Match a single segment.
 
         Used in the context of matching against the first in a sequence.
+
+        NOTE: We try and allow here for fairly efficient matching against
+        segments which have already been matched. In those cases we still
+        check in the same way, but if matched, we don't try and create a
+        new segment, we just return the existing segment unchanged.
         """
-        # Is the segment already of this type?
-        if isinstance(segment, self.raw_class) and segment.is_type(self.type):
+        # Does it match? If not, return None.
+        if not self._is_first_match(segment):
+            return None
+        # If it does, we might have already matched it. Is it the right type
+        # already? If so, just return it unchanged.
+        if isinstance(segment, self.raw_class):
             return segment
-        # Does it match?
-        elif self._is_first_match(segment):
-            return self._make_match_from_segment(segment)
+        # Otherwise create a new match segment
+        return self._make_match_from_segment(segment)
 
     def match(
         self,
