@@ -8,8 +8,10 @@ from sqlfluff.core.parser.segments import allow_ephemeral
 
 from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
+    BaseSegment,
     cached_method_for_parse_context,
 )
+from typing import Tuple
 
 
 class GreedyUntil(BaseGrammar):
@@ -23,7 +25,7 @@ class GreedyUntil(BaseGrammar):
 
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self.enforce_whitespace_preceding_terminator = kwargs.pop(
             "enforce_whitespace_preceding_terminator", False
         )
@@ -35,7 +37,7 @@ class GreedyUntil(BaseGrammar):
 
     @match_wrapper()
     @allow_ephemeral
-    def match(self, segments, parse_context):
+    def match(self, segments, parse_context) -> MatchResult:
         """Matching for GreedyUntil works just how you'd expect."""
         return self.greedy_match(
             segments,
@@ -55,10 +57,10 @@ class GreedyUntil(BaseGrammar):
         matchers,
         enforce_whitespace_preceding_terminator,
         include_terminator=False,
-    ):
+    ) -> MatchResult:
         """Matching for GreedyUntil works just how you'd expect."""
         seg_buff = segments
-        seg_bank = ()  # Empty tuple
+        seg_bank: Tuple[BaseSegment, ...] = ()  # Empty tuple
         # If no terminators then just return the whole thing.
         # Shouldn't really happen as GreedyMatch is everything
         # and StartsWith has mandatory terminator
@@ -66,7 +68,7 @@ class GreedyUntil(BaseGrammar):
             return MatchResult.from_matched(segments)
 
         while True:
-            with parse_context.deeper_match() as ctx:
+            with parse_context.deeper_match(name="GreedyUntil") as ctx:
                 pre, mat, matcher = cls._bracket_sensitive_look_ahead_match(
                     seg_buff, matchers, parse_context=ctx
                 )
@@ -157,7 +159,7 @@ class StartsWith(GreedyUntil):
     This also has configurable whitespace and comment handling.
     """
 
-    def __init__(self, target, *args, **kwargs):
+    def __init__(self, target, *args, **kwargs) -> None:
         self.target = self._resolve_ref(target)
         self.terminator = self._resolve_ref(kwargs.pop("terminator", None))
         self.include_terminator = kwargs.pop("include_terminator", False)
@@ -176,7 +178,9 @@ class StartsWith(GreedyUntil):
         return self.target.simple(parse_context=parse_context, crumbs=crumbs)
 
     @match_wrapper()
-    def match(self, segments, parse_context):
+    def match(
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> MatchResult:
         """Match if this sequence starts with a match."""
         first_code_idx = None
         # Work through to find the first code segment...
@@ -188,7 +192,7 @@ class StartsWith(GreedyUntil):
             # We've trying to match on a sequence of segments which contain no code.
             # That means this isn't a match.
             return MatchResult.from_unmatched(segments)  # pragma: no cover TODO?
-        with parse_context.deeper_match() as ctx:
+        with parse_context.deeper_match(name="StartsWith") as ctx:
             match = self.target.match(
                 segments=segments[first_code_idx:], parse_context=ctx
             )

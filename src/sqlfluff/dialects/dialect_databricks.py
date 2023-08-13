@@ -124,6 +124,21 @@ class UseDatabaseStatementSegment(sparksql.UseDatabaseStatementSegment):
     )
 
 
+class SetTimeZoneStatementSegment(BaseSegment):
+    """A `SET TIME ZONE` statement.
+
+    https://docs.databricks.com/sql/language-manual/sql-ref-syntax-aux-conf-mgmt-set-timezone.html
+    """
+
+    type = "set_timezone_statement"
+    match_grammar = Sequence(
+        "SET",
+        "TIME",
+        "ZONE",
+        OneOf("LOCAL", Ref("QuotedLiteralSegment"), Ref("IntervalExpressionSegment")),
+    )
+
+
 class StatementSegment(sparksql.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -136,5 +151,6 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("CreateCatalogStatementSegment"),
             Ref("DropCatalogStatementSegment"),
             Ref("UseCatalogStatementSegment"),
+            Ref("SetTimeZoneStatementSegment"),
         ]
     )

@@ -129,7 +129,7 @@ class Rule_RF05(BaseRule):
                 and context.parent_stack
                 and context.parent_stack[-1].is_type("table_reference")
             ):
-                if identifier[-1] == "*":
+                if identifier and identifier[-1] == "*":
                     identifier = identifier[:-1]
                 identifier = identifier.replace(".", "")
 

@@ -20,7 +20,9 @@ class Segments(tuple):
         """Override new operator."""
         return super(Segments, cls).__new__(cls, segments)
 
-    def __init__(self, *_: BaseSegment, templated_file: Optional[TemplatedFile] = None):
+    def __init__(
+        self, *_: BaseSegment, templated_file: Optional[TemplatedFile] = None
+    ) -> None:
         self.templated_file = templated_file
 
     def __add__(self, segments_) -> "Segments":

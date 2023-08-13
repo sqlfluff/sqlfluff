@@ -46,7 +46,7 @@ athena_dialect.insert_lexer_matchers(
     before="like_operator",
 )
 
-athena_dialect.sets("angle_bracket_pairs").update(
+athena_dialect.bracket_sets("angle_bracket_pairs").update(
     [
         ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
     ]
@@ -242,6 +242,12 @@ athena_dialect.replace(
         Ref("ComparisonOperatorGrammar"),
         # Add arrow operators for functions (e.g. filter)
         Ref("RightArrowOperator"),
+    ),
+    PostFunctionGrammar=ansi_dialect.get_grammar("PostFunctionGrammar").copy(
+        # UNNEST can optionally have a WITH ORDINALITY clause
+        insert=[
+            Sequence("WITH", "ORDINALITY", optional=True),
+        ]
     ),
 )
 

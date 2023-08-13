@@ -32,7 +32,7 @@ class DeprecatedOption(click.Option):
     is finished.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self.deprecated = kwargs.pop("deprecated", ())
         self.preferred = args[0][-1]
 
@@ -92,6 +92,7 @@ class DeprecatedOptionsCommand(click.Command):
             finally:
                 del frame
 
+            assert deprecated
             if opt in deprecated:
                 msg = (
                     f"DeprecationWarning: The option {opt!r} is deprecated, "

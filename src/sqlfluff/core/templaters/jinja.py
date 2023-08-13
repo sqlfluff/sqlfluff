@@ -15,7 +15,6 @@ from jinja2 import (
     TemplateSyntaxError,
     meta,
 )
-from jinja2.environment import Template
 from jinja2.exceptions import TemplateNotFound, UndefinedError
 from jinja2.ext import Extension
 from jinja2.sandbox import SandboxedEnvironment
@@ -75,7 +74,9 @@ class JinjaTemplater(PythonTemplater):
         return context
 
     @classmethod
-    def _extract_macros_from_path(cls, path: List[str], env: Environment, ctx: Dict):
+    def _extract_macros_from_path(
+        cls, path: List[str], env: Environment, ctx: Dict
+    ) -> dict:
         """Take a path and extract macros from it."""
         macro_ctx = {}
         for path_entry in path:
@@ -199,7 +200,7 @@ class JinjaTemplater(PythonTemplater):
             schema = "this_schema"
             database = "this_database"
 
-            def __str__(self):  # pragma: no cover TODO?
+            def __str__(self) -> str:  # pragma: no cover TODO?
                 return self.name
 
         dbt_builtins = {
@@ -342,15 +343,15 @@ class JinjaTemplater(PythonTemplater):
 
         return live_context
 
-    def template_builder(
+    def construct_render_func(
         self, fname=None, config=None
-    ) -> Tuple[Environment, dict, Callable[[str], Template]]:
+    ) -> Tuple[Environment, dict, Callable[[str], str]]:
         """Builds and returns objects needed to create and run templates."""
         # Load the context
         env = self._get_jinja_env(config)
         live_context = self.get_context(fname=fname, config=config, env=env)
 
-        def make_template(in_str):
+        def render_func(in_str: str) -> str:
             """Used by JinjaTracer to instantiate templates.
 
             This function is a closure capturing internal state from process().
@@ -359,9 +360,22 @@ class JinjaTemplater(PythonTemplater):
 
             https://www.programiz.com/python-programming/closure
             """
-            return env.from_string(in_str, globals=live_context)
+            # Load the template, passing the global context.
+            try:
+                template = env.from_string(in_str, globals=live_context)
+            except TemplateSyntaxError as err:  # pragma: no cover
+                # Something in the template didn't parse, return the original
+                # and a violation around what happened.
+                # NOTE: Most parsing exceptions will be captured when we call
+                # env.parse() in the .process() method. Hence this exception
+                # handling should never be called.
+                raise SQLTemplaterError(
+                    f"Failure to parse jinja template: {err}.",
+                    line_no=err.lineno,
+                )
+            return template.render()
 
-        return env, live_context, make_template
+        return env, live_context, render_func
 
     @large_file_check
     def process(
@@ -393,41 +407,36 @@ class JinjaTemplater(PythonTemplater):
             )
 
         try:
-            env, live_context, make_template = self.template_builder(
+            env, live_context, render_func = self.construct_render_func(
                 fname=fname, config=config
             )
         except SQLTemplaterError as err:
             return None, [err]
 
-        # Load the template, passing the global context.
-        try:
-            template = make_template(in_str)
-        except TemplateSyntaxError as err:
-            # Something in the template didn't parse, return the original
-            # and a violation around what happened.
-            return (
-                TemplatedFile(source_str=in_str, fname=fname),
-                [
-                    SQLTemplaterError(
-                        f"Failure to parse jinja template: {err}.",
-                        line_no=err.lineno,
-                    )
-                ],
-            )
-
         violations: List[SQLBaseError] = []
 
-        # Attempt to identify any undeclared variables. The majority
-        # will be found during the _crawl_tree step rather than this
-        # first Exception which serves only to catch catastrophic errors.
+        # Attempt to identify any undeclared variables or syntax errors.
+        # The majority of variables will be found during the _crawl_tree
+        # step rather than this first Exception which serves only to catch
+        # catastrophic errors.
         try:
             syntax_tree = env.parse(in_str)
             potentially_undefined_variables = meta.find_undeclared_variables(
                 syntax_tree
             )
-        except Exception as err:  # pragma: no cover
-            # TODO: Add a url here so people can get more help.
-            raise SQLTemplaterError(f"Failure in identifying Jinja variables: {err}.")
+        except Exception as err:
+            unrendered_out = TemplatedFile(
+                source_str=in_str,
+                fname=fname,
+            )
+            templater_error = SQLTemplaterError(
+                "Failed to parse Jinja syntax. Correct the syntax or select an "
+                "alternative templater."
+            )
+            # Capture a line number if we can.
+            if isinstance(err, TemplateSyntaxError):
+                templater_error.line_no = err.lineno
+            return unrendered_out, [templater_error]
 
         undefined_variables = set()
 
@@ -441,22 +450,22 @@ class JinjaTemplater(PythonTemplater):
             alters_data = False
 
             @classmethod
-            def create(cls, name):
+            def create(cls, name: str) -> "UndefinedRecorder":
                 return UndefinedRecorder(name=name)
 
-            def __init__(self, name):
+            def __init__(self, name: str) -> None:
                 self.name = name
 
-            def __str__(self):
+            def __str__(self) -> str:
                 """Treat undefined vars as empty, but remember for later."""
                 undefined_variables.add(self.name)
                 return ""
 
-            def __getattr__(self, item):
+            def __getattr__(self, item) -> "UndefinedRecorder":
                 undefined_variables.add(self.name)
                 return UndefinedRecorder(f"{self.name}.{item}")
 
-            def __call__(self, *args, **kwargs):
+            def __call__(self, *args, **kwargs) -> "UndefinedRecorder":
                 return UndefinedRecorder(f"{self.name}()")
 
         Undefined = (
@@ -469,14 +478,11 @@ class JinjaTemplater(PythonTemplater):
                 live_context[val] = Undefined.create(val)  # type: ignore
 
         try:
-            # NB: Passing no context. Everything is loaded when the template is loaded.
-            out_str = template.render(**live_context)
             # Slice the file once rendered.
             raw_sliced, sliced_file, out_str = self.slice_file(
                 in_str,
-                out_str,
+                render_func=render_func,
                 config=config,
-                make_template=make_template,
             )
             if undefined_variables:
                 # Lets go through and find out where they are:
@@ -513,27 +519,16 @@ class JinjaTemplater(PythonTemplater):
             return None, violations
 
     def slice_file(
-        self, raw_str: str, templated_str: str, config=None, **kwargs
+        self, raw_str: str, render_func: Callable[[str], str], config=None, **kwargs
     ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix."""
         # The JinjaTracer slicing algorithm is more robust, but it requires
-        # us to create and render a second template (not raw_str) and is only
-        # enabled if the caller passes a make_template() function.
-        make_template = kwargs.pop("make_template", None)
-        if make_template is None:
-            # make_template() was not provided. Use the base class
-            # implementation instead.
-            return super().slice_file(
-                raw_str, templated_str, config, **kwargs
-            )  # pragma: no cover
+        # us to create and render a second template (not raw_str).
 
         templater_logger.info("Slicing File Template")
-        templater_logger.debug("    Raw String: %r", raw_str)
-        templater_logger.debug("    Templated String: %r", templated_str)
-        # TRICKY: Note that the templated_str parameter is not used. JinjaTracer
-        # uses make_template() to build and render the template itself.
+        templater_logger.debug("    Raw String: %r", raw_str[:80])
         analyzer = JinjaAnalyzer(raw_str, self._get_jinja_env())
-        tracer = analyzer.analyze(make_template)
+        tracer = analyzer.analyze(render_func)
         trace = tracer.trace(append_to_templated=kwargs.pop("append_to_templated", ""))
         return trace.raw_sliced, trace.sliced_file, trace.templated_str
 
@@ -552,15 +547,15 @@ class DummyUndefined(jinja2.Undefined):
     # https://jinja.palletsprojects.com/en/3.0.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
     alters_data = False
 
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         super().__init__()
         self.name = name
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name.replace(".", "_")
 
     @classmethod
-    def create(cls, name):
+    def create(cls, name) -> "DummyUndefined":
         """Factory method.
 
         When ignoring=templating is configured, use 'name' as the value for
@@ -581,10 +576,10 @@ class DummyUndefined(jinja2.Undefined):
     # Implement the most common magic methods. This helps avoid
     # templating errors for undefined variables.
     # https://www.tutorialsteacher.com/python/magic-methods-in-python
-    def _self_impl(self, *args, **kwargs):
+    def _self_impl(self, *args, **kwargs) -> "DummyUndefined":
         return self
 
-    def _bool_impl(self, *args, **kwargs):
+    def _bool_impl(self, *args, **kwargs) -> bool:
         return True
 
     __add__ = _self_impl
@@ -612,7 +607,7 @@ class DummyUndefined(jinja2.Undefined):
     __ge__ = _bool_impl
     __gt__ = _bool_impl
 
-    def __hash__(self):  # pragma: no cov
+    def __hash__(self) -> int:  # pragma: no cov
         # This is called by the "in" operator, among other things.
         return 0
 
@@ -625,7 +620,7 @@ class DBTTestExtension(Extension):
 
     tags = {"test"}
 
-    def parse(self, parser):
+    def parse(self, parser) -> jinja2.nodes.Macro:
         """Parses out the contents of the test tag."""
         node = jinja2.nodes.Macro(lineno=next(parser.stream).lineno)
         test_name = parser.parse_assign_target(name_only=True).name

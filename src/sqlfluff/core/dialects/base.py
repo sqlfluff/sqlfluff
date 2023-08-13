@@ -1,7 +1,8 @@
 """Defines the base dialect class."""
 
 import sys
-from typing import Set, Union, Type
+from typing import Set, Tuple, Union, Type, Dict, Any, Optional, List, cast
+from typing_extensions import Literal
 
 from sqlfluff.core.parser import (
     KeywordSegment,
@@ -10,6 +11,7 @@ from sqlfluff.core.parser import (
     StringParser,
 )
 from sqlfluff.core.parser.grammar.base import BaseGrammar
+from sqlfluff.core.parser.lexer import LexerType
 from sqlfluff.core.parser.matchable import Matchable
 
 DialectElementType = Union[Type[BaseSegment], Matchable, SegmentGenerator]
@@ -29,13 +31,13 @@ class Dialect:
 
     def __init__(
         self,
-        name,
-        lexer_matchers=None,
-        library=None,
-        sets=None,
-        inherits_from=None,
-        root_segment_name=None,
-    ):
+        name: str,
+        root_segment_name: str,
+        lexer_matchers: Optional[List[LexerType]] = None,
+        library: Optional[Dict[str, DialectElementType]] = None,
+        sets: Optional[Dict[str, Set[Union[str, Tuple[str, str, str, bool]]]]] = None,
+        inherits_from: Optional[str] = None,
+    ) -> None:
         self._library = library or {}
         self.name = name
         self.lexer_matchers = lexer_matchers
@@ -44,7 +46,7 @@ class Dialect:
         self.inherits_from = inherits_from
         self.root_segment_name = root_segment_name
 
-    def __repr__(self):  # pragma: no cover
+    def __repr__(self) -> str:  # pragma: no cover
         return f"<Dialect: {self.name}>"
 
     def expand(self) -> "Dialect":
@@ -69,27 +71,27 @@ class Dialect:
         expanded_copy = self.copy_as(name=self.name)
         # Expand any callable elements of the dialect.
         for key in expanded_copy._library:
-            if isinstance(expanded_copy._library[key], SegmentGenerator):
+            seg_gen = expanded_copy._library[key]
+            if isinstance(seg_gen, SegmentGenerator):
                 # If the element is callable, call it passing the current
                 # dialect and store the result in its place.
                 # Use the .replace() method for its error handling.
-                expanded_copy.replace(
-                    **{key: expanded_copy._library[key].expand(expanded_copy)}
-                )
+                expanded_copy.replace(**{key: seg_gen.expand(expanded_copy)})
         # Expand any keyword sets.
         for keyword_set in [
             "unreserved_keywords",
             "reserved_keywords",
         ]:  # e.g. reserved_keywords, (JOIN, ...)
             # Make sure the values are available as KeywordSegments
-            for kw in expanded_copy.sets(keyword_set):
+            keyword_sets = expanded_copy.sets(keyword_set)
+            for kw in keyword_sets:
                 n = kw.capitalize() + "KeywordSegment"
                 if n not in expanded_copy._library:
                     expanded_copy._library[n] = StringParser(kw.lower(), KeywordSegment)
         expanded_copy.expanded = True
         return expanded_copy
 
-    def sets(self, label) -> Set:
+    def sets(self, label: str) -> Set[str]:
         """Allows access to sets belonging to this dialect.
 
         These sets belong to the dialect and are copied for sub
@@ -97,9 +99,27 @@ class Dialect:
         dialect objects to create some of the bulk-produced rules.
 
         """
+        assert label not in (
+            "bracket_pairs",
+            "angle_bracket_pairs",
+        ), f"Use `bracket_sets` to retrieve { label } set."
+
         if label not in self._sets:
             self._sets[label] = set()
-        return self._sets[label]
+        return cast(Set[str], self._sets[label])
+
+    def bracket_sets(
+        self, label: Literal["bracket_pairs", "angle_bracket_pairs"]
+    ) -> Set[Tuple[str, str, str, bool]]:
+        """Allows access to bracket sets belonging to this dialect."""
+        assert label in (
+            "bracket_pairs",
+            "angle_bracket_pairs",
+        ), "Invalid bracket set. Consider using `sets` instead."
+
+        if label not in self._sets:
+            self._sets[label] = set()
+        return cast(Set[Tuple[str, str, str, bool]], self._sets[label])
 
     def update_keywords_set_from_multiline_string(
         self, set_label: str, values: str
@@ -109,7 +129,7 @@ class Dialect:
             [n.strip().upper() for n in values.strip().split("\n")]
         )
 
-    def copy_as(self, name):
+    def copy_as(self, name: str) -> "Dialect":
         """Copy this dialect and create a new one with a different name.
 
         This is the primary method for inheritance, after which, the
@@ -126,6 +146,8 @@ class Dialect:
         for label in self._sets:
             new_sets[label] = self._sets[label].copy()
 
+        assert self.lexer_matchers
+
         return self.__class__(
             name=name,
             library=self._library.copy(),
@@ -135,7 +157,7 @@ class Dialect:
             root_segment_name=self.root_segment_name,
         )
 
-    def add(self, **kwargs: DialectElementType):
+    def add(self, **kwargs: DialectElementType) -> None:
         """Add a segment to the dialect directly.
 
         This is the alternative to the decorator route, most useful for segments
@@ -152,7 +174,7 @@ class Dialect:
                 raise ValueError(f"{n!r} is already registered in {self!r}")
             self._library[n] = kwargs[n]
 
-    def replace(self, **kwargs: DialectElementType):
+    def replace(self, **kwargs: DialectElementType) -> None:
         """Override a segment on the dialect directly.
 
         Usage is very similar to add, but elements specified must already exist.
@@ -176,12 +198,15 @@ class Dialect:
             base_dir = set(dir(self._library[n]))
             subclass = False
             if isinstance(self._library[n], type) and isinstance(cls, type):
-                subclass = issubclass(cls, self._library[n])
+                seg = cast(Type["BaseSegment"], self._library[n])
+                assert issubclass(seg, BaseSegment)
+                assert issubclass(cls, BaseSegment)
+                subclass = issubclass(cls, seg)
                 if not subclass:
-                    if self._library[n].type != cls.type:
+                    if seg.type != cls.type:
                         raise ValueError(  # pragma: no cover
                             f"Cannot replace {n!r} because 'type' property does not "
-                            f"match: {cls.type} != {self._library[n].type}"
+                            f"match: {cls.type} != {seg.type}"
                         )
 
                     cls_dir = set(dir(cls))
@@ -219,14 +244,15 @@ class Dialect:
                                 )
             self._library[n] = cls
 
-    def add_update_segments(self, module_dct):
+    def add_update_segments(self, module_dct: Dict[str, Any]) -> None:
         """Scans module dictionary, adding or replacing segment definitions."""
         for k, v in module_dct.items():
             if isinstance(v, type) and issubclass(v, BaseSegment):
                 if k not in self._library:
                     self.add(**{k: v})
                 else:
-                    self.replace(**{k: v})
+                    non_seg_v = cast(Union[Matchable, SegmentGenerator], v)
+                    self.replace(**{k: non_seg_v})
 
     def get_grammar(self, name: str) -> BaseGrammar:
         """Allow access to grammars pre-expansion.
@@ -236,11 +262,12 @@ class Dialect:
         """
         if name not in self._library:  # pragma: no cover
             raise ValueError(f"Element {name} not found in dialect.")
-        if not isinstance(self._library[name], BaseGrammar):  # pragma: no cover
+        grammar = self._library[name]
+        if not isinstance(grammar, BaseGrammar):  # pragma: no cover
             raise TypeError(
                 f"Attempted to fetch non grammar [{name}] with get_grammar."
             )
-        return self._library[name]
+        return grammar
 
     def get_segment(self, name: str) -> Type["BaseSegment"]:
         """Allow access to segments pre-expansion.
@@ -250,11 +277,15 @@ class Dialect:
         """
         if name not in self._library:  # pragma: no cover
             raise ValueError(f"Element {name} not found in dialect.")
-        if not issubclass(self._library[name], BaseSegment):  # pragma: no cover
+        segment = cast(Type["BaseSegment"], self._library[name])
+
+        if issubclass(segment, BaseSegment):
+            return segment
+        else:  # pragma: no cover
             raise TypeError(
-                f"Attempted to fetch non segment [{name}] with get_segment."
+                f"Attempted to fetch non segment [{name}] "
+                f"with get_segment - type{type(segment)}"
             )
-        return self._library[name]
 
     def ref(self, name: str) -> ExpandedDialectElementType:
         """Return an object which acts as a late binding reference to the element named.
@@ -269,6 +300,7 @@ class Dialect:
         if name in self._library:
             res = self._library[name]
             if res:
+                assert not isinstance(res, SegmentGenerator)
                 return res
             else:  # pragma: no cover
                 raise ValueError(
@@ -307,7 +339,7 @@ class Dialect:
                 )
             )
 
-    def set_lexer_matchers(self, lexer_matchers):
+    def set_lexer_matchers(self, lexer_matchers: List[LexerType]) -> None:
         """Set the lexer struct for the dialect.
 
         This is what is used for base dialects. For derived dialects
@@ -317,14 +349,14 @@ class Dialect:
         """
         self.lexer_matchers = lexer_matchers
 
-    def get_lexer_matchers(self):
+    def get_lexer_matchers(self) -> List[LexerType]:
         """Fetch the lexer struct for this dialect."""
         if self.lexer_matchers:
             return self.lexer_matchers
         else:  # pragma: no cover
             raise ValueError(f"Lexing struct has not been set for dialect {self}")
 
-    def patch_lexer_matchers(self, lexer_patch):
+    def patch_lexer_matchers(self, lexer_patch: List[LexerType]) -> None:
         """Patch an existing lexer struct.
 
         Used to edit the lexer of a sub-dialect.
@@ -344,7 +376,7 @@ class Dialect:
         # Overwrite with the buffer once we're done
         self.lexer_matchers = buff
 
-    def insert_lexer_matchers(self, lexer_patch, before):
+    def insert_lexer_matchers(self, lexer_patch: List[LexerType], before: str) -> None:
         """Insert new records into an existing lexer struct.
 
         Used to edit the lexer of a sub-dialect. The patch is
@@ -371,6 +403,6 @@ class Dialect:
         # Overwrite with the buffer once we're done
         self.lexer_matchers = buff
 
-    def get_root_segment(self):
+    def get_root_segment(self) -> Union[Type[BaseSegment], Matchable]:
         """Get the root segment of the dialect."""
         return self.ref(self.root_segment_name)

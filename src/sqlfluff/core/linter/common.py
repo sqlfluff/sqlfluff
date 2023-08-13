@@ -6,6 +6,7 @@ from typing import (
     Optional,
     Tuple,
     Dict,
+    Any,
 )
 
 from sqlfluff.core.errors import SQLBaseError, SQLTemplaterError
@@ -22,14 +23,6 @@ class RuleTuple(NamedTuple):
     description: str
     groups: Tuple[str, ...]
     aliases: Tuple[str, ...]
-
-
-class NoQaDirective(NamedTuple):
-    """Parsed version of a 'noqa' comment."""
-
-    line_no: int  # Source line number
-    rules: Optional[Tuple[str, ...]]  # Affected rule names
-    action: Optional[str]  # "enable", "disable", or "None"
 
 
 class RenderedFile(NamedTuple):
@@ -65,7 +58,7 @@ class ParsedString(NamedTuple):
 
     tree: Optional[BaseSegment]
     violations: List[SQLBaseError]
-    time_dict: dict
+    time_dict: Dict[str, Any]
     templated_file: TemplatedFile
     config: FluffConfig
     fname: str

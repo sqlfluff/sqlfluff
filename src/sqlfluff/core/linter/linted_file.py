@@ -20,7 +20,6 @@ from typing import (
     Optional,
     Tuple,
     Union,
-    cast,
     Type,
     Dict,
 )
@@ -37,7 +36,7 @@ from sqlfluff.core.templaters import TemplatedFile, RawFileSlice
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments import BaseSegment, FixPatch
 
-from sqlfluff.core.linter.common import NoQaDirective
+from sqlfluff.core.linter.noqa import IgnoreMask
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
@@ -76,11 +75,13 @@ class LintedFile(NamedTuple):
     violations: List[SQLBaseError]
     timings: Optional[FileTimings]
     tree: Optional[BaseSegment]
-    ignore_mask: List[NoQaDirective]
+    ignore_mask: Optional[IgnoreMask]
     templated_file: TemplatedFile
     encoding: str
 
-    def check_tuples(self, raise_on_non_linting_violations=True) -> List[CheckTuple]:
+    def check_tuples(
+        self, raise_on_non_linting_violations: bool = True
+    ) -> List[CheckTuple]:
         """Make a list of check_tuples.
 
         This assumes that all the violations found are
@@ -127,6 +128,7 @@ class LintedFile(NamedTuple):
         types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
         filter_ignore: bool = True,
         filter_warning: bool = True,
+        warn_unused_ignores: bool = False,
         fixable: Optional[bool] = None,
     ) -> list:
         """Get a list of violations, respecting filters and ignore options.
@@ -161,94 +163,13 @@ class LintedFile(NamedTuple):
             violations = [v for v in violations if not v.ignore]
             # Ignore any rules in the ignore mask
             if self.ignore_mask:
-                violations = self.ignore_masked_violations(violations, self.ignore_mask)
+                violations = self.ignore_mask.ignore_masked_violations(violations)
         # Filter warning violations
         if filter_warning:
             violations = [v for v in violations if not v.warning]
-        return violations
-
-    @staticmethod
-    def _ignore_masked_violations_single_line(
-        violations: List[SQLBaseError], ignore_mask: List[NoQaDirective]
-    ):
-        """Returns whether to ignore error for line-specific directives.
-
-        The "ignore" list is assumed to ONLY contain NoQaDirectives with
-        action=None.
-        """
-        for ignore in ignore_mask:
-            violations = [
-                v
-                for v in violations
-                if not (
-                    v.line_no == ignore.line_no
-                    and (ignore.rules is None or v.rule_code() in ignore.rules)
-                )
-            ]
-        return violations
-
-    @staticmethod
-    def _should_ignore_violation_line_range(
-        line_no: int, ignore_rule: List[NoQaDirective]
-    ):
-        """Returns whether to ignore a violation at line_no."""
-        # Loop through the NoQaDirectives to find the state of things at
-        # line_no. Assumptions about "ignore_rule":
-        # - Contains directives for only ONE RULE, i.e. the rule that was
-        #   violated at line_no
-        # - Sorted in ascending order by line number
-        disable = False
-        for ignore in ignore_rule:
-            if ignore.line_no > line_no:
-                break
-            disable = ignore.action == "disable"
-        return disable
-
-    @classmethod
-    def _ignore_masked_violations_line_range(
-        cls, violations: List[SQLBaseError], ignore_mask: List[NoQaDirective]
-    ):
-        """Returns whether to ignore error for line-range directives.
-
-        The "ignore" list is assumed to ONLY contain NoQaDirectives where
-        action is "enable" or "disable".
-        """
-        result = []
-        for v in violations:
-            # Find the directives that affect the violated rule "v", either
-            # because they specifically reference it or because they don't
-            # specify a list of rules, thus affecting ALL rules.
-            ignore_rule = sorted(
-                (
-                    ignore
-                    for ignore in ignore_mask
-                    if not ignore.rules
-                    or (v.rule_code() in cast(Tuple[str, ...], ignore.rules))
-                ),
-                key=lambda ignore: ignore.line_no,
-            )
-            # Determine whether to ignore the violation, based on the relevant
-            # enable/disable directives.
-            if not cls._should_ignore_violation_line_range(v.line_no, ignore_rule):
-                result.append(v)
-        return result
-
-    @classmethod
-    def ignore_masked_violations(
-        cls, violations: List[SQLBaseError], ignore_mask: List[NoQaDirective]
-    ) -> List[SQLBaseError]:
-        """Remove any violations specified by ignore_mask.
-
-        This involves two steps:
-        1. Filter out violations affected by single-line "noqa" directives.
-        2. Filter out violations affected by disable/enable "noqa" directives.
-        """
-        ignore_specific = [ignore for ignore in ignore_mask if not ignore.action]
-        ignore_range = [ignore for ignore in ignore_mask if ignore.action]
-        violations = cls._ignore_masked_violations_single_line(
-            violations, ignore_specific
-        )
-        violations = cls._ignore_masked_violations_line_range(violations, ignore_range)
+        # Add warnings for unneeded noqa if applicable
+        if warn_unused_ignores and not filter_warning and self.ignore_mask:
+            violations += self.ignore_mask.generate_warnings_for_unused()
         return violations
 
     def num_violations(self, **kwargs) -> int:

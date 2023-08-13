@@ -1,7 +1,7 @@
 """Testing utils for rule plugins."""
 from sqlfluff.core import Linter
 from sqlfluff.core.errors import SQLParseError, SQLTemplaterError
-from sqlfluff.core.rules import get_ruleset
+from sqlfluff.core.rules import BaseRule, get_ruleset
 from sqlfluff.core.config import FluffConfig
 from typing import Tuple, List, NamedTuple, Optional, Set
 from glob import glob
@@ -50,7 +50,7 @@ def load_test_cases(
     return ids, test_cases
 
 
-def get_rule_from_set(code, config):
+def get_rule_from_set(code, config) -> BaseRule:
     """Fetch a rule from the rule set."""
     for r in get_ruleset().get_rulepack(config=config).rules:
         if r.code == code:  # pragma: no cover
@@ -80,6 +80,7 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
     if parse_errors:
         pytest.fail(f"Found the following parse errors in test case: {parse_errors}")
     if not any(v.rule.code == code for v in lerrs):
+        assert linted.tree
         print(f"Parsed File:\n{linted.tree.stringify()}")
         pytest.fail(
             f"No {code} failures found in query which should fail.",
@@ -113,11 +114,13 @@ def assert_rule_pass_in_sql(code, sql, configs=None, msg=None):
 
     # This section is mainly for aid in debugging.
     rendered = linter.render_string(sql, fname="<STR>", config=cfg, encoding="utf-8")
-    parsed = linter.parse_rendered(rendered, recurse=True)
+    parsed = linter.parse_rendered(rendered)
     if parsed.violations:
         if msg:
             print(msg)  # pragma: no cover
+        assert parsed.tree
         pytest.fail(parsed.violations[0].desc() + "\n" + parsed.tree.stringify())
+    assert parsed.tree
     print(f"Parsed:\n {parsed.tree.stringify()}")
 
     # Note that lint_string() runs the templater and parser again, in order to

@@ -2,10 +2,22 @@
 
 import copy
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List, Optional, Union, Type, Tuple, Any, cast
+from typing import (
+    TYPE_CHECKING,
+    List,
+    Optional,
+    Union,
+    Set,
+    Type,
+    Tuple,
+    Any,
+    cast,
+)
+from typing_extensions import Literal
 from uuid import uuid4
 
 from sqlfluff.core.errors import SQLParseError
+from sqlfluff.core.parser.grammar.types import SimpleHintType
 from sqlfluff.core.string_helpers import curtail_string
 
 from sqlfluff.core.parser.segments import BaseSegment, BracketedSegment, allow_ephemeral
@@ -21,13 +33,14 @@ from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.parsers import BaseParser
 
 # Either a Matchable (a grammar or parser) or a Segment CLASS
+
 MatchableType = Union[Matchable, Type[BaseSegment]]
 
 if TYPE_CHECKING:
     from sqlfluff.core.dialects.base import Dialect  # pragma: no cover
 
 
-def first_trimmed_raw(seg):
+def first_trimmed_raw(seg: BaseSegment) -> str:
     """Trim whitespace off a whole element raw.
 
     Used as a helper function in BaseGrammar._look_ahead_match.
@@ -60,7 +73,7 @@ class BracketInfo:
     bracket: BaseSegment
     segments: Tuple[BaseSegment, ...]
 
-    def to_segment(self, end_bracket):
+    def to_segment(self, end_bracket) -> BracketedSegment:
         """Turn the contained segments into a bracketed segment."""
         return BracketedSegment(
             segments=self.segments,
@@ -86,7 +99,7 @@ def cached_method_for_parse_context(func):
         for the current use case of dependency loop debugging that's
         ok.
         """
-        cache_tuple: Tuple = self.__dict__.get(cache_key, (None, None))
+        cache_tuple: tuple = self.__dict__.get(cache_key, (None, None))
         # Do we currently have a cached value?
         if cache_tuple[0] == parse_context.uuid:
             return cache_tuple[1]
@@ -143,7 +156,7 @@ class BaseGrammar(Matchable):
         allow_gaps=True,
         optional=False,
         ephemeral_name=None,
-    ):
+    ) -> None:
         """Deal with kwargs common to all grammars.
 
         Args:
@@ -179,7 +192,7 @@ class BaseGrammar(Matchable):
 
         # Now we deal with the standard kwargs
         self.allow_gaps = allow_gaps
-        self.optional = optional
+        self.optional: bool = optional
         # ephemeral_name is a flag to indicate whether we need to make an
         # EphemeralSegment class. This is effectively syntactic sugar
         # to allow us to avoid specifying a EphemeralSegment directly in a dialect.
@@ -196,7 +209,7 @@ class BaseGrammar(Matchable):
         """
         return self._cache_key
 
-    def is_optional(self):
+    def is_optional(self) -> bool:
         """Return whether this segment is optional.
 
         The optional attribute is set in the __init__ method.
@@ -205,7 +218,9 @@ class BaseGrammar(Matchable):
 
     @match_wrapper()
     @allow_ephemeral
-    def match(self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext):
+    def match(
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> MatchResult:
         """Match a list of segments against this segment.
 
         Matching can be done from either the raw or the segments.
@@ -217,9 +232,81 @@ class BaseGrammar(Matchable):
         )  # pragma: no cover
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext, crumbs=None):
+    def simple(
+        self, parse_context: ParseContext, crumbs: Optional[List[str]] = None
+    ) -> SimpleHintType:
         """Does this matcher support a lowercase hash matching route?"""
         return None
+
+    @staticmethod
+    def _first_non_whitespace(segments) -> Optional[Tuple[str, Set[str]]]:
+        """Return the upper first non-whitespace segment in the iterable."""
+        for segment in segments:
+            if segment.first_non_whitespace_segment_raw_upper:
+                return (
+                    segment.first_non_whitespace_segment_raw_upper,
+                    segment.class_types,
+                )
+        return None
+
+    @classmethod
+    def _prune_options(
+        cls,
+        options: List[MatchableType],
+        segments: Tuple[BaseSegment, ...],
+        parse_context: ParseContext,
+    ) -> List[MatchableType]:
+        """Use the simple matchers to prune which options to match on.
+
+        Works in the context of a grammar making choices between options
+        such as AnyOf or the content of Delimited.
+        """
+        available_options = []
+        prune_buff = []
+
+        # Find the first code element to match against.
+        first_segment = cls._first_non_whitespace(segments)
+        # If we don't have an appropriate option to match against,
+        # then we should just return immediately. Nothing will match.
+        if not first_segment:
+            return options
+        first_raw, first_types = first_segment
+
+        for opt in options:
+            simple = opt.simple(parse_context=parse_context)
+            if simple is None:
+                # This element is not simple, we have to do a
+                # full match with it...
+                available_options.append(opt)
+                continue
+
+            # Otherwise we have a simple option, so let's use
+            # it for pruning.
+            simple_raws, simple_types = simple
+            matched = False
+
+            # We want to know if the first meaningful element of the str_buff
+            # matches the option, based on either simple _raw_ matching or
+            # simple _type_ matching.
+
+            # Match Raws
+            if simple_raws and first_raw in simple_raws:
+                # If we get here, it's matched the FIRST element of the string buffer.
+                available_options.append(opt)
+                matched = True
+
+            # Match Types
+            if simple_types and not matched and first_types.intersection(simple_types):
+                # If we get here, it's matched the FIRST element of the string buffer.
+                available_options.append(opt)
+                matched = True
+
+            if not matched:
+                # Ditch this option, the simple match has failed
+                prune_buff.append(opt)
+                continue
+
+        return available_options
 
     @classmethod
     def _longest_trimmed_match(
@@ -227,8 +314,7 @@ class BaseGrammar(Matchable):
         segments: Tuple[BaseSegment, ...],
         matchers: List[MatchableType],
         parse_context: ParseContext,
-        trim_noncode=True,
-        terminators: Optional[List[MatchableType]] = None,
+        trim_noncode: bool = True,
     ) -> Tuple[MatchResult, Optional[MatchableType]]:
         """Return longest match from a selection of matchers.
 
@@ -239,12 +325,56 @@ class BaseGrammar(Matchable):
         Returns:
             `tuple` of (match_object, matcher).
 
-        """
-        terminated = False
+        NOTE: This matching method is the workhorse of the parser. It drives the
+        functionality of the AnyOf & AnyNumberOf grammars, and therefore by extension
+        the degree of branching within the parser. It's performance can be monitored
+        using the `parse_stats` object on the context.
 
+        The things which determine the performance of this method are:
+        1. Pruning. This method uses `_prune_options()` to filter down which matchable
+           options proceed to the full matching step. Ideally only very few do and this
+           can handle the majority of the filtering.
+        2. Caching. This method uses the parse cache (`check_parse_cache` and
+           `put_parse_cache`) on the ParseContext to speed up repetitive matching
+           operations. As we make progress through a file there will often not be a
+           cached value already available, and so this cache has the greatest impact
+           within poorly optimised (or highly nested) expressions.
+        3. Terminators. By default, _all_ the options are evaluated, and then the
+           longest (the `best`) is returned. The exception to this is when the match
+           is `complete` (i.e. it matches _all_ the remaining segments), or when a
+           match is followed by a valid terminator (i.e. a segment which indicates
+           that the match is _effectively_ complete). In these latter scenarios, the
+           _first_ complete or terminated match is returned. In the ideal case, the
+           only matcher which is evaluated should be the "correct" one, and then no
+           others should be attempted.
+        """
         # Have we been passed an empty list?
         if len(segments) == 0:  # pragma: no cover
             return MatchResult.from_empty(), None
+        # If presented with no options, return no match
+        elif not matchers:
+            return MatchResult.from_unmatched(segments), None
+
+        # Prune available options, based on their simple representation for efficiency.
+        available_options = cls._prune_options(
+            matchers, segments, parse_context=parse_context
+        )
+
+        # If we've pruned all the options, return no match
+        if not available_options:
+            return MatchResult.from_unmatched(segments), None
+
+        terminated = False
+
+        parse_context.increment("ltm_calls")
+        # NOTE: The use of terminators is only available via the context.
+        # They are set in that way to allow appropriate inheritance rather
+        # than only being used in a per-grammar basis.
+        if parse_context.terminators:
+            parse_context.increment("ltm_calls_w_ctx_terms")
+            terminators = parse_context.terminators
+        else:
+            terminators = ()
 
         # If gaps are allowed, trim the ends.
         if trim_noncode:
@@ -263,8 +393,9 @@ class BaseGrammar(Matchable):
         )
 
         best_match_length = 0
+        best_match: Optional[Tuple[MatchResult, MatchableType]] = None
         # iterate at this position across all the matchers
-        for matcher in matchers:
+        for idx, matcher in enumerate(available_options):
             # Check parse cache.
             matcher_key = matcher.cache_key()
             res_match: Optional[MatchResult] = parse_context.check_parse_cache(
@@ -281,7 +412,7 @@ class BaseGrammar(Matchable):
                 )
             else:
                 # Match fresh if no cache hit
-                res_match = matcher.match(segments, parse_context=parse_context)
+                res_match = matcher.match(segments, parse_context)
                 # Cache it for later to for performance.
                 parse_context.put_parse_cache(loc_key, matcher_key, res_match)
 
@@ -290,6 +421,7 @@ class BaseGrammar(Matchable):
 
             if res_match.is_complete():
                 # Just return it! (WITH THE RIGHT OTHER STUFF)
+                parse_context.increment("complete_match")
                 if trim_noncode:
                     return (
                         MatchResult.from_matched(
@@ -309,13 +441,18 @@ class BaseGrammar(Matchable):
                     # end earlier, and claim an effectively "complete" match.
                     # NOTE: This means that by specifying terminators, we can
                     # significantly increase performance.
-                    if terminators:
+                    if idx == len(available_options) - 1:
+                        # If it's the last option - no need to check terminators.
+                        # We're going to end anyway, so we can skip that step.
+                        terminated = True
+                        break
+                    elif terminators:
                         _, segs, _ = trim_non_code_segments(
                             best_match[0].unmatched_segments
                         )
                         for terminator in terminators:
                             terminator_match: MatchResult = terminator.match(
-                                segs, parse_context=parse_context
+                                segs, parse_context
                             )
 
                             if terminator_match.matched_segments:
@@ -330,9 +467,30 @@ class BaseGrammar(Matchable):
             # Eventually there might be a performance gain from doing that sensibly
             # here.
 
+        if terminated:
+            parse_context.increment("terminated_match")
+        else:
+            parse_context.increment("unterminated_match")
+
         # If we get here, then there wasn't a complete match. If we
         # has a best_match, return that.
         if best_match_length > 0:
+            assert best_match
+            # If not terminated, keep track of what the next token would
+            # have been if we had been able to terminate using it.
+            if not terminated:
+                if best_match[0].unmatched_segments:
+                    for seg in best_match[0].unmatched_segments:
+                        if seg.is_code:
+                            break
+                    next_seg = seg.raw_segments[0].raw_upper
+                else:  # pragma: no cover
+                    # NOTE: I don't think this clause should ever
+                    # occur, but it's included so that if it does happen
+                    # we don't get an exception and can better debug.
+                    next_seg = "<NONE>"
+                parse_context.parse_stats["next_counts"][next_seg] += 1
+
             if trim_noncode:
                 return (
                     MatchResult(
@@ -470,7 +628,9 @@ class BaseGrammar(Matchable):
         parse_context: ParseContext,
         start_bracket: Optional[Matchable] = None,
         end_bracket: Optional[Matchable] = None,
-        bracket_pairs_set: str = "bracket_pairs",
+        bracket_pairs_set: Literal[
+            "bracket_pairs", "angle_bracket_pairs"
+        ] = "bracket_pairs",
     ) -> Tuple[Tuple[BaseSegment, ...], MatchResult, Optional[MatchableType]]:
         """Same as `_look_ahead_match` but with bracket counting.
 
@@ -494,7 +654,7 @@ class BaseGrammar(Matchable):
         # dialect. We use zip twice to "unzip" them. We ignore the first
         # argument because that's just the name.
         _, start_bracket_refs, end_bracket_refs, persists = zip(
-            *parse_context.dialect.sets(bracket_pairs_set)
+            *parse_context.dialect.bracket_sets(bracket_pairs_set)
         )
         # These are matchables, probably StringParsers.
         start_brackets = [
@@ -689,10 +849,10 @@ class BaseGrammar(Matchable):
             # bracket matching.
             return ((), MatchResult.from_unmatched(pre_seg_buff + seg_buff), None)
 
-    def __str__(self):  # pragma: no cover TODO?
+    def __str__(self) -> str:  # pragma: no cover TODO?
         return repr(self)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<{}: [{}]>".format(
             self.__class__.__name__,
             curtail_string(
@@ -701,7 +861,7 @@ class BaseGrammar(Matchable):
             ),
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """Two grammars are equal if their elements and types are equal.
 
         NOTE: We use the equality_kwargs tuple on the class to define
@@ -797,13 +957,23 @@ class Ref(BaseGrammar):
     # and it also causes infinite recursion.
     allow_keyword_string_refs = False
 
-    def __init__(self, *args: str, **kwargs):
+    def __init__(self, *args: str, **kwargs) -> None:
         # Any patterns to _prevent_ a match.
         self.exclude = kwargs.pop("exclude", None)
+        # The intent here is that if we match something, and then the _next_
+        # item is one of these, we can safely conclude it's a "total" match.
+        # In those cases, we return early without considering more options.
+        # Terminators don't take effect directly within this grammar, but
+        # the Ref grammar is an effective place to manage the terminators
+        # inherited via the context.
+        self.terminators = kwargs.pop("terminators", None)
+        self.reset_terminators = kwargs.pop("reset_terminators", False)
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None):
+    def simple(
+        self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
+    ) -> SimpleHintType:
         """Does this matcher support a uppercase hash matching route?
 
         A ref is simple, if the thing it references is simple.
@@ -859,47 +1029,33 @@ class Ref(BaseGrammar):
         Matching can be done from either the raw or the segments.
         This raw function can be overridden, or a grammar defined
         on the underlying class.
-
-        The match element of Ref, also implements the caching
-        using the parse_context `denylist` methods.
         """
         elem = self._get_elem(dialect=parse_context.dialect)
 
         # First if we have an *exclude* option, we should check that
         # which would prevent the rest of this grammar from matching.
         if self.exclude:
-            with parse_context.deeper_match() as ctx:
+            with parse_context.deeper_match(
+                name=self._get_ref() + "-Exclude",
+                clear_terminators=self.reset_terminators,
+                push_terminators=self.terminators,
+            ) as ctx:
                 if self.exclude.match(segments, parse_context=ctx):
                     return MatchResult.from_unmatched(segments)
 
-        # First check against the efficiency Cache.
-        # We rely on segments not being mutated within a given
-        # match cycle and so the ids should continue to refer to unchanged
-        # objects.
-        seg_tuple = (id(seg) for seg in segments)
-        self_name = self._get_ref()
-        if parse_context.denylist.check(self_name, seg_tuple):  # pragma: no cover TODO?
-            # This has been tried before.
-            parse_match_logging(
-                self.__class__.__name__,
-                "match",
-                "SKIP",
-                parse_context=parse_context,
-                v_level=3,
-                self_name=self_name,
-            )
-            return MatchResult.from_unmatched(segments)
-
         # Match against that. NB We're not incrementing the match_depth here.
         # References shouldn't really count as a depth of match.
-        with parse_context.matching_segment(self._get_ref()) as ctx:
-            resp = elem.match(segments=segments, parse_context=ctx)
-        if not resp:
-            parse_context.denylist.mark(self_name, seg_tuple)
+        with parse_context.deeper_match(
+            name=self._get_ref(),
+            clear_terminators=self.reset_terminators,
+            push_terminators=self.terminators,
+        ) as ctx:
+            resp = elem.match(segments, ctx)
+
         return resp
 
     @classmethod
-    def keyword(cls, keyword, **kwargs):
+    def keyword(cls, keyword: str, **kwargs) -> BaseGrammar:
         """Generate a reference to a keyword by name.
 
         This function is entirely syntactic sugar, and designed

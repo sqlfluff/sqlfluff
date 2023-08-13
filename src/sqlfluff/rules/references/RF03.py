@@ -16,7 +16,7 @@ from sqlfluff.core.rules import (
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import sp, FunctionalContext
-from sqlfluff.dialects.dialect_ansi import IdentifierSegment
+from sqlfluff.dialects.dialect_ansi import IdentifierSegment, ObjectReferenceSegment
 
 
 _START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
@@ -161,7 +161,7 @@ class Rule_RF03(BaseRule):
 def _check_references(
     table_aliases: List[AliasInfo],
     standalone_aliases: List[str],
-    references: List[BaseSegment],
+    references: List[ObjectReferenceSegment],
     col_aliases: List[ColumnAliasInfo],
     single_table_references: str,
     is_struct_dialect: bool,
@@ -176,10 +176,10 @@ def _check_references(
     # Check all the references that we have.
     seen_ref_types: Set[str] = set()
     for ref in references:
-        this_ref_type: str = ref.qualification()  # type: ignore
+        this_ref_type: str = ref.qualification()
         if this_ref_type == "qualified" and is_struct_dialect:
             # If this col appears "qualified" check if it is more logically a struct.
-            if next(ref.iter_raw_references()).part != table_ref_str:  # type: ignore
+            if next(ref.iter_raw_references()).part != table_ref_str:
                 this_ref_type = "unqualified"
 
         lint_res = _validate_one_reference(

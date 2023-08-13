@@ -58,7 +58,7 @@ def split_string_on_spaces(s: str, line_length: int = 100) -> List[str]:
     return line_buff
 
 
-def format_linting_result_header():
+def format_linting_result_header() -> str:
     """Format the header of a linting result output."""
     text_buffer = StringIO()
     text_buffer.write("==== readout ====\n")
@@ -147,7 +147,7 @@ class OutputStreamFormatter:
         """Dispatch configuration output appropriately."""
         self._dispatch(self._format_config(linter))
 
-    def dispatch_persist_filename(self, filename, result):
+    def dispatch_persist_filename(self, filename: str, result: str) -> None:
         """Dispatch filenames during a persist operation."""
         # Only show the skip records at higher levels of verbosity
         if self.verbosity >= 2 or result != "SKIP":
@@ -194,7 +194,7 @@ class OutputStreamFormatter:
                 )
             )
 
-    def dispatch_compilation_header(self, templater, message):
+    def dispatch_compilation_header(self, templater: str, message: str) -> None:
         """Dispatch the header displayed before linting."""
         self._dispatch(
             f"=== [{self.colorize(templater, Color.lightgrey)}] {message}"
@@ -250,7 +250,11 @@ class OutputStreamFormatter:
         return str_buffer
 
     def dispatch_file_violations(
-        self, fname: str, linted_file: LintedFile, only_fixable: bool
+        self,
+        fname: str,
+        linted_file: LintedFile,
+        only_fixable: bool,
+        warn_unused_ignores: bool,
     ) -> None:
         """Dispatch any violations found in a file."""
         if self.verbosity < 0:
@@ -258,7 +262,9 @@ class OutputStreamFormatter:
         s = self._format_file_violations(
             fname,
             linted_file.get_violations(
-                fixable=True if only_fixable else None, filter_warning=False
+                fixable=True if only_fixable else None,
+                filter_warning=False,
+                warn_unused_ignores=warn_unused_ignores,
             ),
         )
         self._dispatch(s)
@@ -458,7 +464,7 @@ class OutputStreamFormatter:
             out_buff += line
         return out_buff
 
-    def format_linting_stats(self, result, verbose=0):
+    def format_linting_stats(self, result, verbose=0) -> str:
         """Format a set of stats given a `LintingResult`."""
         text_buffer = StringIO()
         all_stats = result.stats()
@@ -491,7 +497,7 @@ class OutputStreamFormatter:
         text_buffer.write(self.cli_table(summary_content, max_label_width=14))
         return text_buffer.getvalue()
 
-    def format_config_vals(self, config_vals):
+    def format_config_vals(self, config_vals) -> str:
         """Format an iterable of config values from a config object."""
         text_buffer = StringIO()
         for i, k, v in config_vals:
@@ -546,7 +552,7 @@ class OutputStreamFormatter:
         )
         return text_buffer.getvalue()
 
-    def format_dialects(self, dialect_readout, verbose=0):
+    def format_dialects(self, dialect_readout, verbose=0) -> str:
         """Format the dialects yielded by `dialect_readout`."""
         text_buffer = StringIO()
         text_buffer.write("==== sqlfluff - dialects ====\n")
@@ -568,7 +574,7 @@ class OutputStreamFormatter:
         )
         return text_buffer.getvalue()
 
-    def format_dialect_warning(self, dialect):
+    def format_dialect_warning(self, dialect) -> str:
         """Output a warning for parsing errors."""
         return self.colorize(
             (

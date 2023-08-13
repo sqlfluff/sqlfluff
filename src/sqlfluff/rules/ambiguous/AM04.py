@@ -71,7 +71,7 @@ class Rule_AM04(BaseRule):
     groups: Tuple[str, ...] = ("all", "ambiguous")
     crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES))
 
-    def _handle_alias(self, selectable, alias_info, query):
+    def _handle_alias(self, selectable, alias_info, query) -> None:
         select_info_target = SelectCrawler.get(
             query, alias_info.from_expression_element
         )[0]
@@ -87,13 +87,13 @@ class Rule_AM04(BaseRule):
             # Handle nested SELECT.
             self._analyze_result_columns(select_info_target)
 
-    def _analyze_result_columns(self, query: Query):
+    def _analyze_result_columns(self, query: Query) -> None:
         """Given info on a list of SELECTs, determine whether to warn."""
         # Recursively walk from the given query (select_info_list) to any
         # wildcard columns in the select targets. If every wildcard evdentually
         # resolves to a query without wildcards, all is well. Otherwise, warn.
         if not query.selectables:
-            return  # pragma: no cover
+            return None  # pragma: no cover
         for selectable in query.selectables:
             self.logger.debug(f"Analyzing query: {selectable.selectable.raw}")
             for wildcard in selectable.get_wildcard_info():
@@ -132,7 +132,7 @@ class Rule_AM04(BaseRule):
                     for o in query_list:
                         if isinstance(o, Query):
                             self._analyze_result_columns(o)
-                            return
+                            return None
                     self.logger.debug(
                         f'Query target "{query.selectables[0].selectable.raw}" has no '
                         "targets. Generating warning."
@@ -147,7 +147,7 @@ class Rule_AM04(BaseRule):
             # Begin analysis at the outer query.
             if crawler.query_tree:
                 try:
-                    return self._analyze_result_columns(crawler.query_tree)
+                    self._analyze_result_columns(crawler.query_tree)
                 except RuleFailure as e:
                     return LintResult(anchor=e.anchor)
         return None

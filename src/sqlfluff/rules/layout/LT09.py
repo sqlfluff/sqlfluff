@@ -85,7 +85,7 @@ class Rule_LT09(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
     is_fix_compatible = True
 
-    def _eval(self, context: RuleContext):
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
         self.wildcard_policy: str
         assert context.segment.is_type("select_clause")
         select_targets_info = self._get_indexes(context)
@@ -105,9 +105,10 @@ class Rule_LT09(BaseRule):
             return self._eval_multiple_select_target_elements(
                 select_targets_info, context.segment
             )
+        return None
 
     @staticmethod
-    def _get_indexes(context: RuleContext):
+    def _get_indexes(context: RuleContext) -> SelectTargetsInfo:
         children = FunctionalContext(context).segment.children()
         select_targets = children.select(sp.is_type("select_clause_element"))
         first_select_target_idx = children.find(select_targets.get())
@@ -157,7 +158,9 @@ class Rule_LT09(BaseRule):
             list(pre_from_whitespace),
         )
 
-    def _eval_multiple_select_target_elements(self, select_targets_info, segment):
+    def _eval_multiple_select_target_elements(
+        self, select_targets_info, segment
+    ) -> Optional[LintResult]:
         """Multiple select targets. Ensure each is on a separate line."""
         # Insert newline before every select target.
         fixes = []
@@ -209,6 +212,8 @@ class Rule_LT09(BaseRule):
 
         if fixes:
             return LintResult(anchor=segment, fixes=fixes)
+
+        return None
 
     def _eval_single_select_target_element(
         self, select_targets_info, context: RuleContext
@@ -348,13 +353,14 @@ class Rule_LT09(BaseRule):
                         for seg in move_after_select_clause
                         if seg not in all_deletes
                     ]
-                    fixes_.append(
-                        LintFix.create_after(
-                            select_clause[0],
-                            ([NewlineSegment()] if add_newline else [])
-                            + list(move_after_select_clause),
+                    if move_after_select_clause or add_newline:
+                        fixes_.append(
+                            LintFix.create_after(
+                                select_clause[0],
+                                ([NewlineSegment()] if add_newline else [])
+                                + list(move_after_select_clause),
+                            )
                         )
-                    )
                     return fixes_
 
                 if select_stmt.segments[after_select_clause_idx].is_type("newline"):

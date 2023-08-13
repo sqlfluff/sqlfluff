@@ -20,6 +20,7 @@ from typing import Callable, List, Tuple, Iterator
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff.core.linter import LintedFile, RenderedFile
+from sqlfluff.core.plugin.host import is_main_process
 
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
@@ -29,9 +30,9 @@ class BaseRunner(ABC):
 
     def __init__(
         self,
-        linter,
-        config,
-    ):
+        linter: Linter,
+        config: FluffConfig,
+    ) -> None:
         self.linter = linter
         self.config = config
 
@@ -77,7 +78,7 @@ class BaseRunner(ABC):
         raise NotImplementedError  # pragma: no cover
 
     @classmethod
-    def _init_global(cls, config):
+    def _init_global(cls, config) -> None:
         """Initializes any global state.
 
         May be overridden by subclasses to apply global configuration, initialize
@@ -86,7 +87,7 @@ class BaseRunner(ABC):
         pass
 
     @staticmethod
-    def _handle_lint_path_exception(fname, e):
+    def _handle_lint_path_exception(fname, e) -> None:
         if isinstance(e, IOError):
             # IOErrors are caught in commands.py, so propagate it
             raise (e)  # pragma: no cover
@@ -121,7 +122,7 @@ class ParallelRunner(BaseRunner):
     # don't pickle well.
     pass_formatter = False
 
-    def __init__(self, linter, config, processes):
+    def __init__(self, linter, config, processes) -> None:
         super().__init__(linter, config)
         self.processes = processes
 
@@ -153,7 +154,12 @@ class ParallelRunner(BaseRunner):
                         # It's a LintedDir.
                         if self.linter.formatter:
                             self.linter.formatter.dispatch_file_violations(
-                                lint_result.path, lint_result, only_fixable=fix
+                                lint_result.path,
+                                lint_result,
+                                only_fixable=fix,
+                                warn_unused_ignores=self.linter.config.get(
+                                    "warn_unused_ignores"
+                                ),
                             )
                         yield lint_result
             except KeyboardInterrupt:  # pragma: no cover
@@ -176,6 +182,12 @@ class ParallelRunner(BaseRunner):
             return DelayedException(e, fname=fname)
 
     @classmethod
+    def _init_global(cls, config) -> None:  # pragma: no cover
+        """For the parallel runners indicate that we're not in the main thread."""
+        is_main_process.set(False)
+        super()._init_global(config)
+
+    @classmethod
     def _create_pool(cls, *args, **kwargs):
         return cls.POOL_TYPE(*args, **kwargs)
 
@@ -192,7 +204,7 @@ class MultiProcessRunner(ParallelRunner):
     MAP_FUNCTION_NAME = "imap_unordered"
 
     @classmethod
-    def _init_global(cls, config):  # pragma: no cover
+    def _init_global(cls, config) -> None:  # pragma: no cover
         super()._init_global(config)
 
         # Disable signal handling in the child processes to let the parent

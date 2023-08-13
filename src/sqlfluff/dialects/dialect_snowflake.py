@@ -103,7 +103,7 @@ snowflake_dialect.insert_lexer_matchers(
     before="like_operator",
 )
 
-snowflake_dialect.sets("bracket_pairs").add(
+snowflake_dialect.bracket_sets("bracket_pairs").add(
     ("exclude", "StartExcludeBracketSegment", "EndExcludeBracketSegment", True)
 )
 
@@ -773,6 +773,7 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
                 Ref("SingleIdentifierGrammar"),
                 Ref("DotSegment"),
             ),
+            terminators=[Ref("BracketedSegment")],
         ),
         # Base function name
         OneOf(
@@ -838,6 +839,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                     Ref("GroupByContentsGrammar"),
                 ),
             ),
+            "ALL",
             Ref("GroupByContentsGrammar"),
         ),
         Dedent,
@@ -1091,6 +1093,7 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
                 Ref("SamplingExpressionSegment"),
                 Ref("ChangesClauseSegment"),
                 Ref("JoinLikeClauseGrammar"),
+                "CROSS",
             ),
             optional=True,
         ),
@@ -2364,8 +2367,14 @@ class AccessStatementSegment(BaseSegment):
                 ),
                 optional=True,
             ),
-            Delimited(Ref("ObjectReferenceSegment"), terminator=OneOf("TO", "FROM")),
-            Ref("FunctionParameterListGrammar", optional=True),
+            Delimited(
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    Ref("FunctionNameSegment"),
+                    Ref("FunctionParameterListGrammar", optional=True),
+                ),
+                terminator=OneOf("TO", "FROM"),
+            ),
         ),
     )
 

@@ -29,7 +29,7 @@ class BlockConfig:
         within: Optional[str] = None,
         line_position: Optional[str] = None,
         config: Optional[ConfigElementType] = None,
-    ):
+    ) -> None:
         """Mutate the config based on additional information."""
         config = config or {}
         self.spacing_before = (

@@ -1,6 +1,5 @@
 """Defines the linter class."""
 
-import fnmatch
 import os
 import time
 import logging
@@ -14,7 +13,6 @@ from typing import (
     Set,
     Tuple,
     Type,
-    Dict,
     cast,
 )
 
@@ -30,7 +28,7 @@ from sqlfluff.core.errors import (
     SQLFluffSkipFile,
     SQLFluffUserError,
 )
-from sqlfluff.core.parser import Lexer, Parser, RegexLexer
+from sqlfluff.core.parser import Lexer, Parser
 from sqlfluff.core.file_helpers import get_encoding
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.rules import get_ruleset
@@ -39,15 +37,14 @@ from sqlfluff.core.config import FluffConfig, ConfigLoader, progress_bar_configu
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.parser.segments.meta import MetaSegment
-from sqlfluff.core.parser.segments.raw import RawSegment
 from sqlfluff.core.rules import BaseRule, RulePack
 
 from sqlfluff.core.linter.common import (
     RuleTuple,
     ParsedString,
-    NoQaDirective,
     RenderedFile,
 )
+from sqlfluff.core.linter.noqa import IgnoreMask
 from sqlfluff.core.linter.linted_file import (
     LintedFile,
     FileTimings,
@@ -141,7 +138,7 @@ class Linter:
         with open(fname, encoding=encoding, errors="backslashreplace") as target_file:
             raw_file = target_file.read()
         # Scan the raw file for config commands.
-        file_config.process_raw_file_for_config(raw_file)
+        file_config.process_raw_file_for_config(raw_file, fname)
         # Return the raw file and config
         return raw_file, file_config, encoding
 
@@ -221,123 +218,52 @@ class Linter:
     def _parse_tokens(
         tokens: Sequence[BaseSegment],
         config: FluffConfig,
-        recurse: bool = True,
         fname: Optional[str] = None,
+        parse_statistics: bool = False,
     ) -> Tuple[Optional[BaseSegment], List[SQLParseError]]:
         parser = Parser(config=config)
         violations = []
         # Parse the file and log any problems
         try:
             parsed: Optional[BaseSegment] = parser.parse(
-                tokens,
-                recurse=recurse,
+                # Regardless of how the sequence was passed in, we should
+                # coerce it to a tuple here, before we head deeper into
+                # the parsing process.
+                tuple(tokens),
                 fname=fname,
+                parse_statistics=parse_statistics,
             )
         except SQLParseError as err:
             linter_logger.info("PARSING FAILED! : %s", err)
             violations.append(err)
             return None, violations
 
-        if parsed:
-            linter_logger.info("\n###\n#\n# {}\n#\n###".format("Parsed Tree:"))
-            linter_logger.info("\n" + parsed.stringify())
-            # We may succeed parsing, but still have unparsable segments. Extract them
-            # here.
-            for unparsable in parsed.iter_unparsables():
-                # No exception has been raised explicitly, but we still create one here
-                # so that we can use the common interface
-                violations.append(
-                    SQLParseError(
-                        "Line {0[0]}, Position {0[1]}: Found unparsable section: "
-                        "{1!r}".format(
-                            unparsable.pos_marker.working_loc,
-                            unparsable.raw
-                            if len(unparsable.raw) < 40
-                            else unparsable.raw[:40] + "...",
-                        ),
-                        segment=unparsable,
-                    )
+        if parsed is None:  # pragma: no cover
+            return None, violations
+
+        linter_logger.info("\n###\n#\n# {}\n#\n###".format("Parsed Tree:"))
+        linter_logger.info("\n" + parsed.stringify())
+        # We may succeed parsing, but still have unparsable segments. Extract them
+        # here.
+        for unparsable in parsed.iter_unparsables():
+            # No exception has been raised explicitly, but we still create one here
+            # so that we can use the common interface
+            assert unparsable.pos_marker
+            violations.append(
+                SQLParseError(
+                    "Line {0[0]}, Position {0[1]}: Found unparsable section: "
+                    "{1!r}".format(
+                        unparsable.pos_marker.working_loc,
+                        unparsable.raw
+                        if len(unparsable.raw) < 40
+                        else unparsable.raw[:40] + "...",
+                    ),
+                    segment=unparsable,
                 )
-                linter_logger.info("Found unparsable segment...")
-                linter_logger.info(unparsable.stringify())
+            )
+            linter_logger.info("Found unparsable segment...")
+            linter_logger.info(unparsable.stringify())
         return parsed, violations
-
-    @staticmethod
-    def parse_noqa(
-        comment: str,
-        line_no: int,
-        reference_map: Dict[str, Set[str]],
-    ):
-        """Extract ignore mask entries from a comment string."""
-        # Also trim any whitespace afterward
-
-        # Comment lines can also have noqa e.g.
-        # --dafhsdkfwdiruweksdkjdaffldfsdlfjksd -- noqa: LT05
-        # Therefore extract last possible inline ignore.
-        comment = [c.strip() for c in comment.split("--")][-1]
-
-        if comment.startswith("noqa"):
-            # This is an ignore identifier
-            comment_remainder = comment[4:]
-            if comment_remainder:
-                if not comment_remainder.startswith(":"):
-                    return SQLParseError(
-                        "Malformed 'noqa' section. Expected 'noqa: <rule>[,...]",
-                        line_no=line_no,
-                    )
-                comment_remainder = comment_remainder[1:].strip()
-                if comment_remainder:
-                    action: Optional[str]
-                    if "=" in comment_remainder:
-                        action, rule_part = comment_remainder.split("=", 1)
-                        if action not in {"disable", "enable"}:  # pragma: no cover
-                            return SQLParseError(
-                                "Malformed 'noqa' section. "
-                                "Expected 'noqa: enable=<rule>[,...] | all' "
-                                "or 'noqa: disable=<rule>[,...] | all",
-                                line_no=line_no,
-                            )
-                    else:
-                        action = None
-                        rule_part = comment_remainder
-                        if rule_part in {"disable", "enable"}:
-                            return SQLParseError(
-                                "Malformed 'noqa' section. "
-                                "Expected 'noqa: enable=<rule>[,...] | all' "
-                                "or 'noqa: disable=<rule>[,...] | all",
-                                line_no=line_no,
-                            )
-                    rules: Optional[Tuple[str, ...]]
-                    if rule_part != "all":
-                        # Rules can be globs therefore we compare to the rule_set to
-                        # expand the globs.
-                        unexpanded_rules = tuple(
-                            r.strip() for r in rule_part.split(",")
-                        )
-                        # We use a set to do natural deduplication.
-                        expanded_rules: Set[str] = set()
-                        for r in unexpanded_rules:
-                            matched = False
-                            for expanded in (
-                                reference_map[x]
-                                for x in fnmatch.filter(reference_map.keys(), r)
-                            ):
-                                expanded_rules |= expanded
-                                matched = True
-
-                            if not matched:
-                                # We were unable to expand the glob.
-                                # Therefore assume the user is referencing
-                                # a special error type (e.g. PRS, LXR, or TMP)
-                                # and add this to the list of rules to ignore.
-                                expanded_rules.add(r)
-                        # Sort for consistency
-                        rules = tuple(sorted(expanded_rules))
-                    else:
-                        rules = None
-                    return NoQaDirective(line_no, rules, action)
-            return NoQaDirective(line_no, None, None)
-        return None
 
     @staticmethod
     def remove_templated_errors(
@@ -348,6 +274,7 @@ class Linter:
         result: List[SQLBaseError] = []
         for e in linting_errors:
             if isinstance(e, SQLLintError):
+                assert e.segment.pos_marker
                 if (
                     # Is it in a literal section?
                     e.segment.pos_marker.is_literal()
@@ -362,13 +289,13 @@ class Linter:
         return result
 
     @staticmethod
-    def _report_conflicting_fixes_same_anchor(message: str):  # pragma: no cover
+    def _report_conflicting_fixes_same_anchor(message: str) -> None:  # pragma: no cover
         # This function exists primarily in order to let us monkeypatch it at
         # runtime (replacing it with a function that raises an exception).
         linter_logger.critical(message)
 
     @staticmethod
-    def _warn_unfixable(code: str):
+    def _warn_unfixable(code: str) -> None:
         linter_logger.warning(
             f"One fix for {code} not applied, it would re-cause the same error."
         )
@@ -380,7 +307,7 @@ class Linter:
     def parse_rendered(
         cls,
         rendered: RenderedFile,
-        recurse: bool = True,
+        parse_statistics: bool = False,
     ) -> ParsedString:
         """Parse a rendered file."""
         t0 = time.monotonic()
@@ -401,8 +328,8 @@ class Linter:
             parsed, pvs = cls._parse_tokens(
                 tokens,
                 rendered.config,
-                recurse=recurse,
                 fname=rendered.fname,
+                parse_statistics=parse_statistics,
             )
             violations += pvs
         else:
@@ -424,69 +351,6 @@ class Linter:
         )
 
     @classmethod
-    def extract_ignore_from_comment(
-        cls,
-        comment: RawSegment,
-        reference_map: Dict[str, Set[str]],
-    ):
-        """Extract ignore mask entries from a comment segment."""
-        # Also trim any whitespace afterward
-        comment_content = comment.raw_trimmed().strip()
-        comment_line, _ = comment.pos_marker.source_position()
-        result = cls.parse_noqa(comment_content, comment_line, reference_map)
-        if isinstance(result, SQLParseError):
-            result.segment = comment
-        return result
-
-    @classmethod
-    def extract_ignore_mask_tree(
-        cls,
-        tree: BaseSegment,
-        reference_map: Dict[str, Set[str]],
-    ) -> Tuple[List[NoQaDirective], List[SQLBaseError]]:
-        """Look for inline ignore comments and return NoQaDirectives."""
-        ignore_buff: List[NoQaDirective] = []
-        violations: List[SQLBaseError] = []
-        for comment in tree.recursive_crawl("comment"):
-            if comment.is_type("inline_comment"):
-                ignore_entry = cls.extract_ignore_from_comment(comment, reference_map)
-                if isinstance(ignore_entry, SQLParseError):
-                    violations.append(ignore_entry)
-                elif ignore_entry:
-                    ignore_buff.append(ignore_entry)
-        if ignore_buff:
-            linter_logger.info("Parsed noqa directives from file: %r", ignore_buff)
-        return ignore_buff, violations
-
-    @classmethod
-    def extract_ignore_mask_source(
-        cls,
-        source: str,
-        inline_comment_regex: RegexLexer,
-        reference_map: Dict[str, Set[str]],
-    ) -> Tuple[List[NoQaDirective], List[SQLBaseError]]:
-        """Look for inline ignore comments and return NoQaDirectives.
-
-        Very similar to extract_ignore_mask_tree(), but can be run on raw source
-        (i.e. does not require the code to have parsed successfully).
-        """
-        ignore_buff: List[NoQaDirective] = []
-        violations: List[SQLBaseError] = []
-        for idx, line in enumerate(source.split("\n")):
-            match = inline_comment_regex.search(line) if line else None
-            if match:
-                ignore_entry = cls.parse_noqa(
-                    line[match[0] : match[1]], idx + 1, reference_map
-                )
-                if isinstance(ignore_entry, SQLParseError):
-                    violations.append(ignore_entry)  # pragma: no cover
-                elif ignore_entry:
-                    ignore_buff.append(ignore_entry)
-        if ignore_buff:
-            linter_logger.info("Parsed noqa directives from file: %r", ignore_buff)
-        return ignore_buff, violations
-
-    @classmethod
     def lint_fix_parsed(
         cls,
         tree: BaseSegment,
@@ -496,7 +360,7 @@ class Linter:
         fname: Optional[str] = None,
         templated_file: Optional[TemplatedFile] = None,
         formatter: Any = None,
-    ) -> Tuple[BaseSegment, List[SQLBaseError], List[NoQaDirective], RuleTimingsType]:
+    ) -> Tuple[BaseSegment, List[SQLBaseError], Optional[IgnoreMask], RuleTimingsType]:
         """Lint and optionally fix a tree object."""
         # Keep track of the linting errors on the very first linter pass. The
         # list of issues output by "lint" and "fix" only includes issues present
@@ -520,12 +384,10 @@ class Linter:
 
         # Look for comment segments which might indicate lines to ignore.
         if not config.get("disable_noqa"):
-            ignore_buff, ivs = cls.extract_ignore_mask_tree(
-                tree, rule_pack.reference_map
-            )
+            ignore_mask, ivs = IgnoreMask.from_tree(tree, rule_pack.reference_map)
             initial_linting_errors += ivs
         else:
-            ignore_buff = []
+            ignore_mask = None
 
         save_tree = tree
         # There are two phases of rule running.
@@ -548,7 +410,7 @@ class Linter:
                 rules_this_phase = rule_pack.rules
             for loop in range(loop_limit if phase == "main" else 2):
 
-                def is_first_linter_pass():
+                def is_first_linter_pass() -> bool:
                     return phase == phases[0] and loop == 0
 
                 # Additional newlines are to assist in scanning linting loops
@@ -595,7 +457,7 @@ class Linter:
                         dialect=config.get("dialect_obj"),
                         fix=fix,
                         templated_file=templated_file,
-                        ignore_mask=ignore_buff,
+                        ignore_mask=ignore_mask,
                         fname=fname,
                         config=config,
                     )
@@ -618,8 +480,8 @@ class Linter:
                             for uuid, info in anchor_info.items():
                                 if not info.is_valid:
                                     message += f"\n{uuid}:"
-                                    for fix in info.fixes:
-                                        message += f"\n    {fix}"
+                                    for _fix in info.fixes:
+                                        message += f"\n    {_fix}"
                             cls._report_conflicting_fixes_same_anchor(message)
                             for lint_result in linting_errors:
                                 lint_result.fixes = []
@@ -696,7 +558,7 @@ class Linter:
                     # Reason: When the linter hits the loop limit, the file is often
                     # messy, e.g. some of the fixes were applied repeatedly, possibly
                     # other weird things. We don't want the user to see this junk!
-                    return save_tree, initial_linting_errors, ignore_buff, rule_timings
+                    return save_tree, initial_linting_errors, ignore_mask, rule_timings
 
         if config.get("ignore_templated_areas", default=True):
             initial_linting_errors = cls.remove_templated_errors(initial_linting_errors)
@@ -704,7 +566,7 @@ class Linter:
         linter_logger.info("\n###\n#\n# {}\n#\n###".format("Fixed Tree:"))
         linter_logger.info("\n" + tree.stringify())
 
-        return tree, initial_linting_errors, ignore_buff, rule_timings
+        return tree, initial_linting_errors, ignore_mask, rule_timings
 
     @classmethod
     def lint_parsed(
@@ -714,7 +576,7 @@ class Linter:
         fix: bool = False,
         formatter: Any = None,
         encoding: str = "utf8",
-    ):
+    ) -> LintedFile:
         """Lint a ParsedString and return a LintedFile."""
         violations = parsed.violations
         time_dict = parsed.time_dict
@@ -725,7 +587,7 @@ class Linter:
             (
                 tree,
                 initial_linting_errors,
-                ignore_buff,
+                ignore_mask,
                 rule_timings,
             ) = cls.lint_fix_parsed(
                 parsed.tree,
@@ -745,14 +607,14 @@ class Linter:
         else:
             # If no parsed tree, set to None
             tree = None
-            ignore_buff = []
+            ignore_mask = None
             rule_timings = []
             if not parsed.config.get("disable_noqa"):
                 # Templating and/or parsing have failed. Look for "noqa"
                 # comments (the normal path for identifying these comments
                 # requires access to the parse tree, and because of the failure,
                 # we don't have a parse tree).
-                ignore_buff, ignore_violations = cls.extract_ignore_mask_source(
+                ignore_mask, ignore_violations = IgnoreMask.from_source(
                     parsed.source_str,
                     [
                         lm
@@ -774,7 +636,7 @@ class Linter:
             LintedFile.deduplicate_in_source_space(violations),
             FileTimings(time_dict, rule_timings),
             tree,
-            ignore_mask=ignore_buff,
+            ignore_mask=ignore_mask,
             templated_file=parsed.templated_file,
             encoding=encoding,
         )
@@ -782,7 +644,10 @@ class Linter:
         # This is the main command line output from linting.
         if formatter:
             formatter.dispatch_file_violations(
-                parsed.fname, linted_file, only_fixable=fix
+                parsed.fname,
+                linted_file,
+                only_fixable=fix,
+                warn_unused_ignores=parsed.config.get("warn_unused_ignores"),
             )
 
         # Safety flag for unset dialects
@@ -882,9 +747,9 @@ class Linter:
         self,
         in_str: str,
         fname: str = "<string>",
-        recurse: bool = True,
         config: Optional[FluffConfig] = None,
         encoding: str = "utf-8",
+        parse_statistics: bool = False,
     ) -> ParsedString:
         """Parse a string."""
         violations: List[SQLBaseError] = []
@@ -897,7 +762,7 @@ class Linter:
         config = config or self.config
 
         # Scan the raw file for config commands.
-        config.process_raw_file_for_config(in_str)
+        config.process_raw_file_for_config(in_str, fname)
         rendered = self.render_string(in_str, fname, config, encoding)
         violations += rendered.templater_violations
 
@@ -905,7 +770,7 @@ class Linter:
         if self.formatter:
             self.formatter.dispatch_parse_header(fname)
 
-        return self.parse_rendered(rendered, recurse=recurse)
+        return self.parse_rendered(rendered, parse_statistics=parse_statistics)
 
     def fix(
         self,
@@ -1180,6 +1045,10 @@ class Linter:
         files_count = len(expanded_paths)
         if processes is None:
             processes = self.config.get("processes", default=1)
+        # Hard set processes to 1 if only 1 file is queued.
+        # The overhead will never be worth it with one file.
+        if files_count == 1:
+            processes = 1
 
         # to avoid circular import
         from sqlfluff.core.linter.runner import get_runner
@@ -1237,7 +1106,7 @@ class Linter:
     def parse_path(
         self,
         path: str,
-        recurse: bool = True,
+        parse_statistics: bool = False,
     ) -> Iterator[ParsedString]:
         """Parse a path of sql files.
 
@@ -1258,7 +1127,7 @@ class Linter:
             yield self.parse_string(
                 raw_file,
                 fname=fname,
-                recurse=recurse,
                 config=config,
                 encoding=encoding,
+                parse_statistics=parse_statistics,
             )

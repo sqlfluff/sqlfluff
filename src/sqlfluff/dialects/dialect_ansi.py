@@ -275,7 +275,7 @@ ansi_dialect.update_keywords_set_from_multiline_string(
 # of bracket is persisted during matching to speed up other
 # parts of the matching process. Round brackets are the most
 # common and match the largest areas and so are sufficient.
-ansi_dialect.sets("bracket_pairs").update(
+ansi_dialect.bracket_sets("bracket_pairs").update(
     [
         ("round", "StartBracketSegment", "EndBracketSegment", True),
         ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", False),
@@ -361,7 +361,7 @@ ansi_dialect.add(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: OneOf(
             RegexParser(
-                r"[A-Z][A-Z0-9_]*",
+                r"[A-Z_][A-Z0-9_]*",
                 CodeSegment,
                 type="data_type_identifier",
                 anti_template=r"^(NOT)$",
@@ -404,7 +404,9 @@ ansi_dialect.add(
     FalseSegment=StringParser("false", LiteralKeywordSegment, type="boolean_literal"),
     # We use a GRAMMAR here not a Segment. Otherwise, we get an unnecessary layer
     SingleIdentifierGrammar=OneOf(
-        Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment")
+        Ref("NakedIdentifierSegment"),
+        Ref("QuotedIdentifierSegment"),
+        terminators=[Ref("DotSegment")],
     ),
     BooleanLiteralGrammar=OneOf(Ref("TrueSegment"), Ref("FalseSegment")),
     # We specifically define a group of arithmetic operators to make it easier to
@@ -597,9 +599,8 @@ ansi_dialect.add(
         # more complicated.
         terminators=[
             Ref("CommaSegment"),
-            # TODO: We can almost certainly add a few more here, but for
-            # now, the most reliable (and impactful) is the comma.
-            # Others could include some variant on AliasExpressionSegment.
+            Ref.keyword("AS"),
+            # TODO: We can almost certainly add a few more here.
         ],
     ),
     FilterClauseGrammar=Sequence(
@@ -1002,11 +1003,11 @@ class ObjectReferenceSegment(BaseSegment):
         for elem in self.recursive_crawl("identifier"):
             yield from self._iter_reference_parts(elem)
 
-    def is_qualified(self):
+    def is_qualified(self) -> bool:
         """Return if there is more than one element to the reference."""
         return len(list(self.iter_raw_references())) > 1
 
-    def qualification(self):
+    def qualification(self) -> str:
         """Return the qualification type of this reference."""
         return "qualified" if self.is_qualified() else "unqualified"
 
@@ -1249,6 +1250,16 @@ class QualifiedNumericLiteralSegment(BaseSegment):
     )
 
 
+class AggregateOrderByClause(BaseSegment):
+    """An order by clause for an aggregate fucntion.
+
+    Defined as a class to allow a specific type for rule AM06
+    """
+
+    type = "aggregate_order_by"
+    match_grammar: Matchable = Ref("OrderByClauseSegment")
+
+
 ansi_dialect.add(
     # FunctionContentsExpressionGrammar intended as a hook to override
     # in other dialects.
@@ -1282,7 +1293,7 @@ ansi_dialect.add(
             ),
         ),
         Ref(
-            "OrderByClauseSegment"
+            "AggregateOrderByClause"
         ),  # used by string_agg (postgres), group_concat (exasol),listagg (snowflake)..
         Sequence(Ref.keyword("SEPARATOR"), Ref("LiteralGrammar")),
         # like a function call: POSITION ( 'QL' IN 'SQL')
@@ -1359,11 +1370,13 @@ class FunctionNameSegment(BaseSegment):
                 Ref("SingleIdentifierGrammar"),
                 Ref("DotSegment"),
             ),
+            terminators=[Ref("BracketedSegment")],
         ),
         # Base function name
         OneOf(
             Ref("FunctionNameIdentifierSegment"),
             Ref("QuotedIdentifierSegment"),
+            terminators=[Ref("BracketedSegment")],
         ),
         allow_gaps=False,
     )
@@ -1559,6 +1572,7 @@ class FromExpressionSegment(BaseSegment):
                 Ref("MLTableExpressionSegment"),
                 Ref("FromExpressionElementSegment"),
                 Bracketed(Ref("FromExpressionSegment")),
+                terminators=[Ref.keyword("ORDER"), Ref.keyword("GROUP")],
             ),
             Dedent,
             Conditional(Indent, indented_joins=True),
@@ -1567,6 +1581,7 @@ class FromExpressionSegment(BaseSegment):
                     OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
                 ),
                 optional=True,
+                terminators=[Ref.keyword("ORDER"), Ref.keyword("GROUP")],
             ),
             Conditional(Dedent, indented_joins=True),
         )
@@ -1929,8 +1944,17 @@ class CaseExpressionSegment(BaseSegment):
         Sequence(
             "CASE",
             ImplicitIndent,
-            AnyNumberOf(Ref("WhenClauseSegment")),
-            Ref("ElseClauseSegment", optional=True),
+            AnyNumberOf(
+                Ref("WhenClauseSegment"),
+                reset_terminators=True,
+                terminators=[Ref.keyword("ELSE"), Ref.keyword("END")],
+            ),
+            Ref(
+                "ElseClauseSegment",
+                optional=True,
+                reset_terminators=True,
+                terminators=[Ref.keyword("END")],
+            ),
             Dedent,
             "END",
         ),
@@ -1938,11 +1962,21 @@ class CaseExpressionSegment(BaseSegment):
             "CASE",
             Ref("ExpressionSegment"),
             ImplicitIndent,
-            AnyNumberOf(Ref("WhenClauseSegment")),
-            Ref("ElseClauseSegment", optional=True),
+            AnyNumberOf(
+                Ref("WhenClauseSegment"),
+                reset_terminators=True,
+                terminators=[Ref.keyword("ELSE"), Ref.keyword("END")],
+            ),
+            Ref(
+                "ElseClauseSegment",
+                optional=True,
+                reset_terminators=True,
+                terminators=[Ref.keyword("END")],
+            ),
             Dedent,
             "END",
         ),
+        terminators=[Ref("CommaSegment"), Ref("BinaryOperatorGrammar")],
     )
 
 
@@ -1971,7 +2005,10 @@ ansi_dialect.add(
         # whenever the repeating element in Expression_A_Grammar makes a recursive
         # call to itself at the _end_.  If it's in the middle then you still need
         # to recurse into Expression_A_Grammar normally.
-        AnyNumberOf(Ref("Expression_A_Unary_Operator_Grammar")),
+        AnyNumberOf(
+            Ref("Expression_A_Unary_Operator_Grammar"),
+            terminators=[Ref("BinaryOperatorGrammar")],
+        ),
         Ref("Expression_C_Grammar"),
     ),
     Expression_A_Grammar=Sequence(
@@ -2093,6 +2130,7 @@ ansi_dialect.add(
             AnyNumberOf(Ref("TimeZoneGrammar"), optional=True),
         ),
         Ref("ShorthandCastSegment"),
+        terminators=[Ref("CommaSegment")],
     ),
     # Expression_D_Grammar
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#d_expr
@@ -2150,6 +2188,7 @@ ansi_dialect.add(
                 ),
             ),
             Ref("LocalAliasSegment"),
+            terminators=[Ref("CommaSegment")],
         ),
         Ref("Accessor_Grammar", optional=True),
         allow_gaps=True,
@@ -2440,9 +2479,25 @@ class LimitClauseSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "LIMIT",
         Indent,
-        Ref("NumericLiteralSegment"),
+        OptionallyBracketed(
+            OneOf(
+                # Allow a number by itself OR
+                Ref("NumericLiteralSegment"),
+                # An arbitrary expression
+                Ref("ExpressionSegment"),
+                "ALL",
+            )
+        ),
         OneOf(
-            Sequence("OFFSET", Ref("NumericLiteralSegment")),
+            Sequence(
+                "OFFSET",
+                OneOf(
+                    # Allow a number by itself OR
+                    Ref("NumericLiteralSegment"),
+                    # An arbitrary expression
+                    Ref("ExpressionSegment"),
+                ),
+            ),
             Sequence(
                 Ref("CommaSegment"),
                 Ref("NumericLiteralSegment"),
@@ -2496,7 +2551,7 @@ class FetchClauseSegment(BaseSegment):
             "FIRST",
             "NEXT",
         ),
-        Ref("NumericLiteralSegment"),
+        Ref("NumericLiteralSegment", optional=True),
         OneOf("ROW", "ROWS"),
         "ONLY",
     )
@@ -2537,6 +2592,7 @@ class ValuesClauseSegment(BaseSegment):
                 Bracketed(
                     Delimited(
                         "DEFAULT",
+                        Ref("LiteralGrammar"),
                         Ref("ExpressionSegment"),
                         ephemeral_name="ValuesClauseElements",
                     )
@@ -3415,8 +3471,14 @@ class AccessStatementSegment(BaseSegment):
                 ),
                 optional=True,
             ),
-            Delimited(Ref("ObjectReferenceSegment"), terminator=OneOf("TO", "FROM")),
-            Ref("FunctionParameterListGrammar", optional=True),
+            Delimited(
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    Ref("FunctionNameSegment"),
+                    Ref("FunctionParameterListGrammar", optional=True),
+                ),
+                terminator=OneOf("TO", "FROM"),
+            ),
         ),
         Sequence("LARGE", "OBJECT", Ref("NumericLiteralSegment")),
     )
@@ -3880,7 +3942,7 @@ class StatementSegment(BaseSegment):
         Ref("DropTriggerStatementSegment"),
     )
 
-    def get_table_references(self):
+    def get_table_references(self) -> set:
         """Use parsed tree to extract table references."""
         table_refs = {
             tbl_ref.raw for tbl_ref in self.recursive_crawl("table_reference")
@@ -4190,7 +4252,7 @@ class PathSegment(BaseSegment):
         Sequence(
             Ref("SlashSegment"),
             Delimited(
-                Ref("CodeSegment"),
+                TypedParser("code", CodeSegment, type="path_segment"),
                 delimiter=Ref("SlashSegment"),
                 allow_gaps=False,
             ),

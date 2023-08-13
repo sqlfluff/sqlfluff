@@ -41,7 +41,7 @@ class Delimited(OneOf):
         terminator=None,
         min_delimiters=None,
         **kwargs,
-    ):
+    ) -> None:
         if delimiter is None:  # pragma: no cover
             raise ValueError("Delimited grammars require a `delimiter`")
         self.bracket_pairs_set = kwargs.pop("bracket_pairs_set", "bracket_pairs")
@@ -134,7 +134,7 @@ class Delimited(OneOf):
                     break
 
                 # Check whether there is a terminator before checking for content
-                with parse_context.deeper_match() as ctx:
+                with parse_context.deeper_match(name="Delimited-Term") as ctx:
                     match, _ = self._longest_trimmed_match(
                         segments=seg_content,
                         matchers=terminator_matchers,
@@ -150,16 +150,18 @@ class Delimited(OneOf):
                         )
                         break
 
-                with parse_context.deeper_match() as ctx:
+                _push_terminators = []
+                if delimiter_matchers and elements != delimiter_matchers:
+                    _push_terminators = delimiter_matchers
+                with parse_context.deeper_match(
+                    name="Delimited", push_terminators=_push_terminators
+                ) as ctx:
                     match, _ = self._longest_trimmed_match(
                         segments=seg_content,
                         matchers=elements,
                         parse_context=ctx,
                         # We've already trimmed
                         trim_noncode=False,
-                        terminators=delimiter_matchers
-                        if elements != delimiter_matchers
-                        else None,
                     )
 
                 if match:

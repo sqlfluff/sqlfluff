@@ -2,7 +2,17 @@
 
 import ast
 from string import Formatter
-from typing import Iterable, Dict, Tuple, List, Iterator, Optional, NamedTuple
+from typing import (
+    Any,
+    Iterable,
+    Dict,
+    Tuple,
+    List,
+    Iterator,
+    Optional,
+    NamedTuple,
+    Callable,
+)
 
 from sqlfluff.core.errors import SQLTemplaterError
 from sqlfluff.core.string_helpers import findall
@@ -125,7 +135,7 @@ class IntermediateFileSlice(NamedTuple):
         # Return
         return head_buffer, new_slice, tail_buffer
 
-    def try_simple(self):
+    def try_simple(self) -> TemplatedFileSlice:
         """Try to turn this intermediate slice into a simple slice."""
         # Yield anything simple
         if len(self.slice_buffer) == 1:
@@ -137,7 +147,7 @@ class IntermediateFileSlice(NamedTuple):
         else:
             raise ValueError("IntermediateFileSlice is not simple!")
 
-    def coalesce(self):
+    def coalesce(self) -> TemplatedFileSlice:
         """Coalesce this whole slice into a single one. Brutally."""
         return TemplatedFileSlice(
             PythonTemplater._coalesce_types(self.slice_buffer),
@@ -160,12 +170,12 @@ class PythonTemplater(RawTemplater):
 
     name = "python"
 
-    def __init__(self, override_context=None, **kwargs):
+    def __init__(self, override_context=None, **kwargs) -> None:
         self.default_context = dict(test_value="__test__")
         self.override_context = override_context or {}
 
     @staticmethod
-    def infer_type(s):
+    def infer_type(s) -> Any:
         """Infer a python type from a string and convert.
 
         Given a string value, convert it to a more specific built-in Python type
@@ -223,16 +233,23 @@ class PythonTemplater(RawTemplater):
 
         """
         live_context = self.get_context(fname=fname, config=config)
-        try:
-            new_str = in_str.format(**live_context)
-        except KeyError as err:
-            # TODO: Add a url here so people can get more help.
-            raise SQLTemplaterError(
-                "Failure in Python templating: {}. Have you configured your "
-                "variables?".format(err)
-            )
+
+        def render_func(raw_str: str) -> str:
+            """Render the string using the captured live_context."""
+            try:
+                rendered_str = raw_str.format(**live_context)
+            except KeyError as err:
+                raise SQLTemplaterError(
+                    "Failure in Python templating: {}. Have you configured your "
+                    "variables? https://docs.sqlfluff.com/en/stable/"
+                    "configuration.html#templating-configuration".format(err)
+                )
+            return rendered_str
+
         raw_sliced, sliced_file, new_str = self.slice_file(
-            in_str, new_str, config=config
+            in_str,
+            render_func=render_func,
+            config=config,
         )
         return (
             TemplatedFile(
@@ -246,11 +263,16 @@ class PythonTemplater(RawTemplater):
         )
 
     def slice_file(
-        self, raw_str: str, templated_str: str, config=None, **kwargs
+        self, raw_str: str, render_func: Callable[[str], str], config=None, **kwargs
     ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix."""
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str)
+        # Render the templated string.
+        # NOTE: This seems excessive in this simple example, but for other templating
+        # engines we need more control over the rendering so may need to call this
+        # method more than once.
+        templated_str = render_func(raw_str)
         templater_logger.debug("    Templated String: %r", templated_str)
         # Slice the raw file
         raw_sliced = list(self._slice_template(raw_str))

@@ -1,6 +1,7 @@
 """autocompletion commands."""
 
 from sqlfluff import list_dialects
+from typing import List
 
 # Older versions of click don't have shell completion
 # so handle for now, as version 8 still fairly recent
@@ -12,7 +13,7 @@ except ImportError:  # pragma: no cover
     shell_completion_enabled = False
 
 
-def dialect_shell_complete(ctx, param, incomplete):
+def dialect_shell_complete(ctx, param, incomplete) -> List[completion.CompletionItem]:
     """Shell completion for possible dialect names.
 
     We use this over click.Choice as we want to internally

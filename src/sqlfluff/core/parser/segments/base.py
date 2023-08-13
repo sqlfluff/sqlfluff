@@ -7,53 +7,49 @@ Here we define:
   function failed on this block of segments and to prevent further
   analysis.
 """
+# Import annotations for py 3.7 to allow `weakref.ReferenceType["BaseSegment"]`
+from __future__ import annotations
 
+import logging
+import weakref
 from collections import defaultdict
 from collections.abc import MutableSet
-from copy import deepcopy, copy
+from copy import copy, deepcopy
 from dataclasses import dataclass, field, replace
 from io import StringIO
 from itertools import chain
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     ClassVar,
     Dict,
-    Optional,
-    List,
-    Tuple,
     Iterator,
+    List,
+    Optional,
     Set,
-    TYPE_CHECKING,
+    Tuple,
+    cast,
 )
-import logging
 from uuid import UUID, uuid4
 
 from tqdm import tqdm
 
 from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.config import progress_bar_configuration
-from sqlfluff.core.string_helpers import (
-    frame_msg,
-    curtail_string,
-)
-
-from sqlfluff.core.parser.context import RootParseContext
-from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.match_logging import parse_match_logging
-from sqlfluff.core.parser.match_wrapper import match_wrapper
-from sqlfluff.core.parser.helpers import (
-    check_still_complete,
-    trim_non_code_segments,
-)
-from sqlfluff.core.parser.matchable import Matchable
-from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.context import ParseContext
+from sqlfluff.core.parser.helpers import check_still_complete, trim_non_code_segments
+from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.parser.match_logging import parse_match_logging
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.matchable import Matchable
+from sqlfluff.core.string_helpers import curtail_string, frame_msg
 from sqlfluff.core.templaters.base import TemplatedFile
 
-if TYPE_CHECKING:
-    from sqlfluff.core.rules import LintFix  # pragma: no cover
-    from sqlfluff.core.parser.segments import RawSegment  # pragma: no cover
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.parser.segments import RawSegment
+    from sqlfluff.core.rules import LintFix
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
@@ -72,7 +68,7 @@ class SourceFix:
     # More work required to achieve that if desired.
     templated_slice: slice
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         # Only hash based on the source slice, not the
         # templated slice (which might change)
         return hash((self.edit, self.source_slice.start, self.source_slice.stop))
@@ -109,7 +105,7 @@ class FixPatch:
     templated_str: str
     source_str: str
 
-    def dedupe_tuple(self):
+    def dedupe_tuple(self) -> Tuple[slice, str]:
         """Generate a tuple of this fix for deduping."""
         return (self.source_slice, self.fixed_raw)
 
@@ -122,12 +118,12 @@ class AnchorEditInfo:
     replace: int = field(default=0)
     create_before: int = field(default=0)
     create_after: int = field(default=0)
-    fixes: List = field(default_factory=list)
-    source_fixes: List = field(default_factory=list)
+    fixes: List["LintFix"] = field(default_factory=list)
+    source_fixes: List[SourceFix] = field(default_factory=list)
     # First fix of edit_type "replace" in "fixes"
     _first_replace: Optional["LintFix"] = field(default=None)
 
-    def add(self, fix: "LintFix"):
+    def add(self, fix: "LintFix") -> None:
         """Adds the fix and updates stats.
 
         We also allow potentially multiple source fixes on the same
@@ -166,12 +162,12 @@ class AnchorEditInfo:
         setattr(self, fix.edit_type, getattr(self, fix.edit_type) + 1)
 
     @property
-    def total(self):
+    def total(self) -> int:
         """Returns total count of fixes."""
         return len(self.fixes)
 
     @property
-    def is_valid(self):
+    def is_valid(self) -> bool:
         """Returns True if valid combination of fixes for anchor.
 
         Cases:
@@ -263,51 +259,38 @@ class BaseSegment(metaclass=SegmentMetaclass):
     _cache_key: str
     # _preface_modifier used in ._preface()
     _preface_modifier: str = ""
+    # Optional reference to the parent. Stored as a weakref.
+    _parent: Optional[weakref.ReferenceType["BaseSegment"]] = None
 
     def __init__(
         self,
-        segments,
+        segments: Tuple["BaseSegment", ...],
         pos_marker: Optional[PositionMarker] = None,
         uuid: Optional[UUID] = None,
-    ):
-        # A cache variable for expandable
-        self._is_expandable: Optional[bool] = None
-
+    ) -> None:
         if len(segments) == 0:  # pragma: no cover
             raise RuntimeError(
                 "Setting {} with a zero length segment set. This shouldn't "
                 "happen.".format(self.__class__)
             )
 
-        if hasattr(segments, "matched_segments"):  # pragma: no cover TODO?
-            # Safely extract segments from a match
-            self.segments = segments.matched_segments
-        elif isinstance(segments, tuple):
-            self.segments = segments
-        elif isinstance(segments, list):
-            self.segments = tuple(segments)
-        else:  # pragma: no cover
-            raise TypeError(f"Unexpected type passed to BaseSegment: {type(segments)}")
-
         if not pos_marker:
-            # If no pos given, it's the pos of the first segment.
-            if isinstance(segments, (tuple, list)):
-                if all(seg.pos_marker for seg in segments):
-                    pos_marker = PositionMarker.from_child_markers(
-                        *(seg.pos_marker for seg in segments)
-                    )
-            else:  # pragma: no cover
-                raise TypeError(
-                    f"Unexpected type passed to BaseSegment: {type(segments)}"
+            # If no pos given, work it out from the children.
+            if all(seg.pos_marker for seg in segments):
+                pos_marker = PositionMarker.from_child_markers(
+                    *(seg.pos_marker for seg in segments)
                 )
 
         self.pos_marker = pos_marker
+        self.segments: Tuple["BaseSegment", ...] = segments
+        # A cache variable for expandable
+        self._is_expandable: Optional[bool] = None
         # Tracker for matching when things start moving.
         self.uuid = uuid or uuid4()
 
         self._recalculate_caches()
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, key, value) -> None:
         try:
             if key == "segments":
                 self._recalculate_caches()
@@ -319,6 +302,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def __eq__(self, other):
         # NB: this should also work for RawSegment
+        if not isinstance(other, BaseSegment):
+            return False  # pragma: no cover
+        # If the uuids match, then we can easily return early.
+        if self.uuid == other.uuid:
+            return True
         return (
             # Same class NAME. (could be constructed elsewhere)
             self.__class__.__name__ == other.__class__.__name__
@@ -335,7 +323,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             )
         )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(
             (
                 self.__class__.__name__,
@@ -344,18 +332,30 @@ class BaseSegment(metaclass=SegmentMetaclass):
             )
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: ({self.pos_marker})>"
+
+    def __getstate__(self):
+        s = self.__dict__.copy()
+        # Kill the parent ref. It won't pickle well.
+        s["_parent"] = None
+        return s
+
+    def __setstate__(self, state):
+        self.__dict__ = state.copy()
+        # Once state is ingested - repopulate, NOT recursing.
+        # Child segments will do it for themselves on unpickling.
+        self.set_as_parent(recurse=False)
 
     # ################ PRIVATE PROPERTIES
 
     @property
-    def _comments(self):
+    def _comments(self) -> List["BaseSegment"]:
         """Returns only the comment elements of this segment."""
         return [seg for seg in self.segments if seg.is_type("comment")]
 
     @property
-    def _non_comments(self):  # pragma: no cover TODO?
+    def _non_comments(self) -> List["BaseSegment"]:  # pragma: no cover TODO?
         """Returns only the non-comment elements of this segment."""
         return [seg for seg in self.segments if not seg.is_type("comment")]
 
@@ -386,6 +386,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
     def is_code(self) -> bool:
         """Return True if this segment contains any code."""
         return any(seg.is_code for seg in self.segments)
+
+    @cached_property
+    def _code_indices(self) -> Tuple[int, ...]:
+        """The indices of code elements.
+
+        This is used in the path_to algorithm for tree traversal.
+        """
+        return tuple(idx for idx, seg in enumerate(self.segments) if seg.is_code)
 
     @cached_property
     def is_comment(self) -> bool:  # pragma: no cover TODO?
@@ -465,7 +473,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # If it's a raw, yield it with this segment as the parent
             new_step = [PathStep(self, idx, len(self.segments), code_idxs)]
             if seg.is_type("raw"):
-                buffer.append((seg, new_step))
+                buffer.append((cast("RawSegment", seg), new_step))
             # If it's not, recurse - prepending self to the ancestor stack
             else:
                 buffer.extend(
@@ -513,11 +521,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         )
 
     # ################ STATIC METHODS
-
-    @staticmethod
-    def segs_to_tuple(segs, **kwargs):  # pragma: no cover TODO?
-        """Return a tuple structure from an iterable of segments."""
-        return tuple(seg.to_tuple(**kwargs) for seg in segs)
 
     def _suffix(self) -> str:
         """Return any extra output required at the end when logging.
@@ -573,12 +576,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 curtail_string(stmt.raw, length=40),
             )
             parse_context.logger.info(frame_msg(parse_depth_msg))
-            res = stmt.parse(parse_context=parse_context)
-            if isinstance(res, BaseSegment):
-                segs += (res,)
-            else:
-                # We might get back an iterable of segments
-                segs += tuple(res)
+            segs += stmt.parse(parse_context=parse_context)
 
         # Basic Validation
         check_still_complete(segments, segs, ())
@@ -589,6 +587,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         cls,
         segments: Tuple["BaseSegment", ...],
         parent_pos: Optional[PositionMarker] = None,
+        metas_only: bool = False,
     ) -> Tuple["BaseSegment", ...]:
         """Refresh positions of segments within a span.
 
@@ -625,6 +624,27 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # and backward.
         segment_buffer: Tuple["BaseSegment", ...] = ()
         for idx, segment in enumerate(segments):
+            # NOTE: Repositioning can be very compute intensive to do
+            # completely (especially because of the copying required
+            # to do it safely), but during the parsing phase we may
+            # only need to reposition meta segments. Because they have
+            # no size in the templated file and also no children - they
+            # can be done safely without affecting the rest of the file.
+            if metas_only and not segment.is_meta:
+                # Assert that the segment already has position. Unless a
+                # fix has occured this should already be true.
+                assert segment.pos_marker, (
+                    "Non-meta segment found without position. Inappropriate "
+                    "use of `metas_only`."
+                )
+                # Add the original segment to the buffer.
+                segment_buffer += (segment,)
+                # Update working position
+                line_no, line_pos = segment.pos_marker.infer_next_position(
+                    segment.raw, line_no, line_pos
+                )
+                continue
+
             repositioned_seg = segment.copy()
             # Fill any that don't have a position.
             if not repositioned_seg.pos_marker:
@@ -715,7 +735,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return cls._cache_key
 
     @classmethod
-    def is_optional(cls):
+    def is_optional(cls) -> bool:
         """Return True if this segment is optional.
 
         This is used primarily in sequence matching, where optional
@@ -724,7 +744,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return cls.optional
 
     @classmethod
-    def class_is_type(cls, *seg_type):
+    def class_is_type(cls, *seg_type) -> bool:
         """Is this segment class (or its parent) of the given type."""
         # Use set intersection
         if cls._class_types.intersection(seg_type):
@@ -732,7 +752,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return False
 
     @classmethod
-    def structural_simplify(cls, elem):
+    def structural_simplify(cls, elem) -> Optional[dict]:
         """Simplify the structure recursively so it serializes nicely in json/yaml."""
         if len(elem) == 0:
             return None
@@ -796,34 +816,18 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         if cls.match_grammar:
             # Call the private method
-            with parse_context.deeper_match() as ctx:
+            with parse_context.deeper_match(name=cls.__name__) as ctx:
                 m = cls.match_grammar.match(segments=segments, parse_context=ctx)
 
-            # Calling unify here, allows the MatchResult class to do all the type
-            # checking.
-            if not isinstance(m, MatchResult):  # pragma: no cover
-                raise TypeError(
-                    "[PD:{} MD:{}] {}.match. Result is {}, not a MatchResult!".format(
-                        parse_context.parse_depth,
-                        parse_context.match_depth,
-                        cls.__name__,
-                        type(m),
-                    )
-                )
-            # Once unified we can deal with it just as a MatchResult
             if m.has_match():
-                try:
-                    return MatchResult(
-                        (cls(segments=m.matched_segments),), m.unmatched_segments
-                    )
-                except TypeError as err:  # pragma: no cover
-                    # This is an error to assist with debugging dialect design.
-                    # It's most likely that the match_grammar has been set on
-                    # a raw segment which shouldn't happen.
-                    raise TypeError(
-                        f"Error in instantiating {cls.__module__}.{cls.__name__}. Have "
-                        f"you defined a match_grammar on a RawSegment? : {str(err)}"
-                    )
+                return MatchResult(
+                    # Return result of the match_grammar match, wrapped in a new
+                    # instance of this segment. The matched portion of the
+                    # MatchResult from the match_grammar, becomes the children
+                    # (i.e. the `segments`) of that new segment.
+                    (cls(segments=m.matched_segments),),
+                    m.unmatched_segments,
+                )
             else:
                 return MatchResult.from_unmatched(segments)
         else:  # pragma: no cover
@@ -833,7 +837,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     # ################ PRIVATE INSTANCE METHODS
 
-    def _recalculate_caches(self):
+    def _recalculate_caches(self) -> None:
         for key in [
             "is_code",
             "is_comment",
@@ -846,12 +850,13 @@ class BaseSegment(metaclass=SegmentMetaclass):
             "first_non_whitespace_segment_raw_upper",
             "source_fixes",
             "full_type_set",
-            "descendant_type_set ",
-            "direct_descendant_type_set ",
+            "descendant_type_set",
+            "direct_descendant_type_set",
+            "_code_indices",
         ]:
             self.__dict__.pop(key, None)
 
-    def _preface(self, ident, tabsize):
+    def _preface(self, ident, tabsize) -> str:
         """Returns the preamble to any logging."""
         padded_type = "{padding}{modifier}{type}".format(
             padding=" " * (ident * tabsize),
@@ -868,11 +873,47 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     # ################ PUBLIC INSTANCE METHODS
 
-    def get_type(self):
+    def set_as_parent(self, recurse=True) -> None:
+        """Set this segment as parent for child all segments."""
+        for seg in self.segments:
+            seg.set_parent(self)
+            # Recurse if not disabled
+            if recurse:
+                seg.set_as_parent(recurse=recurse)
+
+    def set_parent(self, parent: "BaseSegment") -> None:
+        """Set the weak reference to the parent.
+
+        NOTE: Don't validate on set, because we might not have fully
+        initialised the parent yet (because we call this method during
+        the instantiation of the parent).
+        """
+        self._parent = weakref.ref(parent)
+
+    def get_parent(self) -> Optional["BaseSegment"]:
+        """Get the parent segment, with some validation.
+
+        This is provided as a performance optimisation when searching
+        through the syntax tree. Any methods which depend on this should
+        have an alternative way of assessing position, and ideally also
+        set the parent of any segments found without them.
+
+        NOTE: We only store a weak reference to the parent so it might
+        not be present. We also validate here that it's _still_ the parent
+        and potentially also return None if those checks fail.
+        """
+        if not self._parent:
+            return None
+        _parent = self._parent()
+        if not _parent or self not in _parent.segments:
+            return None
+        return _parent
+
+    def get_type(self) -> str:
         """Returns the type of this segment as a string."""
         return self.type
 
-    def count_segments(self, raw_only=False):
+    def count_segments(self, raw_only=False) -> int:
         """Returns the number of segments in this segment."""
         if self.segments:
             self_count = 0 if raw_only else 1
@@ -882,11 +923,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
         else:
             return 1
 
-    def is_type(self, *seg_type):
+    def is_type(self, *seg_type) -> bool:
         """Is this segment (or its parent) of the given type."""
         return self.class_is_type(*seg_type)
 
-    def invalidate_caches(self):
+    def invalidate_caches(self) -> None:
         """Invalidate the cached properties.
 
         This should be called whenever the segments within this
@@ -897,25 +938,29 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         self._recalculate_caches()
 
-    def get_start_point_marker(self):  # pragma: no cover
+    def get_start_point_marker(self) -> PositionMarker:  # pragma: no cover
         """Get a point marker at the start of this segment."""
+        assert self.pos_marker
         return self.pos_marker.start_point_marker()
 
-    def get_end_point_marker(self):
+    def get_end_point_marker(self) -> PositionMarker:
         """Get a point marker at the end of this segment."""
+        assert self.pos_marker
         return self.pos_marker.end_point_marker()
 
-    def get_start_loc(self):
+    def get_start_loc(self) -> Tuple[int, int]:
         """Get a location tuple at the start of this segment."""
+        assert self.pos_marker
         return self.pos_marker.working_loc
 
-    def get_end_loc(self):
+    def get_end_loc(self) -> Tuple[int, int]:
         """Get a location tuple at the end of this segment."""
+        assert self.pos_marker
         return self.pos_marker.working_loc_after(
             self.raw,
         )
 
-    def stringify(self, ident=0, tabsize=4, code_only=False):
+    def stringify(self, ident=0, tabsize=4, code_only=False) -> str:
         """Use indentation to render this segment and its children as a string."""
         buff = StringIO()
         preface = self._preface(ident=ident, tabsize=tabsize)
@@ -989,7 +1034,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             )
         return result
 
-    def copy(self):
+    def copy(self) -> "BaseSegment":
         """Copy the segment recursively, with appropriate copying of references."""
         new_seg = copy(self)
         # Position markers are immutable, and it's important that we keep
@@ -1000,7 +1045,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             new_seg.segments = tuple(seg.copy() for seg in self.segments)
         return new_seg
 
-    def as_record(self, **kwargs):
+    def as_record(self, **kwargs) -> Optional[dict]:
         """Return the segment as a structurally simplified record.
 
         This is useful for serialization to yaml or json.
@@ -1008,18 +1053,13 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """
         return self.structural_simplify(self.to_tuple(**kwargs))
 
-    def raw_list(self):  # pragma: no cover TODO?
-        """Return a list of raw elements, mostly for testing or searching."""
-        buff = []
-        for s in self.segments:
-            buff += s.raw_list()
-        return buff
-
-    def get_raw_segments(self):
+    def get_raw_segments(self) -> List["RawSegment"]:
         """Iterate raw segments, mostly for searching."""
         return [item for s in self.segments for item in s.raw_segments]
 
-    def iter_segments(self, expanding=None, pass_through=False):
+    def iter_segments(
+        self, expanding=None, pass_through=False
+    ) -> Iterator["BaseSegment"]:
         """Iterate segments, optionally expanding some children."""
         for s in self.segments:
             if expanding and s.is_type(*expanding):
@@ -1029,19 +1069,19 @@ class BaseSegment(metaclass=SegmentMetaclass):
             else:
                 yield s
 
-    def iter_unparsables(self):
+    def iter_unparsables(self) -> Iterator["UnparsableSegment"]:
         """Iterate through any unparsables this segment may contain."""
         for s in self.segments:
             yield from s.iter_unparsables()
 
-    def type_set(self):
+    def type_set(self) -> Set[str]:
         """Return a set of the types contained, mostly for testing."""
         typs = {self.type}
         for s in self.segments:
             typs |= s.type_set()
         return typs
 
-    def is_raw(self):
+    def is_raw(self) -> bool:
         """Return True if this segment has no children."""
         return len(self.segments) == 0
 
@@ -1052,7 +1092,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 return seg
         return None
 
-    def get_children(self, *seg_type):
+    def get_children(self, *seg_type) -> list:
         """Retrieve the all of the children of this segment with matching type."""
         buff = []
         for seg in self.segments:
@@ -1066,7 +1106,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         stop_seg: Optional["BaseSegment"] = None,
         select_if: Optional[Callable[["BaseSegment"], Any]] = None,
         loop_while: Optional[Callable[["BaseSegment"], Any]] = None,
-    ):
+    ) -> List["BaseSegment"]:
         """Retrieve subset of children based on range and filters.
 
         Often useful by linter rules when generating fixes, e.g. to find
@@ -1139,32 +1179,72 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         Technically this could be seen as a "half open interval" of the path between
         two segments: in that it includes the root segment, but not the leaf.
+
+        We first use any existing parent references to work upward, and then if that
+        doesn't take us far enough we fill in from the top (setting any missing
+        references as we go). This tries to be as efficient in that process as
+        possible.
         """
         # Return empty if they are the same segment.
         if self is other:
             return []  # pragma: no cover
 
-        # Are we in the right ballpark?
-        # NOTE: Comparisons have a higher precedence than `not`.
-        if not self.get_start_loc() <= other.get_start_loc() <= self.get_end_loc():
-            return []
-
         # Do we have any child segments at all?
         if not self.segments:
             return []
 
-        # Check code idxs
-        code_idxs = tuple(idx for idx, seg in enumerate(self.segments) if seg.is_code)
+        # Identifying the highest parent we can using any preset parent values.
+        midpoint = other
+        lower_path = []
+        while True:
+            _higher = midpoint.get_parent()
+            # If we've run out of parents, stop for now.
+            if not _higher:
+                break
+            lower_path.append(
+                PathStep(
+                    _higher,
+                    _higher.segments.index(midpoint),
+                    len(_higher.segments),
+                    _higher._code_indices,
+                )
+            )
+            midpoint = _higher
+            # If we're found the target segment we can also stop.
+            if midpoint == self:
+                break
+
+        # Reverse the path so far
+        lower_path.reverse()
+
+        # Have we already found the parent?
+        if midpoint == self:
+            return lower_path
+        # Have we gone all the way up to the file segment?
+        elif isinstance(midpoint, BaseFileSegment):
+            return []  # pragma: no cover
+        # Are we in the right ballpark?
+        # NOTE: Comparisons have a higher precedence than `not`.
+        elif not self.get_start_loc() <= midpoint.get_start_loc() <= self.get_end_loc():
+            return []
+
+        # From here, we've worked "up" as far as we can, we now work "down".
+        # When working down, we only need to go as far as the `midpoint`.
+
         # Check through each of the child segments
         for idx, seg in enumerate(self.segments):
-            step = PathStep(self, idx, len(self.segments), code_idxs)
+            # Set the parent if it's not already set.
+            seg.set_parent(self)
+            # Build the step.
+            step = PathStep(self, idx, len(self.segments), self._code_indices)
             # Have we found the target?
-            if seg is other:
-                return [step]
+            # NOTE: Check for _equality_ not _identity_ here as that's most reliable.
+            if seg == midpoint:
+                return [step] + lower_path
             # Is there a path to the target?
-            res = seg.path_to(other)
+            res = seg.path_to(midpoint)
             if res:
-                return [step] + res
+                return [step] + res + lower_path
 
         # Not found.
         return []  # pragma: no cover
@@ -1173,7 +1253,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         self,
         parse_context: ParseContext,
         parse_grammar: Optional[Matchable] = None,
-    ) -> "BaseSegment":
+    ) -> Tuple["BaseSegment", ...]:
         """Use the parse grammar to find subsegments within this segment.
 
         A large chunk of the logic around this can be found in the `expand` method.
@@ -1185,15 +1265,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
         provided which will override any existing parse grammar
         on the segment.
         """
-        # Clear the denylist cache so avoid missteps
-        if parse_context:
-            parse_context.denylist.clear()
-
         # the parse_depth and recurse kwargs control how deep we will recurse for
         # testing.
         if not self.segments:  # pragma: no cover TODO?
             # This means we're a root segment, just return an unmutated self
-            return self
+            return (self,)
 
         # Check the Parse Grammar
         parse_grammar = parse_grammar or self.parse_grammar
@@ -1223,15 +1299,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     )
 
             # NOTE: No match_depth kwarg, because this is the start of the matching.
-            with parse_context.matching_segment(self.__class__.__name__) as ctx:
+            with parse_context.deeper_match(name=self.__class__.__name__) as ctx:
                 m = parse_grammar.match(segments=segments, parse_context=ctx)
-
-            if not isinstance(m, MatchResult):  # pragma: no cover
-                raise TypeError(
-                    "[PD:{}] {}.match. Result is {}, not a MatchResult!".format(
-                        parse_context.parse_depth, self.__class__.__name__, type(m)
-                    )
-                )
 
             # Basic Validation, that we haven't dropped anything.
             check_still_complete(segments, m.matched_segments, m.unmatched_segments)
@@ -1273,27 +1342,24 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     )
                     + post_nc
                 )
-        # Recurse if allowed (using the expand method to deal with the expansion)
-        parse_context.logger.debug(
-            "{}.parse: Done Parse. Plotting Recursion. Recurse={!r}".format(
-                self.__class__.__name__, parse_context.recurse
-            )
-        )
+
         parse_depth_msg = (
             "###\n#\n# Beginning Parse Depth {}: {}\n#\n###\nInitial Structure:\n"
             "{}".format(
                 parse_context.parse_depth + 1, self.__class__.__name__, self.stringify()
             )
         )
-        if parse_context.may_recurse():
-            parse_context.logger.debug(parse_depth_msg)
-            with parse_context.deeper_parse() as ctx:
-                self.segments = self.expand(
-                    self.segments,
-                    parse_context=ctx,
-                )
+        parse_context.logger.debug(parse_depth_msg)
+        with parse_context.deeper_parse(name=self.__class__.__name__) as ctx:
+            self.segments = self.expand(
+                self.segments,
+                parse_context=ctx,
+            )
+        # Once parsed, populate any parent relationships.
+        for _seg in self.segments:
+            _seg.set_as_parent()
 
-        return self
+        return (self,)
 
     @staticmethod
     def _is_code_or_meta(segment: "BaseSegment") -> bool:
@@ -1360,7 +1426,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                             )
                             if f.edit_type == "delete":
                                 # We're just getting rid of this segment.
-                                seg = None
+                                pass
                             elif f.edit_type in (
                                 "replace",
                                 "create_before",
@@ -1374,30 +1440,31 @@ class BaseSegment(metaclass=SegmentMetaclass):
                                     # of a create_before/create_after pair, also add
                                     # this segment before the edit.
                                     seg_buffer.append(seg)
+                                    seg.set_parent(self)
 
                                 # We're doing a replacement (it could be a single
                                 # segment or an iterable)
+                                assert f.edit, f"Edit {f.edit_type!r} requires `edit`."
                                 consumed_pos = False
-                                if isinstance(f.edit, BaseSegment):
-                                    seg_buffer.append(f.edit)  # pragma: no cover TODO?
-                                else:
-                                    for s in f.edit:
-                                        seg_buffer.append(s)
-                                        # If one of them has the same raw representation
-                                        # then the first that matches gets to take the
-                                        # original position marker.
-                                        if (
-                                            f.edit_type == "replace"
-                                            and s.raw == seg.raw
-                                            and not consumed_pos
-                                        ):
-                                            seg_buffer[-1].pos_marker = seg.pos_marker
-                                            consumed_pos = True
+                                for s in f.edit:
+                                    seg_buffer.append(s)
+                                    s.set_parent(self)
+                                    # If one of them has the same raw representation
+                                    # then the first that matches gets to take the
+                                    # original position marker.
+                                    if (
+                                        f.edit_type == "replace"
+                                        and s.raw == seg.raw
+                                        and not consumed_pos
+                                    ):
+                                        seg_buffer[-1].pos_marker = seg.pos_marker
+                                        consumed_pos = True
 
                                 if f.edit_type == "create_before":
                                     # in the case of a creation before, also add this
                                     # segment on the end
                                     seg_buffer.append(seg)
+                                    seg.set_parent(self)
 
                             else:  # pragma: no cover
                                 raise ValueError(
@@ -1407,6 +1474,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                                 )
                     else:
                         seg_buffer.append(seg)
+                        seg.set_parent(self)
                 # Invalidate any caches
                 self.invalidate_caches()
 
@@ -1480,31 +1548,30 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def _validate_segment_after_fixes(self, rule_code, dialect, fixes_applied, segment):
         """Checks correctness of new segment against match or parse grammar."""
-        root_parse_context = RootParseContext(dialect=dialect)
-        with root_parse_context as parse_context:
-            try:
-                # :HACK: Calling parse() corrupts the segment 'r'
-                # in some cases, e.g. adding additional Dedent child
-                # segments. Here, we work around this by calling
-                # parse() on a "backup copy" of the segment.
-                r_copy = deepcopy(segment)
-                for seg in r_copy.segments:
-                    seg.pos_marker = replace(
-                        seg.pos_marker,
-                        templated_file=self.pos_marker.templated_file,
-                    )
-                r_copy.parse(parse_context)
-            except ValueError:  # pragma: no cover
-                self._log_apply_fixes_check_issue(
-                    "After %s fixes were applied, segment %r failed the "
-                    "parse() check. Fixes: %r",
-                    rule_code,
-                    r_copy,
-                    fixes_applied,
+        ctx = ParseContext(dialect=dialect)
+        try:
+            # :HACK: Calling parse() corrupts the segment 'r'
+            # in some cases, e.g. adding additional Dedent child
+            # segments. Here, we work around this by calling
+            # parse() on a "backup copy" of the segment.
+            r_copy = deepcopy(segment)
+            for seg in r_copy.segments:
+                seg.pos_marker = replace(
+                    seg.pos_marker,
+                    templated_file=self.pos_marker.templated_file,
                 )
+            r_copy.parse(ctx)
+        except ValueError:  # pragma: no cover
+            self._log_apply_fixes_check_issue(
+                "After %s fixes were applied, segment %r failed the "
+                "parse() check. Fixes: %r",
+                rule_code,
+                r_copy,
+                fixes_applied,
+            )
 
     @staticmethod
-    def _log_apply_fixes_check_issue(message, *args):  # pragma: no cover
+    def _log_apply_fixes_check_issue(message, *args) -> None:  # pragma: no cover
         linter_logger.critical(message, exc_info=True, *args)
 
     def _iter_source_fix_patches(
@@ -1590,8 +1657,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
             source_idx = self.pos_marker.source_slice.start
             templated_idx = self.pos_marker.templated_slice.start
             insert_buff = ""
-            for seg_idx, segment in enumerate(segments):
+            for segment in segments:
                 # First check for insertions.
+                # At this stage, everything should have a position.
+                assert segment.pos_marker
                 # We know it's an insertion if it has length but not in the templated
                 # file.
                 if segment.raw and segment.pos_marker.is_point():
@@ -1696,8 +1765,8 @@ class BracketedSegment(BaseSegment):
         # be tuples of length 1. This is because we'll almost always
         # be doing tuple arithmetic with the results and constructing
         # 1-tuples on the fly is very easy to misread.
-        start_bracket: Optional[Tuple[BaseSegment]] = None,
-        end_bracket: Optional[Tuple[BaseSegment]] = None,
+        start_bracket: Tuple[BaseSegment],
+        end_bracket: Tuple[BaseSegment],
         **kwargs,
     ):
         """Stash the bracket segments for later."""
@@ -1714,12 +1783,12 @@ class BracketedSegment(BaseSegment):
         """Simple methods for bracketed and the persistent brackets."""
         start_brackets = [
             start_bracket
-            for _, start_bracket, _, persistent in parse_context.dialect.sets(
+            for _, start_bracket, _, persistent in parse_context.dialect.bracket_sets(
                 "bracket_pairs"
             )
             if persistent
         ]
-        simple_raws = set()
+        simple_raws: Set[str] = set()
         for ref in start_brackets:
             bracket_simple = parse_context.dialect.ref(ref).simple(
                 parse_context, crumbs=crumbs
@@ -1749,18 +1818,18 @@ class UnparsableSegment(BaseSegment):
     comment_separate = True
     _expected = ""
 
-    def __init__(self, *args, expected="", **kwargs):
+    def __init__(self, *args, expected="", **kwargs) -> None:
         self._expected = expected
         super().__init__(*args, **kwargs)
 
-    def _suffix(self):
+    def _suffix(self) -> str:
         """Return any extra output required at the end when logging.
 
         NB Override this for specific subclasses if we want extra output.
         """
         return f"!! Expected: {self._expected!r}"
 
-    def iter_unparsables(self):
+    def iter_unparsables(self) -> Iterator["UnparsableSegment"]:
         """Iterate through any unparsables.
 
         As this is an unparsable, it should yield itself.
@@ -1792,11 +1861,11 @@ class BaseFileSegment(BaseSegment):
         super().__init__(segments, pos_marker=pos_marker)
 
     @property
-    def file_path(self):
+    def file_path(self) -> Optional[str]:
         """File path of a parsed SQL file."""
         return self._file_path
 
-    def get_table_references(self):
+    def get_table_references(self) -> set:
         """Use parsed tree to extract table references."""
         references = set()
         for stmt in self.get_children("statement"):
@@ -1815,11 +1884,11 @@ class IdentitySet(MutableSet):
 
     key = id  # should return a hashable object
 
-    def __init__(self, iterable=()):
-        self.map = {}  # id -> object
+    def __init__(self, iterable=()) -> None:
+        self.map: dict = {}  # id -> object
         self |= iterable  # add elements from iterable to the set (union)
 
-    def __len__(self):  # Sized
+    def __len__(self) -> int:  # Sized
         return len(self.map)
 
     def __iter__(self):  # Iterable
@@ -1832,7 +1901,7 @@ class IdentitySet(MutableSet):
         """Add an element."""
         self.map[self.key(value)] = value
 
-    def update(self, value):
+    def update(self, value) -> None:
         """Add elements in 'value'."""
         for v in value:
             self.add(v)
@@ -1841,7 +1910,7 @@ class IdentitySet(MutableSet):
         """Remove an element.  Do not raise an exception if absent."""
         self.map.pop(self.key(value), None)  # pragma: no cover
 
-    def __repr__(self):  # pragma: no cover
+    def __repr__(self) -> str:  # pragma: no cover
         if not self:
             return "%s()" % (self.__class__.__name__,)
         return "%s(%r)" % (self.__class__.__name__, list(self))

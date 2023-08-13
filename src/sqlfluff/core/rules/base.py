@@ -24,6 +24,9 @@ import pathlib
 import regex
 import re
 from typing import (
+    TYPE_CHECKING,
+    Sequence,
+    Sized,
     cast,
     Iterable,
     Optional,
@@ -39,9 +42,9 @@ from typing import (
 )
 from collections import namedtuple, defaultdict
 
-from sqlfluff.core.config import FluffConfig, split_comma_separated_string
+from sqlfluff.core.config import split_comma_separated_string
 
-from sqlfluff.core.linter import LintedFile, NoQaDirective
+from sqlfluff.core.linter import IgnoreMask
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.dialects import Dialect
 from sqlfluff.core.errors import SQLLintError, SQLFluffUserError
@@ -49,7 +52,18 @@ from sqlfluff.core.parser.segments.base import SourceFix
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import BaseCrawler
 from sqlfluff.core.rules.config_info import get_config_info
+from sqlfluff.core.plugin.host import plugins_loaded, is_main_process
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
+
+# Best solution for generic types on older python versions
+# https://github.com/python/typeshed/issues/7855
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.config import FluffConfig
+    from sqlfluff.core.plugin.hookspecs import PluginSpec
+
+    _LoggerAdapter = logging.LoggerAdapter[logging.Logger]
+else:
+    _LoggerAdapter = logging.LoggerAdapter
 
 # The ghost of a rule (mostly used for testing)
 RuleGhost = namedtuple("RuleGhost", ["code", "name", "description"])
@@ -60,12 +74,12 @@ rules_logger = logging.getLogger("sqlfluff.rules")
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
 
-class RuleLoggingAdapter(logging.LoggerAdapter):
+class RuleLoggingAdapter(_LoggerAdapter):
     """A LoggingAdapter for rules which adds the code of the rule to it."""
 
-    def process(self, msg, kwargs):
+    def process(self, msg: str, kwargs: Any) -> Tuple[str, Any]:
         """Add the code element to the logging message before emit."""
-        return "[{}] {}".format(self.extra["code"], msg), kwargs
+        return "[{}] {}".format(self.extra["code"] if self.extra else "", msg), kwargs
 
 
 class LintResult:
@@ -96,7 +110,7 @@ class LintResult:
         self,
         anchor: Optional[BaseSegment] = None,
         fixes: Optional[List["LintFix"]] = None,
-        memory=None,
+        memory: Optional[Any] = None,
         description: Optional[str] = None,
         source: Optional[str] = None,
     ):
@@ -113,7 +127,7 @@ class LintResult:
         # Optional code for where the result came from
         self.source: str = source or ""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if not self.anchor:
             return "LintResult(<empty>)"
         # The "F" at the end is short for "fixes", to indicate how many there are.
@@ -127,7 +141,7 @@ class LintResult:
             return f"LintResult({self.description}: {self.anchor}{fix_coda})"
         return f"LintResult({self.anchor}{fix_coda})"
 
-    def to_linting_error(self, rule) -> Optional[SQLLintError]:
+    def to_linting_error(self, rule: "BaseRule") -> Optional[SQLLintError]:
         """Convert a linting result to a :exc:`SQLLintError` if appropriate."""
         if self.anchor:
             # Allow description override from the LintResult
@@ -138,8 +152,8 @@ class LintResult:
                 fixes=self.fixes,
                 description=description,
             )
-        else:
-            return None
+
+        return None
 
 
 class LintFix:
@@ -208,7 +222,7 @@ class LintFix:
             # can't guarantee with edits.
         self.source = [seg for seg in source if seg.pos_marker] if source else []
 
-    def is_trivial(self):
+    def is_trivial(self) -> bool:
         """Return true if the fix is trivial.
 
         Trivial edits are:
@@ -221,7 +235,7 @@ class LintFix:
             if isinstance(self.edit, BaseSegment):
                 if len(self.edit.raw) == 0:  # pragma: no cover TODO?
                     return True
-            elif all(len(elem.raw) == 0 for elem in self.edit):
+            elif self.edit and all(len(elem.raw) == 0 for elem in self.edit):
                 return True
         elif self.edit_type == "replace" and self.edit == self.anchor:
             return True  # pragma: no cover TODO?
@@ -236,18 +250,17 @@ class LintFix:
             and self.edit[0].raw == self.anchor.raw
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if self.edit_type == "delete":
             detail = f"delete:{self.anchor.raw!r}"
         elif self.edit_type in ("replace", "create_before", "create_after"):
-            if hasattr(self.edit, "raw"):
-                new_detail = self.edit.raw  # pragma: no cover TODO?
-            else:
-                new_detail = "".join(s.raw for s in self.edit)
+            seg_list = cast(List[BaseSegment], self.edit)
+            new_detail = "".join(s.raw for s in seg_list)
 
             if self.edit_type == "replace":
                 if self.is_just_source_edit():
-                    detail = f"src-edt:{self.edit[0].source_fixes!r}"
+                    seg_list = cast(List[BaseSegment], self.edit)
+                    detail = f"src-edt:{seg_list[0].source_fixes!r}"
                 else:
                     detail = f"edt:{self.anchor.raw!r}->{new_detail!r}"
             else:
@@ -259,13 +272,19 @@ class LintFix:
             f"@{self.anchor.pos_marker} {detail}>"
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """Compare equality with another fix.
 
         A fix is equal to another if is in the same place (position), with the
         same type and (if appropriate) the same edit values.
 
         """
+        # We have to assert this here rather in the type annotation so we don't
+        # violate the Liskov substitution principle.
+        # More context here: https://stackoverflow.com/a/37557540/11381493
+        if not isinstance(other, LintFix):  # pragma: no cover
+            return NotImplemented
+
         if not self.edit_type == other.edit_type:
             return False
         # For checking anchor equality, first check types.
@@ -278,11 +297,24 @@ class LintFix:
         # fixes (positions are meaningless).
         # Only do this if we have edits.
         if self.edit:
+            # We have to get weird here to appease mypy --strict
+            # mypy seems to have a bug where even though we check above to make sure
+            # self.edit is not None it still thinks it could be None when doing the
+            # type check below. But if we use cast(List[BaseSegment], self.edit) then
+            # it throws a redundant-cast error, because magically now it _does_ know
+            # that self.edit is not None. So we have to cast to Sized for the len()
+            # check and to Iterable[BaseSegment] for the looped check to make mypy
+            # happy.
+
             # 1. Check lengths
-            if len(self.edit) != len(other.edit):
+            edit_list = cast(Sized, self.edit)
+            other_list = cast(Sized, other.edit)
+            if len(edit_list) != len(other_list):
                 return False  # pragma: no cover
             # 2. Zip and compare
-            for a, b in zip(self.edit, other.edit):
+            edit_list2 = cast(Iterable[BaseSegment], self.edit)
+            other_list2 = cast(Iterable[BaseSegment], other.edit)
+            for a, b in zip(edit_list2, other_list2):
                 # Check raws
                 if a.raw != b.raw:
                     return False
@@ -501,7 +533,10 @@ class RuleMetaclass(type):
     _valid_classname_regex = regex.compile(r"Rule_?([A-Z]{1}[a-zA-Z]+)?_([A-Z0-9]{4})")
     _valid_rule_name_regex = regex.compile(r"[a-z][a-z\.\_]+")
 
-    def _populate_code_and_description(mcs, name, class_dict):
+    @staticmethod
+    def _populate_code_and_description(
+        name: str, class_dict: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Extract and validate the rule code & description.
 
         We expect that rules are defined as classes with the name `Rule_XXXX`
@@ -515,7 +550,7 @@ class RuleMetaclass(type):
         If this receives classes by any other name, then it will raise a
         :exc:`ValueError`.
         """
-        rule_name_match = mcs._valid_classname_regex.match(name)
+        rule_name_match = RuleMetaclass._valid_classname_regex.match(name)
         # Validate the name
         if not rule_name_match:  # pragma: no cover
             raise SQLFluffUserError(
@@ -536,7 +571,8 @@ class RuleMetaclass(type):
 
         return class_dict
 
-    def _populate_docstring(mcs, name, class_dict):
+    @staticmethod
+    def _populate_docstring(name: str, class_dict: Dict[str, Any]) -> Dict[str, Any]:
         """Enrich the docstring in the class_dict.
 
         This takes the various defined values in the BaseRule class
@@ -571,7 +607,29 @@ class RuleMetaclass(type):
         )
 
         config_docs = ""
-        if class_dict.get("config_keywords", []):
+
+        # NOTE: We should only validate and add config keywords
+        # into the docstring if the plugin loading methods have
+        # fully completed (i.e. plugins_loaded.get() is True).
+        if name == "BaseRule" or not is_main_process.get():
+            # Except if it's the base rule, or we're not in the main process/thread
+            # in which case we shouldn't try and alter the docstrings anyway.
+            # NOTE: The order of imports within child threads/processes is less
+            # controllable, and so we should just avoid checking whether plugins
+            # are already loaded.
+            pass
+        elif not plugins_loaded.get():
+            # Show a warning if a plugin has their imports set up in a suboptimal
+            # way. The example plugin imports the rules in both ways, to test the
+            # triggering of this warning.
+            rules_logger.warning(
+                f"Rule {name!r} has been imported before all plugins "
+                "have been fully loaded. For best performance, plugins "
+                "should import any rule definitions within their `get_rules()` "
+                "method. Please update your plugin to remove this warning. See: "
+                "https://docs.sqlfluff.com/en/stable/developingplugins.html"
+            )
+        elif class_dict.get("config_keywords", []):
             config_docs = "\n    **Configuration**\n"
             config_info = get_config_info()
             for keyword in sorted(class_dict["config_keywords"]):
@@ -599,7 +657,7 @@ class RuleMetaclass(type):
 
         all_docs = fix_docs + name_docs + alias_docs + groups_docs + config_docs
         # Modify the docstring using the search regex.
-        class_dict["__doc__"] = mcs._doc_search_regex.sub(
+        class_dict["__doc__"] = RuleMetaclass._doc_search_regex.sub(
             f"\n\n{all_docs}\n\n\\1", class_dict["__doc__"], count=1
         )
         # If the inserted string is not now in the docstring - append it on
@@ -611,7 +669,12 @@ class RuleMetaclass(type):
         # Return the modified class_dict
         return class_dict
 
-    def __new__(mcs, name, bases, class_dict):
+    def __new__(
+        mcs,
+        name: str,
+        bases: List["BaseRule"],
+        class_dict: Dict[str, Any],
+    ) -> "RuleMetaclass":
         """Generate a new class."""
         # Optionally, groups may be inherited. At this stage of initialisation
         # they won't have been. Check parent classes if they exist.
@@ -625,14 +688,14 @@ class RuleMetaclass(type):
                 class_dict["groups"] = base.groups
                 break
 
-        class_dict = mcs._populate_docstring(mcs, name, class_dict)
+        class_dict = RuleMetaclass._populate_docstring(name, class_dict)
         # Don't try and infer code and description for the base class
         if bases:
-            class_dict = mcs._populate_code_and_description(mcs, name, class_dict)
+            class_dict = RuleMetaclass._populate_code_and_description(name, class_dict)
         # Validate rule names
         rule_name = class_dict.get("name", "")
         if rule_name:
-            if not mcs._valid_rule_name_regex.match(rule_name):
+            if not RuleMetaclass._valid_rule_name_regex.match(rule_name):
                 raise SQLFluffUserError(
                     f"Tried to define rule with unexpected "
                     f"name format: {rule_name}. Rule names should be lowercase "
@@ -641,7 +704,9 @@ class RuleMetaclass(type):
                 )
 
         # Use the stock __new__ method now we've adjusted the docstring.
-        return super().__new__(mcs, name, bases, class_dict)
+        # There are no overload variants of type.__new__ that are compatible, so
+        # we ignore type checking in this case.
+        return super().__new__(mcs, name, bases, class_dict)  # type: ignore
 
 
 class BaseRule(metaclass=RuleMetaclass):
@@ -701,7 +766,7 @@ class BaseRule(metaclass=RuleMetaclass):
     # Configuration that is defined in the Config.py file
     split_comma_separated_string = staticmethod(split_comma_separated_string)
 
-    def __init__(self, code, description, **kwargs):
+    def __init__(self, code: str, description: str, **kwargs: Any) -> None:
         self.description = description
         self.code = code
         # kwargs represents the config passed to the rule. Add all kwargs as class
@@ -724,7 +789,7 @@ class BaseRule(metaclass=RuleMetaclass):
                 )
 
     @classmethod
-    def get_config_ref(cls):
+    def get_config_ref(cls) -> str:
         """Return the config lookup ref for this rule.
 
         If a `name` is defined, it's the name - otherwise the code.
@@ -766,10 +831,15 @@ class BaseRule(metaclass=RuleMetaclass):
         dialect: Dialect,
         fix: bool,
         templated_file: Optional["TemplatedFile"],
-        ignore_mask: List[NoQaDirective],
+        ignore_mask: Optional[IgnoreMask],
         fname: Optional[str],
-        config: FluffConfig,
-    ) -> Tuple[List[SQLLintError], Tuple[RawSegment, ...], List[LintFix], Any]:
+        config: "FluffConfig",
+    ) -> Tuple[
+        List[SQLLintError],
+        Tuple[RawSegment, ...],
+        List[LintFix],
+        Optional[Dict[str, Any]],
+    ]:
         """Run the rule on a given tree.
 
         Returns:
@@ -788,7 +858,7 @@ class BaseRule(metaclass=RuleMetaclass):
         fixes: List[LintFix] = []
 
         # Propagates memory from one rule _eval() to the next.
-        memory: Any = root_context.memory
+        memory = root_context.memory
         context = root_context
         for context in self.crawl_behaviour.crawl(root_context):
             try:
@@ -876,13 +946,19 @@ class BaseRule(metaclass=RuleMetaclass):
 
     # HELPER METHODS --------
     @staticmethod
-    def _log_critical_errors(error: Exception):  # pragma: no cover
+    def _log_critical_errors(error: Exception) -> None:  # pragma: no cover
         """This method is monkey patched into a "raise" for certain tests."""
         pass
 
     def _process_lint_result(
-        self, res, templated_file, ignore_mask, new_lerrs, new_fixes, root
-    ):
+        self,
+        res: LintResult,
+        templated_file: Optional[TemplatedFile],
+        ignore_mask: Optional[IgnoreMask],
+        new_lerrs: List[SQLLintError],
+        new_fixes: List[LintFix],
+        root: BaseSegment,
+    ) -> None:
         # Unless the rule declares that it's already template safe. Do safety
         # checks.
         if not self.template_safe_fixes:
@@ -921,7 +997,7 @@ class BaseRule(metaclass=RuleMetaclass):
                     break
 
             if lerr and ignore_mask:
-                filtered = LintedFile.ignore_masked_violations([lerr], ignore_mask)
+                filtered = ignore_mask.ignore_masked_violations([lerr])
                 if not filtered:
                     lerr = None
                     ignored = True
@@ -931,7 +1007,9 @@ class BaseRule(metaclass=RuleMetaclass):
             new_fixes.extend(res.fixes)
 
     @staticmethod
-    def filter_meta(segments, keep_meta=False):
+    def filter_meta(
+        segments: Sequence[BaseSegment], keep_meta: bool = False
+    ) -> Tuple[BaseSegment, ...]:
         """Filter the segments to non-meta.
 
         Or optionally the opposite if keep_meta is True.
@@ -943,7 +1021,9 @@ class BaseRule(metaclass=RuleMetaclass):
         return tuple(buff)
 
     @classmethod
-    def get_parent_of(cls, segment, root_segment):  # pragma: no cover TODO?
+    def get_parent_of(
+        cls, segment: BaseSegment, root_segment: BaseSegment
+    ) -> Optional[BaseSegment]:  # pragma: no cover TODO?
         """Return the segment immediately containing segment.
 
         NB: This is recursive.
@@ -970,7 +1050,7 @@ class BaseRule(metaclass=RuleMetaclass):
     @staticmethod
     def discard_unsafe_fixes(
         lint_result: LintResult, templated_file: Optional[TemplatedFile]
-    ):
+    ) -> None:
         """Remove (discard) LintResult fixes if they are "unsafe".
 
         By removing its fixes, a LintResult will still be reported, but it
@@ -1009,7 +1089,9 @@ class BaseRule(metaclass=RuleMetaclass):
             return
 
     @classmethod
-    def _adjust_anchors_for_fixes(cls, context, lint_result) -> None:
+    def _adjust_anchors_for_fixes(
+        cls, context: RuleContext, lint_result: LintResult
+    ) -> None:
         """Makes simple fixes to the anchor position for fixes.
 
         Some rules return fixes where the anchor is too low in the tree. These
@@ -1023,7 +1105,6 @@ class BaseRule(metaclass=RuleMetaclass):
         if not cls._adjust_anchors:
             return
 
-        fix: LintFix
         for fix in lint_result.fixes:
             if fix.anchor:
                 fix.anchor = cls._choose_anchor_segment(
@@ -1041,7 +1122,7 @@ class BaseRule(metaclass=RuleMetaclass):
         edit_type: str,
         segment: BaseSegment,
         filter_meta: bool = False,
-    ):
+    ) -> BaseSegment:
         """Choose the anchor point for a lint fix, i.e. where to apply the fix.
 
         From a grammar perspective, segments near the leaf of the tree are
@@ -1081,7 +1162,7 @@ class BaseRule(metaclass=RuleMetaclass):
                     [child for child in seg.segments if not child.is_meta]
                 )
             # Always check against the full set of children.
-            children_lists.append(seg.segments)
+            children_lists.append(list(seg.segments))
             children: List[BaseSegment]
             for children in children_lists:
                 if edit_type == "create_before" and children[0] is child:
@@ -1110,8 +1191,8 @@ class RuleManifest:
     code: str
     name: str
     description: str
-    groups: Tuple[str]
-    aliases: Tuple[str]
+    groups: Tuple[str, ...]
+    aliases: Tuple[str, ...]
     rule_class: Type[BaseRule]
 
 
@@ -1170,12 +1251,14 @@ class RuleSet:
 
     """
 
-    def __init__(self, name, config_info) -> None:
+    def __init__(self, name: str, config_info: Dict[str, Dict[str, Any]]) -> None:
         self.name = name
         self.config_info = config_info
         self._register: Dict[str, RuleManifest] = {}
 
-    def _validate_config_options(self, config, rule_ref: Optional[str] = None):
+    def _validate_config_options(
+        self, config: "FluffConfig", rule_ref: Optional[str] = None
+    ) -> None:
         """Ensure that all config options are valid.
 
         Config options can also be checked for a specific rule e.g CP01.
@@ -1203,7 +1286,9 @@ class RuleSet:
                     )
                 )
 
-    def register(self, cls, plugin=None):
+    def register(
+        self, cls: Type[BaseRule], plugin: Optional["PluginSpec"] = None
+    ) -> Type[BaseRule]:
         """Decorate a class with this to add it to the ruleset.
 
         .. code-block:: python
@@ -1340,7 +1425,7 @@ class RuleSet:
         # Incorporate after all checks are done.
         return {**alias_map, **reference_map}
 
-    def get_rulepack(self, config) -> RulePack:
+    def get_rulepack(self, config: "FluffConfig") -> RulePack:
         """Use the config to return the appropriate rules.
 
         We use the config both for allowlisting and denylisting, but also
@@ -1453,7 +1538,7 @@ class RuleSet:
         }
         for code in keylist:
             kwargs = {}
-            rule_class = cast(Type[BaseRule], self._register[code].rule_class)
+            rule_class = self._register[code].rule_class
             # Fetch the lookup code for the rule.
             rule_config_ref = rule_class.get_config_ref()
             specific_rule_config = config.get_section(("rules", rule_config_ref))
@@ -1471,7 +1556,7 @@ class RuleSet:
 
         return RulePack(instantiated_rules, reference_map)
 
-    def copy(self):
+    def copy(self) -> "RuleSet":
         """Return a copy of self with a separate register."""
         new_ruleset = copy.copy(self)
         new_ruleset._register = self._register.copy()

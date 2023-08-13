@@ -41,7 +41,7 @@ class Selectable:
         return self.selectable.raw
 
     @cached_property
-    def select_info(self):
+    def select_info(self) -> Optional[SelectStatementColumnsAndTables]:
         """Returns SelectStatementColumnsAndTables on the SELECT."""
         if self.selectable.is_type("select_statement"):
             return get_select_statement_info(
@@ -246,7 +246,7 @@ class SelectCrawler:
         # so we can pop "query_stack" when those segments complete processing.
         pop_queries_for = []
 
-        def append_query(query, parent_stack):
+        def append_query(query, parent_stack) -> None:
             """Bookkeeping when a new Query is created."""
             if query_stack:
                 query.parent = query_stack[-1]
@@ -266,7 +266,7 @@ class SelectCrawler:
                     self.query_tree.parent = parent
             pop_queries_for.append(path[-1])
 
-        def finish_segment():
+        def finish_segment() -> None:
             """Bookkeeping when a segment finishes processing."""
             try:
                 idx = pop_queries_for.index(path[-1])
@@ -439,6 +439,6 @@ class SelectCrawler:
         path.pop()
 
     @classmethod
-    def get_parent_query(cls, seg, dialect, parent_stack):
+    def get_parent_query(cls, seg, dialect, parent_stack) -> Optional[Query]:
         """Creates a query tree from a querys parent stack to create full path."""
         return cls(seg, dialect, parent_stack=parent_stack).query_tree

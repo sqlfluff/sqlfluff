@@ -11,7 +11,9 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     CodeSegment,
+    Dedent,
     Delimited,
+    Indent,
     Matchable,
     Nothing,
     OneOf,
@@ -21,6 +23,7 @@ from sqlfluff.core.parser import (
     RegexParser,
     SegmentGenerator,
     Sequence,
+    StartsWith,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_postgres as postgres
@@ -1835,6 +1838,37 @@ class ShowDatasharesStatementSegment(BaseSegment):
     )
 
 
+class GrantUsageDatashareStatementSegment(BaseSegment):
+    """A `GRANT DATASHARES` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_GRANT.html
+    section "Granting datashare permissions"
+    Note: According to docummentation, multiple accounts and namespaces can be
+          specified. However, tests using redshift instance showed this causes a syntax
+          error.
+    """
+
+    type = "grant_datashare_statement"
+    match_grammar = Sequence(
+        OneOf("GRANT", "REVOKE"),
+        "USAGE",
+        "ON",
+        "DATASHARE",
+        Ref("ObjectReferenceSegment"),
+        OneOf("TO", "FROM"),
+        OneOf(
+            Sequence("NAMESPACE", Ref("QuotedLiteralSegment")),
+            Sequence(
+                "ACCOUNT",
+                Sequence(
+                    Ref("QuotedLiteralSegment"),
+                    Sequence("VIA", "DATA", "CATALOG", optional=True),
+                ),
+            ),
+        ),
+    )
+
+
 class CreateRlsPolicyStatementSegment(BaseSegment):
     """A `CREATE RLS POLICY` statement.
 
@@ -2019,6 +2053,7 @@ class StatementSegment(postgres.StatementSegment):
             Ref("ManageRlsPolicyStatementSegment"),
             Ref("DropRlsPolicyStatementSegment"),
             Ref("CreateExternalFunctionStatementSegment"),
+            Ref("GrantUsageDatashareStatementSegment"),
         ],
     )
 
@@ -2537,6 +2572,34 @@ class CreateViewStatementSegment(BaseSegment):
     )
 
 
+class CreateMaterializedViewStatementSegment(
+    postgres.CreateMaterializedViewStatementSegment
+):
+    """A `CREATE MATERIALIZED VIEW` statement.
+
+    # https://docs.aws.amazon.com/redshift/latest/dg/materialized-view-create-sql-command.html
+    """
+
+    type = "create_materialized_view_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        Sequence("BACKUP", OneOf("YES", "NO"), optional=True),
+        Ref("TableAttributeSegment", optional=True),
+        Sequence("AUTO", "REFRESH", OneOf("YES", "NO"), optional=True),
+        "AS",
+        OneOf(
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            OptionallyBracketed(Sequence("TABLE", Ref("TableReferenceSegment"))),
+            Ref("ValuesClauseSegment"),
+            OptionallyBracketed(Sequence("EXECUTE", Ref("FunctionSegment"))),
+        ),
+        Ref("WithDataClauseSegment", optional=True),
+    )
+
+
 class CreateExternalFunctionStatementSegment(BaseSegment):
     """A `CREATE EXTERNAL FUNCTION` segment.
 
@@ -2568,4 +2631,57 @@ class CreateExternalFunctionStatementSegment(BaseSegment):
             Ref("NumericLiteralSegment"),
             optional=True,
         ),
+    )
+
+
+class QualifyClauseSegment(BaseSegment):
+    """A `QUALIFY` clause like in `SELECT`.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_QUALIFY_clause.html
+    """
+
+    type = "qualify_clause"
+    match_grammar = Sequence(
+        "QUALIFY",
+        Indent,
+        Ref("ExpressionSegment"),
+        Dedent,
+    )
+
+
+class SelectStatementSegment(ansi.SelectStatementSegment):
+    """A snowflake `SELECT` statement including optional Qualify.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_QUALIFY_clause.html
+    """
+
+    type = "select_statement"
+    match_grammar = StartsWith(
+        # NB: In bigquery, the select clause may include an EXCEPT, which
+        # will also match the set operator, but by starting with the whole
+        # select clause rather than just the SELECT keyword, we normally
+        # mitigate that here. But this isn't BigQuery! So we can be more
+        # efficient and just use the keyword.
+        "SELECT",
+        terminator=Ref("SetOperatorSegment"),
+    )
+
+    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+        before=Ref("OrderByClauseSegment", optional=True),
+    )
+
+
+class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
+    """A snowflake unordered `SELECT` statement including optional Qualify.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_QUALIFY_clause.html
+    """
+
+    type = "select_statement"
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
+
+    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+        before=Ref("OverlapsClauseSegment", optional=True),
     )

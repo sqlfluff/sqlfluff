@@ -4,11 +4,15 @@ on:
     types: [opened]
 
 jobs:
-  add-issue-labels:
+  triage:
     runs-on: ubuntu-latest
     steps:
-      - uses: Naturalclar/issue-action@v2.0.2
+      # Update .github/labeler.yml for new dialects
+      - uses: github/issue-labeler@v3.2
         with:
-          title-or-body: "title"
-          parameters: '[{"keywords": ["ansi"], "labels": ["ansi"]}, {"keywords": ["athena"], "labels": ["athena"]}, {"keywords": ["bigquery"], "labels": ["bigquery"]}, {"keywords": ["clickhouse"], "labels": ["clickhouse"]}, {"keywords": ["databricks"], "labels": ["databricks"]}, {"keywords": ["db2"], "labels": ["db2"]}, {"keywords": ["duckdb"], "labels": ["duckdb"]}, {"keywords": ["exasol"], "labels": ["exasol"]}, {"keywords": ["greenplum"], "labels": ["greenplum"]}, {"keywords": ["hive"], "labels": ["hive"]}, {"keywords": ["mysql"], "labels": ["mysql"]}, {"keywords": ["mysql"], "labels": ["mysql"]}, {"keywords": ["oracle"], "labels": ["oracle"]}, {"keywords": ["postgres"], "labels": ["postgres"]}, {"keywords": ["redshift"], "labels": ["redshift"]}, {"keywords": ["snowflake"], "labels": ["snowflake"]}, {"keywords": ["soql"], "labels": ["soql"]}, {"keywords": ["sparksql"], "labels": ["sparksql"]}, {"keywords": ["sqlite"], "labels": ["sqlite"]}, {"keywords": ["t-sql", "tsql"], "labels": ["t-sql"]}, {"keywords": ["teradata"], "labels": ["teradata"]}, {"keywords": ["trino"], "labels": ["trino"]}]'
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          configuration-path: .github/labeler.yml
+          include-title: 1
+          include-body: 0
+          not-before: 2023-07-06T02:54:32Z
+          enable-versioned-regex: 0
+          repo-token: ${{ github.token }}

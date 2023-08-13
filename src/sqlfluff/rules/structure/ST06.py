@@ -132,7 +132,7 @@ class Rule_ST06(BaseRule):
                         self._validate(i, segment)
 
                     # Identify function
-                    elif type(e) == tuple and e[0] == "function":
+                    elif isinstance(e, tuple) and e[0] == "function":
                         try:
                             if (
                                 segment.get_child("function")
@@ -146,7 +146,7 @@ class Rule_ST06(BaseRule):
                             pass
 
                     # Identify simple expression
-                    elif type(e) == tuple and e[0] == "expression":
+                    elif isinstance(e, tuple) and e[0] == "expression":
                         try:
                             if (
                                 segment.get_child("expression").get_child(e[1])

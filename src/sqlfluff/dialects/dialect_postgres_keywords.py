@@ -8,9 +8,10 @@ default keyword definition, these keywords are, or have been, an ANSI keyword.
 There are also some keywords that are(n't) supported as types and function, but there
 isn't support for that distinction at present.
 """
+from typing import List, Tuple
 
 
-def priority_keyword_merge(*args):
+def priority_keyword_merge(*args: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
     """Merge keyword lists, giving priority to entries in later lists.
 
     *args is a list of keyword lists, these lists should be of tuples in the form
@@ -38,7 +39,7 @@ def priority_keyword_merge(*args):
     return base_list
 
 
-def get_keywords(keyword_list, keyword_type):
+def get_keywords(keyword_list: List[Tuple[str, str]], keyword_type: str) -> List[str]:
     """Get a list of keywords of the required type.
 
     keyword_type should be one of "not-keyword", "reserved", "non-reserved"

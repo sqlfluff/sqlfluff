@@ -275,6 +275,30 @@ tsql_dialect.add(
         Sequence(Ref.keyword("GLOBAL", optional=True), Ref("NakedIdentifierSegment")),
         Ref("ParameterNameSegment"),
     ),
+    CredentialGrammar=Sequence(
+        "IDENTITY",
+        Ref("EqualsSegment"),
+        Ref("QuotedLiteralSegment"),
+        Sequence(
+            Ref("CommaSegment"),
+            "SECRET",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    ),
+    AzureBlobStoragePath=RegexParser(
+        r"'https://[a-z0-9][a-z0-9-]{1,61}[a-z0-9]\.blob\.core\.windows\.net/[a-z0-9]"
+        r"[a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
+        CodeSegment,
+        type="external_location",
+    ),
+    AzureDataLakeStorageGen2Path=RegexParser(
+        r"'https://[a-z0-9][a-z0-9-]{1,61}[a-z0-9]\.dfs\.core\.windows\.net/[a-z0-9]"
+        r"[a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
+        CodeSegment,
+        type="external_location",
+    ),
     SqlcmdOperatorSegment=SegmentGenerator(
         lambda dialect: MultiStringParser(
             dialect.sets("sqlcmd_operators"),
@@ -596,6 +620,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateExternalFileFormat"),
             Ref("CreateExternalTableStatementSegment"),
             Ref("DropExternalTableStatementSegment"),
+            Ref("CopyIntoTableStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -3287,11 +3312,13 @@ class TableIndexClause(BaseSegment):
                 "INDEX",
                 Bracketed(
                     Delimited(
-                        Ref("ColumnReferenceSegment"),
-                        OneOf(
-                            "ASC",
-                            "DESC",
-                            optional=True,
+                        Sequence(
+                            Ref("ColumnReferenceSegment"),
+                            OneOf(
+                                "ASC",
+                                "DESC",
+                                optional=True,
+                            ),
                         ),
                     ),
                 ),
@@ -3738,6 +3765,7 @@ class TableExpressionSegment(BaseSegment):
         Ref("OpenRowSetSegment"),
         Ref("OpenJsonSegment"),
         Ref("TableReferenceSegment"),
+        Ref("StorageLocationSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
         Bracketed(Ref("MergeStatementSegment")),
@@ -5167,16 +5195,7 @@ class CreateDatabaseScopedCredentialStatementSegment(BaseSegment):
         "CREDENTIAL",
         Ref("ObjectReferenceSegment"),
         "WITH",
-        "IDENTITY",
-        Ref("EqualsSegment"),
-        Ref("QuotedLiteralSegment"),
-        Sequence(
-            Ref("CommaSegment"),
-            "SECRET",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
-            optional=True,
-        ),
+        Ref("CredentialGrammar"),
     )
 
 
@@ -5612,4 +5631,120 @@ class DropExternalTableStatementSegment(BaseSegment):
         "EXTERNAL",
         "TABLE",
         Ref("TableReferenceSegment"),
+    )
+
+
+class StorageLocationSegment(BaseSegment):
+    """A tsql external storage location.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/copy-into-transact-sql?view=azure-sqldw-latest#external-locations
+    """
+
+    type = "storage_location"
+
+    match_grammar = OneOf(
+        Ref("AzureBlobStoragePath"),
+        Ref("AzureDataLakeStorageGen2Path"),
+    )
+
+
+class CopyIntoTableStatementSegment(BaseSegment):
+    """A tsql `COPY INTO <table>` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/copy-into-transact-sql?view=azure-sqldw-latest
+    """
+
+    type = "copy_into_table_statement"
+
+    match_grammar = Sequence(
+        "COPY",
+        "INTO",
+        Ref("TableReferenceSegment"),
+        Bracketed(Delimited(Ref("ColumnDefinitionSegment")), optional=True),
+        Ref("FromClauseSegment"),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Delimited(
+                    AnySetOf(
+                        Sequence(
+                            "FILE_TYPE",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "FILE_FORMAT",
+                            Ref("EqualsSegment"),
+                            Ref("ObjectReferenceSegment"),
+                        ),
+                        Sequence(
+                            "CREDENTIAL",
+                            Ref("EqualsSegment"),
+                            Bracketed(Ref("CredentialGrammar")),
+                        ),
+                        Sequence(
+                            "ERRORFILE",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "ERRORFILE_CREDENTIAL",
+                            Ref("EqualsSegment"),
+                            Bracketed(Ref("CredentialGrammar")),
+                        ),
+                        Sequence(
+                            "MAXERRORS",
+                            Ref("EqualsSegment"),
+                            Ref("NumericLiteralSegment"),
+                        ),
+                        Sequence(
+                            "COMPRESSION",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "FIELDQUOTE",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "FIELDTERMINATOR",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "ROWTERMINATOR",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "FIRSTROW",
+                            Ref("EqualsSegment"),
+                            Ref("NumericLiteralSegment"),
+                        ),
+                        Sequence(
+                            "DATEFORMAT",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "ENCODING",
+                            Ref("EqualsSegment"),
+                            Ref("FileEncodingSegment"),
+                        ),
+                        Sequence(
+                            "IDENTITY_INSERT",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "AUTO_CREATE_TABLE",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                    )
+                )
+            ),
+            optional=True,
+        ),
     )

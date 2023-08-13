@@ -2,7 +2,7 @@
 
 # NOTE: We rename the typing.Sequence here so it doesn't collide
 # with the grammar class that we're defining.
-from typing import Optional, Tuple, cast, Type, Sequence as _Sequence
+from typing import Optional, Set, Tuple, cast, Type, Sequence as _Sequence
 
 from sqlfluff.core.errors import SQLParseError
 
@@ -21,16 +21,17 @@ from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
-    MatchableType,
     cached_method_for_parse_context,
+    MatchableType,
 )
+from sqlfluff.core.parser.grammar.types import SimpleHintType
 from sqlfluff.core.parser.grammar.conditional import Conditional
 from os import getenv
 
 
 def _all_remaining_metas(
     remaining_elements: _Sequence[MatchableType], parse_context: ParseContext
-) -> Optional[Tuple[BaseSegment, ...]]:
+) -> Optional[Tuple[MetaSegment, ...]]:
     """Check the remaining elements, instantiate them if they're metas.
 
     Helper function in `Sequence.match()`.
@@ -47,7 +48,7 @@ def _all_remaining_metas(
 
     # Yes, so we shortcut back early because we don't want
     # to claim any more whitespace.
-    return_segments: Tuple[BaseSegment, ...] = tuple()
+    return_segments: Tuple[MetaSegment, ...] = tuple()
     # Instantiate all the metas
     for e in remaining_elements:
         # If it's meta, instantiate it.
@@ -57,7 +58,9 @@ def _all_remaining_metas(
             if e.is_enabled(parse_context):
                 meta_match = e.match(tuple(), parse_context)
                 if meta_match:
-                    return_segments += meta_match.matched_segments
+                    return_segments += cast(
+                        Tuple[MetaSegment, ...], meta_match.matched_segments
+                    )
             continue
         elif not isinstance(e, Matchable) and e.is_meta:
             indent_seg = cast(Type[MetaSegment], e)
@@ -71,7 +74,7 @@ class Sequence(BaseGrammar):
     test_env = getenv("SQLFLUFF_TESTENV", "")
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext, crumbs=None):
+    def simple(self, parse_context: ParseContext, crumbs=None) -> SimpleHintType:
         """Does this matcher support a uppercase hash matching route?
 
         Sequence does provide this, as long as the *first* non-optional
@@ -94,17 +97,14 @@ class Sequence(BaseGrammar):
 
     @match_wrapper()
     @allow_ephemeral
-    def match(self, segments, parse_context):
+    def match(self, segments, parse_context: ParseContext) -> MatchResult:
         """Match a specific sequence of elements."""
-        if isinstance(segments, BaseSegment):
-            segments = tuple(segments)  # pragma: no cover TODO?
-
         matched_segments = MatchResult.from_empty()
         unmatched_segments = segments
 
         # Buffers of uninstantiated meta segments.
-        meta_pre_nc = ()
-        meta_post_nc = ()
+        meta_pre_nc: Tuple[MetaSegment, ...] = ()
+        meta_post_nc: Tuple[MetaSegment, ...] = ()
         early_break = False
 
         for idx, elem in enumerate(self._elements):
@@ -132,7 +132,7 @@ class Sequence(BaseGrammar):
                         return MatchResult.from_unmatched(segments)
 
                 # Then handle any metas mid-sequence.
-                new_metas = ()
+                new_metas: Tuple[MetaSegment, ...] = ()
                 # Is it a raw meta?
                 if elem.is_meta:
                     new_metas = (elem(),)
@@ -141,15 +141,19 @@ class Sequence(BaseGrammar):
                         # If it's not active, skip it.
                         break
                     # Then if it _is_ active. Match against it.
-                    with parse_context.deeper_match() as ctx:
-                        meta_match = elem.match(unmatched_segments, parse_context=ctx)
+                    with parse_context.deeper_match(
+                        name=f"Sequence-Meta-@{idx}"
+                    ) as ctx:
+                        meta_match = elem.match(unmatched_segments, ctx)
                     # Did it match and leave the unmatched portion the same?
                     if (
                         meta_match
                         and meta_match.unmatched_segments == unmatched_segments
                     ):
                         # If it did, it's just returned a new meta, keep it.
-                        new_metas = meta_match.matched_segments
+                        new_metas = cast(
+                            Tuple[MetaSegment, ...], meta_match.matched_segments
+                        )
 
                 # Do we have a new meta?
                 if new_metas:
@@ -186,7 +190,7 @@ class Sequence(BaseGrammar):
 
                 # We've already dealt with potential whitespace above, so carry on
                 # to matching
-                with parse_context.deeper_match() as ctx:
+                with parse_context.deeper_match(name=f"Sequence-@{idx}") as ctx:
                     elem_match = elem.match(mid_seg, parse_context=ctx)
 
                 if not elem_match.has_match():
@@ -226,12 +230,18 @@ class Sequence(BaseGrammar):
         # If we get to here, we've matched all of the elements (or skipped them)
         # but still have some segments left (or perhaps have precisely zero left).
         # In either case, we're golden. Return successfully, with any leftovers as
-        # the unmatched elements. Meta all go at the end regardless of wny trailing
+        # the unmatched elements. Meta all go at the end regardless of any trailing
         # whitespace.
 
         return MatchResult(
             BaseSegment._position_segments(
                 matched_segments.matched_segments + meta_pre_nc + meta_post_nc,
+                # Repositioning only meta segments at this stage does increase the
+                # risk of leakage a little (by not fully copying everything on
+                # return), but it does drastically improve performance. Future
+                # work may involve more immutable segments or a smarter way
+                # of isolating them.
+                metas_only=True,
             ),
             unmatched_segments,
         )
@@ -254,7 +264,7 @@ class Bracketed(Sequence):
       brackets to that sequence.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         # Store the bracket type. NB: This is only
         # hydrated into segments at runtime.
         self.bracket_type = kwargs.pop("bracket_type", "round")
@@ -273,11 +283,13 @@ class Bracketed(Sequence):
         start_bracket, _, _ = self.get_bracket_from_dialect(parse_context)
         return start_bracket.simple(parse_context=parse_context, crumbs=crumbs)
 
-    def get_bracket_from_dialect(self, parse_context):
+    def get_bracket_from_dialect(self, parse_context: ParseContext):
         """Rehydrate the bracket segments in question."""
-        for bracket_type, start_ref, end_ref, persists in parse_context.dialect.sets(
-            self.bracket_pairs_set
-        ):
+        bracket_pairs = cast(
+            Set[Tuple[str, str, str, bool]],
+            parse_context.dialect.bracket_sets(self.bracket_pairs_set),
+        )
+        for bracket_type, start_ref, end_ref, persists in bracket_pairs:
             if bracket_type == self.bracket_type:
                 start_bracket = parse_context.dialect.ref(start_ref)
                 end_bracket = parse_context.dialect.ref(end_ref)
@@ -340,7 +352,7 @@ class Bracketed(Sequence):
         # Otherwise try and match the segments directly.
         else:
             # Look for the first bracket
-            with parse_context.deeper_match() as ctx:
+            with parse_context.deeper_match(name="Bracketed-First") as ctx:
                 start_match = start_bracket.match(seg_buff, parse_context=ctx)
             if start_match:
                 seg_buff = start_match.unmatched_segments
@@ -348,15 +360,20 @@ class Bracketed(Sequence):
                 # Can't find the opening bracket. No Match.
                 return MatchResult.from_unmatched(segments)
 
-            # Look for the closing bracket
-            content_segs, end_match, _ = self._bracket_sensitive_look_ahead_match(
-                segments=seg_buff,
-                matchers=[end_bracket],
-                parse_context=parse_context,
-                start_bracket=start_bracket,
-                end_bracket=end_bracket,
-                bracket_pairs_set=self.bracket_pairs_set,
-            )
+            # Look for the closing bracket.
+            # Within the brackets, clear any inherited terminators.
+            with parse_context.deeper_match(
+                name="Bracketed-End", clear_terminators=True
+            ) as ctx:
+                content_segs, end_match, _ = self._bracket_sensitive_look_ahead_match(
+                    segments=seg_buff,
+                    matchers=[end_bracket],
+                    parse_context=ctx,
+                    start_bracket=start_bracket,
+                    end_bracket=end_bracket,
+                    bracket_pairs_set=self.bracket_pairs_set,
+                )
+
             if not end_match:  # pragma: no cover
                 raise SQLParseError(
                     "Couldn't find closing bracket for opening bracket.",
@@ -370,8 +387,8 @@ class Bracketed(Sequence):
                     + content_segs
                     + end_match.matched_segments
                 ),
-                start_bracket=start_match.matched_segments,
-                end_bracket=end_match.matched_segments,
+                start_bracket=cast(Tuple[BaseSegment], start_match.matched_segments),
+                end_bracket=cast(Tuple[BaseSegment], end_match.matched_segments),
             )
             trailing_segments = end_match.unmatched_segments
 
@@ -398,9 +415,11 @@ class Bracketed(Sequence):
                 return MatchResult.from_unmatched(segments)
 
         # Match the content using super. Sequence will interpret the content of the
-        # elements.
-        with parse_context.deeper_match() as ctx:
-            content_match = super().match(content_segs, parse_context=ctx)
+        # elements. Within the brackets, clear any inherited terminators.
+        with parse_context.deeper_match(
+            name="Bracketed", clear_terminators=True
+        ) as ctx:
+            content_match = super().match(content_segs, ctx)
 
         # We require a complete match for the content (hopefully for obvious reasons)
         if content_match.is_complete():
@@ -408,14 +427,12 @@ class Bracketed(Sequence):
             # We need to realign the meta segments so the pos markers are correct.
             # Have we already got indents?
             meta_idx = None
-            for idx, seg in enumerate(bracket_segment.segments):
-                if (
-                    seg.is_meta
-                    and cast(MetaSegment, seg).indent_val > 0
-                    and not cast(MetaSegment, seg).is_template
-                ):
-                    meta_idx = idx
-                    break
+            for idx, _seg in enumerate(bracket_segment.segments):
+                if _seg.is_meta:
+                    _meta_seg = cast(MetaSegment, _seg)
+                    if _meta_seg.indent_val > 0 and not _meta_seg.is_template:
+                        meta_idx = idx
+                        break
             # If we've already got indents, don't add more.
             if meta_idx:
                 bracket_segment.segments = BaseSegment._position_segments(

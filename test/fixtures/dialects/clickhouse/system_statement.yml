@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4b49048c190a02edef107796677f2afd209aabb0dbc37c6beb343b9d288e6f64
+_hash: 987ac8b8f29bfe092c81571ac50c3e3a9658807051484df125a605c3893d2488
 file:
 - statement:
     select_statement:
@@ -52,9 +52,9 @@ file:
       - keyword: MODEL
       - path_segment:
         - slash: /
-        - code: model
+        - path_segment: model
         - slash: /
-        - code: path
+        - path_segment: path
 - statement_terminator: ;
 - statement:
     system_statement:
@@ -68,9 +68,9 @@ file:
         - naked_identifier: cluster_name
       - path_segment:
         - slash: /
-        - code: model
+        - path_segment: model
         - slash: /
-        - code: path
+        - path_segment: path
 - statement_terminator: ;
 - statement:
     system_statement:

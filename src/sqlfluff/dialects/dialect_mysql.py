@@ -1204,6 +1204,7 @@ class AlterTableStatementSegment(BaseSegment):
     Overriding ANSI to add `CHANGE COLUMN` and `DROP COLUMN` support.
 
     https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
+    https://mariadb.com/kb/en/alter-table/
 
     """
 
@@ -1222,7 +1223,21 @@ class AlterTableStatementSegment(BaseSegment):
                 ),
                 # Add column
                 Sequence(
-                    OneOf("ADD", "MODIFY"),
+                    "ADD",
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("IfNotExistsGrammar", optional=True),
+                    Ref("ColumnDefinitionSegment"),
+                    OneOf(
+                        Sequence(
+                            OneOf("FIRST", "AFTER"), Ref("ColumnReferenceSegment")
+                        ),
+                        # Bracketed Version of the same
+                        Ref("BracketedColumnReferenceListGrammar"),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    "MODIFY",
                     Ref.keyword("COLUMN", optional=True),
                     Ref("ColumnDefinitionSegment"),
                     OneOf(
@@ -1306,11 +1321,17 @@ class AlterTableStatementSegment(BaseSegment):
                         ),
                         # Rename index
                         Sequence(
-                            "RENAME",
                             OneOf("INDEX", "KEY"),
                             Ref("IndexReferenceSegment"),
                             "TO",
                             Ref("IndexReferenceSegment"),
+                        ),
+                        # Rename column
+                        Sequence(
+                            "COLUMN",
+                            Ref("ColumnReferenceSegment"),
+                            "TO",
+                            Ref("ColumnReferenceSegment"),
                         ),
                     ),
                 ),

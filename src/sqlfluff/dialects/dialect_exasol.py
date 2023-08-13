@@ -458,6 +458,7 @@ class ValuesClauseSegment(BaseSegment):
                 Bracketed(
                     Delimited(
                         "DEFAULT",
+                        Ref("LiteralGrammar"),
                         Ref("ExpressionSegment"),
                         ephemeral_name="ValuesClauseElements",
                     )

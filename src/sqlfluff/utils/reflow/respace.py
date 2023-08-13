@@ -22,7 +22,7 @@ if TYPE_CHECKING:  # pragma: no cover
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 
 
-def _unpack_constraint(constraint: str, strip_newlines: bool):
+def _unpack_constraint(constraint: str, strip_newlines: bool) -> Tuple[str, bool]:
     """Unpack a spacing constraint.
 
     Used as a helper function in `determine_constraints`.

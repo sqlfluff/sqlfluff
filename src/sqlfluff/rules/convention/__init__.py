@@ -1,23 +1,29 @@
 """The convention plugin bundle."""
 
 from sqlfluff.core.plugin import hookimpl
-
-from sqlfluff.rules.convention.CV01 import Rule_CV01
-from sqlfluff.rules.convention.CV02 import Rule_CV02
-from sqlfluff.rules.convention.CV03 import Rule_CV03
-from sqlfluff.rules.convention.CV04 import Rule_CV04
-from sqlfluff.rules.convention.CV05 import Rule_CV05
-from sqlfluff.rules.convention.CV06 import Rule_CV06
-from sqlfluff.rules.convention.CV07 import Rule_CV07
-from sqlfluff.rules.convention.CV08 import Rule_CV08
-from sqlfluff.rules.convention.CV09 import Rule_CV09
-from sqlfluff.rules.convention.CV10 import Rule_CV10
-from sqlfluff.rules.convention.CV11 import Rule_CV11
+from sqlfluff.core.rules import BaseRule
+from typing import List, Type
 
 
 @hookimpl
-def get_rules():
-    """Get plugin rules."""
+def get_rules() -> List[Type[BaseRule]]:
+    """Get plugin rules.
+
+    NOTE: Rules are imported only on fetch to manage import times
+    when rules aren't used.
+    """
+    from sqlfluff.rules.convention.CV01 import Rule_CV01
+    from sqlfluff.rules.convention.CV02 import Rule_CV02
+    from sqlfluff.rules.convention.CV03 import Rule_CV03
+    from sqlfluff.rules.convention.CV04 import Rule_CV04
+    from sqlfluff.rules.convention.CV05 import Rule_CV05
+    from sqlfluff.rules.convention.CV06 import Rule_CV06
+    from sqlfluff.rules.convention.CV07 import Rule_CV07
+    from sqlfluff.rules.convention.CV08 import Rule_CV08
+    from sqlfluff.rules.convention.CV09 import Rule_CV09
+    from sqlfluff.rules.convention.CV10 import Rule_CV10
+    from sqlfluff.rules.convention.CV11 import Rule_CV11
+
     return [
         Rule_CV01,
         Rule_CV02,

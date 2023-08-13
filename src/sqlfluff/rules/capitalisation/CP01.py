@@ -88,7 +88,7 @@ class Rule_CP01(BaseRule):
 
         return [self._handle_segment(context.segment, context)]
 
-    def _handle_segment(self, segment, context: RuleContext) -> LintResult:
+    def _handle_segment(self, segment: BaseSegment, context: RuleContext) -> LintResult:
         # NOTE: this mutates the memory field.
         memory = context.memory
         self.logger.info("_handle_segment: %s, %s", segment, segment.get_type())
@@ -247,7 +247,7 @@ class Rule_CP01(BaseRule):
                 description=f"{self._description_elem} must be {consistency}{policy}",
             )
 
-    def _get_fix(self, segment, fixed_raw):
+    def _get_fix(self, segment: BaseSegment, fixed_raw: str) -> LintFix:
         """Given a segment found to have a fix, returns a LintFix for it.
 
         May be overridden by subclasses, which is useful when the parse tree

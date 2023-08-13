@@ -1,6 +1,6 @@
 """Helpers for the parser module."""
 
-from typing import Tuple, List, Any, Iterator, TYPE_CHECKING
+from typing import Tuple, TYPE_CHECKING
 
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.string_helpers import curtail_string
@@ -14,7 +14,9 @@ def join_segments_raw(segments: Tuple["BaseSegment", ...]) -> str:
     return "".join(s.raw for s in segments)
 
 
-def join_segments_raw_curtailed(segments: Tuple["BaseSegment", ...], length=20) -> str:
+def join_segments_raw_curtailed(
+    segments: Tuple["BaseSegment", ...], length: int = 20
+) -> str:
     """Make a string up to a certain length from an iterable of segments."""
     return curtail_string(join_segments_raw(segments), length=length)
 
@@ -62,25 +64,3 @@ def trim_non_code_segments(
             post_idx -= 1
 
     return segments[:pre_idx], segments[pre_idx:post_idx], segments[post_idx:]
-
-
-def iter_indices(seq: List, val: Any) -> Iterator[int]:
-    """Iterate all indices in a list that val occurs at.
-
-    Args:
-        seq (list): A list to look for indices in.
-        val: What to look for.
-
-    Yields:
-        int: The index of val in seq.
-
-    Examples:
-        The function works like str.index() but iterates all
-        the results rather than returning the first.
-
-        >>> print([i for i in iter_indices([1, 0, 2, 3, 2], 2)])
-        [2, 4]
-    """
-    for idx, el in enumerate(seq):
-        if el == val:
-            yield idx

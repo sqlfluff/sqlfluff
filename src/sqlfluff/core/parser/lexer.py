@@ -1,7 +1,7 @@
 """The code for the Lexer."""
 
 import logging
-from typing import Iterator, Optional, List, Tuple, Union, NamedTuple, Dict
+from typing import Iterator, Optional, List, Tuple, Union, NamedTuple, Dict, Type, Any
 from uuid import UUID, uuid4
 import regex
 
@@ -92,13 +92,15 @@ class TemplateElement(NamedTuple):
     matcher: "StringLexer"
 
     @classmethod
-    def from_element(cls, element: LexedElement, template_slice: slice):
+    def from_element(
+        cls, element: LexedElement, template_slice: slice
+    ) -> "TemplateElement":
         """Make a TemplateElement from a LexedElement."""
         return cls(
             raw=element.raw, template_slice=template_slice, matcher=element.matcher
         )
 
-    def to_segment(self, pos_marker, subslice=None):
+    def to_segment(self, pos_marker: PositionMarker, subslice: Optional[slice] = None):
         """Create a segment from this lexed element."""
         return self.matcher.construct_segment(
             self.raw[subslice] if subslice else self.raw, pos_marker=pos_marker
@@ -111,9 +113,12 @@ class LexMatch(NamedTuple):
     forward_string: str
     elements: List[LexedElement]
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         """A LexMatch is truthy if it contains a non-zero number of matched elements."""
         return len(self.elements) > 0
+
+
+LexerType = Union["RegexLexer", "StringLexer"]
 
 
 class StringLexer:
@@ -127,13 +132,13 @@ class StringLexer:
 
     def __init__(
         self,
-        name,
-        template,
-        segment_class,
-        subdivider=None,
-        trim_post_subdivide=None,
-        segment_kwargs=None,
-    ):
+        name: str,
+        template: str,
+        segment_class: Type[RawSegment],
+        subdivider: Optional[LexerType] = None,
+        trim_post_subdivide: Optional[LexerType] = None,
+        segment_kwargs: Optional[Dict[str, Any]] = None,
+    ) -> None:
         self.name = name
         self.template = template
         self.segment_class = segment_class
@@ -141,7 +146,7 @@ class StringLexer:
         self.trim_post_subdivide = trim_post_subdivide
         self.segment_kwargs = segment_kwargs or {}
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: {self.name}>"
 
     def _match(self, forward_string: str) -> Optional[LexedElement]:
@@ -273,7 +278,7 @@ class StringLexer:
 class RegexLexer(StringLexer):
     """This RegexLexer matches based on regular expressions."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         # We might want to configure this at some point, but for now, newlines
         # do get matched by .

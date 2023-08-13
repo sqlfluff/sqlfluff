@@ -14,6 +14,7 @@ from diff_cover.violationsreporters.base import (
     QualityReporter,
     Violation,
 )
+from typing import List
 
 
 logger = logging.getLogger(__name__)
@@ -22,7 +23,7 @@ logger = logging.getLogger(__name__)
 class SQLFluffDriver(QualityDriver):
     """SQLFluff driver for use by SQLFluffViolationReporter."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             [sys.executable, "-m", "sqlfluff.cli.commands"],
             [".sql"],
@@ -33,11 +34,11 @@ class SQLFluffDriver(QualityDriver):
             exit_codes=[0, 1],
         )
 
-    def parse_reports(self, reports):  # pragma: no cover
+    def parse_reports(self, reports) -> None:  # pragma: no cover
         """Parse report output. Not used by SQLFluff."""
         pass
 
-    def installed(self):
+    def installed(self) -> bool:
         """Check if SQLFluff is installed."""
         return run_command_for_code("sqlfluff") == 0
 
@@ -47,7 +48,7 @@ class SQLFluffViolationReporter(QualityReporter):
 
     supported_extensions = ["sql"]
 
-    def __init__(self, **kw):
+    def __init__(self, **kw) -> None:
         """Calls the base class constructor to set the object's name."""
         super().__init__(SQLFluffDriver(), **kw)
 
@@ -78,7 +79,7 @@ class SQLFluffViolationReporter(QualityReporter):
             logger.warning("Not running SQLFluff: No files to check")
         return self.violations_dict
 
-    def _run_sqlfluff(self, src_paths):
+    def _run_sqlfluff(self, src_paths) -> List[str]:
         # Prepare the SQLFluff command to run.
         command = copy.deepcopy(self.driver.command)
         if self.options:

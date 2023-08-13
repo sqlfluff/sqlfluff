@@ -1,8 +1,6 @@
 """Base implementation for the plugin."""
 
-import os.path
-
-from typing import List, Type
+from typing import List, Type, Dict, Any
 
 from sqlfluff.core.config import ConfigLoader
 from sqlfluff.core.plugin import hookimpl
@@ -26,19 +24,20 @@ def get_rules() -> List[Type[BaseRule]]:
 @hookimpl
 def get_templaters() -> List[Type[RawTemplater]]:
     """Get templaters."""
-    return core_templaters()
+    templaters = list(t for t in core_templaters())
+    return templaters
 
 
 @hookimpl
-def load_default_config() -> dict:
+def load_default_config() -> Dict[str, Any]:
     """Loads the default configuration for the plugin."""
-    return ConfigLoader.get_global().load_config_file(
-        file_dir=os.path.join(os.path.dirname(os.path.dirname(__file__))),
+    return ConfigLoader.get_global().load_config_resource(
+        package="sqlfluff.core",
         file_name="default_config.cfg",
     )
 
 
 @hookimpl
-def get_configs_info() -> dict:
+def get_configs_info() -> Dict[str, Any]:
     """Get rule config validations and descriptions."""
     return STANDARD_CONFIG_INFO_DICT

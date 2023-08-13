@@ -7,15 +7,11 @@ import json
 import logging
 import time
 from logging import LogRecord
-from typing import Callable, Tuple, Optional, cast
+from typing import Callable, Tuple, Optional
 
 import yaml
 
 import click
-
-# For the profiler
-import pstats
-from io import StringIO
 
 # To enable colour cross platform
 import colorama
@@ -31,7 +27,7 @@ from sqlfluff.cli.formatters import (
     format_linting_result_header,
     OutputStreamFormatter,
 )
-from sqlfluff.cli.helpers import get_package_version
+from sqlfluff.cli.helpers import get_package_version, LazySequence
 from sqlfluff.cli.outputstream import make_output_stream, OutputStream
 
 # Import from sqlfluff core.
@@ -138,13 +134,13 @@ def set_logging_level(
 class PathAndUserErrorHandler:
     """Make an API call but with error handling for the CLI."""
 
-    def __init__(self, formatter):
+    def __init__(self, formatter) -> None:
         self.formatter = formatter
 
-    def __enter__(self):
+    def __enter__(self) -> "PathAndUserErrorHandler":
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         if exc_type is SQLFluffUserError:
             click.echo(
                 "\nUser Error: "
@@ -213,12 +209,15 @@ def core_options(f: Callable) -> Callable:
         default=None,
         help="The templater to use (default=jinja)",
         type=click.Choice(
-            [
-                templater.name
-                for templater in chain.from_iterable(
-                    get_plugin_manager().hook.get_templaters()
-                )
-            ]
+            # Use LazySequence so that we don't load templaters until required.
+            LazySequence(
+                lambda: [
+                    templater.name
+                    for templater in chain.from_iterable(
+                        get_plugin_manager().hook.get_templaters()
+                    )
+                ]
+            )
         ),
     )(f)
     f = click.option(
@@ -356,6 +355,12 @@ def lint_options(f: Callable) -> Callable:
             "future releases without warning."
         ),
     )(f)
+    f = click.option(
+        "--warn-unused-ignores",
+        is_flag=True,
+        default=False,
+        help="Warn about unneeded '-- noqa:' comments.",
+    )(f)
     return f
 
 
@@ -389,10 +394,18 @@ def get_config(
                 )
             )
             sys.exit(EXIT_ERROR)
+
     from_root_kwargs = {}
     if "require_dialect" in kwargs:
         from_root_kwargs["require_dialect"] = kwargs.pop("require_dialect")
+
     library_path = kwargs.pop("library_path", None)
+
+    if not kwargs.get("warn_unused_ignores", True):
+        # If it's present AND True, then keep it, otherwise remove this so
+        # that we default to the root config.
+        del kwargs["warn_unused_ignores"]
+
     # Instantiate a config object (filtering out the nulls)
     overrides = {k: kwargs[k] for k in kwargs if kwargs[k] is not None}
     if library_path is not None:
@@ -451,7 +464,7 @@ def get_linter_and_formatter(
 """,
 )
 @click.version_option()
-def cli():
+def cli() -> None:
     """SQLFluff is a modular SQL linter for humans."""  # noqa D403
 
 
@@ -501,7 +514,7 @@ def dialects(**kwargs) -> None:
     click.echo(formatter.format_dialects(dialect_readout), color=c.get("color"))
 
 
-def dump_file_payload(filename: Optional[str], payload: str):
+def dump_file_payload(filename: Optional[str], payload: str) -> None:
     """Write the output file content to stdout or file."""
     # If there's a file specified to write to, write to it.
     if filename:
@@ -685,7 +698,7 @@ def lint(
         file_output = "\n".join(github_result_native)
 
     if file_output:
-        dump_file_payload(write_output, cast(str, file_output))
+        dump_file_payload(write_output, file_output)
 
     if persist_timing:
         result.persist_timing_records(persist_timing)
@@ -713,7 +726,7 @@ def do_fixes(
     result: LintingResult,
     formatter: Optional[OutputStreamFormatter] = None,
     fixed_file_suffix: str = "",
-):
+) -> bool:
     """Actually do the fixes."""
     if formatter and formatter.verbosity >= 0:
         click.echo("Persisting Changes...")
@@ -734,7 +747,7 @@ def do_fixes(
     return False  # pragma: no cover
 
 
-def _stdin_fix(linter: Linter, formatter, fix_even_unparsable):
+def _stdin_fix(linter: Linter, formatter, fix_even_unparsable: bool) -> None:
     """Handle fixing from stdin."""
     exit_code = EXIT_SUCCESS
     stdin = sys.stdin.read()
@@ -788,7 +801,7 @@ def _paths_fix(
     show_lint_violations,
     warn_force: bool = True,
     persist_timing: Optional[str] = None,
-):
+) -> None:
     """Handle fixing from paths."""
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     if formatter.verbosity >= 0:
@@ -1129,9 +1142,6 @@ def quoted_presenter(dumper, data):
 @core_options
 @click.argument("path", nargs=1, type=click.Path(allow_dash=True))
 @click.option(
-    "--recurse", default=0, help="The depth to recursively parse to (0 for unlimited)"
-)
-@click.option(
     "-c",
     "--code-only",
     is_flag=True,
@@ -1170,7 +1180,12 @@ def quoted_presenter(dumper, data):
     ),
 )
 @click.option(
-    "--profiler", is_flag=True, help="Set this flag to engage the python profiler."
+    "--parse-statistics",
+    is_flag=True,
+    help=(
+        "Set this flag to enabled detailed debugging readout "
+        "on the use of terminators in the parser."
+    ),
 )
 @click.option(
     "--nofail",
@@ -1186,12 +1201,12 @@ def parse(
     include_meta: bool,
     format: str,
     write_output: Optional[str],
-    profiler: bool,
     bench: bool,
     nofail: bool,
     logger: Optional[logging.Logger] = None,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
+    parse_statistics: bool = False,
     **kwargs,
 ) -> None:
     """Parse SQL files and just spit out the result.
@@ -1210,7 +1225,6 @@ def parse(
     output_stream = make_output_stream(c, format, write_output)
     lnt, formatter = get_linter_and_formatter(c, output_stream)
     verbose = c.get("verbose")
-    recurse = c.get("recurse")
 
     progress_bar_configuration.disable_progress_bar = True
 
@@ -1224,18 +1238,6 @@ def parse(
         stderr_output=non_human_output,
     )
 
-    # TODO: do this better
-
-    if profiler:
-        # Set up the profiler if required
-        try:
-            import cProfile
-        except ImportError:  # pragma: no cover
-            click.echo("The cProfiler is not available on your platform.")
-            sys.exit(EXIT_ERROR)
-        pr = cProfile.Profile()
-        pr.enable()
-
     t0 = time.monotonic()
 
     # handle stdin if specified via lone '-'
@@ -1245,8 +1247,8 @@ def parse(
                 lnt.parse_string(
                     sys.stdin.read(),
                     "stdin",
-                    recurse=recurse,
                     config=lnt.config,
+                    parse_statistics=parse_statistics,
                 ),
             ]
         else:
@@ -1254,7 +1256,7 @@ def parse(
             parsed_strings = list(
                 lnt.parse_path(
                     path=path,
-                    recurse=recurse,
+                    parse_statistics=parse_statistics,
                 )
             )
 
@@ -1291,14 +1293,6 @@ def parse(
 
         # Dump the output to stdout or to file as appropriate.
         dump_file_payload(write_output, file_output)
-    if profiler:
-        pr.disable()
-        profiler_buffer = StringIO()
-        ps = pstats.Stats(pr, stream=profiler_buffer).sort_stats("cumulative")
-        ps.print_stats()
-        click.echo("==== profiler stats ====")
-        # Only print the first 50 lines of it
-        click.echo("\n".join(profiler_buffer.getvalue().split("\n")[:50]))
 
     if violations_count > 0 and not nofail:
         sys.exit(EXIT_FAIL)  # pragma: no cover
@@ -1356,7 +1350,7 @@ def render(
             fname = path
 
     # Get file specific config
-    file_config.process_raw_file_for_config(raw_sql)
+    file_config.process_raw_file_for_config(raw_sql, fname)
     rendered = lnt.render_string(raw_sql, fname, file_config, "utf8")
 
     if rendered.templater_violations:

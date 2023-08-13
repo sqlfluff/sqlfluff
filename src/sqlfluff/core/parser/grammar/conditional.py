@@ -62,7 +62,7 @@ class Conditional(BaseGrammar):
         self._config_rules = rules
         super().__init__(*args)
 
-    def is_enabled(self, parse_context):
+    def is_enabled(self, parse_context) -> bool:
         """Evaluate conditionals and return whether enabled."""
         # NOTE: Because only "indentation" is the only current config_type
         # supported, this code is much simpler that would be required in
@@ -82,7 +82,7 @@ class Conditional(BaseGrammar):
         return True
 
     @match_wrapper()
-    def match(self, segments, parse_context):
+    def match(self, segments, parse_context) -> MatchResult:
         """Evaluate conditionals and return content."""
         if not self.is_enabled(parse_context):  # pragma: no cover TODO?
             return MatchResult.from_unmatched(segments)

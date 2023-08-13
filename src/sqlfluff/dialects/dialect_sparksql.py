@@ -37,6 +37,7 @@ from sqlfluff.core.parser import (
     StringLexer,
     AnySetOf,
 )
+from sqlfluff.core.parser.segments import BracketedSegment
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.dialect_sparksql_keywords import (
     RESERVED_KEYWORDS,
@@ -214,7 +215,7 @@ sparksql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 sparksql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
 # Set Angle Bracket Pairs
-sparksql_dialect.sets("angle_bracket_pairs").update(
+sparksql_dialect.bracket_sets("angle_bracket_pairs").update(
     [
         ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
     ]
@@ -396,7 +397,7 @@ sparksql_dialect.replace(
         Ref("BinaryOperatorGrammar"),
         Ref("DelimiterGrammar"),
         Ref("JoinLikeClauseGrammar"),
-        ansi.BracketedSegment,
+        BracketedSegment,
     ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),
@@ -1940,9 +1941,20 @@ class LateralViewClauseSegment(BaseSegment):
         "VIEW",
         Ref.keyword("OUTER", optional=True),
         Ref("FunctionSegment"),
-        # This allows for a table name to precede the alias expression.
-        Ref("SingleIdentifierGrammar", optional=True),
-        Ref("AliasExpressionSegment", optional=True),
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Sequence(
+                    Ref.keyword("AS", optional=True),
+                    Delimited(Ref("SingleIdentifierGrammar")),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                Ref.keyword("AS", optional=True),
+                Delimited(Ref("SingleIdentifierGrammar")),
+            ),
+        ),
         Dedent,
     )
 

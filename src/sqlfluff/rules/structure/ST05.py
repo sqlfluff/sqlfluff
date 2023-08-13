@@ -163,7 +163,7 @@ class Rule_ST05(BaseRule):
             )
             this_seg_clone = clone_map[from_expression]
             new_table_ref = _create_table_ref(alias_name, context.dialect)
-            this_seg_clone.segments = [new_table_ref]
+            this_seg_clone.segments = (new_table_ref,)
             ctes.replace_with_clone(subquery_parent, clone_map)
 
             # Issue 3617: In T-SQL (and possibly other dialects) the automated fix
@@ -241,7 +241,7 @@ class Rule_ST05(BaseRule):
         dialect: Dialect,
         query: Query,
         ctes: "_CTEBuilder",
-        case_preference,
+        case_preference: str,
         clone_map,
     ) -> Optional[Tuple[LintResult, BaseSegment, str, BaseSegment]]:
         """Given the root query, compute lint warnings."""
@@ -295,7 +295,7 @@ def _get_first_select_statement_descendant(
 
 def _is_correlated_subquery(
     nested_select: Segments, select_source_names: Set[str], dialect: Dialect
-):
+) -> bool:
     """Given nested select and the sources of its parent, determine if correlated.
 
     https://en.wikipedia.org/wiki/Correlated_subquery
@@ -306,9 +306,7 @@ def _is_correlated_subquery(
     nested_select_info = get_select_statement_info(select_statement, dialect)
     if nested_select_info:
         for r in nested_select_info.reference_buffer:
-            for tr in r.extract_possible_references(  # type: ignore
-                level=r.ObjectReferenceLevel.TABLE  # type: ignore
-            ):
+            for tr in r.extract_possible_references(level=r.ObjectReferenceLevel.TABLE):
                 # Check for correlated subquery, as indicated by use of a
                 # parent reference.
                 if tr.part in select_source_names:
@@ -339,7 +337,7 @@ class _CTEBuilder:
         used_names = self.list_used_names()
         return len(set(used_names)) != len(used_names)
 
-    def insert_cte(self, cte: CTEDefinitionSegment):
+    def insert_cte(self, cte: CTEDefinitionSegment) -> None:
         """Add a new CTE to the list as late as possible but before all its parents."""
         # This should still have the position markers of its true position
         inbound_subquery = (
@@ -403,7 +401,7 @@ class _CTEBuilder:
         output_select: BaseSegment,
         output_select_clone: BaseSegment,
         subquery_parent: BaseSegment,
-    ):
+    ) -> List[LintFix]:
         """Ensure there's whitespace between "FROM" and the CTE table name."""
         fixes = []
         if subquery_parent is output_select:
@@ -440,7 +438,7 @@ class _CTEBuilder:
         return fixes
 
     @staticmethod
-    def _missing_space_after_from(segment):
+    def _missing_space_after_from(segment: BaseSegment):
         missing_space_after_from = False
         from_clause_children = None
         from_segment = None
@@ -454,11 +452,11 @@ class _CTEBuilder:
                 missing_space_after_from = True
         return missing_space_after_from, from_clause, from_clause_children, from_segment
 
-    def replace_with_clone(self, segment, clone_map):
+    def replace_with_clone(self, segment, clone_map) -> None:
         for idx, cte in enumerate(self.ctes):
             if any(segment is seg for seg in cte.recursive_crawl_all()):
                 self.ctes[idx] = clone_map[self.ctes[idx]]
-                return
+                return None
 
 
 def _is_child(maybe_parent: Segments, maybe_child: Segments) -> bool:

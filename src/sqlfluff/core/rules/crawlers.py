@@ -1,7 +1,7 @@
 """Definitions of crawlers."""
 
 from abc import ABC, abstractmethod
-from typing import Iterator, Set, cast
+from typing import Any, Iterator, Set, cast
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
 
@@ -11,10 +11,10 @@ from sqlfluff.core.rules.context import RuleContext
 class BaseCrawler(ABC):
     """The base interface for crawler classes."""
 
-    def __init__(self, works_on_unparsable: bool = False, **kwargs):
+    def __init__(self, works_on_unparsable: bool = False, **kwargs: Any) -> None:
         self.works_on_unparsable = works_on_unparsable
 
-    def passes_filter(self, segment: BaseSegment):
+    def passes_filter(self, segment: BaseSegment) -> bool:
         """Returns true if this segment considered at all.
 
         This method is called during crawling but also
@@ -50,7 +50,9 @@ class SegmentSeekerCrawler(BaseCrawler):
     The segment type(s) are specified on creation.
     """
 
-    def __init__(self, types: Set[str], provide_raw_stack=False, **kwargs):
+    def __init__(
+        self, types: Set[str], provide_raw_stack: bool = False, **kwargs: Any
+    ) -> None:
         self.types = types
         # Tracking a raw stack involves a lot of tuple manipulation, so we
         # only do it when required - otherwise we skip it. Rules can explicitly

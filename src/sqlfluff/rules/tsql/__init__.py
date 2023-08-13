@@ -7,11 +7,17 @@ low, it makes sense to keep it bundled with SQLFluff core.
 """
 
 from sqlfluff.core.plugin import hookimpl
-
-from sqlfluff.rules.tsql.TQ01 import Rule_TQ01
+from sqlfluff.core.rules import BaseRule
+from typing import List, Type
 
 
 @hookimpl
-def get_rules():
-    """Get plugin rules."""
+def get_rules() -> List[Type[BaseRule]]:
+    """Get plugin rules.
+
+    NOTE: Rules are imported only on fetch to manage import times
+    when rules aren't used.
+    """
+    from sqlfluff.rules.tsql.TQ01 import Rule_TQ01
+
     return [Rule_TQ01]

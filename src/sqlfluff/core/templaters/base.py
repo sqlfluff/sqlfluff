@@ -2,7 +2,7 @@
 
 import logging
 from bisect import bisect_left
-from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple, Iterable
+from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple, Iterable, Any
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff.core.slice_helpers import zero_slice
@@ -65,15 +65,15 @@ class RawFileSlice(NamedTuple):
     # Block index, incremented on start or end block tags, e.g. "if", "for"
     block_idx: int = 0
 
-    def end_source_idx(self):
+    def end_source_idx(self) -> int:
         """Return the closing index of this slice."""
         return self.source_idx + len(self.raw)
 
-    def source_slice(self):
+    def source_slice(self) -> slice:
         """Return the a slice object for this slice."""
         return slice(self.source_idx, self.end_source_idx())
 
-    def is_source_only_slice(self):
+    def is_source_only_slice(self) -> bool:
         """Based on its slice_type, does it only appear in the *source*?
 
         There are some slice types which are automatically source only.
@@ -203,14 +203,14 @@ class TemplatedFile:
                 )
 
     @classmethod
-    def from_string(cls, raw):
+    def from_string(cls, raw: str) -> "TemplatedFile":
         """Create TemplatedFile from a string."""
         return cls(source_str=raw, fname="<string>")
 
-    def __repr__(self):  # pragma: no cover TODO?
+    def __repr__(self) -> str:  # pragma: no cover TODO?
         return "<TemplatedFile>"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return the templated file if coerced to string."""
         return self.templated_str
 
@@ -465,7 +465,7 @@ class RawTemplater:
     name = "raw"
     templater_selector = "templater"
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Dict[str, Any]) -> None:
         """Placeholder init function.
 
         Here we should load any initial config found in the root directory. The init
@@ -512,13 +512,13 @@ class RawTemplater:
         """
         return TemplatedFile(in_str, fname=fname), []
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         """Return true if `other` is of the same class as this one.
 
         NB: This is useful in comparing configs.
         """
         return isinstance(other, self.__class__)
 
-    def config_pairs(self):
+    def config_pairs(self) -> List[Tuple[str, str]]:
         """Returns info about the given templater for output by the cli."""
         return [("templater", self.name)]

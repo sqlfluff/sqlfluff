@@ -62,6 +62,7 @@ teradata_dialect.sets("unreserved_keywords").update(
         "CASESPECIFIC",
         "CS",
         "DAYS",
+        "DEL",
         "DUAL",
         "ERRORCODE",
         "EXPORT",
@@ -775,6 +776,22 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OverlapsClauseSegment", optional=True),
+    )
+
+
+class DeleteStatementSegment(BaseSegment):
+    """A `DELETE` statement.
+
+    DEL[ETE] FROM <table name> [ WHERE <search condition> ]
+    """
+
+    type = "delete_statement"
+    # match grammar. This one makes sense in the context of knowing that it's
+    # definitely a statement, we just don't know what type yet.
+    match_grammar: Matchable = Sequence(
+        OneOf("DELETE", "DEL"),
+        Ref("FromClauseSegment"),
+        Ref("WhereClauseSegment", optional=True),
     )
 
 

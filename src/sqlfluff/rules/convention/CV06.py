@@ -61,7 +61,7 @@ class Rule_CV06(BaseRule):
 
     @staticmethod
     def _handle_preceding_inline_comments(
-        before_segment: Sequence[RawSegment], anchor_segment: BaseSegment
+        before_segment: Sequence[BaseSegment], anchor_segment: BaseSegment
     ):
         """Adjust segments to not move preceding inline comments.
 
@@ -76,6 +76,7 @@ class Rule_CV06(BaseRule):
                 for s in before_segment
                 if s.is_comment
                 and not s.is_type("block_comment")
+                and s.pos_marker
                 and s.pos_marker.working_line_no
                 # We don't need to handle the case where raw_segments is empty
                 # because it never is. It's either a segment with raw children
@@ -93,7 +94,9 @@ class Rule_CV06(BaseRule):
         return before_segment, anchor_segment
 
     @staticmethod
-    def _handle_trailing_inline_comments(parent_segment, anchor_segment):
+    def _handle_trailing_inline_comments(
+        parent_segment: BaseSegment, anchor_segment: BaseSegment
+    ) -> BaseSegment:
         """Adjust anchor_segment to not move trailing inline comment.
 
         We don't want to move inline comments that are on the same line
@@ -102,6 +105,8 @@ class Rule_CV06(BaseRule):
         # See if we have a trailing inline comment on the same line as the preceding
         # segment.
         for comment_segment in parent_segment.recursive_crawl("comment"):
+            assert comment_segment.pos_marker
+            assert anchor_segment.pos_marker
             if (
                 comment_segment.pos_marker.working_line_no
                 == anchor_segment.pos_marker.working_line_no
@@ -111,7 +116,9 @@ class Rule_CV06(BaseRule):
         return anchor_segment
 
     @staticmethod
-    def _is_one_line_statement(parent_segment, segment):
+    def _is_one_line_statement(
+        parent_segment: BaseSegment, segment: BaseSegment
+    ) -> bool:
         """Check if the statement containing the provided segment is one line."""
         # Find statement segment containing the current segment.
         statement_segment = next(

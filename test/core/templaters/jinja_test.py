@@ -614,7 +614,7 @@ def test__templater_jinja_error_catastrophic():
 def test__templater_jinja_error_macro_path_does_not_exist():
     """Tests that an error is raised if macro path doesn't exist."""
     with pytest.raises(ValueError) as e:
-        JinjaTemplater().template_builder(
+        JinjaTemplater().construct_render_func(
             config=FluffConfig.from_path(
                 "test/fixtures/templater/jinja_macro_path_does_not_exist"
             )
@@ -890,9 +890,10 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
 def test__templater_jinja_slice_template(test, result):
     """Test _slice_template."""
     templater = JinjaTemplater()
-    env, live_context, make_template = templater.template_builder()
+    env, _, render_func = templater.construct_render_func()
+
     analyzer = JinjaAnalyzer(test, env)
-    analyzer.analyze(make_template)
+    analyzer.analyze(render_func=render_func)
     resp = analyzer.raw_sliced
     # check contiguous (unless there's a comment in it)
     if "{#" not in test:
@@ -1426,16 +1427,15 @@ FROM {{ j }}{{ self.table_name() }}
 def test__templater_jinja_slice_file(raw_file, override_context, result, caplog):
     """Test slice_file."""
     templater = JinjaTemplater(override_context=override_context)
-    env, live_context, make_template = templater.template_builder(
+    _, _, render_func = templater.construct_render_func(
         config=FluffConfig.from_path(
             "test/fixtures/templater/jinja_slice_template_macros"
         )
     )
 
-    templated_file = make_template(raw_file).render()
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
         raw_sliced, sliced_file, templated_str = templater.slice_file(
-            raw_file, templated_file, make_template=make_template
+            raw_file, render_func=render_func
         )
     # Create a TemplatedFile from the results. This runs some useful sanity
     # checks.

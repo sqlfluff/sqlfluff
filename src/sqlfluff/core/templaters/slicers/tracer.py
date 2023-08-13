@@ -3,13 +3,15 @@
 This is a newer slicing algorithm that handles cases heuristic.py does not.
 """
 
+# Import annotations for py 3.7 to allow `regex.Match[str]`
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 import logging
 import regex
-from typing import Callable, cast, Dict, List, NamedTuple, Optional, Tuple
+from typing import Callable, cast, Dict, List, NamedTuple, Optional, Tuple, Union
 
 from jinja2 import Environment
-from jinja2.environment import Template
 from jinja2.exceptions import TemplateSyntaxError
 
 from sqlfluff.core.templaters.base import (
@@ -52,14 +54,14 @@ class JinjaTracer:
         raw_sliced: List[RawFileSlice],
         raw_slice_info: Dict[RawFileSlice, RawSliceInfo],
         sliced_file: List[TemplatedFileSlice],
-        make_template: Callable[[str], Template],
+        render_func: Callable[[str], str],
     ):
         # Input
         self.raw_str = raw_str
         self.raw_sliced = raw_sliced
         self.raw_slice_info = raw_slice_info
         self.sliced_file = sliced_file
-        self.make_template = make_template
+        self.render_func = render_func
 
         # Internal bookkeeping
         self.program_counter: int = 0
@@ -73,10 +75,9 @@ class JinjaTracer:
             else rs.raw
             for rs in self.raw_sliced
         )
-        trace_template = self.make_template(trace_template_str)
-        trace_template_output = trace_template.render()
+        trace_template_output = self.render_func(trace_template_str)
         # Split output by section. Each section has two possible formats.
-        trace_entries: List[regex.Match] = list(
+        trace_entries: List[regex.Match[str]] = list(
             regex.finditer(r"\0", trace_template_output)
         )
         # If the file has no templated entries, we should just iterate
@@ -102,14 +103,13 @@ class JinjaTracer:
                 # E.g. "00000000000000000000000000000001_83". The number after
                 # "_" is the length (in characters) of a corresponding literal
                 # in raw_str.
-                value = [m_id.group(1), int(m_id.group(3)), True]
+                alt_id, slice_length = m_id.group(1), int(m_id.group(3))
             else:
                 # E.g. "00000000000000000000000000000002 a < 10". The characters
                 # after the slice ID are executable code from raw_str.
-                value = [m_id.group(0), p[len(m_id.group(0)) + 1 :], False]
-            alt_id, content_info, literal = value
+                alt_id, slice_length = m_id.group(0), len(p[len(m_id.group(0)) + 1 :])
+
             target_slice_idx = self.find_slice_index(alt_id)
-            slice_length = content_info if literal else len(str(content_info))
             target_inside_block = self.raw_slice_info[
                 self.raw_sliced[target_slice_idx]
             ].inside_block
@@ -127,10 +127,10 @@ class JinjaTracer:
         # 'append_to_templated' gets the default value of "", empty string.)
         # For more detail, see the comments near the call to slice_file() in
         # plugins/sqlfluff-templater-dbt/sqlfluff_templater_dbt/templater.py.
-        templated_str = self.make_template(self.raw_str).render() + append_to_templated
+        templated_str = self.render_func(self.raw_str) + append_to_templated
         return JinjaTrace(templated_str, self.raw_sliced, self.sliced_file)
 
-    def find_slice_index(self, slice_identifier) -> int:
+    def find_slice_index(self, slice_identifier: Union[int, str]) -> int:
         """Given a slice identifier, return its index.
 
         A slice identifier is a string like 00000000000000000000000000000002.
@@ -146,7 +146,7 @@ class JinjaTracer:
             )
         return raw_slices_search_result[0]
 
-    def move_to_slice(self, target_slice_idx, target_slice_length):
+    def move_to_slice(self, target_slice_idx: int, target_slice_length: int) -> None:
         """Given a template location, walk execution to that point."""
         while self.program_counter < len(self.raw_sliced):
             self.record_trace(
@@ -174,7 +174,12 @@ class JinjaTracer:
                 candidates.sort(key=lambda c: abs(target_slice_idx - c))
                 self.program_counter = candidates[0]
 
-    def record_trace(self, target_slice_length, slice_idx=None, slice_type=None):
+    def record_trace(
+        self,
+        target_slice_length: int,
+        slice_idx: Optional[int] = None,
+        slice_type: Optional[str] = None,
+    ) -> None:
         """Add the specified (default: current) location to the trace."""
         if slice_idx is None:
             slice_idx = self.program_counter
@@ -202,7 +207,7 @@ class JinjaAnalyzer:
     re_open_tag = regex.compile(r"^\s*({[{%])[\+\-]?\s*")
     re_close_tag = regex.compile(r"\s*[\+\-]?([}%]})\s*$")
 
-    def __init__(self, raw_str: str, env: Environment):
+    def __init__(self, raw_str: str, env: Environment) -> None:
         # Input
         self.raw_str: str = raw_str
         self.env = env
@@ -226,7 +231,7 @@ class JinjaAnalyzer:
         self.slice_id += 1
         return result
 
-    def slice_info_for_literal(self, length, prefix="") -> RawSliceInfo:
+    def slice_info_for_literal(self, length: int, prefix: str = "") -> RawSliceInfo:
         """Returns a RawSliceInfo for a literal.
 
         In the alternate template, literals are replaced with a uniquely
@@ -249,8 +254,8 @@ class JinjaAnalyzer:
         self,
         block_type: str,
         trimmed_parts: List[str],
-        m_open: Optional[regex.Match],
-        m_close: Optional[regex.Match],
+        m_open: Optional[regex.Match[str]],
+        m_close: Optional[regex.Match[str]],
         tag_contents: List[str],
     ) -> Tuple[Optional[RawSliceInfo], str]:
         """Based on block tag, update whether in a set/call/macro/block section."""
@@ -337,7 +342,7 @@ class JinjaAnalyzer:
         "raw_begin": "block",
     }
 
-    def analyze(self, make_template: Callable[[str], Template]) -> JinjaTracer:
+    def analyze(self, render_func: Callable[[str], str]) -> JinjaTracer:
         """Slice template in jinja."""
         # str_buff and str_parts are two ways we keep track of tokens received
         # from Jinja. str_buff concatenates them together, while str_parts
@@ -473,11 +478,14 @@ class JinjaAnalyzer:
             self.raw_sliced,
             self.raw_slice_info,
             self.sliced_file,
-            make_template,
+            render_func,
         )
 
     def track_templated(
-        self, m_open: regex.Match, m_close: regex.Match, tag_contents: List[str]
+        self,
+        m_open: regex.Match[str],
+        m_close: regex.Match[str],
+        tag_contents: List[str],
     ) -> RawSliceInfo:
         """Compute tracking info for Jinja templated region, e.g. {{ foo }}."""
         unique_alternate_id = self.next_slice_id()
@@ -492,8 +500,11 @@ class JinjaAnalyzer:
         return self.make_raw_slice_info(unique_alternate_id, alternate_code)
 
     def track_call(
-        self, m_open: regex.Match, m_close: regex.Match, tag_contents: List[str]
-    ):
+        self,
+        m_open: regex.Match[str],
+        m_close: regex.Match[str],
+        tag_contents: List[str],
+    ) -> RawSliceInfo:
         """Set up tracking for "{% call ... %}"."""
         unique_alternate_id = self.next_slice_id()
         open_ = m_open.group(1)
@@ -524,7 +535,9 @@ class JinjaAnalyzer:
         self.idx_raw += len(raw)
 
     @staticmethod
-    def extract_block_type(tag_name, block_subtype):
+    def extract_block_type(
+        tag_name: str, block_subtype: Optional[str] = None
+    ) -> Tuple[str, Optional[str]]:
         """Determine block type."""
         # :TRICKY: Syntactically, the Jinja {% include %} directive looks like
         # a block, but its behavior is basically syntactic sugar for
@@ -546,8 +559,8 @@ class JinjaAnalyzer:
     @staticmethod
     def extract_tag_contents(
         str_parts: List[str],
-        m_close: regex.Match,
-        m_open: regex.Match,
+        m_close: regex.Match[str],
+        m_open: regex.Match[str],
         str_buff: str,
     ) -> List[str]:
         """Given Jinja tag info, return the stuff inside the braces.
