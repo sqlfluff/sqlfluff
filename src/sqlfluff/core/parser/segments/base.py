@@ -14,7 +14,7 @@ import logging
 import weakref
 from collections import defaultdict
 from copy import copy, deepcopy
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, replace
 from io import StringIO
 from itertools import chain
 from typing import (
@@ -23,7 +23,6 @@ from typing import (
     Callable,
     ClassVar,
     Dict,
-    Iterable,
     Iterator,
     List,
     Optional,
@@ -31,6 +30,7 @@ from typing import (
     Set,
     Tuple,
     Type,
+    Union,
     cast,
 )
 from uuid import UUID, uuid4
@@ -59,6 +59,8 @@ if TYPE_CHECKING:  # pragma: no cover
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
+
+TupleSerialisedSegment = Tuple[str, Union[str, Tuple["TupleSerialisedSegment", ...]]]
 
 
 @dataclass(frozen=True)
@@ -896,14 +898,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
         code_only: bool = False,
         show_raw: bool = False,
         include_meta: bool = False,
-    ):
+    ) -> TupleSerialisedSegment:
         """Return a tuple structure from this segment."""
         # works for both base and raw
 
         if show_raw and not self.segments:
-            result = (self.get_type(), self.raw)
+            return (self.get_type(), self.raw)
         elif code_only:
-            result = (
+            return (
                 self.get_type(),
                 tuple(
                     seg.to_tuple(
@@ -916,7 +918,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 ),
             )
         else:
-            result = (
+            return (
                 self.get_type(),
                 tuple(
                     seg.to_tuple(
@@ -928,7 +930,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     if include_meta or not seg.is_meta
                 ),
             )
-        return result
 
     def copy(self) -> "BaseSegment":
         """Copy the segment recursively, with appropriate copying of references."""
