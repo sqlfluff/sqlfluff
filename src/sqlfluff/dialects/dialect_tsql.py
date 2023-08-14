@@ -3312,11 +3312,13 @@ class TableIndexClause(BaseSegment):
                 "INDEX",
                 Bracketed(
                     Delimited(
-                        Ref("ColumnReferenceSegment"),
-                        OneOf(
-                            "ASC",
-                            "DESC",
-                            optional=True,
+                        Sequence(
+                            Ref("ColumnReferenceSegment"),
+                            OneOf(
+                                "ASC",
+                                "DESC",
+                                optional=True,
+                            ),
                         ),
                     ),
                 ),

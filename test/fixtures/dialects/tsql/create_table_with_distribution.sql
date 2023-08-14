@@ -59,3 +59,7 @@ WITH (CLUSTERED COLUMNSTORE INDEX ORDER ([Column B]), DISTRIBUTION = HASH([Colum
 GO
 DROP TABLE [dbo].[EC DC];
 GO
+
+CREATE TABLE [dbo].[table] ( [name] [varchar](100) NOT NULL, [month_num] [int] NULL )
+WITH ( DISTRIBUTION = REPLICATE, CLUSTERED INDEX ( [name] ASC, [month_num] ASC ) )
+GO
