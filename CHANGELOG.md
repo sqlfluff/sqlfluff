@@ -16,7 +16,8 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 This release brings one new dialect, two new rules and some changes to the CLI:
 - We now support the [trino](https://trino.io/) dialect. This is a first version of
-  support, so do post any issues on GitHub in the usual way.
+  support, so do post any issues on GitHub in the usual way. This was also the first
+  contribution to the project from [@efung](https://github.com/efung) 🏆.
 - `ST09` / `structure.join_condition_order`: Which checks whether tables referenced
   in `JOIN` clauses are referenced in the order of their definition. By default
   this means that in the `ON` clause, the column referencing the table in the
@@ -24,7 +25,7 @@ This release brings one new dialect, two new rules and some changes to the CLI:
   clause (e.g. `... FROM a JOIN b on a.c = b.c`). This rule was also the first
   contribution to the project from [@thibonacci](https://github.com/thibonacci) 🏆.
 - `AL08` / `aliasing.unique.column`: Which checks that column aliases and names
-  are not repeated within the same `SELECT` clause. This is normally a error
+  are not repeated within the same `SELECT` clause. This is normally an error
   as it implies the same column has been imported twice, or that two expressions
   have been given the same alias.
 - The `--profiler` option on `sqlfluff parse` has been removed. It was only
@@ -43,6 +44,7 @@ Along side these more significant changes this also includes:
 
 ## What’s Changed
 
+* Remove IdentitySet [#5093](https://github.com/sqlfluff/sqlfluff/pull/5093) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Stricter typing in smaller sqlfluff.core.parser [#5088](https://github.com/sqlfluff/sqlfluff/pull/5088) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Preliminary support of Trino dialect [#4913](https://github.com/sqlfluff/sqlfluff/pull/4913) [@efung](https://github.com/efung)
 * Rename ST09 [#5091](https://github.com/sqlfluff/sqlfluff/pull/5091) [@alanmcruickshank](https://github.com/alanmcruickshank)
