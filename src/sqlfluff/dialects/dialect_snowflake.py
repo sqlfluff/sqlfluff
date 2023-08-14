@@ -18,7 +18,7 @@ from sqlfluff.core.parser import (
     Delimited,
     Indent,
     Matchable,
-    TypedParser,
+    MultiStringParser,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -31,14 +31,14 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
-    MultiStringParser,
+    TypedParser,
 )
 from sqlfluff.core.parser.segments.raw import KeywordSegment
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_snowflake_keywords import (
     snowflake_reserved_keywords,
     snowflake_unreserved_keywords,
 )
-from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 snowflake_dialect = ansi_dialect.copy_as("snowflake")
@@ -207,7 +207,7 @@ snowflake_dialect.add(
         r"\$[A-Z_][A-Z0-9_]*",
         CodeSegment,
         type="variable",
-        trim_chars=("$"),
+        trim_chars=("$",),
     ),
     # We use a RegexParser instead of keywords as some (those with dashes) require
     # quotes:
@@ -250,6 +250,7 @@ snowflake_dialect.add(
     CopyOptionOnErrorSegment=RegexParser(
         r"'?CONTINUE'?|'?SKIP_FILE(?:_[0-9]+%?)?'?|'?ABORT_STATEMENT'?",
         ansi.LiteralSegment,
+        type="copy_on_error_option",
     ),
     DoubleQuotedUDFBody=TypedParser(
         "double_quote",

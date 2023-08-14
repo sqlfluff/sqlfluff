@@ -2,8 +2,7 @@
 
 import copy
 from abc import ABC, abstractmethod
-from typing import Optional, Tuple, TYPE_CHECKING, FrozenSet, Any
-
+from typing import TYPE_CHECKING, Any, FrozenSet, Optional, Tuple
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.context import ParseContext
@@ -15,7 +14,7 @@ class Matchable(ABC):
     """A base object defining the matching interface."""
 
     # Matchables are expected to have a type
-    type: Optional[str]
+    type: str
 
     @abstractmethod
     def is_optional(self) -> bool:

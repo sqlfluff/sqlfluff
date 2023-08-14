@@ -4,11 +4,11 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
-from typing import Any, List, Optional, Tuple, Set
+from typing import Any, List, Optional, Set, Tuple
 from uuid import UUID, uuid4
 
-from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 
 
 class RawSegment(BaseSegment):
@@ -277,6 +277,7 @@ class KeywordSegment(CodeSegment):
         pos_marker: Optional[PositionMarker] = None,
         type: Optional[str] = None,
         source_fixes: Optional[List[SourceFix]] = None,
+        trim_chars: Optional[Tuple[str, ...]] = None,
     ):
         """If no other name is provided we extrapolate it from the raw."""
         super().__init__(
