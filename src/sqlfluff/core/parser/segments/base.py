@@ -23,9 +23,11 @@ from typing import (
     Callable,
     ClassVar,
     Dict,
+    Iterable,
     Iterator,
     List,
     Optional,
+    Sequence,
     Set,
     Tuple,
     cast,
@@ -47,8 +49,11 @@ from sqlfluff.core.string_helpers import curtail_string, frame_msg
 from sqlfluff.core.templaters.base import TemplatedFile
 
 if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.dialects import Dialect
+    from sqlfluff.core.parser.grammar.types import SimpleHintType
     from sqlfluff.core.parser.segments import RawSegment
     from sqlfluff.core.rules import LintFix
+    from sqlfluff.dialects.dialect_ansi import StatementSegment
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
@@ -289,7 +294,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         self._recalculate_caches()
 
-    def __setattr__(self, key, value) -> None:
+    def __setattr__(self, key: str, value: Any) -> None:
         try:
             if key == "segments":
                 self._recalculate_caches()
@@ -299,7 +304,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         super().__setattr__(key, value)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         # NB: this should also work for RawSegment
         if not isinstance(other, BaseSegment):
             return False  # pragma: no cover
@@ -311,8 +316,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
             self.__class__.__name__ == other.__class__.__name__
             and (self.raw == other.raw)
             # Both must have a non-null position marker to compare.
-            and self.pos_marker
-            and other.pos_marker
+            and self.pos_marker is not None
+            and other.pos_marker is not None
             # We only match that the *start* is the same. This means we can
             # still effectively construct searches look for segments.
             # This is important for .apply_fixes().
@@ -334,13 +339,15 @@ class BaseSegment(metaclass=SegmentMetaclass):
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: ({self.pos_marker})>"
 
-    def __getstate__(self):
+    def __getstate__(self) -> Dict[str, Any]:
+        """Get the current state to allow pickling."""
         s = self.__dict__.copy()
         # Kill the parent ref. It won't pickle well.
         s["_parent"] = None
         return s
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        """Set state during process of unpickling."""
         self.__dict__ = state.copy()
         # Once state is ingested - repopulate, NOT recursing.
         # Child segments will do it for themselves on unpickling.
@@ -529,9 +536,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return ""
 
     @classmethod
-    def expand(cls, segments, parse_context):
+    def expand(
+        cls, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> Tuple[BaseSegment, ...]:
         """Expand the list of child segments using their `parse` methods."""
-        segs = ()
+        segs: Tuple[BaseSegment, ...] = ()
 
         # Renders progress bar only for `BaseFileSegments`.
         disable_progress_bar = (
@@ -711,7 +720,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # ################ CLASS METHODS
 
     @classmethod
-    def simple(cls, parse_context: ParseContext, crumbs=None):
+    def simple(
+        cls, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
+    ) -> Optional["SimpleHintType"]:
         """Does this matcher support an uppercase hash matching route?
 
         This should be true if the MATCH grammar is simple. Most more
@@ -743,7 +754,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return cls.optional
 
     @classmethod
-    def class_is_type(cls, *seg_type) -> bool:
+    def class_is_type(cls, *seg_type: str) -> bool:
         """Is this segment class (or its parent) of the given type."""
         # Use set intersection
         if cls._class_types.intersection(seg_type):
@@ -855,7 +866,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         ]:
             self.__dict__.pop(key, None)
 
-    def _preface(self, ident, tabsize) -> str:
+    def _preface(self, ident: int, tabsize: int) -> str:
         """Returns the preamble to any logging."""
         padded_type = "{padding}{modifier}{type}".format(
             padding=" " * (ident * tabsize),
@@ -872,7 +883,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     # ################ PUBLIC INSTANCE METHODS
 
-    def set_as_parent(self, recurse=True) -> None:
+    def set_as_parent(self, recurse: bool = True) -> None:
         """Set this segment as parent for child all segments."""
         for seg in self.segments:
             seg.set_parent(self)
@@ -912,7 +923,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """Returns the type of this segment as a string."""
         return self.type
 
-    def count_segments(self, raw_only=False) -> int:
+    def count_segments(self, raw_only: bool = False) -> int:
         """Returns the number of segments in this segment."""
         if self.segments:
             self_count = 0 if raw_only else 1
@@ -922,7 +933,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         else:
             return 1
 
-    def is_type(self, *seg_type) -> bool:
+    def is_type(self, *seg_type: str) -> bool:
         """Is this segment (or its parent) of the given type."""
         return self.class_is_type(*seg_type)
 
@@ -959,7 +970,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
             self.raw,
         )
 
-    def stringify(self, ident=0, tabsize=4, code_only=False) -> str:
+    def stringify(
+        self, ident: int = 0, tabsize: int = 4, code_only: bool = False
+    ) -> str:
         """Use indentation to render this segment and its children as a string."""
         buff = StringIO()
         preface = self._preface(ident=ident, tabsize=tabsize)
@@ -999,7 +1012,12 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     )
         return buff.getvalue()
 
-    def to_tuple(self, code_only=False, show_raw=False, include_meta=False):
+    def to_tuple(
+        self,
+        code_only: bool = False,
+        show_raw: bool = False,
+        include_meta: bool = False,
+    ):
         """Return a tuple structure from this segment."""
         # works for both base and raw
 
@@ -1044,7 +1062,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             new_seg.segments = tuple(seg.copy() for seg in self.segments)
         return new_seg
 
-    def as_record(self, **kwargs) -> Optional[dict]:
+    def as_record(self, **kwargs: bool) -> Optional[dict]:
         """Return the segment as a structurally simplified record.
 
         This is useful for serialization to yaml or json.
@@ -1057,7 +1075,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return [item for s in self.segments for item in s.raw_segments]
 
     def iter_segments(
-        self, expanding=None, pass_through=False
+        self, expanding: Optional[Sequence[str]] = None, pass_through: bool = False
     ) -> Iterator["BaseSegment"]:
         """Iterate segments, optionally expanding some children."""
         for s in self.segments:
@@ -1084,14 +1102,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """Return True if this segment has no children."""
         return len(self.segments) == 0
 
-    def get_child(self, *seg_type):
+    def get_child(self, *seg_type: str) -> Optional[BaseSegment]:
         """Retrieve the first of the children of this segment with matching type."""
         for seg in self.segments:
             if seg.is_type(*seg_type):
                 return seg
         return None
 
-    def get_children(self, *seg_type) -> list:
+    def get_children(self, *seg_type: str) -> List[BaseSegment]:
         """Retrieve the all of the children of this segment with matching type."""
         buff = []
         for seg in self.segments:
@@ -1121,7 +1139,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 buff.append(seg)
         return buff
 
-    def recursive_crawl_all(self, reverse: bool = False):
+    def recursive_crawl_all(self, reverse: bool = False) -> Iterator[BaseSegment]:
         """Recursively crawl all descendant segments."""
         if reverse:
             for seg in reversed(self.segments):
@@ -1136,7 +1154,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         *seg_type: str,
         recurse_into: bool = True,
         no_recursive_seg_type: Optional[str] = None,
-    ):
+    ) -> Iterator[BaseSegment]:
         """Recursively crawl for segments of a given type.
 
         Args:
@@ -1156,7 +1174,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         if recurse_into or not match:
             # Recurse
             for seg in self.segments:
-                if not seg.is_type(no_recursive_seg_type):
+                if not no_recursive_seg_type or not seg.is_type(no_recursive_seg_type):
                     yield from seg.recursive_crawl(
                         *seg_type,
                         recurse_into=recurse_into,
@@ -1365,7 +1383,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return segment.is_code or segment.is_meta
 
     @classmethod
-    def _find_start_or_end_non_code(cls, segments) -> Optional[int]:
+    def _find_start_or_end_non_code(
+        cls, segments: Sequence[BaseSegment]
+    ) -> Optional[int]:
         """If segment's first/last child is non-code, return index."""
         if segments:
             for idx in [0, -1]:
@@ -1374,7 +1394,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return None
 
     def apply_fixes(
-        self, dialect, rule_code: str, fixes: Dict
+        self, dialect: "Dialect", rule_code: str, fixes: Dict
     ) -> Tuple["BaseSegment", List["BaseSegment"], List["BaseSegment"]]:
         """Apply an iterable of fixes to this segment.
 
@@ -1393,7 +1413,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
             # Make a working copy
             seg_buffer = []
-            fixes_applied = []
+            fixes_applied: List[LintFix] = []
             todo_buffer = list(self.segments)
             while True:
                 if len(todo_buffer) == 0:
@@ -1545,7 +1565,13 @@ class BaseSegment(metaclass=SegmentMetaclass):
             anchor_info[anchor_id].add(fix)
         return dict(anchor_info)
 
-    def _validate_segment_after_fixes(self, rule_code, dialect, fixes_applied, segment):
+    def _validate_segment_after_fixes(
+        self,
+        rule_code: str,
+        dialect: "Dialect",
+        fixes_applied: List[LintFix],
+        segment: BaseSegment,
+    ) -> None:
         """Checks correctness of new segment against match or parse grammar."""
         ctx = ParseContext(dialect=dialect)
         try:
@@ -1570,7 +1596,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
             )
 
     @staticmethod
-    def _log_apply_fixes_check_issue(message, *args) -> None:  # pragma: no cover
+    def _log_apply_fixes_check_issue(
+        message: str, *args: Any
+    ) -> None:  # pragma: no cover
         linter_logger.critical(message, exc_info=True, *args)
 
     def _iter_source_fix_patches(
@@ -1746,7 +1774,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def edit(
         self, raw: Optional[str] = None, source_fixes: Optional[List[SourceFix]] = None
-    ):
+    ) -> BaseSegment:
         """Stub."""
         raise NotImplementedError()
 
@@ -1778,7 +1806,9 @@ class BracketedSegment(BaseSegment):
         super().__init__(*args, **kwargs)
 
     @classmethod
-    def simple(cls, parse_context: ParseContext, crumbs=None):
+    def simple(
+        cls, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
+    ) -> Optional["SimpleHintType"]:
         """Simple methods for bracketed and the persistent brackets."""
         start_brackets = [
             start_bracket
@@ -1817,7 +1847,7 @@ class UnparsableSegment(BaseSegment):
     comment_separate = True
     _expected = ""
 
-    def __init__(self, *args, expected="", **kwargs) -> None:
+    def __init__(self, *args, expected: str = "", **kwargs) -> None:
         self._expected = expected
         super().__init__(*args, **kwargs)
 
@@ -1852,8 +1882,8 @@ class BaseFileSegment(BaseSegment):
 
     def __init__(
         self,
-        segments,
-        pos_marker=None,
+        segments: Tuple[BaseSegment, ...],
+        pos_marker: Optional[PositionMarker] = None,
         fname: Optional[str] = None,
     ):
         self._file_path = fname
@@ -1868,5 +1898,6 @@ class BaseFileSegment(BaseSegment):
         """Use parsed tree to extract table references."""
         references = set()
         for stmt in self.get_children("statement"):
+            stmt = cast("StatementSegment", stmt)
             references |= stmt.get_table_references()
         return references
