@@ -7,53 +7,49 @@ Here we define:
   function failed on this block of segments and to prevent further
   analysis.
 """
+# Import annotations for py 3.7 to allow `weakref.ReferenceType["BaseSegment"]`
+from __future__ import annotations
 
+import logging
+import weakref
 from collections import defaultdict
 from collections.abc import MutableSet
-from copy import deepcopy, copy
+from copy import copy, deepcopy
 from dataclasses import dataclass, field, replace
 from io import StringIO
 from itertools import chain
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
-    cast,
     ClassVar,
     Dict,
-    Optional,
-    List,
-    Tuple,
     Iterator,
+    List,
+    Optional,
     Set,
-    TYPE_CHECKING,
+    Tuple,
+    cast,
 )
-import logging
 from uuid import UUID, uuid4
 
 from tqdm import tqdm
 
 from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.config import progress_bar_configuration
-from sqlfluff.core.string_helpers import (
-    frame_msg,
-    curtail_string,
-)
-
-from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.match_logging import parse_match_logging
-from sqlfluff.core.parser.match_wrapper import match_wrapper
-from sqlfluff.core.parser.helpers import (
-    check_still_complete,
-    trim_non_code_segments,
-)
-from sqlfluff.core.parser.matchable import Matchable
-from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.context import ParseContext
+from sqlfluff.core.parser.helpers import check_still_complete, trim_non_code_segments
+from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.parser.match_logging import parse_match_logging
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.matchable import Matchable
+from sqlfluff.core.string_helpers import curtail_string, frame_msg
 from sqlfluff.core.templaters.base import TemplatedFile
 
 if TYPE_CHECKING:  # pragma: no cover
-    from sqlfluff.core.rules import LintFix
     from sqlfluff.core.parser.segments import RawSegment
+    from sqlfluff.core.rules import LintFix
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
@@ -263,6 +259,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
     _cache_key: str
     # _preface_modifier used in ._preface()
     _preface_modifier: str = ""
+    # Optional reference to the parent. Stored as a weakref.
+    _parent: Optional[weakref.ReferenceType["BaseSegment"]] = None
 
     def __init__(
         self,
@@ -304,6 +302,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def __eq__(self, other):
         # NB: this should also work for RawSegment
+        if not isinstance(other, BaseSegment):
+            return False  # pragma: no cover
+        # If the uuids match, then we can easily return early.
+        if self.uuid == other.uuid:
+            return True
         return (
             # Same class NAME. (could be constructed elsewhere)
             self.__class__.__name__ == other.__class__.__name__
@@ -331,6 +334,18 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: ({self.pos_marker})>"
+
+    def __getstate__(self):
+        s = self.__dict__.copy()
+        # Kill the parent ref. It won't pickle well.
+        s["_parent"] = None
+        return s
+
+    def __setstate__(self, state):
+        self.__dict__ = state.copy()
+        # Once state is ingested - repopulate, NOT recursing.
+        # Child segments will do it for themselves on unpickling.
+        self.set_as_parent(recurse=False)
 
     # ################ PRIVATE PROPERTIES
 
@@ -371,6 +386,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
     def is_code(self) -> bool:
         """Return True if this segment contains any code."""
         return any(seg.is_code for seg in self.segments)
+
+    @cached_property
+    def _code_indices(self) -> Tuple[int, ...]:
+        """The indices of code elements.
+
+        This is used in the path_to algorithm for tree traversal.
+        """
+        return tuple(idx for idx, seg in enumerate(self.segments) if seg.is_code)
 
     @cached_property
     def is_comment(self) -> bool:  # pragma: no cover TODO?
@@ -793,7 +816,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         if cls.match_grammar:
             # Call the private method
-            with parse_context.deeper_match() as ctx:
+            with parse_context.deeper_match(name=cls.__name__) as ctx:
                 m = cls.match_grammar.match(segments=segments, parse_context=ctx)
 
             if m.has_match():
@@ -827,8 +850,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
             "first_non_whitespace_segment_raw_upper",
             "source_fixes",
             "full_type_set",
-            "descendant_type_set ",
-            "direct_descendant_type_set ",
+            "descendant_type_set",
+            "direct_descendant_type_set",
+            "_code_indices",
         ]:
             self.__dict__.pop(key, None)
 
@@ -848,6 +872,42 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return preface.rstrip()
 
     # ################ PUBLIC INSTANCE METHODS
+
+    def set_as_parent(self, recurse=True) -> None:
+        """Set this segment as parent for child all segments."""
+        for seg in self.segments:
+            seg.set_parent(self)
+            # Recurse if not disabled
+            if recurse:
+                seg.set_as_parent(recurse=recurse)
+
+    def set_parent(self, parent: "BaseSegment") -> None:
+        """Set the weak reference to the parent.
+
+        NOTE: Don't validate on set, because we might not have fully
+        initialised the parent yet (because we call this method during
+        the instantiation of the parent).
+        """
+        self._parent = weakref.ref(parent)
+
+    def get_parent(self) -> Optional["BaseSegment"]:
+        """Get the parent segment, with some validation.
+
+        This is provided as a performance optimisation when searching
+        through the syntax tree. Any methods which depend on this should
+        have an alternative way of assessing position, and ideally also
+        set the parent of any segments found without them.
+
+        NOTE: We only store a weak reference to the parent so it might
+        not be present. We also validate here that it's _still_ the parent
+        and potentially also return None if those checks fail.
+        """
+        if not self._parent:
+            return None
+        _parent = self._parent()
+        if not _parent or self not in _parent.segments:
+            return None
+        return _parent
 
     def get_type(self) -> str:
         """Returns the type of this segment as a string."""
@@ -1119,32 +1179,72 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         Technically this could be seen as a "half open interval" of the path between
         two segments: in that it includes the root segment, but not the leaf.
+
+        We first use any existing parent references to work upward, and then if that
+        doesn't take us far enough we fill in from the top (setting any missing
+        references as we go). This tries to be as efficient in that process as
+        possible.
         """
         # Return empty if they are the same segment.
         if self is other:
             return []  # pragma: no cover
 
-        # Are we in the right ballpark?
-        # NOTE: Comparisons have a higher precedence than `not`.
-        if not self.get_start_loc() <= other.get_start_loc() <= self.get_end_loc():
-            return []
-
         # Do we have any child segments at all?
         if not self.segments:
             return []
 
-        # Check code idxs
-        code_idxs = tuple(idx for idx, seg in enumerate(self.segments) if seg.is_code)
+        # Identifying the highest parent we can using any preset parent values.
+        midpoint = other
+        lower_path = []
+        while True:
+            _higher = midpoint.get_parent()
+            # If we've run out of parents, stop for now.
+            if not _higher:
+                break
+            lower_path.append(
+                PathStep(
+                    _higher,
+                    _higher.segments.index(midpoint),
+                    len(_higher.segments),
+                    _higher._code_indices,
+                )
+            )
+            midpoint = _higher
+            # If we're found the target segment we can also stop.
+            if midpoint == self:
+                break
+
+        # Reverse the path so far
+        lower_path.reverse()
+
+        # Have we already found the parent?
+        if midpoint == self:
+            return lower_path
+        # Have we gone all the way up to the file segment?
+        elif isinstance(midpoint, BaseFileSegment):
+            return []  # pragma: no cover
+        # Are we in the right ballpark?
+        # NOTE: Comparisons have a higher precedence than `not`.
+        elif not self.get_start_loc() <= midpoint.get_start_loc() <= self.get_end_loc():
+            return []
+
+        # From here, we've worked "up" as far as we can, we now work "down".
+        # When working down, we only need to go as far as the `midpoint`.
+
         # Check through each of the child segments
         for idx, seg in enumerate(self.segments):
-            step = PathStep(self, idx, len(self.segments), code_idxs)
+            # Set the parent if it's not already set.
+            seg.set_parent(self)
+            # Build the step.
+            step = PathStep(self, idx, len(self.segments), self._code_indices)
             # Have we found the target?
-            if seg is other:
-                return [step]
+            # NOTE: Check for _equality_ not _identity_ here as that's most reliable.
+            if seg == midpoint:
+                return [step] + lower_path
             # Is there a path to the target?
-            res = seg.path_to(other)
+            res = seg.path_to(midpoint)
             if res:
-                return [step] + res
+                return [step] + res + lower_path
 
         # Not found.
         return []  # pragma: no cover
@@ -1199,7 +1299,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     )
 
             # NOTE: No match_depth kwarg, because this is the start of the matching.
-            with parse_context.matching_segment(self.__class__.__name__) as ctx:
+            with parse_context.deeper_match(name=self.__class__.__name__) as ctx:
                 m = parse_grammar.match(segments=segments, parse_context=ctx)
 
             # Basic Validation, that we haven't dropped anything.
@@ -1242,25 +1342,22 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     )
                     + post_nc
                 )
-        # Recurse if allowed (using the expand method to deal with the expansion)
-        parse_context.logger.debug(
-            "{}.parse: Done Parse. Plotting Recursion. Recurse={!r}".format(
-                self.__class__.__name__, parse_context.recurse
-            )
-        )
+
         parse_depth_msg = (
             "###\n#\n# Beginning Parse Depth {}: {}\n#\n###\nInitial Structure:\n"
             "{}".format(
                 parse_context.parse_depth + 1, self.__class__.__name__, self.stringify()
             )
         )
-        if parse_context.may_recurse():
-            parse_context.logger.debug(parse_depth_msg)
-            with parse_context.deeper_parse() as ctx:
-                self.segments = self.expand(
-                    self.segments,
-                    parse_context=ctx,
-                )
+        parse_context.logger.debug(parse_depth_msg)
+        with parse_context.deeper_parse(name=self.__class__.__name__) as ctx:
+            self.segments = self.expand(
+                self.segments,
+                parse_context=ctx,
+            )
+        # Once parsed, populate any parent relationships.
+        for _seg in self.segments:
+            _seg.set_as_parent()
 
         return (self,)
 
@@ -1343,6 +1440,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                                     # of a create_before/create_after pair, also add
                                     # this segment before the edit.
                                     seg_buffer.append(seg)
+                                    seg.set_parent(self)
 
                                 # We're doing a replacement (it could be a single
                                 # segment or an iterable)
@@ -1350,6 +1448,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                                 consumed_pos = False
                                 for s in f.edit:
                                     seg_buffer.append(s)
+                                    s.set_parent(self)
                                     # If one of them has the same raw representation
                                     # then the first that matches gets to take the
                                     # original position marker.
@@ -1365,6 +1464,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                                     # in the case of a creation before, also add this
                                     # segment on the end
                                     seg_buffer.append(seg)
+                                    seg.set_parent(self)
 
                             else:  # pragma: no cover
                                 raise ValueError(
@@ -1374,6 +1474,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                                 )
                     else:
                         seg_buffer.append(seg)
+                        seg.set_parent(self)
                 # Invalidate any caches
                 self.invalidate_caches()
 
@@ -1682,7 +1783,7 @@ class BracketedSegment(BaseSegment):
         """Simple methods for bracketed and the persistent brackets."""
         start_brackets = [
             start_bracket
-            for _, start_bracket, _, persistent in parse_context.dialect.sets(
+            for _, start_bracket, _, persistent in parse_context.dialect.bracket_sets(
                 "bracket_pairs"
             )
             if persistent

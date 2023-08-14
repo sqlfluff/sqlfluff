@@ -134,7 +134,7 @@ class Delimited(OneOf):
                     break
 
                 # Check whether there is a terminator before checking for content
-                with parse_context.deeper_match() as ctx:
+                with parse_context.deeper_match(name="Delimited-Term") as ctx:
                     match, _ = self._longest_trimmed_match(
                         segments=seg_content,
                         matchers=terminator_matchers,
@@ -154,7 +154,7 @@ class Delimited(OneOf):
                 if delimiter_matchers and elements != delimiter_matchers:
                     _push_terminators = delimiter_matchers
                 with parse_context.deeper_match(
-                    push_terminators=_push_terminators
+                    name="Delimited", push_terminators=_push_terminators
                 ) as ctx:
                     match, _ = self._longest_trimmed_match(
                         segments=seg_content,

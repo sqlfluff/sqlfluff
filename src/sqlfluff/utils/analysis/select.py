@@ -34,7 +34,11 @@ def get_select_statement_info(
     # Sometimes there is no select clause (e.g. "SELECT *" is a select_clause_element)
     if not sc:
         return None
-    reference_buffer = list(sc.recursive_crawl("object_reference"))
+    # NOTE: In this first crawl, don't crawl inside any sub-selects, that's very
+    # important for both isolation and performance reasons.
+    reference_buffer = list(
+        sc.recursive_crawl("object_reference", no_recursive_seg_type="select_statement")
+    )
     for potential_clause in (
         "where_clause",
         "groupby_clause",
@@ -44,7 +48,11 @@ def get_select_statement_info(
     ):
         clause = segment.get_child(potential_clause)
         if clause:
-            reference_buffer += list(clause.recursive_crawl("object_reference"))
+            reference_buffer += list(
+                clause.recursive_crawl(
+                    "object_reference", no_recursive_seg_type="select_statement"
+                )
+            )
 
     # Get all select targets.
     select_targets = segment.get_child("select_clause").get_children(
@@ -59,7 +67,9 @@ def get_select_statement_info(
     using_cols = []
     fc = segment.get_child("from_clause")
     if fc:
-        for join_clause in fc.recursive_crawl("join_clause"):
+        for join_clause in fc.recursive_crawl(
+            "join_clause", no_recursive_seg_type="select_statement"
+        ):
             seen_using = False
             for seg in join_clause.iter_segments():
                 if seg.is_type("keyword") and seg.raw_upper == "USING":
@@ -69,23 +79,16 @@ def get_select_statement_info(
                         if on_seg.is_type("bracketed", "expression"):
                             # Deal with expressions
                             reference_buffer += list(
-                                seg.recursive_crawl("object_reference")
+                                seg.recursive_crawl(
+                                    "object_reference",
+                                    no_recursive_seg_type="select_statement",
+                                )
                             )
                 elif seen_using and seg.is_type("bracketed"):
                     for subseg in seg.segments:
                         if subseg.is_type("identifier"):
                             using_cols.append(subseg.raw)
                     seen_using = False
-
-    # PURGE any references which are in nested select statements
-    for ref in reference_buffer.copy():
-        ref_path = segment.path_to(ref)
-        # is it in a subselect? i.e. a select which isn't this one.
-        if ref_path and any(
-            ps.segment.is_type("select_statement") and ps.segment is not segment
-            for ps in ref_path
-        ):
-            reference_buffer.remove(ref)
 
     return SelectStatementColumnsAndTables(
         select_statement=segment,

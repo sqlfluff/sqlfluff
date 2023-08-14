@@ -275,7 +275,7 @@ ansi_dialect.update_keywords_set_from_multiline_string(
 # of bracket is persisted during matching to speed up other
 # parts of the matching process. Round brackets are the most
 # common and match the largest areas and so are sufficient.
-ansi_dialect.sets("bracket_pairs").update(
+ansi_dialect.bracket_sets("bracket_pairs").update(
     [
         ("round", "StartBracketSegment", "EndBracketSegment", True),
         ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", False),
@@ -2479,9 +2479,25 @@ class LimitClauseSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "LIMIT",
         Indent,
-        Ref("NumericLiteralSegment"),
+        OptionallyBracketed(
+            OneOf(
+                # Allow a number by itself OR
+                Ref("NumericLiteralSegment"),
+                # An arbitrary expression
+                Ref("ExpressionSegment"),
+                "ALL",
+            )
+        ),
         OneOf(
-            Sequence("OFFSET", Ref("NumericLiteralSegment")),
+            Sequence(
+                "OFFSET",
+                OneOf(
+                    # Allow a number by itself OR
+                    Ref("NumericLiteralSegment"),
+                    # An arbitrary expression
+                    Ref("ExpressionSegment"),
+                ),
+            ),
             Sequence(
                 Ref("CommaSegment"),
                 Ref("NumericLiteralSegment"),
@@ -2535,7 +2551,7 @@ class FetchClauseSegment(BaseSegment):
             "FIRST",
             "NEXT",
         ),
-        Ref("NumericLiteralSegment"),
+        Ref("NumericLiteralSegment", optional=True),
         OneOf("ROW", "ROWS"),
         "ONLY",
     )
@@ -4236,7 +4252,7 @@ class PathSegment(BaseSegment):
         Sequence(
             Ref("SlashSegment"),
             Delimited(
-                Ref("CodeSegment"),
+                TypedParser("code", CodeSegment, type="path_segment"),
                 delimiter=Ref("SlashSegment"),
                 allow_gaps=False,
             ),

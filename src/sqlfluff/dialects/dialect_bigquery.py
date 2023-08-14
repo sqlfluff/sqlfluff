@@ -306,7 +306,7 @@ bigquery_dialect.sets("value_table_functions").update(["UNNEST"])
 # pairs that are only available in specific contexts where they are
 # applicable. This limits the scope where BigQuery allows angle brackets,
 # eliminating many potential parsing errors with the "<" and ">" operators.
-bigquery_dialect.sets("angle_bracket_pairs").update(
+bigquery_dialect.bracket_sets("angle_bracket_pairs").update(
     [
         ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
     ]

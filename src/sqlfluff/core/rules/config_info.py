@@ -7,8 +7,9 @@ This mapping is used to validate rule config inputs, as well
 as document rule configuration.
 """
 
-from sqlfluff.core.plugin.host import get_plugin_manager
 from typing import Any, Dict
+
+from sqlfluff.core.plugin.host import get_plugin_manager
 
 STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
     "tab_space_size": {
@@ -212,6 +213,13 @@ STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
     "preferred_type_casting_style": {
         "validation": ["consistent", "shorthand", "convert", "cast"],
         "definition": ("The expectation for using sql type casting"),
+    },
+    "preferred_first_table_in_join_clause": {
+        "validation": ["earlier", "later"],
+        "definition": (
+            "Which table to list first when joining two tables. "
+            "Defaults to ``earlier``."
+        ),
     },
 }
 

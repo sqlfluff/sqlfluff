@@ -215,7 +215,7 @@ sparksql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 sparksql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
 # Set Angle Bracket Pairs
-sparksql_dialect.sets("angle_bracket_pairs").update(
+sparksql_dialect.bracket_sets("angle_bracket_pairs").update(
     [
         ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
     ]

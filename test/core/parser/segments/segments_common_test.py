@@ -1,4 +1,4 @@
-"""The Test file for The New Parser (Marker Classes)."""
+"""Test the KeywordSegment and EphemeralSegment classes."""
 
 import pytest
 
@@ -8,6 +8,7 @@ from sqlfluff.core.parser.segments import EphemeralSegment
 from sqlfluff.core.parser.segments.base import UnparsableSegment
 
 
+# NOTE: For legacy reasons we override this fixture for this module
 @pytest.fixture(scope="module")
 def raw_seg_list(generate_test_segments):
     """A generic list of raw segments to test against."""

@@ -72,8 +72,13 @@ are found then the `exit code`_ will be 0. If violations are found then
 a non-zero code will be returned which can be interrogated to find out
 more.
 
-- At the moment all error states related to linting return *65*.
-- An error as a result of a SQLFluff internal error will return *1*.
+- An error code of ``0`` means *operation success*, *no issues found*.
+- An error code of ``1`` means *operation success*, *issues found*. For
+  example this might mean that a linting issue was found, or that one file
+  could not be parsed.
+- An error code of ``2`` means an error occurred and the operation could
+  not be completed. For example a configuration issue or an internal error
+  within SQLFluff.
 
 .. _`CI/CD`: https://en.wikipedia.org/wiki/Continuous_integration
 .. _`exit code`: https://shapeshed.com/unix-exit-codes/

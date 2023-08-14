@@ -1,0 +1,408 @@
+rule: ST09
+
+test_pass_no_join_clauses:
+  pass_str: select * from foo
+
+test_pass_no_join_on_conditions:
+  pass_str:
+    select
+        foo.a,
+        bar.b
+    from foo
+    left join bar
+        using (a)
+
+test_pass_ignored_subconditions:
+  pass_str:
+    select
+        foo.a,
+        bar.b
+    from foo
+    left join bar
+        on bar.a between foo.a and foo.b
+
+test_pass_unqualified_column_reference:
+  pass_str:
+    select
+        foo.a,
+        bar.b
+    from foo
+    left join bar
+        on bar.b = a
+
+test_pass_earlier_table_first:
+  pass_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    left join bar
+        on foo.a = bar.a
+
+test_pass_later_table_first:
+  pass_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    left join bar
+        on bar.a = foo.a
+
+  configs:
+    rules:
+      structure.join_condition_order:
+        preferred_first_table_in_join_clause: later
+
+test_fail_earlier_table_first:
+  fail_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    left join bar
+        on foo.a = bar.a
+
+  fix_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    left join bar
+        on bar.a = foo.a
+
+  configs:
+    rules:
+      structure.join_condition_order:
+        preferred_first_table_in_join_clause: later
+
+test_fail_later_table_first:
+  fail_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    left join bar
+        on bar.a = foo.a
+
+  fix_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    left join bar
+        on foo.a = bar.a
+
+test_fail_later_table_first_left_outer:
+  fail_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    left outer join bar
+        on bar.a = foo.a
+
+  fix_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    left outer join bar
+        on foo.a = bar.a
+
+test_fail_later_table_first_inner:
+  fail_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    inner join bar
+        on bar.a = foo.a
+
+  fix_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    inner join bar
+        on foo.a = bar.a
+
+test_fail_later_table_first_right:
+  fail_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    right join bar
+        on bar.a = foo.a
+
+  fix_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    right join bar
+        on foo.a = bar.a
+
+test_fail_later_table_first_right_outer:
+  fail_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    right outer join bar
+        on bar.a = foo.a
+
+  fix_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    right outer join bar
+        on foo.a = bar.a
+
+test_fail_later_table_first_full_outer:
+  fail_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    full outer join bar
+        on bar.a = foo.a
+
+  fix_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    full outer join bar
+        on foo.a = bar.a
+
+test_pass_later_table_first_cross:
+  pass_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    cross join bar
+    where bar.a = foo.a
+
+test_fail_later_table_first_multiple_subconditions:
+  fail_str: |
+    select
+        foo.a,
+        foo.b,
+        bar.c
+    from foo
+    left join bar
+        on bar.a = foo.a
+        and bar.b = foo.b
+
+  fix_str: |
+    select
+        foo.a,
+        foo.b,
+        bar.c
+    from foo
+    left join bar
+        on foo.a = bar.a
+        and foo.b = bar.b
+
+test_fail_later_table_first_multiple_comparison_operators:
+  fail_str: |
+    select
+        foo.a,
+        bar.b,
+        baz.c
+    from foo
+    left join bar
+        on bar.a != foo.a
+        and bar.b > foo.b
+        and bar.c <= foo.c
+    left join baz
+        on baz.a <> foo.a
+        and baz.b >= foo.b
+        and baz.c < foo.c
+
+  fix_str: |
+    select
+        foo.a,
+        bar.b,
+        baz.c
+    from foo
+    left join bar
+        on foo.a != bar.a
+        and foo.b < bar.b
+        and foo.c >= bar.c
+    left join baz
+        on foo.a <> baz.a
+        and foo.b <= baz.b
+        and foo.c > baz.c
+
+test_fail_later_table_first_subquery:
+  fail_str: |
+    select
+        foo.a,
+        bar.b
+    from (
+        select
+            baz.a,
+            qux.b
+        from baz
+        left join qux
+            on qux.a = baz.a
+    ) foo
+    left join bar
+        on bar.a = foo.a
+
+  fix_str: |
+    select
+        foo.a,
+        bar.b
+    from (
+        select
+            baz.a,
+            qux.b
+        from baz
+        left join qux
+            on baz.a = qux.a
+    ) foo
+    left join bar
+        on foo.a = bar.a
+
+test_fail_later_table_first_cte:
+  fail_str: |
+    with foo as (
+        select
+            baz.a,
+            qux.b
+        from baz
+        left join qux
+            on qux.a = baz.a
+    )
+    select
+        foo.a,
+        bar.b
+    from foo
+    left join bar
+        on bar.a = foo.a
+
+  fix_str: |
+    with foo as (
+        select
+            baz.a,
+            qux.b
+        from baz
+        left join qux
+            on baz.a = qux.a
+    )
+    select
+        foo.a,
+        bar.b
+    from foo
+    left join bar
+        on foo.a = bar.a
+
+test_fail_later_table_no_join_clause_in_cte:
+  fail_str: |
+    with foo as (
+        select * from bar
+    )
+    select
+        foo.a,
+        baz.b
+    from foo
+    left join baz
+        on baz.a = foo.a
+
+  fix_str: |
+    with foo as (
+        select * from bar
+    )
+    select
+        foo.a,
+        baz.b
+    from foo
+    left join baz
+        on foo.a = baz.a
+
+test_fail_later_table_no_join_clause_in_main_query:
+  fail_str: |
+    with foo as (
+        select
+            bar.b
+        from bar
+        left join baz
+            on baz.a = bar.a
+    )
+    select
+        b
+    from foo
+
+  fix_str: |
+    with foo as (
+        select
+            bar.b
+        from bar
+        left join baz
+            on bar.a = baz.a
+    )
+    select
+        b
+    from foo
+
+test_fail_later_table_first_brackets_after_on:
+  fail_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    left join bar
+        on (bar.a = foo.a)
+
+  fix_str: |
+    select
+        foo.a,
+        bar.b
+    from foo
+    left join bar
+        on (foo.a = bar.a)
+
+test_fail_later_table_first_brackets_after_from:
+  fail_str: |
+    select
+        foo.a,
+        bar.b
+    from
+        (
+            foo
+            left join bar
+                on bar.a = foo.a
+        )
+
+  fix_str: |
+    select
+        foo.a,
+        bar.b
+    from
+        (
+            foo
+            left join bar
+                on foo.a = bar.a
+        )
+
+test_fail_later_table_first_quoted_table_and_column:
+  fail_str: |
+    select
+        "foo"."a",
+        "bar"."b"
+    from "foo"
+    left join "bar"
+        on "bar"."a" = "foo"."a"
+
+  fix_str: |
+    select
+        "foo"."a",
+        "bar"."b"
+    from "foo"
+    left join "bar"
+        on "foo"."a" = "bar"."a"
