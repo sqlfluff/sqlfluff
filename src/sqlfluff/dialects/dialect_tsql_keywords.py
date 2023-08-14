@@ -266,6 +266,7 @@ UNRESERVED_KEYWORDS = [
     "DATE",
     "DATEFIRST",
     "DATEFORMAT",
+    "DAY",
     "DEADLOCK_PRIORITY",
     "DELAY",
     "DELIMITEDTEXT",
@@ -554,5 +555,4 @@ UNRESERVED_KEYWORDS = [
     "XMLSCHEMA",
     "XSINIL",
     "ZONE",
-    "DAY",
 ]
