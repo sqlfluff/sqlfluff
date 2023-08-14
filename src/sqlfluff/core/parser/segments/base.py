@@ -540,7 +540,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         cls, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
     ) -> Tuple[BaseSegment, ...]:
         """Expand the list of child segments using their `parse` methods."""
-        segs: Tuple[BaseSegment, ...] = ()
+        expanded_segments: Tuple[BaseSegment, ...] = ()
 
         # Renders progress bar only for `BaseFileSegments`.
         disable_progress_bar = (
@@ -557,38 +557,26 @@ class BaseSegment(metaclass=SegmentMetaclass):
         )
 
         for stmt in progressbar_segments:
-            try:
-                if not stmt.is_expandable:
-                    parse_context.logger.info(
-                        "[PD:%s] Skipping expansion of %s...",
-                        parse_context.parse_depth,
-                        stmt,
-                    )
-                    segs += (stmt,)
-                    continue
-            except Exception as err:  # pragma: no cover
-                parse_context.logger.error(
-                    "%s has no attribute `is_expandable`. This segment appears poorly "
-                    "constructed.",
+            if not stmt.is_expandable:
+                parse_context.logger.info(
+                    "[PD:%s] Skipping expansion of %s...",
+                    parse_context.parse_depth,
                     stmt,
                 )
-                raise err
-            if not hasattr(stmt, "parse"):  # pragma: no cover
-                raise ValueError(
-                    "{} has no method `parse`. This segment appears poorly "
-                    "constructed.".format(stmt)
-                )
+                expanded_segments += (stmt,)
+                continue
+
             parse_depth_msg = "Parse Depth {}. Expanding: {}: {!r}".format(
                 parse_context.parse_depth,
                 stmt.__class__.__name__,
                 curtail_string(stmt.raw, length=40),
             )
             parse_context.logger.info(frame_msg(parse_depth_msg))
-            segs += stmt.parse(parse_context=parse_context)
+            expanded_segments += stmt.parse(parse_context=parse_context)
 
         # Basic Validation
-        check_still_complete(segments, segs, ())
-        return segs
+        check_still_complete(segments, expanded_segments, ())
+        return expanded_segments
 
     @classmethod
     def _position_segments(
@@ -1284,8 +1272,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """
         # the parse_depth and recurse kwargs control how deep we will recurse for
         # testing.
-        if not self.segments:  # pragma: no cover TODO?
-            # This means we're a root segment, just return an unmutated self
+        if not self.segments:  # pragma: no cover
+            # This means we're a leaf segment, just return an unchanged self.
+            # NOTE: This is uncovered in tests, because typically, the `expand()`
+            # method of the parent will filter out any segments which aren't
+            # expandable.
             return (self,)
 
         # Check the Parse Grammar
