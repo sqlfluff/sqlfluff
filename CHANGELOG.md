@@ -10,11 +10,13 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [2.3.0] - 2023-08-13
+## [2.3.0] - 2023-08-14
 
 ## Highlights
 
-This release brings two new rules and some changes to the CLI:
+This release brings one new dialect, two new rules and some changes to the CLI:
+- We now support the [trino](https://trino.io/) dialect. This is a first version of
+  support, so do post any issues on GitHub in the usual way.
 - `ST09` / `structure.join_condition_order`: Which checks whether tables referenced
   in `JOIN` clauses are referenced in the order of their definition. By default
   this means that in the `ON` clause, the column referencing the table in the
@@ -37,10 +39,14 @@ Along side these more significant changes this also includes:
 - Performance optimisations for `AL04`, `AL05`, `AM04`, `RF01` & `ST05` which
   cumulatively may save up to 30% on the total time spend in the linting phase
   for some projects.
-- Dialect improvements for Oracle.
+- Dialect improvements for Oracle & TSQL.
 
 ## What’s Changed
 
+* Stricter typing in smaller sqlfluff.core.parser [#5088](https://github.com/sqlfluff/sqlfluff/pull/5088) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Preliminary support of Trino dialect [#4913](https://github.com/sqlfluff/sqlfluff/pull/4913) [@efung](https://github.com/efung)
+* Rename ST09 [#5091](https://github.com/sqlfluff/sqlfluff/pull/5091) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* TSQL: Fix Clustered Index asc/desc [#5090](https://github.com/sqlfluff/sqlfluff/pull/5090) [@greg-finley](https://github.com/greg-finley)
 * Parent references and more efficient path_to [#5076](https://github.com/sqlfluff/sqlfluff/pull/5076) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * New Rule: AL08 - column aliases must be unique [#5079](https://github.com/sqlfluff/sqlfluff/pull/5079) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Add support for fetch first row(s) only in Oracle [#5089](https://github.com/sqlfluff/sqlfluff/pull/5089) [@joaostorrer](https://github.com/joaostorrer)
@@ -55,6 +61,7 @@ Along side these more significant changes this also includes:
 
 ## New Contributors
 * [@thibonacci](https://github.com/thibonacci) made their first contribution in [#4974](https://github.com/sqlfluff/sqlfluff/pull/4974)
+* [@efung](https://github.com/efung) made their first contribution in [#4913](https://github.com/sqlfluff/sqlfluff/pull/4913)
 
 ## [2.2.1] - 2023-08-09
 
