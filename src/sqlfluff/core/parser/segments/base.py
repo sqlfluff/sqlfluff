@@ -50,7 +50,7 @@ from sqlfluff.core.templaters.base import TemplatedFile
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.dialects import Dialect
-    from sqlfluff.core.parser.grammar.types import SimpleHintType
+    from sqlfluff.core.parser.types import SimpleHintType
     from sqlfluff.core.parser.segments import RawSegment
     from sqlfluff.core.rules import LintFix
     from sqlfluff.dialects.dialect_ansi import StatementSegment

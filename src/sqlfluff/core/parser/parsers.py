@@ -10,10 +10,10 @@ from uuid import uuid4
 import regex
 
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.grammar.types import SimpleHintType
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import BaseSegment, RawSegment
+from sqlfluff.core.parser.types import SimpleHintType
 
 
 class BaseParser(Matchable):
