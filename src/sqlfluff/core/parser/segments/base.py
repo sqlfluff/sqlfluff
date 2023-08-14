@@ -30,6 +30,7 @@ from typing import (
     Sequence,
     Set,
     Tuple,
+    Type,
     cast,
 )
 from uuid import UUID, uuid4
@@ -199,7 +200,12 @@ class SegmentMetaclass(type):
     based on the defined attributes of specific classes.
     """
 
-    def __new__(mcs, name, bases, class_dict):
+    def __new__(
+        mcs: Type[type],
+        name: str,
+        bases: Tuple[Type["BaseSegment"]],
+        class_dict: Dict[str, Any],
+    ) -> SegmentMetaclass:
         """Generate a new class.
 
         We use the `type` class attribute for the class
@@ -213,15 +219,17 @@ class SegmentMetaclass(type):
         # We do it here so every _definition_ of a segment
         # gets a unique UUID regardless of dialect.
         class_dict["_cache_key"] = uuid4().hex
-        class_obj = super().__new__(mcs, name, bases, class_dict)
+
+        # Populate the `_class_types` property on creation.
         added_type = class_dict.get("type", None)
         class_types = {added_type} if added_type else set()
         for base in bases:
             class_types.update(base._class_types)
-        # NB: We're setting the private value so that some dependent
-        # classes can make their own public property.
-        class_obj._class_types = class_types
-        return class_obj
+        class_dict["_class_types"] = class_types
+
+        return cast(
+            Type["BaseSegment"], type.__new__(mcs, name, bases, class_dict)
+        )
 
 
 class BaseSegment(metaclass=SegmentMetaclass):
