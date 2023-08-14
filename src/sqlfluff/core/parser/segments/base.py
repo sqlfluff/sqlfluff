@@ -13,7 +13,6 @@ from __future__ import annotations
 import logging
 import weakref
 from collections import defaultdict
-from collections.abc import MutableSet
 from copy import copy, deepcopy
 from dataclasses import dataclass, field, replace
 from io import StringIO
@@ -1871,46 +1870,3 @@ class BaseFileSegment(BaseSegment):
         for stmt in self.get_children("statement"):
             references |= stmt.get_table_references()
         return references
-
-
-class IdentitySet(MutableSet):
-    """Similar to built-in set(), but based on object IDENTITY.
-
-    This is often important when working with BaseSegment and other types,
-    where different object instances may compare as equal.
-
-    Copied from: https://stackoverflow.com/questions/16994307/identityset-in-python
-    """
-
-    key = id  # should return a hashable object
-
-    def __init__(self, iterable=()) -> None:
-        self.map: dict = {}  # id -> object
-        self |= iterable  # add elements from iterable to the set (union)
-
-    def __len__(self) -> int:  # Sized
-        return len(self.map)
-
-    def __iter__(self):  # Iterable
-        return self.map.values().__iter__()  # pragma: no cover
-
-    def __contains__(self, x):  # Container
-        return self.key(x) in self.map
-
-    def add(self, value):  # MutableSet
-        """Add an element."""
-        self.map[self.key(value)] = value
-
-    def update(self, value) -> None:
-        """Add elements in 'value'."""
-        for v in value:
-            self.add(v)
-
-    def discard(self, value):  # MutableSet
-        """Remove an element.  Do not raise an exception if absent."""
-        self.map.pop(self.key(value), None)  # pragma: no cover
-
-    def __repr__(self) -> str:  # pragma: no cover
-        if not self:
-            return "%s()" % (self.__class__.__name__,)
-        return "%s(%r)" % (self.__class__.__name__, list(self))

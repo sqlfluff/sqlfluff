@@ -3,7 +3,7 @@
 from typing import Iterator, List, Optional, Set
 
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
-from sqlfluff.core.parser.segments.base import BaseSegment, IdentitySet
+from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import SymbolSegment
 from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
 from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler
@@ -95,15 +95,13 @@ class Rule_RF03(BaseRule):
 
         if not FunctionalContext(context).parent_stack.any(sp.is_type(*_START_TYPES)):
             crawler = SelectCrawler(context.segment, context.dialect)
-            visited: IdentitySet = IdentitySet()
+            visited: Set = set()
             if crawler.query_tree:
                 # Recursively visit and check each query in the tree.
                 return list(self._visit_queries(crawler.query_tree, visited))
         return None
 
-    def _visit_queries(
-        self, query: Query, visited: IdentitySet
-    ) -> Iterator[LintResult]:
+    def _visit_queries(self, query: Query, visited: set) -> Iterator[LintResult]:
         select_info: Optional[SelectStatementColumnsAndTables] = None
         if query.selectables:
             select_info = query.selectables[0].select_info
