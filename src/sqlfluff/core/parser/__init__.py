@@ -15,7 +15,6 @@ from sqlfluff.core.parser.segments import (
     Dedent,
     ImplicitIndent,
     SegmentGenerator,
-    IdentitySet,
 )
 from sqlfluff.core.parser.grammar import (
     Sequence,
@@ -81,5 +80,4 @@ __all__ = (
     "RegexLexer",
     "Parser",
     "Matchable",
-    "IdentitySet",
 )

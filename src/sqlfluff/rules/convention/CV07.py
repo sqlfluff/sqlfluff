@@ -1,8 +1,7 @@
 """Implementation of Rule CV07."""
 from typing import List
 
-from sqlfluff.core.parser.segments.base import IdentitySet
-from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.utils.functional import Segments, sp
 
@@ -106,7 +105,7 @@ class Rule_CV07(BaseRule):
                 .reversed()
             )
             self.logger.debug("Trailing: %s", trailing)
-            lift_nodes = IdentitySet(leading + trailing)
+            lift_nodes = set(leading + trailing)
             fixes = []
             if lift_nodes:
                 fixes.append(LintFix.create_before(parent, list(leading)))

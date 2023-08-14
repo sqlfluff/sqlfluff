@@ -2,10 +2,9 @@
 from typing import List, NamedTuple, Optional, Sequence, cast
 
 from sqlfluff.core.parser import SymbolSegment
-from sqlfluff.core.parser.segments.base import BaseSegment, IdentitySet
+from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import NewlineSegment, RawSegment
-
-from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.utils.functional import Segments, sp
 
@@ -287,9 +286,7 @@ class Rule_CV06(BaseRule):
             parent_segment, "create_after", anchor_segment, filter_meta=True
         )
         lintfix_fn = LintFix.create_after
-        # :TRICKY: Use IdentitySet rather than set() since
-        # different segments may compare as equal.
-        whitespace_deletion_set = IdentitySet(whitespace_deletions)
+        whitespace_deletion_set = set(whitespace_deletions)
         if anchor_segment in whitespace_deletion_set:
             # Can't delete() and create_after() the same segment. Use replace()
             # instead.
