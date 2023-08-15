@@ -212,9 +212,9 @@ class Rule_CV11(BaseRule):
             # be unnecessary.
             if not function_name:  # pragma: no cover
                 return None
-            elif function_name == "CAST":
+            elif function_name.raw_upper == "CAST":
                 current_type_casting_style = "cast"
-            elif function_name == "CONVERT":
+            elif function_name.raw_upper == "CONVERT":
                 current_type_casting_style = "convert"
             else:
                 current_type_casting_style = None

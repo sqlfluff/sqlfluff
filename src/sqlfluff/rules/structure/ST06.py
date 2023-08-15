@@ -138,7 +138,7 @@ class Rule_ST06(BaseRule):
                         try:
                             _function = segment.get_child("function")
                             assert _function
-                            _function_name = segment.get_child("function_name")
+                            _function_name = _function.get_child("function_name")
                             assert _function_name
                             if _function_name.raw == e[1]:
                                 self._validate(i, segment)
