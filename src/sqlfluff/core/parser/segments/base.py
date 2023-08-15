@@ -1294,7 +1294,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return None
 
     def apply_fixes(
-        self, dialect: "Dialect", rule_code: str, fixes: Dict
+        self, dialect: "Dialect", rule_code: str, fixes: Dict[UUID, AnchorEditInfo]
     ) -> Tuple["BaseSegment", List["BaseSegment"], List["BaseSegment"]]:
         """Apply an iterable of fixes to this segment.
 
@@ -1455,7 +1455,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
     @classmethod
     def compute_anchor_edit_info(
         cls, fixes: List["LintFix"]
-    ) -> Dict[int, AnchorEditInfo]:
+    ) -> Dict[UUID, AnchorEditInfo]:
         """Group and count fixes by anchor, return dictionary."""
         anchor_info = defaultdict(AnchorEditInfo)  # type: ignore
         for fix in fixes:
