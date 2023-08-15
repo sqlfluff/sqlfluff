@@ -61,6 +61,9 @@ if TYPE_CHECKING:  # pragma: no cover
 linter_logger = logging.getLogger("sqlfluff.linter")
 
 TupleSerialisedSegment = Tuple[str, Union[str, Tuple["TupleSerialisedSegment", ...]]]
+RecordSerialisedSegment = Dict[
+    str, Union[None, str, "RecordSerialisedSegment", List["RecordSerialisedSegment"]]
+]
 
 
 @dataclass(frozen=True)
@@ -643,26 +646,41 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return False
 
     @classmethod
-    def structural_simplify(cls, elem) -> Optional[dict]:
-        """Simplify the structure recursively so it serializes nicely in json/yaml."""
-        if len(elem) == 0:
-            return None
-        elif isinstance(elem, tuple):
-            # Does this look like an element?
-            if len(elem) == 2 and isinstance(elem[0], str):
-                # This looks like a single element, make a dict
-                elem = {elem[0]: cls.structural_simplify(elem[1])}
-            elif isinstance(elem[0], tuple):
-                # This looks like a list of elements.
-                keys = [e[0] for e in elem]
-                # Any duplicate elements?
-                if len(set(keys)) == len(keys):
-                    # No, we can use a mapping tuple
-                    elem = {e[0]: cls.structural_simplify(e[1]) for e in elem}
-                else:
-                    # Yes, this has to be a list :(
-                    elem = [cls.structural_simplify(e) for e in elem]
-        return elem
+    def structural_simplify(
+        cls, elem: TupleSerialisedSegment
+    ) -> RecordSerialisedSegment:
+        """Simplify the structure recursively so it serializes nicely in json/yaml.
+
+        This is used in the .as_record() method.
+        """
+        assert len(elem) == 2
+        key, value = elem
+        assert isinstance(key, str)
+        if isinstance(value, str):
+            return {key: value}
+        assert isinstance(value, tuple)
+        # If it's an empty tuple return a dict with None.
+        if not value:
+            return {key: None}
+        # Otherwise value is a tuple with length.
+        # Simplify all the child elements
+        contents = [cls.structural_simplify(e) for e in value]
+
+        # Any duplicate elements?
+        subkeys: List[str] = []
+        for _d in contents:
+            subkeys.extend(_d.keys())
+        if len(set(subkeys)) != len(subkeys):
+            # Yes: use a list of single dicts.
+            # Recurse directly.
+            return {key: contents}
+
+        # Otherwise there aren't duplicates, un-nest the list into a dict:
+        content_dict = {}
+        for record in contents:
+            for k, v in record.items():
+                content_dict[k] = v
+        return {key: content_dict}
 
     @classmethod
     @match_wrapper(v_level=4)
@@ -942,7 +960,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             new_seg.segments = tuple(seg.copy() for seg in self.segments)
         return new_seg
 
-    def as_record(self, **kwargs: bool) -> Optional[dict]:
+    def as_record(self, **kwargs: bool) -> Optional[RecordSerialisedSegment]:
         """Return the segment as a structurally simplified record.
 
         This is useful for serialization to yaml or json.

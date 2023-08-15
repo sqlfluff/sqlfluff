@@ -1,10 +1,14 @@
 """Helper classes for applying fixes to segments."""
 
+import logging
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, List, Optional, Tuple
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.rules import LintFix
+
+# Instantiate the linter logger (only for use in methods involved with fixing.)
+linter_logger = logging.getLogger("sqlfluff.linter")
 
 
 @dataclass(frozen=True)
