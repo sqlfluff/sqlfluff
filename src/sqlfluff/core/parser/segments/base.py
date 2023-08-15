@@ -47,15 +47,14 @@ from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments.fix import AnchorEditInfo, FixPatch, SourceFix
+from sqlfluff.core.parser.types import SimpleHintType
 from sqlfluff.core.string_helpers import curtail_string, frame_msg
 from sqlfluff.core.templaters.base import TemplatedFile
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.dialects import Dialect
-    from sqlfluff.core.parser.segments import RawSegment
-    from sqlfluff.core.parser.types import SimpleHintType
+    from sqlfluff.core.parser.segments.raw import RawSegment
     from sqlfluff.core.rules import LintFix
-    from sqlfluff.dialects.dialect_ansi import StatementSegment
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
@@ -440,7 +439,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         # Renders progress bar only for `BaseFileSegments`.
         disable_progress_bar = (
-            not issubclass(cls, BaseFileSegment)
+            not cls.class_is_type("file")
             or progress_bar_configuration.disable_progress_bar
         )
 
@@ -1136,7 +1135,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         if midpoint == self:
             return lower_path
         # Have we gone all the way up to the file segment?
-        elif isinstance(midpoint, BaseFileSegment):
+        elif midpoint.class_is_type("file"):
             return []  # pragma: no cover
         # Are we in the right ballpark?
         # NOTE: Comparisons have a higher precedence than `not`.
@@ -1680,66 +1679,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         raise NotImplementedError()
 
 
-class BracketedSegment(BaseSegment):
-    """A segment containing a bracketed expression."""
-
-    type = "bracketed"
-    additional_kwargs = ["start_bracket", "end_bracket"]
-
-    def __init__(
-        self,
-        *args,
-        # These are tuples of segments but we're expecting them to
-        # be tuples of length 1. This is because we'll almost always
-        # be doing tuple arithmetic with the results and constructing
-        # 1-tuples on the fly is very easy to misread.
-        start_bracket: Tuple[BaseSegment],
-        end_bracket: Tuple[BaseSegment],
-        **kwargs,
-    ):
-        """Stash the bracket segments for later."""
-        if not start_bracket or not end_bracket:  # pragma: no cover
-            raise ValueError(
-                "Attempted to construct Bracketed segment without specifying brackets."
-            )
-        self.start_bracket = start_bracket
-        self.end_bracket = end_bracket
-        super().__init__(*args, **kwargs)
-
-    @classmethod
-    def simple(
-        cls, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
-    ) -> Optional["SimpleHintType"]:
-        """Simple methods for bracketed and the persistent brackets."""
-        start_brackets = [
-            start_bracket
-            for _, start_bracket, _, persistent in parse_context.dialect.bracket_sets(
-                "bracket_pairs"
-            )
-            if persistent
-        ]
-        simple_raws: Set[str] = set()
-        for ref in start_brackets:
-            bracket_simple = parse_context.dialect.ref(ref).simple(
-                parse_context, crumbs=crumbs
-            )
-            assert bracket_simple, "All bracket segments must support simple."
-            assert bracket_simple[0], "All bracket segments must support raw simple."
-            # NOTE: By making this assumption we don't have to handle the "typed"
-            # simple here.
-            simple_raws.update(bracket_simple[0])
-        return frozenset(simple_raws), frozenset()
-
-    @classmethod
-    def match(
-        cls, segments: Tuple["BaseSegment", ...], parse_context: ParseContext
-    ) -> MatchResult:
-        """Only useful as a terminator."""
-        if segments and isinstance(segments[0], cls):
-            return MatchResult((segments[0],), segments[1:])
-        return MatchResult.from_unmatched(segments)
-
-
 class UnparsableSegment(BaseSegment):
     """This is a segment which can't be parsed. It indicates a error during parsing."""
 
@@ -1765,40 +1704,3 @@ class UnparsableSegment(BaseSegment):
         As this is an unparsable, it should yield itself.
         """
         yield self
-
-
-class BaseFileSegment(BaseSegment):
-    """A segment representing a whole file or script.
-
-    This is also the default "root" segment of the dialect,
-    and so is usually instantiated directly. It therefore
-    has no match_grammar.
-    """
-
-    type = "file"
-    # The file segment is the only one which can start or end with non-code
-    can_start_end_non_code = True
-    # A file can be empty!
-    allow_empty = True
-
-    def __init__(
-        self,
-        segments: Tuple[BaseSegment, ...],
-        pos_marker: Optional[PositionMarker] = None,
-        fname: Optional[str] = None,
-    ):
-        self._file_path = fname
-        super().__init__(segments, pos_marker=pos_marker)
-
-    @property
-    def file_path(self) -> Optional[str]:
-        """File path of a parsed SQL file."""
-        return self._file_path
-
-    def get_table_references(self) -> set:
-        """Use parsed tree to extract table references."""
-        references = set()
-        for stmt in self.get_children("statement"):
-            stmt = cast("StatementSegment", stmt)
-            references |= stmt.get_table_references()
-        return references

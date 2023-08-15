@@ -13,7 +13,7 @@ https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
 
 from enum import Enum
-from typing import Generator, List, NamedTuple, Optional, Tuple, Union
+from typing import Generator, List, NamedTuple, Optional, Set, Tuple, Union
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
@@ -3942,7 +3942,7 @@ class StatementSegment(BaseSegment):
         Ref("DropTriggerStatementSegment"),
     )
 
-    def get_table_references(self) -> set:
+    def get_table_references(self) -> Set[str]:
         """Use parsed tree to extract table references."""
         table_refs = {
             tbl_ref.raw for tbl_ref in self.recursive_crawl("table_reference")
