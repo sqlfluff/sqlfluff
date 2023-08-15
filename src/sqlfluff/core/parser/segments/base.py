@@ -1687,9 +1687,9 @@ class UnparsableSegment(BaseSegment):
     comment_separate = True
     _expected = ""
 
-    def __init__(self, *args, expected: str = "", **kwargs) -> None:
+    def __init__(self, segments: Tuple[BaseSegment, ...], expected: str = "") -> None:
         self._expected = expected
-        super().__init__(*args, **kwargs)
+        super().__init__(segments=segments)
 
     def _suffix(self) -> str:
         """Return any extra output required at the end when logging.
