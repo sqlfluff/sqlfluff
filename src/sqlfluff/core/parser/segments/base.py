@@ -13,8 +13,8 @@ from __future__ import annotations
 import logging
 import weakref
 from collections import defaultdict
-from copy import copy, deepcopy
-from dataclasses import dataclass, replace
+from copy import copy
+from dataclasses import dataclass
 from io import StringIO
 from itertools import chain
 from typing import (
@@ -1479,19 +1479,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # in some cases, e.g. adding additional Dedent child
             # segments. Here, we work around this by calling
             # parse() on a "backup copy" of the segment.
-            r_copy = deepcopy(segment)
-            for seg in r_copy.segments:
-                seg.pos_marker = replace(
-                    seg.pos_marker,
-                    templated_file=self.pos_marker.templated_file,
-                )
-            r_copy.parse(ctx)
+            segment_copy = segment.copy()
+            segment_copy.parse(ctx)
         except ValueError:  # pragma: no cover
             self._log_apply_fixes_check_issue(
                 "After %s fixes were applied, segment %r failed the "
                 "parse() check. Fixes: %r",
                 rule_code,
-                r_copy,
+                segment_copy,
                 fixes_applied,
             )
 
