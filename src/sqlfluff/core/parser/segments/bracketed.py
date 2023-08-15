@@ -1,8 +1,10 @@
 """The BracketedSegment."""
 
 from typing import TYPE_CHECKING, Optional, Set, Tuple
+from uuid import UUID
 
 from sqlfluff.core.parser.context import ParseContext
+from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.segments.base import BaseSegment
 
@@ -18,14 +20,15 @@ class BracketedSegment(BaseSegment):
 
     def __init__(
         self,
-        *args,
+        segments: Tuple["BaseSegment", ...],
         # These are tuples of segments but we're expecting them to
         # be tuples of length 1. This is because we'll almost always
         # be doing tuple arithmetic with the results and constructing
         # 1-tuples on the fly is very easy to misread.
         start_bracket: Tuple[BaseSegment],
         end_bracket: Tuple[BaseSegment],
-        **kwargs,
+        pos_marker: Optional[PositionMarker] = None,
+        uuid: Optional[UUID] = None,
     ):
         """Stash the bracket segments for later."""
         if not start_bracket or not end_bracket:  # pragma: no cover
@@ -34,7 +37,7 @@ class BracketedSegment(BaseSegment):
             )
         self.start_bracket = start_bracket
         self.end_bracket = end_bracket
-        super().__init__(*args, **kwargs)
+        super().__init__(segments=segments, pos_marker=pos_marker, uuid=uuid)
 
     @classmethod
     def simple(

@@ -24,6 +24,7 @@ from sqlfluff.core.parser import (
     BaseFileSegment,
     BaseSegment,
     Bracketed,
+    BracketedSegment,
     CodeSegment,
     CommentSegment,
     Conditional,
@@ -51,7 +52,6 @@ from sqlfluff.core.parser import (
     TypedParser,
     WhitespaceSegment,
 )
-from sqlfluff.core.parser.segments.base import BracketedSegment
 from sqlfluff.dialects.dialect_ansi_keywords import (
     ansi_reserved_keywords,
     ansi_unreserved_keywords,
