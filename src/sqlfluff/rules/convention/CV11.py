@@ -220,7 +220,7 @@ class Rule_CV11(BaseRule):
                 current_type_casting_style = None
         elif context.segment.is_type("cast_expression"):
             current_type_casting_style = "shorthand"
-        else:
+        else:  # pragma: no cover
             current_type_casting_style = None
 
         functional_context = FunctionalContext(context)
