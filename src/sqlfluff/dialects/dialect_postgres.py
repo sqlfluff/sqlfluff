@@ -1749,32 +1749,37 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         OneOf(
             # Columns and comment syntax:
             Sequence(
-                Bracketed(
-                    Delimited(
-                        OneOf(
-                            Sequence(
-                                Ref("ColumnReferenceSegment"),
-                                Ref("DatatypeSegment"),
-                                AnyNumberOf(
-                                    # A single COLLATE segment can come before or after
-                                    # constraint segments
-                                    OneOf(
-                                        Ref("ColumnConstraintSegment"),
-                                        Sequence(
-                                            "COLLATE",
-                                            Ref("CollationReferenceSegment"),
+                OneOf(
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Sequence(
+                                    Ref("ColumnReferenceSegment"),
+                                    Ref("DatatypeSegment"),
+                                    AnyNumberOf(
+                                        # A single COLLATE segment can come before or
+                                        # after constraint segments
+                                        OneOf(
+                                            Ref("ColumnConstraintSegment"),
+                                            Sequence(
+                                                "COLLATE",
+                                                Ref("CollationReferenceSegment"),
+                                            ),
                                         ),
                                     ),
                                 ),
+                                Ref("TableConstraintSegment"),
+                                Sequence(
+                                    "LIKE",
+                                    Ref("TableReferenceSegment"),
+                                    AnyNumberOf(
+                                        Ref("LikeOptionSegment"), optional=True
+                                    ),
+                                ),
                             ),
-                            Ref("TableConstraintSegment"),
-                            Sequence(
-                                "LIKE",
-                                Ref("TableReferenceSegment"),
-                                AnyNumberOf(Ref("LikeOptionSegment"), optional=True),
-                            ),
-                        ),
-                    )
+                        )
+                    ),
+                    Bracketed(),  # Sometimes no columns, like if INHERITS
                 ),
                 Sequence(
                     "INHERITS",
