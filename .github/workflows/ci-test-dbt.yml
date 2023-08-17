@@ -61,7 +61,7 @@ jobs:
 
     - name: Strip Dot
       id: stripDot
-      run:
+      run: |
         WITHDOT=${{ inputs.python-version }}
         echo "name=pyVersionNoDot::${WITHDOT//./}" >> $GITHUB_OUTPUT
 
