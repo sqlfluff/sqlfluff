@@ -1,9 +1,9 @@
 """Implementation of Rule AM07."""
-from typing import Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
-from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler, WildcardInfo
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler, WildcardInfo
 
 
 class Rule_AM07(BaseRule):
@@ -85,7 +85,7 @@ class Rule_AM07(BaseRule):
         context: RuleContext,
         query: Query,
         resolve_targets,
-    ):
+    ) -> List[Any]:
         """Attempt to resolve the wildcard to a list of selectables."""
         process_queries = query.selectables
         # if one of the source queries for a query within the set is a
@@ -142,44 +142,46 @@ class Rule_AM07(BaseRule):
         """Given a set expression, get the number of select targets in each query."""
         select_list = None
         select_target_counts = set()
+        assert crawler.query_tree
         set_selectables = crawler.query_tree.selectables
         resolved_wildcard = True
         # for each selectable in the set
         # , add the number of select targets to a set; in the end
         # length of the set should be one (one size)
         for selectable in set_selectables:
-            # if the set query contains a wildcard
-            # , attempt to resolve wildcard to a list of
-            # select targets that can be counted
-            if selectable.get_wildcard_info():
-                # We already stepped up to a WITH statement in the outer _eval
-                # so if we need to use it we already have access to any CTEs
-                # which we might reference.
-                assert crawler.query_tree
-                select_list = self.__resolve_wildcard(
-                    context,
-                    crawler.query_tree,
-                    [],
-                )
+            assert selectable.select_info
+            wildcard_info = selectable.get_wildcard_info()
 
-                # get the number of resolved targets plus the total number of
-                # targets minus the number of wildcards
-                # if all wildcards have been resolved this adds up to the
-                # total number of select targets in the query
-                select_target_counts.add(
-                    len(select_list)
-                    + (
-                        len(selectable.select_info.select_targets)
-                        - len(selectable.get_wildcard_info())
-                    )
-                )
-                for select in select_list:
-                    if isinstance(select, WildcardInfo):
-                        resolved_wildcard = False
-            else:
+            # If there's no wildcard, just count the columns and move on.
+            if not wildcard_info:
                 # if there is no wildcard in the query use the count of select targets
                 select_list = selectable.select_info.select_targets
                 select_target_counts.add(len(select_list))
+                continue
+
+            # If the set query contains a wildcard, attempt to resolve it to a list of
+            # select targets that can be counted.
+
+            # We already stepped up to a WITH statement in the outer _eval
+            # so if we need to use it we already have access to any CTEs
+            # which we might reference.
+            select_list = self.__resolve_wildcard(
+                context,
+                crawler.query_tree,
+                [],
+            )
+
+            # get the number of resolved targets plus the total number of
+            # targets minus the number of wildcards
+            # if all wildcards have been resolved this adds up to the
+            # total number of select targets in the query
+            select_target_counts.add(
+                len(select_list)
+                + (len(selectable.select_info.select_targets) - len(wildcard_info))
+            )
+            for select in select_list:
+                if isinstance(select, WildcardInfo):
+                    resolved_wildcard = False
 
         return (select_target_counts, resolved_wildcard)
 
