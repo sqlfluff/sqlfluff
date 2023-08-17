@@ -1149,17 +1149,17 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 to set this argument where possible, as it can significantly
                 narrow the search pattern.
         """
-        # Check whether the types we're looking for are in this segment
-        # at all. If not, exit early.
-        if not self.descendant_type_set.intersection(*seg_type):
-            return
-
         # Assuming there is a segment to be found, first check self.
         if self.is_type(*seg_type):
             match = True
             yield self
         else:
             match = False
+
+        # Check whether the types we're looking for are in this segment
+        # at all. If not, exit early.
+        if not self.descendant_type_set.intersection(seg_type):
+            return
 
         # Then handle any recursion.
         if recurse_into or not match:
