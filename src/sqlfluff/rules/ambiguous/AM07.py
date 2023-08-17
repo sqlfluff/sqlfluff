@@ -152,19 +152,13 @@ class Rule_AM07(BaseRule):
             # , attempt to resolve wildcard to a list of
             # select targets that can be counted
             if selectable.get_wildcard_info():
-                # to start, get a list of all of the ctes in the parent
-                # stack to check whether they resolve to wildcards
-
-                select_crawler = SelectCrawler(
-                    selectable.selectable,
-                    context.dialect,
-                    parent_stack=context.parent_stack,
-                ).query_tree
-                assert select_crawler
+                # We already stepped up to a WITH statement in the outer _eval
+                # so if we need to use it we already have access to any CTEs
+                # which we might reference.
                 assert crawler.query_tree
                 select_list = self.__resolve_wildcard(
                     context,
-                    select_crawler,
+                    crawler.query_tree,
                     [],
                 )
 
