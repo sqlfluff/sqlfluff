@@ -1,8 +1,6 @@
 """Implementation of Rule ST03."""
-from typing import Iterator
-
 from sqlfluff.core.rules import BaseRule, EvalResultType, LintResult, RuleContext
-from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler
+from sqlfluff.utils.analysis.select_crawler import SelectCrawler
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
