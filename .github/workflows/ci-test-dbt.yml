@@ -70,11 +70,11 @@ jobs:
 
     - name: Run the tests (with coverage)
       if: ${{ inputs.coverage }}
-      run: tox -e ${{ inputs.dbt-version }}-${{ steps.stripDot.outputs.pyVersionNoDot }} -- --cov=sqlfluff_templater_dbt plugins/sqlfluff-templater-dbt
+      run: tox -e ${{ inputs.dbt-version }}-py${{ steps.stripDot.outputs.pyVersionNoDot }} -- --cov=sqlfluff_templater_dbt plugins/sqlfluff-templater-dbt
 
     - name: Run the tests (without coverage)
       if: ${{ !inputs.coverage }}
-      run: tox -e ${{ inputs.dbt-version }} -- plugins/sqlfluff-templater-dbt
+      run: tox -e ${{ inputs.dbt-version }}-py${{ steps.stripDot.outputs.pyVersionNoDot }} -- plugins/sqlfluff-templater-dbt
 
     - name: Coveralls Parallel (coveralls)
       uses: coverallsapp/github-action@master
