@@ -81,7 +81,7 @@ class Rule_RF01(BaseRule):
         "sparksql",
     ]
 
-    def _eval(self, context: RuleContext) -> EvalResultType:
+    def _eval(self, context: RuleContext) -> List[LintResult]:
         # Config type hints
         self.force_enable: bool
 
@@ -89,10 +89,10 @@ class Rule_RF01(BaseRule):
             context.dialect.name in self._dialects_disabled_by_default
             and not self.force_enable
         ):
-            return LintResult()
+            return []
 
         if FunctionalContext(context).parent_stack.any(sp.is_type(*_START_TYPES)):
-            return LintResult()
+            return []
 
         violations: List[LintResult] = []
         dml_target_table: Optional[Tuple[str, ...]] = None
@@ -115,7 +115,7 @@ class Rule_RF01(BaseRule):
             self._analyze_table_references(
                 query, dml_target_table, context.dialect, violations
             )
-        return violations or None
+        return violations
 
     @classmethod
     def _alias_info_as_tuples(cls, alias_info: AliasInfo) -> List[Tuple[str, ...]]:

@@ -1136,7 +1136,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         *seg_type: str,
         recurse_into: bool = True,
         no_recursive_seg_type: Optional[str] = None,
-    ):
+    ) -> Iterator[BaseSegment]:
         """Recursively crawl for segments of a given type.
 
         Args:
@@ -1159,7 +1159,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # Check whether the types we're looking for are in this segment
         # at all. If not, exit early.
         if not self.descendant_type_set.intersection(seg_type):
-            return
+            # Terminate iteration.
+            return None
 
         # Then handle any recursion.
         if recurse_into or not match:
