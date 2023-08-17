@@ -226,6 +226,12 @@ class Query:
 class SelectCrawler:
     """Class for dependency analysis among parts of a query."""
 
+    _acceptable_root_types = (
+        "with_compound_statement",
+        "set_expression",
+        "select_statement",
+    )
+
     def __init__(
         self,
         segment: BaseSegment,
@@ -408,6 +414,17 @@ class SelectCrawler:
                     cte_name_segment_stack.append(path[-1].segments[0])
             elif event == "end":
                 finish_segment()
+
+    @classmethod
+    def from_root(cls, root_segment, dialect: Dialect):
+        """Given a root segment, find the first appropriate selectable and analyse."""
+        selectable = next(
+            root_segment.recursive_crawl(*cls._acceptable_root_types),
+            None,
+        )
+        assert selectable
+        # Analyse the segment.
+        return cls(selectable, dialect)
 
     @classmethod
     def get(cls, query: Query, segment: BaseSegment) -> List[Union[str, "Query"]]:

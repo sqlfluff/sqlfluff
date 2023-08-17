@@ -2,14 +2,7 @@
 import pytest
 
 from sqlfluff.core.linter.linter import Linter
-from sqlfluff.utils.analysis import select_crawler
-
-
-_acceptable_types = (
-    "with_compound_statement",
-    "set_expression",
-    "select_statement",
-)
+from sqlfluff.utils.analysis.select_crawler import SelectCrawler
 
 
 def _parse_and_crawl_outer(sql):
@@ -20,15 +13,10 @@ def _parse_and_crawl_outer(sql):
     """
     linter = Linter(dialect="ansi")
     parsed = linter.parse_string(sql)
-    # Get the first acceptable type in the tree
-    segment = next(
-        parsed.tree.recursive_crawl(*_acceptable_types),
-        None,
-    )
-    assert segment
-    assert segment.is_type(*_acceptable_types)
+    # Create a crawler from the root segment.
+    crawler = SelectCrawler.from_root(parsed.tree, linter.dialect)
     # Analyse the segment.
-    return select_crawler.SelectCrawler(segment, linter.dialect), linter
+    return crawler, linter
 
 
 @pytest.mark.parametrize(
@@ -188,7 +176,7 @@ join (
 ) using (x)
     """
     crawler, linter = _parse_and_crawl_outer(sql)
-    sc = select_crawler.SelectCrawler(
+    sc = SelectCrawler(
         crawler.query_tree.selectables[0]
         .select_info.table_aliases[1]
         .from_expression_element,
@@ -223,7 +211,7 @@ def test_parent_select_crawler():
             "select_statement",
         )
     )
-    crawler = select_crawler.SelectCrawler(
+    crawler = SelectCrawler(
         segments[-1],
         linter.dialect,
         parent_stack=segments[: len(segments) - 1],
