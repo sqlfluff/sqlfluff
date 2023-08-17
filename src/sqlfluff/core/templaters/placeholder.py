@@ -153,14 +153,7 @@ class PlaceholderTemplater(RawTemplater):
             else:
                 param_name = found_param["param_name"]
             last_literal_length = span[0] - last_pos_raw
-            try:
-                replacement = str(context[param_name])
-            except KeyError as err:
-                # TODO: Add a url here so people can get more help.
-                raise SQLTemplaterError(
-                    "Failure in placeholder templating: {}. Have you configured your "
-                    "variables?".format(err)
-                )
+            replacement = str(context.get(param_name, ""))
             # add the literal to the slices
             template_slices.append(
                 TemplatedFileSlice(
