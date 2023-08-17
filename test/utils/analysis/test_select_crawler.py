@@ -5,6 +5,32 @@ from sqlfluff.core.linter.linter import Linter
 from sqlfluff.utils.analysis import select_crawler
 
 
+_acceptable_types = (
+    "with_compound_statement",
+    "set_expression",
+    "select_statement",
+)
+
+
+def _parse_and_crawl_outer(sql):
+    """Helper function for select crawlers.
+
+    Given a SQL statement this crawls the SQL and instantiates
+    a SelectCrawler on the outer relevant segment.
+    """
+    linter = Linter(dialect="ansi")
+    parsed = linter.parse_string(sql)
+    # Get the first acceptable type in the tree
+    segment = next(
+        parsed.tree.recursive_crawl(*_acceptable_types),
+        None,
+    )
+    assert segment
+    assert segment.is_type(*_acceptable_types)
+    # Analyse the segment.
+    return select_crawler.SelectCrawler(segment, linter.dialect), linter
+
+
 @pytest.mark.parametrize(
     "sql, expected_json",
     [
@@ -139,17 +165,7 @@ join prep_1 using (x)
 )
 def test_select_crawler_constructor(sql, expected_json):
     """Test SelectCrawler when created using constructor."""
-    linter = Linter(dialect="ansi")
-    parsed = linter.parse_string(sql)
-    segments = list(
-        parsed.tree.recursive_crawl(
-            "with_compound_statement",
-            "set_expression",
-            "select_statement",
-        )
-    )
-    segment = segments[0]
-    crawler = select_crawler.SelectCrawler(segment, linter.dialect)
+    crawler, _ = _parse_and_crawl_outer(sql)
     assert all(
         cte.cte_definition_segment is not None
         for cte in crawler.query_tree.ctes.values()
@@ -171,17 +187,7 @@ join (
     select * from d
 ) using (x)
     """
-    linter = Linter(dialect="ansi")
-    parsed = linter.parse_string(sql)
-    segments = list(
-        parsed.tree.recursive_crawl(
-            "with_compound_statement",
-            "set_expression",
-            "select_statement",
-        )
-    )
-    segment = segments[0]
-    crawler = select_crawler.SelectCrawler(segment, linter.dialect)
+    crawler, linter = _parse_and_crawl_outer(sql)
     sc = select_crawler.SelectCrawler(
         crawler.query_tree.selectables[0]
         .select_info.table_aliases[1]
