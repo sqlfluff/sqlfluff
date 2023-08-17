@@ -12,7 +12,6 @@ from sqlfluff.core.rules import (
     BaseRule,
     LintResult,
     RuleContext,
-    EvalResultType,
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import sp, FunctionalContext
