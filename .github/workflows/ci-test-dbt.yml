@@ -61,7 +61,7 @@ jobs:
 
     - name: Strip Dot
       id: stripDot
-      run: echo "::set-output name=pyVersionNoDot::${${{ inputs.python-version }}#\.}"
+      run: echo "::set-output name=pyVersionNoDot::${${{ inputs.python-version }}#.}"
 
     - name: Install dependencies
       run: pip install tox
