@@ -532,15 +532,17 @@ def _create_table_ref(table_name: str, dialect: Dialect) -> TableExpressionSegme
 
 def _get_case_preference(root_select: Segments):
     # First get the segment itself so we have access to the generator
-    _root_segment = root_select.get()
+    root_segment = root_select.get()
+    assert root_segment, "Root SELECT not found."
     # Get the first item of the recursive crawl.
     first_keyword = next(
-        _root_segment.recursive_crawl(
+        root_segment.recursive_crawl(
             "keyword",
             recurse_into=False,
         ),
         None,
     )
+    assert first_keyword, "Keyword not found."
     # Get case preference based on the case of that keyword.
     if first_keyword.raw.islower():
         return "LOWER"
