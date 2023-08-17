@@ -881,9 +881,9 @@ These can be configured by setting `param_style` to the names above:
     param_style = colon
     my_name = 'john'
 
-then it is necessary to set sample values for each parameter, like `my_name`
+then you can set sample values for each parameter, like `my_name`
 above. Notice that the value needs to be escaped as it will be replaced as a
-string during parsing.
+string during parsing. (templater will use blank string by default)
 
 When parameters are positional, like `question_mark`, then their name is
 simply the order in which they appear, starting with `1`.
