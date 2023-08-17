@@ -91,30 +91,30 @@ class Rule_RF01(BaseRule):
         ):
             return LintResult()
 
-        violations: List[LintResult] = []
-        if not FunctionalContext(context).parent_stack.any(sp.is_type(*_START_TYPES)):
-            dml_target_table: Optional[Tuple[str, ...]] = None
-            self.logger.debug("Trigger on: %s", context.segment)
-            if not context.segment.is_type("select_statement"):
-                # Extract first table reference. This will be the target
-                # table in a DML statement.
-                table_reference = next(
-                    context.segment.recursive_crawl("table_reference"), None
-                )
-                if table_reference:
-                    dml_target_table = self._table_ref_as_tuple(table_reference)
+        if FunctionalContext(context).parent_stack.any(sp.is_type(*_START_TYPES)):
+            return LintResult()
 
-            self.logger.debug("DML Reference Table: %s", dml_target_table)
-            # Verify table references in any SELECT statements found in or
-            # below context.segment in the parser tree.
-            crawler = SelectCrawler(
-                context.segment, context.dialect, query_class=RF01Query
+        violations: List[LintResult] = []
+        dml_target_table: Optional[Tuple[str, ...]] = None
+        self.logger.debug("Trigger on: %s", context.segment)
+        if not context.segment.is_type("select_statement"):
+            # Extract first table reference. This will be the target
+            # table in a DML statement.
+            table_reference = next(
+                context.segment.recursive_crawl("table_reference"), None
             )
-            query: RF01Query = cast(RF01Query, crawler.query_tree)
-            if query:
-                self._analyze_table_references(
-                    query, dml_target_table, context.dialect, violations
-                )
+            if table_reference:
+                dml_target_table = self._table_ref_as_tuple(table_reference)
+
+        self.logger.debug("DML Reference Table: %s", dml_target_table)
+        # Verify table references in any SELECT statements found in or
+        # below context.segment in the parser tree.
+        crawler = SelectCrawler(context.segment, context.dialect, query_class=RF01Query)
+        query: RF01Query = cast(RF01Query, crawler.query_tree)
+        if query:
+            self._analyze_table_references(
+                query, dml_target_table, context.dialect, violations
+            )
         return violations or None
 
     @classmethod
