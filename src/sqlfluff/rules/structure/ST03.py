@@ -46,7 +46,7 @@ class Rule_ST03(BaseRule):
     name = "structure.unused_cte"
     aliases = ("L045",)
     groups = ("all", "core", "structure")
-    crawl_behaviour = SegmentSeekerCrawler({"statement"})
+    crawl_behaviour = SegmentSeekerCrawler({"with_compound_statement"})
 
     @classmethod
     def _find_all_ctes(cls, query: Query) -> Iterator[Query]:
@@ -66,7 +66,7 @@ class Rule_ST03(BaseRule):
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         result = []
-        crawler = SelectCrawler(context.segment, context.dialect)
+        crawler = SelectCrawler.from_root(context.segment, context.dialect)
         if crawler.query_tree:
             # Begin analysis at the final, outer query (key=None).
             queries_with_ctes = list(self._find_all_ctes(crawler.query_tree))
