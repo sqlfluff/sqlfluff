@@ -56,10 +56,10 @@ class Rule_AM07(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"set_expression"}, provide_raw_stack=True)
 
     def __handle_alias_case(
-        self, parent_query, alias_info, query, context, resolve_targets, wildcard
+        self, alias_info, query, context, resolve_targets, wildcard
     ) -> None:
         select_info_target = SelectCrawler.get(
-            parent_query, alias_info.from_expression_element
+            query, alias_info.from_expression_element
         )[0]
         if isinstance(select_info_target, str):
             cte = query.lookup_cte(select_info_target)
@@ -67,7 +67,6 @@ class Rule_AM07(BaseRule):
                 self.__resolve_wildcard(
                     context,
                     cte,
-                    parent_query,
                     resolve_targets,
                 )
             else:
@@ -78,7 +77,6 @@ class Rule_AM07(BaseRule):
             self.__resolve_wildcard(
                 context,
                 select_info_target,
-                parent_query,
                 resolve_targets,
             )
 
@@ -86,7 +84,6 @@ class Rule_AM07(BaseRule):
         self,
         context: RuleContext,
         query: Query,
-        parent_query: Query,
         resolve_targets,
     ):
         """Attempt to resolve the wildcard to a list of selectables."""
@@ -108,7 +105,6 @@ class Rule_AM07(BaseRule):
                             # attempt to resolve alias or table name to a cte;
                             if alias_info:
                                 self.__handle_alias_case(
-                                    parent_query,
                                     alias_info,
                                     query,
                                     context,
@@ -121,7 +117,6 @@ class Rule_AM07(BaseRule):
                                     self.__resolve_wildcard(
                                         context,
                                         cte,
-                                        parent_query,
                                         resolve_targets,
                                     )
                                 else:
@@ -133,9 +128,7 @@ class Rule_AM07(BaseRule):
                         )
                         for o in query_list:
                             if isinstance(o, Query):
-                                self.__resolve_wildcard(
-                                    context, o, parent_query, resolve_targets
-                                )
+                                self.__resolve_wildcard(context, o, resolve_targets)
                                 return resolve_targets
             else:
                 assert selectable.select_info
@@ -145,13 +138,12 @@ class Rule_AM07(BaseRule):
 
         return resolve_targets
 
-    def _get_select_target_counts(self, context: RuleContext, crawler):
+    def _get_select_target_counts(self, context: RuleContext, crawler: SelectCrawler):
         """Given a set expression, get the number of select targets in each query."""
         select_list = None
         select_target_counts = set()
         set_selectables = crawler.query_tree.selectables
         resolved_wildcard = True
-        parent_crawler = SelectCrawler(context.parent_stack[0], context.dialect)
         # for each selectable in the set
         # , add the number of select targets to a set; in the end
         # length of the set should be one (one size)
@@ -169,11 +161,10 @@ class Rule_AM07(BaseRule):
                     parent_stack=context.parent_stack,
                 ).query_tree
                 assert select_crawler
-                assert parent_crawler.query_tree
+                assert crawler.query_tree
                 select_list = self.__resolve_wildcard(
                     context,
                     select_crawler,
-                    parent_crawler.query_tree,
                     [],
                 )
 
@@ -201,11 +192,20 @@ class Rule_AM07(BaseRule):
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """All queries in set expression should return the same number of columns."""
         assert context.segment.is_type("set_expression")
+        root = context.segment
+
+        # Is the parent of the set expression a WITH expression?
+        # NOTE: Backward slice to work outward.
+        for parent in context.parent_stack[::-1]:
+            if parent.is_type("with_compound_statement"):
+                root = parent
+                break
+
+        # Crawl the root.
         crawler = SelectCrawler(
-            context.segment,
+            root,
             context.dialect,
             parent=None,
-            parent_stack=context.parent_stack,
         )
 
         set_segment_select_sizes, resolve_wildcard = self._get_select_target_counts(
