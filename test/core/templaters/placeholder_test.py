@@ -305,6 +305,12 @@ def test__templater_raw():
                 "env_name": "staging",
             },
         ),
+        (
+            "SELECT metadata$filename, $1 FROM @stg_data_export_${env_name};",
+            "flyway_var",
+            "SELECT metadata$filename, $1 FROM @stg_data_export_;",
+            {},
+        ),
     ],
     ids=[
         "no_changes",
@@ -324,6 +330,7 @@ def test__templater_raw():
         "ampersand",
         "flyway_var",
         "flyway_var",
+        "params_not_specified"
     ],
 )
 def test__templater_param_style(instr, expected_outstr, param_style, values):
@@ -346,16 +353,6 @@ def test__templater_custom_regex():
         config=FluffConfig(overrides={"dialect": "ansi"}),
     )
     assert str(outstr) == "SELECT bla FROM blob WHERE id = john"
-
-
-def test__templater_exception():
-    """Test the exception raised when variables are missing."""
-    t = PlaceholderTemplater(override_context=dict(name="'john'", param_style="colon"))
-    instr = "SELECT name FROM table WHERE user_id = :user_id"
-    with pytest.raises(
-        SQLTemplaterError, match=r"Failure in placeholder templating: 'user_id'"
-    ):
-        t.process(in_str=instr, fname="test")
 
 
 def test__templater_setup():
