@@ -1136,7 +1136,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         *seg_type: str,
         recurse_into: bool = True,
         no_recursive_seg_type: Optional[str] = None,
-    ) -> Iterator[BaseSegment]:
+    ):
         """Recursively crawl for segments of a given type.
 
         Args:
