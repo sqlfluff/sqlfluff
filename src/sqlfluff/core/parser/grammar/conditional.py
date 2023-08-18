@@ -1,11 +1,12 @@
 """Conditional Grammar."""
 
-from typing import Type
+from typing import Tuple, Type, Union
 
+from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import BaseGrammar
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
-from sqlfluff.core.parser.segments import Indent
+from sqlfluff.core.parser.segments import BaseSegment, Indent
 
 
 class Conditional(BaseGrammar):
@@ -40,7 +41,12 @@ class Conditional(BaseGrammar):
     | "indentation" keys are currently set up.
     """
 
-    def __init__(self, meta: Type[Indent], config_type: str = "indentation", **rules):
+    def __init__(
+        self,
+        meta: Type[Indent],
+        config_type: str = "indentation",
+        **rules: Union[str, bool]
+    ):
         assert issubclass(
             meta, Indent
         ), "Conditional is only designed to work with Indent/Dedent segments."
@@ -57,7 +63,7 @@ class Conditional(BaseGrammar):
         self._config_rules = rules
         super().__init__()
 
-    def is_enabled(self, parse_context) -> bool:
+    def is_enabled(self, parse_context: ParseContext) -> bool:
         """Evaluate conditionals and return whether enabled."""
         # NOTE: Because only "indentation" is the only current config_type
         # supported, this code is much simpler that would be required in
@@ -77,7 +83,9 @@ class Conditional(BaseGrammar):
         return True
 
     @match_wrapper()
-    def match(self, segments, parse_context) -> MatchResult:
+    def match(
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> MatchResult:
         """Evaluate conditionals and return content."""
         if not self.is_enabled(parse_context):  # pragma: no cover TODO?
             return MatchResult.from_unmatched(segments)
