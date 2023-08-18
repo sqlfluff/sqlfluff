@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Iterable,
     List,
     Optional,
@@ -17,7 +18,7 @@ from typing import (
     cast,
     overload,
 )
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.parser.context import ParseContext
@@ -80,7 +81,7 @@ class BracketInfo:
         )
 
 
-def cached_method_for_parse_context(func):
+def cached_method_for_parse_context(func: Callable[..., SimpleHintType]):
     """A decorator to cache the output of this method for a given parse context.
 
     This cache automatically invalidates if the uuid
@@ -90,19 +91,28 @@ def cached_method_for_parse_context(func):
     """
     cache_key = "__cache_" + func.__name__
 
-    def wrapped_method(self, parse_context: ParseContext, **kwargs):
+    def wrapped_method(
+        self: Any, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
+    ) -> SimpleHintType:
         """Cache the output of the method against a given parse context.
 
         Note: kwargs are not taken into account in the caching, but
         for the current use case of dependency loop debugging that's
         ok.
         """
-        cache_tuple: tuple = self.__dict__.get(cache_key, (None, None))
-        # Do we currently have a cached value?
-        if cache_tuple[0] == parse_context.uuid:
-            return cache_tuple[1]
-        # Generate a new value, cache it and return
-        result = func(self, parse_context=parse_context, **kwargs)
+        try:
+            cache_tuple: Tuple[UUID, SimpleHintType] = self.__dict__[cache_key]
+            # Is the value for the current context?
+            if cache_tuple[0] == parse_context.uuid:
+                # If so return it.
+                return cache_tuple[1]
+        except KeyError:
+            # Failed to find an item in the cache.
+            pass
+
+        # If we're here, we either didn't find a match in the cache or it
+        # wasn't valid. Generate a new value, cache it and return
+        result = func(self, parse_context=parse_context, crumbs=crumbs)
         self.__dict__[cache_key] = (parse_context.uuid, result)
         return result
 
