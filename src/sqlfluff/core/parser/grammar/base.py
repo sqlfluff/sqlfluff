@@ -81,7 +81,9 @@ class BracketInfo:
         )
 
 
-def cached_method_for_parse_context(func: Callable[..., SimpleHintType]):
+def cached_method_for_parse_context(
+    func: Callable[[Any, ParseContext, Optional[Tuple[str]]], SimpleHintType]
+) -> Callable[..., SimpleHintType]:
     """A decorator to cache the output of this method for a given parse context.
 
     This cache automatically invalidates if the uuid
@@ -112,7 +114,7 @@ def cached_method_for_parse_context(func: Callable[..., SimpleHintType]):
 
         # If we're here, we either didn't find a match in the cache or it
         # wasn't valid. Generate a new value, cache it and return
-        result = func(self, parse_context=parse_context, crumbs=crumbs)
+        result = func(self, parse_context, crumbs)
         self.__dict__[cache_key] = (parse_context.uuid, result)
         return result
 
