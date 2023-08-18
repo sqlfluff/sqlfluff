@@ -1,8 +1,11 @@
 """Basic code analysis tools for SELECT statements."""
-from typing import List, NamedTuple, Optional
+from typing import List, NamedTuple, Optional, cast
 
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
+from sqlfluff.dialects.dialect_ansi import (
+    ObjectReferenceSegment,
+    SelectClauseElementSegment,
+)
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment
 
@@ -14,9 +17,18 @@ class SelectStatementColumnsAndTables(NamedTuple):
     table_aliases: List[AliasInfo]
     standalone_aliases: List[str]  # value table function aliases
     reference_buffer: List[ObjectReferenceSegment]
-    select_targets: List[BaseSegment]
+    select_targets: List[SelectClauseElementSegment]
     col_aliases: List[ColumnAliasInfo]
     using_cols: List[str]
+
+
+def _get_object_references(segment: BaseSegment) -> List[ObjectReferenceSegment]:
+    return list(
+        cast(ObjectReferenceSegment, _seg)
+        for _seg in segment.recursive_crawl(
+            "object_reference", no_recursive_seg_type="select_statement"
+        )
+    )
 
 
 def get_select_statement_info(
@@ -36,9 +48,7 @@ def get_select_statement_info(
         return None
     # NOTE: In this first crawl, don't crawl inside any sub-selects, that's very
     # important for both isolation and performance reasons.
-    reference_buffer = list(
-        sc.recursive_crawl("object_reference", no_recursive_seg_type="select_statement")
-    )
+    reference_buffer = _get_object_references(sc)
     for potential_clause in (
         "where_clause",
         "groupby_clause",
@@ -48,19 +58,19 @@ def get_select_statement_info(
     ):
         clause = segment.get_child(potential_clause)
         if clause:
-            reference_buffer += list(
-                clause.recursive_crawl(
-                    "object_reference", no_recursive_seg_type="select_statement"
-                )
-            )
+            reference_buffer += _get_object_references(clause)
 
     # Get all select targets.
-    select_targets = segment.get_child("select_clause").get_children(
-        "select_clause_element"
+    _select_clause = segment.get_child("select_clause")
+    assert _select_clause, "Select statement found without select clause."
+    select_targets = cast(
+        List[SelectClauseElementSegment],
+        _select_clause.get_children("select_clause_element"),
     )
 
-    # Get all column aliases
-    col_aliases = [s.get_alias() for s in select_targets if s.get_alias() is not None]
+    # Get all column aliases. NOTE: In two steps so mypy can follow.
+    _pre_aliases = [s.get_alias() for s in select_targets]
+    col_aliases = [_alias for _alias in _pre_aliases if _alias is not None]
 
     # Get any columns referred to in a using clause, and extract anything
     # from ON clauses.
@@ -78,12 +88,7 @@ def get_select_statement_info(
                     for on_seg in seg.segments:
                         if on_seg.is_type("bracketed", "expression"):
                             # Deal with expressions
-                            reference_buffer += list(
-                                seg.recursive_crawl(
-                                    "object_reference",
-                                    no_recursive_seg_type="select_statement",
-                                )
-                            )
+                            reference_buffer += _get_object_references(seg)
                 elif seen_using and seg.is_type("bracketed"):
                     for subseg in seg.segments:
                         if subseg.is_type("identifier"):
@@ -200,13 +205,14 @@ def _get_lambda_argument_columns(
             assert len(argument_segments) == 1
             child_segment = argument_segments[0]
 
-            if (
-                child_segment.is_type("bracketed")
-                and child_segment.get_child("start_bracket").raw == "("
-            ):
-                bracketed_arguments = child_segment.get_children("column_reference")
-                raw_arguments = [argument.raw for argument in bracketed_arguments]
-                lambda_argument_columns += raw_arguments
+            if child_segment.is_type("bracketed"):
+                start_bracket = child_segment.get_child("start_bracket")
+                # There will be a start bracket if it's bracketed.
+                assert start_bracket
+                if start_bracket.raw == "(":
+                    bracketed_arguments = child_segment.get_children("column_reference")
+                    raw_arguments = [argument.raw for argument in bracketed_arguments]
+                    lambda_argument_columns += raw_arguments
 
             elif child_segment.is_type("column_reference"):
                 lambda_argument_columns.append(child_segment.raw)

@@ -42,6 +42,92 @@ def test__parser__base_segments_direct_descendant_type_set(
     assert test_seg.direct_descendant_type_set == {"base", "dummy_aux"}
 
 
+def test__parser__base_segments_to_tuple_a(raw_seg_list, DummySegment, DummyAuxSegment):
+    """Test the .to_tuple() method."""
+    test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
+    assert test_seg.to_tuple() == (
+        "dummy",
+        (("dummy_aux", (("raw", ()), ("raw", ()))),),
+    )
+
+
+def test__parser__base_segments_to_tuple_b(raw_seg_list, DummySegment, DummyAuxSegment):
+    """Test the .to_tuple() method."""
+    test_seg = DummySegment(
+        [DummyAuxSegment(raw_seg_list + (DummyAuxSegment(raw_seg_list[:1]),))]
+    )
+    assert test_seg.to_tuple() == (
+        "dummy",
+        (("dummy_aux", (("raw", ()), ("raw", ()), ("dummy_aux", (("raw", ()),)))),),
+    )
+
+
+def test__parser__base_segments_to_tuple_c(raw_seg_list, DummySegment, DummyAuxSegment):
+    """Test the .to_tuple() method with show_raw=True."""
+    test_seg = DummySegment(
+        [DummyAuxSegment(raw_seg_list + (DummyAuxSegment(raw_seg_list[:1]),))]
+    )
+    assert test_seg.to_tuple(show_raw=True) == (
+        "dummy",
+        (
+            (
+                "dummy_aux",
+                (
+                    ("raw", "foobar"),
+                    ("raw", ".barfoo"),
+                    ("dummy_aux", (("raw", "foobar"),)),
+                ),
+            ),
+        ),
+    )
+
+
+def test__parser__base_segments_as_record_a(
+    raw_seg_list, DummySegment, DummyAuxSegment
+):
+    """Test the .as_record() method.
+
+    NOTE: In this test, note that there are lists, as some segment types
+    are duplicated within their parent segment.
+    """
+    test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
+    assert test_seg.as_record() == {
+        "dummy": {"dummy_aux": [{"raw": None}, {"raw": None}]}
+    }
+
+
+def test__parser__base_segments_as_record_b(
+    raw_seg_list, DummySegment, DummyAuxSegment
+):
+    """Test the .as_record() method.
+
+    NOTE: In this test, note that there are no lists, every segment type
+    is unique within it's parent segment, and so there is no need.
+    """
+    test_seg = DummySegment(
+        [DummyAuxSegment(raw_seg_list[:1] + (DummyAuxSegment(raw_seg_list[:1]),))]
+    )
+    assert test_seg.as_record() == {
+        "dummy": {"dummy_aux": {"raw": None, "dummy_aux": {"raw": None}}}
+    }
+
+
+def test__parser__base_segments_as_record_c(
+    raw_seg_list, DummySegment, DummyAuxSegment
+):
+    """Test the .as_record() method with show_raw=True.
+
+    NOTE: In this test, note that there are no lists, every segment type
+    is unique within it's parent segment, and so there is no need.
+    """
+    test_seg = DummySegment(
+        [DummyAuxSegment(raw_seg_list[:1] + (DummyAuxSegment(raw_seg_list[:1]),))]
+    )
+    assert test_seg.as_record(show_raw=True) == {
+        "dummy": {"dummy_aux": {"raw": "foobar", "dummy_aux": {"raw": "foobar"}}}
+    }
+
+
 def test__parser__base_segments_count_segments(
     raw_seg_list, DummySegment, DummyAuxSegment
 ):

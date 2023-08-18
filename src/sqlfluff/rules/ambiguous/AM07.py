@@ -1,9 +1,9 @@
 """Implementation of Rule AM07."""
-from typing import Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
-from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler, WildcardInfo
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler, WildcardInfo
 
 
 class Rule_AM07(BaseRule):
@@ -56,18 +56,20 @@ class Rule_AM07(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"set_expression"}, provide_raw_stack=True)
 
     def __handle_alias_case(
-        self, parent_query, alias_info, query, context, resolve_targets, wildcard
+        self, alias_info, query, context, resolve_targets, wildcard
     ) -> None:
         select_info_target = SelectCrawler.get(
-            parent_query, alias_info.from_expression_element
+            query, alias_info.from_expression_element
         )[0]
         if isinstance(select_info_target, str):
             cte = query.lookup_cte(select_info_target)
-            if cte:
+            if cte:  # pragma: no cover.
+                # TODO: This clause isn't covered in the tests. Without better
+                # documentation I can't remove it yet because I dont' understand
+                # what it's trying to do.
                 self.__resolve_wildcard(
                     context,
                     cte,
-                    parent_query,
                     resolve_targets,
                 )
             else:
@@ -78,7 +80,6 @@ class Rule_AM07(BaseRule):
             self.__resolve_wildcard(
                 context,
                 select_info_target,
-                parent_query,
                 resolve_targets,
             )
 
@@ -86,9 +87,8 @@ class Rule_AM07(BaseRule):
         self,
         context: RuleContext,
         query: Query,
-        parent_query: Query,
         resolve_targets,
-    ):
+    ) -> List[Any]:
         """Attempt to resolve the wildcard to a list of selectables."""
         process_queries = query.selectables
         # if one of the source queries for a query within the set is a
@@ -104,11 +104,13 @@ class Rule_AM07(BaseRule):
                 for wildcard in selectable.get_wildcard_info():
                     if wildcard.tables:
                         for wildcard_table in wildcard.tables:
+                            # Get the AliasInfo for the table referenced in the wildcard
+                            # expression.
                             alias_info = selectable.find_alias(wildcard_table)
-                            # attempt to resolve alias or table name to a cte;
+                            # attempt to resolve alias or table name to a cte
                             if alias_info:
+                                # NOTE: This mutates resolve_targets
                                 self.__handle_alias_case(
-                                    parent_query,
                                     alias_info,
                                     query,
                                     context,
@@ -121,7 +123,6 @@ class Rule_AM07(BaseRule):
                                     self.__resolve_wildcard(
                                         context,
                                         cte,
-                                        parent_query,
                                         resolve_targets,
                                     )
                                 else:
@@ -133,9 +134,7 @@ class Rule_AM07(BaseRule):
                         )
                         for o in query_list:
                             if isinstance(o, Query):
-                                self.__resolve_wildcard(
-                                    context, o, parent_query, resolve_targets
-                                )
+                                self.__resolve_wildcard(context, o, resolve_targets)
                                 return resolve_targets
             else:
                 assert selectable.select_info
@@ -145,67 +144,66 @@ class Rule_AM07(BaseRule):
 
         return resolve_targets
 
-    def _get_select_target_counts(self, context: RuleContext, crawler):
+    def _get_select_target_counts(self, context: RuleContext, crawler: SelectCrawler):
         """Given a set expression, get the number of select targets in each query."""
         select_list = None
         select_target_counts = set()
+        assert crawler.query_tree
         set_selectables = crawler.query_tree.selectables
         resolved_wildcard = True
-        parent_crawler = SelectCrawler(context.parent_stack[0], context.dialect)
         # for each selectable in the set
         # , add the number of select targets to a set; in the end
         # length of the set should be one (one size)
         for selectable in set_selectables:
-            # if the set query contains a wildcard
-            # , attempt to resolve wildcard to a list of
-            # select targets that can be counted
-            if selectable.get_wildcard_info():
-                # to start, get a list of all of the ctes in the parent
-                # stack to check whether they resolve to wildcards
+            assert selectable.select_info
+            wildcard_info = selectable.get_wildcard_info()
 
-                select_crawler = SelectCrawler(
-                    selectable.selectable,
-                    context.dialect,
-                    parent_stack=context.parent_stack,
-                ).query_tree
-                assert select_crawler
-                assert parent_crawler.query_tree
-                select_list = self.__resolve_wildcard(
-                    context,
-                    select_crawler,
-                    parent_crawler.query_tree,
-                    [],
-                )
-
-                # get the number of resolved targets plus the total number of
-                # targets minus the number of wildcards
-                # if all wildcards have been resolved this adds up to the
-                # total number of select targets in the query
-                select_target_counts.add(
-                    len(select_list)
-                    + (
-                        len(selectable.select_info.select_targets)
-                        - len(selectable.get_wildcard_info())
-                    )
-                )
-                for select in select_list:
-                    if isinstance(select, WildcardInfo):
-                        resolved_wildcard = False
-            else:
+            # If there's no wildcard, just count the columns and move on.
+            if not wildcard_info:
                 # if there is no wildcard in the query use the count of select targets
                 select_list = selectable.select_info.select_targets
                 select_target_counts.add(len(select_list))
+                continue
+
+            # If the set query contains a wildcard, attempt to resolve it to a list of
+            # select targets that can be counted.
+            select_list = self.__resolve_wildcard(
+                context,
+                crawler.query_tree,
+                [],
+            )
+
+            # get the number of resolved targets plus the total number of
+            # targets minus the number of wildcards
+            # if all wildcards have been resolved this adds up to the
+            # total number of select targets in the query
+            select_target_counts.add(
+                len(select_list)
+                + (len(selectable.select_info.select_targets) - len(wildcard_info))
+            )
+            for select in select_list:
+                if isinstance(select, WildcardInfo):
+                    resolved_wildcard = False
 
         return (select_target_counts, resolved_wildcard)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """All queries in set expression should return the same number of columns."""
         assert context.segment.is_type("set_expression")
+        root = context.segment
+
+        # Is the parent of the set expression a WITH expression?
+        # NOTE: Backward slice to work outward.
+        for parent in context.parent_stack[::-1]:
+            if parent.is_type("with_compound_statement"):
+                root = parent
+                break
+
+        # Crawl the root.
         crawler = SelectCrawler(
-            context.segment,
+            root,
             context.dialect,
             parent=None,
-            parent_stack=context.parent_stack,
         )
 
         set_segment_select_sizes, resolve_wildcard = self._get_select_target_counts(

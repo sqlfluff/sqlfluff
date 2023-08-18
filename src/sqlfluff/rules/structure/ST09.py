@@ -179,12 +179,15 @@ class Rule_ST09(BaseRule):
                 "raw_comparison_operator"
             )
 
-            first_table = first_column_reference.get_child(
+            first_table_seg = first_column_reference.get_child(
                 "naked_identifier", "quoted_identifier"
-            ).raw_upper
-            second_table = second_column_reference.get_child(
+            )
+            second_table_seg = second_column_reference.get_child(
                 "naked_identifier", "quoted_identifier"
-            ).raw_upper
+            )
+            assert first_table_seg and second_table_seg
+            first_table = first_table_seg.raw_upper
+            second_table = second_table_seg.raw_upper
 
             # if we swap the two column references around the comparison operator
             # we might have to replace the comparison operator with a different one
