@@ -14,7 +14,11 @@ from sqlfluff.core.parser import (
 from sqlfluff.core.parser.grammar.base import BaseGrammar
 from sqlfluff.core.parser.lexer import LexerType
 from sqlfluff.core.parser.matchable import Matchable
-from sqlfluff.core.parser.types import DialectElementType, MatchableType
+from sqlfluff.core.parser.types import (
+    DialectElementType,
+    MatchableType,
+    BracketPairTuple,
+)
 
 
 class Dialect:
@@ -33,7 +37,7 @@ class Dialect:
         root_segment_name: str,
         lexer_matchers: Optional[List[LexerType]] = None,
         library: Optional[Dict[str, DialectElementType]] = None,
-        sets: Optional[Dict[str, Set[Union[str, Tuple[str, str, str, bool]]]]] = None,
+        sets: Optional[Dict[str, Set[Union[str, BracketPairTuple]]]] = None,
         inherits_from: Optional[str] = None,
     ) -> None:
         self._library = library or {}
@@ -108,7 +112,7 @@ class Dialect:
 
     def bracket_sets(
         self, label: Literal["bracket_pairs", "angle_bracket_pairs"]
-    ) -> Set[Tuple[str, str, str, bool]]:
+    ) -> Set[BracketPairTuple]:
         """Allows access to bracket sets belonging to this dialect."""
         assert label in (
             "bracket_pairs",
@@ -117,7 +121,7 @@ class Dialect:
 
         if label not in self._sets:
             self._sets[label] = set()
-        return cast(Set[Tuple[str, str, str, bool]], self._sets[label])
+        return cast(Set[BracketPairTuple], self._sets[label])
 
     def update_keywords_set_from_multiline_string(
         self, set_label: str, values: str

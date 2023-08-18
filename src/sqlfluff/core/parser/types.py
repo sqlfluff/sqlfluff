@@ -15,3 +15,7 @@ MatchableType = Union["Matchable", Type["BaseSegment"]]
 
 # Simple hints has a set of strings first and a set of types second.
 SimpleHintType = Optional[Tuple[FrozenSet[str], FrozenSet[str]]]
+
+# The content type of the set of bracket pairs.
+# bracket_type, start_ref, end_ref, persists
+BracketPairTuple = Tuple[str, str, str, bool]

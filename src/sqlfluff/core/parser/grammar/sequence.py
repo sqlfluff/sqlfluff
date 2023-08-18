@@ -24,7 +24,7 @@ from sqlfluff.core.parser.grammar.base import (
     cached_method_for_parse_context,
     MatchableType,
 )
-from sqlfluff.core.parser.types import SimpleHintType
+from sqlfluff.core.parser.types import SimpleHintType, BracketPairTuple
 from sqlfluff.core.parser.grammar.conditional import Conditional
 from os import getenv
 
@@ -286,7 +286,7 @@ class Bracketed(Sequence):
     def get_bracket_from_dialect(self, parse_context: ParseContext):
         """Rehydrate the bracket segments in question."""
         bracket_pairs = cast(
-            Set[Tuple[str, str, str, bool]],
+            Set[BracketPairTuple],
             parse_context.dialect.bracket_sets(self.bracket_pairs_set),
         )
         for bracket_type, start_ref, end_ref, persists in bracket_pairs:
