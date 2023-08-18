@@ -1774,6 +1774,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 AnyNumberOf(Ref("LikeOptionSegment"), optional=True),
                             ),
                         ),
+                        optional=True,
                     )
                 ),
                 Sequence(
@@ -1781,7 +1782,6 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                     Bracketed(Delimited(Ref("TableReferenceSegment"))),
                     optional=True,
                 ),
-                optional=True,
             ),
             # Create OF syntax:
             Sequence(
