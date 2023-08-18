@@ -1145,17 +1145,30 @@ class BaseSegment(metaclass=SegmentMetaclass):
             recurse_into: :obj:`bool`: When an element of type "seg_type" is
                 found, whether to recurse into it.
             no_recursive_seg_type: obj: `str`: a type of segment
-                not to recurse further into.
+                not to recurse further into. It is highly recommended
+                to set this argument where possible, as it can significantly
+                narrow the search pattern.
         """
-        # Check this segment
+        # Assuming there is a segment to be found, first check self.
         if self.is_type(*seg_type):
             match = True
             yield self
         else:
             match = False
+
+        # Check whether the types we're looking for are in this segment
+        # at all. If not, exit early.
+        if not self.descendant_type_set.intersection(seg_type):
+            # Terminate iteration.
+            return None
+
+        # Then handle any recursion.
         if recurse_into or not match:
-            # Recurse
             for seg in self.segments:
+                # Don't recurse if the segment is of a type we shouldn't
+                # recurse into.
+                # NOTE: Setting no_recursive_seg_type can significantly
+                # improve performance in many cases.
                 if not seg.is_type(no_recursive_seg_type):
                     yield from seg.recursive_crawl(
                         *seg_type,
