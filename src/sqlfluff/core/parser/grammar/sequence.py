@@ -24,7 +24,7 @@ from sqlfluff.core.parser.grammar.base import (
     cached_method_for_parse_context,
     MatchableType,
 )
-from sqlfluff.core.parser.grammar.types import SimpleHintType
+from sqlfluff.core.parser.types import SimpleHintType
 from sqlfluff.core.parser.grammar.conditional import Conditional
 from os import getenv
 

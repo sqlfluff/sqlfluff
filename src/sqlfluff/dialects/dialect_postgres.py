@@ -5,6 +5,7 @@ from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
     Bracketed,
+    BracketedSegment,
     CodeSegment,
     CommentSegment,
     Dedent,
@@ -24,7 +25,6 @@ from sqlfluff.core.parser import (
     StartsWith,
     StringParser,
 )
-from sqlfluff.core.parser.segments.base import BracketedSegment
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.grammar.anyof import AnySetOf
