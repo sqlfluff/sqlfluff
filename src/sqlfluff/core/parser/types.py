@@ -1,7 +1,7 @@
 """Complex Type helpers."""
 from typing import TYPE_CHECKING, FrozenSet, Optional, Tuple, Type, Union
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.matchable import Matchable
     from sqlfluff.core.parser.segments.base import BaseSegment
     from sqlfluff.core.parser.segments.generator import SegmentGenerator

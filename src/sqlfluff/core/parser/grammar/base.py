@@ -138,12 +138,12 @@ class BaseGrammar(Matchable):
     @overload
     @staticmethod
     def _resolve_ref(elem: None) -> None:
-        ...
+        ...  # pragma: no cover
 
     @overload
     @staticmethod
     def _resolve_ref(elem: Union[str, MatchableType]) -> MatchableType:
-        ...
+        ...  # pragma: no cover
 
     @staticmethod
     def _resolve_ref(
