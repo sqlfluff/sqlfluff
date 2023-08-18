@@ -1756,8 +1756,8 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 Ref("ColumnReferenceSegment"),
                                 Ref("DatatypeSegment"),
                                 AnyNumberOf(
-                                    # A single COLLATE segment can come before or after
-                                    # constraint segments
+                                    # A single COLLATE segment can come before or
+                                    # after constraint segments
                                     OneOf(
                                         Ref("ColumnConstraintSegment"),
                                         Sequence(
@@ -1774,6 +1774,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 AnyNumberOf(Ref("LikeOptionSegment"), optional=True),
                             ),
                         ),
+                        optional=True,
                     )
                 ),
                 Sequence(
