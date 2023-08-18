@@ -1,6 +1,8 @@
 """AnyNumberOf, OneOf, OptionallyBracketed & AnySetOf."""
 
-from typing import FrozenSet, List, Optional, Tuple, cast
+from typing import FrozenSet, List, Optional
+from typing import Sequence as SequenceType
+from typing import Tuple, Union, cast
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (
@@ -18,18 +20,35 @@ from sqlfluff.core.parser.types import MatchableType, SimpleHintType
 class AnyNumberOf(BaseGrammar):
     """A more configurable version of OneOf."""
 
-    def __init__(self, *args, **kwargs) -> None:
-        self.max_times = kwargs.pop("max_times", None)
-        self.min_times = kwargs.pop("min_times", 0)
-        self.max_times_per_element = kwargs.pop("max_times_per_element", None)
+    def __init__(
+        self,
+        *args: Union[MatchableType, str],
+        max_times: Optional[int] = None,
+        min_times: int = 0,
+        max_times_per_element: Optional[int] = None,
+        exclude: Optional[MatchableType] = None,
+        terminators: Optional[SequenceType[MatchableType]] = None,
+        reset_terminators: bool = False,
+        allow_gaps: bool = True,
+        optional: bool = False,
+        ephemeral_name: Optional[str] = None,
+    ) -> None:
+        self.max_times = max_times
+        self.min_times = min_times
+        self.max_times_per_element = max_times_per_element
         # Any patterns to _prevent_ a match.
-        self.exclude = kwargs.pop("exclude", None)
+        self.exclude = exclude
         # The intent here is that if we match something, and then the _next_
         # item is one of these, we can safely conclude it's a "total" match.
         # In those cases, we return early without considering more options.
-        self.terminators = kwargs.pop("terminators", None)
-        self.reset_terminators = kwargs.pop("reset_terminators", False)
-        super().__init__(*args, **kwargs)
+        self.terminators = terminators
+        self.reset_terminators = reset_terminators
+        super().__init__(
+            *args,
+            allow_gaps=allow_gaps,
+            optional=optional,
+            ephemeral_name=ephemeral_name,
+        )
 
     @cached_method_for_parse_context
     def simple(
@@ -101,7 +120,7 @@ class AnyNumberOf(BaseGrammar):
             with parse_context.deeper_match(
                 name=self.__class__.__name__ + "-Exclude"
             ) as ctx:
-                if self.exclude.match(segments, parse_context=ctx):
+                if self.exclude.match(segments, ctx):
                     return MatchResult.from_unmatched(segments)
 
         # Match on each of the options
@@ -180,8 +199,27 @@ class OneOf(AnyNumberOf):
     length it returns the first (unless we explicitly just match first).
     """
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, max_times=1, min_times=1, **kwargs)
+    def __init__(
+        self,
+        *args: Union[MatchableType, str],
+        exclude: Optional[MatchableType] = None,
+        terminators: Optional[SequenceType[MatchableType]] = None,
+        reset_terminators: bool = False,
+        allow_gaps: bool = True,
+        optional: bool = False,
+        ephemeral_name: Optional[str] = None,
+    ) -> None:
+        super().__init__(
+            *args,
+            max_times=1,
+            min_times=1,
+            exclude=exclude,
+            terminators=terminators,
+            reset_terminators=reset_terminators,
+            allow_gaps=allow_gaps,
+            optional=optional,
+            ephemeral_name=ephemeral_name,
+        )
 
 
 class OptionallyBracketed(OneOf):
@@ -191,17 +229,51 @@ class OptionallyBracketed(OneOf):
     they will be.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(
+        self,
+        *args: Union[MatchableType, str],
+        exclude: Optional[MatchableType] = None,
+        terminators: Optional[SequenceType[MatchableType]] = None,
+        reset_terminators: bool = False,
+        optional: bool = False,
+        ephemeral_name: Optional[str] = None,
+    ) -> None:
         super().__init__(
             Bracketed(*args),
             # In the case that there is only one argument, no sequence is required.
             args[0] if len(args) == 1 else Sequence(*args),
-            **kwargs,
+            exclude=exclude,
+            terminators=terminators,
+            reset_terminators=reset_terminators,
+            optional=optional,
+            ephemeral_name=ephemeral_name,
         )
 
 
 class AnySetOf(AnyNumberOf):
     """Match any number of the elements but each element can only be matched once."""
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, max_times_per_element=1, **kwargs)
+    def __init__(
+        self,
+        *args: Union[MatchableType, str],
+        max_times: Optional[int] = None,
+        min_times: int = 0,
+        exclude: Optional[MatchableType] = None,
+        terminators: Optional[SequenceType[MatchableType]] = None,
+        reset_terminators: bool = False,
+        allow_gaps: bool = True,
+        optional: bool = False,
+        ephemeral_name: Optional[str] = None,
+    ) -> None:
+        super().__init__(
+            *args,
+            max_times_per_element=1,
+            max_times=max_times,
+            min_times=min_times,
+            exclude=exclude,
+            terminators=terminators,
+            reset_terminators=reset_terminators,
+            allow_gaps=allow_gaps,
+            optional=optional,
+            ephemeral_name=ephemeral_name,
+        )

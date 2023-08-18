@@ -162,9 +162,9 @@ class BaseGrammar(Matchable):
     def __init__(
         self,
         *args: Union[MatchableType, str],
-        allow_gaps=True,
-        optional=False,
-        ephemeral_name=None,
+        allow_gaps: bool = True,
+        optional: bool = False,
+        ephemeral_name: Optional[str] = None,
     ) -> None:
         """Deal with kwargs common to all grammars.
 
