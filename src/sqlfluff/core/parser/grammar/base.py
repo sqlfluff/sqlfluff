@@ -5,11 +5,14 @@ from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
+    Iterable,
     List,
     Optional,
+    Sequence,
     Set,
     Tuple,
     Type,
+    TypeVar,
     Union,
     cast,
     overload,
@@ -104,6 +107,9 @@ def cached_method_for_parse_context(func):
         return result
 
     return wrapped_method
+
+
+T = TypeVar("T", bound="BaseGrammar")
 
 
 class BaseGrammar(Matchable):
@@ -241,7 +247,9 @@ class BaseGrammar(Matchable):
         return None
 
     @staticmethod
-    def _first_non_whitespace(segments) -> Optional[Tuple[str, Set[str]]]:
+    def _first_non_whitespace(
+        segments: Iterable["BaseSegment"],
+    ) -> Optional[Tuple[str, Set[str]]]:
         """Return the upper first non-whitespace segment in the iterable."""
         for segment in segments:
             if segment.first_non_whitespace_segment_raw_upper:
@@ -417,9 +425,6 @@ class BaseGrammar(Matchable):
                 res_match = matcher.match(segments, parse_context)
                 # Cache it for later to for performance.
                 parse_context.put_parse_cache(loc_key, matcher_key, res_match)
-
-            # By here we know that it's a MatchResult
-            res_match = cast(MatchResult, res_match)
 
             if res_match.is_complete():
                 # Just return it! (WITH THE RIGHT OTHER STUFF)
@@ -861,7 +866,7 @@ class BaseGrammar(Matchable):
             ),
         )
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         """Two grammars are equal if their elements and types are equal.
 
         NOTE: We use the equality_kwargs tuple on the class to define
@@ -874,13 +879,15 @@ class BaseGrammar(Matchable):
         )
 
     def copy(
-        self,
-        insert: Optional[list] = None,
+        self: T,
+        insert: Optional[List[MatchableType]] = None,
         at: Optional[int] = None,
         before: Optional[Any] = None,
-        remove: Optional[list] = None,
-        **kwargs,
-    ):
+        remove: Optional[List[MatchableType]] = None,
+        # NOTE: Optionally allow other kwargs to be provided to this
+        # method for type compatibility. Any provided won't be used.
+        **kwargs: Any,
+    ) -> T:
         """Create a copy of this grammar, optionally with differences.
 
         This is mainly used in dialect inheritance.
@@ -951,7 +958,16 @@ class Ref(BaseGrammar):
 
     equality_kwargs: Tuple[str, ...] = ("_ref", "optional", "allow_gaps")
 
-    def __init__(self, *args: str, **kwargs) -> None:
+    def __init__(
+        self,
+        *args: str,
+        exclude: Optional[MatchableType] = None,
+        terminators: Optional[Sequence[MatchableType]] = None,
+        reset_terminators: bool = False,
+        allow_gaps: bool = True,
+        optional: bool = False,
+        ephemeral_name: Optional[str] = None,
+    ) -> None:
         # For Ref, there should only be one arg.
         assert len(args) == 1, (
             "Ref grammar can only deal with precisely one element for now. Instead "
@@ -960,17 +976,19 @@ class Ref(BaseGrammar):
         assert isinstance(args[0], str), f"Ref must be string. Found {args}."
         self._ref = args[0]
         # Any patterns to _prevent_ a match.
-        self.exclude = kwargs.pop("exclude", None)
+        self.exclude = exclude
         # The intent here is that if we match something, and then the _next_
         # item is one of these, we can safely conclude it's a "total" match.
         # In those cases, we return early without considering more options.
         # Terminators don't take effect directly within this grammar, but
         # the Ref grammar is an effective place to manage the terminators
         # inherited via the context.
-        self.terminators = kwargs.pop("terminators", None)
-        self.reset_terminators = kwargs.pop("reset_terminators", False)
-        # NOTE: Don't pass on any args.
-        super().__init__(**kwargs)
+        self.terminators = terminators
+        self.reset_terminators = reset_terminators
+        # NOTE: Don't pass on any args (we've already handled it with self._ref)
+        super().__init__(
+            allow_gaps=allow_gaps, optional=optional, ephemeral_name=ephemeral_name
+        )
 
     @cached_method_for_parse_context
     def simple(
@@ -988,7 +1006,7 @@ class Ref(BaseGrammar):
             crumbs=(crumbs or ()) + (self._ref,),
         )
 
-    def _get_elem(self, dialect: "Dialect") -> Union[Type[BaseSegment], Matchable]:
+    def _get_elem(self, dialect: "Dialect") -> MatchableType:
         """Get the actual object we're referencing."""
         if dialect:
             # Use the dialect to retrieve the grammar it refers to.
@@ -996,9 +1014,9 @@ class Ref(BaseGrammar):
         else:  # pragma: no cover
             raise ReferenceError("No Dialect has been provided to Ref grammar!")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<Ref: {}{}>".format(
-            ", ".join(self._elements), " [opt]" if self.is_optional() else ""
+            ", ".join(str(self._elements)), " [opt]" if self.is_optional() else ""
         )
 
     @match_wrapper(v_level=4)  # Log less for Ref
@@ -1022,7 +1040,7 @@ class Ref(BaseGrammar):
                 clear_terminators=self.reset_terminators,
                 push_terminators=self.terminators,
             ) as ctx:
-                if self.exclude.match(segments, parse_context=ctx):
+                if self.exclude.match(segments, ctx):
                     return MatchResult.from_unmatched(segments)
 
         # Match against that. NB We're not incrementing the match_depth here.
@@ -1037,7 +1055,7 @@ class Ref(BaseGrammar):
         return resp
 
     @classmethod
-    def keyword(cls, keyword: str, **kwargs) -> BaseGrammar:
+    def keyword(cls, keyword: str, optional: bool = False) -> BaseGrammar:
         """Generate a reference to a keyword by name.
 
         This function is entirely syntactic sugar, and designed
@@ -1047,7 +1065,7 @@ class Ref(BaseGrammar):
 
         """
         name = keyword.capitalize() + "KeywordSegment"
-        return cls(name, **kwargs)
+        return cls(name, optional=optional)
 
 
 class Anything(BaseGrammar):

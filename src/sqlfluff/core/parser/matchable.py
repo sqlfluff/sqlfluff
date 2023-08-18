@@ -2,12 +2,15 @@
 
 import copy
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, FrozenSet, Optional, Tuple
+from typing import TYPE_CHECKING, Any, FrozenSet, Optional, Tuple, TypeVar
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.context import ParseContext
     from sqlfluff.core.parser.match_result import MatchResult
     from sqlfluff.core.parser.segments import BaseSegment
+
+
+T = TypeVar("T", bound="Matchable")
 
 
 class Matchable(ABC):
@@ -44,7 +47,7 @@ class Matchable(ABC):
     ) -> "MatchResult":
         """Match against this matcher."""
 
-    def copy(self, **kwargs: Any) -> "Matchable":  # pragma: no cover
+    def copy(self: T, **kwargs: Any) -> T:  # pragma: no cover
         """Copy this Matchable.
 
         Matchable objects are usually copied during dialect inheritance.
