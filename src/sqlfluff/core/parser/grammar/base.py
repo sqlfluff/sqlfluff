@@ -12,7 +12,6 @@ from typing import (
     Sequence,
     Set,
     Tuple,
-    Type,
     TypeVar,
     Union,
     cast,
@@ -143,23 +142,13 @@ class BaseGrammar(Matchable):
 
     @overload
     @staticmethod
-    def _resolve_ref(elem: str) -> "BaseGrammar":
-        ...
-
-    @overload
-    @staticmethod
-    def _resolve_ref(elem: Matchable) -> Matchable:
-        ...
-
-    @overload
-    @staticmethod
-    def _resolve_ref(elem: Type[BaseSegment]) -> Type[BaseSegment]:
+    def _resolve_ref(elem: Union[str, MatchableType]) -> MatchableType:
         ...
 
     @staticmethod
     def _resolve_ref(
-        elem: Union[None, str, Matchable, Type[BaseSegment]]
-    ) -> Union[None, Matchable, Type[BaseSegment]]:
+        elem: Union[None, str, MatchableType]
+    ) -> Union[None, MatchableType]:
         """Resolve potential string references to things we can match against."""
         if elem is None:
             return None

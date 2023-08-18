@@ -50,7 +50,7 @@ class Conditional(BaseGrammar):
         assert issubclass(
             meta, Indent
         ), "Conditional is only designed to work with Indent/Dedent segments."
-        self._Meta = meta
+        self._meta = meta
         if not config_type:  # pragma: no cover
             raise ValueError("Conditional config_type must be set.")
         elif config_type not in ("indentation"):  # pragma: no cover
@@ -91,4 +91,4 @@ class Conditional(BaseGrammar):
             return MatchResult.from_unmatched(segments)
 
         # Instantiate the new element and return
-        return MatchResult((self._Meta(),), segments)
+        return MatchResult((self._meta(),), segments)
