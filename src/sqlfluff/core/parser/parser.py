@@ -37,7 +37,7 @@ class Parser:
             # api use cases.
             return None
         # Instantiate the root segment
-        root_segment = self.RootSegment(segments=segments, fname=fname)
+        root_segment = self.RootSegment(segments=tuple(segments), fname=fname)
         # Call .parse() on that segment
 
         # NOTE: This is the only time we use the parse context not in the

@@ -10,6 +10,61 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.3.0] - 2023-08-14
+
+## Highlights
+
+This release brings one new dialect, two new rules and some changes to the CLI:
+- We now support the [trino](https://trino.io/) dialect. This is a first version of
+  support, so do post any issues on GitHub in the usual way. This was also the first
+  contribution to the project from [@efung](https://github.com/efung) 🏆.
+- `ST09` / `structure.join_condition_order`: Which checks whether tables referenced
+  in `JOIN` clauses are referenced in the order of their definition. By default
+  this means that in the `ON` clause, the column referencing the table in the
+  `FROM` clause should come before the column referencing the table in the `JOIN`
+  clause (e.g. `... FROM a JOIN b on a.c = b.c`). This rule was also the first
+  contribution to the project from [@thibonacci](https://github.com/thibonacci) 🏆.
+- `AL08` / `aliasing.unique.column`: Which checks that column aliases and names
+  are not repeated within the same `SELECT` clause. This is normally an error
+  as it implies the same column has been imported twice, or that two expressions
+  have been given the same alias.
+- The `--profiler` option on `sqlfluff parse` has been removed. It was only
+  present on the `parse` command and not `lint` or `fix`, and it is just as simple
+  to invoke the python `cProfiler` directly.
+- The `--recurse` cli option and `sqlfluff.recurse` configuration option have
+  both been removed. They both existed purely for debugging the parser, and were
+  never used in a production setting. The improvement in other debugging messages
+  when unparsable sections are found means that this option is no longer necessary.
+
+Along side these more significant changes this also includes:
+- Performance optimisations for `AL04`, `AL05`, `AM04`, `RF01` & `ST05` which
+  cumulatively may save up to 30% on the total time spend in the linting phase
+  for some projects.
+- Dialect improvements for Oracle & TSQL.
+
+## What’s Changed
+
+* Remove IdentitySet [#5093](https://github.com/sqlfluff/sqlfluff/pull/5093) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Stricter typing in smaller sqlfluff.core.parser [#5088](https://github.com/sqlfluff/sqlfluff/pull/5088) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Preliminary support of Trino dialect [#4913](https://github.com/sqlfluff/sqlfluff/pull/4913) [@efung](https://github.com/efung)
+* Rename ST09 [#5091](https://github.com/sqlfluff/sqlfluff/pull/5091) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* TSQL: Fix Clustered Index asc/desc [#5090](https://github.com/sqlfluff/sqlfluff/pull/5090) [@greg-finley](https://github.com/greg-finley)
+* Parent references and more efficient path_to [#5076](https://github.com/sqlfluff/sqlfluff/pull/5076) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* New Rule: AL08 - column aliases must be unique [#5079](https://github.com/sqlfluff/sqlfluff/pull/5079) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add support for fetch first row(s) only in Oracle [#5089](https://github.com/sqlfluff/sqlfluff/pull/5089) [@joaostorrer](https://github.com/joaostorrer)
+* Fix bug around quoted identifiers for ST09 [#5087](https://github.com/sqlfluff/sqlfluff/pull/5087) [@thibonacci](https://github.com/thibonacci)
+* Add strict typing to the templating tracer [#5085](https://github.com/sqlfluff/sqlfluff/pull/5085) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Remove recurse config [#5065](https://github.com/sqlfluff/sqlfluff/pull/5065) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* ✅ Strictly type dialect [#5067](https://github.com/sqlfluff/sqlfluff/pull/5067) [@pwildenhain](https://github.com/pwildenhain)
+* Add new rule ST09: Joins should list the table referenced earlier (default)/later first [#4974](https://github.com/sqlfluff/sqlfluff/pull/4974) [@thibonacci](https://github.com/thibonacci)
+* Remove the internal cProfiler option [#5081](https://github.com/sqlfluff/sqlfluff/pull/5081) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Optimisation on select analysis [#5082](https://github.com/sqlfluff/sqlfluff/pull/5082) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
+
+## New Contributors
+* [@thibonacci](https://github.com/thibonacci) made their first contribution in [#4974](https://github.com/sqlfluff/sqlfluff/pull/4974)
+* [@efung](https://github.com/efung) made their first contribution in [#4913](https://github.com/sqlfluff/sqlfluff/pull/4913)
+
 ## [2.2.1] - 2023-08-09
 
 ## Highlights

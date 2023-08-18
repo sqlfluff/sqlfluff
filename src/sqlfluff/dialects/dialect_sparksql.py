@@ -18,11 +18,14 @@ from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
     Bracketed,
+    BracketedSegment,
+    CodeSegment,
     CommentSegment,
     Conditional,
     Dedent,
     Delimited,
     Indent,
+    KeywordSegment,
     Matchable,
     MultiStringParser,
     OneOf,
@@ -37,8 +40,6 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     TypedParser,
 )
-from sqlfluff.core.parser.segments import BracketedSegment
-from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_hive as hive
 from sqlfluff.dialects.dialect_sparksql_keywords import (

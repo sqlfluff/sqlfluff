@@ -13,6 +13,7 @@ from sqlfluff.core.parser import (
     BaseFileSegment,
     BaseSegment,
     Bracketed,
+    BracketedSegment,
     CodeSegment,
     Dedent,
     Delimited,
@@ -33,7 +34,6 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     MultiStringParser,
 )
-from sqlfluff.core.parser.segments.base import BracketedSegment
 from sqlfluff.dialects.dialect_bigquery_keywords import (
     bigquery_reserved_keywords,
     bigquery_unreserved_keywords,
