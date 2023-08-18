@@ -1,7 +1,7 @@
 """Defines the base dialect class."""
 
 import sys
-from typing import Any, Dict, List, Optional, Set, Tuple, Type, Union, cast
+from typing import Any, Dict, List, Optional, Set, Type, Union, cast
 
 from typing_extensions import Literal
 
