@@ -28,20 +28,12 @@ from sqlfluff.core.parser.match_logging import (
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.matchable import Matchable
-from sqlfluff.core.parser.parsers import BaseParser
 from sqlfluff.core.parser.segments import BaseSegment, BracketedSegment, allow_ephemeral
-from sqlfluff.core.parser.types import SimpleHintType
+from sqlfluff.core.parser.types import MatchableType, SimpleHintType
 from sqlfluff.core.string_helpers import curtail_string
 
-if TYPE_CHECKING:
-    from sqlfluff.core.dialects.base import ExpandedDialectElementType
-
-# Either a Matchable (a grammar or parser) or a Segment CLASS
-
-MatchableType = Union[Matchable, Type[BaseSegment]]
-
-if TYPE_CHECKING:
-    from sqlfluff.core.dialects.base import Dialect  # pragma: no cover
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.dialects.base import Dialect
 
 
 def first_trimmed_raw(seg: BaseSegment) -> str:
@@ -203,14 +195,13 @@ class BaseGrammar(Matchable):
         # We provide a common interface for any grammar that allows positional elements.
         # If *any* for the elements are a string and not a grammar, then this is a
         # shortcut to the Ref.keyword grammar by default.
-        self._elements: List[ExpandedDialectElementType]
+        # NOTE: We continue to allow strings in the BaseGrammar, because some grammars,
+        # notably the Ref Grammar, continue to use them as a reference.
+        self._elements: Union[MatchableType, str]
         if self.allow_keyword_string_refs:
-            self._elements = []
-            for elem in args:
-                self._elements.append(self._resolve_ref(elem))
+            self._elements = [self._resolve_ref(e) for e in args]
         else:
-            assert not any(isinstance(elem, str) for elem in args)
-            self._elements = cast(List[ExpandedDialectElementType], list(args))
+            self._elements = list(args)
 
         # Now we deal with the standard kwargs
         self.allow_gaps = allow_gaps

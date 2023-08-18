@@ -1,22 +1,20 @@
 """Defines the base dialect class."""
 
 import sys
-from typing import Set, Tuple, Union, Type, Dict, Any, Optional, List, cast
+from typing import Any, Dict, List, Optional, Set, Tuple, Type, Union, cast
+
 from typing_extensions import Literal
 
 from sqlfluff.core.parser import (
+    BaseSegment,
     KeywordSegment,
     SegmentGenerator,
-    BaseSegment,
     StringParser,
 )
 from sqlfluff.core.parser.grammar.base import BaseGrammar
 from sqlfluff.core.parser.lexer import LexerType
 from sqlfluff.core.parser.matchable import Matchable
-
-DialectElementType = Union[Type[BaseSegment], Matchable, SegmentGenerator]
-# NOTE: Post expansion, no generators remain
-ExpandedDialectElementType = Union[Type[BaseSegment], Matchable]
+from sqlfluff.core.parser.types import DialectElementType, MatchableType
 
 
 class Dialect:
@@ -287,7 +285,7 @@ class Dialect:
                 f"with get_segment - type{type(segment)}"
             )
 
-    def ref(self, name: str) -> ExpandedDialectElementType:
+    def ref(self, name: str) -> MatchableType:
         """Return an object which acts as a late binding reference to the element named.
 
         NB: This requires the dialect to be expanded, and only returns Matchables
