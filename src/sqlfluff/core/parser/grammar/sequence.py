@@ -80,8 +80,8 @@ class Sequence(BaseGrammar):
         Sequence does provide this, as long as the *first* non-optional
         element does, *AND* and optional elements which preceded it also do.
         """
-        simple_raws = set()
-        simple_types = set()
+        simple_raws: Set[str] = set()
+        simple_types: Set[str] = set()
         for opt in self._elements:
             simple = opt.simple(parse_context=parse_context, crumbs=crumbs)
             if not simple:
@@ -135,7 +135,8 @@ class Sequence(BaseGrammar):
                 new_metas: Tuple[MetaSegment, ...] = ()
                 # Is it a raw meta?
                 if elem.is_meta:
-                    new_metas = (elem(),)
+                    # Instantiate a new instance of it.
+                    new_metas = (cast(Type[MetaSegment], elem)(),)
                 elif isinstance(elem, Conditional):
                     if not elem.is_enabled(parse_context):
                         # If it's not active, skip it.
@@ -191,7 +192,7 @@ class Sequence(BaseGrammar):
                 # We've already dealt with potential whitespace above, so carry on
                 # to matching
                 with parse_context.deeper_match(name=f"Sequence-@{idx}") as ctx:
-                    elem_match = elem.match(mid_seg, parse_context=ctx)
+                    elem_match = elem.match(mid_seg, ctx)
 
                 if not elem_match.has_match():
                     # If we can't match an element, we should ascertain whether it's

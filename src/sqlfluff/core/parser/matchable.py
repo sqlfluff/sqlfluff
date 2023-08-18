@@ -15,6 +15,8 @@ class Matchable(ABC):
 
     # Matchables are expected to have a type
     type: str
+    # Matchables are also not meta unless otherwise defined
+    is_meta = False
 
     @abstractmethod
     def is_optional(self) -> bool:
