@@ -16,8 +16,6 @@ from typing import (
 )
 from uuid import uuid4
 
-from typing_extensions import Literal
-
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.helpers import trim_non_code_segments
@@ -237,7 +235,7 @@ class BaseGrammar(Matchable):
 
     @cached_method_for_parse_context
     def simple(
-        self, parse_context: ParseContext, crumbs: Optional[List[str]] = None
+        self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
     ) -> SimpleHintType:
         """Does this matcher support a lowercase hash matching route?"""
         return None
@@ -630,11 +628,9 @@ class BaseGrammar(Matchable):
         segments: Tuple[BaseSegment, ...],
         matchers: List[MatchableType],
         parse_context: ParseContext,
-        start_bracket: Optional[Matchable] = None,
-        end_bracket: Optional[Matchable] = None,
-        bracket_pairs_set: Literal[
-            "bracket_pairs", "angle_bracket_pairs"
-        ] = "bracket_pairs",
+        start_bracket: Optional[MatchableType] = None,
+        end_bracket: Optional[MatchableType] = None,
+        bracket_pairs_set: str = "bracket_pairs",
     ) -> Tuple[Tuple[BaseSegment, ...], MatchResult, Optional[MatchableType]]:
         """Same as `_look_ahead_match` but with bracket counting.
 

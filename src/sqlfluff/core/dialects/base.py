@@ -3,8 +3,6 @@
 import sys
 from typing import Any, Dict, List, Optional, Set, Type, Union, cast
 
-from typing_extensions import Literal
-
 from sqlfluff.core.parser import (
     BaseSegment,
     KeywordSegment,
@@ -110,9 +108,7 @@ class Dialect:
             self._sets[label] = set()
         return cast(Set[str], self._sets[label])
 
-    def bracket_sets(
-        self, label: Literal["bracket_pairs", "angle_bracket_pairs"]
-    ) -> Set[BracketPairTuple]:
+    def bracket_sets(self, label: str) -> Set[BracketPairTuple]:
         """Allows access to bracket sets belonging to this dialect."""
         assert label in (
             "bracket_pairs",
