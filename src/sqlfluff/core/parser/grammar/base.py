@@ -118,9 +118,6 @@ class BaseGrammar(Matchable):
     """
 
     is_meta = False
-    # Are we allowed to refer to keywords as strings instead of only passing
-    # grammars or segments?
-    allow_keyword_string_refs = True
     equality_kwargs: Tuple[str, ...] = ("optional", "allow_gaps")
 
     @overload
@@ -195,13 +192,7 @@ class BaseGrammar(Matchable):
         # We provide a common interface for any grammar that allows positional elements.
         # If *any* for the elements are a string and not a grammar, then this is a
         # shortcut to the Ref.keyword grammar by default.
-        # NOTE: We continue to allow strings in the BaseGrammar, because some grammars,
-        # notably the Ref Grammar, continue to use them as a reference.
-        self._elements: Union[MatchableType, str]
-        if self.allow_keyword_string_refs:
-            self._elements = [self._resolve_ref(e) for e in args]
-        else:
-            self._elements = list(args)
+        self._elements: List[MatchableType] = [self._resolve_ref(e) for e in args]
 
         # Now we deal with the standard kwargs
         self.allow_gaps = allow_gaps
@@ -966,11 +957,14 @@ class BaseGrammar(Matchable):
 class Ref(BaseGrammar):
     """A kind of meta-grammar that references other grammars by name at runtime."""
 
-    # We can't allow keyword refs here, because it doesn't make sense
-    # and it also causes infinite recursion.
-    allow_keyword_string_refs = False
-
     def __init__(self, *args: str, **kwargs) -> None:
+        # For Ref, there should only be one arg.
+        assert len(args) == 1, (
+            "Ref grammar can only deal with precisely one element for now. Instead "
+            f"found {args!r}"
+        )
+        assert isinstance(args[0], str), f"Ref must be string. Found {args}."
+        self._ref = args[0]
         # Any patterns to _prevent_ a match.
         self.exclude = kwargs.pop("exclude", None)
         # The intent here is that if we match something, and then the _next_
@@ -981,7 +975,8 @@ class Ref(BaseGrammar):
         # inherited via the context.
         self.terminators = kwargs.pop("terminators", None)
         self.reset_terminators = kwargs.pop("reset_terminators", False)
-        super().__init__(*args, **kwargs)
+        # NOTE: Don't pass on any args.
+        super().__init__(**kwargs)
 
     @cached_method_for_parse_context
     def simple(
@@ -991,39 +986,19 @@ class Ref(BaseGrammar):
 
         A ref is simple, if the thing it references is simple.
         """
-        ref = self._get_ref()
-        if crumbs and ref in crumbs:  # pragma: no cover
+        if crumbs and self._ref in crumbs:  # pragma: no cover
             loop = " -> ".join(crumbs)
             raise RecursionError(f"Self referential grammar detected: {loop}")
         return self._get_elem(dialect=parse_context.dialect).simple(
             parse_context=parse_context,
-            crumbs=(crumbs or ()) + (ref,),
+            crumbs=(crumbs or ()) + (self._ref,),
         )
-
-    def _get_ref(self) -> str:
-        """Get the name of the thing we're referencing."""
-        # Unusually for a grammar we expect _elements to be a list of strings.
-        # Notable ONE string for now.
-        if len(self._elements) == 1:
-            # We're good on length. Get the name of the reference
-            ref = self._elements[0]
-            if not isinstance(ref, str):  # pragma: no cover
-                raise ValueError(
-                    "Ref Grammar expects elements to be strings. "
-                    f"Found {ref!r} instead."
-                )
-            return self._elements[0]
-        else:  # pragma: no cover
-            raise ValueError(
-                "Ref grammar can only deal with precisely one element for now. Instead "
-                "found {!r}".format(self._elements)
-            )
 
     def _get_elem(self, dialect: "Dialect") -> Union[Type[BaseSegment], Matchable]:
         """Get the actual object we're referencing."""
         if dialect:
             # Use the dialect to retrieve the grammar it refers to.
-            return dialect.ref(self._get_ref())
+            return dialect.ref(self._ref)
         else:  # pragma: no cover
             raise ReferenceError("No Dialect has been provided to Ref grammar!")
 
@@ -1049,7 +1024,7 @@ class Ref(BaseGrammar):
         # which would prevent the rest of this grammar from matching.
         if self.exclude:
             with parse_context.deeper_match(
-                name=self._get_ref() + "-Exclude",
+                name=self._ref + "-Exclude",
                 clear_terminators=self.reset_terminators,
                 push_terminators=self.terminators,
             ) as ctx:
@@ -1059,7 +1034,7 @@ class Ref(BaseGrammar):
         # Match against that. NB We're not incrementing the match_depth here.
         # References shouldn't really count as a depth of match.
         with parse_context.deeper_match(
-            name=self._get_ref(),
+            name=self._ref,
             clear_terminators=self.reset_terminators,
             push_terminators=self.terminators,
         ) as ctx:
