@@ -25,6 +25,7 @@ class Delimited(OneOf):
     """
 
     equality_kwargs = (
+        "_elements",
         "optional",
         "allow_gaps",
         "delimiter",

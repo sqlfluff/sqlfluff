@@ -118,7 +118,7 @@ class BaseGrammar(Matchable):
     """
 
     is_meta = False
-    equality_kwargs: Tuple[str, ...] = ("optional", "allow_gaps")
+    equality_kwargs: Tuple[str, ...] = ("_elements", "optional", "allow_gaps")
 
     @overload
     @staticmethod
@@ -872,13 +872,9 @@ class BaseGrammar(Matchable):
         other kwargs which should also be checked so that things like
         "optional" is also taken into account in considering equality.
         """
-        return (
-            type(self) is type(other)
-            and self._elements == other._elements
-            and all(
-                getattr(self, k, None) == getattr(other, k, None)
-                for k in self.equality_kwargs
-            )
+        return type(self) is type(other) and all(
+            getattr(self, k, None) == getattr(other, k, None)
+            for k in self.equality_kwargs
         )
 
     def copy(
@@ -956,6 +952,8 @@ class BaseGrammar(Matchable):
 
 class Ref(BaseGrammar):
     """A kind of meta-grammar that references other grammars by name at runtime."""
+
+    equality_kwargs: Tuple[str, ...] = ("_ref", "optional", "allow_gaps")
 
     def __init__(self, *args: str, **kwargs) -> None:
         # For Ref, there should only be one arg.
