@@ -63,7 +63,10 @@ class Rule_AM07(BaseRule):
         )[0]
         if isinstance(select_info_target, str):
             cte = query.lookup_cte(select_info_target)
-            if cte:
+            if cte:  # pragma: no cover.
+                # TODO: This clause isn't covered in the tests. Without better
+                # documentation I can't remove it yet because I dont' understand
+                # what it's trying to do.
                 self.__resolve_wildcard(
                     context,
                     cte,
@@ -101,9 +104,12 @@ class Rule_AM07(BaseRule):
                 for wildcard in selectable.get_wildcard_info():
                     if wildcard.tables:
                         for wildcard_table in wildcard.tables:
+                            # Get the AliasInfo for the table referenced in the wildcard
+                            # expression.
                             alias_info = selectable.find_alias(wildcard_table)
-                            # attempt to resolve alias or table name to a cte;
+                            # attempt to resolve alias or table name to a cte
                             if alias_info:
+                                # NOTE: This mutates resolve_targets
                                 self.__handle_alias_case(
                                     alias_info,
                                     query,
@@ -161,10 +167,6 @@ class Rule_AM07(BaseRule):
 
             # If the set query contains a wildcard, attempt to resolve it to a list of
             # select targets that can be counted.
-
-            # We already stepped up to a WITH statement in the outer _eval
-            # so if we need to use it we already have access to any CTEs
-            # which we might reference.
             select_list = self.__resolve_wildcard(
                 context,
                 crawler.query_tree,
