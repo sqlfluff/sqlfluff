@@ -1,7 +1,7 @@
 """Tools for more complex analysis of SELECT statements."""
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Generator, List, NamedTuple, Optional, Type, Union, Tuple
+from typing import Dict, Generator, List, NamedTuple, Optional, Type, Union
 
 from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.dialects.common import AliasInfo
@@ -226,13 +226,18 @@ class Query:
 class SelectCrawler:
     """Class for dependency analysis among parts of a query."""
 
+    _acceptable_root_types = (
+        "with_compound_statement",
+        "set_expression",
+        "select_statement",
+    )
+
     def __init__(
         self,
         segment: BaseSegment,
         dialect: Dialect,
         parent: Optional[Query] = None,
         query_class: Type = Query,
-        parent_stack: Optional[Tuple[BaseSegment, ...]] = None,
     ):
         self.dialect: Dialect = dialect
         # "query_class" allows users of the class to customize/extend the
@@ -246,7 +251,7 @@ class SelectCrawler:
         # so we can pop "query_stack" when those segments complete processing.
         pop_queries_for = []
 
-        def append_query(query, parent_stack) -> None:
+        def append_query(query) -> None:
             """Bookkeeping when a new Query is created."""
             if query_stack:
                 query.parent = query_stack[-1]
@@ -254,16 +259,7 @@ class SelectCrawler:
             query_stack.append(query)
             if len(query_stack) == 1 and self.query_tree is None:
                 self.query_tree = query_stack[0]
-                # if parent stack is submitted as argument, crawl query to
-                # create parent relationships
-                if parent_stack:
-                    parent_segment = parent_stack[-1]
-                    parent_stack = parent_stack[: len(parent_stack) - 1]
-                    self.query_tree.parent = SelectCrawler.get_parent_query(
-                        parent_segment, dialect, parent_stack
-                    )
-                else:
-                    self.query_tree.parent = parent
+                self.query_tree.parent = parent
             pop_queries_for.append(path[-1])
 
         def finish_segment() -> None:
@@ -304,7 +300,7 @@ class SelectCrawler:
                             # select_statement segments, and those will be
                             # added to this Query later.
                             query = self.query_class(QueryType.Simple, dialect)
-                            append_query(query, parent_stack)
+                            append_query(query)
                         # Ignore segments under a from_expression_element.
                         # Those will be nested queries, and we're only
                         # interested in CTEs and "main" queries, i.e.
@@ -327,7 +323,7 @@ class SelectCrawler:
                                 query = self.query_class(
                                     QueryType.Simple, dialect, [selectable]
                                 )
-                                append_query(query, parent_stack)
+                                append_query(query)
                     else:
                         # We're processing a "with" statement.
                         if cte_name_segment_stack:
@@ -361,7 +357,7 @@ class SelectCrawler:
                             ] = query
                             cte_definition_segment_stack.pop()
                             cte_name_segment_stack.pop()
-                            append_query(query, parent_stack)
+                            append_query(query)
                         else:
                             # There's no CTE name, so we're probably processing
                             # the main query following a block of CTEs.
@@ -400,7 +396,7 @@ class SelectCrawler:
                         query.cte_definition_segment = cte_definition_segment_stack[-1]
                         cte_definition_segment_stack.pop()
                         cte_name_segment_stack.pop()
-                    append_query(query, parent_stack)
+                    append_query(query)
                 elif path[-1].is_type("common_table_expression"):
                     # This is a "<<cte name>> AS". Save definition segment and
                     # name for later.
@@ -408,6 +404,17 @@ class SelectCrawler:
                     cte_name_segment_stack.append(path[-1].segments[0])
             elif event == "end":
                 finish_segment()
+
+    @classmethod
+    def from_root(cls, root_segment, dialect: Dialect):
+        """Given a root segment, find the first appropriate selectable and analyse."""
+        selectable = next(
+            root_segment.recursive_crawl(*cls._acceptable_root_types),
+            None,
+        )
+        assert selectable
+        # Analyse the segment.
+        return cls(selectable, dialect)
 
     @classmethod
     def get(cls, query: Query, segment: BaseSegment) -> List[Union[str, "Query"]]:
@@ -437,8 +444,3 @@ class SelectCrawler:
                 yield from cls.visit_segments(seg, path, recurse_into)
         yield "end", path
         path.pop()
-
-    @classmethod
-    def get_parent_query(cls, seg, dialect, parent_stack) -> Optional[Query]:
-        """Creates a query tree from a querys parent stack to create full path."""
-        return cls(seg, dialect, parent_stack=parent_stack).query_tree
