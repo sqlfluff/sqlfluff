@@ -32,6 +32,9 @@ from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.parsers import BaseParser
 
+if TYPE_CHECKING:
+    from sqlfluff.core.dialects.base import ExpandedDialectElementType
+
 # Either a Matchable (a grammar or parser) or a Segment CLASS
 
 MatchableType = Union[Matchable, Type[BaseSegment]]
@@ -73,12 +76,13 @@ class BracketInfo:
     bracket: BaseSegment
     segments: Tuple[BaseSegment, ...]
 
-    def to_segment(self, end_bracket) -> BracketedSegment:
+    def to_segment(self, end_bracket: Tuple[BaseSegment, ...]) -> BracketedSegment:
         """Turn the contained segments into a bracketed segment."""
+        assert len(end_bracket) == 1
         return BracketedSegment(
             segments=self.segments,
             start_bracket=(self.bracket,),
-            end_bracket=end_bracket,
+            end_bracket=cast(Tuple[BaseSegment], end_bracket),
         )
 
 
@@ -126,25 +130,40 @@ class BaseGrammar(Matchable):
     allow_keyword_string_refs = True
     equality_kwargs: Tuple[str, ...] = ("optional", "allow_gaps")
 
+    @overload
     @staticmethod
-    def _resolve_ref(elem):
+    def _resolve_ref(elem: None) -> None:
+        ...
+
+    @overload
+    @staticmethod
+    def _resolve_ref(elem: str) -> "BaseGrammar":
+        ...
+
+    @overload
+    @staticmethod
+    def _resolve_ref(elem: Matchable) -> Matchable:
+        ...
+
+    @overload
+    @staticmethod
+    def _resolve_ref(elem: Type[BaseSegment]) -> Type[BaseSegment]:
+        ...
+
+    @staticmethod
+    def _resolve_ref(
+        elem: Union[None, str, Matchable, Type[BaseSegment]]
+    ) -> Union[None, Matchable, Type[BaseSegment]]:
         """Resolve potential string references to things we can match against."""
-        initialisers = [
-            # t: instance / f: class, ref, func
-            (True, str, Ref.keyword),
-            (True, BaseGrammar, lambda x: x),
-            (True, BaseParser, lambda x: x),
-            (False, BaseSegment, lambda x: x),
-        ]
-        # Get-out clause for None
         if elem is None:
             return None
+        elif isinstance(elem, str):
+            return Ref.keyword(elem)
+        elif isinstance(elem, Matchable):
+            return elem
+        elif issubclass(elem, BaseSegment):
+            return elem
 
-        for instance, init_type, init_func in initialisers:
-            if (instance and isinstance(elem, init_type)) or (
-                not instance and issubclass(elem, init_type)
-            ):
-                return init_func(elem)
         raise TypeError(
             "Grammar element [{!r}] was found of unexpected type [{}] was "
             "found.".format(elem, type(elem))  # pragma: no cover
@@ -183,12 +202,14 @@ class BaseGrammar(Matchable):
         # We provide a common interface for any grammar that allows positional elements.
         # If *any* for the elements are a string and not a grammar, then this is a
         # shortcut to the Ref.keyword grammar by default.
+        self._elements: List[ExpandedDialectElementType]
         if self.allow_keyword_string_refs:
             self._elements = []
             for elem in args:
                 self._elements.append(self._resolve_ref(elem))
         else:
-            self._elements = list(args)
+            assert not any(isinstance(elem, str) for elem in args)
+            self._elements = cast(List[ExpandedDialectElementType], list(args))
 
         # Now we deal with the standard kwargs
         self.allow_gaps = allow_gaps
