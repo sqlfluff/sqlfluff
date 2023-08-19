@@ -4,7 +4,7 @@ This class is a construct to keep track of positions within a file.
 """
 
 from dataclasses import dataclass
-from typing import Optional, Tuple, TYPE_CHECKING
+from typing import Optional, Tuple, TYPE_CHECKING, Any
 
 from sqlfluff.core.slice_helpers import zero_slice
 
@@ -51,18 +51,18 @@ class PositionMarker:
         return self.to_source_string()
 
     def __gt__(self, other: "PositionMarker") -> bool:
-        return self.working_loc > other.working_loc  # pragma: no cover TODO?
+        return self.working_loc > other.working_loc
 
     def __lt__(self, other: "PositionMarker") -> bool:
-        return self.working_loc < other.working_loc  # pragma: no cover TODO?
+        return self.working_loc < other.working_loc
 
     def __ge__(self, other: "PositionMarker") -> bool:
-        return self.working_loc >= other.working_loc  # pragma: no cover TODO?
+        return self.working_loc >= other.working_loc
 
     def __le__(self, other: "PositionMarker") -> bool:
-        return self.working_loc <= other.working_loc  # pragma: no cover TODO?
+        return self.working_loc <= other.working_loc
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         if not isinstance(other, PositionMarker):
             return False  # pragma: no cover
         return self.working_loc == other.working_loc

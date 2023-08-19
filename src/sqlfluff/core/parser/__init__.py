@@ -3,6 +3,7 @@
 from sqlfluff.core.parser.segments import (
     BaseSegment,
     BaseFileSegment,
+    BracketedSegment,
     RawSegment,
     CodeSegment,
     UnlexableSegment,
@@ -15,7 +16,6 @@ from sqlfluff.core.parser.segments import (
     Dedent,
     ImplicitIndent,
     SegmentGenerator,
-    IdentitySet,
 )
 from sqlfluff.core.parser.grammar import (
     Sequence,
@@ -46,6 +46,7 @@ from sqlfluff.core.parser.matchable import Matchable
 __all__ = (
     "BaseSegment",
     "BaseFileSegment",
+    "BracketedSegment",
     "RawSegment",
     "CodeSegment",
     "UnlexableSegment",
@@ -81,5 +82,4 @@ __all__ = (
     "RegexLexer",
     "Parser",
     "Matchable",
-    "IdentitySet",
 )

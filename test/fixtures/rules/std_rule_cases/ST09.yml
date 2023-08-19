@@ -50,7 +50,7 @@ test_pass_later_table_first:
 
   configs:
     rules:
-      structure.first_table:
+      structure.join_condition_order:
         preferred_first_table_in_join_clause: later
 
 test_fail_earlier_table_first:
@@ -72,7 +72,7 @@ test_fail_earlier_table_first:
 
   configs:
     rules:
-      structure.first_table:
+      structure.join_condition_order:
         preferred_first_table_in_join_clause: later
 
 test_fail_later_table_first:

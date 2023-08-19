@@ -13,7 +13,7 @@ https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
 
 from enum import Enum
-from typing import Generator, List, NamedTuple, Optional, Tuple, Union
+from typing import Generator, List, NamedTuple, Optional, Set, Tuple, Union, cast
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
@@ -24,6 +24,7 @@ from sqlfluff.core.parser import (
     BaseFileSegment,
     BaseSegment,
     Bracketed,
+    BracketedSegment,
     CodeSegment,
     CommentSegment,
     Conditional,
@@ -51,7 +52,6 @@ from sqlfluff.core.parser import (
     TypedParser,
     WhitespaceSegment,
 )
-from sqlfluff.core.parser.segments.base import BracketedSegment
 from sqlfluff.dialects.dialect_ansi_keywords import (
     ansi_reserved_keywords,
     ansi_unreserved_keywords,
@@ -1512,17 +1512,27 @@ class FromExpressionElementSegment(BaseSegment):
                 segment containing it, and whether it's an alias.
 
         """
-        alias_expression = self.get_child("alias_expression")
+        # Get any table expressions
         tbl_expression = self.get_child("table_expression")
         if not tbl_expression:  # pragma: no cover
-            tbl_expression = self.get_child("bracketed").get_child("table_expression")
+            _bracketed = self.get_child("bracketed")
+            if _bracketed:
+                tbl_expression = _bracketed.get_child("table_expression")
         # For TSQL nested, bracketed tables get the first table as reference
         if tbl_expression and not tbl_expression.get_child("object_reference"):
-            if tbl_expression.get_child("bracketed"):
-                tbl_expression = tbl_expression.get_child("bracketed").get_child(
-                    "table_expression"
-                )
-        ref = tbl_expression.get_child("object_reference") if tbl_expression else None
+            _bracketed = tbl_expression.get_child("bracketed")
+            if _bracketed:
+                tbl_expression = _bracketed.get_child("table_expression")
+
+        # Work out the references
+        ref: Optional[ObjectReferenceSegment] = None
+        if tbl_expression:
+            _ref = tbl_expression.get_child("object_reference")
+            if _ref:
+                ref = cast(ObjectReferenceSegment, _ref)
+
+        # Handle any aliases
+        alias_expression = self.get_child("alias_expression")
         if alias_expression:
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
@@ -1802,7 +1812,11 @@ class JoinClauseSegment(BaseSegment):
         buff = []
 
         from_expression = self.get_child("from_expression_element")
-        alias: AliasInfo = from_expression.get_eventual_alias()
+        # As per grammar above, there will always be a FromExpressionElementSegment
+        assert from_expression
+        alias: AliasInfo = cast(
+            FromExpressionElementSegment, from_expression
+        ).get_eventual_alias()
         # Only append if non-null. A None reference, may
         # indicate a generator expression or similar.
         if alias:
@@ -1817,9 +1831,9 @@ class JoinClauseSegment(BaseSegment):
                 # If the starting segment itself matches the list of types we're
                 # searching for, recursive_crawl() will return it. Skip that.
                 continue
-            aliases: List[
-                Tuple[BaseSegment, AliasInfo]
-            ] = join_clause.get_eventual_aliases()
+            aliases: List[Tuple[BaseSegment, AliasInfo]] = cast(
+                JoinClauseSegment, join_clause
+            ).get_eventual_aliases()
             # Only append if non-null. A None reference, may
             # indicate a generator expression or similar.
             if aliases:
@@ -1872,7 +1886,7 @@ class FromClauseSegment(BaseSegment):
 
         Comes as a list of tuples (table expr, tuple (string, segment, bool)).
         """
-        buff = []
+        buff: List[Tuple[BaseSegment, AliasInfo]] = []
         direct_table_children = []
         join_clauses = []
 
@@ -1884,7 +1898,9 @@ class FromClauseSegment(BaseSegment):
 
         # Iterate through the potential sources of aliases
         for clause in direct_table_children:
-            alias: AliasInfo = clause.get_eventual_alias()
+            alias: AliasInfo = cast(
+                FromExpressionElementSegment, clause
+            ).get_eventual_alias()
             # Only append if non-null. A None reference, may
             # indicate a generator expression or similar.
             table_expr = (
@@ -1893,9 +1909,12 @@ class FromClauseSegment(BaseSegment):
                 else clause.get_child("from_expression_element")
             )
             if alias:
+                assert table_expr
                 buff.append((table_expr, alias))
         for clause in join_clauses:
-            aliases: List[Tuple[BaseSegment, AliasInfo]] = clause.get_eventual_aliases()
+            aliases: List[Tuple[BaseSegment, AliasInfo]] = cast(
+                JoinClauseSegment, clause
+            ).get_eventual_aliases()
             # Only append if non-null. A None reference, may
             # indicate a generator expression or similar.
             if aliases:
@@ -2551,7 +2570,7 @@ class FetchClauseSegment(BaseSegment):
             "FIRST",
             "NEXT",
         ),
-        Ref("NumericLiteralSegment"),
+        Ref("NumericLiteralSegment", optional=True),
         OneOf("ROW", "ROWS"),
         "ONLY",
     )
@@ -2734,14 +2753,17 @@ class CTEDefinitionSegment(BaseSegment):
         ),
     )
 
-    def get_identifier(self) -> BaseSegment:
+    def get_identifier(self) -> IdentifierSegment:
         """Gets the identifier of this CTE.
 
         Note: it blindly gets the first identifier it finds
         which given the structure of a CTE definition is
         usually the right one.
         """
-        return self.get_child("identifier")
+        _identifier = self.get_child("identifier")
+        # There will always be one, given the grammar above.
+        assert _identifier
+        return cast(IdentifierSegment, _identifier)
 
 
 class WithCompoundStatementSegment(BaseSegment):
@@ -3942,13 +3964,13 @@ class StatementSegment(BaseSegment):
         Ref("DropTriggerStatementSegment"),
     )
 
-    def get_table_references(self) -> set:
+    def get_table_references(self) -> Set[str]:
         """Use parsed tree to extract table references."""
         table_refs = {
             tbl_ref.raw for tbl_ref in self.recursive_crawl("table_reference")
         }
         cte_refs = {
-            cte_def.get_identifier().raw
+            cast(CTEDefinitionSegment, cte_def).get_identifier().raw
             for cte_def in self.recursive_crawl("common_table_expression")
         }
         # External references are any table references which aren't

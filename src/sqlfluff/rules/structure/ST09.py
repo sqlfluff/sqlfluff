@@ -1,13 +1,14 @@
 """Implementation of Rule ST09."""
-from typing import Optional, Tuple, List, cast
+from typing import List, Optional, Tuple, cast
+
 from sqlfluff.core.parser.segments.raw import BaseSegment, SymbolSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import Segments, FunctionalContext
 from sqlfluff.dialects.dialect_ansi import (
     FromExpressionElementSegment,
     JoinClauseSegment,
 )
+from sqlfluff.utils.functional import FunctionalContext, Segments
 
 
 class Rule_ST09(BaseRule):
@@ -63,7 +64,7 @@ class Rule_ST09(BaseRule):
             and foo.b = bar.b
     """
 
-    name = "structure.first_table"
+    name = "structure.join_condition_order"
     aliases = ()
     groups: Tuple[str, ...] = ("all", "structure")
     config_keywords = ["preferred_first_table_in_join_clause"]
@@ -178,12 +179,15 @@ class Rule_ST09(BaseRule):
                 "raw_comparison_operator"
             )
 
-            first_table = first_column_reference.get_child(
+            first_table_seg = first_column_reference.get_child(
                 "naked_identifier", "quoted_identifier"
-            ).raw_upper
-            second_table = second_column_reference.get_child(
+            )
+            second_table_seg = second_column_reference.get_child(
                 "naked_identifier", "quoted_identifier"
-            ).raw_upper
+            )
+            assert first_table_seg and second_table_seg
+            first_table = first_table_seg.raw_upper
+            second_table = second_table_seg.raw_upper
 
             # if we swap the two column references around the comparison operator
             # we might have to replace the comparison operator with a different one

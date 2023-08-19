@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f8685cf721a120ea44119298289874b95200715111592d9665c63df372b3bb83
+_hash: 46f584c4b28f6f29cda76a061dcc542329b05702425745b4136f38a91a33bb9b
 file:
 - statement:
     create_table_statement:
@@ -2284,5 +2284,21 @@ file:
         - keyword: DEFERRABLE
         - keyword: INITIALLY
         - keyword: DEFERRED
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example_table
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: INHERITS
+    - bracketed:
+        start_bracket: (
+        table_reference:
+          naked_identifier: parent_table
         end_bracket: )
 - statement_terminator: ;
