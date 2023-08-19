@@ -9,6 +9,7 @@ from sqlfluff.core.parser import (
     BaseFileSegment,
     BaseSegment,
     Bracketed,
+    BracketedSegment,
     CodeSegment,
     CommentSegment,
     Delimited,
@@ -25,8 +26,6 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
 )
-
-from sqlfluff.core.parser.segments.base import BracketedSegment
 from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")

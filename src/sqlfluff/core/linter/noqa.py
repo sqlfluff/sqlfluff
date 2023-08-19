@@ -165,7 +165,9 @@ class IgnoreMask:
         violations: List[SQLBaseError] = []
         for comment in tree.recursive_crawl("comment"):
             if comment.is_type("inline_comment"):
-                ignore_entry = cls._extract_ignore_from_comment(comment, reference_map)
+                ignore_entry = cls._extract_ignore_from_comment(
+                    cast(RawSegment, comment), reference_map
+                )
                 if isinstance(ignore_entry, SQLParseError):
                     violations.append(ignore_entry)
                 elif ignore_entry:

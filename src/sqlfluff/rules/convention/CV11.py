@@ -205,23 +205,25 @@ class Rule_CV11(BaseRule):
         if context.dialect.name == "teradata":
             return None
 
-        # functional_context = FunctionalContext(context)
-        functional_context = FunctionalContext(context)
         # Construct segment type casting
-        if (
-            context.segment.is_type("function")
-            and context.segment.get_child("function_name").raw_upper == "CAST"
-        ):
-            current_type_casting_style = "cast"
-        elif (
-            context.segment.is_type("function")
-            and context.segment.get_child("function_name").raw_upper == "CONVERT"
-        ):
-            current_type_casting_style = "convert"
+        if context.segment.is_type("function"):
+            function_name = context.segment.get_child("function_name")
+            # Functions should always have a name, that means this clause should
+            # be unnecessary.
+            if not function_name:  # pragma: no cover
+                return None
+            elif function_name.raw_upper == "CAST":
+                current_type_casting_style = "cast"
+            elif function_name.raw_upper == "CONVERT":
+                current_type_casting_style = "convert"
+            else:
+                current_type_casting_style = None
         elif context.segment.is_type("cast_expression"):
             current_type_casting_style = "shorthand"
-        else:
+        else:  # pragma: no cover
             current_type_casting_style = None
+
+        functional_context = FunctionalContext(context)
 
         # If casting style is set to consistent,
         # we use the casting style of the first segment we encounter.

@@ -17,7 +17,7 @@ from typing_extensions import Literal
 from uuid import uuid4
 
 from sqlfluff.core.errors import SQLParseError
-from sqlfluff.core.parser.grammar.types import SimpleHintType
+from sqlfluff.core.parser.types import SimpleHintType
 from sqlfluff.core.string_helpers import curtail_string
 
 from sqlfluff.core.parser.segments import BaseSegment, BracketedSegment, allow_ephemeral

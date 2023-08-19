@@ -1,0 +1,74 @@
+rule: AL08
+
+test_fail_references:
+  fail_str: |
+    select
+      foo,
+      foo
+
+test_fail_aliases:
+  fail_str: |
+    select
+      a as foo,
+      b as foo
+
+test_fail_alias_refs:
+  fail_str: |
+    select
+      foo,
+      b as foo
+
+test_fail_locs:
+  fail_str: |
+    select
+      foo,
+      b as foo,
+      c as bar,
+      bar,
+      d foo,
+  violations:
+    - code: AL08
+      description: Reuse of column alias 'foo' from line 2.
+      line_no: 3
+      line_pos: 8
+      name: aliasing.unique.column
+    - code: AL08
+      description: Reuse of column alias 'bar' from line 4.
+      line_no: 5
+      line_pos: 3
+      name: aliasing.unique.column
+    - code: AL08
+      description: Reuse of column alias 'foo' from line 2.
+      line_no: 6
+      line_pos: 5
+      name: aliasing.unique.column
+
+test_fail_alias_quoted:
+  fail_str: |
+    select
+      foo,
+      b as "foo"
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_alias_case:
+  fail_str: |
+    select
+      foo,
+      b as FOO
+
+test_fail_qualified:
+  fail_str: |
+    select
+      a.foo
+      , b as foo
+    from a
+
+test_pass_table_names:
+  pass_str: |
+    select
+      a.b,
+      b.c,
+      c.d
+    from a, b, c

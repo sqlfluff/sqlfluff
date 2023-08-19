@@ -2,33 +2,32 @@
 
 from sqlfluff.core.parser.segments.base import (
     BaseSegment,
-    BaseFileSegment,
-    UnparsableSegment,
-    BracketedSegment,
-    IdentitySet,
     FixPatch,
     SourceFix,
+    UnparsableSegment,
 )
-from sqlfluff.core.parser.segments.generator import SegmentGenerator
-from sqlfluff.core.parser.segments.raw import (
-    RawSegment,
-    CodeSegment,
-    UnlexableSegment,
-    CommentSegment,
-    WhitespaceSegment,
-    NewlineSegment,
-    KeywordSegment,
-    SymbolSegment,
-)
+from sqlfluff.core.parser.segments.bracketed import BracketedSegment
 from sqlfluff.core.parser.segments.ephemeral import EphemeralSegment, allow_ephemeral
+from sqlfluff.core.parser.segments.file import BaseFileSegment
+from sqlfluff.core.parser.segments.generator import SegmentGenerator
 from sqlfluff.core.parser.segments.meta import (
-    MetaSegment,
-    Indent,
     Dedent,
-    ImplicitIndent,
-    TemplateSegment,
     EndOfFile,
+    ImplicitIndent,
+    Indent,
+    MetaSegment,
     TemplateLoop,
+    TemplateSegment,
+)
+from sqlfluff.core.parser.segments.raw import (
+    CodeSegment,
+    CommentSegment,
+    KeywordSegment,
+    NewlineSegment,
+    RawSegment,
+    SymbolSegment,
+    UnlexableSegment,
+    WhitespaceSegment,
 )
 
 __all__ = (
@@ -54,7 +53,6 @@ __all__ = (
     "TemplateSegment",
     "EndOfFile",
     "TemplateLoop",
-    "IdentitySet",
     "FixPatch",
     "SourceFix",
 )

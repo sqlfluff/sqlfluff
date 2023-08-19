@@ -57,3 +57,6 @@ t-sql:
 
 teradata:
   - "/(teradata)/i"
+
+trino:
+  - "/(trino)/i"

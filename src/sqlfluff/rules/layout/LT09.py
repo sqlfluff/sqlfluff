@@ -2,13 +2,10 @@
 
 from typing import List, NamedTuple, Optional, Sequence
 
-from sqlfluff.core.parser import WhitespaceSegment
-
-from sqlfluff.core.parser import BaseSegment, NewlineSegment
-from sqlfluff.core.parser.segments.base import IdentitySet
+from sqlfluff.core.parser import BaseSegment, NewlineSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import Segments, sp, FunctionalContext
+from sqlfluff.utils.functional import FunctionalContext, Segments, sp
 
 
 class SelectTargetsInfo(NamedTuple):
@@ -338,9 +335,7 @@ class Rule_LT09(BaseRule):
                     # :TRICKY: Below, we have a couple places where we
                     # filter to guard against deleting the same segment
                     # multiple times -- this is illegal.
-                    # :TRICKY: Use IdentitySet rather than set() since
-                    # different segments may compare as equal.
-                    all_deletes = IdentitySet(
+                    all_deletes = set(
                         fix.anchor for fix in fixes if fix.edit_type == "delete"
                     )
                     fixes_ = []

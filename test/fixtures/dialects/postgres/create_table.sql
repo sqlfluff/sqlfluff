@@ -339,3 +339,5 @@ CREATE TABLE many_options (
         WHERE (field != 'def')
         DEFERRABLE INITIALLY DEFERRED
 );
+
+CREATE TABLE example_table () INHERITS (parent_table);
