@@ -3,7 +3,6 @@ import pytest
 
 from sqlfluff.core import FluffConfig
 from sqlfluff.core.templaters import PlaceholderTemplater
-from sqlfluff.core.errors import SQLTemplaterError
 
 
 def test__templater_raw():
@@ -330,7 +329,7 @@ def test__templater_raw():
         "ampersand",
         "flyway_var",
         "flyway_var",
-        "params_not_specified"
+        "params_not_specified",
     ],
 )
 def test__templater_param_style(instr, expected_outstr, param_style, values):
