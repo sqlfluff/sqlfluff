@@ -14,6 +14,7 @@ from sqlfluff.core.parser import (
     Delimited,
     GreedyUntil,
     Matchable,
+    OneOf,
     OptionallyBracketed,
     Ref,
     RegexLexer,
@@ -23,7 +24,6 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
-    OneOf,
 )
 
 from sqlfluff.core.parser.segments.base import BracketedSegment
@@ -45,6 +45,10 @@ oracle_dialect.sets("reserved_keywords").update(
         "ERROR",
         "PRIVATE",
         "DEFINITION",
+        "CONNECT",
+        "SIBLINGS",
+        "START",
+        "CONNECT_BY_ROOT",
     ]
 )
 
@@ -108,6 +112,7 @@ oracle_dialect.add(
             Sequence(OneOf("DELETE", "PRESERVE"), Ref.keyword("ROWS")),
         ),
     ),
+    ConnectByRootGrammar=Sequence("CONNECT_BY_ROOT", Ref("NakedIdentifierSegment")),
 )
 
 oracle_dialect.replace(
@@ -156,6 +161,13 @@ oracle_dialect.replace(
             Ref("SqlplusVariableGrammar"),
         ],
         before=Ref("ArrayLiteralSegment"),
+    ),
+    BaseExpressionElementGrammar=ansi_dialect.get_grammar(
+        "BaseExpressionElementGrammar"
+    ).copy(
+        insert=[
+            Ref("ConnectByRootGrammar"),
+        ]
     ),
 )
 
@@ -615,4 +627,97 @@ class SqlplusVariableGrammar(BaseSegment):
             Ref("ColonSegment"),
             Ref("ParameterNameSegment"),
         )
+    )
+
+
+class ConnectByClauseSegment(BaseSegment):
+    """`CONNECT BY` clause used in Hierarchical Queries.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Hierarchical-Queries.html
+    """
+
+    type = "connectby_clause"
+
+    match_grammar: Matchable = Sequence(
+        "CONNECT",
+        "BY",
+        Ref.keyword("NOCYCLE", optional=True),
+        Ref("ExpressionSegment"),
+    )
+
+
+class StartWithClauseSegment(BaseSegment):
+    """`START WITH` clause used in Hierarchical Queries.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Hierarchical-Queries.html
+    """
+
+    type = "startwith_clause"
+
+    match_grammar: Matchable = Sequence(
+        "START",
+        "WITH",
+        Ref("ExpressionSegment"),
+    )
+
+
+class HierarchicalQueryClauseSegment(BaseSegment):
+    """Hiearchical Query.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Hierarchical-Queries.html
+    """
+
+    type = "hierarchical_query_clause"
+
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            Ref("ConnectByClauseSegment"),
+            Ref("StartWithClauseSegment", optional=True),
+        ),
+        Sequence(
+            Ref("StartWithClauseSegment"),
+            Ref("ConnectByClauseSegment"),
+        ),
+    )
+
+
+class OrderByClauseSegment(ansi.OrderByClauseSegment):
+    """A `ORDER BY` clause like in `SELECT`."""
+
+    match_grammar: Matchable = ansi.OrderByClauseSegment.match_grammar.copy(
+        insert=[Ref.keyword("SIBLINGS", optional=True)], before=Ref("ByKeywordSegment")
+    )
+
+
+class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
+    """A `SELECT` statement without any ORDER clauses or later.
+
+    This is designed for use in the context of set operations,
+    for other use cases, we should use the main
+    SelectStatementSegment.
+    """
+
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(
+        insert=[
+            Ref("HierarchicalQueryClauseSegment"),
+        ],
+    )
+    parse_grammar: Matchable = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+        insert=[Ref("HierarchicalQueryClauseSegment", optional=True)],
+        before=Ref("GroupByClauseSegment", optional=True),
+    )
+
+
+class SelectStatementSegment(ansi.SelectStatementSegment):
+    """A `SELECT` statement."""
+
+    match_grammar: Matchable = ansi.SelectStatementSegment.match_grammar.copy()
+    parse_grammar: Matchable = UnorderedSelectStatementSegment.parse_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("FetchClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
+        ]
     )
