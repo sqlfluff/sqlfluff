@@ -63,21 +63,17 @@ class LintingResult:
         self.total_time = time.monotonic() - self._start_time
 
     @overload
-    def check_tuples(
-        self, by_path: Literal[False]
-    ) -> List[CheckTuple]:  # pragma: no cover
+    def check_tuples(self, by_path: Literal[False]) -> List[CheckTuple]:
         """Return a List of CheckTuples when by_path is False."""
         ...
 
     @overload
-    def check_tuples(
-        self, by_path: Literal[True]
-    ) -> Dict[LintedDir, List[CheckTuple]]:  # pragma: no cover
+    def check_tuples(self, by_path: Literal[True]) -> Dict[LintedDir, List[CheckTuple]]:
         """Return a Dict of LintedDir and CheckTuples when by_path is True."""
         ...
 
     @overload
-    def check_tuples(self, by_path: bool = False):  # pragma: no cover
+    def check_tuples(self, by_path: bool = False):
         """Default overload method."""
         ...
 

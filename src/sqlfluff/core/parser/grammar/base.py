@@ -138,12 +138,14 @@ class BaseGrammar(Matchable):
     @overload
     @staticmethod
     def _resolve_ref(elem: None) -> None:
-        ...  # pragma: no cover
+        """Return None when None."""
+        ...
 
     @overload
     @staticmethod
     def _resolve_ref(elem: Union[str, MatchableType]) -> MatchableType:
-        ...  # pragma: no cover
+        """Otherwise always return a MatchableType."""
+        ...
 
     @staticmethod
     def _resolve_ref(
