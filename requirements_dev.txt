@@ -2,7 +2,7 @@
 # code linting and formatting
 flake8
 flake8-docstrings
-pydocstyle<6.2.0, >=6.2.2  # See: https://github.com/PyCQA/pydocstyle/issues/618
+pydocstyle!=6.2.0, !=6.2.1  # See: https://github.com/PyCQA/pydocstyle/issues/618
 black>=22.1.0
 flake8-black>=0.2.4
 ruff
