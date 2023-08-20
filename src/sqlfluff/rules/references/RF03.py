@@ -265,38 +265,39 @@ def _validate_one_reference(
         return None
 
     # Otherwise check for a specified type of referencing.
-    if single_table_references != this_ref_type:
-        if single_table_references == "unqualified":
-            # If this is qualified we must have a "table", "."" at least
-            fixes = [LintFix.delete(el) for el in ref.segments[:2]] if fixable else None
-            return LintResult(
-                anchor=ref,
-                fixes=fixes,
-                description="{} reference {!r} found in single table "
-                "select.".format(this_ref_type.capitalize(), ref.raw),
-            )
+    # If it's the right kind already, just return.
+    if single_table_references == this_ref_type:
+        return None
 
-        fixes = None
-        if fixable:
-            fixes = [
-                LintFix.create_before(
-                    ref.segments[0] if len(ref.segments) else ref,
-                    source=[table_ref_str_source] if table_ref_str_source else None,
-                    edit_segments=[
-                        IdentifierSegment(
-                            raw=table_ref_str,
-                            type="naked_identifier",
-                        ),
-                        SymbolSegment(raw=".", type="symbol"),
-                    ],
-                )
-            ]
+    # If not, it's the wrong type and we should handle it.
+    if single_table_references == "unqualified":
+        # If this is qualified we must have a "table", "."" at least
+        fixes = [LintFix.delete(el) for el in ref.segments[:2]] if fixable else None
         return LintResult(
             anchor=ref,
             fixes=fixes,
             description="{} reference {!r} found in single table "
             "select.".format(this_ref_type.capitalize(), ref.raw),
         )
-    # This reference matches the configured type. All Good.
-    # TODO: Move this case up and un-nest above.
-    return None
+
+    fixes = None
+    if fixable:
+        fixes = [
+            LintFix.create_before(
+                ref.segments[0] if len(ref.segments) else ref,
+                source=[table_ref_str_source] if table_ref_str_source else None,
+                edit_segments=[
+                    IdentifierSegment(
+                        raw=table_ref_str,
+                        type="naked_identifier",
+                    ),
+                    SymbolSegment(raw=".", type="symbol"),
+                ],
+            )
+        ]
+    return LintResult(
+        anchor=ref,
+        fixes=fixes,
+        description="{} reference {!r} found in single table "
+        "select.".format(this_ref_type.capitalize(), ref.raw),
+    )
