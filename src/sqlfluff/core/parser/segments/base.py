@@ -1051,6 +1051,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         *seg_type: str,
         recurse_into: bool = True,
         no_recursive_seg_type: Optional[str] = None,
+        allow_self: bool = True,
     ) -> Iterator[BaseSegment]:
         """Recursively crawl for segments of a given type.
 
@@ -1059,13 +1060,15 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 to look for.
             recurse_into: :obj:`bool`: When an element of type "seg_type" is
                 found, whether to recurse into it.
-            no_recursive_seg_type: obj: `str`: a type of segment
+            no_recursive_seg_type: :obj:`str`: a type of segment
                 not to recurse further into. It is highly recommended
                 to set this argument where possible, as it can significantly
                 narrow the search pattern.
+            allow_self: :obj:`bool`: Whether to allow the initial segment this
+                is called on to be one of the results.
         """
-        # Assuming there is a segment to be found, first check self.
-        if self.is_type(*seg_type):
+        # Assuming there is a segment to be found, first check self (if allowed):
+        if allow_self and self.is_type(*seg_type):
             match = True
             yield self
         else:
