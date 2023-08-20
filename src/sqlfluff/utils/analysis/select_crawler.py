@@ -1,15 +1,16 @@
 """Tools for more complex analysis of SELECT statements."""
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Generator, List, NamedTuple, Optional, Type, Union
+from typing import Dict, Generator, List, NamedTuple, Optional, Type, Union, cast
 
 from sqlfluff.core.cached_property import cached_property
-from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.dialects.base import Dialect
+from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser import BaseSegment
+from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.utils.analysis.select import (
-    get_select_statement_info,
     SelectStatementColumnsAndTables,
+    get_select_statement_info,
 )
 from sqlfluff.utils.functional import Segments, sp
 
@@ -185,13 +186,14 @@ class Query:
             # 1. If it's a table reference, work out whether it's to a CTE
             #    or to an external table.
             if seg.is_type("table_reference"):
-                if not seg.is_qualified() and lookup_cte:
-                    cte = self.lookup_cte(seg.raw, pop=pop)
+                _seg = cast(ObjectReferenceSegment, seg)
+                if not _seg.is_qualified() and lookup_cte:
+                    cte = self.lookup_cte(_seg.raw, pop=pop)
                     if cte:
                         # It's a CTE.
                         yield cte
                 # It's an external table reference.
-                yield seg.raw
+                yield _seg.raw
             # 2. If it's some kind of more complex expression which is still
             #    valid in this position, generate an appropriate sub-select.
             else:
