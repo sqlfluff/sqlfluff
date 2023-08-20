@@ -1,17 +1,18 @@
 """GreedyUntil and StartsWith Grammars."""
 
-from sqlfluff.core.parser.helpers import trim_non_code_segments
-from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.match_wrapper import match_wrapper
-from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.segments import allow_ephemeral
+from typing import Optional, Tuple, Union, List
 
+from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
     BaseSegment,
     cached_method_for_parse_context,
 )
-from typing import Tuple
+from sqlfluff.core.parser.helpers import trim_non_code_segments
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.segments import allow_ephemeral
+from sqlfluff.core.parser.types import MatchableType, SimpleHintType
 
 
 class GreedyUntil(BaseGrammar):
@@ -25,19 +26,25 @@ class GreedyUntil(BaseGrammar):
 
     """
 
-    def __init__(self, *args, **kwargs) -> None:
-        self.enforce_whitespace_preceding_terminator = kwargs.pop(
-            "enforce_whitespace_preceding_terminator", False
+    def __init__(
+        self,
+        *args: Union[MatchableType, str],
+        enforce_whitespace_preceding_terminator: bool = False,
+        optional: bool = False,
+        ephemeral_name: Optional[str] = None,
+    ) -> None:
+        self.enforce_whitespace_preceding_terminator = (
+            enforce_whitespace_preceding_terminator
         )
-        super().__init__(*args, **kwargs)
-        if not self.allow_gaps:  # pragma: no cover
-            raise NotImplementedError(
-                f"{self.__class__} does not support allow_gaps=False."
-            )
+        # NOTE: This grammar does not support allow_gaps=False,
+        # therefore that option is not provided here.
+        super().__init__(*args, optional=optional, ephemeral_name=ephemeral_name)
 
     @match_wrapper()
     @allow_ephemeral
-    def match(self, segments, parse_context) -> MatchResult:
+    def match(
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> MatchResult:
         """Matching for GreedyUntil works just how you'd expect."""
         return self.greedy_match(
             segments,
@@ -52,24 +59,19 @@ class GreedyUntil(BaseGrammar):
     @classmethod
     def greedy_match(
         cls,
-        segments,
-        parse_context,
-        matchers,
-        enforce_whitespace_preceding_terminator,
-        include_terminator=False,
+        segments: Tuple[BaseSegment, ...],
+        parse_context: ParseContext,
+        matchers: List[MatchableType],
+        enforce_whitespace_preceding_terminator: bool,
+        include_terminator: bool = False,
     ) -> MatchResult:
         """Matching for GreedyUntil works just how you'd expect."""
         seg_buff = segments
         seg_bank: Tuple[BaseSegment, ...] = ()  # Empty tuple
-        # If no terminators then just return the whole thing.
-        # Shouldn't really happen as GreedyMatch is everything
-        # and StartsWith has mandatory terminator
-        if matchers == [None]:  # pragma: no cover
-            return MatchResult.from_matched(segments)
 
         while True:
             with parse_context.deeper_match(name="GreedyUntil") as ctx:
-                pre, mat, matcher = cls._bracket_sensitive_look_ahead_match(
+                pre, mat, _ = cls._bracket_sensitive_look_ahead_match(
                     seg_buff, matchers, parse_context=ctx
                 )
 
@@ -159,18 +161,36 @@ class StartsWith(GreedyUntil):
     This also has configurable whitespace and comment handling.
     """
 
-    def __init__(self, target, *args, **kwargs) -> None:
+    def __init__(
+        self,
+        target: Union[MatchableType, str],
+        *args: Union[MatchableType, str],
+        # NOTE: Other grammars support terminators (plural)
+        # TODO: Align these to be the same eventually.
+        terminator: Optional[Union[MatchableType, str]] = None,
+        include_terminator: bool = False,
+        enforce_whitespace_preceding_terminator: bool = False,
+        optional: bool = False,
+        ephemeral_name: Optional[str] = None,
+    ) -> None:
         self.target = self._resolve_ref(target)
-        self.terminator = self._resolve_ref(kwargs.pop("terminator", None))
-        self.include_terminator = kwargs.pop("include_terminator", False)
+        self.terminator = self._resolve_ref(terminator)
+        self.include_terminator = include_terminator
 
         # StartsWith should only be used with a terminator
         assert self.terminator
 
-        super().__init__(*args, **kwargs)
+        super().__init__(
+            *args,
+            enforce_whitespace_preceding_terminator=enforce_whitespace_preceding_terminator,  # noqa: E501
+            optional=optional,
+            ephemeral_name=ephemeral_name,
+        )
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext, crumbs=None):
+    def simple(
+        self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
+    ) -> SimpleHintType:
         """Does this matcher support a uppercase hash matching route?
 
         `StartsWith` is simple, if the thing it starts with is also simple.
@@ -193,9 +213,7 @@ class StartsWith(GreedyUntil):
             # That means this isn't a match.
             return MatchResult.from_unmatched(segments)  # pragma: no cover TODO?
         with parse_context.deeper_match(name="StartsWith") as ctx:
-            match = self.target.match(
-                segments=segments[first_code_idx:], parse_context=ctx
-            )
+            match = self.target.match(segments[first_code_idx:], ctx)
 
         if not match:
             return MatchResult.from_unmatched(segments)
@@ -210,6 +228,7 @@ class StartsWith(GreedyUntil):
         # of a partial match, given that we're only interested in what it STARTS
         # with, then we can still used the unmatched parts on the end.
         # We still need to deal with any non-code segments at the start.
+        assert self.terminator
         greedy_match = self.greedy_match(
             match.unmatched_segments,
             parse_context,

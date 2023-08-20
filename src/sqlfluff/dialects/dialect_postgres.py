@@ -5178,7 +5178,7 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
         Ref("BareFunctionSegment"),
         Sequence(
             Ref("FunctionSegment"),
-            Sequence("WITH", "ORDINALITY", optional="True"),
+            Sequence("WITH", "ORDINALITY", optional=True),
         ),
         Ref("TableReferenceSegment"),
         # Nested Selects

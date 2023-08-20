@@ -2,35 +2,35 @@
 
 # NOTE: We rename the typing.Sequence here so it doesn't collide
 # with the grammar class that we're defining.
-from typing import Optional, Set, Tuple, cast, Type, Sequence as _Sequence
+from os import getenv
+from typing import Optional
+from typing import Sequence as SequenceType
+from typing import Set, Tuple, Type, Union, cast
 
 from sqlfluff.core.errors import SQLParseError
-
-from sqlfluff.core.parser.segments import (
-    BaseSegment,
-    Indent,
-    Dedent,
-    allow_ephemeral,
-    BracketedSegment,
-    MetaSegment,
-)
-from sqlfluff.core.parser.helpers import trim_non_code_segments, check_still_complete
-from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.match_wrapper import match_wrapper
-from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
     cached_method_for_parse_context,
-    MatchableType,
 )
-from sqlfluff.core.parser.types import SimpleHintType
 from sqlfluff.core.parser.grammar.conditional import Conditional
-from os import getenv
+from sqlfluff.core.parser.helpers import check_still_complete, trim_non_code_segments
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.matchable import Matchable
+from sqlfluff.core.parser.segments import (
+    BaseSegment,
+    BracketedSegment,
+    Dedent,
+    Indent,
+    MetaSegment,
+    allow_ephemeral,
+)
+from sqlfluff.core.parser.types import MatchableType, SimpleHintType
 
 
 def _all_remaining_metas(
-    remaining_elements: _Sequence[MatchableType], parse_context: ParseContext
+    remaining_elements: SequenceType[MatchableType], parse_context: ParseContext
 ) -> Optional[Tuple[MetaSegment, ...]]:
     """Check the remaining elements, instantiate them if they're metas.
 
@@ -74,14 +74,16 @@ class Sequence(BaseGrammar):
     test_env = getenv("SQLFLUFF_TESTENV", "")
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext, crumbs=None) -> SimpleHintType:
+    def simple(
+        self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
+    ) -> SimpleHintType:
         """Does this matcher support a uppercase hash matching route?
 
         Sequence does provide this, as long as the *first* non-optional
         element does, *AND* and optional elements which preceded it also do.
         """
-        simple_raws = set()
-        simple_types = set()
+        simple_raws: Set[str] = set()
+        simple_types: Set[str] = set()
         for opt in self._elements:
             simple = opt.simple(parse_context=parse_context, crumbs=crumbs)
             if not simple:
@@ -97,7 +99,9 @@ class Sequence(BaseGrammar):
 
     @match_wrapper()
     @allow_ephemeral
-    def match(self, segments, parse_context: ParseContext) -> MatchResult:
+    def match(
+        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> MatchResult:
         """Match a specific sequence of elements."""
         matched_segments = MatchResult.from_empty()
         unmatched_segments = segments
@@ -135,7 +139,8 @@ class Sequence(BaseGrammar):
                 new_metas: Tuple[MetaSegment, ...] = ()
                 # Is it a raw meta?
                 if elem.is_meta:
-                    new_metas = (elem(),)
+                    # Instantiate a new instance of it.
+                    new_metas = (cast(Type[MetaSegment], elem)(),)
                 elif isinstance(elem, Conditional):
                     if not elem.is_enabled(parse_context):
                         # If it's not active, skip it.
@@ -191,7 +196,7 @@ class Sequence(BaseGrammar):
                 # We've already dealt with potential whitespace above, so carry on
                 # to matching
                 with parse_context.deeper_match(name=f"Sequence-@{idx}") as ctx:
-                    elem_match = elem.match(mid_seg, parse_context=ctx)
+                    elem_match = elem.match(mid_seg, ctx)
 
                 if not elem_match.has_match():
                     # If we can't match an element, we should ascertain whether it's
@@ -264,18 +269,35 @@ class Bracketed(Sequence):
       brackets to that sequence.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(
+        self,
+        *args: Union[MatchableType, str],
+        bracket_type: str = "round",
+        bracket_pairs_set: str = "bracket_pairs",
+        start_bracket: Optional[MatchableType] = None,
+        end_bracket: Optional[MatchableType] = None,
+        allow_gaps: bool = True,
+        optional: bool = False,
+        ephemeral_name: Optional[str] = None,
+    ) -> None:
         # Store the bracket type. NB: This is only
         # hydrated into segments at runtime.
-        self.bracket_type = kwargs.pop("bracket_type", "round")
-        self.bracket_pairs_set = kwargs.pop("bracket_pairs_set", "bracket_pairs")
+        self.bracket_type = bracket_type
+        self.bracket_pairs_set = bracket_pairs_set
         # Allow optional override for special bracket-like things
-        self.start_bracket = kwargs.pop("start_bracket", None)
-        self.end_bracket = kwargs.pop("end_bracket", None)
-        super().__init__(*args, **kwargs)
+        self.start_bracket = start_bracket
+        self.end_bracket = end_bracket
+        super().__init__(
+            *args,
+            allow_gaps=allow_gaps,
+            optional=optional,
+            ephemeral_name=ephemeral_name,
+        )
 
     @cached_method_for_parse_context
-    def simple(self, parse_context: ParseContext, crumbs=None):
+    def simple(
+        self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
+    ) -> SimpleHintType:
         """Does this matcher support a uppercase hash matching route?
 
         Bracketed does this easily, we just look for the bracket.
@@ -283,12 +305,11 @@ class Bracketed(Sequence):
         start_bracket, _, _ = self.get_bracket_from_dialect(parse_context)
         return start_bracket.simple(parse_context=parse_context, crumbs=crumbs)
 
-    def get_bracket_from_dialect(self, parse_context: ParseContext):
+    def get_bracket_from_dialect(
+        self, parse_context: ParseContext
+    ) -> Tuple[MatchableType, MatchableType, bool]:
         """Rehydrate the bracket segments in question."""
-        bracket_pairs = cast(
-            Set[Tuple[str, str, str, bool]],
-            parse_context.dialect.bracket_sets(self.bracket_pairs_set),
-        )
+        bracket_pairs = parse_context.dialect.bracket_sets(self.bracket_pairs_set)
         for bracket_type, start_ref, end_ref, persists in bracket_pairs:
             if bracket_type == self.bracket_type:
                 start_bracket = parse_context.dialect.ref(start_ref)
@@ -322,7 +343,7 @@ class Bracketed(Sequence):
         """
         # Trim ends if allowed.
         if self.allow_gaps:
-            pre_nc, seg_buff, post_nc = trim_non_code_segments(segments)
+            _, seg_buff, _ = trim_non_code_segments(segments)
         else:
             seg_buff = segments  # pragma: no cover TODO?
 
@@ -353,7 +374,7 @@ class Bracketed(Sequence):
         else:
             # Look for the first bracket
             with parse_context.deeper_match(name="Bracketed-First") as ctx:
-                start_match = start_bracket.match(seg_buff, parse_context=ctx)
+                start_match = start_bracket.match(seg_buff, ctx)
             if start_match:
                 seg_buff = start_match.unmatched_segments
             else:

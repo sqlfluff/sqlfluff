@@ -669,7 +669,7 @@ sparksql_dialect.add(
         "at_sign_literal",
         ansi.LiteralSegment,
         type="at_sign_literal",
-        trim_chars="@",
+        trim_chars=("@",),
     ),
     # This is the same as QuotedLiteralSegment but
     # is given a different `name` to stop LT01 flagging
