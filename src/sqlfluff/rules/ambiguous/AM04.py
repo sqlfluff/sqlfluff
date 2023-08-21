@@ -69,7 +69,8 @@ class Rule_AM04(BaseRule):
     name = "ambiguous.column_count"
     aliases = ("L044",)
     groups: Tuple[str, ...] = ("all", "ambiguous")
-    crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES))
+    # Only evaluate the outermost query.
+    crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES), allow_recurse=False)
 
     def _handle_alias(self, selectable, alias_info, query) -> None:
         select_info_target = SelectCrawler.get(
@@ -141,13 +142,12 @@ class Rule_AM04(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Outermost query should produce known number of columns."""
-        if not FunctionalContext(context).parent_stack.any(sp.is_type(*_START_TYPES)):
-            crawler = SelectCrawler(context.segment, context.dialect)
+        crawler = SelectCrawler(context.segment, context.dialect)
 
-            # Begin analysis at the outer query.
-            if crawler.query_tree:
-                try:
-                    self._analyze_result_columns(crawler.query_tree)
-                except RuleFailure as e:
-                    return LintResult(anchor=e.anchor)
+        # Begin analysis at the outer query.
+        if crawler.query_tree:
+            try:
+                self._analyze_result_columns(crawler.query_tree)
+            except RuleFailure as e:
+                return LintResult(anchor=e.anchor)
         return None
