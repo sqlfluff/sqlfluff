@@ -64,7 +64,18 @@ class Rule_AM07(BaseRule):
         self,
         query: Query,
     ) -> Tuple[int, bool]:
-        """Attempt to resolve the wildcard to a list of selectables."""
+        """Attempt to resolve a full query which may contain wildcards.
+
+        NOTE: This requires a ``Query`` as input rather than just a
+        ``Selectable`` and will delegate to ``__resolve_selectable``
+        once any Selectables have been identified.
+
+        This method is *not* called on the initial set expression as
+        that is evaluated as a series of Selectables. This method is
+        only called on any subqueries (which may themselves be SELECT,
+        WITH or set expressions) found during the resolution of any
+        wildcards.
+        """
         self.logger.debug("Resolving query of type %s", query.query_type)
         for s in query.selectables:
             self.logger.debug("   ...with selectable %r", s.selectable.raw)
@@ -90,6 +101,12 @@ class Rule_AM07(BaseRule):
     def __resolve_selectable_wildcard(
         self, wildcard: WildcardInfo, selectable: Selectable, root_query: Query
     ) -> Tuple[int, bool]:
+        """Attempt to resolve a single wildcard (*) within a Selectable.
+
+        NOTE: This means resolving the number of columns implied by
+        a single *. This method would be run multiple times if there
+        are multiple wildcards in a single selectable.
+        """
         resolved = True
         # If there is no table specified, it is likely a subquery.
         # Handle that first.
@@ -137,6 +154,11 @@ class Rule_AM07(BaseRule):
     def __resolve_selectable(
         self, selectable: Selectable, root_query: Query
     ) -> Tuple[int, bool]:
+        """Resolve the number of columns in a single Selectable.
+
+        The selectable may or may not have wildcard (*) expressions.
+        If it does, we attempt to resolve them.
+        """
         self.logger.debug("Resolving selectable: %r", selectable.selectable.raw)
         assert selectable.select_info
         wildcard_info = selectable.get_wildcard_info()
@@ -169,12 +191,18 @@ class Rule_AM07(BaseRule):
         return num_cols, resolved
 
     def _get_select_target_counts(self, query: Query) -> Tuple[Set[int], bool]:
-        """Given a set expression, get the number of select targets in each query."""
+        """Given a set expression, get the number of select targets in each query.
+
+        We keep track of the number of columns in each selectable using a
+        ``set``. Ideally at the end there is only one item in the set,
+        showing that all selectables have the same size. Importantly we
+        can't guarantee that we can always resolve any wildcards (*), so
+        we also return a flag to indicate whether any present have been
+        fully resolved.
+        """
         select_target_counts = set()
         resolved_wildcard = True
-        # for each selectable in the set
-        # , add the number of select targets to a set; in the end
-        # length of the set should be one (one size)
+
         for selectable in query.selectables:
             cnt, res = self.__resolve_selectable(selectable, query)
             if not res:
@@ -203,6 +231,7 @@ class Rule_AM07(BaseRule):
             parent=None,
         )
         query = crawler.query_tree
+        assert query
 
         set_segment_select_sizes, resolve_wildcard = self._get_select_target_counts(
             query
