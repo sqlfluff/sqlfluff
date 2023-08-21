@@ -1,15 +1,16 @@
 """Tools for more complex analysis of SELECT statements."""
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Generator, List, NamedTuple, Optional, Type, Union
+from typing import Dict, Generator, List, NamedTuple, Optional, Type, Union, cast
 
 from sqlfluff.core.cached_property import cached_property
-from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.dialects.base import Dialect
+from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser import BaseSegment
+from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.utils.analysis.select import (
-    get_select_statement_info,
     SelectStatementColumnsAndTables,
+    get_select_statement_info,
 )
 from sqlfluff.utils.functional import Segments, sp
 
@@ -177,40 +178,32 @@ class Query:
             "select_statement",
             "values_clause",
         ]
-        for event, path in SelectCrawler.visit_segments(
-            segment, recurse_into=recurse_into
+        for seg in segment.recursive_crawl(
+            *types, recurse_into=False, allow_self=False
         ):
-            seg = path[-1]
-            if event == "end" or not seg.is_type(*types):
-                continue
-
-            if seg is segment:
-                # If the starting segment itself matches the list of types we're
-                # searching for, recursive_crawl() will return it. Skip that.
-                continue
-
+            # Crawl efficiently, don't recurse here. We do that later.
+            # What do we have?
+            # 1. If it's a table reference, work out whether it's to a CTE
+            #    or to an external table.
             if seg.is_type("table_reference"):
-                if not seg.is_qualified() and lookup_cte:
-                    cte = self.lookup_cte(seg.raw, pop=pop)
+                _seg = cast(ObjectReferenceSegment, seg)
+                if not _seg.is_qualified() and lookup_cte:
+                    cte = self.lookup_cte(_seg.raw, pop=pop)
                     if cte:
                         # It's a CTE.
                         yield cte
-                # It's an external table.
-                yield seg.raw
+                # It's an external table reference.
+                yield _seg.raw
+            # 2. If it's some kind of more complex expression which is still
+            #    valid in this position, generate an appropriate sub-select.
             else:
                 assert seg.is_type(
                     "set_expression", "select_statement", "values_clause"
                 )
                 found_nested_select = True
-                seg_ = Segments(*path[1:]).first(
-                    sp.is_type(
-                        "from_expression_element",
-                        "set_expression",
-                        "select_statement",
-                        "values_clause",
-                    )
-                )[0]
-                crawler = SelectCrawler(seg_, self.dialect, parent=self)
+                # Generate a subselect crawler, referencing the current query
+                # as the parent.
+                crawler = SelectCrawler(seg, self.dialect, parent=self)
                 # We know this will pass because we specified parent=self above.
                 assert crawler.query_tree
                 yield crawler.query_tree
