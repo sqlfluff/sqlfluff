@@ -55,41 +55,13 @@ class Rule_AM07(BaseRule):
     groups: Tuple[str, ...] = ("all", "ambiguous")
     crawl_behaviour = SegmentSeekerCrawler({"set_expression"}, provide_raw_stack=True)
 
-    def __handle_alias_case(
-        self, alias_info, query, context, resolve_targets, wildcard
-    ) -> None:
-        select_info_target = SelectCrawler.get(
-            query, alias_info.from_expression_element
-        )[0]
-        if isinstance(select_info_target, str):
-            cte = query.lookup_cte(select_info_target)
-            if cte:  # pragma: no cover.
-                # TODO: This clause isn't covered in the tests. Without better
-                # documentation I can't remove it yet because I dont' understand
-                # what it's trying to do.
-                self.__resolve_wildcard(
-                    context,
-                    cte,
-                    resolve_targets,
-                )
-            else:
-                resolve_targets.append(wildcard)
-                # if select_info_target is not a string
-                # , process as a subquery
-        else:
-            self.__resolve_wildcard(
-                context,
-                select_info_target,
-                resolve_targets,
-            )
-
     def __resolve_wildcard(
         self,
         context: RuleContext,
         query: Query,
-        resolve_targets,
     ) -> List[Any]:
         """Attempt to resolve the wildcard to a list of selectables."""
+        targets = []
         process_queries = query.selectables
         # if one of the source queries for a query within the set is a
         # set expression, just use the first query. If that first query isn't
@@ -109,24 +81,37 @@ class Rule_AM07(BaseRule):
                             alias_info = selectable.find_alias(wildcard_table)
                             # attempt to resolve alias or table name to a cte
                             if alias_info:
-                                # NOTE: This mutates resolve_targets
-                                self.__handle_alias_case(
-                                    alias_info,
-                                    query,
-                                    context,
-                                    resolve_targets,
-                                    wildcard,
-                                )
+                                select_info_target = SelectCrawler.get(
+                                    query, alias_info.from_expression_element
+                                )[0]
+                                if isinstance(select_info_target, str):
+                                    cte = query.lookup_cte(select_info_target)
+                                    if cte:  # pragma: no cover.
+                                        # TODO: This clause isn't covered in the tests. Without better
+                                        # documentation I can't remove it yet because I dont' understand
+                                        # what it's trying to do.
+                                        targets += self.__resolve_wildcard(
+                                            context,
+                                            cte,
+                                        )
+                                    else:
+                                        targets.append(wildcard)
+                                        # if select_info_target is not a string
+                                        # , process as a subquery
+                                else:
+                                    targets += self.__resolve_wildcard(
+                                        context,
+                                        select_info_target,
+                                    )
                             else:
                                 cte = query.lookup_cte(wildcard_table)
                                 if cte:
-                                    self.__resolve_wildcard(
+                                    targets += self.__resolve_wildcard(
                                         context,
                                         cte,
-                                        resolve_targets,
                                     )
                                 else:
-                                    resolve_targets.append(wildcard)
+                                    targets.append(wildcard)
                     # if there is no table specified, it is likely a subquery
                     else:
                         query_list = SelectCrawler.get(
@@ -134,15 +119,18 @@ class Rule_AM07(BaseRule):
                         )
                         for o in query_list:
                             if isinstance(o, Query):
-                                self.__resolve_wildcard(context, o, resolve_targets)
-                                return resolve_targets
+                                targets += self.__resolve_wildcard(
+                                    context,
+                                    o,
+                                )
+                                return targets
             else:
                 assert selectable.select_info
-                resolve_targets.extend(
+                targets.extend(
                     [target for target in selectable.select_info.select_targets]
                 )
 
-        return resolve_targets
+        return targets
 
     def _get_select_target_counts(self, context: RuleContext, crawler: SelectCrawler):
         """Given a set expression, get the number of select targets in each query."""
@@ -170,7 +158,6 @@ class Rule_AM07(BaseRule):
             select_list = self.__resolve_wildcard(
                 context,
                 crawler.query_tree,
-                [],
             )
 
             # get the number of resolved targets plus the total number of
@@ -208,6 +195,11 @@ class Rule_AM07(BaseRule):
 
         set_segment_select_sizes, resolve_wildcard = self._get_select_target_counts(
             context, crawler
+        )
+        self.logger.info(
+            "Resolved select sizes (resolved wildcard: %s) : %s",
+            resolve_wildcard,
+            set_segment_select_sizes,
         )
         # if queries had different select target counts
         # and all wildcards have been resolved; fail
