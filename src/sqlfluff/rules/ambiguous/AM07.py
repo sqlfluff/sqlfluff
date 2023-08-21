@@ -57,7 +57,6 @@ class Rule_AM07(BaseRule):
 
     def __resolve_wildcard(
         self,
-        context: RuleContext,
         query: Query,
     ) -> List[Any]:
         """Attempt to resolve the wildcard to a list of selectables."""
@@ -90,26 +89,19 @@ class Rule_AM07(BaseRule):
                                         # TODO: This clause isn't covered in the tests. Without better
                                         # documentation I can't remove it yet because I dont' understand
                                         # what it's trying to do.
-                                        targets += self.__resolve_wildcard(
-                                            context,
-                                            cte,
-                                        )
+                                        targets += self.__resolve_wildcard(cte)
                                     else:
                                         targets.append(wildcard)
                                         # if select_info_target is not a string
                                         # , process as a subquery
                                 else:
                                     targets += self.__resolve_wildcard(
-                                        context,
-                                        select_info_target,
+                                        select_info_target
                                     )
                             else:
                                 cte = query.lookup_cte(wildcard_table)
                                 if cte:
-                                    targets += self.__resolve_wildcard(
-                                        context,
-                                        cte,
-                                    )
+                                    targets += self.__resolve_wildcard(cte)
                                 else:
                                     targets.append(wildcard)
                     # if there is no table specified, it is likely a subquery
@@ -119,10 +111,7 @@ class Rule_AM07(BaseRule):
                         )
                         for o in query_list:
                             if isinstance(o, Query):
-                                targets += self.__resolve_wildcard(
-                                    context,
-                                    o,
-                                )
+                                targets += self.__resolve_wildcard(o)
                                 return targets
             else:
                 assert selectable.select_info
@@ -132,7 +121,7 @@ class Rule_AM07(BaseRule):
 
         return targets
 
-    def _get_select_target_counts(self, context: RuleContext, crawler: SelectCrawler):
+    def _get_select_target_counts(self, crawler: SelectCrawler):
         """Given a set expression, get the number of select targets in each query."""
         select_list = None
         select_target_counts = set()
@@ -156,7 +145,6 @@ class Rule_AM07(BaseRule):
             # If the set query contains a wildcard, attempt to resolve it to a list of
             # select targets that can be counted.
             select_list = self.__resolve_wildcard(
-                context,
                 crawler.query_tree,
             )
 
@@ -194,7 +182,7 @@ class Rule_AM07(BaseRule):
         )
 
         set_segment_select_sizes, resolve_wildcard = self._get_select_target_counts(
-            context, crawler
+            crawler
         )
         self.logger.info(
             "Resolved select sizes (resolved wildcard: %s) : %s",
