@@ -218,6 +218,24 @@ join prep_1 using (x)
                 ],
             },
         ),
+        # Test a MERGE
+        (
+            """MERGE INTO t USING (SELECT * FROM u) AS u ON (a = b)
+WHEN MATCHED THEN
+UPDATE SET a = b
+WHEN NOT MATCHED THEN
+INSERT (b) VALUES (c);""",
+            {
+                "selectables": [
+                    """MERGE INTO t USING (SELECT * FROM u) AS u ON (a = b)
+WHEN MATCHED THEN
+UPDATE SET a = b
+WHEN NOT MATCHED THEN
+INSERT (b) VALUES (c)"""  # NOTE: No trailing semicolon
+                ],
+                "subqueries": [{"selectables": ["SELECT * FROM u"]}],
+            },
+        ),
     ],
 )
 def test_select_crawler_constructor(sql, expected_json):
