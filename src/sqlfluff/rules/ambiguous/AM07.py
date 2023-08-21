@@ -75,6 +75,7 @@ class Rule_AM07(BaseRule):
                 for wildcard in selectable.get_wildcard_info():
                     if wildcard.tables:
                         for wildcard_table in wildcard.tables:
+                            cte_name = wildcard_table
                             # Get the AliasInfo for the table referenced in the wildcard
                             # expression.
                             alias_info = selectable.find_alias(wildcard_table)
@@ -84,26 +85,18 @@ class Rule_AM07(BaseRule):
                                     query, alias_info.from_expression_element
                                 )[0]
                                 if isinstance(select_info_target, str):
-                                    cte = query.lookup_cte(select_info_target)
-                                    if cte:  # pragma: no cover.
-                                        # TODO: This clause isn't covered in the tests. Without better
-                                        # documentation I can't remove it yet because I dont' understand
-                                        # what it's trying to do.
-                                        targets += self.__resolve_wildcard(cte)
-                                    else:
-                                        targets.append(wildcard)
-                                        # if select_info_target is not a string
-                                        # , process as a subquery
+                                    cte_name = select_info_target
                                 else:
                                     targets += self.__resolve_wildcard(
                                         select_info_target
                                     )
+                                    continue
+
+                            cte = query.lookup_cte(cte_name)
+                            if cte:
+                                targets += self.__resolve_wildcard(cte)
                             else:
-                                cte = query.lookup_cte(wildcard_table)
-                                if cte:
-                                    targets += self.__resolve_wildcard(cte)
-                                else:
-                                    targets.append(wildcard)
+                                targets.append(wildcard)
                     # if there is no table specified, it is likely a subquery
                     else:
                         query_list = SelectCrawler.get(
