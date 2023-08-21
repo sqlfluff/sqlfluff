@@ -94,13 +94,12 @@ class Rule_AM07(BaseRule):
         # If there is no table specified, it is likely a subquery.
         # Handle that first.
         if not wildcard.tables:
-            query_list = SelectCrawler.get(
-                root_query, root_query.selectables[0].selectable
-            )
-            for o in query_list:
+            # Crawl the Query looking for the subquery, probably in the FROM.
+            for o in root_query.crawl_sources(selectable.selectable):
                 if isinstance(o, Query):
                     return self.__resolve_wild_query(o)
-            raise NotImplementedError("TODO: WORK OUT HOW TO GET HERE!")
+            # We should find one. This is not an expected path to be in.
+            return 0, False  # pragma: no cover
 
         # There might be multiple tables referenced in some wildcard cases.
         num_cols = 0
@@ -111,9 +110,12 @@ class Rule_AM07(BaseRule):
             alias_info = selectable.find_alias(wildcard_table)
             # attempt to resolve alias or table name to a cte
             if alias_info:
-                select_info_target = SelectCrawler.get(
-                    root_query, alias_info.from_expression_element
-                )[0]
+                # Crawl inside the FROM expression looking for something to
+                # resolve to.
+                select_info_target = next(
+                    root_query.crawl_sources(alias_info.from_expression_element)
+                )
+
                 if isinstance(select_info_target, str):
                     cte_name = select_info_target
                 else:
@@ -167,18 +169,15 @@ class Rule_AM07(BaseRule):
         )
         return num_cols, resolved
 
-    def _get_select_target_counts(
-        self, crawler: SelectCrawler
-    ) -> Tuple[Set[int], bool]:
+    def _get_select_target_counts(self, query: Query) -> Tuple[Set[int], bool]:
         """Given a set expression, get the number of select targets in each query."""
         select_target_counts = set()
-        assert crawler.query_tree
         resolved_wildcard = True
         # for each selectable in the set
         # , add the number of select targets to a set; in the end
         # length of the set should be one (one size)
-        for selectable in crawler.query_tree.selectables:
-            cnt, res = self.__resolve_selectable(selectable, crawler.query_tree)
+        for selectable in query.selectables:
+            cnt, res = self.__resolve_selectable(selectable, query)
             if not res:
                 resolved_wildcard = False
             select_target_counts.add(cnt)
@@ -197,15 +196,16 @@ class Rule_AM07(BaseRule):
                 root = parent
                 break
 
-        # Crawl the root.
+        # Generate a query
         crawler = SelectCrawler(
             root,
             context.dialect,
             parent=None,
         )
+        query = crawler.query_tree
 
         set_segment_select_sizes, resolve_wildcard = self._get_select_target_counts(
-            crawler
+            query
         )
         self.logger.info(
             "Resolved select sizes (resolved wildcard: %s) : %s",
