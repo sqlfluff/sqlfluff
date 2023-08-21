@@ -3,7 +3,12 @@ from typing import Any, List, Optional, Tuple
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler, WildcardInfo
+from sqlfluff.utils.analysis.select_crawler import (
+    Query,
+    SelectCrawler,
+    WildcardInfo,
+    Selectable,
+)
 
 
 class Rule_AM07(BaseRule):
@@ -114,44 +119,51 @@ class Rule_AM07(BaseRule):
 
         return targets
 
+    def __resolve_selectable(
+        self, selectable: Selectable, root_query: Query
+    ) -> Tuple[int, bool]:
+        assert selectable.select_info
+        wildcard_info = selectable.get_wildcard_info()
+
+        # If there's no wildcard, just count the columns and move on.
+        if not wildcard_info:
+            # if there is no wildcard in the query use the count of select targets
+            select_list = selectable.select_info.select_targets
+            return len(selectable.select_info.select_targets), True
+
+        # If the set query contains a wildcard, attempt to resolve it to a list of
+        # select targets that can be counted.
+        select_list = self.__resolve_wildcard(
+            root_query,
+        )
+
+        # get the number of resolved targets plus the total number of
+        # targets minus the number of wildcards
+        # if all wildcards have been resolved this adds up to the
+        # total number of select targets in the query
+        resolved_wildcard = True
+        for select in select_list:
+            if isinstance(select, WildcardInfo):
+                resolved_wildcard = False
+        return (
+            len(select_list)
+            + (len(selectable.select_info.select_targets) - len(wildcard_info)),
+            resolved_wildcard,
+        )
+
     def _get_select_target_counts(self, crawler: SelectCrawler):
         """Given a set expression, get the number of select targets in each query."""
-        select_list = None
         select_target_counts = set()
         assert crawler.query_tree
-        set_selectables = crawler.query_tree.selectables
         resolved_wildcard = True
         # for each selectable in the set
         # , add the number of select targets to a set; in the end
         # length of the set should be one (one size)
-        for selectable in set_selectables:
-            assert selectable.select_info
-            wildcard_info = selectable.get_wildcard_info()
-
-            # If there's no wildcard, just count the columns and move on.
-            if not wildcard_info:
-                # if there is no wildcard in the query use the count of select targets
-                select_list = selectable.select_info.select_targets
-                select_target_counts.add(len(select_list))
-                continue
-
-            # If the set query contains a wildcard, attempt to resolve it to a list of
-            # select targets that can be counted.
-            select_list = self.__resolve_wildcard(
-                crawler.query_tree,
-            )
-
-            # get the number of resolved targets plus the total number of
-            # targets minus the number of wildcards
-            # if all wildcards have been resolved this adds up to the
-            # total number of select targets in the query
-            select_target_counts.add(
-                len(select_list)
-                + (len(selectable.select_info.select_targets) - len(wildcard_info))
-            )
-            for select in select_list:
-                if isinstance(select, WildcardInfo):
-                    resolved_wildcard = False
+        for selectable in crawler.query_tree.selectables:
+            cnt, res = self.__resolve_selectable(selectable, crawler.query_tree)
+            if not res:
+                resolved_wildcard = False
+            select_target_counts.add(cnt)
 
         return (select_target_counts, resolved_wildcard)
 
