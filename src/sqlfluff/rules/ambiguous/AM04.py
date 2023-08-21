@@ -5,7 +5,6 @@ from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import sp, FunctionalContext
 
 
 _START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]

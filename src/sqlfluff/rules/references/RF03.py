@@ -96,10 +96,9 @@ class Rule_RF03(BaseRule):
 
         crawler = SelectCrawler(context.segment, context.dialect)
         visited: Set = set()
-        if crawler.query_tree:
-            # Recursively visit and check each query in the tree.
-            return list(self._visit_queries(crawler.query_tree, visited))
-        return []
+        assert crawler.query_tree
+        # Recursively visit and check each query in the tree.
+        return list(self._visit_queries(crawler.query_tree, visited))
 
     def _iter_available_targets(self, query) -> Iterator[str]:
         """Iterate along a list of valid alias targets."""
