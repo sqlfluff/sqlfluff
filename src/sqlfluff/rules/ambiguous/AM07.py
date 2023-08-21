@@ -1,5 +1,5 @@
 """Implementation of Rule AM07."""
-from typing import Any, List, Optional, Set, Tuple
+from typing import Optional, Set, Tuple
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
@@ -127,7 +127,6 @@ class Rule_AM07(BaseRule):
             cte = root_query.lookup_cte(cte_name)
             if cte:
                 _cols, _resolved = self.__resolve_wild_query(cte)
-                # select_list += t
                 num_cols += _cols
                 resolved = resolved and _resolved
             else:
@@ -193,6 +192,7 @@ class Rule_AM07(BaseRule):
         # NOTE: Backward slice to work outward.
         for parent in context.parent_stack[::-1]:
             if parent.is_type("with_compound_statement"):
+                # If it is, work from there instead.
                 root = parent
                 break
 
