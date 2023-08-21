@@ -29,12 +29,13 @@ class BaseParser(Matchable):
         raw_class: Type[RawSegment],
         type: Optional[str] = None,
         optional: bool = False,
-        **segment_kwargs,
+        # The following kwargs are passed on to the segment:
+        trim_chars: Optional[Tuple[str, ...]] = None,
     ) -> None:
         self.raw_class = raw_class
         self.type: str = type or raw_class.type
         self.optional = optional
-        self.segment_kwargs = segment_kwargs or {}
+        self._trim_chars = trim_chars
         # Generate a cache key
         self._cache_key = uuid4().hex
 
@@ -62,7 +63,7 @@ class BaseParser(Matchable):
             raw=segment.raw,
             pos_marker=segment.pos_marker,
             type=self.type,
-            **self.segment_kwargs,
+            trim_chars=self._trim_chars,
         )
 
     def _match_single(self, segment: BaseSegment) -> Optional[RawSegment]:
@@ -117,7 +118,7 @@ class TypedParser(BaseParser):
         raw_class: Type[RawSegment],
         type: Optional[str] = None,
         optional: bool = False,
-        **segment_kwargs,
+        trim_chars: Optional[Tuple[str, ...]] = None,
     ) -> None:
         # NB: the template in this case is the _target_ type.
         # The type kwarg is the eventual type.
@@ -127,10 +128,12 @@ class TypedParser(BaseParser):
             # If no type specified we default to the template
             type=type or template,
             optional=optional,
-            **segment_kwargs,
+            trim_chars=trim_chars,
         )
 
-    def simple(cls, parse_context: ParseContext, crumbs=None) -> SimpleHintType:
+    def simple(
+        cls, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
+    ) -> SimpleHintType:
         """Does this matcher support a uppercase hash matching route?
 
         TypedParser segment doesn't support matching against raw strings,
@@ -152,7 +155,7 @@ class StringParser(BaseParser):
         raw_class: Type[RawSegment],
         type: Optional[str] = None,
         optional: bool = False,
-        **segment_kwargs,
+        trim_chars: Optional[Tuple[str, ...]] = None,
     ):
         self.template = template.upper()
         # Create list version upfront to avoid recreating it multiple times.
@@ -161,10 +164,12 @@ class StringParser(BaseParser):
             raw_class=raw_class,
             type=type,
             optional=optional,
-            **segment_kwargs,
+            trim_chars=trim_chars,
         )
 
-    def simple(self, parse_context: "ParseContext", crumbs=None) -> SimpleHintType:
+    def simple(
+        self, parse_context: "ParseContext", crumbs: Optional[Tuple[str, ...]] = None
+    ) -> SimpleHintType:
         """Return simple options for this matcher.
 
         Because string matchers are not case sensitive we can
@@ -190,7 +195,7 @@ class MultiStringParser(BaseParser):
         raw_class: Type[RawSegment],
         type: Optional[str] = None,
         optional: bool = False,
-        **segment_kwargs,
+        trim_chars: Optional[Tuple[str, ...]] = None,
     ):
         self.templates = {template.upper() for template in templates}
         # Create list version upfront to avoid recreating it multiple times.
@@ -199,10 +204,12 @@ class MultiStringParser(BaseParser):
             raw_class=raw_class,
             type=type,
             optional=optional,
-            **segment_kwargs,
+            trim_chars=trim_chars,
         )
 
-    def simple(self, parse_context: "ParseContext", crumbs=None) -> SimpleHintType:
+    def simple(
+        self, parse_context: "ParseContext", crumbs: Optional[Tuple[str, ...]] = None
+    ) -> SimpleHintType:
         """Return simple options for this matcher.
 
         Because string matchers are not case sensitive we can
@@ -229,7 +236,7 @@ class RegexParser(BaseParser):
         type: Optional[str] = None,
         optional: bool = False,
         anti_template: Optional[str] = None,
-        **segment_kwargs,
+        trim_chars: Optional[Tuple[str, ...]] = None,
     ):
         # Store the optional anti-template
         self.template = template
@@ -241,10 +248,12 @@ class RegexParser(BaseParser):
             raw_class=raw_class,
             type=type,
             optional=optional,
-            **segment_kwargs,
+            trim_chars=trim_chars,
         )
 
-    def simple(cls, parse_context: ParseContext, crumbs=None) -> None:
+    def simple(
+        cls, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
+    ) -> None:
         """Does this matcher support a uppercase hash matching route?
 
         Regex segment does NOT for now. We might need to later for efficiency.

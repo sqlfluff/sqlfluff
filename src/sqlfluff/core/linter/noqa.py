@@ -1,13 +1,12 @@
 """Defines container classes for handling noqa comments."""
 
-from dataclasses import dataclass
 import fnmatch
 import logging
-from typing import Optional, Tuple, List, Dict, Set, cast
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Set, Tuple, cast
 
-from sqlfluff.core.parser import RegexLexer, BaseSegment, RawSegment
 from sqlfluff.core.errors import SQLBaseError, SQLParseError, SQLUnusedNoQaWarning
-
+from sqlfluff.core.parser import BaseSegment, RawSegment, RegexLexer
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
@@ -56,6 +55,9 @@ class IgnoreMask:
 
     def __init__(self, ignores: List[NoQaDirective]):
         self._ignore_list = ignores
+
+    def __repr__(self):  # pragma: no cover
+        return "<IgnoreMask>"
 
     # ### Construction class methods.
 
