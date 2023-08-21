@@ -1,13 +1,13 @@
 """Implementation of Rule AM07."""
-from typing import Any, List, Optional, Tuple
+from typing import Any, List, Optional, Set, Tuple
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.analysis.select_crawler import (
     Query,
+    Selectable,
     SelectCrawler,
     WildcardInfo,
-    Selectable,
 )
 
 
@@ -63,11 +63,14 @@ class Rule_AM07(BaseRule):
     def __resolve_wild_query(
         self,
         query: Query,
-    ) -> List[Any]:
+    ):
         """Attempt to resolve the wildcard to a list of selectables."""
-        targets = []
+        self.logger.debug("Resolving query of type %s", query.query_type)
+        for s in query.selectables:
+            self.logger.debug("   ...with selectable %r", s.selectable.raw)
+        num_cols = 0
         process_queries = query.selectables
-        resolved_wildcard = True
+        resolved = True
         # if one of the source queries for a query within the set is a
         # set expression, just use the first query. If that first query isn't
         # reflective of the others, that will be caught when that segment
@@ -79,18 +82,21 @@ class Rule_AM07(BaseRule):
         for selectable in process_queries:
             if selectable.get_wildcard_info():
                 for wildcard in selectable.get_wildcard_info():
-                    targets += self.__resolve_selectable_wildcard(
+                    _cols, _resolved = self.__resolve_selectable_wildcard(
                         wildcard, selectable, query
                     )
+                    num_cols += _cols
+                    resolved = resolved and _resolved
             else:
                 assert selectable.select_info
-                targets.extend(
-                    [target for target in selectable.select_info.select_targets]
-                )
+                num_cols += len(selectable.select_info.select_targets)
 
-        return targets
+        return num_cols, resolved
 
-    def __resolve_selectable_wildcard(self, wildcard, selectable, root_query):
+    def __resolve_selectable_wildcard(
+        self, wildcard: WildcardInfo, selectable: Selectable, root_query: Query
+    ):
+        resolved = True
         # If there is no table specified, it is likely a subquery.
         # Handle that first.
         if not wildcard.tables:
@@ -100,11 +106,10 @@ class Rule_AM07(BaseRule):
             for o in query_list:
                 if isinstance(o, Query):
                     return self.__resolve_wild_query(o)
-            raise NotImplementedError("I DON'T KNOW HOW TO GET HERE")
+            raise NotImplementedError("TODO: WORK OUT HOW TO GET HERE!")
 
         # There might be multiple tables referenced in some wildcard cases.
-        # resolved_wildcard = True
-        select_list = []
+        num_cols = 0
         for wildcard_table in wildcard.tables:
             cte_name = wildcard_table
             # Get the AliasInfo for the table referenced in the wildcard
@@ -118,21 +123,26 @@ class Rule_AM07(BaseRule):
                 if isinstance(select_info_target, str):
                     cte_name = select_info_target
                 else:
-                    select_list += self.__resolve_wild_query(select_info_target)
+                    _cols, _resolved = self.__resolve_wild_query(select_info_target)
+                    num_cols += _cols
+                    resolved = resolved and _resolved
                     continue
 
             cte = root_query.lookup_cte(cte_name)
             if cte:
-                select_list += self.__resolve_wild_query(cte)
+                _cols, _resolved = self.__resolve_wild_query(cte)
+                # select_list += t
+                num_cols += _cols
+                resolved = resolved and _resolved
             else:
                 # Unable to resolve
-                # resolved_wildcard = False
-                select_list.append(wildcard)
-        return select_list
+                resolved = False
+        return num_cols, resolved
 
     def __resolve_selectable(
         self, selectable: Selectable, root_query: Query
     ) -> Tuple[int, bool]:
+        self.logger.debug("Resolving selectable: %r", selectable.selectable.raw)
         assert selectable.select_info
         wildcard_info = selectable.get_wildcard_info()
 
@@ -141,30 +151,25 @@ class Rule_AM07(BaseRule):
             # if there is no wildcard in the query use the count of select targets
             return len(selectable.select_info.select_targets), True
 
-        select_list = []
-        resolved_wildcard = True
+        resolved = True
+        # Start with the number of non-wild columns.
+        num_cols = len(selectable.select_info.select_targets) - len(wildcard_info)
 
         # If the set query contains on or more wildcards, attempt to resolve it to a
         # list of select targets that can be counted.
         for wildcard in wildcard_info:
-            select_list += self.__resolve_selectable_wildcard(
+            _cols, _resolved = self.__resolve_selectable_wildcard(
                 wildcard, selectable, root_query
             )
+            resolved = resolved and _resolved
+            # Add on the number of columns which the wildcard resolves to.
+            num_cols += _cols
 
-        # get the number of resolved targets plus the total number of
-        # targets minus the number of wildcards
-        # if all wildcards have been resolved this adds up to the
-        # total number of select targets in the query
-        for select in select_list:
-            if isinstance(select, WildcardInfo):
-                resolved_wildcard = False
-        return (
-            len(select_list)
-            + (len(selectable.select_info.select_targets) - len(wildcard_info)),
-            resolved_wildcard,
-        )
+        return num_cols, resolved
 
-    def _get_select_target_counts(self, crawler: SelectCrawler):
+    def _get_select_target_counts(
+        self, crawler: SelectCrawler
+    ) -> Tuple[Set[int], bool]:
         """Given a set expression, get the number of select targets in each query."""
         select_target_counts = set()
         assert crawler.query_tree
@@ -178,7 +183,7 @@ class Rule_AM07(BaseRule):
                 resolved_wildcard = False
             select_target_counts.add(cnt)
 
-        return (select_target_counts, resolved_wildcard)
+        return select_target_counts, resolved_wildcard
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """All queries in set expression should return the same number of columns."""
