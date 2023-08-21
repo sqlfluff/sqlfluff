@@ -63,14 +63,13 @@ class Rule_AM07(BaseRule):
     def __resolve_wild_query(
         self,
         query: Query,
-    ):
+    ) -> Tuple[int, bool]:
         """Attempt to resolve the wildcard to a list of selectables."""
         self.logger.debug("Resolving query of type %s", query.query_type)
         for s in query.selectables:
             self.logger.debug("   ...with selectable %r", s.selectable.raw)
-        num_cols = 0
+
         process_queries = query.selectables
-        resolved = True
         # if one of the source queries for a query within the set is a
         # set expression, just use the first query. If that first query isn't
         # reflective of the others, that will be caught when that segment
@@ -79,23 +78,18 @@ class Rule_AM07(BaseRule):
             if query.selectables[0].parent.is_type("set_expression"):
                 process_queries = [query.selectables[0]]
 
+        num_cols = 0
+        resolved = True
         for selectable in process_queries:
-            if selectable.get_wildcard_info():
-                for wildcard in selectable.get_wildcard_info():
-                    _cols, _resolved = self.__resolve_selectable_wildcard(
-                        wildcard, selectable, query
-                    )
-                    num_cols += _cols
-                    resolved = resolved and _resolved
-            else:
-                assert selectable.select_info
-                num_cols += len(selectable.select_info.select_targets)
+            _cols, _resolved = self.__resolve_selectable(selectable, query)
+            num_cols += _cols
+            resolved = resolved and _resolved
 
         return num_cols, resolved
 
     def __resolve_selectable_wildcard(
         self, wildcard: WildcardInfo, selectable: Selectable, root_query: Query
-    ):
+    ) -> Tuple[int, bool]:
         resolved = True
         # If there is no table specified, it is likely a subquery.
         # Handle that first.
@@ -145,16 +139,16 @@ class Rule_AM07(BaseRule):
         self.logger.debug("Resolving selectable: %r", selectable.selectable.raw)
         assert selectable.select_info
         wildcard_info = selectable.get_wildcard_info()
+        # Start with the number of non-wild columns.
+        num_cols = len(selectable.select_info.select_targets) - len(wildcard_info)
 
         # If there's no wildcard, just count the columns and move on.
         if not wildcard_info:
             # if there is no wildcard in the query use the count of select targets
-            return len(selectable.select_info.select_targets), True
+            self.logger.debug("Resolved N=%s: %r", num_cols, selectable.selectable.raw)
+            return num_cols, True
 
         resolved = True
-        # Start with the number of non-wild columns.
-        num_cols = len(selectable.select_info.select_targets) - len(wildcard_info)
-
         # If the set query contains on or more wildcards, attempt to resolve it to a
         # list of select targets that can be counted.
         for wildcard in wildcard_info:
@@ -165,6 +159,12 @@ class Rule_AM07(BaseRule):
             # Add on the number of columns which the wildcard resolves to.
             num_cols += _cols
 
+        self.logger.debug(
+            "%s N=%s: %r",
+            "Resolved" if resolved else "Unresolved",
+            num_cols,
+            selectable.selectable.raw,
+        )
         return num_cols, resolved
 
     def _get_select_target_counts(
