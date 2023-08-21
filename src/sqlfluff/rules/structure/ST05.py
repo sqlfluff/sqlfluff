@@ -131,7 +131,7 @@ class Rule_ST05(BaseRule):
         # Init the output/final select &
         # populate existing CTEs
         for cte in crawler.query_tree.ctes.values():
-            ctes.insert_cte(cte.cte_definition_segment)  # type: ignore
+            ctes.insert_cte(cte.cte_definition_segment)
 
         is_with = segment.all(is_type("with_compound_statement"))
         # TODO: consider if we can fix recursive CTEs

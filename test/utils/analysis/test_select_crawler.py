@@ -84,12 +84,23 @@ def _parse_and_crawl_outer(sql):
                     "            select * from a\n"
                     "        )"
                 ],
+                "subqueries": [
+                    # NOTE: Subquery from the FROM clause.
+                    {
+                        "ctes": {"A": {"selectables": ["select * from b"]}},
+                        "query_type": "WithCompound",
+                        "selectables": ["select * from a"],
+                    },
+                ],
             },
         ),
         (
             # Test that subquery in "from" not included.
             "select a.x from (select z from b)",
-            {"selectables": ["select a.x from (select z from b)"]},
+            {
+                "selectables": ["select a.x from (select z from b)"],
+                "subqueries": [{"selectables": ["select z from b"]}],
+            },
         ),
         (
             # Test that subquery in "from" / "join" not included.
@@ -97,7 +108,8 @@ def _parse_and_crawl_outer(sql):
             {
                 "selectables": [
                     "select a.x from a join (select z from b) as b on (a.x = b.x)"
-                ]
+                ],
+                "subqueries": [{"selectables": ["select z from b"]}],
             },
         ),
         (
@@ -107,6 +119,7 @@ def _parse_and_crawl_outer(sql):
                 "ctes": {"PREP": {"selectables": ["select 1"]}},
                 "query_type": "WithCompound",
                 "selectables": ["select a.x from (select z from b)"],
+                "subqueries": [{"selectables": ["select z from b"]}],
             },
         ),
         (
@@ -119,6 +132,7 @@ def _parse_and_crawl_outer(sql):
                 "selectables": [
                     "select a.x from a join (select z from b) as b on (a.x = " "b.x)"
                 ],
+                "subqueries": [{"selectables": ["select z from b"]}],
             },
         ),
         (
@@ -149,6 +163,61 @@ join prep_1 using (x)
                 ],
             },
         ),
+        # Test with a UNION as the main selectable of a WITH
+        (
+            "with a as (select 1), b as (select 2) "
+            "select * from a union select * from b\n",
+            {
+                "ctes": {
+                    "A": {"selectables": ["select 1"]},
+                    "B": {"selectables": ["select 2"]},
+                },
+                "query_type": "WithCompound",
+                "selectables": [
+                    "select * from a",
+                    "select * from b",
+                ],
+            },
+        ),
+        # Test with a VALUES clause in a WITH
+        (
+            "WITH txt AS ( VALUES (1, 'foo') AS t (id, name) ) SELECT * FROM txt\n",
+            {
+                "ctes": {
+                    "TXT": {"selectables": ["VALUES (1, 'foo') "]},
+                },
+                "query_type": "WithCompound",
+                "selectables": [
+                    "SELECT * FROM txt",
+                ],
+            },
+        ),
+        # Test with Subqueries
+        (
+            "SELECT (\n"
+            "    SELECT other_table.other_table_field_1 FROM other_table\n"
+            "    WHERE other_table.id = field_2\n"
+            ") FROM\n"
+            "(SELECT * FROM some_table) AS my_alias\n",
+            {
+                "selectables": [
+                    "SELECT (\n"
+                    "    SELECT other_table.other_table_field_1 FROM other_table\n"
+                    "    WHERE other_table.id = field_2\n"
+                    ") FROM\n"
+                    "(SELECT * FROM some_table) AS my_alias",
+                ],
+                "subqueries": [
+                    {
+                        "selectables": [
+                            "SELECT other_table.other_table_field_1 FROM other_table\n"
+                            "    WHERE other_table.id = field_2",
+                        ]
+                    },
+                    {"selectables": ["SELECT * FROM some_table"]},
+                ],
+            },
+        ),
     ],
 )
 def test_select_crawler_constructor(sql, expected_json):
@@ -158,8 +227,8 @@ def test_select_crawler_constructor(sql, expected_json):
         cte.cte_definition_segment is not None
         for cte in crawler.query_tree.ctes.values()
     )
-    json_query_tree = crawler.query_tree.as_json()
-    assert expected_json == json_query_tree
+    query_dict = crawler.query_tree.as_dict()
+    assert expected_json == query_dict
 
 
 def test_select_crawler_nested():
@@ -176,13 +245,18 @@ join (
 ) using (x)
     """
     crawler, linter = _parse_and_crawl_outer(sql)
-    sc = SelectCrawler(
+
+    inner_from = (
         crawler.query_tree.selectables[0]
         .select_info.table_aliases[1]
-        .from_expression_element,
+        .from_expression_element
+    )
+    inner_select = next(inner_from.recursive_crawl("with_compound_statement"))
+    sc = SelectCrawler(
+        inner_select,
         linter.dialect,
     )
-    assert sc.query_tree.as_json() == {
+    assert sc.query_tree.as_dict() == {
         "selectables": [
             "select * from d",
         ],
