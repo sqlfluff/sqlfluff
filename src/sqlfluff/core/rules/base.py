@@ -197,14 +197,12 @@ class LintFix:
         self.anchor = anchor
         self.edit: Optional[List[BaseSegment]] = None
         if edit is not None:
-            # Coerce edit iterable to list
-            edit = list(edit)
             # Copy all the elements of edit to stop contamination.
             # We're about to start stripping the position markers
             # off some of the elements and we don't want to end up
             # stripping the positions of the original elements of
             # the parsed structure.
-            self.edit = copy.deepcopy(edit)
+            self.edit = [s.copy() for s in edit]
             # Check that any edits don't have a position marker set.
             # We should rely on realignment to make position markers.
             # Strip position markers of anything enriched, otherwise things can get
