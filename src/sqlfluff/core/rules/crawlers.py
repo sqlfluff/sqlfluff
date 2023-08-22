@@ -51,13 +51,22 @@ class SegmentSeekerCrawler(BaseCrawler):
     """
 
     def __init__(
-        self, types: Set[str], provide_raw_stack: bool = False, **kwargs: Any
+        self,
+        types: Set[str],
+        provide_raw_stack: bool = False,
+        allow_recurse: bool = True,
+        **kwargs: Any
     ) -> None:
         self.types = types
         # Tracking a raw stack involves a lot of tuple manipulation, so we
         # only do it when required - otherwise we skip it. Rules can explicitly
         # request it when defining their crawler.
         self.provide_raw_stack = provide_raw_stack
+        # If allow_recurse is false, then once a segment matches, none of it's
+        # children will be returned. This is useful in cases where we might have
+        # many start points, but one root segment will check any matching sub-
+        # segments in the same evaluation.
+        self.allow_recurse = allow_recurse
         super().__init__(**kwargs)
 
     def is_self_match(self, segment: BaseSegment) -> bool:
@@ -71,6 +80,7 @@ class SegmentSeekerCrawler(BaseCrawler):
         """
         # Check whether we should consider this segment _or it's children_
         # at all.
+        self_match = False
         if not self.passes_filter(context.segment):
             if self.provide_raw_stack:  # pragma: no cover
                 context.raw_stack += tuple(context.segment.raw_segments)
@@ -78,11 +88,14 @@ class SegmentSeekerCrawler(BaseCrawler):
 
         # Then check the segment itself, yield if it's a match.
         if self.is_self_match(context.segment):
+            self_match = True
             yield context
 
         # Check whether any children?
         # Abort if not - we've already yielded self.
-        if not context.segment.segments:
+        # NOTE: This same clause also works if we did match but aren't
+        # allowed to recurse.
+        if not context.segment.segments or (self_match and not self.allow_recurse):
             # Add self to raw stack first if so.
             if self.provide_raw_stack:
                 context.raw_stack += (cast(RawSegment, context.segment),)

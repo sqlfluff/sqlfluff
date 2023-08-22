@@ -14,7 +14,6 @@ from sqlfluff.core.rules import (
     RuleContext,
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import sp, FunctionalContext
 from sqlfluff.core.rules.reference import object_ref_matches_table
 
 
@@ -70,7 +69,9 @@ class Rule_RF01(BaseRule):
     aliases = ("L026",)
     groups = ("all", "core", "references")
     config_keywords = ["force_enable"]
-    crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES))
+    # If any of the parents would have also triggered the rule, don't fire
+    # because they will more accurately process any internal references.
+    crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES), allow_recurse=False)
     _dialects_disabled_by_default = [
         "bigquery",
         "databricks",
@@ -88,9 +89,6 @@ class Rule_RF01(BaseRule):
             context.dialect.name in self._dialects_disabled_by_default
             and not self.force_enable
         ):
-            return []
-
-        if FunctionalContext(context).parent_stack.any(sp.is_type(*_START_TYPES)):
             return []
 
         violations: List[LintResult] = []
