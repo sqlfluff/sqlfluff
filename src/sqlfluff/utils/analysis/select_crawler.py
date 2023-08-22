@@ -238,7 +238,10 @@ class Query:
     ) -> Iterator["Query"]:
         """Given a Selectable, extract subqueries."""
         assert selectable.selectable.is_type(
-            "select_statement", "merge_statement"
+            "select_statement",
+            "merge_statement",
+            "update_statement",
+            "delete_statement",
         ), f"Found unexpected {selectable.selectable}"
 
         for subselect in selectable.selectable.recursive_crawl(
@@ -266,15 +269,28 @@ class Query:
             "select_statement",
             "values_clause",
             "merge_statement",
+            "update_statement",
+            "delete_statement",
         ), f"Found unexpected {segment}"
 
-        if segment.is_type("select_statement", "values_clause", "merge_statement"):
+        if segment.is_type(
+            "select_statement",
+            "values_clause",
+            "merge_statement",
+            "update_statement",
+            "delete_statement",
+        ):
             # It's a select. Instantiate a Query.
             # TODO: Work out how to set `parent` if it's a BaseSegment?
             # TODO: LOTS OF DUPLICATION HERE WITH NEXT. CONSOLIDATE.
             selectable = Selectable(segment, None, dialect=dialect)
             subqueries = []
-            if segment.is_type("select_statement", "merge_statement"):
+            if segment.is_type(
+                "select_statement",
+                "merge_statement",
+                "update_statement",
+                "delete_statement",
+            ):
                 subqueries = list(cls._extract_subqueries(selectable, dialect))
             qry = cls(
                 QueryType.Simple,
@@ -317,6 +333,7 @@ class Query:
         # Find the selectables first, they will likely be selects
         # or sets.
         # TODO: There are others - write code to handle them.
+        # TODO: CHECK ABOVE. I MIGHT HAVE DONE THAT ALREADY?
         selectables = []
         subqueries = []
         for _seg in segment.recursive_crawl(

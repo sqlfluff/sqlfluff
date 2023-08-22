@@ -236,6 +236,39 @@ INSERT (b) VALUES (c)"""  # NOTE: No trailing semicolon
                 "subqueries": [{"selectables": ["SELECT * FROM u"]}],
             },
         ),
+        # Test a DELETE
+        (
+            """DELETE FROM agent1
+WHERE EXISTS(
+    SELECT customer.cust_id FROM customer
+    WHERE agent1.agent_code <> customer.agent_code);""",
+            {
+                "selectables": [
+                    """SELECT customer.cust_id FROM customer
+    WHERE agent1.agent_code <> customer.agent_code"""
+                ]
+            },
+        ),
+        # Test an UPDATE
+        (
+            """UPDATE my_table
+SET row_sum = (
+    SELECT COUNT(*) AS row_sum
+    FROM
+        another_table
+    WHERE
+        another_table.id = my_tableeee.id
+)""",
+            {
+                "selectables": [
+                    """SELECT COUNT(*) AS row_sum
+    FROM
+        another_table
+    WHERE
+        another_table.id = my_tableeee.id"""
+                ]
+            },
+        ),
     ],
 )
 def test_select_crawler_constructor(sql, expected_json):
