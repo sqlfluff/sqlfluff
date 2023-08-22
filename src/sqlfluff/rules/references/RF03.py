@@ -70,7 +70,9 @@ class Rule_RF03(BaseRule):
         "single_table_references",
         "force_enable",
     ]
-    crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES))
+    # If any of the parents would have also triggered the rule, don't fire
+    # because they will more accurately process any internal references.
+    crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES), allow_recurse=False)
     _is_struct_dialect = False
     _dialects_with_structs = ["bigquery", "hive", "redshift"]
     # This could be turned into an option
@@ -92,15 +94,11 @@ class Rule_RF03(BaseRule):
         if context.dialect.name in self._dialects_with_structs:
             self._is_struct_dialect = True
 
-        # If any of the parents would have also triggered the rule, don't fire
-        # because they will more accurately process any internal references.
-        if not any(seg.is_type(*_START_TYPES) for seg in context.parent_stack):
-            crawler = SelectCrawler(context.segment, context.dialect)
-            visited: Set = set()
-            if crawler.query_tree:
-                # Recursively visit and check each query in the tree.
-                return list(self._visit_queries(crawler.query_tree, visited))
-        return None
+        crawler = SelectCrawler(context.segment, context.dialect)
+        visited: Set = set()
+        assert crawler.query_tree
+        # Recursively visit and check each query in the tree.
+        return list(self._visit_queries(crawler.query_tree, visited))
 
     def _iter_available_targets(self, query) -> Iterator[str]:
         """Iterate along a list of valid alias targets."""
