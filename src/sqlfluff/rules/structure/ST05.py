@@ -30,7 +30,7 @@ from sqlfluff.core.rules import (
     RuleContext,
 )
 from sqlfluff.utils.analysis.select import get_select_statement_info
-from sqlfluff.utils.analysis.select_crawler import Query, Selectable
+from sqlfluff.utils.analysis.query import Query, Selectable
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional.segment_predicates import (
     is_keyword,

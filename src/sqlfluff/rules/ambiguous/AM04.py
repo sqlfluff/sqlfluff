@@ -1,7 +1,7 @@
 """Implementation of Rule AM04."""
 from typing import Optional, Tuple
 
-from sqlfluff.utils.analysis.select_crawler import Query
+from sqlfluff.utils.analysis.query import Query
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler

@@ -4,7 +4,7 @@ from typing import cast, List, Optional, Tuple
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
-from sqlfluff.utils.analysis.select_crawler import Query
+from sqlfluff.utils.analysis.query import Query
 from sqlfluff.core.rules import (
     BaseRule,
     LintResult,

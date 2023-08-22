@@ -6,7 +6,7 @@ from typing import cast, List, Set
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.utils.analysis.select import get_select_statement_info
-from sqlfluff.utils.analysis.select_crawler import Query
+from sqlfluff.utils.analysis.query import Query
 from sqlfluff.core.rules import (
     BaseRule,
     LintFix,

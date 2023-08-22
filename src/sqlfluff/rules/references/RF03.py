@@ -6,7 +6,7 @@ from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import SymbolSegment
 from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
-from sqlfluff.utils.analysis.select_crawler import Query
+from sqlfluff.utils.analysis.query import Query
 from sqlfluff.core.rules import (
     BaseRule,
     LintFix,
