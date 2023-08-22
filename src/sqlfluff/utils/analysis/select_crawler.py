@@ -25,6 +25,21 @@ from sqlfluff.utils.analysis.select import (
 from sqlfluff.utils.functional import Segments, sp
 
 
+# Segment types which directly are or contain selectables.
+SELECTABLE_TYPES = (
+    "with_compound_statement",
+    "set_expression",
+    "select_statement",
+)
+
+# Segment types which are likely to contain a subselect.
+SUBSELECT_TYPES = (
+    "merge_statement",
+    "update_statement",
+    "delete_statement",
+)
+
+
 class QueryType(Enum):
     """Query type: Simple is just a query; WithCompound has CTE(s)."""
 
@@ -189,14 +204,13 @@ class Query:
         references or function call strings, yield those.
         """
         found_nested_select = False
-        types = [
+        for seg in segment.recursive_crawl(
             "table_reference",
             "set_expression",
             "select_statement",
             "values_clause",
-        ]
-        for seg in segment.recursive_crawl(
-            *types, recurse_into=False, allow_self=False
+            recurse_into=False,
+            allow_self=False
         ):
             # Crawl efficiently, don't recurse here. We do that later.
             # What do we have?
@@ -238,16 +252,13 @@ class Query:
     ) -> Iterator["Query"]:
         """Given a Selectable, extract subqueries."""
         assert selectable.selectable.is_type(
-            "select_statement",
-            "merge_statement",
-            "update_statement",
-            "delete_statement",
+            *SELECTABLE_TYPES,
+            *SUBSELECT_TYPES,
         ), f"Found unexpected {selectable.selectable}"
 
+        # For MERGE, UPDATE & DELETE, we should expect to find a sub select.
         for subselect in selectable.selectable.recursive_crawl(
-            "with_compound_statement",
-            "set_expression",
-            "select_statement",
+            *SELECTABLE_TYPES,
             recurse_into=False,
             allow_self=False,
         ):
@@ -264,21 +275,15 @@ class Query:
     ) -> "Query":
         """Recursively generate a query from an appropriate segment."""
         assert segment.is_type(
-            "with_compound_statement",
-            "set_expression",
-            "select_statement",
             "values_clause",
-            "merge_statement",
-            "update_statement",
-            "delete_statement",
+            *SELECTABLE_TYPES,
+            *SUBSELECT_TYPES
         ), f"Found unexpected {segment}"
 
         if segment.is_type(
             "select_statement",
             "values_clause",
-            "merge_statement",
-            "update_statement",
-            "delete_statement",
+            *SUBSELECT_TYPES
         ):
             # It's a select. Instantiate a Query.
             # TODO: Work out how to set `parent` if it's a BaseSegment?
@@ -287,9 +292,7 @@ class Query:
             subqueries = []
             if segment.is_type(
                 "select_statement",
-                "merge_statement",
-                "update_statement",
-                "delete_statement",
+                *SUBSELECT_TYPES,
             ):
                 subqueries = list(cls._extract_subqueries(selectable, dialect))
             qry = cls(
@@ -380,9 +383,7 @@ class Query:
             # Get the query out of it, just stop on the first one we find.
             inner_qry = next(
                 cte.recursive_crawl(
-                    "with_compound_statement",
-                    "set_expression",
-                    "select_statement",
+                    *SELECTABLE_TYPES,
                     "values_clause",
                 ),
             )
@@ -400,13 +401,6 @@ class Query:
 
 class SelectCrawler:
     """Class for dependency analysis among parts of a query."""
-
-    _acceptable_root_types = (
-        "with_compound_statement",
-        "set_expression",
-        "select_statement",
-        "merge_statement",
-    )
 
     def __init__(
         self,
@@ -427,7 +421,8 @@ class SelectCrawler:
     def from_root(cls, root_segment, dialect: Dialect):
         """Given a root segment, find the first appropriate selectable and analyse."""
         selectable = next(
-            root_segment.recursive_crawl(*cls._acceptable_root_types),
+            # Could be a Selectable or a MERGE
+            root_segment.recursive_crawl(*SELECTABLE_TYPES, "merge_statement"),
             None,
         )
         assert selectable, f"No selectable found in {root_segment.raw!r}."
