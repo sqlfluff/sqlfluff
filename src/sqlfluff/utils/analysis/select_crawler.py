@@ -281,7 +281,7 @@ class Query:
         """Recursively generate a query from an appropriate segment."""
         assert segment.is_type(
             *SELECTABLE_TYPES, *SUBSELECT_TYPES
-        ), f"Found unexpected {segment}"
+        ), f"Invalid segment for `from_segment`: {segment}"
 
         selectables = []
         subqueries = []
@@ -304,8 +304,9 @@ class Query:
             query_type = QueryType.WithCompound
             for _seg in segment.recursive_crawl(
                 # NOTE: We don't _specify_ set expressions here, because
-                # we'll just look straight through them to the underlying
-                # selects.
+                # all set expressions are made of selects, and we
+                # want to look straight through to those child
+                # expressions.
                 "select_statement",
                 recurse_into=False,
                 no_recursive_seg_type="common_table_expression",
@@ -314,9 +315,6 @@ class Query:
 
             # We also need to handle CTEs
             for _seg in segment.recursive_crawl(
-                # NOTE: We don't _specify_ set expressions here, because
-                # we'll just look straight through them to the underlying
-                # selects.
                 "common_table_expression",
                 recurse_into=False,
                 # Don't recurse into any other WITH statements.
@@ -363,9 +361,11 @@ class Query:
                 ),
             )
             qry = cls.from_segment(inner_qry, dialect=dialect, parent=outer_query)
+            assert qry
+            # Populate the CTE specific args.
             qry.cte_definition_segment = cte
             qry.cte_name_segment = name_seg
-            assert qry
+            # File it in the dictionary.
             ctes[name] = qry
 
         # Set the CTEs attribute on the outer.
