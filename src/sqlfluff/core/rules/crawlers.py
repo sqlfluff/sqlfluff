@@ -62,7 +62,7 @@ class SegmentSeekerCrawler(BaseCrawler):
         # only do it when required - otherwise we skip it. Rules can explicitly
         # request it when defining their crawler.
         self.provide_raw_stack = provide_raw_stack
-        # If allow_recurse is false, then one a segment matches, none of it's
+        # If allow_recurse is false, then once a segment matches, none of it's
         # children will be returned. This is useful in cases where we might have
         # many start points, but one root segment will check any matching sub-
         # segments in the same evaluation.
