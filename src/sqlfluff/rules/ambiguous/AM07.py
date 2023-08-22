@@ -223,10 +223,7 @@ class Rule_AM07(BaseRule):
                 root = parent
                 break
 
-        # Generate a query
         query = Query.from_segment(root, dialect=context.dialect)
-        assert query
-
         set_segment_select_sizes, resolve_wildcard = self._get_select_target_counts(
             query
         )

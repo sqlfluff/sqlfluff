@@ -96,7 +96,6 @@ class Rule_RF03(BaseRule):
 
         query = Query.from_segment(context.segment, dialect=context.dialect)
         visited: Set = set()
-        assert query
         # Recursively visit and check each query in the tree.
         return list(self._visit_queries(query, visited))
 

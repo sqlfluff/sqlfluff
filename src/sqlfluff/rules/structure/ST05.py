@@ -213,34 +213,32 @@ class Rule_ST05(BaseRule):
                         select_source_names.add(a.object_reference.raw)
                 for table_alias in selectable.select_info.table_aliases:
                     try:
-                        # NOTE: If the crawler fails, we'll catch it in the
-                        # except below.
                         query = Query.from_root(
                             table_alias.from_expression_element, dialect
                         )
-
-                        path_to = selectable.selectable.path_to(
-                            table_alias.from_expression_element
-                        )
-                        if not (
-                            # The from_expression_element
-                            table_alias.from_expression_element.is_type(*parent_types)
-                            # Or any of it's parents up to the selectable
-                            or any(ps.segment.is_type(*parent_types) for ps in path_to)
-                        ):
-                            continue
-                        if _is_correlated_subquery(
-                            Segments(query.selectables[0].selectable),
-                            select_source_names,
-                            dialect,
-                        ):
-                            continue
-                        yield _NestedSubQuerySummary(
-                            q, selectable, table_alias, select_source_names
-                        )
                     except AssertionError:
-                        # Couldn't find a selectable
-                        pass
+                        # Couldn't find a selectable, carry on.
+                        continue
+
+                    path_to = selectable.selectable.path_to(
+                        table_alias.from_expression_element
+                    )
+                    if not (
+                        # The from_expression_element
+                        table_alias.from_expression_element.is_type(*parent_types)
+                        # Or any of it's parents up to the selectable
+                        or any(ps.segment.is_type(*parent_types) for ps in path_to)
+                    ):
+                        continue
+                    if _is_correlated_subquery(
+                        Segments(query.selectables[0].selectable),
+                        select_source_names,
+                        dialect,
+                    ):
+                        continue
+                    yield _NestedSubQuerySummary(
+                        q, selectable, table_alias, select_source_names
+                    )
 
     def _lint_query(
         self,
