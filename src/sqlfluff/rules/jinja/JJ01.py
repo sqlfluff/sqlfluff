@@ -117,7 +117,7 @@ class Rule_JJ01(BaseRule):
 
         # We'll need the templated file. If for whatever reason it's
         # not present, abort.
-        if not context.templated_file:
+        if not context.templated_file:  # pragma: no cover
             return []
 
         results = []
