@@ -430,7 +430,7 @@ class SelectCrawler:
             root_segment.recursive_crawl(*cls._acceptable_root_types),
             None,
         )
-        assert selectable
+        assert selectable, f"No selectable found in {root_segment.raw!r}."
         # Analyse the segment.
         return cls(selectable, dialect)
 

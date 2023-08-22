@@ -214,8 +214,13 @@ class Rule_ST05(BaseRule):
                     if a.object_reference:
                         select_source_names.add(a.object_reference.raw)
                 for table_alias in selectable.select_info.table_aliases:
-                    sc = SelectCrawler(table_alias.from_expression_element, dialect)
-                    if sc.query_tree:
+                    try:
+                        sc = SelectCrawler.from_root(
+                            table_alias.from_expression_element, dialect
+                        )
+                        # NOTE: If the crawler fails, we'll catch it in the
+                        # except below.
+                        assert sc.query_tree
                         path_to = selectable.selectable.path_to(
                             table_alias.from_expression_element
                         )
@@ -235,6 +240,9 @@ class Rule_ST05(BaseRule):
                         yield _NestedSubQuerySummary(
                             q, selectable, table_alias, sc, select_source_names
                         )
+                    except AssertionError:
+                        # Couldn't find a selectable
+                        pass
 
     def _lint_query(
         self,
