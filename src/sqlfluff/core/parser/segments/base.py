@@ -588,11 +588,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 segment.raw, line_no, line_pos
             )
 
-            # Is the position already correct?
-            if old_position == new_position:
-                # If so, don't mutate, just use the existing one.
-                new_seg = segment
-            elif segment.segments:
+            # NOTE: If the position is already correct, we still
+            # need to copy, but we don't need to reposition any further.
+            if segment.segments and old_position != new_position:
                 # Recurse to work out the child segments FIRST, before
                 # copying the parent so we don't double the work.
                 child_segments = cls._position_segments(
