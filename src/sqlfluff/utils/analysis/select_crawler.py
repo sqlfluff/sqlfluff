@@ -37,6 +37,11 @@ SUBSELECT_TYPES = (
     "merge_statement",
     "update_statement",
     "delete_statement",
+    # NOTE: Values clauses won't have sub selects, but it's
+    # also harmless to look, and they may appear in similar
+    # locations. We include them here because they come through
+    # the same code paths - although are likely to return nothing.
+    "values_clause",
 )
 
 
@@ -210,7 +215,7 @@ class Query:
             "select_statement",
             "values_clause",
             recurse_into=False,
-            allow_self=False
+            allow_self=False,
         ):
             # Crawl efficiently, don't recurse here. We do that later.
             # What do we have?
@@ -275,109 +280,79 @@ class Query:
     ) -> "Query":
         """Recursively generate a query from an appropriate segment."""
         assert segment.is_type(
-            "values_clause",
-            *SELECTABLE_TYPES,
-            *SUBSELECT_TYPES
+            *SELECTABLE_TYPES, *SUBSELECT_TYPES
         ), f"Found unexpected {segment}"
 
-        if segment.is_type(
-            "select_statement",
-            "values_clause",
-            *SUBSELECT_TYPES
-        ):
-            # It's a select. Instantiate a Query.
-            # TODO: Work out how to set `parent` if it's a BaseSegment?
-            # TODO: LOTS OF DUPLICATION HERE WITH NEXT. CONSOLIDATE.
-            selectable = Selectable(segment, None, dialect=dialect)
-            subqueries = []
-            if segment.is_type(
-                "select_statement",
-                *SUBSELECT_TYPES,
-            ):
-                subqueries = list(cls._extract_subqueries(selectable, dialect))
-            qry = cls(
-                QueryType.Simple,
-                dialect,
-                [selectable],
-                parent=parent,
-                subqueries=subqueries,
-            )
-            # Set parents
-            for subquery in qry.subqueries:
-                subquery.parent = qry
-            return qry
-
-        if segment.is_type("set_expression"):
-            # It's a set expression. There may be multiple selectables.
-            # TODO: LOTS OF DUPLICATION HERE WITH ABOVE. CONSOLIDATE.
-            selectables = []
-            subqueries = []
-            for _seg in segment.get_children("select_statement"):
-                selectable = Selectable(_seg, segment, dialect)
-                subqueries += list(cls._extract_subqueries(selectable, dialect))
-                selectables.append(selectable)
-            qry = cls(
-                QueryType.Simple,
-                dialect,
-                selectables,
-                parent=parent,
-                subqueries=subqueries,
-            )
-            # Set parents
-            for subquery in qry.subqueries:
-                subquery.parent = qry
-            return qry
-
-        # Otherwise it's a WITH statement.
-        assert segment.is_type("with_compound_statement")
-        # These are more complicated, and we'll have
-        # to recurse a little to get all the bits.
-
-        # Find the selectables first, they will likely be selects
-        # or sets.
-        # TODO: There are others - write code to handle them.
-        # TODO: CHECK ABOVE. I MIGHT HAVE DONE THAT ALREADY?
         selectables = []
         subqueries = []
-        for _seg in segment.recursive_crawl(
-            # NOTE: We don't _specify_ set expressions here, because
-            # we'll just look straight through them to the underlying
-            # selects.
-            "select_statement",
-            recurse_into=False,
-            no_recursive_seg_type="common_table_expression",
-        ):
-            selectable = Selectable(_seg, segment, dialect)
-            subqueries += list(cls._extract_subqueries(selectable, dialect))
-            selectables.append(selectable)
-
-        # Then handle the CTEs
         cte_defs = []
-        for _seg in segment.recursive_crawl(
-            # NOTE: We don't _specify_ set expressions here, because
-            # we'll just look straight through them to the underlying
-            # selects.
-            "common_table_expression",
-            recurse_into=False,
-            # Don't recurse into any other WITH statements.
-            no_recursive_seg_type="with_compound_statement",
-        ):
-            # Just store the segments for now.
-            cte_defs.append(_seg)
+        query_type = QueryType.Simple
 
+        # ## TODO: Setting the Query "parent" is very inconsistent here.
+        # Is it actually used?
+
+        if segment.is_type("select_statement", *SUBSELECT_TYPES):
+            # It's a select. Instantiate a Query.
+            selectables = [Selectable(segment, None, dialect=dialect)]
+        elif segment.is_type("set_expression"):
+            # It's a set expression. There may be multiple selectables.
+            for _seg in segment.get_children("select_statement"):
+                selectables.append(Selectable(_seg, segment, dialect))
+        else:
+            # Otherwise it's a WITH statement.
+            assert segment.is_type("with_compound_statement")
+            query_type = QueryType.WithCompound
+            for _seg in segment.recursive_crawl(
+                # NOTE: We don't _specify_ set expressions here, because
+                # we'll just look straight through them to the underlying
+                # selects.
+                "select_statement",
+                recurse_into=False,
+                no_recursive_seg_type="common_table_expression",
+            ):
+                selectables.append(Selectable(_seg, segment, dialect))
+
+            # We also need to handle CTEs
+            for _seg in segment.recursive_crawl(
+                # NOTE: We don't _specify_ set expressions here, because
+                # we'll just look straight through them to the underlying
+                # selects.
+                "common_table_expression",
+                recurse_into=False,
+                # Don't recurse into any other WITH statements.
+                no_recursive_seg_type="with_compound_statement",
+            ):
+                # Just store the segments for now.
+                cte_defs.append(_seg)
+
+        # Extract subqueries from any selectables.
+        for selectable in selectables:
+            # NOTE: If any VALUES clauses are present, they pass through here
+            # safely without Exception. They won't yield any subqueries.
+            subqueries += list(cls._extract_subqueries(selectable, dialect))
+
+        # Instantiate the query
         outer_query = cls(
-            QueryType.WithCompound,
+            query_type,
             dialect,
             selectables,
             parent=parent,
             subqueries=subqueries,
         )
+        # Set parent query for the subqueries.
+        for subquery in outer_query.subqueries:
+            subquery.parent = outer_query
 
-        # Now we've got them, build up the names.
+        # If we don't have any CTEs, we can stop now.
+        if not cte_defs:
+            return outer_query
+
+        # Otherwise build up the CTE map.
         ctes = {}
         for cte in cte_defs:
             # NOTE: This feels a little risky to just assume the first segment
-            # is the name, but it's the same functionality as before.
+            # is the name, but it's the same functionality we've run with for
+            # a while.
             name_seg = cte.segments[0]
             name = name_seg.raw_upper
             # Get the query out of it, just stop on the first one we find.
@@ -393,9 +368,8 @@ class Query:
             assert qry
             ctes[name] = qry
 
-        # Set CTEs on the outer.
+        # Set the CTEs attribute on the outer.
         outer_query.ctes = ctes
-        # TODO: Do we need to set "children"? Unsure how that works.
         return outer_query
 
 
