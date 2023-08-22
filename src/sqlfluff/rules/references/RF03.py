@@ -94,7 +94,7 @@ class Rule_RF03(BaseRule):
         if context.dialect.name in self._dialects_with_structs:
             self._is_struct_dialect = True
 
-        query = Query.from_segment(context.segment, dialect=context.dialect)
+        query: Query = Query.from_segment(context.segment, dialect=context.dialect)
         visited: Set = set()
         # Recursively visit and check each query in the tree.
         return list(self._visit_queries(query, visited))

@@ -122,7 +122,7 @@ class Rule_ST05(BaseRule):
             # Nothing to do.
             return None
 
-        query = Query.from_segment(context.segment, context.dialect)
+        query: Query = Query.from_segment(context.segment, context.dialect)
 
         # generate an instance which will track and shape our output CTE
         ctes = _CTEBuilder()

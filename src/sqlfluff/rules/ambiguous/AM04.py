@@ -138,7 +138,7 @@ class Rule_AM04(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Outermost query should produce known number of columns."""
-        query = Query.from_segment(context.segment, context.dialect)
+        query: Query = Query.from_segment(context.segment, context.dialect)
 
         try:
             # Begin analysis at the outer query.

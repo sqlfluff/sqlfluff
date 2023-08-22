@@ -3,11 +3,13 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import (
     Dict,
-    Generator,
+    Generic,
     Iterator,
     List,
     NamedTuple,
     Optional,
+    Type,
+    TypeVar,
     Union,
     cast,
 )
@@ -157,27 +159,30 @@ class Selectable:
         return alias_info[0] if alias_info else None
 
 
+T = TypeVar("T", bound="Query")
+
+
 @dataclass
-class Query:
+class Query(Generic[T]):
     """A main SELECT query plus possible CTEs."""
 
     query_type: QueryType
     dialect: Dialect
     selectables: List[Selectable] = field(default_factory=list)
-    ctes: Dict[str, "Query"] = field(default_factory=dict)
+    ctes: Dict[str, T] = field(default_factory=dict)
     # Parent scope. This query can "see" CTEs defined by parents.
-    parent: Optional["Query"] = field(default=None)
+    parent: Optional[T] = field(default=None)
     # subqueries are subselects in either the SELECT or FROM clause.
-    subqueries: List["Query"] = field(default_factory=list)
+    subqueries: List[T] = field(default_factory=list)
     cte_definition_segment: Optional[BaseSegment] = field(default=None)
     cte_name_segment: Optional[BaseSegment] = field(default=None)
 
     @property
-    def children(self) -> List["Query"]:
+    def children(self: T) -> List[T]:
         """Children could be CTEs, subselects or Others."""
         return list(self.ctes.values()) + self.subqueries
 
-    def as_dict(self) -> Dict:
+    def as_dict(self: T) -> Dict:
         """Dict representation for logging/testing."""
         result: Dict[str, Union[str, List[str], Dict, List[Dict]]] = {}
         if self.query_type != QueryType.Simple:
@@ -190,7 +195,7 @@ class Query:
             result["subqueries"] = [q.as_dict() for q in self.subqueries]
         return result
 
-    def lookup_cte(self, name: str, pop: bool = True) -> Optional["Query"]:
+    def lookup_cte(self: T, name: str, pop: bool = True) -> Optional[T]:
         """Look up a CTE by name, in the current or any parent scope."""
         cte = self.ctes.get(name.upper())
         if cte:
@@ -203,8 +208,8 @@ class Query:
             return None
 
     def crawl_sources(
-        self, segment: BaseSegment, recurse_into=True, pop=False, lookup_cte=True
-    ) -> Generator[Union[str, "Query"], None, None]:
+        self: T, segment: BaseSegment, recurse_into=True, pop=False, lookup_cte=True
+    ) -> Iterator[Union[str, T]]:
         """Find SELECTs, table refs, or value table function calls in segment.
 
         For each SELECT, yield a list of Query objects. As we find table
@@ -252,8 +257,8 @@ class Query:
 
     @classmethod
     def _extract_subqueries(
-        cls, selectable: Selectable, dialect: Dialect
-    ) -> Iterator["Query"]:
+        cls: Type[T], selectable: Selectable, dialect: Dialect
+    ) -> Iterator[T]:
         """Given a Selectable, extract subqueries."""
         assert selectable.selectable.is_type(
             *SELECTABLE_TYPES,
@@ -271,7 +276,7 @@ class Query:
             yield cls.from_segment(subselect, dialect=dialect)
 
     @classmethod
-    def from_root(cls, root_segment, dialect: Dialect):
+    def from_root(cls: Type[T], root_segment, dialect: Dialect) -> T:
         """Given a root segment, find the first appropriate selectable and analyse."""
         selectable_segment = next(
             # Could be a Selectable or a MERGE
@@ -284,11 +289,11 @@ class Query:
 
     @classmethod
     def from_segment(
-        cls,
+        cls: Type[T],
         segment: BaseSegment,
         dialect: Dialect,
-        parent: Optional["Query"] = None,
-    ) -> "Query":
+        parent: Optional[T] = None,
+    ) -> T:
         """Recursively generate a query from an appropriate segment."""
         assert segment.is_type(
             *SELECTABLE_TYPES, *SUBSELECT_TYPES

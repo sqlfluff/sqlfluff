@@ -48,7 +48,7 @@ class Rule_ST03(BaseRule):
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         result = []
-        query = Query.from_root(context.segment, dialect=context.dialect)
+        query: Query = Query.from_root(context.segment, dialect=context.dialect)
 
         # Build up a dict of remaining CTEs (uppercased as not case sensitive).
         remaining_ctes = {k.upper(): k for k in query.ctes.keys()}
