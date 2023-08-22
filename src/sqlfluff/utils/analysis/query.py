@@ -182,7 +182,12 @@ class Query(Generic[T]):
         # we'll reset them anyway here.
         for subquery in self.subqueries:
             subquery.parent = self
-        for cte in self.ctes.values():
+        # NOTE: In normal operation, CTEs are typically set after
+        # instantiation, and so for this method there aren't normally
+        # any present. It is included here for completeness but not
+        # covered in the test suite.
+        # See `.from_segment()` for the way `parent` is set for CTEs.
+        for cte in self.ctes.values():  # pragma: no cover
             cte.parent = self
 
     @property
