@@ -8,10 +8,10 @@ from typing import (
     List,
     NamedTuple,
     Optional,
-    Type,
     Union,
     cast,
 )
+import logging
 
 from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.dialects.base import Dialect
@@ -23,6 +23,8 @@ from sqlfluff.utils.analysis.select import (
     get_select_statement_info,
 )
 from sqlfluff.utils.functional import Segments, sp
+
+analysis_logger = logging.getLogger("sqlfluff.rules.analysis")
 
 
 # Segment types which directly are or contain selectables.
@@ -363,12 +365,22 @@ class Query:
             name_seg = cte.segments[0]
             name = name_seg.raw_upper
             # Get the query out of it, just stop on the first one we find.
-            inner_qry = next(
-                cte.recursive_crawl(
-                    *SELECTABLE_TYPES,
-                    "values_clause",
-                ),
-            )
+            try:
+                inner_qry = next(
+                    cte.recursive_crawl(
+                        *SELECTABLE_TYPES,
+                        "values_clause",
+                        # Very rarely, we might find things like update
+                        # clauses in here, handle them accordingly.
+                        *SUBSELECT_TYPES,
+                    ),
+                )
+            # If this fails it's because we didn't find anything "selectable"
+            # in the CTE. Flag this up as a bug to handle.
+            except StopIteration:
+                # Log it as an issue, but otherwise skip this one.
+                analysis_logger.info(f"Skipping unexpected CTE structure: {cte.raw!r}")
+                continue
             qry = cls.from_segment(inner_qry, dialect=dialect, parent=outer_query)
             assert qry
             # Populate the CTE specific args.
