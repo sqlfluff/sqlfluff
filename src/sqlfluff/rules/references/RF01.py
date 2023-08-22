@@ -4,10 +4,7 @@ from typing import cast, List, Optional, Tuple
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
-from sqlfluff.utils.analysis.select_crawler import (
-    Query as SelectCrawlerQuery,
-    SelectCrawler,
-)
+from sqlfluff.utils.analysis.select_crawler import Query
 from sqlfluff.core.rules import (
     BaseRule,
     LintResult,
@@ -26,8 +23,8 @@ _START_TYPES = [
 
 
 @dataclass
-class RF01Query(SelectCrawlerQuery):
-    """SelectCrawler Query with custom RF01 info."""
+class RF01Query(Query):
+    """Query with custom RF01 info."""
 
     aliases: List[AliasInfo] = field(default_factory=list)
     standalone_aliases: List[str] = field(default_factory=list)
@@ -106,12 +103,10 @@ class Rule_RF01(BaseRule):
         self.logger.debug("DML Reference Table: %s", dml_target_table)
         # Verify table references in any SELECT statements found in or
         # below context.segment in the parser tree.
-        crawler = SelectCrawler(context.segment, context.dialect, query_class=RF01Query)
-        query: RF01Query = cast(RF01Query, crawler.query_tree)
-        if query:
-            self._analyze_table_references(
-                query, dml_target_table, context.dialect, violations
-            )
+        query = RF01Query.from_segment(context.segment, context.dialect)
+        self._analyze_table_references(
+            query, dml_target_table, context.dialect, violations
+        )
         return violations
 
     @classmethod

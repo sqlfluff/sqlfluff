@@ -1,7 +1,7 @@
 """Implementation of Rule ST03."""
 from sqlfluff.core.rules import BaseRule, EvalResultType, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.analysis.select_crawler import SelectCrawler
+from sqlfluff.utils.analysis.select_crawler import Query
 
 
 class Rule_ST03(BaseRule):
@@ -48,11 +48,10 @@ class Rule_ST03(BaseRule):
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         result = []
-        crawler = SelectCrawler.from_root(context.segment, context.dialect)
-        assert crawler.query_tree
+        query = Query.from_root(context.segment, dialect=context.dialect)
 
         # Build up a dict of remaining CTEs (uppercased as not case sensitive).
-        remaining_ctes = {k.upper(): k for k in crawler.query_tree.ctes.keys()}
+        remaining_ctes = {k.upper(): k for k in query.ctes.keys()}
 
         # Work through all the references in the file, checking off CTES as the
         # are referenced. We don't recurse inside inner WITH statements.
@@ -63,12 +62,12 @@ class Rule_ST03(BaseRule):
 
         # For any left un-referenced at the end. Raise an issue about them.
         for name in remaining_ctes.values():
-            query = crawler.query_tree.ctes[name]
+            cte = query.ctes[name]
             result += [
                 LintResult(
-                    anchor=query.cte_name_segment,
+                    anchor=cte.cte_name_segment,
                     description=f"Query defines CTE "
-                    f'"{query.cte_name_segment.raw}" '
+                    f'"{cte.cte_name_segment.raw}" '
                     f"but does not use it.",
                 )
             ]

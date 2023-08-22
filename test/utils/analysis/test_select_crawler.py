@@ -2,21 +2,21 @@
 import pytest
 
 from sqlfluff.core.linter.linter import Linter
-from sqlfluff.utils.analysis.select_crawler import SelectCrawler
+from sqlfluff.utils.analysis.select_crawler import Query
 
 
 def _parse_and_crawl_outer(sql):
     """Helper function for select crawlers.
 
     Given a SQL statement this crawls the SQL and instantiates
-    a SelectCrawler on the outer relevant segment.
+    a Query on the outer relevant segment.
     """
     linter = Linter(dialect="ansi")
     parsed = linter.parse_string(sql)
     # Create a crawler from the root segment.
-    crawler = SelectCrawler.from_root(parsed.tree, linter.dialect)
+    query = Query.from_root(parsed.tree, linter.dialect)
     # Analyse the segment.
-    return crawler, linter
+    return query, linter
 
 
 @pytest.mark.parametrize(
@@ -272,13 +272,10 @@ SET row_sum = (
     ],
 )
 def test_select_crawler_constructor(sql, expected_json):
-    """Test SelectCrawler when created using constructor."""
-    crawler, _ = _parse_and_crawl_outer(sql)
-    assert all(
-        cte.cte_definition_segment is not None
-        for cte in crawler.query_tree.ctes.values()
-    )
-    query_dict = crawler.query_tree.as_dict()
+    """Test Query when created using constructor."""
+    query, _ = _parse_and_crawl_outer(sql)
+    assert all(cte.cte_definition_segment is not None for cte in query.ctes.values())
+    query_dict = query.as_dict()
     assert expected_json == query_dict
 
 
@@ -295,19 +292,14 @@ join (
     select * from d
 ) using (x)
     """
-    crawler, linter = _parse_and_crawl_outer(sql)
+    query, linter = _parse_and_crawl_outer(sql)
 
     inner_from = (
-        crawler.query_tree.selectables[0]
-        .select_info.table_aliases[1]
-        .from_expression_element
+        query.selectables[0].select_info.table_aliases[1].from_expression_element
     )
     inner_select = next(inner_from.recursive_crawl("with_compound_statement"))
-    sc = SelectCrawler(
-        inner_select,
-        linter.dialect,
-    )
-    assert sc.query_tree.as_dict() == {
+    inner_query = Query.from_segment(inner_select, linter.dialect)
+    assert inner_query.as_dict() == {
         "selectables": [
             "select * from d",
         ],

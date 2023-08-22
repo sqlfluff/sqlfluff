@@ -6,7 +6,6 @@ from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.analysis.select_crawler import (
     Query,
     Selectable,
-    SelectCrawler,
     WildcardInfo,
 )
 
@@ -225,12 +224,7 @@ class Rule_AM07(BaseRule):
                 break
 
         # Generate a query
-        crawler = SelectCrawler(
-            root,
-            context.dialect,
-            parent=None,
-        )
-        query = crawler.query_tree
+        query = Query.from_segment(root, dialect=context.dialect)
         assert query
 
         set_segment_select_sizes, resolve_wildcard = self._get_select_target_counts(

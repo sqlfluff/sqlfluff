@@ -6,7 +6,7 @@ from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import SymbolSegment
 from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
-from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler
+from sqlfluff.utils.analysis.select_crawler import Query
 from sqlfluff.core.rules import (
     BaseRule,
     LintFix,
@@ -94,11 +94,11 @@ class Rule_RF03(BaseRule):
         if context.dialect.name in self._dialects_with_structs:
             self._is_struct_dialect = True
 
-        crawler = SelectCrawler(context.segment, context.dialect)
+        query = Query.from_segment(context.segment, dialect=context.dialect)
         visited: Set = set()
-        assert crawler.query_tree
+        assert query
         # Recursively visit and check each query in the tree.
-        return list(self._visit_queries(crawler.query_tree, visited))
+        return list(self._visit_queries(query, visited))
 
     def _iter_available_targets(self, query) -> Iterator[str]:
         """Iterate along a list of valid alias targets."""
@@ -145,7 +145,7 @@ class Rule_RF03(BaseRule):
         # the "FROM" list. We want to visit those as well.
         if select_info:
             for a in select_info.table_aliases:
-                for q in SelectCrawler.get(query, a.from_expression_element):
+                for q in query.crawl_sources(a.from_expression_element, True):
                     if not isinstance(q, Query):
                         continue
                     # Check for previously visited selectables to avoid possible

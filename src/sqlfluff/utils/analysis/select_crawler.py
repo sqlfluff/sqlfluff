@@ -53,7 +53,7 @@ class QueryType(Enum):
 
 
 class WildcardInfo(NamedTuple):
-    """Structure returned by SelectCrawler.get_wildcard_info()."""
+    """Structure returned by Selectable.get_wildcard_info()."""
 
     segment: BaseSegment
     tables: List[str]
@@ -237,12 +237,9 @@ class Query:
                     "set_expression", "select_statement", "values_clause"
                 )
                 found_nested_select = True
-                # Generate a subselect crawler, referencing the current query
+                # Generate a subquery, referencing the current query
                 # as the parent.
-                crawler = SelectCrawler(seg, self.dialect, parent=self)
-                # We know this will pass because we specified parent=self above.
-                assert crawler.query_tree
-                yield crawler.query_tree
+                yield self.__class__.from_segment(seg, self.dialect, parent=self)
         if not found_nested_select:
             # If we reach here, the SELECT may be querying from a value table
             # function, e.g. UNNEST(). For our purposes, this is basically the
@@ -270,6 +267,18 @@ class Query:
             # NOTE: We can't set parent yet because the object doesn't exist.
             # TODO: Maybe do this on instantiation instead?
             yield cls.from_segment(subselect, dialect=dialect)
+
+    @classmethod
+    def from_root(cls, root_segment, dialect: Dialect):
+        """Given a root segment, find the first appropriate selectable and analyse."""
+        selectable_segment = next(
+            # Could be a Selectable or a MERGE
+            root_segment.recursive_crawl(*SELECTABLE_TYPES, "merge_statement"),
+            None,
+        )
+        assert selectable_segment, f"No selectable found in {root_segment.raw!r}."
+        # Analyse the segment.
+        return cls.from_segment(selectable_segment, dialect=dialect)
 
     @classmethod
     def from_segment(
@@ -371,50 +380,3 @@ class Query:
         # Set the CTEs attribute on the outer.
         outer_query.ctes = ctes
         return outer_query
-
-
-class SelectCrawler:
-    """Class for dependency analysis among parts of a query."""
-
-    def __init__(
-        self,
-        segment: BaseSegment,
-        dialect: Dialect,
-        parent: Optional[Query] = None,
-        query_class: Type = Query,
-    ):
-        self.dialect: Dialect = dialect
-        # "query_class" allows users of the class to customize/extend the
-        # Query class, so they can manage additional, custom info.
-        self.query_class = query_class
-        self.query_tree = self.query_class.from_segment(
-            segment, dialect=dialect, parent=parent
-        )
-
-    @classmethod
-    def from_root(cls, root_segment, dialect: Dialect):
-        """Given a root segment, find the first appropriate selectable and analyse."""
-        selectable = next(
-            # Could be a Selectable or a MERGE
-            root_segment.recursive_crawl(*SELECTABLE_TYPES, "merge_statement"),
-            None,
-        )
-        assert selectable, f"No selectable found in {root_segment.raw!r}."
-        # Analyse the segment.
-        return cls(selectable, dialect)
-
-    @classmethod
-    def get(cls, query: Query, segment: BaseSegment) -> List[Union[str, "Query"]]:
-        """Returns a list of query sources in segment.
-
-        This includes:
-        - SELECT
-        - VALUES clause
-        - table reference
-        - value table function call
-
-        In the list returned, SELECT and VALUES are represented by a Query
-        object. The other possibilities are represented by a string (table name
-        or function call string).
-        """
-        return list(query.crawl_sources(segment, True))

@@ -30,7 +30,7 @@ from sqlfluff.core.rules import (
     RuleContext,
 )
 from sqlfluff.utils.analysis.select import get_select_statement_info
-from sqlfluff.utils.analysis.select_crawler import Query, Selectable, SelectCrawler
+from sqlfluff.utils.analysis.select_crawler import Query, Selectable
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional.segment_predicates import (
     is_keyword,
@@ -57,7 +57,6 @@ class _NestedSubQuerySummary(NamedTuple):
     query: Query
     selectable: Selectable
     table_alias: AliasInfo
-    sc: SelectCrawler
     select_source_names: Set[str]
 
 
@@ -123,14 +122,13 @@ class Rule_ST05(BaseRule):
             # Nothing to do.
             return None
 
-        crawler = SelectCrawler(context.segment, context.dialect)
-        assert crawler.query_tree
+        query = Query.from_segment(context.segment, context.dialect)
 
         # generate an instance which will track and shape our output CTE
         ctes = _CTEBuilder()
         # Init the output/final select &
         # populate existing CTEs
-        for cte in crawler.query_tree.ctes.values():
+        for cte in query.ctes.values():
             ctes.insert_cte(cte.cte_definition_segment)
 
         is_with = segment.all(is_type("with_compound_statement"))
@@ -150,7 +148,7 @@ class Rule_ST05(BaseRule):
         clone_map = SegmentCloneMap(segment[0])
         result = self._lint_query(
             dialect=context.dialect,
-            query=crawler.query_tree,
+            query=query,
             ctes=ctes,
             case_preference=case_preference,
             clone_map=clone_map,
@@ -215,12 +213,12 @@ class Rule_ST05(BaseRule):
                         select_source_names.add(a.object_reference.raw)
                 for table_alias in selectable.select_info.table_aliases:
                     try:
-                        sc = SelectCrawler.from_root(
-                            table_alias.from_expression_element, dialect
-                        )
                         # NOTE: If the crawler fails, we'll catch it in the
                         # except below.
-                        assert sc.query_tree
+                        query = Query.from_root(
+                            table_alias.from_expression_element, dialect
+                        )
+
                         path_to = selectable.selectable.path_to(
                             table_alias.from_expression_element
                         )
@@ -232,13 +230,13 @@ class Rule_ST05(BaseRule):
                         ):
                             continue
                         if _is_correlated_subquery(
-                            Segments(sc.query_tree.selectables[0].selectable),
+                            Segments(query.selectables[0].selectable),
                             select_source_names,
                             dialect,
                         ):
                             continue
                         yield _NestedSubQuerySummary(
-                            q, selectable, table_alias, sc, select_source_names
+                            q, selectable, table_alias, select_source_names
                         )
                     except AssertionError:
                         # Couldn't find a selectable
@@ -255,7 +253,7 @@ class Rule_ST05(BaseRule):
         """Given the root query, compute lint warnings."""
         nsq: _NestedSubQuerySummary
         for nsq in self._nested_subqueries(query, dialect):
-            alias_name, is_new_name = ctes.create_cte_alias(nsq.table_alias)
+            alias_name, _ = ctes.create_cte_alias(nsq.table_alias)
             # 'anchor' is the TableExpressionSegment we fix/replace w/CTE name.
             anchor = nsq.table_alias.from_expression_element.segments[0]
             new_cte = _create_cte_seg(  # 'prep_1 as (select ...)'
