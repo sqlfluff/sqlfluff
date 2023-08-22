@@ -79,23 +79,12 @@ class Rule_AM07(BaseRule):
         for s in query.selectables:
             self.logger.debug("   ...with selectable %r", s.selectable.raw)
 
-        process_queries = query.selectables
         # if one of the source queries for a query within the set is a
         # set expression, just use the first query. If that first query isn't
         # reflective of the others, that will be caught when that segment
-        # is processed
-        if query.selectables[0].parent:
-            if query.selectables[0].parent.is_type("set_expression"):
-                process_queries = [query.selectables[0]]
-
-        num_cols = 0
-        resolved = True
-        for selectable in process_queries:
-            _cols, _resolved = self.__resolve_selectable(selectable, query)
-            num_cols += _cols
-            resolved = resolved and _resolved
-
-        return num_cols, resolved
+        # is processed. We'll know if we're in a set based on whether there
+        # is more than one selectable. i.e. Just take the first selectable.
+        return self.__resolve_selectable(query.selectables[0], query)
 
     def __resolve_selectable_wildcard(
         self, wildcard: WildcardInfo, selectable: Selectable, root_query: Query

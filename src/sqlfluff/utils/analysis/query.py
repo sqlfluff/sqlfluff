@@ -68,7 +68,6 @@ class Selectable:
     """A "SELECT" query segment."""
 
     selectable: BaseSegment
-    parent: Optional[BaseSegment]
     dialect: Dialect
 
     def as_str(self) -> str:
@@ -177,6 +176,15 @@ class Query(Generic[T]):
     cte_definition_segment: Optional[BaseSegment] = field(default=None)
     cte_name_segment: Optional[BaseSegment] = field(default=None)
 
+    def __post_init__(self):
+        # Once instantiated, set the `parent` attribute of any
+        # subqueries and ctes. Some might already be set - but
+        # we'll reset them anyway here.
+        for subquery in self.subqueries:
+            subquery.parent = self
+        for cte in self.ctes.values():
+            cte.parent = self
+
     @property
     def children(self: T) -> List[T]:
         """Children could be CTEs, subselects or Others."""
@@ -271,8 +279,8 @@ class Query(Generic[T]):
             recurse_into=False,
             allow_self=False,
         ):
-            # NOTE: We can't set parent yet because the object doesn't exist.
-            # TODO: Maybe do this on instantiation instead?
+            # NOTE: We don't need to set the parent here, because it will
+            # be set when attached to the parent later.
             yield cls.from_segment(subselect, dialect=dialect)
 
     @classmethod
@@ -284,7 +292,6 @@ class Query(Generic[T]):
             None,
         )
         assert selectable_segment, f"No selectable found in {root_segment.raw!r}."
-        # Analyse the segment.
         return cls.from_segment(selectable_segment, dialect=dialect)
 
     @classmethod
@@ -304,16 +311,13 @@ class Query(Generic[T]):
         cte_defs = []
         query_type = QueryType.Simple
 
-        # ## TODO: Setting the Query "parent" is very inconsistent here.
-        # Is it actually used?
-
         if segment.is_type("select_statement", *SUBSELECT_TYPES):
             # It's a select. Instantiate a Query.
-            selectables = [Selectable(segment, None, dialect=dialect)]
+            selectables = [Selectable(segment, dialect=dialect)]
         elif segment.is_type("set_expression"):
             # It's a set expression. There may be multiple selectables.
             for _seg in segment.get_children("select_statement"):
-                selectables.append(Selectable(_seg, segment, dialect))
+                selectables.append(Selectable(_seg, dialect=dialect))
         else:
             # Otherwise it's a WITH statement.
             assert segment.is_type("with_compound_statement")
@@ -327,7 +331,7 @@ class Query(Generic[T]):
                 recurse_into=False,
                 no_recursive_seg_type="common_table_expression",
             ):
-                selectables.append(Selectable(_seg, segment, dialect))
+                selectables.append(Selectable(_seg, dialect=dialect))
 
             # We also need to handle CTEs
             for _seg in segment.recursive_crawl(
@@ -353,9 +357,6 @@ class Query(Generic[T]):
             parent=parent,
             subqueries=subqueries,
         )
-        # Set parent query for the subqueries.
-        for subquery in outer_query.subqueries:
-            subquery.parent = outer_query
 
         # If we don't have any CTEs, we can stop now.
         if not cte_defs:
@@ -396,5 +397,7 @@ class Query(Generic[T]):
             ctes[name] = qry
 
         # Set the CTEs attribute on the outer.
+        # NOTE: Because we're setting this after instantiation, it's important
+        # that we've already set the `parent` value of the cte queries.
         outer_query.ctes = ctes
         return outer_query
