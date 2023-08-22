@@ -383,7 +383,7 @@ class Query(Generic[T]):
             # If this fails it's because we didn't find anything "selectable"
             # in the CTE. Flag this up, but then carry on. It's likely something
             # strange (w.g. a Clickhouse WITH clause setting a with).
-            except StopIteration:
+            except StopIteration:  # pragma: no cover
                 # Log it as an issue, but otherwise skip this one.
                 analysis_logger.info(f"Skipping unexpected CTE structure: {cte.raw!r}")
                 continue
