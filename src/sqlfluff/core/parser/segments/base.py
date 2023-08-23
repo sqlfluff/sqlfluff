@@ -1206,6 +1206,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         # Check the Parse Grammar
         parse_grammar = parse_grammar or self.parse_grammar
+        # ####################### TEMP EXPERIMENT
+        parse_grammar = None  # Don't do parsing - check performance.
+        # ####################### TEMP EXPERIMENT
         if parse_grammar is None:
             # No parse grammar, go straight to expansion
             parse_context.logger.debug(
