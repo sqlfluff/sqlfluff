@@ -1,13 +1,7 @@
 """Timing summary class."""
 
-import os
 from collections import defaultdict
 from typing import Dict, List, Optional, Set, Tuple, Union
-
-# NOTE: In the test environment we don't have control
-# over the timings so we force the return of all timing
-# information. This gives us predictability.
-TEST_ENV = os.getenv("SQLFLUFF_TESTENV", "")
 
 
 class TimingSummary:
@@ -73,9 +67,12 @@ class RuleTimingSummary:
             timings = vals[(code, name)]
             # For brevity, if the total time taken is less than
             # `threshold`, then don't display.
-            if sum(timings) < threshold and not TEST_ENV:
+            if sum(timings) < threshold:
                 continue
-            summary[f"{code}: {name}"] = {
+            # NOTE: This summary isn't covered in tests, it's tricky
+            # to force it to exist in a test environment without
+            # making things complicated.
+            summary[f"{code}: {name}"] = {  # pragma: no cover
                 "sum (n)": f"{sum(timings):.2f} ({len(timings)})",
                 "min": min(timings),
                 "max": max(timings),
