@@ -3,13 +3,24 @@
 This should be the default response from any `match` method.
 """
 
+from collections import defaultdict
 from dataclasses import dataclass
-from typing import Tuple, TYPE_CHECKING
+from typing import (
+    Any,
+    Dict,
+    DefaultDict,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    TYPE_CHECKING,
+    cast,
+)
 
 from sqlfluff.core.parser.helpers import join_segments_raw, trim_non_code_segments
 
 if TYPE_CHECKING:  # pragma: no cover
-    from sqlfluff.core.parser.segments import BaseSegment
+    from sqlfluff.core.parser.segments import BaseSegment, MetaSegment
 
 
 @dataclass(frozen=True)
@@ -91,3 +102,101 @@ class MatchResult:
             matched_segments=self.matched_segments + other,
             unmatched_segments=self.unmatched_segments,
         )
+
+
+@dataclass(frozen=True)
+class MatchResult2:
+    """This should be the NEW default response from any `match` method.
+
+    All references and indices are in reference to a single root tuple
+    of segments. This result contains enough information to actually
+    create the nested tree structure, but shouldn't actually contain
+    any new segments itself. That means keeping information about:
+    1. Ranges of segments which should be included segments to be
+       created.
+    2. References to the segment classes which we would create.
+    3. Information about any _new_ segments to add in the process,
+       such as MetaSegment classes.
+
+    Given the segments aren't yet "nested", the structure of this
+    result *will* need to be nested, ideally self nested.
+
+    In the case of finding unparsable locations, we should return the
+    "best" result, referencing the furthest that we got. That allows
+    us to identify those parsing issues and create UnparsableSegment
+    classes later.
+    """
+
+    # Slice in the reference tuple
+    matched_slice: slice
+    # Reference to the kind of segment to create.
+    # NOTE: If this is null, it means we've matched a sequence of segments
+    # but not yet created a container to put them in.
+    matched_class: Optional[Type["BaseSegment"]]
+    # kwargs to pass to the segment on creation.
+    segment_kwargs: Dict[str, Any]
+    # Types and indices to add in new segments (they'll be meta segments)
+    insert_segments: Tuple[Tuple[int, Type["MetaSegment"]], ...]
+    # Child segment matches (this is the recursive bit)
+    child_matches: Tuple["MatchResult2", ...]
+    # Is it clean? i.e. free of unparsable sections?
+    is_clean: bool
+
+    def apply(self, segments: Tuple["BaseSegment", ...]) -> Tuple["BaseSegment", ...]:
+        """Actually this match to segments to instantiate.
+
+        This turns a theoretical match into a nested structure of segments.
+
+        We handle child segments _first_ so that we can then include them when
+        creating the parent. That means sequentially working through the children
+        and any inserts. If there are overlaps, then we have a problem, and we
+        should abort.
+        """
+        # Which are the locations we need to care about?
+        trigger_locs: DefaultDict[
+            int, List[MatchResult2, Type["MetaSegment"]]
+        ] = defaultdict(list)
+        # Add the inserts first...
+        for insert in self.insert_segments:
+            trigger_locs[insert[0]].append(insert[1])
+        # ...and then the matches
+        for match in self.child_matches:
+            trigger_locs[match.matched_slice.start].append(match)
+
+        # Then work through creating any subsegments.
+        result_segments = ()
+        max_idx = self.matched_slice.start
+        for idx in sorted(trigger_locs.keys()):
+            # Have we passed any untouched segments?
+            if idx > max_idx:
+                # If so, add them in unchanged.
+                result_segments += segments[max_idx:idx]
+            elif idx < max_idx:  # pragma: no cover
+                raise ValueError("SKIP AHEAD ERROR")
+            # Then work through each of the triggers.
+            for trigger in trigger_locs[idx]:
+                # If it's a segment, instantiate it.
+                if isinstance(trigger, MatchResult2):
+                    result_segments += trigger.apply(segments=segments)
+                    # Update the end slice.
+                    max_idx = trigger.matched_slice.stop
+                    continue
+
+                # Otherwise it's a segment.
+                seg_type = cast("MetaSegment", trigger)
+                result_segments += (seg_type(),)
+
+        # If we finish working through the triggers and there's
+        # still something left, then add that too.
+        if max_idx < self.matched_slice.stop:
+            result_segments += segments[max_idx : self.matched_slice.stop]
+
+        if not self.matched_class:
+            return result_segments
+
+        # Otherwise construct the subsegment
+        new_seg = self.matched_class(segments=result_segments, **self.segment_kwargs)
+        return (new_seg,)
+
+    def _to_old_match_result(self, segments):
+        pass
