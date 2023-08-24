@@ -400,6 +400,7 @@ ansi_dialect.add(
     # NullSegment is defined separately to the keyword, so we can give it a different
     # type
     NullLiteralSegment=StringParser("null", LiteralKeywordSegment, type="null_literal"),
+    NanLiteralSegment=StringParser("nan", LiteralKeywordSegment, type="null_literal"),
     TrueSegment=StringParser("true", LiteralKeywordSegment, type="boolean_literal"),
     FalseSegment=StringParser("false", LiteralKeywordSegment, type="boolean_literal"),
     # We use a GRAMMAR here not a Segment. Otherwise, we get an unnecessary layer
@@ -488,8 +489,8 @@ ansi_dialect.add(
     IfNotExistsGrammar=Sequence("IF", "NOT", "EXISTS"),
     LikeGrammar=OneOf("LIKE", "RLIKE", "ILIKE"),
     IsClauseGrammar=OneOf(
-        "NULL",
-        "NAN",
+        Ref("NullLiteralSegment"),
+        Ref("NanLiteralSegment"),
         Ref("BooleanLiteralGrammar"),
     ),
     SelectClauseSegmentGrammar=Sequence(

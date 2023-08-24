@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9b17d892b48a3a78b3429441b8c1d3d077c39bf8bd5272563efa6545adfd40f6
+_hash: aaeefa5bec93b6c2a4cbd0bf9e96bdae0c96464e96a5fbd0071299cffc6cc1d3
 file:
 - statement:
     create_table_statement:
@@ -160,10 +160,10 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-        - column_reference:
+          column_reference:
             naked_identifier: sentence
             column_path_operator: ->
             json_path: '"$.mascot"'
-        - keyword: IS
-        - keyword: 'NULL'
+          keyword: IS
+          null_literal: 'NULL'
 - statement_terminator: ;
