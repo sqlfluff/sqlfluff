@@ -4,7 +4,7 @@ This should be the default response from any `match` method.
 """
 
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import (
     Any,
     Dict,
@@ -132,15 +132,17 @@ class MatchResult2:
     # Reference to the kind of segment to create.
     # NOTE: If this is null, it means we've matched a sequence of segments
     # but not yet created a container to put them in.
-    matched_class: Optional[Type["BaseSegment"]]
+    matched_class: Optional[Type["BaseSegment"]] = None
     # kwargs to pass to the segment on creation.
-    segment_kwargs: Dict[str, Any]
+    segment_kwargs: Dict[str, Any] = field(default_factory=dict)
     # Types and indices to add in new segments (they'll be meta segments)
-    insert_segments: Tuple[Tuple[int, Type["MetaSegment"]], ...]
+    insert_segments: Tuple[Tuple[int, Type["MetaSegment"]], ...] = field(
+        default_factory=tuple
+    )
     # Child segment matches (this is the recursive bit)
-    child_matches: Tuple["MatchResult2", ...]
+    child_matches: Tuple["MatchResult2", ...] = field(default_factory=tuple)
     # Is it clean? i.e. free of unparsable sections?
-    is_clean: bool
+    is_clean: bool = True
 
     def apply(self, segments: Tuple["BaseSegment", ...]) -> Tuple["BaseSegment", ...]:
         """Actually this match to segments to instantiate.
