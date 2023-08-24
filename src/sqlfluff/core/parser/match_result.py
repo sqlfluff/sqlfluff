@@ -18,6 +18,7 @@ from typing import (
 )
 
 from sqlfluff.core.parser.helpers import join_segments_raw, trim_non_code_segments
+from sqlfluff.core.slice_helpers import slice_length
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.segments import BaseSegment, MetaSegment
@@ -143,6 +144,9 @@ class MatchResult2:
     child_matches: Tuple["MatchResult2", ...] = field(default_factory=tuple)
     # Is it clean? i.e. free of unparsable sections?
     is_clean: bool = True
+
+    def __len__(self):
+        return slice_length(self.matched_slice)
 
     def apply(self, segments: Tuple["BaseSegment", ...]) -> Tuple["BaseSegment", ...]:
         """Actually this match to segments to instantiate.

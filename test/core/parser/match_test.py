@@ -33,6 +33,11 @@ def test__parser__matchresult2_apply(generate_test_segments):
         ),
     )
 
+    # Test the length attribute.
+    # NOTE: It's not the number of segments we'll return, but the span
+    # of the match in the original sequence.
+    assert len(mr2) == 3
+
     out_segments = mr2.apply(input_segments)
     serialised = tuple(
         seg.to_tuple(show_raw=True, include_meta=True) for seg in out_segments
