@@ -26,7 +26,7 @@ from sqlfluff.core.parser.match_logging import (
     LateBoundJoinSegmentsCurtailed,
     parse_match_logging,
 )
-from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import BaseSegment, BracketedSegment, allow_ephemeral
@@ -1084,6 +1084,15 @@ class Anything(BaseGrammar):
         """
         return MatchResult.from_matched(segments)
 
+    def match2(
+        self,
+        segments: Tuple["BaseSegment", ...],
+        idx: int,
+        parse_context: "ParseContext",
+    ) -> MatchResult2:
+        """Match everything."""
+        return MatchResult2(slice(idx, len(segments)))
+
 
 class Nothing(BaseGrammar):
     """Matches nothing.
@@ -1101,3 +1110,12 @@ class Nothing(BaseGrammar):
         dialects.
         """
         return MatchResult.from_unmatched(segments)
+
+    def match2(
+        self,
+        segments: Tuple["BaseSegment", ...],
+        idx: int,
+        parse_context: "ParseContext",
+    ) -> MatchResult2:
+        """Match nothing."""
+        return MatchResult2.empty_at(idx)
