@@ -148,6 +148,14 @@ class MatchResult2:
     def __len__(self):
         return slice_length(self.matched_slice)
 
+    def __bool__(self):
+        return len(self) > 0
+
+    @classmethod
+    def empty_at(cls, idx):
+        """Create an empty match at a particular index."""
+        return cls(slice(idx, idx))
+
     def apply(self, segments: Tuple["BaseSegment", ...]) -> Tuple["BaseSegment", ...]:
         """Actually this match to segments to instantiate.
 
