@@ -10,7 +10,7 @@ from uuid import uuid4
 import regex
 
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import BaseSegment, RawSegment
 from sqlfluff.core.parser.types import SimpleHintType
@@ -145,6 +145,21 @@ class TypedParser(BaseParser):
         """Return true if the type matches the target type."""
         return segment.is_type(self.template)
 
+    def match2(
+        self,
+        segments: Tuple["BaseSegment", ...],
+        idx: int,
+        parse_context: "ParseContext",
+    ) -> MatchResult2:
+        """Match against this matcher."""
+        if segments[idx].is_type(self.template):
+            return MatchResult2(
+                slice(idx, idx + 1),
+                self.raw_class,
+                segment_kwargs={"type": self.type, "trim_chars": self._trim_chars},
+            )
+        return MatchResult2.empty_at(idx)
+
 
 class StringParser(BaseParser):
     """An object which matches and returns raw segments based on strings."""
@@ -185,6 +200,24 @@ class StringParser(BaseParser):
             return True
         return False
 
+    def match2(
+        self,
+        segments: Tuple["BaseSegment", ...],
+        idx: int,
+        parse_context: "ParseContext",
+    ) -> MatchResult2:
+        """Match against this matcher.
+
+        NOTE: We check that the segment is also code to avoid matching
+        unexpected comments.
+        """
+        if segments[idx].raw_upper == self.template and segments[idx].is_code:
+            return MatchResult2(
+                slice(idx, idx + 1),
+                self.raw_class,
+            )
+        return MatchResult2.empty_at(idx)
+
 
 class MultiStringParser(BaseParser):
     """An object which matches and returns raw segments on a collection of strings."""
@@ -224,6 +257,24 @@ class MultiStringParser(BaseParser):
         if segment.is_code and segment.raw_upper in self.templates:
             return True
         return False
+
+    def match2(
+        self,
+        segments: Tuple["BaseSegment", ...],
+        idx: int,
+        parse_context: "ParseContext",
+    ) -> MatchResult2:
+        """Match against this matcher.
+
+        NOTE: We check that the segment is also code to avoid matching
+        unexpected comments.
+        """
+        if segments[idx].is_code and segments[idx].raw_upper in self.templates:
+            return MatchResult2(
+                slice(idx, idx + 1),
+                self.raw_class,
+            )
+        return MatchResult2.empty_at(idx)
 
 
 class RegexParser(BaseParser):
@@ -283,3 +334,28 @@ class RegexParser(BaseParser):
                 else:
                     return True
         return False
+
+    def match2(
+        self,
+        segments: Tuple["BaseSegment", ...],
+        idx: int,
+        parse_context: "ParseContext",
+    ) -> MatchResult2:
+        """Match against this matcher.
+
+        NOTE: This method uses .raw_upper and so case sensitivity is
+        not supported.
+        """
+        _raw = segments[idx].raw_upper
+        result = self._template.match(_raw)
+        if result:
+            result_string = result.group(0)
+            # Check that we've fully matched
+            if result_string == _raw:
+                # Check that the anti_template (if set) hasn't also matched
+                if not self.anti_template or not self._anti_template.match(_raw):
+                    return MatchResult2(
+                        slice(idx, idx + 1),
+                        self.raw_class,
+                    )
+        return MatchResult2.empty_at(idx)
