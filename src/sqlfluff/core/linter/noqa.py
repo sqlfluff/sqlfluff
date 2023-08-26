@@ -174,6 +174,18 @@ class IgnoreMask:
                     violations.append(ignore_entry)
                 elif ignore_entry:
                     ignore_buff.append(ignore_entry)
+            elif comment.is_type("block_comment"):
+                block_comment_content = (
+                    comment.raw.removeprefix('/*').removesuffix('*/').strip()
+                )
+                block_comment = comment.edit(raw=block_comment_content)
+                ignore_entry = cls._extract_ignore_from_comment(
+                    cast(RawSegment, block_comment), reference_map
+                )
+                if isinstance(ignore_entry, SQLParseError):
+                    violations.append(ignore_entry)
+                elif ignore_entry:
+                    ignore_buff.append(ignore_entry)
         if ignore_buff:
             linter_logger.info("Parsed noqa directives from file: %r", ignore_buff)
         return cls(ignore_buff), violations
