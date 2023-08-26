@@ -15,7 +15,6 @@ from sqlfluff.core.rules import (
     RuleContext,
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import sp, FunctionalContext
 from sqlfluff.dialects.dialect_ansi import IdentifierSegment, ObjectReferenceSegment
 
 
@@ -71,7 +70,9 @@ class Rule_RF03(BaseRule):
         "single_table_references",
         "force_enable",
     ]
-    crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES))
+    # If any of the parents would have also triggered the rule, don't fire
+    # because they will more accurately process any internal references.
+    crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES), allow_recurse=False)
     _is_struct_dialect = False
     _dialects_with_structs = ["bigquery", "hive", "redshift"]
     # This could be turned into an option
@@ -93,13 +94,19 @@ class Rule_RF03(BaseRule):
         if context.dialect.name in self._dialects_with_structs:
             self._is_struct_dialect = True
 
-        if not FunctionalContext(context).parent_stack.any(sp.is_type(*_START_TYPES)):
-            crawler = SelectCrawler(context.segment, context.dialect)
-            visited: Set = set()
-            if crawler.query_tree:
-                # Recursively visit and check each query in the tree.
-                return list(self._visit_queries(crawler.query_tree, visited))
-        return None
+        crawler = SelectCrawler(context.segment, context.dialect)
+        visited: Set = set()
+        assert crawler.query_tree
+        # Recursively visit and check each query in the tree.
+        return list(self._visit_queries(crawler.query_tree, visited))
+
+    def _iter_available_targets(self, query) -> Iterator[str]:
+        """Iterate along a list of valid alias targets."""
+        for selectable in query.selectables:
+            select_info = selectable.select_info
+            for alias in select_info.table_aliases:
+                if alias.ref_str:
+                    yield alias.ref_str
 
     def _visit_queries(self, query: Query, visited: set) -> Iterator[LintResult]:
         select_info: Optional[SelectStatementColumnsAndTables] = None
@@ -112,20 +119,17 @@ class Rule_RF03(BaseRule):
                 # :TRICKY: Subqueries in the column list of a SELECT can see tables
                 # in the FROM list of the containing query. Thus, count tables at
                 # the *parent* query level.
-                table_search_root = query.parent if query.parent else query
-                query_list = (
-                    SelectCrawler.get(
-                        table_search_root, table_search_root.selectables[0].selectable
+                possible_ref_tables = list(self._iter_available_targets(query))
+                if query.parent:
+                    possible_ref_tables += list(
+                        self._iter_available_targets(query.parent)
                     )
-                    if table_search_root.selectables
-                    else []
-                )
-                filtered_query_list = [q for q in query_list if isinstance(q, str)]
-                if len(filtered_query_list) != 1:
+                if len(possible_ref_tables) > 1:
                     # If more than one table name is visible, check for and report
                     # potential lint warnings, but don't generate fixes, because
                     # fixes are unsafe if there's more than one table visible.
                     fixable = False
+
                 yield from _check_references(
                     select_info.table_aliases,
                     select_info.standalone_aliases,
@@ -246,6 +250,7 @@ def _validate_one_reference(
     if ref.raw in col_alias_names:
         return None
 
+    # Check first for consistency
     if single_table_references == "consistent":
         if seen_ref_types and this_ref_type not in seen_ref_types:
             return LintResult(
@@ -254,35 +259,18 @@ def _validate_one_reference(
                 f"{ref.raw!r} found in single table select which is "
                 "inconsistent with previous references.",
             )
-
+        # Config is consistent, and this reference matches types so far.
         return None
 
-    if single_table_references != this_ref_type:
-        if single_table_references == "unqualified":
-            # If this is qualified we must have a "table", "."" at least
-            fixes = [LintFix.delete(el) for el in ref.segments[:2]] if fixable else None
-            return LintResult(
-                anchor=ref,
-                fixes=fixes,
-                description="{} reference {!r} found in single table "
-                "select.".format(this_ref_type.capitalize(), ref.raw),
-            )
+    # Otherwise check for a specified type of referencing.
+    # If it's the right kind already, just return.
+    if single_table_references == this_ref_type:
+        return None
 
-        fixes = None
-        if fixable:
-            fixes = [
-                LintFix.create_before(
-                    ref.segments[0] if len(ref.segments) else ref,
-                    source=[table_ref_str_source] if table_ref_str_source else None,
-                    edit_segments=[
-                        IdentifierSegment(
-                            raw=table_ref_str,
-                            type="naked_identifier",
-                        ),
-                        SymbolSegment(raw=".", type="symbol"),
-                    ],
-                )
-            ]
+    # If not, it's the wrong type and we should handle it.
+    if single_table_references == "unqualified":
+        # If this is qualified we must have a "table", "."" at least
+        fixes = [LintFix.delete(el) for el in ref.segments[:2]] if fixable else None
         return LintResult(
             anchor=ref,
             fixes=fixes,
@@ -290,4 +278,24 @@ def _validate_one_reference(
             "select.".format(this_ref_type.capitalize(), ref.raw),
         )
 
-    return None
+    fixes = None
+    if fixable:
+        fixes = [
+            LintFix.create_before(
+                ref.segments[0] if len(ref.segments) else ref,
+                source=[table_ref_str_source] if table_ref_str_source else None,
+                edit_segments=[
+                    IdentifierSegment(
+                        raw=table_ref_str,
+                        type="naked_identifier",
+                    ),
+                    SymbolSegment(raw=".", type="symbol"),
+                ],
+            )
+        ]
+    return LintResult(
+        anchor=ref,
+        fixes=fixes,
+        description="{} reference {!r} found in single table "
+        "select.".format(this_ref_type.capitalize(), ref.raw),
+    )

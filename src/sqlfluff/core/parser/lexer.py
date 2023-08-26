@@ -149,9 +149,17 @@ class StringLexer:
         self.subdivider = subdivider
         self.trim_post_subdivide = trim_post_subdivide
         self.segment_kwargs = segment_kwargs or {}
+        self.__post_init__()
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: {self.name}>"
+
+    def __post_init__(self) -> None:
+        """Optional post-init method called after __init__().
+
+        Designed for subclasses to use.
+        """
+        pass
 
     def _match(self, forward_string: str) -> Optional[LexedElement]:
         """The private match function. Just look for a literal string."""
@@ -282,8 +290,8 @@ class StringLexer:
 class RegexLexer(StringLexer):
     """This RegexLexer matches based on regular expressions."""
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    def __post_init__(self) -> None:
+        """Handle setup for RegexLexer."""
         # We might want to configure this at some point, but for now, newlines
         # do get matched by .
         flags = regex.DOTALL

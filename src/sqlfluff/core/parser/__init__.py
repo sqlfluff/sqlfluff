@@ -3,6 +3,7 @@
 from sqlfluff.core.parser.segments import (
     BaseSegment,
     BaseFileSegment,
+    BracketedSegment,
     RawSegment,
     CodeSegment,
     UnlexableSegment,
@@ -45,6 +46,7 @@ from sqlfluff.core.parser.matchable import Matchable
 __all__ = (
     "BaseSegment",
     "BaseFileSegment",
+    "BracketedSegment",
     "RawSegment",
     "CodeSegment",
     "UnlexableSegment",

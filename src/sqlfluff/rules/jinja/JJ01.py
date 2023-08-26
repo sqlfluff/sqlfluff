@@ -1,16 +1,9 @@
 """Implementation of Rule JJ01."""
-from typing import Tuple
-from sqlfluff.core.parser.segments import SourceFix
+from typing import List, Tuple
 
-from sqlfluff.core.rules import (
-    BaseRule,
-    EvalResultType,
-    LintResult,
-    LintFix,
-    RuleContext,
-)
-from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import rsp, FunctionalContext
+from sqlfluff.core.parser.segments import BaseSegment, SourceFix
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 
 
 class Rule_JJ01(BaseRule):
@@ -43,10 +36,7 @@ class Rule_JJ01(BaseRule):
     name = "jinja.padding"
     aliases = ("L046",)
     groups = ("all", "core", "jinja")
-    # Crawling for "raw" isn't a great way of filtering but it will
-    # do for now. TODO: Make a more efficient crawler for templated
-    # sections.
-    crawl_behaviour = SegmentSeekerCrawler({"raw"})
+    crawl_behaviour = RootOnlyCrawler()
     targets_templated = True
     is_fix_compatible = True
 
@@ -90,123 +80,132 @@ class Rule_JJ01(BaseRule):
         pos = main.find(inner)
         return pre, main[:pos], inner, main[pos + len(inner) :], post
 
-    def _eval(self, context: RuleContext) -> EvalResultType:
-        """Look for non-literal segments."""
+    @classmethod
+    def _find_raw_at_src_idx(cls, segment: BaseSegment, src_idx: int):
+        """Recursively search to find a raw segment for a position in the source.
+
+        NOTE: This assumes it's not being called on a `raw`.
+
+        In the case that there are multiple potential targets, we will find the
+        first.
+        """
+        assert segment.segments
+        for seg in segment.segments:
+            if not seg.pos_marker:  # pragma: no cover
+                continue
+            src_slice = seg.pos_marker.source_slice
+            # If it's before, skip onward.
+            if src_slice.stop <= src_idx:
+                continue
+            # Is the current segment raw?
+            if seg.is_raw():
+                return seg
+            # Otherwise recurse
+            return cls._find_raw_at_src_idx(seg, src_idx)
+
+    def _eval(self, context: RuleContext) -> List[LintResult]:
+        """Look for non-literal segments.
+
+        NOTE: The existing crawlers don't filter very well for only templated
+        code, and so we process the whole file from the root here.
+        """
+        # If the position maker for the root segment is literal then there's
+        # no templated code. So we can return early.
         assert context.segment.pos_marker
-        if context.segment.is_raw() and not context.segment.pos_marker.is_literal():
-            if not context.memory:
-                memory = set()
-            else:
-                memory = context.memory
+        if context.segment.pos_marker.is_literal():
+            return []
 
-            # Get any templated raw slices.
-            # NOTE: We use this function because a single segment
-            # may include multiple raw templated sections:
-            # e.g. a single identifier with many templated tags.
-            templated_raw_slices = FunctionalContext(context).segment.raw_slices.select(
-                rsp.is_slice_type("templated", "block_start", "block_end")
+        # We'll need the templated file. If for whatever reason it's
+        # not present, abort.
+        if not context.templated_file:  # pragma: no cover
+            return []
+
+        results = []
+        # Work through the templated slices
+        for raw_slice in context.templated_file.raw_sliced:
+            # We only want templated slices.
+            if raw_slice.slice_type not in ("templated", "block_start", "block_end"):
+                continue
+
+            stripped = raw_slice.raw.strip()
+            if not stripped or stripped[0] != "{" or stripped[-1] != "}":
+                continue  # pragma: no cover
+
+            self.logger.debug(
+                "Tag found @ source index %s: %r ", raw_slice.source_idx, stripped
             )
-            result = []
 
-            # Iterate through any tags found.
-            for raw_slice in templated_raw_slices:
-                stripped = raw_slice.raw.strip()
-                if not stripped or stripped[0] != "{" or stripped[-1] != "}":
-                    continue  # pragma: no cover
+            # Partition and Position
+            src_idx = raw_slice.source_idx
+            tag_pre, ws_pre, inner, ws_post, tag_post = self._get_whitespace_ends(
+                stripped
+            )
+            position = raw_slice.raw.find(stripped[0])
 
-                self.logger.debug(
-                    "Tag found @ %s: %r ", context.segment.pos_marker, stripped
+            self.logger.debug(
+                "Tag string segments: %r | %r | %r | %r | %r @ %s + %s",
+                tag_pre,
+                ws_pre,
+                inner,
+                ws_post,
+                tag_post,
+                src_idx,
+                position,
+            )
+
+            # For the following section, whitespace should be a single
+            # whitespace OR it should contain a newline.
+
+            pre_fix = None
+            post_fix = None
+            # Check the initial whitespace.
+            if not ws_pre or (ws_pre != " " and "\n" not in ws_pre):
+                pre_fix = " "
+            # Check latter whitespace.
+            if not ws_post or (ws_post != " " and "\n" not in ws_post):
+                post_fix = " "
+
+            # If no fixes, continue
+            if pre_fix is None and post_fix is None:
+                continue
+
+            fixed = (
+                tag_pre + (pre_fix or ws_pre) + inner + (post_fix or ws_post) + tag_post
+            )
+
+            # We need to identify a raw segment to attach to fix to.
+            raw_seg = self._find_raw_at_src_idx(context.segment, src_idx)
+
+            # If that raw segment already has fixes, don't apply it again.
+            # We're likely on a second pass.
+            if raw_seg.source_fixes:
+                continue
+
+            source_fixes = [
+                SourceFix(
+                    fixed,
+                    slice(
+                        src_idx + position,
+                        src_idx + position + len(stripped),
+                    ),
+                    # This position in the templated file is rough, but
+                    # close enough for sequencing.
+                    raw_seg.pos_marker.templated_slice,
                 )
+            ]
 
-                # Deduplicate using a memory of source indexes.
-                # This is important because several positions in the
-                # templated file may refer to the same position in the
-                # source file and we only want to get one violation.
-                src_idx = raw_slice.source_idx
-                if context.memory and src_idx in context.memory:
-                    continue
-                memory.add(src_idx)
-
-                # Does the segment already have a source fix associated with it?
-                # NOTE: because we're fetching the raw slices, even if we've
-                # already fixed an issue, we won't know that. To make sure we don't
-                # double fixes, we check for fixes already present. We do this
-                # _after_ adding it to memory, because on a second pass through
-                # the file, the memory will have been wiped.
-                if context.segment.source_fixes:
-                    self.logger.debug(
-                        "Segment already has source fixes. Skipping for safety: %s",
-                        context.segment.source_fixes,
-                    )
-                    continue
-
-                # Partition and Position
-                tag_pre, ws_pre, inner, ws_post, tag_post = self._get_whitespace_ends(
-                    stripped
-                )
-                position = raw_slice.raw.find(stripped[0])
-
-                self.logger.debug(
-                    "Tag string segments: %r | %r | %r | %r | %r @ %s + %s",
-                    tag_pre,
-                    ws_pre,
-                    inner,
-                    ws_post,
-                    tag_post,
-                    src_idx,
-                    position,
-                )
-
-                # For the following section, whitespace should be a single
-                # whitespace OR it should contain a newline.
-
-                pre_fix = None
-                post_fix = None
-                # Check the initial whitespace.
-                if not ws_pre or (ws_pre != " " and "\n" not in ws_pre):
-                    pre_fix = " "
-                # Check latter whitespace.
-                if not ws_post or (ws_post != " " and "\n" not in ws_post):
-                    post_fix = " "
-
-                if pre_fix is not None or post_fix is not None:
-                    fixed = (
-                        tag_pre
-                        + (pre_fix or ws_pre)
-                        + inner
-                        + (post_fix or ws_post)
-                        + tag_post
-                    )
-                    src_fix = [
-                        SourceFix(
-                            fixed,
-                            slice(
-                                src_idx + position,
-                                src_idx + position + len(stripped),
-                            ),
-                            # NOTE: The templated slice here is
-                            # going to be a little imprecise, but
-                            # the one that really matters is the
-                            # source slice.
-                            context.segment.pos_marker.templated_slice,
+            results.append(
+                LintResult(
+                    anchor=raw_seg,
+                    description=f"Jinja tags should have a single "
+                    f"whitespace on either side: {stripped}",
+                    fixes=[
+                        LintFix.replace(
+                            raw_seg,
+                            [raw_seg.edit(source_fixes=source_fixes)],
                         )
-                    ]
-                    result.append(
-                        LintResult(
-                            memory=memory,
-                            anchor=context.segment,
-                            description=f"Jinja tags should have a single "
-                            f"whitespace on either side: {stripped}",
-                            fixes=[
-                                LintFix.replace(
-                                    context.segment,
-                                    [context.segment.edit(source_fixes=src_fix)],
-                                )
-                            ],
-                        )
-                    )
-            if result:
-                return result
-            else:
-                return LintResult(memory=memory)
-        return LintResult(memory=context.memory)
+                    ],
+                )
+            )
+
+        return results

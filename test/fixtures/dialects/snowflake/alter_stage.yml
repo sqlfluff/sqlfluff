@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1e138be38f4d4af06d8e5e2b9ae66a8c867cc1b83859d927584ff6f9f886aa6f
+_hash: 787b6dd605b96e87ef7d82a2dd3510de972577403435636738ceeaa7a45f843b
 file:
 - statement:
     alter_stage_statement:
@@ -36,7 +36,7 @@ file:
           keyword: ON_ERROR
           comparison_operator:
             raw_comparison_operator: '='
-          literal: "'skip_file'"
+          copy_on_error_option: "'skip_file'"
         end_bracket: )
 - statement_terminator: ;
 - statement:

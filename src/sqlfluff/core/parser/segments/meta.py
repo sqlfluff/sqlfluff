@@ -27,23 +27,26 @@ class MetaSegment(RawSegment):
 
     def __init__(
         self,
+        pos_marker: Optional[PositionMarker] = None,
         is_template: bool = False,
         block_uuid: Optional[UUID] = None,
-        *args,
-        **kwargs,
+        source_fixes: Optional[List[SourceFix]] = None,
     ):
         """Constructor for MetaSegment.
 
         Args:
-            is_template (:obj:`bool`): A flag to indicate whether
-                this meta segment is related to a templated section.
-                This allows proper handling.
-            block_uuid (:obj:`UUID`): A reference to link together
-                markers which refer to the same structure in a
-                template (e.g. the beginning and end of an if
-                statement).
+            pos_marker (:obj:`PositionMarker`, optional): The position
+                of the segment.
+            is_template (:obj:`bool`, optional): A flag to indicate whether
+                this meta segment is related to a templated section. This
+                allows proper handling.
+            block_uuid (:obj:`UUID`, optional): A reference to link together
+                markers which refer to the same structure in a template
+                (e.g. the beginning and end of an if statement).
+            source_fixes: (:obj:`list` of :obj:`SourceFix`, optional): A
+                list of any source fixes to apply to this segment.
         """
-        super().__init__(*args, **kwargs)
+        super().__init__(pos_marker=pos_marker, source_fixes=source_fixes)
         self.is_template = is_template
         self.block_uuid = block_uuid
 

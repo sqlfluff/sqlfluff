@@ -39,21 +39,17 @@ class LintedDir:
         self.files.append(file)
 
     @overload
-    def check_tuples(
-        self, by_path: Literal[False]
-    ) -> List[CheckTuple]:  # pragma: no cover
+    def check_tuples(self, by_path: Literal[False]) -> List[CheckTuple]:
         """Return a List of CheckTuples when by_path is False."""
         ...
 
     @overload
-    def check_tuples(
-        self, by_path: Literal[True]
-    ) -> Dict[str, List[CheckTuple]]:  # pragma: no cover
+    def check_tuples(self, by_path: Literal[True]) -> Dict[str, List[CheckTuple]]:
         """Return a Dict of paths and CheckTuples when by_path is True."""
         ...
 
     @overload
-    def check_tuples(self, by_path: bool = False):  # pragma: no cover
+    def check_tuples(self, by_path: bool = False):
         """Default overload method."""
         ...
 

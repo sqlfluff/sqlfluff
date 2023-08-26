@@ -5,38 +5,27 @@ contains all of the routines to apply fixes to that file
 post linting.
 """
 
-import os
 import logging
+import os
 import shutil
 import stat
 import tempfile
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import (
-    Any,
-    Iterable,
-    List,
-    NamedTuple,
-    Optional,
-    Tuple,
-    Union,
-    Type,
-    Dict,
-)
+from typing import Any, Dict, Iterable, List, NamedTuple, Optional, Tuple, Type, Union
 
 from sqlfluff.core.errors import (
+    CheckTuple,
     SQLBaseError,
     SQLLintError,
     SQLParseError,
     SQLTemplaterError,
-    CheckTuple,
 )
-from sqlfluff.core.templaters import TemplatedFile, RawFileSlice
+from sqlfluff.core.linter.noqa import IgnoreMask
 
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments import BaseSegment, FixPatch
-
-from sqlfluff.core.linter.noqa import IgnoreMask
+from sqlfluff.core.templaters import RawFileSlice, TemplatedFile
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
@@ -53,6 +42,9 @@ class FileTimings:
     # given file we record each run and then we can post
     # process this as we wish later.
     rule_timings: List[Tuple[str, str, float]]
+
+    def __repr__(self):  # pragma: no cover
+        return "<FileTimings>"
 
     def get_rule_timing_dict(self) -> Dict[str, float]:
         """Generate a summary to total time in each rule.

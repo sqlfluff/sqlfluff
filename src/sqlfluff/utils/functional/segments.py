@@ -1,10 +1,19 @@
 """Surrogate class for working with Segment collections."""
-from typing import Any, Callable, Iterable, Iterator, List, Optional, overload
+from typing import (
+    Any,
+    Callable,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Union,
+    overload,
+)
+from typing_extensions import SupportsIndex  # NOTE: Required for py37
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.utils.functional.raw_file_slices import RawFileSlices
-
 
 PredicateType = Callable[[BaseSegment], bool]
 
@@ -141,19 +150,27 @@ class Segments(tuple):
         # If no segment satisfies "predicates", return empty Segments.
         return Segments(templated_file=self.templated_file)
 
-    @overload  # type: ignore
-    def __getitem__(self, item: int) -> BaseSegment:  # pragma: no cover
-        pass
-
-    @overload
-    def __getitem__(self, item: slice) -> "Segments":  # pragma: no cover
-        pass
-
     def __iter__(self) -> Iterator[BaseSegment]:  # pragma: no cover
         # Typing understand we are looping BaseSegment
         return super().__iter__()
 
-    def __getitem__(self, item):  # type: ignore
+    @overload
+    def __getitem__(self, item: SupportsIndex) -> BaseSegment:
+        """Individual "getting" returns a single segment.
+
+        NOTE: Using `SupportsIndex` rather than `int` is to ensure
+        type compatibility with the parent `tuple` implementation.
+        """
+        ...
+
+    @overload
+    def __getitem__(self, item: slice) -> "Segments":
+        """Getting a slice returns another `Segments` object."""
+        ...
+
+    def __getitem__(
+        self, item: Union[SupportsIndex, slice]
+    ) -> Union[BaseSegment, "Segments"]:
         result = super().__getitem__(item)
         if isinstance(result, tuple):
             return Segments(*result, templated_file=self.templated_file)
