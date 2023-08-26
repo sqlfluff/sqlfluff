@@ -149,7 +149,14 @@ class MatchResult2:
         return slice_length(self.matched_slice)
 
     def __bool__(self):
-        return len(self) > 0
+        """Evaluate this MatchResult2 for whether it counts as a clean match.
+
+        A MatchResult2 is truthy if:
+        - it's clean and it has:
+          - matched segments
+          - or has inserts.
+        """
+        return self.is_clean and (len(self) > 0 or bool(self.insert_segments))
 
     @classmethod
     def empty_at(cls, idx):

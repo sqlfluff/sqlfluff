@@ -15,7 +15,7 @@ from sqlfluff.core.parser.grammar.base import (
 )
 from sqlfluff.core.parser.grammar.conditional import Conditional
 from sqlfluff.core.parser.helpers import check_still_complete, trim_non_code_segments
-from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import (
@@ -249,6 +249,137 @@ class Sequence(BaseGrammar):
                 metas_only=True,
             ),
             unmatched_segments,
+        )
+
+    def match2(
+        self,
+        segments: Tuple["BaseSegment", ...],
+        idx: int,
+        parse_context: "ParseContext",
+    ) -> MatchResult2:
+        """Match against this Sequence.
+
+        In the match2 regime, the Sequence matcher behaves a little differently.
+        Importantly when we make a *partial* sequence match, we *still return*,
+        it's just that we set the `is_clean` flag to false. This indicates the
+        furthest that we got.
+
+        TODO: At some point in the future we might also want to extend this to
+        include some kind of hint on what we _expected_ to find instead.
+        """
+        start_idx = idx  # Where did we start
+        matched_idx = idx  # Where have we got to
+        max_idx = len(segments)  # What is the limit
+        insert_segments = ()
+        child_matches = ()
+
+        # Iterate elements
+        for elem_idx, elem in enumerate(self._elements):
+            # 1. Handle any metas or conditionals.
+            # We do this first so that it's the same whether we've run
+            # out of segments or not.
+            # If it's a conditional, evaluate it.
+            if isinstance(elem, Conditional):
+                # A conditional grammar will only ever return insertions.
+                # If it's not enabled it returns an empty match.
+                # NOTE: No deeper match here, it seemed unnecessary.
+                _match = elem.match2(segments, matched_idx, parse_context)
+                insert_segments += _match.insert_segments
+                continue
+            # If it's a raw meta, just add it to our list.
+            elif isinstance(elem, type) and issubclass(elem, Indent):
+                insert_segments += ((matched_idx, elem),)
+                continue
+
+            # Have we prematurely run out of segments?
+            if matched_idx == max_idx:
+                # If the current element is optional, carry on.
+                if elem.is_optional():
+                    continue
+                # Otherwise we have a problem. We've already consumed
+                # any metas, optionals and conditionals.
+                # This is a failed match because we couldn't complete
+                # the sequence.
+                # To facilitate later logging of unparsable sections
+                # we still return a match object, but mark is as unclean
+                # so that it isn't prioritised.
+                return MatchResult2(
+                    matched_slice=slice(start_idx, matched_idx),
+                    insert_segments=insert_segments,
+                    child_matches=child_matches,
+                    is_clean=False,
+                )
+
+            # 2. Match Segments.
+            # At this point we know there are segments left to match
+            # on and that the current element isn't a meta or conditional.
+            for seg_idx in range(matched_idx, max_idx):
+                # First, if we're allowing gaps, consume any non-code.
+                # NOTE: This won't consume from the end of a sequence
+                # because this happens only in the run up to matching
+                # another element. This is as designed.
+                if self.allow_gaps and not segments[seg_idx].is_code:
+                    # Keep the segment and move on.
+                    matched_idx = seg_idx + 1
+                    continue
+
+                # Match the current element against the current position.
+                with parse_context.deeper_match(name=f"Sequence-@{idx}") as ctx:
+                    elem_match = elem.match2(segments, matched_idx, ctx)
+
+                # Did we fail to match? (totally or un-cleanly)
+                if not elem_match:
+                    # If we can't match an element, we should ascertain whether it's
+                    # required. If so then fine, move on, but otherwise we should
+                    # crash out without a match. We have not matched the sequence.
+                    if elem.is_optional():
+                        # This will crash us out of the segment loop and move us
+                        # onto the next matching element.
+                        break
+
+                    # Otherwise we've failed to match the sequence. In this case
+                    # we return a _partial_ match (i.e. an unclean one). We'll also
+                    # use any unclean elements of the existing match to enrich that.
+
+                    # If the child match has a size (i.e. it matched *some* segments)
+                    # then add it as a child and update out position before returning.
+                    if elem_match.matched_slice:
+                        # We should be able to rely on it being an unclean match at
+                        # this stage.
+                        assert not elem_match.is_clean
+                        child_matches += (elem_match,)
+                        matched_idx = elem_match.matched_slice.stop
+                    return MatchResult2(
+                        matched_slice=slice(start_idx, matched_idx),
+                        insert_segments=insert_segments,
+                        child_matches=child_matches,
+                        is_clean=False,
+                    )
+
+                # Otherwise we _do_ have a match. Update the position.
+                matched_idx = elem_match.matched_slice.stop
+                # How we deal with child segments depends on whether it had a matched
+                # class or not.
+                # If it did, then just add it as a child match and we're done. Move on.
+                if elem_match.matched_class:
+                    child_matches += (elem_match,)
+                    break
+                # Otherwise, we un-nest the returned structure, adding any inserts and
+                # children into the inserts and children of this sequence.
+                child_matches += elem_match.child_matches
+                insert_segments += elem_match.insert_segments
+
+                # Break out of the segment loop. If there are more segments, we'll
+                # begin again with the next element. Otherwise well fall out to the
+                # closing return below.
+                break
+
+        # If we get to here, we've matched all of the elements (or skipped them).
+        # Return successfully.
+        return MatchResult2(
+            matched_slice=slice(start_idx, matched_idx),
+            insert_segments=insert_segments,
+            child_matches=child_matches,
         )
 
 
