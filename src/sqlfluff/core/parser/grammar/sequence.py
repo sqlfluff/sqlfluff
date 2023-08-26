@@ -274,7 +274,7 @@ class Sequence(BaseGrammar):
         child_matches = ()
 
         # Iterate elements
-        for elem_idx, elem in enumerate(self._elements):
+        for elem in self._elements:
             # 1. Handle any metas or conditionals.
             # We do this first so that it's the same whether we've run
             # out of segments or not.
