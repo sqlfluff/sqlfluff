@@ -143,9 +143,10 @@ class MatchResult2:
     # Child segment matches (this is the recursive bit)
     child_matches: Tuple["MatchResult2", ...] = field(default_factory=tuple)
     # Is it clean? i.e. free of unparsable sections?
+    # TODO: Rename it is_partial?
     is_clean: bool = True
 
-    def __len__(self):
+    def __len__(self) -> int:
         return slice_length(self.matched_slice)
 
     def __bool__(self):
@@ -160,8 +161,53 @@ class MatchResult2:
 
     @classmethod
     def empty_at(cls, idx):
-        """Create an empty match at a particular index."""
-        return cls(slice(idx, idx))
+        """Create an empty match at a particular index.
+
+        An empty match is by definition, unclean.
+        """
+        return cls(slice(idx, idx), is_clean=False)
+
+    def is_better_than(self, other: "MatchResult2") -> bool:
+        """A match is better compared on length and cleanliness."""
+        if self.is_clean and not other.is_clean:
+            return True
+        return len(self) > len(other)
+
+    def append(self, other: "MatchResult2") -> "MatchResult2":
+        """Combine another subsequent match onto this one.
+
+        NOTE: Because MatchResult2 is frozen, this returns a new
+        match.
+        """
+        # If the current match is empty, just return the other.
+        if not len(self) and not self.insert_segments:
+            return other
+        # If the same is true of the other, just return self.
+        if not len(other) and not other.insert_segments:
+            return self
+
+        # We cannot append to an unclean match
+        assert self.is_clean, "Cannot append to unclean match."
+
+        # Otherwise the two must be adjoining
+        assert self.matched_slice.stop == other.matched_slice.start
+        new_slice = slice(self.matched_slice.start, other.matched_slice.stop)
+        insert_segments = ()
+        child_matches = ()
+        for match in (self, other):
+            # If it's got a matched class, add it as a child.
+            if match.matched_class:
+                child_matches += (match,)
+            # Otherwise incorporate
+            else:
+                insert_segments += match.insert_segments
+                child_matches += match.child_matches
+        return MatchResult2(
+            new_slice,
+            insert_segments=insert_segments,
+            child_matches=child_matches,
+            is_clean=other.is_clean,
+        )
 
     def apply(self, segments: Tuple["BaseSegment", ...]) -> Tuple["BaseSegment", ...]:
         """Actually this match to segments to instantiate.
