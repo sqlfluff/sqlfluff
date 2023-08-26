@@ -166,21 +166,12 @@ class IgnoreMask:
         ignore_buff: List[NoQaDirective] = []
         violations: List[SQLBaseError] = []
         for comment in tree.recursive_crawl("comment"):
-            if comment.is_type("inline_comment"):
+            if comment.is_type("block_comment"):
+                content = comment.raw.removeprefix('/*').removesuffix('*/').strip()
+                comment = comment.edit(raw=content)
+            if comment.is_type("inline_comment") or comment.is_type("block_comment"):
                 ignore_entry = cls._extract_ignore_from_comment(
                     cast(RawSegment, comment), reference_map
-                )
-                if isinstance(ignore_entry, SQLParseError):
-                    violations.append(ignore_entry)
-                elif ignore_entry:
-                    ignore_buff.append(ignore_entry)
-            elif comment.is_type("block_comment"):
-                block_comment_content = (
-                    comment.raw.removeprefix('/*').removesuffix('*/').strip()
-                )
-                block_comment = comment.edit(raw=block_comment_content)
-                ignore_entry = cls._extract_ignore_from_comment(
-                    cast(RawSegment, block_comment), reference_map
                 )
                 if isinstance(ignore_entry, SQLParseError):
                     violations.append(ignore_entry)
