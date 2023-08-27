@@ -131,6 +131,9 @@ class TypedParser(BaseParser):
             trim_chars=trim_chars,
         )
 
+    def __str__(self) -> str:
+        return f"<TypedParser[{self._cache_key[:4]}]:{self.template}>"
+
     def simple(
         cls, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
     ) -> SimpleHintType:
@@ -181,6 +184,9 @@ class StringParser(BaseParser):
             optional=optional,
             trim_chars=trim_chars,
         )
+
+    def __str__(self) -> str:
+        return f"<StringParser[{self._cache_key[:4]}]:{self.template}>"
 
     def simple(
         self, parse_context: "ParseContext", crumbs: Optional[Tuple[str, ...]] = None
@@ -301,6 +307,9 @@ class RegexParser(BaseParser):
             optional=optional,
             trim_chars=trim_chars,
         )
+
+    def __str__(self) -> str:
+        return f"<RegexParser[{self._cache_key[:4]}]:{self.template}>"
 
     def simple(
         cls, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None

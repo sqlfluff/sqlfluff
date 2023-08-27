@@ -263,6 +263,7 @@ class AnyNumberOf(BaseGrammar):
             # Did we get a new clean match?
             if match:
                 matched = matched.append(match)
+                matched_idx = matched.matched_slice.stop
                 n_matches += 1
             else:
                 # If we get here, then we've not managed to match.

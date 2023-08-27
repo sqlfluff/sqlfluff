@@ -189,8 +189,10 @@ class MatchResult2:
         # We cannot append to an unclean match
         assert self.is_clean, "Cannot append to unclean match."
 
-        # Otherwise the two must be adjoining
-        assert self.matched_slice.stop == other.matched_slice.start
+        # Otherwise the two must follow each other.
+        # NOTE: A gap is allowed, but is assumed to be included in the
+        # match.
+        assert self.matched_slice.stop <= other.matched_slice.start
         new_slice = slice(self.matched_slice.start, other.matched_slice.stop)
         insert_segments = ()
         child_matches = ()

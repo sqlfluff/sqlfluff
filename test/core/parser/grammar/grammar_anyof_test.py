@@ -7,15 +7,16 @@ import pytest
 
 from sqlfluff.core.parser import (
     KeywordSegment,
-    StringParser,
-    RegexParser,
-    WhitespaceSegment,
     RawSegment,
+    RegexParser,
+    StringParser,
+    WhitespaceSegment,
 )
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.grammar.anyof import AnySetOf
-from sqlfluff.core.parser.segments import EphemeralSegment, BaseSegment
 from sqlfluff.core.parser.grammar import OneOf, Sequence
+from sqlfluff.core.parser.grammar.anyof import AnySetOf
+from sqlfluff.core.parser.match_result import MatchResult2
+from sqlfluff.core.parser.segments import BaseSegment, EphemeralSegment
 
 
 class Example1Segment(RawSegment):
@@ -187,9 +188,9 @@ def test__parser__grammar_anysetof(generate_test_segments):
     token_list = ["bar", "  \t ", "foo", "  \t ", "bar"]
     segments = generate_test_segments(token_list)
 
-    bs = StringParser("bar", KeywordSegment)
-    fs = StringParser("foo", KeywordSegment)
-    g = AnySetOf(fs, bs)
+    bar = StringParser("bar", KeywordSegment)
+    foo = StringParser("foo", KeywordSegment)
+    g = AnySetOf(foo, bar)
     ctx = ParseContext(dialect=None)
     # Check directly
     assert g.match(segments, parse_context=ctx).matched_segments == (
@@ -199,3 +200,29 @@ def test__parser__grammar_anysetof(generate_test_segments):
     )
     # Check with a bit of whitespace
     assert not g.match(segments[1:], parse_context=ctx)
+
+
+def test__parser__grammar_anysetof2(generate_test_segments):
+    """Test the AnySetOf grammar."""
+    token_list = ["bar", "  \t ", "foo", "  \t ", "bar"]
+    segments = generate_test_segments(token_list)
+
+    bar = StringParser("bar", KeywordSegment)
+    foo = StringParser("foo", KeywordSegment)
+    g = AnySetOf(foo, bar)
+    ctx = ParseContext(dialect=None)
+
+    # Check it doesn't match if the start is whitespace.
+    assert not g.match2(segments, 1, ctx)
+
+    # Check structure if we start with a match.
+    result = g.match2(segments, 0, ctx)
+    assert result == MatchResult2(
+        matched_slice=slice(0, 3),
+        child_matches=(
+            MatchResult2(slice(0, 1), KeywordSegment),
+            MatchResult2(slice(2, 3), KeywordSegment),
+            # NOTE: The second "bar" isn't included because this
+            # is any *set* of and we've already have "bar" once.
+        ),
+    )
