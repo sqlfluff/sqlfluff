@@ -2,7 +2,7 @@
 
 import csv
 import time
-from typing import Any, Dict, List, Optional, Set, Tuple, Union, overload
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union, overload
 
 from typing_extensions import Literal
 
@@ -10,10 +10,10 @@ from sqlfluff.cli import EXIT_FAIL, EXIT_SUCCESS
 from sqlfluff.core.errors import CheckTuple
 from sqlfluff.core.linter.linted_dir import LintedDir
 from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES
-
-# Classes needed only for type checking
-from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.timing import RuleTimingSummary, TimingSummary
+
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.parser.segments.base import BaseSegment
 
 
 class LintingResult:
@@ -231,7 +231,7 @@ class LintingResult:
         )
 
     @property
-    def tree(self) -> Optional[BaseSegment]:  # pragma: no cover
+    def tree(self) -> Optional["BaseSegment"]:  # pragma: no cover
         """A convenience method for when there is only one file and we want the tree."""
         if len(self.paths) > 1:
             raise ValueError(
