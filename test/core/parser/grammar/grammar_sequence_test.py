@@ -85,7 +85,7 @@ def test__parser__grammar_sequence_nested_match2(test_segments, caplog):
 
     assert not result1  # Check it returns falsy
     assert result1 == MatchResult2(
-        matched_slice=slice(0, 3),  #  NOTE: One of these is space.
+        matched_slice=slice(0, 3),  # NOTE: One of these is space.
         child_matches=(
             # NOTE: Two child matches, both clean. These
             # *were* in the initial list and should still have
@@ -112,7 +112,7 @@ def test__parser__grammar_sequence_nested_match2(test_segments, caplog):
 
     assert result2  # Check it returns truthy
     assert result2 == MatchResult2(
-        matched_slice=slice(0, 4),  #  NOTE: One of these is space.
+        matched_slice=slice(0, 4),  # NOTE: One of these is space.
         child_matches=(
             MatchResult2(
                 matched_slice=slice(0, 1),
@@ -191,7 +191,7 @@ def test__parser__grammar_sequence_indent_conditional_match2(test_segments, capl
         m = g.match2(test_segments, 0, parse_context=ctx)
 
     assert m == MatchResult2(
-        matched_slice=slice(0, 3),  #  NOTE: One of these is space.
+        matched_slice=slice(0, 3),  # NOTE: One of these is space.
         child_matches=(
             # The two child keywords
             MatchResult2(

@@ -175,3 +175,14 @@ def test__parser__grammar_noncode(test_segments, fresh_ansi_dialect):
     assert NonCodeMatcher().simple(ctx) is None
     # We should match one and only one segment
     assert len(m) == 1
+
+
+def test__parser__grammar_noncode_match2(test_segments, fresh_ansi_dialect):
+    """Test the NonCodeMatcher."""
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    # NonCode Matcher doesn't work with simple
+    assert NonCodeMatcher().simple(ctx) is None
+    # We should match one and only one segment
+    match = NonCodeMatcher().match2(test_segments, 1, parse_context=ctx)
+    assert match
+    assert match.matched_slice == slice(1, 2)
