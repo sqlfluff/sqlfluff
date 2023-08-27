@@ -46,7 +46,6 @@ import regex
 from sqlfluff.core.config import split_comma_separated_string
 from sqlfluff.core.dialects import Dialect
 from sqlfluff.core.errors import SQLFluffUserError, SQLLintError
-from sqlfluff.core.linter import IgnoreMask
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
 from sqlfluff.core.parser.segments.base import SourceFix
 from sqlfluff.core.plugin.host import is_main_process, plugins_loaded
@@ -59,6 +58,7 @@ from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 # https://github.com/python/typeshed/issues/7855
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.config import FluffConfig
+    from sqlfluff.core.linter import IgnoreMask
     from sqlfluff.core.plugin.hookspecs import PluginSpec
 
     _LoggerAdapter = logging.LoggerAdapter[logging.Logger]
@@ -829,7 +829,7 @@ class BaseRule(metaclass=RuleMetaclass):
         dialect: Dialect,
         fix: bool,
         templated_file: Optional["TemplatedFile"],
-        ignore_mask: Optional[IgnoreMask],
+        ignore_mask: Optional["IgnoreMask"],
         fname: Optional[str],
         config: "FluffConfig",
     ) -> Tuple[
@@ -952,7 +952,7 @@ class BaseRule(metaclass=RuleMetaclass):
         self,
         res: LintResult,
         templated_file: Optional[TemplatedFile],
-        ignore_mask: Optional[IgnoreMask],
+        ignore_mask: Optional["IgnoreMask"],
         new_lerrs: List[SQLLintError],
         new_fixes: List[LintFix],
         root: BaseSegment,

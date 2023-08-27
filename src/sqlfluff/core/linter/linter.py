@@ -41,11 +41,11 @@ from sqlfluff.core.linter.linted_file import (
 from sqlfluff.core.linter.linting_result import LintingResult
 from sqlfluff.core.linter.noqa import IgnoreMask
 from sqlfluff.core.parser import Lexer, Parser
+from sqlfluff.core.rules import BaseRule, RulePack, get_ruleset
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
     from sqlfluff.core.parser.segments.meta import MetaSegment
-    from sqlfluff.core.rules import BaseRule, RulePack, get_ruleset
     from sqlfluff.core.templaters import TemplatedFile
 
 
