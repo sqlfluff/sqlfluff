@@ -352,7 +352,9 @@ ansi_dialect.add(
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
-    ParameterNameSegment=RegexParser(r"[A-Z][A-Z0-9_]*", CodeSegment, type="parameter"),
+    ParameterNameSegment=RegexParser(
+        r"\"?[A-Z][A-Z0-9_]*\"?", CodeSegment, type="parameter"
+    ),
     FunctionNameIdentifierSegment=TypedParser(
         "code", CodeSegment, type="function_name_identifier"
     ),
