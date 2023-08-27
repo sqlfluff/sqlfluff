@@ -167,7 +167,7 @@ class IgnoreMask:
         violations: List[SQLBaseError] = []
         for comment in tree.recursive_crawl("comment"):
             if comment.is_type("block_comment"):
-                content = comment.raw.removeprefix('/*').removesuffix('*/').strip()
+                content = comment.raw.removeprefix("/*").removesuffix("*/").strip()
                 comment = comment.edit(raw=content)
             if comment.is_type("inline_comment") or comment.is_type("block_comment"):
                 ignore_entry = cls._extract_ignore_from_comment(
