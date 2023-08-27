@@ -4,23 +4,13 @@ This stores the idea of a collection of linted files at a single start path
 
 """
 
-from typing import (
-    Any,
-    Dict,
-    List,
-    Optional,
-    Union,
-    overload,
-)
+from typing import Any, Dict, List, Optional, Union, overload
+
 from typing_extensions import Literal
 
-
-from sqlfluff.core.errors import (
-    CheckTuple,
-)
-from sqlfluff.core.parser.segments.base import BaseSegment
-
+from sqlfluff.core.errors import CheckTuple
 from sqlfluff.core.linter.linted_file import LintedFile
+from sqlfluff.core.parser.segments.base import BaseSegment
 
 
 class LintedDir:

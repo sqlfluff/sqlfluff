@@ -1,6 +1,7 @@
 """Marker to be imported and used in plugins (and for own implementations)."""
+from typing import Any, Callable, TypeVar, cast
+
 import pluggy
-from typing import TypeVar, Callable, Any, cast
 
 # Improvement suggested by @oremanj on python/typing gitter
 F = TypeVar("F", bound=Callable[..., Any])

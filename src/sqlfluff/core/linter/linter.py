@@ -1,8 +1,8 @@
 """Defines the linter class."""
 
+import logging
 import os
 import time
-import logging
 from typing import (
     Any,
     Iterable,
@@ -20,39 +20,32 @@ import pathspec
 import regex
 from tqdm import tqdm
 
+from sqlfluff.core.config import ConfigLoader, FluffConfig, progress_bar_configuration
 from sqlfluff.core.errors import (
     SQLBaseError,
+    SQLFluffSkipFile,
+    SQLFluffUserError,
     SQLLexError,
     SQLLintError,
     SQLParseError,
-    SQLFluffSkipFile,
-    SQLFluffUserError,
 )
-from sqlfluff.core.parser import Lexer, Parser
 from sqlfluff.core.file_helpers import get_encoding
-from sqlfluff.core.templaters import TemplatedFile
-from sqlfluff.core.rules import get_ruleset
-from sqlfluff.core.config import FluffConfig, ConfigLoader, progress_bar_configuration
+from sqlfluff.core.linter.common import ParsedString, RenderedFile, RuleTuple
+from sqlfluff.core.linter.linted_dir import LintedDir
+from sqlfluff.core.linter.linted_file import (
+    TMP_PRS_ERROR_TYPES,
+    FileTimings,
+    LintedFile,
+)
+from sqlfluff.core.linter.linting_result import LintingResult
+from sqlfluff.core.linter.noqa import IgnoreMask
+from sqlfluff.core.parser import Lexer, Parser
 
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.parser.segments.meta import MetaSegment
-from sqlfluff.core.rules import BaseRule, RulePack
-
-from sqlfluff.core.linter.common import (
-    RuleTuple,
-    ParsedString,
-    RenderedFile,
-)
-from sqlfluff.core.linter.noqa import IgnoreMask
-from sqlfluff.core.linter.linted_file import (
-    LintedFile,
-    FileTimings,
-    TMP_PRS_ERROR_TYPES,
-)
-from sqlfluff.core.linter.linted_dir import LintedDir
-from sqlfluff.core.linter.linting_result import LintingResult
-
+from sqlfluff.core.rules import BaseRule, RulePack, get_ruleset
+from sqlfluff.core.templaters import TemplatedFile
 
 WalkableType = Iterable[Tuple[str, Optional[List[str]], List[str]]]
 RuleTimingsType = List[Tuple[str, str, float]]

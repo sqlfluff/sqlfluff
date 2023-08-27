@@ -2,30 +2,18 @@
 
 import csv
 import time
-from typing import (
-    Any,
-    Dict,
-    List,
-    Optional,
-    overload,
-    Tuple,
-    Union,
-    Set,
-)
+from typing import Any, Dict, List, Optional, Set, Tuple, Union, overload
+
 from typing_extensions import Literal
 
 from sqlfluff.cli import EXIT_FAIL, EXIT_SUCCESS
-
-from sqlfluff.core.errors import (
-    CheckTuple,
-)
-
-from sqlfluff.core.timing import TimingSummary, RuleTimingSummary
+from sqlfluff.core.errors import CheckTuple
+from sqlfluff.core.linter.linted_dir import LintedDir
+from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES
 
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments.base import BaseSegment
-from sqlfluff.core.linter.linted_dir import LintedDir
-from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES
+from sqlfluff.core.timing import RuleTimingSummary, TimingSummary
 
 
 class LintingResult:

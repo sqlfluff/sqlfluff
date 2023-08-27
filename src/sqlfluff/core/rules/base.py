@@ -16,43 +16,43 @@ missing.
 
 import bdb
 import copy
-from dataclasses import dataclass
 import fnmatch
-from itertools import chain
 import logging
 import pathlib
-import regex
 import re
+from collections import defaultdict, namedtuple
+from dataclasses import dataclass
+from itertools import chain
 from typing import (
     TYPE_CHECKING,
-    Sequence,
-    Sized,
-    cast,
-    Iterable,
-    Optional,
-    List,
-    Set,
-    Tuple,
-    Union,
     Any,
-    Dict,
-    Type,
     DefaultDict,
+    Dict,
+    Iterable,
     Iterator,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Sized,
+    Tuple,
+    Type,
+    Union,
+    cast,
 )
-from collections import namedtuple, defaultdict
+
+import regex
 
 from sqlfluff.core.config import split_comma_separated_string
-
+from sqlfluff.core.dialects import Dialect
+from sqlfluff.core.errors import SQLFluffUserError, SQLLintError
 from sqlfluff.core.linter import IgnoreMask
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
-from sqlfluff.core.dialects import Dialect
-from sqlfluff.core.errors import SQLLintError, SQLFluffUserError
 from sqlfluff.core.parser.segments.base import SourceFix
+from sqlfluff.core.plugin.host import is_main_process, plugins_loaded
+from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import BaseCrawler
-from sqlfluff.core.rules.config_info import get_config_info
-from sqlfluff.core.plugin.host import plugins_loaded, is_main_process
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
 # Best solution for generic types on older python versions

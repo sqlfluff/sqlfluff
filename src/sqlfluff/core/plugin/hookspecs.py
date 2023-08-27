@@ -1,7 +1,9 @@
 """Defines the specification to implement a plugin."""
 
-import pluggy
 from abc import abstractmethod
+
+import pluggy
+
 from sqlfluff.core.plugin import plugin_base_name
 
 hookspec = pluggy.HookspecMarker(plugin_base_name)

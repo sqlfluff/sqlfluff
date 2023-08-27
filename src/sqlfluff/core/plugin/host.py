@@ -8,10 +8,11 @@ the context of each thread.
 """
 
 from contextvars import ContextVar
+
 import pluggy
 
-from sqlfluff.core.plugin.hookspecs import PluginSpec
 from sqlfluff.core.plugin import plugin_base_name, project_name
+from sqlfluff.core.plugin.hookspecs import PluginSpec
 
 _plugin_manager = ContextVar("_plugin_manager", default=None)
 plugins_loaded = ContextVar("plugins_loaded", default=False)
