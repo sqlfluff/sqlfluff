@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union, 
 
 from typing_extensions import Literal
 
-from sqlfluff.cli import EXIT_FAIL, EXIT_SUCCESS
 from sqlfluff.core.errors import CheckTuple
 from sqlfluff.core.linter.linted_dir import LintedDir
 from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES
@@ -104,7 +103,7 @@ class LintingResult:
             *(path.violation_dict(**kwargs) for path in self.paths)
         )
 
-    def stats(self) -> Dict[str, Any]:
+    def stats(self, fail_code: int, success_code: int) -> Dict[str, Any]:
         """Return a stats dictionary of this result."""
         all_stats: Dict[str, Any] = dict(files=0, clean=0, unclean=0, violations=0)
         for path in self.paths:
@@ -120,7 +119,7 @@ class LintingResult:
         all_stats["clean files"] = all_stats["clean"]
         all_stats["unclean files"] = all_stats["unclean"]
         all_stats["exit code"] = (
-            EXIT_FAIL if all_stats["violations"] > 0 else EXIT_SUCCESS
+            fail_code if all_stats["violations"] > 0 else success_code
         )
         all_stats["status"] = "FAIL" if all_stats["violations"] > 0 else "PASS"
         return all_stats

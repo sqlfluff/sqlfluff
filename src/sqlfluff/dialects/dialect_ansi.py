@@ -744,6 +744,14 @@ class FileSegment(BaseFileSegment):
         allow_trailing=True,
     )
 
+    def get_table_references(self) -> Set[str]:
+        """Use parsed tree to extract table references."""
+        references = set()
+        for stmt in self.get_children("statement"):
+            stmt = cast(StatementSegment, stmt)
+            references |= stmt.get_table_references()
+        return references
+
 
 class IntervalExpressionSegment(BaseSegment):
     """An interval expression segment."""
