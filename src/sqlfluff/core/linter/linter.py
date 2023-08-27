@@ -42,9 +42,9 @@ from sqlfluff.core.linter.linting_result import LintingResult
 from sqlfluff.core.linter.noqa import IgnoreMask
 from sqlfluff.core.parser import Lexer, Parser
 from sqlfluff.core.rules import BaseRule, RulePack, get_ruleset
+from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 
 if TYPE_CHECKING:  # pragma: no cover
-    from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
     from sqlfluff.core.parser.segments.meta import MetaSegment
     from sqlfluff.core.templaters import TemplatedFile
 
@@ -145,7 +145,7 @@ class Linter:
     @staticmethod
     def _lex_templated_file(
         templated_file: "TemplatedFile", config: FluffConfig
-    ) -> Tuple[Optional[Sequence["BaseSegment"]], List[SQLLexError], FluffConfig]:
+    ) -> Tuple[Optional[Sequence[BaseSegment]], List[SQLLexError], FluffConfig]:
         """Lex a templated file.
 
         NOTE: This potentially mutates the config, so make sure to
@@ -183,7 +183,7 @@ class Linter:
         if templating_blocks_indent and not force_block_indent:
             indent_balance = sum(
                 getattr(elem, "indent_val", 0)
-                for elem in cast(Tuple["BaseSegment", ...], tokens)
+                for elem in cast(Tuple[BaseSegment, ...], tokens)
             )
             if indent_balance != 0:  # pragma: no cover
                 linter_logger.debug(
@@ -197,7 +197,7 @@ class Linter:
         # The file will have been lexed without config, so check all indents
         # are enabled.
         new_tokens = []
-        for token in cast(Tuple["BaseSegment", ...], tokens):
+        for token in cast(Tuple[BaseSegment, ...], tokens):
             if token.is_meta:
                 token = cast("MetaSegment", token)
                 if token.indent_val != 0:
@@ -211,16 +211,16 @@ class Linter:
 
     @staticmethod
     def _parse_tokens(
-        tokens: Sequence["BaseSegment"],
+        tokens: Sequence[BaseSegment],
         config: FluffConfig,
         fname: Optional[str] = None,
         parse_statistics: bool = False,
-    ) -> Tuple[Optional["BaseSegment"], List[SQLParseError]]:
+    ) -> Tuple[Optional[BaseSegment], List[SQLParseError]]:
         parser = Parser(config=config)
         violations = []
         # Parse the file and log any problems
         try:
-            parsed: Optional["BaseSegment"] = parser.parse(
+            parsed: Optional[BaseSegment] = parser.parse(
                 # Regardless of how the sequence was passed in, we should
                 # coerce it to a tuple here, before we head deeper into
                 # the parsing process.
@@ -307,7 +307,7 @@ class Linter:
         """Parse a rendered file."""
         t0 = time.monotonic()
         violations = cast(List[SQLBaseError], rendered.templater_violations)
-        tokens: Optional[Sequence["BaseSegment"]]
+        tokens: Optional[Sequence[BaseSegment]]
         if rendered.templated_file is not None:
             tokens, lvs, config = cls._lex_templated_file(
                 rendered.templated_file, rendered.config
@@ -348,16 +348,14 @@ class Linter:
     @classmethod
     def lint_fix_parsed(
         cls,
-        tree: "BaseSegment",
+        tree: BaseSegment,
         config: FluffConfig,
         rule_pack: RulePack,
         fix: bool = False,
         fname: Optional[str] = None,
         templated_file: Optional["TemplatedFile"] = None,
         formatter: Any = None,
-    ) -> Tuple[
-        "BaseSegment", List[SQLBaseError], Optional[IgnoreMask], RuleTimingsType
-    ]:
+    ) -> Tuple[BaseSegment, List[SQLBaseError], Optional[IgnoreMask], RuleTimingsType]:
         """Lint and optionally fix a tree object."""
         # Keep track of the linting errors on the very first linter pass. The
         # list of issues output by "lint" and "fix" only includes issues present
@@ -464,7 +462,7 @@ class Linter:
                     if fix and fixes:
                         linter_logger.info(f"Applying Fixes [{crawler.code}]: {fixes}")
                         # Do some sanity checks on the fixes before applying.
-                        anchor_info = "BaseSegment".compute_anchor_edit_info(fixes)
+                        anchor_info = BaseSegment.compute_anchor_edit_info(fixes)
                         if any(
                             not info.is_valid for info in anchor_info.values()
                         ):  # pragma: no cover
@@ -577,7 +575,7 @@ class Linter:
         """Lint a ParsedString and return a LintedFile."""
         violations = parsed.violations
         time_dict = parsed.time_dict
-        tree: Optional["BaseSegment"]
+        tree: Optional[BaseSegment]
         if parsed.tree:
             t0 = time.monotonic()
             linter_logger.info("LINTING (%s)", parsed.fname)
@@ -771,11 +769,11 @@ class Linter:
 
     def fix(
         self,
-        tree: "BaseSegment",
+        tree: BaseSegment,
         config: Optional[FluffConfig] = None,
         fname: Optional[str] = None,
         templated_file: Optional["TemplatedFile"] = None,
-    ) -> Tuple["BaseSegment", List[SQLBaseError]]:
+    ) -> Tuple[BaseSegment, List[SQLBaseError]]:
         """Return the fixed tree and violations from lintfix when we're fixing."""
         config = config or self.config
         rule_pack = self.get_rulepack(config=config)
@@ -792,7 +790,7 @@ class Linter:
 
     def lint(
         self,
-        tree: "BaseSegment",
+        tree: BaseSegment,
         config: Optional[FluffConfig] = None,
         fname: Optional[str] = None,
         templated_file: Optional["TemplatedFile"] = None,
