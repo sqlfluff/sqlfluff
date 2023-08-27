@@ -515,6 +515,158 @@ class BaseGrammar(Matchable):
         return MatchResult.from_unmatched(segments), None
 
     @classmethod
+    def _longest_match2(
+        cls,
+        segments: Tuple[BaseSegment, ...],
+        matchers: Sequence[MatchableType],
+        idx: int,
+        parse_context: ParseContext,
+    ) -> Tuple[MatchResult2, Optional[MatchableType]]:
+        """Return longest match from a selection of matchers.
+
+        Priority is:
+        1. The first total match, which means we've matched all available segments or
+           that we've hit a valid terminator.
+        2. The longest clean match.
+        3. The longest unclean match.
+        4. An empty match.
+
+        If for #2 and #3, there's a tie for the longest match, priority is given to the
+        first in the iterable.
+
+        Returns:
+            `tuple` of (match_object, matcher).
+
+        NOTE: This matching method is the workhorse of the parser. It drives the
+        functionality of the AnyOf & AnyNumberOf grammars, and therefore by extension
+        the degree of branching within the parser. It's performance can be monitored
+        using the `parse_stats` object on the context.
+
+        The things which determine the performance of this method are:
+        1. Pruning. This method uses `_prune_options()` to filter down which matchable
+           options proceed to the full matching step. Ideally only very few do and this
+           can handle the majority of the filtering.
+        2. Caching. This method uses the parse cache (`check_parse_cache` and
+           `put_parse_cache`) on the ParseContext to speed up repetitive matching
+           operations. As we make progress through a file there will often not be a
+           cached value already available, and so this cache has the greatest impact
+           within poorly optimised (or highly nested) expressions.
+        3. Terminators. By default, _all_ the options are evaluated, and then the
+           longest (the `best`) is returned. The exception to this is when the match
+           is `complete` (i.e. it matches _all_ the remaining segments), or when a
+           match is followed by a valid terminator (i.e. a segment which indicates
+           that the match is _effectively_ complete). In these latter scenarios, the
+           _first_ complete or terminated match is returned. In the ideal case, the
+           only matcher which is evaluated should be the "correct" one, and then no
+           others should be attempted.
+        """
+        max_idx = len(segments)  # What is the limit
+
+        # No matchers or no segments? No match.
+        if not matchers or idx == max_idx:
+            return MatchResult2.empty_at(idx), None
+
+        # Prune available options, based on their simple representation for efficiency.
+        # TODO: Given we don't allow trimming here we should be able to remove
+        # some complexity from this function so that we just take the first segment.
+        # Maybe that's just small potatoes though.
+        available_options = cls._prune_options(
+            matchers, segments, parse_context=parse_context, start_idx=idx
+        )
+
+        # If no available options, return no match.
+        # NOTE: No partials at this stage, because we're pruning the *starts*.
+        if not available_options:
+            return MatchResult2.empty_at(idx), None
+
+        terminators = parse_context.terminators or ()
+        terminated = False
+
+        # NOTE: No start and end trimming as before. Check that's not an issue,
+        # but I don't think it should happen here regardless.
+        # TODO: REMOVE THIS COMMENT ONCE CONFIRMED.
+
+        _s = segments[idx]
+        # At parse time we should be able to count on there being a position marker.
+        assert _s.pos_marker
+
+        # Characterise this location.
+        # Initial segment raw, loc, type and length of segment series.
+        loc_key = (
+            _s.raw,
+            _s.pos_marker.working_loc,
+            _s.get_type(),
+            # NOTE: I don't think this key makes sense in this context
+            # but I continue to include it for consistency.
+            # It's a negative number for now so we don't get collisions
+            # with the existing cache.
+            # We use our own cache on the context so there we can easily
+            # change.
+            # TODO: CHECK THIS.
+            -(max_idx - idx),
+        )
+
+        best_match = MatchResult2.empty_at(idx)
+        best_matcher: Optional[MatchableType] = None
+        # iterate at this position across all the matchers
+        for matcher_idx, matcher in enumerate(available_options):
+            # Check parse cache.
+            matcher_key = matcher.cache_key()
+            res_match: Optional[MatchResult2] = parse_context.check_parse_cache2(
+                loc_key, matcher_key
+            )
+            # If cache miss, match fresh and repopulate.
+            # NOTE: By comparing with None, we'll also still get "failed" matches.
+            if res_match is None:
+                # Match fresh if no cache hit
+                res_match = matcher.match2(segments, idx, parse_context)
+                # Cache it for later to for performance.
+                parse_context.put_parse_cache2(loc_key, matcher_key, res_match)
+
+            # Have we matched all available segments?
+            # TODO: Do we still want this clause in the new world? It seems unlikely
+            # if we assume there are _always_ more segments.
+            if res_match and res_match.matched_slice.stop == max_idx:
+                # TODO: Assess the issue of not handling trailing whitespace here.
+                return res_match, matcher
+
+            # Is this the best match so far?
+            # NOTE: Using the inbuilt comparison functions of MatchResult2.
+            if res_match.is_better_than(best_match):
+                best_match = res_match
+                best_matcher = matcher
+
+                # If it _is_ better AND it's clean, then see if we can finish
+                # early with a terminator.
+                if best_match.is_clean:
+                    # If we've got a terminator next, it's an opportunity to
+                    # end earlier, and claim an effectively "complete" match.
+                    # NOTE: This means that by specifying terminators, we can
+                    # significantly increase performance.
+                    if idx == len(available_options) - 1:
+                        # If it's the last option - no need to check terminators.
+                        # We're going to end anyway, so we can skip that step.
+                        terminated = True
+                        break
+                    elif terminators:
+                        _next_code_idx = best_match.matched_slice.stop
+                        while not segments[_next_code_idx].is_code:
+                            _next_code_idx += 1
+                        for terminator in terminators:
+                            terminator_match: MatchResult2 = terminator.match2(
+                                segments, _next_code_idx, parse_context
+                            )
+                            if terminator_match:
+                                terminated = True
+                                break
+
+            if terminated:
+                break
+
+        # Return the best we found.
+        return best_match, best_matcher
+
+    @classmethod
     def _look_ahead_match(
         cls,
         segments: Tuple[BaseSegment, ...],
