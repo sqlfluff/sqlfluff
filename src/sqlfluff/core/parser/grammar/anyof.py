@@ -12,6 +12,7 @@ from sqlfluff.core.parser.grammar.base import (
 from sqlfluff.core.parser.grammar.sequence import Bracketed, Sequence
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
+from sqlfluff.core.parser.match_util import longest_match2
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
 from sqlfluff.core.parser.types import MatchableType, SimpleHintType
@@ -238,7 +239,7 @@ class AnyNumberOf(BaseGrammar):
                 clear_terminators=self.reset_terminators,
                 push_terminators=self.terminators,
             ) as ctx:
-                match, matched_option = self._longest_match2(
+                match, matched_option = longest_match2(
                     segments,
                     self._elements,
                     # Use a temp index for the non-code elements.
