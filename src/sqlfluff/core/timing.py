@@ -1,7 +1,7 @@
 """Timing summary class."""
 
-from typing import Optional, List, Dict, Tuple, Set, Union
 from collections import defaultdict
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 
 class TimingSummary:
@@ -69,7 +69,10 @@ class RuleTimingSummary:
             # `threshold`, then don't display.
             if sum(timings) < threshold:
                 continue
-            summary[f"{code}: {name}"] = {
+            # NOTE: This summary isn't covered in tests, it's tricky
+            # to force it to exist in a test environment without
+            # making things complicated.
+            summary[f"{code}: {name}"] = {  # pragma: no cover
                 "sum (n)": f"{sum(timings):.2f} ({len(timings)})",
                 "min": min(timings),
                 "max": max(timings),

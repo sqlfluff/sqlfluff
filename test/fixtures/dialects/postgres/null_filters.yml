@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1b26ead6a431fd6f9c3f727271035493f6fc0bc7eb2cc7d9913fbe518449496e
+_hash: f926ecc8538c230076c465d10eb56e484cf41d078050822760485b810841eb15
 file:
   statement:
     select_statement:
@@ -11,10 +11,10 @@ file:
       - keyword: SELECT
       - select_clause_element:
           expression:
-          - column_reference:
+            column_reference:
               naked_identifier: nullable_field
-          - keyword: IS
-          - keyword: 'NULL'
+            keyword: IS
+            null_literal: 'NULL'
           alias_expression:
             keyword: as
             naked_identifier: standard_is_null
@@ -34,7 +34,7 @@ file:
               naked_identifier: nullable_field
           - keyword: IS
           - keyword: NOT
-          - keyword: 'NULL'
+          - null_literal: 'NULL'
           alias_expression:
             keyword: as
             naked_identifier: standard_not_null
@@ -60,7 +60,7 @@ file:
         - column_reference:
             naked_identifier: nullable_field
         - keyword: IS
-        - keyword: 'NULL'
+        - null_literal: 'NULL'
         - binary_operator: OR
         - column_reference:
             naked_identifier: nullable_field
@@ -70,7 +70,7 @@ file:
             naked_identifier: nullable_field
         - keyword: IS
         - keyword: NOT
-        - keyword: 'NULL'
+        - null_literal: 'NULL'
         - binary_operator: OR
         - column_reference:
             naked_identifier: nullable_field
