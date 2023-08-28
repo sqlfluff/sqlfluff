@@ -5,17 +5,43 @@ or BaseGrammar to un-bloat those classes.
 """
 
 from collections import defaultdict
-from typing import TYPE_CHECKING, DefaultDict, List, Optional, Sequence, Set, Tuple
+from dataclasses import dataclass
+from typing import (
+    DefaultDict,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    cast,
+)
 
+from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.match_result import MatchResult2
+from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.segments.bracketed import BracketedSegment
 from sqlfluff.core.parser.types import MatchableType
 
-if TYPE_CHECKING:  # pragma: no cover
-    from sqlfluff.core.parser.segments import BaseSegment
+
+@dataclass
+class BracketInfo:
+    """BracketInfo tuple for keeping track of brackets during matching."""
+
+    bracket: BaseSegment
+    segments: Tuple[BaseSegment, ...]
+
+    def to_segment(self, end_bracket: Tuple[BaseSegment, ...]) -> BracketedSegment:
+        """Turn the contained segments into a bracketed segment."""
+        assert len(end_bracket) == 1
+        return BracketedSegment(
+            segments=self.segments,
+            start_bracket=(self.bracket,),
+            end_bracket=cast(Tuple[BaseSegment], end_bracket),
+        )
 
 
-def first_trimmed_raw(seg: "BaseSegment") -> str:
+def first_trimmed_raw(seg: BaseSegment) -> str:
     """Trim whitespace off a whole element raw.
 
     Used as a helper function in BaseGrammar._look_ahead_match.
@@ -38,7 +64,7 @@ def first_trimmed_raw(seg: "BaseSegment") -> str:
 
 
 def first_non_whitespace(
-    segments: Sequence["BaseSegment"],
+    segments: Sequence[BaseSegment],
     start_idx=0,
 ) -> Optional[Tuple[str, Set[str]]]:
     """Return the upper first non-whitespace segment in the iterable."""
@@ -54,7 +80,7 @@ def first_non_whitespace(
 
 def prune_options(
     options: List[MatchableType],
-    segments: Sequence["BaseSegment"],
+    segments: Sequence[BaseSegment],
     parse_context: ParseContext,
     start_idx=0,
 ) -> List[MatchableType]:
@@ -112,7 +138,7 @@ def prune_options(
 
 
 def longest_match2(
-    segments: Tuple["BaseSegment", ...],
+    segments: Tuple[BaseSegment, ...],
     matchers: Sequence[MatchableType],
     idx: int,
     parse_context: ParseContext,
@@ -263,7 +289,7 @@ def longest_match2(
 
 
 def next_match2(
-    segments: Sequence["BaseSegment"],
+    segments: Sequence[BaseSegment],
     idx: int,
     matchers: Sequence[MatchableType],
     parse_context: ParseContext,
@@ -348,3 +374,179 @@ def next_match2(
 
     # If we finish the loop, we didn't find a match. Return empty.
     return MatchResult2.empty_at(idx), None
+
+
+def resolve_bracket2(
+    segments: Sequence[BaseSegment],
+    opening_match: MatchResult2,
+    opening_matcher: MatchableType,
+    start_brackets: List[MatchableType],
+    end_brackets: List[MatchableType],
+    parse_context: ParseContext,
+) -> MatchResult2:
+    """Recursive match to resolve an opened bracket.
+
+    Returns when the opening bracket is resolved.
+    """
+    max_idx = len(segments)
+    assert opening_match
+    assert opening_matcher in start_brackets
+    type_idx = start_brackets.index(opening_matcher)
+    matched_idx = opening_match.matched_slice.stop
+    child_matches = ()
+
+    while True:
+        # Look for the next relevant bracket.
+        match, matcher = next_match2(
+            segments,
+            matched_idx,
+            matchers=start_brackets + end_brackets,
+            parse_context=parse_context,
+        )
+
+        # Was it a failed match?
+        if not match:
+            # If it was failed, then this is a problem, we started an
+            # opening bracket but never found the end.
+            raise SQLParseError(
+                "Couldn't find closing bracket for opening bracket.",
+                segment=segments[opening_match.matched_slice.start],
+            )
+
+        # Did we find a closing bracket?
+        if matcher in end_brackets:
+            closing_idx = end_brackets.index(matcher)
+            if closing_idx == type_idx:
+                # We're closing the opening type.
+                # NOTE: This is how we exit the loop.
+                return MatchResult2(
+                    # Slice should span from the first to the second.
+                    slice(opening_match.matched_slice.start, match.matched_slice.stop),
+                    matched_class=BracketedSegment,
+                    segment_kwargs={
+                        # TODO: This feels a bit weird. Could we infer it on construction?
+                        "start_bracket": (segments[opening_match.matched_slice.start],),
+                        "end_bracket": (segments[match.matched_slice.stop - 1],),
+                    },
+                    child_matches=child_matches,
+                )
+            # Otherwise we're closing an unexpected type. This is less good.
+            raise SQLParseError(
+                f"Found unexpected end bracket!, "
+                f"was expecting "
+                f"{end_brackets[type_idx]}, "
+                f"but got {matcher}",
+                segment=segments[match.matched_slice.stop - 1],
+            )
+
+        # Otherwise we found a new opening bracket.
+        assert matcher in start_brackets
+        # Recurse into a new bracket matcher.
+        inner_match = resolve_bracket2(
+            segments,
+            opening_match=match,
+            opening_matcher=matcher,
+            start_brackets=start_brackets,
+            end_brackets=end_brackets,
+            parse_context=parse_context,
+        )
+        # This will either error, or only return once we're back out of the
+        # bracket which started it. The return value will be a match result for
+        # the inner BracketedSegment. This becomes a child of our return.
+        child_matches += (inner_match,)
+        matched_idx = inner_match.matched_slice.stop
+
+        # Head back around the loop again to see if we can find the end...
+
+
+def next_ex_bracket_match2(
+    segments: Sequence[BaseSegment],
+    idx: int,
+    matchers: List[MatchableType],
+    parse_context: ParseContext,
+    start_bracket: Optional[MatchableType] = None,
+    end_bracket: Optional[MatchableType] = None,
+    bracket_pairs_set: str = "bracket_pairs",
+) -> Tuple[MatchResult2, Optional[MatchableType]]:
+    """Same as `next_match2` but with bracket counting.
+
+    NB: Given we depend on `next_match2` we can also utilise
+    the same performance optimisations which are implemented there.
+
+    bracket_pairs_set: Allows specific segments to override the available
+        bracket pairs. See the definition of "angle_bracket_pairs" in the
+        BigQuery dialect for additional context on why this exists.
+
+    Returns:
+        `tuple` of (match_object, matcher).
+
+    """
+    max_idx = len(segments)
+
+    # Have we got any segments to match on?
+    if idx >= max_idx:  # No? Return empty.
+        return MatchResult2.empty_at(idx), None
+
+    # Get hold of the bracket matchers from the dialect, and append them
+    # to the list of matchers. We get them from the relevant set on the
+    # dialect. We use zip twice to "unzip" them. We ignore the first
+    # argument because that's just the name.
+    _, start_bracket_refs, end_bracket_refs, persists = zip(
+        *parse_context.dialect.bracket_sets(bracket_pairs_set)
+    )
+    # These are matchables, probably StringParsers.
+    start_brackets = [
+        parse_context.dialect.ref(seg_ref) for seg_ref in start_bracket_refs
+    ]
+    end_brackets = [parse_context.dialect.ref(seg_ref) for seg_ref in end_bracket_refs]
+    # Add any bracket-like things passed as arguments
+    if start_bracket:
+        start_brackets += [start_bracket]
+    if end_bracket:
+        end_brackets += [end_bracket]
+    bracket_matchers = start_brackets + end_brackets
+
+    # Make some buffers
+    bracket_stack: List[BracketInfo] = []
+    matched_idx = idx
+    child_matches = ()
+
+    # Iterate
+    while True:  ### TODO: Check whether it should be a for loop?
+        # Look ahead for opening brackets or the thing(s)
+        # that we're otherwise looking for.
+        match, matcher = next_match2(
+            segments,
+            matched_idx,
+            matchers + bracket_matchers,
+            parse_context=parse_context,
+        )
+        # Did we match? If so, is it a target or a bracket?
+        if not match or matcher in matchers:
+            # If there's either no match, or we hit a target, just pass the result.
+            # NOTE: This method returns the same as `next_match2` in a "no match"
+            # scenario, which is why we can simplify like this.
+            return match, matcher
+        # If it's a _closing_ bracket, then we also return no match.
+        if matcher in end_brackets:
+            # Unexpected end bracket! Return no match.
+            # TODO: Should we make an unclean match here to help with unparsables?
+            return MatchResult2.empty_at(idx), None
+
+        # Otherwise we found a opening bracket before finding a target.
+        # We now call the recursive function because there might be more
+        # brackets inside.
+        # NOTE: This only returns on resolution of the opening bracket.
+        # TODO: We go to quite a bit of work to construct the inner matches
+        # here, but we're not really using them. Should we deal with that?
+        bracket_match = resolve_bracket2(
+            segments,
+            opening_match=match,
+            opening_matcher=matcher,
+            start_brackets=start_brackets,
+            end_brackets=end_brackets,
+            parse_context=parse_context,
+        )
+        matched_idx = bracket_match.matched_slice.stop
+        child_matches += (bracket_match,)
+        # Head back around the loop and keep looking.
