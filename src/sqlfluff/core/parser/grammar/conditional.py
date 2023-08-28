@@ -1,6 +1,6 @@
 """Conditional Grammar."""
 
-from typing import Tuple, Type, Union
+from typing import Sequence, Tuple, Type, Union
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import BaseGrammar
@@ -95,7 +95,7 @@ class Conditional(BaseGrammar):
 
     def match2(
         self,
-        segments: Tuple["BaseSegment", ...],
+        segments: Sequence["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult2:

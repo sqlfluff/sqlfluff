@@ -4,7 +4,7 @@ Matchable objects which return individual segments.
 """
 
 from abc import abstractmethod
-from typing import Collection, Optional, Tuple, Type, Union
+from typing import Collection, Optional, Sequence, Tuple, Type, Union
 from uuid import uuid4
 
 import regex
@@ -150,7 +150,7 @@ class TypedParser(BaseParser):
 
     def match2(
         self,
-        segments: Tuple["BaseSegment", ...],
+        segments: Sequence["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult2:
@@ -208,7 +208,7 @@ class StringParser(BaseParser):
 
     def match2(
         self,
-        segments: Tuple["BaseSegment", ...],
+        segments: Sequence["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult2:
@@ -266,7 +266,7 @@ class MultiStringParser(BaseParser):
 
     def match2(
         self,
-        segments: Tuple["BaseSegment", ...],
+        segments: Sequence["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult2:
@@ -346,7 +346,7 @@ class RegexParser(BaseParser):
 
     def match2(
         self,
-        segments: Tuple["BaseSegment", ...],
+        segments: Sequence["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult2:

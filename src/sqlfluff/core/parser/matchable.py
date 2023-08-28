@@ -2,7 +2,7 @@
 
 import copy
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, FrozenSet, Optional, Tuple, TypeVar
+from typing import TYPE_CHECKING, Any, FrozenSet, Optional, Sequence, Tuple, TypeVar
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.context import ParseContext
@@ -50,7 +50,7 @@ class Matchable(ABC):
     @abstractmethod
     def match2(
         self,
-        segments: Tuple["BaseSegment", ...],
+        segments: Sequence["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
     ) -> "MatchResult2":

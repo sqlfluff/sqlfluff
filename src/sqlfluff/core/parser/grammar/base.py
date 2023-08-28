@@ -26,39 +26,19 @@ from sqlfluff.core.parser.match_logging import (
     parse_match_logging,
 )
 from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
-from sqlfluff.core.parser.match_util import (
+from sqlfluff.core.parser.match_utils import (
+    BracketInfo,
     first_trimmed_raw,
     prune_options,
 )
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.matchable import Matchable
-from sqlfluff.core.parser.segments import BaseSegment, BracketedSegment, allow_ephemeral
+from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
 from sqlfluff.core.parser.types import MatchableType, SimpleHintType
 from sqlfluff.core.string_helpers import curtail_string
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.dialects.base import Dialect
-
-
-@dataclass
-class BracketInfo:
-    """BracketInfo tuple for keeping track of brackets during matching.
-
-    This is used in BaseGrammar._bracket_sensitive_look_ahead_match but
-    defined here for type checking.
-    """
-
-    bracket: BaseSegment
-    segments: Tuple[BaseSegment, ...]
-
-    def to_segment(self, end_bracket: Tuple[BaseSegment, ...]) -> BracketedSegment:
-        """Turn the contained segments into a bracketed segment."""
-        assert len(end_bracket) == 1
-        return BracketedSegment(
-            segments=self.segments,
-            start_bracket=(self.bracket,),
-            end_bracket=cast(Tuple[BaseSegment], end_bracket),
-        )
 
 
 def cached_method_for_parse_context(
@@ -995,7 +975,7 @@ class Anything(BaseGrammar):
 
     def match2(
         self,
-        segments: Tuple["BaseSegment", ...],
+        segments: Sequence["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult2:
@@ -1022,7 +1002,7 @@ class Nothing(BaseGrammar):
 
     def match2(
         self,
-        segments: Tuple["BaseSegment", ...],
+        segments: Sequence["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult2:
