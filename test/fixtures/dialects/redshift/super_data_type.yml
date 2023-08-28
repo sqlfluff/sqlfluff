@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 31c74742bdbfe78090a70c670b8e3a37fc326fef68bc13b500016ab1315688b2
+_hash: b1ad1348e7f28ff11211e11d120f56e880fc3d3b822ef6a6009b6ed0ecefb301
 file:
 - statement:
     select_statement:
@@ -77,7 +77,7 @@ file:
             naked_identifier: o_orderkey
         - keyword: IS
         - keyword: NOT
-        - keyword: 'NULL'
+        - null_literal: 'NULL'
 - statement_terminator: ;
 - statement:
     select_statement:
