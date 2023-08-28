@@ -1,12 +1,13 @@
 """Base grammar, Ref, Anything and Nothing."""
 
 import copy
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Iterable,
+    DefaultDict,
     List,
     Optional,
     Sequence,
@@ -251,14 +252,16 @@ class BaseGrammar(Matchable):
 
     @staticmethod
     def _first_non_whitespace(
-        segments: Iterable["BaseSegment"],
+        segments: Sequence["BaseSegment"],
+        start_idx=0,
     ) -> Optional[Tuple[str, Set[str]]]:
         """Return the upper first non-whitespace segment in the iterable."""
-        for segment in segments:
-            if segment.first_non_whitespace_segment_raw_upper:
+        for i in range(start_idx, len(segments)):
+            _segment = segments[i]
+            if _segment.first_non_whitespace_segment_raw_upper:
                 return (
-                    segment.first_non_whitespace_segment_raw_upper,
-                    segment.class_types,
+                    _segment.first_non_whitespace_segment_raw_upper,
+                    _segment.class_types,
                 )
         return None
 
@@ -268,6 +271,7 @@ class BaseGrammar(Matchable):
         options: List[MatchableType],
         segments: Tuple[BaseSegment, ...],
         parse_context: ParseContext,
+        start_idx=0,
     ) -> List[MatchableType]:
         """Use the simple matchers to prune which options to match on.
 
@@ -278,12 +282,12 @@ class BaseGrammar(Matchable):
         prune_buff = []
 
         # Find the first code element to match against.
-        first_segment = cls._first_non_whitespace(segments)
+        first = cls._first_non_whitespace(segments, start_idx=start_idx)
         # If we don't have an appropriate option to match against,
         # then we should just return immediately. Nothing will match.
-        if not first_segment:
+        if not first:
             return options
-        first_raw, first_types = first_segment
+        first_raw, first_types = first
 
         for opt in options:
             simple = opt.simple(parse_context=parse_context)
@@ -781,6 +785,95 @@ class BaseGrammar(Matchable):
             return best_simple_match
         else:
             return ((), MatchResult.from_unmatched(segments), None)
+
+    @classmethod
+    def _next_match2(
+        cls,
+        segments: Tuple[BaseSegment, ...],
+        idx: int,
+        matchers: Sequence[MatchableType],
+        parse_context: ParseContext,
+    ) -> Tuple[MatchResult2, Optional[MatchableType]]:
+        """Look ahead for matches beyond the first element of the segments list.
+
+        NOTE: Returns *only clean* matches.
+
+        This function also contains the performance improved hash-matching approach to
+        searching for matches, which should significantly improve performance.
+
+        Prioritise the first match, and if multiple match at the same point the longest.
+        If two matches of the same length match at the same time, then it's the first in
+        the iterable of matchers.
+
+        Returns:
+            `tuple` of (match_object, matcher).
+
+        """
+        max_idx = len(segments)
+
+        # Have we got any segments to match on?
+        if idx >= max_idx:  # No? Return empty.
+            return MatchResult2.empty_at(idx), None
+
+        # This next section populates a lookup of the simple matchers.
+        # TODO: This should really be populated on instantiation of the
+        # host grammar.
+        # NOTE: We keep the index of the matcher so we can prioritise
+        # later. Mathchers themselves are obtained through direct lookup.
+        raw_simple_map: DefaultDict[str, List[int]] = defaultdict(list)
+        type_simple_map: DefaultDict[str, List[int]] = defaultdict(list)
+        for _idx, matcher in enumerate(matchers):
+            simple = matcher.simple(parse_context=parse_context)
+            if not simple:  # pragma: no cover
+                # NOTE: For all bundled dialects, this clause is true, but until
+                # the RegexMatcher is completely deprecated (and therefore that
+                # `.simple()` must provide a result), it is still _possible_
+                # to end up here.
+                raise NotImplementedError(
+                    "All matchers passed to `._next_match2()` are "
+                    "assumed to have a functioning `.simple()` option. "
+                    "In a future release it will be compulsory for _all_ "
+                    "matchables to implement `.simple()`. Please report "
+                    "this as a bug on GitHub along with your current query "
+                    f"and dialect.\nProblematic matcher: {matcher}"
+                )
+
+            for simple_raw in simple[0]:
+                raw_simple_map[simple_raw].append(_idx)
+            for simple_type in simple[1]:
+                type_simple_map[simple_type].append(_idx)
+
+        # There's an optimisation we could do here where we don't iterate
+        # through them one by one, but we use a lookup which we pre-calculate
+        # at the start of the whole matching process.
+        # TODO: That's only worthwhile once we've got a bit closer to a single
+        # pass parsing process.
+        for _idx in range(idx, max_idx):
+            seg = segments[_idx]
+            _matcher_idxs = []
+            # Raw matches first.
+            _matcher_idxs.extend(raw_simple_map[first_trimmed_raw(seg)])
+            # Type matches second.
+            _type_overlap = seg.class_types.intersection(type_simple_map.keys())
+            for _type in _type_overlap:
+                _matcher_idxs.extend(type_simple_map[_type])
+
+            # If no matchers to work with, continue
+            if not _matcher_idxs:
+                continue
+
+            # If we do have them, sort them and then do the full match.
+            _matcher_idxs.sort()
+            for _matcher_idx in _matcher_idxs:
+                _matcher = matchers[_matcher_idx]
+                _match = _matcher.match2(segments, _idx, parse_context)
+                # NOTE: We're only going to consider clean matches from this method.
+                if _match:
+                    # This will do. Return.
+                    return _match, _matcher
+
+        # If we finish the loop, we didn't find a match. Return empty.
+        return MatchResult2.empty_at(idx), None
 
     @classmethod
     def _bracket_sensitive_look_ahead_match(

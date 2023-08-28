@@ -11,7 +11,6 @@ from sqlfluff.core.parser import (
     StringParser,
 )
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.segments import EphemeralSegment
 from sqlfluff.core.parser.grammar.base import BaseGrammar
 from sqlfluff.core.parser.grammar import OneOf, Sequence
 from sqlfluff.core.errors import SQLParseError
@@ -19,7 +18,7 @@ from sqlfluff.core.errors import SQLParseError
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 
 
-def make_result_tuple(result_slice, matcher_keywords, seg_list):
+def make_result_tuple(result_slice, matcher_keywords, test_segments):
     """Make a comparison tuple for test matching."""
     # No result slice means no match.
     if not result_slice:
@@ -29,7 +28,7 @@ def make_result_tuple(result_slice, matcher_keywords, seg_list):
         KeywordSegment(elem.raw, pos_marker=elem.pos_marker)
         if elem.raw in matcher_keywords
         else elem
-        for elem in seg_list[result_slice]
+        for elem in test_segments[result_slice]
     )
 
 
@@ -47,7 +46,7 @@ def make_result_tuple(result_slice, matcher_keywords, seg_list):
     ],
 )
 def test__parser__grammar__base__longest_trimmed_match__basic(
-    seg_list, seg_list_slice, matcher_keywords, trim_noncode, result_slice
+    test_segments, seg_list_slice, matcher_keywords, trim_noncode, result_slice
 ):
     """Test the _longest_trimmed_match method of the BaseGrammar."""
     # Make the matcher keywords
@@ -55,20 +54,20 @@ def test__parser__grammar__base__longest_trimmed_match__basic(
 
     ctx = ParseContext(dialect=None)
     m, _ = BaseGrammar._longest_trimmed_match(
-        seg_list[seg_list_slice], matchers, ctx, trim_noncode=trim_noncode
+        test_segments[seg_list_slice], matchers, ctx, trim_noncode=trim_noncode
     )
 
     # Make the check tuple
     expected_result = make_result_tuple(
         result_slice=result_slice,
         matcher_keywords=matcher_keywords,
-        seg_list=seg_list,
+        test_segments=test_segments,
     )
 
     assert m.matched_segments == expected_result
 
 
-def test__parser__grammar__base__longest_trimmed_match__adv(seg_list, caplog):
+def test__parser__grammar__base__longest_trimmed_match__adv(test_segments, caplog):
     """Test the _longest_trimmed_match method of the BaseGrammar."""
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
@@ -82,7 +81,9 @@ def test__parser__grammar__base__longest_trimmed_match__adv(seg_list, caplog):
     ctx = ParseContext(dialect=None)
     # Matching the first element of the list
     with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
-        match, matcher = BaseGrammar._longest_trimmed_match(seg_list, matchers, ctx)
+        match, matcher = BaseGrammar._longest_trimmed_match(
+            test_segments, matchers, ctx
+        )
     # Check we got a match
     assert match
     # Check we got the right one.
@@ -106,7 +107,7 @@ def test__parser__grammar__base__look_ahead_match(
     result_slice,
     winning_matcher,
     pre_match_slice,
-    seg_list,
+    test_segments,
 ):
     """Test the _look_ahead_match method of the BaseGrammar."""
     # Make the matcher keywords
@@ -116,7 +117,7 @@ def test__parser__grammar__base__look_ahead_match(
 
     ctx = ParseContext(dialect=None)
     m = BaseGrammar._look_ahead_match(
-        seg_list[seg_list_slice],
+        test_segments[seg_list_slice],
         matchers,
         ctx,
     )
@@ -132,7 +133,7 @@ def test__parser__grammar__base__look_ahead_match(
 
     # Make check tuple for the pre-match section
     if pre_match_slice:
-        pre_match_slice = seg_list[pre_match_slice]
+        pre_match_slice = test_segments[pre_match_slice]
     else:
         pre_match_slice = ()
     assert result_pre_match == pre_match_slice
@@ -141,34 +142,56 @@ def test__parser__grammar__base__look_ahead_match(
     expected_result = make_result_tuple(
         result_slice=result_slice,
         matcher_keywords=matcher_keywords,
-        seg_list=seg_list,
+        test_segments=test_segments,
     )
     assert result_match.matched_segments == expected_result
 
 
-def test__parser__grammar__base__ephemeral_segment(seg_list):
-    """Test the ephemeral features on BaseGrammar.
-
-    Normally you can't call .match() on a BaseGrammar, but
-    if things are set up right, then it should be possible
-    in the case that the ephemeral_name is set.
-
-    This indirectly tests the allow_ephemeral decorator.
-    """
-    g = BaseGrammar(ephemeral_name="TestGrammar")
+@pytest.mark.parametrize(
+    "matcher_keywords,result_slice,winning_matcher",
+    [
+        # Basic version, we should find bar first
+        (["bar", "foo"], slice(0, 1), "bar"),
+        # Look ahead for foo
+        (["foo"], slice(2, 3), "foo"),
+        # Duplicate matchers
+        (["foo", "foo"], slice(2, 3), "foo"),
+        (["sadkjfhas", "asefaslf"], slice(0, 0), None),
+    ],
+)
+def test__parser__grammar__base__next_match2(
+    matcher_keywords,
+    result_slice,
+    winning_matcher,
+    test_segments,
+):
+    """Test the _look_ahead_match method of the BaseGrammar."""
+    # Make the string parsers for testing.
+    matchers = [StringParser(keyword, KeywordSegment) for keyword in matcher_keywords]
+    # Fetch the matching keyword from above (because it will have the same position)
+    if winning_matcher:
+        winning_matcher = matchers[matcher_keywords.index(winning_matcher)]
 
     ctx = ParseContext(dialect=None)
-    m = g.match(seg_list, ctx)
-    # Check we get an ephemeral segment
-    assert isinstance(m.matched_segments[0], EphemeralSegment)
-    assert len(m.matched_segments) == 1
-    chkpoint = m.matched_segments[0]
-    # Check it's got the same content.
-    assert chkpoint.segments == seg_list
+    match, matcher = BaseGrammar._next_match2(
+        test_segments,
+        0,
+        matchers,
+        ctx,
+    )
+
+    # Check the right matcher was successful.
+    if winning_matcher:
+        assert matcher is winning_matcher
+    else:
+        # If no designated winning matcher, assert that it wasn't successful.
+        assert matcher is None
+        assert not match
+    assert match.matched_slice == result_slice
 
 
 def test__parser__grammar__base__bracket_sensitive_look_ahead_match(
-    bracket_seg_list, fresh_ansi_dialect
+    bracket_segments, fresh_ansi_dialect
 ):
     """Test the _bracket_sensitive_look_ahead_match method of the BaseGrammar."""
     bs = StringParser("bar", KeywordSegment)
@@ -177,19 +200,19 @@ def test__parser__grammar__base__bracket_sensitive_look_ahead_match(
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     # Basic version, we should find bar first
     pre_section, match, matcher = BaseGrammar._bracket_sensitive_look_ahead_match(
-        bracket_seg_list, [fs, bs], ctx
+        bracket_segments, [fs, bs], ctx
     )
     assert pre_section == ()
     assert matcher == bs
     # NB the middle element is a match object
     assert match.matched_segments == (
-        KeywordSegment("bar", bracket_seg_list[0].pos_marker),
+        KeywordSegment("bar", bracket_segments[0].pos_marker),
     )
 
     # Look ahead for foo, we should find the one AFTER the brackets, not the
     # on IN the brackets.
     pre_section, match, matcher = BaseGrammar._bracket_sensitive_look_ahead_match(
-        bracket_seg_list, [fs], ctx
+        bracket_segments, [fs], ctx
     )
     # NB: The bracket segments will have been mutated, so we can't directly compare.
     # Make sure we've got a bracketed section in there.
@@ -199,7 +222,7 @@ def test__parser__grammar__base__bracket_sensitive_look_ahead_match(
     assert matcher == fs
     # We shouldn't match the whitespace with the keyword
     assert match.matched_segments == (
-        KeywordSegment("foo", bracket_seg_list[8].pos_marker),
+        KeywordSegment("foo", bracket_segments[8].pos_marker),
     )
     # Check that the unmatched segments are nothing.
     assert not match.unmatched_segments
