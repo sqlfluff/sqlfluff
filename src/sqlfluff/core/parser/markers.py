@@ -4,7 +4,7 @@ This class is a construct to keep track of positions within a file.
 """
 
 from dataclasses import dataclass
-from typing import Optional, Tuple, TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional, Tuple
 
 from sqlfluff.core.slice_helpers import zero_slice
 

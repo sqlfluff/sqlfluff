@@ -10,10 +10,10 @@ tracking.
 
 https://stackoverflow.com/questions/49715881/how-to-pickle-inherited-exceptions
 """
-from typing import Optional, Tuple, Any, List, Dict, Type, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
 
 if TYPE_CHECKING:  # pragma: no cover
-    from sqlfluff.core.parser import PositionMarker, BaseSegment
+    from sqlfluff.core.parser import BaseSegment, PositionMarker
     from sqlfluff.core.rules import BaseRule, LintFix
 
 CheckTuple = Tuple[str, int, int]

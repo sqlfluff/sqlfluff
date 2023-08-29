@@ -720,3 +720,42 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("NamedWindowSegment", optional=True),
         ]
     )
+
+
+class GreaterThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+    """Allow spaces between operators."""
+
+    match_grammar = OneOf(
+        Sequence(
+            Ref("RawGreaterThanSegment"),
+            Ref("RawEqualsSegment"),
+        ),
+        Sequence(
+            Ref("RawNotSegment"),
+            Ref("RawLessThanSegment"),
+        ),
+    )
+
+
+class LessThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+    """Allow spaces between operators."""
+
+    match_grammar = OneOf(
+        Sequence(
+            Ref("RawLessThanSegment"),
+            Ref("RawEqualsSegment"),
+        ),
+        Sequence(
+            Ref("RawNotSegment"),
+            Ref("RawGreaterThanSegment"),
+        ),
+    )
+
+
+class NotEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+    """Allow spaces between operators."""
+
+    match_grammar = OneOf(
+        Sequence(Ref("RawNotSegment"), Ref("RawEqualsSegment")),
+        Sequence(Ref("RawLessThanSegment"), Ref("RawGreaterThanSegment")),
+    )

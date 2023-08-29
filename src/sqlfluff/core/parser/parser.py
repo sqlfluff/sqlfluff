@@ -1,15 +1,12 @@
 """Defines the Parser class."""
 
-from typing import Optional, Sequence, Type, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Sequence, Type
 
-from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.parser.context import ParseContext
 
 if TYPE_CHECKING:  # pragma: no cover
-    from sqlfluff.core.parser.segments import (
-        BaseSegment,
-        BaseFileSegment,
-    )
+    from sqlfluff.core.parser.segments import BaseFileSegment, BaseSegment
 
 
 class Parser:

@@ -6,7 +6,6 @@ Implements various runner types for SQLFluff:
   - Multiprocess
   - Multithread (used only by automated tests)
 """
-from abc import ABC
 import bdb
 import functools
 import logging
@@ -15,7 +14,8 @@ import multiprocessing.dummy
 import signal
 import sys
 import traceback
-from typing import Callable, List, Tuple, Iterator
+from abc import ABC
+from typing import Callable, Iterator, List, Tuple
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile

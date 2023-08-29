@@ -2,30 +2,17 @@
 
 import csv
 import time
-from typing import (
-    Any,
-    Dict,
-    List,
-    Optional,
-    overload,
-    Tuple,
-    Union,
-    Set,
-)
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union, overload
+
 from typing_extensions import Literal
 
-from sqlfluff.cli import EXIT_FAIL, EXIT_SUCCESS
-
-from sqlfluff.core.errors import (
-    CheckTuple,
-)
-
-from sqlfluff.core.timing import TimingSummary, RuleTimingSummary
-
-# Classes needed only for type checking
-from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.errors import CheckTuple
 from sqlfluff.core.linter.linted_dir import LintedDir
 from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES
+from sqlfluff.core.timing import RuleTimingSummary, TimingSummary
+
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.parser.segments.base import BaseSegment
 
 
 class LintingResult:
@@ -65,17 +52,14 @@ class LintingResult:
     @overload
     def check_tuples(self, by_path: Literal[False]) -> List[CheckTuple]:
         """Return a List of CheckTuples when by_path is False."""
-        ...
 
     @overload
     def check_tuples(self, by_path: Literal[True]) -> Dict[LintedDir, List[CheckTuple]]:
         """Return a Dict of LintedDir and CheckTuples when by_path is True."""
-        ...
 
     @overload
     def check_tuples(self, by_path: bool = False):
         """Default overload method."""
-        ...
 
     def check_tuples(
         self, by_path=False
@@ -116,7 +100,7 @@ class LintingResult:
             *(path.violation_dict(**kwargs) for path in self.paths)
         )
 
-    def stats(self) -> Dict[str, Any]:
+    def stats(self, fail_code: int, success_code: int) -> Dict[str, Any]:
         """Return a stats dictionary of this result."""
         all_stats: Dict[str, Any] = dict(files=0, clean=0, unclean=0, violations=0)
         for path in self.paths:
@@ -132,7 +116,7 @@ class LintingResult:
         all_stats["clean files"] = all_stats["clean"]
         all_stats["unclean files"] = all_stats["unclean"]
         all_stats["exit code"] = (
-            EXIT_FAIL if all_stats["violations"] > 0 else EXIT_SUCCESS
+            fail_code if all_stats["violations"] > 0 else success_code
         )
         all_stats["status"] = "FAIL" if all_stats["violations"] > 0 else "PASS"
         return all_stats
@@ -243,7 +227,7 @@ class LintingResult:
         )
 
     @property
-    def tree(self) -> Optional[BaseSegment]:  # pragma: no cover
+    def tree(self) -> Optional["BaseSegment"]:  # pragma: no cover
         """A convenience method for when there is only one file and we want the tree."""
         if len(self.paths) > 1:
             raise ValueError(
