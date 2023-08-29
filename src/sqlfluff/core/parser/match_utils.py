@@ -274,8 +274,9 @@ def longest_match2(
                     break
                 elif terminators:
                     _next_code_idx = best_match.matched_slice.stop
-                    while not segments[_next_code_idx].is_code:
-                        _next_code_idx += 1
+                    for _next_code_idx in range(_next_code_idx, len(segments)):
+                        if segments[_next_code_idx].is_code:
+                            break
                     for terminator in terminators:
                         terminator_match: MatchResult2 = terminator.match2(
                             segments, _next_code_idx, parse_context

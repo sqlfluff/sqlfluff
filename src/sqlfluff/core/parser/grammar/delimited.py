@@ -1,6 +1,6 @@
 """Definitions for Grammar."""
 
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple, Union, Sequence
 
 from tqdm import tqdm
 
@@ -11,7 +11,8 @@ from sqlfluff.core.parser.grammar import Ref
 from sqlfluff.core.parser.grammar.anyof import OneOf
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 from sqlfluff.core.parser.helpers import trim_non_code_segments
-from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
+from sqlfluff.core.parser.match_utils import longest_match2
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
 from sqlfluff.core.parser.types import MatchableType
@@ -42,7 +43,7 @@ class Delimited(OneOf):
         # NOTE: Other grammars support terminators (plural)
         # TODO: Align these to be the same eventually.
         terminator: Optional[Union[MatchableType, str]] = None,
-        min_delimiters: Optional[int] = None,
+        min_delimiters: int = 1,
         bracket_pairs_set: str = "bracket_pairs",
         allow_gaps: bool = True,
         optional: bool = False,
@@ -231,3 +232,105 @@ class Delimited(OneOf):
             return MatchResult.from_matched(matched_segments)
 
         return MatchResult(matched_segments, unmatched_segments)
+
+    def match2(
+        self,
+        segments: Sequence["BaseSegment"],
+        idx: int,
+        parse_context: "ParseContext",
+    ) -> MatchResult2:
+        """Match against this matcher."""
+        # NOTE: THIS IS A GREAT PLACE FOR PARTIAL UNPARSABLES.
+        # TODO: WE SHOULD PORT THE PROGRESSBAR LOGIC (NOT DONE YET).
+        # In theory it should be even better because in a "single match"
+        # regime, we can literally count the matched segments so far.
+        # SUPER GRANULAR.
+
+        delimiters = 0
+        seeking_delimiter = False
+        max_idx = len(segments)
+        working_idx = idx
+        working_match = MatchResult2.empty_at(idx)
+        delimiter_match: Optional[MatchResult2] = None
+
+        delimiter_matchers = [self.delimiter]
+        terminator_matchers = []
+
+        if self.terminator:
+            terminator_matchers.append(self.terminator)
+        # If gaps aren't allowed, a gap (or non-code segment), acts like a terminator.
+        if not self.allow_gaps:
+            terminator_matchers.append(NonCodeMatcher())
+
+        while True:
+            _idx = working_idx
+            # If we're past the start and allowed gaps, work forward
+            # through any gaps.
+            if self.allow_gaps and working_idx > idx:
+                for _idx in range(working_idx, max_idx):
+                    if segments[_idx].is_code:
+                        break
+
+            # Do we have anything left to match on?
+            if _idx >= max_idx:  # TODO: Revisit this.
+                break
+
+            # Check whether there is a terminator before checking for content
+            with parse_context.deeper_match(name="Delimited-Term") as ctx:
+                match, _ = longest_match2(
+                    segments=segments,
+                    matchers=terminator_matchers,
+                    idx=_idx,
+                    parse_context=ctx,
+                )
+            if match:
+                break
+
+            # Then match for content/delimiter as appropriate.
+            _push_terminators = []
+            if delimiter_matchers and not seeking_delimiter:
+                _push_terminators = delimiter_matchers
+            with parse_context.deeper_match(
+                name="Delimited", push_terminators=_push_terminators
+            ) as ctx:
+                match, _ = longest_match2(
+                    segments=segments,
+                    matchers=delimiter_matchers
+                    if seeking_delimiter
+                    else self._elements,
+                    idx=_idx,
+                    parse_context=ctx,
+                )
+
+            if not match:
+                # Failed the find the next item in the sequence.
+                # TODO: Should we handle the partial better?
+                # Looking for the next delimiter or terminator if we can and then
+                # claiming an unparsable.
+                break
+
+            # Otherwise we _did_ match. Handle it.
+            if seeking_delimiter:
+                # It's a delimiter
+                delimiter_match = match
+            else:
+                # It's content. Add both the last delimiter and the content to the
+                # working match.
+                if delimiter_match:
+                    # NOTE: This should happen on every loop _except_ the first.
+                    delimiters += 1
+                    working_match.append(delimiter_match)
+                working_match = working_match.append(match)
+
+            # Prep for going back around the loop...
+            working_idx = match.matched_slice.stop
+            seeking_delimiter = not seeking_delimiter
+
+        if self.allow_trailing and not seeking_delimiter:
+            delimiters += 1
+            working_match = working_match.append(delimiter_match)
+
+        if delimiters < self.min_delimiters:
+            return MatchResult2.empty_at(idx)
+
+        return working_match

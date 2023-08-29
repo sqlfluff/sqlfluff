@@ -118,6 +118,57 @@ def test__parser__grammar_delimited(
 
 
 @pytest.mark.parametrize(
+    "token_list,min_delimiters,allow_gaps,allow_trailing,match_len",
+    [
+        # Basic testing (note diff to v1, no trailing whitespace.)
+        (["bar", " \t ", ".", "    ", "bar"], 1, True, False, 5),
+        (["bar", " \t ", ".", "    ", "bar", "    "], 1, True, False, 5),
+        # Testing allow_trailing
+        (["bar", " \t ", ".", "   "], 1, True, False, 0),
+        (["bar", " \t ", ".", "   "], 1, True, True, 3),  # NOTE: Diff to v1
+        # Testing the implications of allow_gaps
+        (["bar", " \t ", ".", "    ", "bar"], 0, True, False, 5),
+        (["bar", " \t ", ".", "    ", "bar"], 0, False, False, 1),
+        (["bar", " \t ", ".", "    ", "bar"], 1, True, False, 5),
+        (["bar", " \t ", ".", "    ", "bar"], 1, False, False, 0),
+        (["bar", ".", "bar"], 1, True, False, 3),
+        (["bar", ".", "bar"], 1, False, False, 3),
+        (["bar", ".", "bar"], 1, True, False, 3),
+        (["bar", ".", "bar"], 1, False, False, 3),
+        # Check we still succeed with something trailing right on the end.
+        (["bar", ".", "bar", "foo"], 1, False, False, 3),
+        # Check min_delimiters. There's a delimiter here, but not enough to match.
+        (["bar", ".", "bar", "foo"], 2, True, False, 0),
+    ],
+)
+def test__parser__grammar_delimited2(
+    min_delimiters,
+    allow_gaps,
+    allow_trailing,
+    token_list,
+    match_len,
+    caplog,
+    generate_test_segments,
+    fresh_ansi_dialect,
+):
+    """Test the Delimited grammar when not code_only."""
+    test_segments = generate_test_segments(token_list)
+    g = Delimited(
+        StringParser("bar", KeywordSegment),
+        delimiter=StringParser(".", SymbolSegment),
+        allow_gaps=allow_gaps,
+        allow_trailing=allow_trailing,
+        min_delimiters=min_delimiters,
+    )
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
+        # Matching with whitespace shouldn't match if we need at least one delimiter
+        m = g.match2(test_segments, 0, ctx)
+
+    assert len(m) == match_len
+
+
+@pytest.mark.parametrize(
     "keyword,enforce_ws,slice_len",
     [
         # Basic testing

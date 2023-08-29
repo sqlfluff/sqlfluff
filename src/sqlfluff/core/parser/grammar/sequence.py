@@ -253,7 +253,7 @@ class Sequence(BaseGrammar):
 
     def match2(
         self,
-        segments: Tuple["BaseSegment", ...],
+        segments: SequenceType["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult2:
