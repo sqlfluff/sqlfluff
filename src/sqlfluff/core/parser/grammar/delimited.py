@@ -328,7 +328,7 @@ class Delimited(OneOf):
             working_idx = match.matched_slice.stop
             seeking_delimiter = not seeking_delimiter
 
-        if self.allow_trailing and not seeking_delimiter:
+        if self.allow_trailing and delimiter_match and not seeking_delimiter:
             delimiters += 1
             working_match = working_match.append(delimiter_match)
 
