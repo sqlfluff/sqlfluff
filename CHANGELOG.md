@@ -14,6 +14,14 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This release is primarily a performance release, with most major changes
+aimed at the linting and fixing phases of operation. Most of the longest
+duration rules (excepting the layout rules) should see noticeable speed
+improvements.
+
+Alongside those changes, there are a selection of bugfixes and dialect
+improvements for Oracle, PostgreSQL, Snowflake & TSQL.
+
 ## What’s Changed
 
 * Postgres: Update returning with alias [#5137](https://github.com/sqlfluff/sqlfluff/pull/5137) [@greg-finley](https://github.com/greg-finley)
@@ -40,10 +48,6 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * RF01 & recursive_crawl improvements [#5102](https://github.com/sqlfluff/sqlfluff/pull/5102) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * fix new more restrictive tox [#5103](https://github.com/sqlfluff/sqlfluff/pull/5103) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Make Day as Non Reserved Keyword [#5062](https://github.com/sqlfluff/sqlfluff/pull/5062) [@ulixius9](https://github.com/ulixius9)
-
-## New Contributors
-
-
 
 ## [2.3.0] - 2023-08-14
 
