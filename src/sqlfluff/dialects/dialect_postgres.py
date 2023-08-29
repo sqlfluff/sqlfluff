@@ -4876,8 +4876,10 @@ class UpdateStatementSegment(BaseSegment):
             OneOf(
                 Ref("StarSegment"),
                 Delimited(
-                    Ref("ExpressionSegment"),
-                    Ref("AliasExpressionSegment", optional=True),
+                    Sequence(
+                        Ref("ExpressionSegment"),
+                        Ref("AliasExpressionSegment", optional=True),
+                    ),
                 ),
             ),
             optional=True,
