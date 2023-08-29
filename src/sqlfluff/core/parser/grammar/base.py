@@ -946,6 +946,35 @@ class Ref(BaseGrammar):
 
         return resp
 
+    def match2(
+        self,
+        segments: Sequence["BaseSegment"],
+        idx: int,
+        parse_context: "ParseContext",
+    ) -> MatchResult2:
+        """Match against this reference."""
+        elem = self._get_elem(dialect=parse_context.dialect)
+
+        # First if we have an *exclude* option, we should check that
+        # which would prevent the rest of this grammar from matching.
+        if self.exclude:
+            with parse_context.deeper_match(
+                name=self._ref + "-Exclude",
+                clear_terminators=self.reset_terminators,
+                push_terminators=self.terminators,
+            ) as ctx:
+                if self.exclude.match2(segments, idx, ctx):
+                    return MatchResult2.empty_at(idx)
+
+        # Match against that. NB We're not incrementing the match_depth here.
+        # References shouldn't really count as a depth of match.
+        with parse_context.deeper_match(
+            name=self._ref,
+            clear_terminators=self.reset_terminators,
+            push_terminators=self.terminators,
+        ) as ctx:
+            return elem.match2(segments, idx, parse_context)
+
     @classmethod
     def keyword(cls, keyword: str, optional: bool = False) -> BaseGrammar:
         """Generate a reference to a keyword by name.

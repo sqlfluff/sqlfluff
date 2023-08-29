@@ -24,7 +24,7 @@ from sqlfluff.core.parser.match_utils import (
 
 @pytest.fixture(scope="function")
 def test_dialect():
-    """A tripped back test dialect for testing brackets."""
+    """A stripped back test dialect for testing brackets."""
     test_dialect = Dialect("test", root_segment_name="FileSegment")
     test_dialect.bracket_sets("bracket_pairs").update(
         [("round", "StartBracketSegment", "EndBracketSegment", True)]
