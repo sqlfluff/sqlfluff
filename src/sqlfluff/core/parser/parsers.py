@@ -54,6 +54,22 @@ class BaseParser(Matchable):
     def _is_first_match(self, segment: BaseSegment) -> bool:
         """Does the segment provided match according to the current rules."""
 
+    def _match2_at(self, idx: int) -> MatchResult2:
+        """Construct a MatchResult2 at a given index.
+
+        This is a helper function for reuse by other parsers.
+        """
+        segment_kwargs = {}
+        if self.type:
+            segment_kwargs["type"] = self.type
+        if self._trim_chars:
+            segment_kwargs["trim_chars"] = self._trim_chars
+        return MatchResult2(
+            matched_slice=slice(idx, idx + 1),
+            matched_class=self.raw_class,
+            segment_kwargs=segment_kwargs,
+        )
+
     def _make_match_from_segment(self, segment: BaseSegment) -> RawSegment:
         """Make a MatchResult from the first segment in the given list.
 
@@ -156,11 +172,7 @@ class TypedParser(BaseParser):
     ) -> MatchResult2:
         """Match against this matcher."""
         if segments[idx].is_type(self.template):
-            return MatchResult2(
-                slice(idx, idx + 1),
-                self.raw_class,
-                segment_kwargs={"type": self.type, "trim_chars": self._trim_chars},
-            )
+            return self._match2_at(idx)
         return MatchResult2.empty_at(idx)
 
 
@@ -218,10 +230,7 @@ class StringParser(BaseParser):
         unexpected comments.
         """
         if segments[idx].raw_upper == self.template and segments[idx].is_code:
-            return MatchResult2(
-                slice(idx, idx + 1),
-                self.raw_class,
-            )
+            return self._match2_at(idx)
         return MatchResult2.empty_at(idx)
 
 
@@ -276,10 +285,7 @@ class MultiStringParser(BaseParser):
         unexpected comments.
         """
         if segments[idx].is_code and segments[idx].raw_upper in self.templates:
-            return MatchResult2(
-                slice(idx, idx + 1),
-                self.raw_class,
-            )
+            return self._match2_at(idx)
         return MatchResult2.empty_at(idx)
 
 
@@ -363,8 +369,5 @@ class RegexParser(BaseParser):
             if result_string == _raw:
                 # Check that the anti_template (if set) hasn't also matched
                 if not self.anti_template or not self._anti_template.match(_raw):
-                    return MatchResult2(
-                        slice(idx, idx + 1),
-                        self.raw_class,
-                    )
+                    return self._match2_at(idx)
         return MatchResult2.empty_at(idx)

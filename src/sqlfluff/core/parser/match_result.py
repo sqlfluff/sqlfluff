@@ -253,7 +253,12 @@ class MatchResult2:
 
                 # Otherwise it's a segment.
                 seg_type = cast("MetaSegment", trigger)
-                result_segments += (seg_type(),)
+                # Get the location from the next segment unless there isn't one.
+                if idx < len(segments):
+                    _pos = segments[idx].pos_marker.start_point_marker()
+                else:
+                    _pos = segments[idx - 1].pos_marker.end_point_marker()
+                result_segments += (seg_type(pos_marker=_pos),)
 
         # If we finish working through the triggers and there's
         # still something left, then add that too.
@@ -269,7 +274,9 @@ class MatchResult2:
             # TODO: Should this be a generic method on BaseSegment and RawSegment?
             # It feels a little strange to be this specific here.
             new_seg = self.matched_class(
-                raw=result_segments[0].raw, **self.segment_kwargs
+                raw=result_segments[0].raw,
+                pos_marker=result_segments[0].pos_marker,
+                **self.segment_kwargs
             )
         else:
             new_seg = self.matched_class(

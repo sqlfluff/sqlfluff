@@ -270,6 +270,8 @@ class Delimited(OneOf):
                 for _idx in range(working_idx, max_idx):
                     if segments[_idx].is_code:
                         break
+                else:
+                    _idx = max_idx
 
             # Do we have anything left to match on?
             if _idx >= max_idx:  # TODO: Revisit this.

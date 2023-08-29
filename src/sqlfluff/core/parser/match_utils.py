@@ -576,9 +576,10 @@ def greedy_match2(
                 # TODO: No bracket sets override allowed here. Is that correct?
             )
 
-        # No match? Return totally unmatched. No partials.
+        # No match? That means we've not found any terminators.
         if not match:
-            return MatchResult2.empty_at(idx)
+            # Claim everything left.
+            return MatchResult2(slice(idx, len(segments)))
 
         stop_idx = match.matched_slice.stop
         # Do we need to enforce whitespace preceding?

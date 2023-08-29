@@ -15,6 +15,12 @@ class ExampleSegment(BaseSegment):
     type = "example"
 
 
+def _recursive_assert_pos(segment):
+    assert segment.pos_marker
+    for seg in segment.segments:
+        _recursive_assert_pos(seg)
+
+
 @pytest.mark.parametrize(
     "segment_seed,match_result,match_len,serialised_result",
     [
@@ -62,3 +68,7 @@ def test__parser__matchresult2_apply(
         seg.to_tuple(show_raw=True, include_meta=True) for seg in out_segments
     )
     assert serialised == serialised_result
+
+    # Test that _every_ segment (including metas) has a position marker already.
+    for seg in out_segments:
+        _recursive_assert_pos(seg)

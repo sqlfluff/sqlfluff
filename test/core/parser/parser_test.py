@@ -43,7 +43,7 @@ def test__parser__typedparser__simple():
 
 def test__parser__stringparser__match2(generate_test_segments):
     """Test the match2 method of StringParser."""
-    parser = StringParser("foo", ExampleSegment)
+    parser = StringParser("foo", ExampleSegment, type="test")
     ctx = ParseContext(dialect=None)
     segments = generate_test_segments(["foo", "bar", "foo"])
 
@@ -51,6 +51,7 @@ def test__parser__stringparser__match2(generate_test_segments):
     assert result1
     assert result1.matched_slice == slice(0, 1)
     assert result1.matched_class is ExampleSegment
+    assert result1.segment_kwargs == {"type": "test"}
 
     result2 = parser.match2(segments, 1, ctx)
     assert not result2
@@ -59,6 +60,7 @@ def test__parser__stringparser__match2(generate_test_segments):
     assert result3
     assert result3.matched_slice == slice(2, 3)
     assert result3.matched_class is ExampleSegment
+    assert result3.segment_kwargs == {"type": "test"}
 
 
 def test__parser__stringparser__simple():
