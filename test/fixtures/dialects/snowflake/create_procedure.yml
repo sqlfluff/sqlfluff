@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4e14caf275cffc5d0779baa4e239260207a6ce8f3fedac47860450eb239d0d6d
+_hash: 3d17390d1e57282d97dc222958c95470613db96afbc1ed5f8a5b789b4d71ea46
 file:
 - statement:
     create_procedure_statement:
@@ -285,4 +285,36 @@ file:
         \ role: String): DataFrame = {\n        val table = session.table(tableName)\n\
         \        val filteredRows = table.filter(col(\"role\") === role)\n       \
         \ return filteredRows\n    }\n}\n$$"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: myprocedure
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: '"Id"'
+          data_type:
+            data_type_identifier: NUMBER
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '38'
+              - comma: ','
+              - numeric_literal: '0'
+              - end_bracket: )
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARCHAR
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - udf_body: "$$\n-- Snowflake Scripting code\nDECLARE\nradius_of_circle FLOAT;\n\
+        area_of_circle FLOAT;\nBEGIN\nradius_of_circle := 3;\narea_of_circle := pi()\
+        \ * radius_of_circle * radius_of_circle;\nRETURN area_of_circle;\nEND;\n$$"
 - statement_terminator: ;
