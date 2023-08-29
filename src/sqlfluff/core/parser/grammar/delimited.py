@@ -43,7 +43,7 @@ class Delimited(OneOf):
         # NOTE: Other grammars support terminators (plural)
         # TODO: Align these to be the same eventually.
         terminator: Optional[Union[MatchableType, str]] = None,
-        min_delimiters: int = 1,
+        min_delimiters: int = 0,
         bracket_pairs_set: str = "bracket_pairs",
         allow_gaps: bool = True,
         optional: bool = False,

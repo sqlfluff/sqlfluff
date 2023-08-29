@@ -121,18 +121,18 @@ def test__parser__grammar_delimited(
     "token_list,min_delimiters,allow_gaps,allow_trailing,match_len",
     [
         # Basic testing (note diff to v1, no trailing whitespace.)
-        (["bar", " \t ", ".", "    ", "bar"], 1, True, False, 5),
-        (["bar", " \t ", ".", "    ", "bar", "    "], 1, True, False, 5),
+        (["bar", " \t ", ".", "    ", "bar"], 0, True, False, 5),
+        (["bar", " \t ", ".", "    ", "bar", "    "], 0, True, False, 5),
         # Testing allow_trailing
-        (["bar", " \t ", ".", "   "], 1, True, False, 0),
-        (["bar", " \t ", ".", "   "], 1, True, True, 3),  # NOTE: Diff to v1
+        (["bar", " \t ", ".", "   "], 0, True, False, 1),  # NOTE: Diff to v1
+        (["bar", " \t ", ".", "   "], 0, True, True, 3),  # NOTE: Diff to v1
         # Testing the implications of allow_gaps
         (["bar", " \t ", ".", "    ", "bar"], 0, True, False, 5),
         (["bar", " \t ", ".", "    ", "bar"], 0, False, False, 1),
         (["bar", " \t ", ".", "    ", "bar"], 1, True, False, 5),
         (["bar", " \t ", ".", "    ", "bar"], 1, False, False, 0),
-        (["bar", ".", "bar"], 1, True, False, 3),
-        (["bar", ".", "bar"], 1, False, False, 3),
+        (["bar", ".", "bar"], 0, True, False, 3),
+        (["bar", ".", "bar"], 0, False, False, 3),
         (["bar", ".", "bar"], 1, True, False, 3),
         (["bar", ".", "bar"], 1, False, False, 3),
         # Check we still succeed with something trailing right on the end.
