@@ -717,7 +717,7 @@ def lint(
     if not nofail:
         if not non_human_output:
             formatter.completion_message()
-        sys.exit(result.stats()["exit code"])
+        sys.exit(result.stats(EXIT_FAIL, EXIT_SUCCESS)["exit code"])
     else:
         sys.exit(EXIT_SUCCESS)
 

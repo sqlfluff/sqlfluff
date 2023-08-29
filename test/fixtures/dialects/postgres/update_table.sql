@@ -32,3 +32,8 @@ UPDATE summary s SET (sum_x, sum_y, avg_x, avg_y) =
 UPDATE films SET kind = 'Dramatic' WHERE CURRENT OF c_films;
 
 UPDATE my_table SET my_column = "SQLFluff rules!" RETURNING my_column;
+
+UPDATE employees
+SET deleted_at = NOW()
+WHERE uuid = $1
+RETURNING short_name AS employee_name;

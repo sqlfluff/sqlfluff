@@ -537,9 +537,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 )
                 continue
 
-            repositioned_seg = segment.copy()
+            # Get hold of the current position.
+            old_position = segment.pos_marker
+            new_position = segment.pos_marker
             # Fill any that don't have a position.
-            if not repositioned_seg.pos_marker:
+            if not old_position:
                 # Can we get a position from the previous?
                 start_point = None
                 if idx > 0:
@@ -565,39 +567,46 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
                 if start_point and end_point and start_point != end_point:
                     # We should construct a wider position marker.
-                    repositioned_seg.pos_marker = PositionMarker.from_points(
+                    new_position = PositionMarker.from_points(
                         start_point,
                         end_point,
                     )
                 # If we have start point (or if they were equal above),
                 # just apply start point.
                 elif start_point:
-                    repositioned_seg.pos_marker = start_point
+                    new_position = start_point
                 # Do we have an end?
                 elif end_point:
-                    repositioned_seg.pos_marker = end_point
+                    new_position = end_point
                 else:  # pragma: no cover
                     raise ValueError("Unable to position new segment")
 
-            assert repositioned_seg.pos_marker  # hint for mypy
-            # Update the working position.
-            repositioned_seg.pos_marker = (
-                repositioned_seg.pos_marker.with_working_position(
-                    line_no,
-                    line_pos,
-                )
-            )
-            line_no, line_pos = repositioned_seg.pos_marker.infer_next_position(
-                repositioned_seg.raw, line_no, line_pos
+            assert new_position
+
+            # Regardless of whether we change the position, we still need to
+            # update the working location and keep track of it.
+            new_position = new_position.with_working_position(line_no, line_pos)
+            line_no, line_pos = new_position.infer_next_position(
+                segment.raw, line_no, line_pos
             )
 
-            # If this segment has children, recurse and reposition them too.
-            if repositioned_seg.segments:
-                repositioned_seg.segments = cls._position_segments(
-                    repositioned_seg.segments, parent_pos=repositioned_seg.pos_marker
+            # NOTE: If the position is already correct, we still
+            # need to copy, but we don't need to reposition any further.
+            if segment.segments and old_position != new_position:
+                # Recurse to work out the child segments FIRST, before
+                # copying the parent so we don't double the work.
+                child_segments = cls._position_segments(
+                    segment.segments, parent_pos=new_position
                 )
+                new_seg = segment.copy(segments=child_segments)
+                new_seg.pos_marker = new_position
+            else:
+                new_seg = segment.copy()
+                new_seg.pos_marker = new_position
 
-            segment_buffer += (repositioned_seg,)
+            new_seg.pos_marker = new_position
+            segment_buffer += (new_seg,)
+            continue
 
         return segment_buffer
 
@@ -984,14 +993,24 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 ),
             )
 
-    def copy(self) -> "BaseSegment":
-        """Copy the segment recursively, with appropriate copying of references."""
+    def copy(
+        self, segments: Optional[Tuple["BaseSegment", ...]] = None
+    ) -> "BaseSegment":
+        """Copy the segment recursively, with appropriate copying of references.
+
+        Optionally provide child segments which have already been dealt
+        with to avoid another copy operation.
+        """
         new_seg = copy(self)
         # Position markers are immutable, and it's important that we keep
         # a reference to the same TemplatedFile, so keep the same position
         # marker.
         new_seg.pos_marker = self.pos_marker
-        if self.segments:
+        # If segments were provided, use them.
+        if segments:
+            new_seg.segments = segments
+        # Otherwise copy them.
+        elif self.segments:
             new_seg.segments = tuple(seg.copy() for seg in self.segments)
         return new_seg
 

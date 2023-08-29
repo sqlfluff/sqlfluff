@@ -5,7 +5,6 @@ from typing import Optional, Tuple, Union, Sequence
 from tqdm import tqdm
 
 from sqlfluff.core.config import progress_bar_configuration
-from sqlfluff.core.parser import NewlineSegment
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar import Ref
 from sqlfluff.core.parser.grammar.anyof import OneOf
@@ -99,7 +98,7 @@ class Delimited(OneOf):
 
         # We use amount of `NewLineSegment` to estimate how many steps could be in
         # a big file. It's not perfect, but should do a job in most cases.
-        new_line_segments = [s for s in segments if isinstance(s, NewlineSegment)]
+        new_line_segments = [s for s in segments if s.is_type("newline")]
         progressbar_matching = tqdm(
             total=len(new_line_segments),
             desc="matching",

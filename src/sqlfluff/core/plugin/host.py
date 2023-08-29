@@ -8,17 +8,21 @@ the context of each thread.
 """
 
 from contextvars import ContextVar
+from typing import Optional
+
 import pluggy
 
-from sqlfluff.core.plugin.hookspecs import PluginSpec
 from sqlfluff.core.plugin import plugin_base_name, project_name
+from sqlfluff.core.plugin.hookspecs import PluginSpec
 
-_plugin_manager = ContextVar("_plugin_manager", default=None)
-plugins_loaded = ContextVar("plugins_loaded", default=False)
+_plugin_manager: ContextVar[Optional[pluggy.PluginManager]] = ContextVar(
+    "_plugin_manager", default=None
+)
+plugins_loaded: ContextVar[bool] = ContextVar("plugins_loaded", default=False)
 # NOTE: The is_main_process context var is defined here, but
 # we rely on each parallel runner (found in `runner.py`) to
 # maintain the value of this variable.
-is_main_process = ContextVar("is_main_process", default=True)
+is_main_process: ContextVar[bool] = ContextVar("is_main_process", default=True)
 
 
 def get_plugin_manager() -> pluggy.PluginManager:
