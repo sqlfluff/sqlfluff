@@ -162,8 +162,9 @@ def test__parser__utils__next_ex_bracket_match2(
         (["a", "b", "c", "d", "e"], ["e", "c"], False, True, slice(0, 3)),
         (["a", "b", " ", "b"], ["b"], False, True, slice(0, 2)),
         (["a", "b", " ", "b"], ["b"], True, True, slice(0, 4)),
-        (["a", "b", " ", "b"], ["b"], True, False, slice(0, 3)),
-        (["a", "b", "c", " ", "b"], ["b"], True, False, slice(0, 4)),
+        # NOTE: On these two, don't include the whitespace either.
+        (["a", "b", " ", "b"], ["b"], True, False, slice(0, 2)),
+        (["a", "b", "c", " ", "b"], ["b"], True, False, slice(0, 3)),
     ],
 )
 def test__parser__utils__greedy_match2(

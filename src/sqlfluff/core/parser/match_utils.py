@@ -604,6 +604,11 @@ def greedy_match2(
 
         if not include_terminator:
             stop_idx = match.matched_slice.start
+            # Additionally, if it's preceded by any non-code, we can't claim that
+            # either. Work backwards so we don't include it.
+            for stop_idx in range(stop_idx, idx, -1):
+                if segments[stop_idx - 1].is_code:
+                    break
 
         # NOTE: Return without any child matches or inserts. Greedy Matching
         # shouldn't be used for mutation.
