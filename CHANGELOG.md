@@ -10,6 +10,41 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.3.1] - 2023-08-29
+
+## Highlights
+
+## What’s Changed
+
+* Postgres: Update returning with alias [#5137](https://github.com/sqlfluff/sqlfluff/pull/5137) [@greg-finley](https://github.com/greg-finley)
+* Reduce copying on  _position_segments (improves `fix`) [#5119](https://github.com/sqlfluff/sqlfluff/pull/5119) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Import rationalisation [#5135](https://github.com/sqlfluff/sqlfluff/pull/5135) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Select Crawler Refactor: Part 3 [#5115](https://github.com/sqlfluff/sqlfluff/pull/5115) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add support for comparison operators with space in Oracle [#5132](https://github.com/sqlfluff/sqlfluff/pull/5132) [@joaostorrer](https://github.com/joaostorrer)
+* Snowflake support for bracketed query after `EXCEPT` [#5126](https://github.com/sqlfluff/sqlfluff/pull/5126) [@ulixius9](https://github.com/ulixius9)
+* Treatment of null literals. #5099 [#5125](https://github.com/sqlfluff/sqlfluff/pull/5125) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Allow double-quoted parameters in create procedure [#5131](https://github.com/sqlfluff/sqlfluff/pull/5131) [@greg-finley](https://github.com/greg-finley)
+* Fix coverage & mypy [#5134](https://github.com/sqlfluff/sqlfluff/pull/5134) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Ensure Unparsable can be given position. [#5117](https://github.com/sqlfluff/sqlfluff/pull/5117) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Reduce copying in LintFix instantiation [#5118](https://github.com/sqlfluff/sqlfluff/pull/5118) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Optimise crawl behaviour of JJ01 [#5116](https://github.com/sqlfluff/sqlfluff/pull/5116) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Simplify rules with improvement to SegmentSeeker [#5113](https://github.com/sqlfluff/sqlfluff/pull/5113) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Refactor AM07 [#5112](https://github.com/sqlfluff/sqlfluff/pull/5112) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Select Crawler Refactor: Part 2 [#5110](https://github.com/sqlfluff/sqlfluff/pull/5110) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add support to Hierarchical Queries in Oracle [#5108](https://github.com/sqlfluff/sqlfluff/pull/5108) [@joaostorrer](https://github.com/joaostorrer)
+* ✅ Strict MyPy for sqlfluff.core.parser [#5107](https://github.com/sqlfluff/sqlfluff/pull/5107) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Free up pydocstyle again [#5109](https://github.com/sqlfluff/sqlfluff/pull/5109) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Postgres: Allow CREATE TABLE INHERITS with no new columns [#5100](https://github.com/sqlfluff/sqlfluff/pull/5100) [@greg-finley](https://github.com/greg-finley)
+* Strict mypy in parser.segments [#5094](https://github.com/sqlfluff/sqlfluff/pull/5094) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Select Crawler Refactor: Part 1 [#5104](https://github.com/sqlfluff/sqlfluff/pull/5104) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* RF01 & recursive_crawl improvements [#5102](https://github.com/sqlfluff/sqlfluff/pull/5102) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* fix new more restrictive tox [#5103](https://github.com/sqlfluff/sqlfluff/pull/5103) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Make Day as Non Reserved Keyword [#5062](https://github.com/sqlfluff/sqlfluff/pull/5062) [@ulixius9](https://github.com/ulixius9)
+
+## New Contributors
+
+
+
 ## [2.3.0] - 2023-08-14
 
 ## Highlights
