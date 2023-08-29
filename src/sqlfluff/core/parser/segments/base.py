@@ -1283,7 +1283,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
             # NOTE: No match_depth kwarg, because this is the start of the matching.
             with parse_context.deeper_match(name=self.__class__.__name__) as ctx:
-                match = parse_grammar.match2(self.segments, start_idx, ctx)
+                # TODO: THIS IS ANOTHER STOP HACK!?
+                # But it works to make sure we don't over-match.
+                # Is this another place that the terminators aren't working properly?
+                match = parse_grammar.match2(self.segments[:stop_idx], start_idx, ctx)
 
             if match.matched_slice == slice(start_idx, stop_idx):
                 # For complete matches, just materialise the segments and we're done.
