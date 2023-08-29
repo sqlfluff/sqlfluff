@@ -2557,12 +2557,13 @@ class WithCheckOptionSegment(BaseSegment):
         "WITH", OneOf("CASCADED", "LOCAL"), Sequence("CHECK", "OPTION")
     )
 
+
 class AlterPolicyStatementSegment(BaseSegment):
-    """An ALTER POLICY statement
-    
+    """An ALTER POLICY statement.
+
     As specified in https://www.postgresql.org/docs/current/sql-alterpolicy.html
     """
-    
+
     type = "alter_policy_statement"
 
     match_grammar = Sequence(
@@ -2571,26 +2572,27 @@ class AlterPolicyStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         "ON",
         Ref("TableRefrenceSegment"),
-            OneOf(
-                Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
-                Sequence("TO",
-                        Delimited(
-                            OneOf(
-                                Ref("ObjectReferenceSegment"),
-                                "PUBLIC",
-                                "CURRENT_ROLE",
-                                "CURRENT_USER",
-                                "SESSION_USER",
-                            )
-                        ),
-                        optional=True
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "TO",
+                Delimited(
+                    OneOf(
+                        Ref("ObjectReferenceSegment"),
+                        "PUBLIC",
+                        "CURRENT_ROLE",
+                        "CURRENT_USER",
+                        "SESSION_USER",
+                    )
                 ),
-                Sequence("USING", Bracketed(Ref("ExpressionSegment")), optional=True),
-                Sequence("WITH", "CHECK", Bracketed(Ref("ExpressionSegment")), optional=True)
+                optional=True,
+            ),
+            Sequence("USING", Bracketed(Ref("ExpressionSegment")), optional=True),
+            Sequence(
+                "WITH", "CHECK", Bracketed(Ref("ExpressionSegment")), optional=True
+            ),
         ),
     )
-
-
 
 
 class CreateViewStatementSegment(BaseSegment):
