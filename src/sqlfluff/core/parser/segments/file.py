@@ -38,4 +38,3 @@ class BaseFileSegment(BaseSegment):
     @abstractmethod
     def get_table_references(self) -> Set[str]:
         """Use parsed tree to extract table references."""
-        ...

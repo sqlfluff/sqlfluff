@@ -161,12 +161,10 @@ class Segments(tuple):
         NOTE: Using `SupportsIndex` rather than `int` is to ensure
         type compatibility with the parent `tuple` implementation.
         """
-        ...
 
     @overload
     def __getitem__(self, item: slice) -> "Segments":
         """Getting a slice returns another `Segments` object."""
-        ...
 
     def __getitem__(
         self, item: Union[SupportsIndex, slice]
