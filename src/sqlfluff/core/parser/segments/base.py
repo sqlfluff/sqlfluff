@@ -580,12 +580,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 else:  # pragma: no cover
                     raise ValueError("Unable to position new segment")
 
-                # We should now definitely have a position. Add in the working
-                # position now that we do.
-                assert new_position
-                new_position = new_position.with_working_position(line_no, line_pos)
+            assert new_position
 
-            # We need the update the working line number and position regardless.
+            # Regardless of whether we change the position, we still need to
+            # update the working location and keep track of it.
+            new_position = new_position.with_working_position(line_no, line_pos)
             line_no, line_pos = new_position.infer_next_position(
                 segment.raw, line_no, line_pos
             )
