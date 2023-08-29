@@ -1,12 +1,10 @@
 """Definition of the BaseFileSegment."""
 
-from typing import TYPE_CHECKING, Optional, Set, Tuple, cast
+from abc import abstractmethod
+from typing import Optional, Set, Tuple
 
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments.base import BaseSegment
-
-if TYPE_CHECKING:  # pragma: no cover
-    from sqlfluff.dialects.dialect_ansi import StatementSegment
 
 
 class BaseFileSegment(BaseSegment):
@@ -37,10 +35,6 @@ class BaseFileSegment(BaseSegment):
         """File path of a parsed SQL file."""
         return self._file_path
 
+    @abstractmethod
     def get_table_references(self) -> Set[str]:
         """Use parsed tree to extract table references."""
-        references = set()
-        for stmt in self.get_children("statement"):
-            stmt = cast("StatementSegment", stmt)
-            references |= stmt.get_table_references()
-        return references

@@ -1,9 +1,10 @@
 """Defines the linter class."""
 
+import logging
 import os
 import time
-import logging
 from typing import (
+    TYPE_CHECKING,
     Any,
     Iterable,
     Iterator,
@@ -20,38 +21,32 @@ import pathspec
 import regex
 from tqdm import tqdm
 
+from sqlfluff.core.config import ConfigLoader, FluffConfig, progress_bar_configuration
 from sqlfluff.core.errors import (
     SQLBaseError,
+    SQLFluffSkipFile,
+    SQLFluffUserError,
     SQLLexError,
     SQLLintError,
     SQLParseError,
-    SQLFluffSkipFile,
-    SQLFluffUserError,
 )
-from sqlfluff.core.parser import Lexer, Parser
 from sqlfluff.core.file_helpers import get_encoding
-from sqlfluff.core.templaters import TemplatedFile
-from sqlfluff.core.rules import get_ruleset
-from sqlfluff.core.config import FluffConfig, ConfigLoader, progress_bar_configuration
-
-# Classes needed only for type checking
-from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
-from sqlfluff.core.parser.segments.meta import MetaSegment
-from sqlfluff.core.rules import BaseRule, RulePack
-
-from sqlfluff.core.linter.common import (
-    RuleTuple,
-    ParsedString,
-    RenderedFile,
-)
-from sqlfluff.core.linter.noqa import IgnoreMask
-from sqlfluff.core.linter.linted_file import (
-    LintedFile,
-    FileTimings,
-    TMP_PRS_ERROR_TYPES,
-)
+from sqlfluff.core.linter.common import ParsedString, RenderedFile, RuleTuple
 from sqlfluff.core.linter.linted_dir import LintedDir
+from sqlfluff.core.linter.linted_file import (
+    TMP_PRS_ERROR_TYPES,
+    FileTimings,
+    LintedFile,
+)
 from sqlfluff.core.linter.linting_result import LintingResult
+from sqlfluff.core.linter.noqa import IgnoreMask
+from sqlfluff.core.parser import Lexer, Parser
+from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
+from sqlfluff.core.rules import BaseRule, RulePack, get_ruleset
+
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.parser.segments.meta import MetaSegment
+    from sqlfluff.core.templaters import TemplatedFile
 
 
 WalkableType = Iterable[Tuple[str, Optional[List[str]], List[str]]]
@@ -149,7 +144,7 @@ class Linter:
 
     @staticmethod
     def _lex_templated_file(
-        templated_file: TemplatedFile, config: FluffConfig
+        templated_file: "TemplatedFile", config: FluffConfig
     ) -> Tuple[Optional[Sequence[BaseSegment]], List[SQLLexError], FluffConfig]:
         """Lex a templated file.
 
@@ -204,7 +199,7 @@ class Linter:
         new_tokens = []
         for token in cast(Tuple[BaseSegment, ...], tokens):
             if token.is_meta:
-                token = cast(MetaSegment, token)
+                token = cast("MetaSegment", token)
                 if token.indent_val != 0:
                     # Don't allow it if we're not linting templating block indents.
                     if not templating_blocks_indent:
@@ -358,7 +353,7 @@ class Linter:
         rule_pack: RulePack,
         fix: bool = False,
         fname: Optional[str] = None,
-        templated_file: Optional[TemplatedFile] = None,
+        templated_file: Optional["TemplatedFile"] = None,
         formatter: Any = None,
     ) -> Tuple[BaseSegment, List[SQLBaseError], Optional[IgnoreMask], RuleTimingsType]:
         """Lint and optionally fix a tree object."""
@@ -370,7 +365,7 @@ class Linter:
         # A placeholder for the fixes we had on the previous loop
         last_fixes = None
         # Keep a set of previous versions to catch infinite loops.
-        previous_versions: Set[Tuple[str, Tuple[SourceFix, ...]]] = {(tree.raw, ())}
+        previous_versions: Set[Tuple[str, Tuple["SourceFix", ...]]] = {(tree.raw, ())}
         # Keep a buffer for recording rule timings.
         rule_timings: RuleTimingsType = []
 
@@ -777,7 +772,7 @@ class Linter:
         tree: BaseSegment,
         config: Optional[FluffConfig] = None,
         fname: Optional[str] = None,
-        templated_file: Optional[TemplatedFile] = None,
+        templated_file: Optional["TemplatedFile"] = None,
     ) -> Tuple[BaseSegment, List[SQLBaseError]]:
         """Return the fixed tree and violations from lintfix when we're fixing."""
         config = config or self.config
@@ -798,7 +793,7 @@ class Linter:
         tree: BaseSegment,
         config: Optional[FluffConfig] = None,
         fname: Optional[str] = None,
-        templated_file: Optional[TemplatedFile] = None,
+        templated_file: Optional["TemplatedFile"] = None,
     ) -> List[SQLBaseError]:
         """Return just the violations from lintfix when we're only linting."""
         config = config or self.config

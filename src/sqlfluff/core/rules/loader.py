@@ -1,8 +1,8 @@
 """Methods to load rules."""
 
 import os
-from importlib import import_module
 from glob import glob
+from importlib import import_module
 from typing import TYPE_CHECKING, List, Type
 
 if TYPE_CHECKING:  # pragma: no cover

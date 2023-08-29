@@ -1,19 +1,18 @@
 """Defines the placeholder template."""
 
 import logging
-import regex
 from typing import Dict, Optional, Tuple
 
+import regex
 
 from sqlfluff.core.errors import SQLTemplaterError
 from sqlfluff.core.slice_helpers import offset_slice
-
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
+    RawTemplater,
     TemplatedFile,
     TemplatedFileSlice,
     large_file_check,
-    RawTemplater,
 )
 
 # Instantiate the templater logger

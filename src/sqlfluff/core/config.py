@@ -6,34 +6,34 @@ except ImportError:  # pragma: no cover
     # fallback for python <=3.8
     from importlib_resources import files  # type: ignore
 
+import configparser
 import logging
 import os
 import os.path
-import configparser
 import sys
 from dataclasses import dataclass
-
-import pluggy
 from itertools import chain
+from pathlib import Path
 from typing import (
     TYPE_CHECKING,
+    Any,
+    Callable,
     Dict,
+    Iterable,
     Iterator,
     List,
+    Optional,
     Set,
     Tuple,
-    Any,
-    Optional,
     Type,
     Union,
-    Iterable,
-    Callable,
 )
-from pathlib import Path
-from sqlfluff.core.plugin.host import get_plugin_manager
-from sqlfluff.core.errors import SQLFluffUserError
 
 import appdirs
+import pluggy
+
+from sqlfluff.core.errors import SQLFluffUserError
+from sqlfluff.core.plugin.host import get_plugin_manager
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.templaters.base import RawTemplater

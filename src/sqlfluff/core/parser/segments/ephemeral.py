@@ -2,7 +2,7 @@
 
 import copy
 import logging
-from typing import Optional, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Tuple
 
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import MatchFuncType
@@ -10,9 +10,9 @@ from sqlfluff.core.parser.segments.base import BaseSegment
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.context import ParseContext
+    from sqlfluff.core.parser.grammar.base import BaseGrammar
     from sqlfluff.core.parser.markers import PositionMarker
     from sqlfluff.core.parser.matchable import Matchable
-    from sqlfluff.core.parser.grammar.base import BaseGrammar
 
 
 parser_logger = logging.getLogger("sqlfluff.parser")
