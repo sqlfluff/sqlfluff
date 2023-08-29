@@ -10,7 +10,6 @@ the context of each thread.
 from contextvars import ContextVar
 from typing import Optional
 
-
 import pluggy
 
 from sqlfluff.core.plugin import plugin_base_name, project_name
