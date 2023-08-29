@@ -907,9 +907,7 @@ class Ref(BaseGrammar):
             raise ReferenceError("No Dialect has been provided to Ref grammar!")
 
     def __repr__(self) -> str:
-        return "<Ref: {}{}>".format(
-            ", ".join(str(self._elements)), " [opt]" if self.is_optional() else ""
-        )
+        return "<Ref: {}{}>".format(self._ref, " [opt]" if self.is_optional() else "")
 
     @match_wrapper(v_level=4)  # Log less for Ref
     @allow_ephemeral
