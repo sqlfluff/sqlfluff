@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 86626a1823ad820cb0c4a708ab00298f00e1fb7a615911bd384bc95204644b16
+_hash: 320a90a2ddb68b9b8b2bd161e4460a0e99440a5564e30d9a169626c810eefd97
 file:
 - statement:
     update_statement:
@@ -519,4 +519,38 @@ file:
     - expression:
         column_reference:
           naked_identifier: my_column
+- statement_terminator: ;
+- statement:
+    update_statement:
+    - keyword: UPDATE
+    - table_reference:
+        naked_identifier: employees
+    - set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            naked_identifier: deleted_at
+          comparison_operator:
+            raw_comparison_operator: '='
+          function:
+            function_name:
+              function_name_identifier: NOW
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: uuid
+          comparison_operator:
+            raw_comparison_operator: '='
+          dollar_numeric_literal: $1
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: short_name
+    - alias_expression:
+        keyword: AS
+        naked_identifier: employee_name
 - statement_terminator: ;
