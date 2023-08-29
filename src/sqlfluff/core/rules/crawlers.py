@@ -2,9 +2,9 @@
 
 from abc import ABC, abstractmethod
 from typing import Any, Iterator, Set, cast
+
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
-
 from sqlfluff.core.rules.context import RuleContext
 
 

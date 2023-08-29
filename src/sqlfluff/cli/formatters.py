@@ -467,7 +467,7 @@ class OutputStreamFormatter:
     def format_linting_stats(self, result, verbose=0) -> str:
         """Format a set of stats given a `LintingResult`."""
         text_buffer = StringIO()
-        all_stats = result.stats()
+        all_stats = result.stats(EXIT_FAIL, EXIT_SUCCESS)
         text_buffer.write("==== summary ====\n")
         if verbose >= 2:
             output_fields = [
