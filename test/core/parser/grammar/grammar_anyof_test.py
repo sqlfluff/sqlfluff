@@ -220,8 +220,12 @@ def test__parser__grammar_anysetof2(generate_test_segments):
     assert result == MatchResult2(
         matched_slice=slice(0, 3),
         child_matches=(
-            MatchResult2(slice(0, 1), KeywordSegment),
-            MatchResult2(slice(2, 3), KeywordSegment),
+            MatchResult2(
+                slice(0, 1), KeywordSegment, segment_kwargs={"type": "keyword"}
+            ),
+            MatchResult2(
+                slice(2, 3), KeywordSegment, segment_kwargs={"type": "keyword"}
+            ),
             # NOTE: The second "bar" isn't included because this
             # is any *set* of and we've already have "bar" once.
         ),

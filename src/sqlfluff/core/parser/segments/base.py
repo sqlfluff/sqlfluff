@@ -49,6 +49,7 @@ from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments.fix import AnchorEditInfo, FixPatch, SourceFix
 from sqlfluff.core.parser.types import SimpleHintType
 from sqlfluff.core.string_helpers import curtail_string, frame_msg
+from sqlfluff.core.slice_helpers import slice_length
 from sqlfluff.core.templaters.base import TemplatedFile
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -1249,66 +1250,63 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 )
             )
         else:
-            # For debugging purposes. Ensure that we don't have non-code elements
-            # at the start or end of the segments. They should always in the middle,
-            # or in the parent expression.
-            segments = self.segments
+            start_idx = 0
+            stop_idx = len(self.segments)
+
+            # If we allow non-code on either end, iterate inwards.
             if self.can_start_end_non_code:
-                pre_nc, segments, post_nc = trim_non_code_segments(segments)
-            else:
-                pre_nc = ()
-                post_nc = ()
-                idx_non_code = self._find_start_or_end_non_code(segments)
-                if idx_non_code is not None:  # pragma: no cover
-                    raise ValueError(
-                        f"Segment {self} {'starts' if idx_non_code == 0 else 'ends'} "
-                        f"with non code segment: "
-                        f"{segments[idx_non_code].raw!r}.\n{segments!r}"
-                    )
+                for start_idx, seg in enumerate(self.segments):
+                    if seg.is_code:
+                        break
+                for stop_idx in range(stop_idx, start_idx, -1):
+                    if self.segments[stop_idx - 1].is_code:
+                        break
 
             # NOTE: No match_depth kwarg, because this is the start of the matching.
             with parse_context.deeper_match(name=self.__class__.__name__) as ctx:
-                m = parse_grammar.match(segments=segments, parse_context=ctx)
+                match = parse_grammar.match2(self.segments, start_idx, ctx)
 
-            # Basic Validation, that we haven't dropped anything.
-            check_still_complete(segments, m.matched_segments, m.unmatched_segments)
-
-            if m.has_match():
-                if m.is_complete():
-                    # Complete match, happy days!
-                    self.segments = pre_nc + m.matched_segments + post_nc
-                else:
-                    # Incomplete match.
-                    # For now this means the parsing has failed. Lets add the unmatched
-                    # bit at the end as something unparsable.
-                    # TODO: Do something more intelligent here.
-                    self.segments = (
-                        pre_nc
-                        + m.matched_segments
-                        + (
+            if match.matched_slice == slice(start_idx, stop_idx):
+                # For complete matches, just materialise the segments and we're done.
+                self.segments = (
+                    self.segments[:start_idx]
+                    + match.apply(self.segments)
+                    + self.segments[stop_idx:]
+                )
+            elif self.allow_empty and start_idx == stop_idx:
+                # Very edge case, but some segments are allowed to be empty other than
+                # non-code. Don't modify segments in this case.
+                pass
+            else:
+                # Otherwise (whether empty match or unclean match), take what we can
+                # and return the rest as unparsable.
+                # TODO: Check whether this is really what we want? Ideally the unparsable
+                # sections come out of the .apply() method.
+                _matched_segments = ()
+                if len(match) > 0:
+                    _matched_segments = match.apply(self.segments)
+                    if not match.is_clean:
+                        assert _matched_segments
+                        _matched_segments = (
                             UnparsableSegment(
-                                segments=m.unmatched_segments + post_nc,
-                                expected="Nothing...",
+                                segments=_matched_segments,
+                                expected=self.expected_form,
                             ),
                         )
-                    )
-            elif self.allow_empty and not segments:
-                # Very edge case, but some segments are allowed to be empty other than
-                # non-code
-                self.segments = pre_nc + post_nc
-            else:
-                # If there's no match at this stage, then it's unparsable. That's
-                # a problem at this stage so wrap it in an unparsable segment and carry
-                # on.
-                self.segments = (
-                    pre_nc
-                    + (
+                _unexpected_segments = ()
+                if match.matched_slice.stop < stop_idx:
+                    assert self.segments[match.matched_slice.stop : stop_idx]
+                    _unexpected_segments = (
                         UnparsableSegment(
-                            segments=segments,
-                            expected=self.expected_form,
-                        ),  # NB: tuple
+                            segments=self.segments[match.matched_slice.stop : stop_idx],
+                            expected="Nothing...",
+                        ),
                     )
-                    + post_nc
+                self.segments = (
+                    self.segments[:start_idx]
+                    + _matched_segments
+                    + _unexpected_segments
+                    + self.segments[stop_idx:]
                 )
 
         parse_depth_msg = (

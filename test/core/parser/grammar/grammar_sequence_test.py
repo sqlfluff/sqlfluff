@@ -96,10 +96,12 @@ def test__parser__grammar_sequence_nested_match2(test_segments, caplog):
             MatchResult2(
                 matched_slice=slice(0, 1),
                 matched_class=KeywordSegment,
+                segment_kwargs={"type": "keyword"},
             ),
             MatchResult2(
                 matched_slice=slice(2, 3),
                 matched_class=KeywordSegment,
+                segment_kwargs={"type": "keyword"},
             ),
         ),
         # ...but the overall match is partial and unclean.
@@ -117,14 +119,17 @@ def test__parser__grammar_sequence_nested_match2(test_segments, caplog):
             MatchResult2(
                 matched_slice=slice(0, 1),
                 matched_class=KeywordSegment,
+                segment_kwargs={"type": "keyword"},
             ),
             MatchResult2(
                 matched_slice=slice(2, 3),
                 matched_class=KeywordSegment,
+                segment_kwargs={"type": "keyword"},
             ),
             MatchResult2(
                 matched_slice=slice(3, 4),
                 matched_class=KeywordSegment,
+                segment_kwargs={"type": "keyword"},
             ),
         ),
     )
@@ -197,10 +202,12 @@ def test__parser__grammar_sequence_indent_conditional_match2(test_segments, capl
             MatchResult2(
                 matched_slice=slice(0, 1),
                 matched_class=KeywordSegment,
+                segment_kwargs={"type": "keyword"},
             ),
             MatchResult2(
                 matched_slice=slice(2, 3),
                 matched_class=KeywordSegment,
+                segment_kwargs={"type": "keyword"},
             ),
         ),
         insert_segments=(
