@@ -13,9 +13,9 @@ from sqlfluff.core.parser.grammar.base import BaseGrammar
 from sqlfluff.core.parser.lexer import LexerType
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.types import (
+    BracketPairTuple,
     DialectElementType,
     MatchableType,
-    BracketPairTuple,
 )
 
 

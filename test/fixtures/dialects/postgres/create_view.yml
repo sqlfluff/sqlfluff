@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9a2ca7e9622364bfcd6336dc851fcdf843de8e1e49728862276719068eb61b5c
+_hash: 75ecad5fbe335560df4e2eb042a1f1a6e4ead7fb50e681f3004acf18f06cdd1e
 file:
 - statement:
     create_view_statement:
@@ -570,10 +570,10 @@ file:
           where_clause:
             keyword: WHERE
             expression:
-            - column_reference:
+              column_reference:
                 quoted_identifier: '"parent_id"'
-            - keyword: IS
-            - keyword: 'NULL'
+              keyword: IS
+              null_literal: 'NULL'
       - set_operator:
         - keyword: UNION
         - keyword: ALL

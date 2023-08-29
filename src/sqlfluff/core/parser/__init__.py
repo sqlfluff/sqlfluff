@@ -1,47 +1,47 @@
 """init file for the parser."""
 
-from sqlfluff.core.parser.segments import (
-    BaseSegment,
-    BaseFileSegment,
-    BracketedSegment,
-    RawSegment,
-    CodeSegment,
-    UnlexableSegment,
-    CommentSegment,
-    WhitespaceSegment,
-    NewlineSegment,
-    KeywordSegment,
-    SymbolSegment,
-    Indent,
-    Dedent,
-    ImplicitIndent,
-    SegmentGenerator,
-)
 from sqlfluff.core.parser.grammar import (
-    Sequence,
-    GreedyUntil,
-    StartsWith,
-    OneOf,
-    Delimited,
-    Bracketed,
     AnyNumberOf,
     AnySetOf,
-    Ref,
     Anything,
-    Nothing,
-    OptionallyBracketed,
+    Bracketed,
     Conditional,
+    Delimited,
+    GreedyUntil,
+    Nothing,
+    OneOf,
+    OptionallyBracketed,
+    Ref,
+    Sequence,
+    StartsWith,
 )
+from sqlfluff.core.parser.lexer import Lexer, RegexLexer, StringLexer
+from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.parser.matchable import Matchable
+from sqlfluff.core.parser.parser import Parser
 from sqlfluff.core.parser.parsers import (
+    MultiStringParser,
+    RegexParser,
     StringParser,
     TypedParser,
-    RegexParser,
-    MultiStringParser,
 )
-from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.parser.lexer import Lexer, StringLexer, RegexLexer
-from sqlfluff.core.parser.parser import Parser
-from sqlfluff.core.parser.matchable import Matchable
+from sqlfluff.core.parser.segments import (
+    BaseFileSegment,
+    BaseSegment,
+    BracketedSegment,
+    CodeSegment,
+    CommentSegment,
+    Dedent,
+    ImplicitIndent,
+    Indent,
+    KeywordSegment,
+    NewlineSegment,
+    RawSegment,
+    SegmentGenerator,
+    SymbolSegment,
+    UnlexableSegment,
+    WhitespaceSegment,
+)
 
 __all__ = (
     "BaseSegment",

@@ -6617,3 +6617,20 @@ class RemoveStatementSegment(BaseSegment):
             optional=True,
         ),
     )
+
+
+class SetOperatorSegment(ansi.SetOperatorSegment):
+    """A set operator such as Union, Minus, Except or Intersect."""
+
+    type = "set_operator"
+    match_grammar: Matchable = OneOf(
+        Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
+        Sequence(
+            OneOf(
+                "INTERSECT",
+                "EXCEPT",
+            ),
+            Ref.keyword("ALL", optional=True),
+        ),
+        "MINUS",
+    )

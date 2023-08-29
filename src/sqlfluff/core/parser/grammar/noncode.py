@@ -4,13 +4,14 @@ This is a stub of a grammar, intended for use entirely as a
 terminator or similar alongside other matchers.
 """
 
-from sqlfluff.core.parser.match_wrapper import match_wrapper
-from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.matchable import Matchable
+from typing import Optional, Tuple
+
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.types import SimpleHintType
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import BaseSegment
-from typing import Tuple, Optional
+from sqlfluff.core.parser.types import SimpleHintType
 
 
 class NonCodeMatcher(Matchable):
