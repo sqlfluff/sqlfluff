@@ -2557,6 +2557,16 @@ class WithCheckOptionSegment(BaseSegment):
         "WITH", OneOf("CASCADED", "LOCAL"), Sequence("CHECK", "OPTION")
     )
 
+class AlterPolicyStatementSegment(BaseSegment):
+    """An ALTER POLICY statement
+    
+    As specified in https://www.postgresql.org/docs/current/sql-alterpolicy.html
+    """
+    
+    type = "alter_policy_statement"
+
+    
+
 
 class CreateViewStatementSegment(BaseSegment):
     """An `Create VIEW` statement.
