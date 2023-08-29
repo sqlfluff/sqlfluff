@@ -240,6 +240,7 @@ class MatchResult2:
             if idx > max_idx:
                 # If so, add them in unchanged.
                 result_segments += segments[max_idx:idx]
+                max_idx = idx
             elif idx < max_idx:  # pragma: no cover
                 raise ValueError("SKIP AHEAD ERROR")
             # Then work through each of the triggers.
@@ -276,7 +277,7 @@ class MatchResult2:
             new_seg = self.matched_class(
                 raw=result_segments[0].raw,
                 pos_marker=result_segments[0].pos_marker,
-                **self.segment_kwargs
+                **self.segment_kwargs,
             )
         else:
             new_seg = self.matched_class(

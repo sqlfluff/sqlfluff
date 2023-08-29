@@ -5,7 +5,7 @@ NOTE: This is all experimental for now.
 
 import pytest
 
-from sqlfluff.core.parser.segments import BaseSegment, Indent
+from sqlfluff.core.parser.segments import BaseSegment, Indent, Dedent
 from sqlfluff.core.parser.match_result import MatchResult2
 
 
@@ -42,6 +42,20 @@ def _recursive_assert_pos(segment):
                 ("raw", "b"),
                 ("example", (("indent", ""), ("raw", "c"))),
                 ("indent", ""),
+                ("raw", "d"),
+            ),
+        ),
+        (
+            ["a", "b", "c", "d", "e"],
+            MatchResult2(
+                matched_slice=slice(1, 4),
+                insert_segments=((2, Dedent),),
+            ),
+            3,
+            (
+                ("raw", "b"),
+                ("dedent", ""),
+                ("raw", "c"),
                 ("raw", "d"),
             ),
         ),
