@@ -264,7 +264,17 @@ class MatchResult2:
             return result_segments
 
         # Otherwise construct the subsegment
-        new_seg = self.matched_class(segments=result_segments, **self.segment_kwargs)
+        if self.matched_class.class_is_type("raw"):
+            assert len(result_segments) == 1
+            # TODO: Should this be a generic method on BaseSegment and RawSegment?
+            # It feels a little strange to be this specific here.
+            new_seg = self.matched_class(
+                raw=result_segments[0].raw, **self.segment_kwargs
+            )
+        else:
+            new_seg = self.matched_class(
+                segments=result_segments, **self.segment_kwargs
+            )
         return (new_seg,)
 
     def _to_old_match_result(self, segments):

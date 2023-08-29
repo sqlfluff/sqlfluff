@@ -2,6 +2,9 @@
 
 These are mostly extracted from the body of either BaseSegment
 or BaseGrammar to un-bloat those classes.
+
+These are where the bulk of the matching algorithms exist for the whole
+grammar structure.
 """
 
 from collections import defaultdict
@@ -507,7 +510,6 @@ def next_ex_bracket_match2(
     bracket_matchers = start_brackets + end_brackets
 
     # Make some buffers
-    bracket_stack: List[BracketInfo] = []
     matched_idx = idx
     child_matches = ()
 
@@ -550,3 +552,60 @@ def next_ex_bracket_match2(
         matched_idx = bracket_match.matched_slice.stop
         child_matches += (bracket_match,)
         # Head back around the loop and keep looking.
+
+
+def greedy_match2(
+    segments: Sequence[BaseSegment],
+    idx: int,
+    parse_context: ParseContext,
+    matchers: List[MatchableType],
+    enforce_whitespace_preceding_terminator: bool,
+    include_terminator: bool = False,
+) -> MatchResult2:
+    """Match anything up to some defined terminator."""
+    working_idx = idx
+
+    while True:
+        with parse_context.deeper_match(name="GreedyUntil") as ctx:
+            match, _ = next_ex_bracket_match2(
+                segments,
+                idx=working_idx,
+                matchers=matchers,
+                parse_context=ctx,
+                # TODO: No bracket sets override allowed here. Is that correct?
+            )
+
+        # No match? Return totally unmatched. No partials.
+        if not match:
+            return MatchResult2.empty_at(idx)
+
+        stop_idx = match.matched_slice.stop
+        # Do we need to enforce whitespace preceding?
+        if enforce_whitespace_preceding_terminator:
+            allowable_match = False
+            for _idx in range(match.matched_slice.start - 1, working_idx - 1, -1):
+                if segments[_idx].is_meta:
+                    continue
+                elif segments[_idx].is_type("whitespace", "newline"):
+                    allowable_match = True
+                    break
+                else:
+                    # Found something other than metas and whitespace.
+                    break
+
+            # If this match isn't preceded by whitespace and that is
+            # a requirement, then we can't use it. Carry on...
+            if not allowable_match:
+                working_idx = stop_idx
+                # Loop around, don't return yet
+                continue
+
+        if not include_terminator:
+            stop_idx = match.matched_slice.start
+
+        # NOTE: Return without any child matches or inserts. Greedy Matching
+        # shouldn't be used for mutation.
+        # TODO: Check that I mean this.
+        return MatchResult2(
+            slice(idx, stop_idx),
+        )

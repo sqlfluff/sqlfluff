@@ -18,7 +18,7 @@ from sqlfluff.core.parser.grammar import (
 )
 
 
-def test__parser__grammar_startswith_a():
+def test__parser__grammar_startswith_init():
     """Test the StartsWith grammar fails when no terminator supplied."""
     Keyword = StringParser("foo", KeywordSegment)
     with pytest.raises(AssertionError):
@@ -33,7 +33,7 @@ def test__parser__grammar_startswith_a():
         (True, 4),
     ],
 )
-def test__parser__grammar_startswith_b(
+def test__parser__grammar_startswith_match(
     include_terminator, match_length, test_segments, fresh_ansi_dialect, caplog
 ):
     """Test the StartsWith grammar with a terminator (included & excluded)."""
@@ -43,6 +43,27 @@ def test__parser__grammar_startswith_b(
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
         m = grammar.match(test_segments, parse_context=ctx)
+        assert len(m) == match_length
+
+
+@pytest.mark.parametrize(
+    "include_terminator,match_length",
+    [
+        (False, 3),
+        # NB: In this case we still shouldn't match the trailing whitespace.
+        (True, 4),
+    ],
+)
+def test__parser__grammar_startswith_match2(
+    include_terminator, match_length, test_segments, fresh_ansi_dialect, caplog
+):
+    """Test the StartsWith grammar with a terminator (included & excluded)."""
+    baar = StringParser("baar", KeywordSegment)
+    bar = StringParser("bar", KeywordSegment)
+    grammar = StartsWith(bar, terminator=baar, include_terminator=include_terminator)
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
+        m = grammar.match2(test_segments, 0, ctx)
         assert len(m) == match_length
 
 

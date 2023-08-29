@@ -1,6 +1,6 @@
 """GreedyUntil and StartsWith Grammars."""
 
-from typing import Optional, Tuple, Union, List
+from typing import Optional, Sequence, Tuple, Union, List
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (
@@ -9,7 +9,8 @@ from sqlfluff.core.parser.grammar.base import (
     cached_method_for_parse_context,
 )
 from sqlfluff.core.parser.helpers import trim_non_code_segments
-from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
+from sqlfluff.core.parser.match_utils import greedy_match2
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.segments import allow_ephemeral
 from sqlfluff.core.parser.types import MatchableType, SimpleHintType
@@ -49,6 +50,24 @@ class GreedyUntil(BaseGrammar):
         return self.greedy_match(
             segments,
             parse_context,
+            matchers=self._elements,
+            enforce_whitespace_preceding_terminator=(
+                self.enforce_whitespace_preceding_terminator
+            ),
+            include_terminator=False,
+        )
+
+    def match2(
+        self,
+        segments: Sequence["BaseSegment"],
+        idx: int,
+        parse_context: "ParseContext",
+    ) -> MatchResult2:
+        """Match against this matcher."""
+        return greedy_match2(
+            segments,
+            idx=idx,
+            parse_context=parse_context,
             matchers=self._elements,
             enforce_whitespace_preceding_terminator=(
                 self.enforce_whitespace_preceding_terminator
@@ -250,3 +269,38 @@ class StartsWith(GreedyUntil):
             match.matched_segments + greedy_match.matched_segments,
             greedy_match.unmatched_segments,
         )
+
+    def match2(
+        self,
+        segments: Sequence["BaseSegment"],
+        idx: int,
+        parse_context: "ParseContext",
+    ) -> MatchResult2:
+        """Match against this matcher."""
+        # Check whether it does start with the thing we want.
+        with parse_context.deeper_match(name="StartsWith") as ctx:
+            initial_match = self.target.match2(segments, idx, ctx)
+
+        if not initial_match:
+            return MatchResult2.empty_at(idx)
+
+        # Then do a greedy match for the rest
+        rest_match = greedy_match2(
+            segments,
+            idx=initial_match.matched_slice.stop,
+            parse_context=parse_context,
+            matchers=[self.terminator],
+            enforce_whitespace_preceding_terminator=(
+                self.enforce_whitespace_preceding_terminator
+            ),
+            include_terminator=self.include_terminator,
+        )
+
+        # NB: If all we matched in the greedy match was non-code then we can't
+        # claim it.
+        if not any(seg.is_code for seg in segments[rest_match.matched_slice]):
+            # So just return the original match.
+            return initial_match
+
+        # Otherwise Combine the results.
+        return initial_match.append(rest_match)

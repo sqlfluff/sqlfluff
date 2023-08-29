@@ -1,6 +1,9 @@
-"""Tests for the BaseGrammar and it's methods.
+"""Tests the matching methods which form the main mechanics of the grammars.
 
 NOTE: All of these tests depend somewhat on the KeywordSegment working as planned.
+
+These are where the bulk of the matching algorithms exist for the whole
+grammar structure.
 """
 
 import pytest
@@ -19,6 +22,7 @@ from sqlfluff.core.parser.match_utils import (
     next_match2,
     resolve_bracket2,
     next_ex_bracket_match2,
+    greedy_match2,
 )
 
 
@@ -149,3 +153,41 @@ def test__parser__utils__next_ex_bracket_match2(
 
     assert result
     assert result.matched_slice == result_slice
+
+
+@pytest.mark.parametrize(
+    "raw_segments,target_words,enf_ws,inc_term,result_slice",
+    [
+        (["a", "b", "c", "d", "e"], ["e", "c"], False, False, slice(0, 2)),
+        (["a", "b", "c", "d", "e"], ["e", "c"], False, True, slice(0, 3)),
+        (["a", "b", " ", "b"], ["b"], False, True, slice(0, 2)),
+        (["a", "b", " ", "b"], ["b"], True, True, slice(0, 4)),
+        (["a", "b", " ", "b"], ["b"], True, False, slice(0, 3)),
+        (["a", "b", "c", " ", "b"], ["b"], True, False, slice(0, 4)),
+    ],
+)
+def test__parser__utils__greedy_match2(
+    raw_segments,
+    target_words,
+    enf_ws,
+    inc_term,
+    result_slice,
+    generate_test_segments,
+    test_dialect,
+):
+    """Test the `greedy_match2()` method."""
+    test_segments = generate_test_segments(raw_segments)
+    matchers = [StringParser(word, KeywordSegment) for word in target_words]
+    ctx = ParseContext(dialect=test_dialect)
+
+    match = greedy_match2(
+        segments=test_segments,
+        idx=0,
+        parse_context=ctx,
+        matchers=matchers,
+        enforce_whitespace_preceding_terminator=enf_ws,
+        include_terminator=inc_term,
+    )
+
+    assert match
+    assert match.matched_slice == result_slice
