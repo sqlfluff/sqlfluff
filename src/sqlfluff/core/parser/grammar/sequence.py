@@ -71,6 +71,15 @@ def _all_remaining_metas(
     return return_segments
 
 
+def _flush_metas(pre_nc_idx, post_nc_idx, meta_buffer):
+    # Flush any metas...
+    if all(m.indent_val >= 0 for m in meta_buffer):
+        meta_idx = pre_nc_idx
+    else:
+        meta_idx = post_nc_idx
+    return tuple((meta_idx, meta) for meta in meta_buffer)
+
+
 class Sequence(BaseGrammar):
     """Match a specific sequence of elements."""
 
@@ -275,6 +284,16 @@ class Sequence(BaseGrammar):
         max_idx = len(segments)  # What is the limit
         insert_segments = ()
         child_matches = ()
+        # Metas with a negative indent value come AFTER
+        # the whitespace. Positive or neutral come BEFORE.
+        # HOWEVER: If one is already there, we must preserve
+        # the order. This forced ordering is fine if there's
+        # a positive followed by a negative in the sequence,
+        # but if by design a positive arrives *after* a
+        # negative then we should insert it after the positive
+        # instead.
+        # https://github.com/sqlfluff/sqlfluff/issues/3836
+        meta_buffer = []
 
         # Iterate elements
         for elem in self._elements:
@@ -282,16 +301,21 @@ class Sequence(BaseGrammar):
             # We do this first so that it's the same whether we've run
             # out of segments or not.
             # If it's a conditional, evaluate it.
+            # In both cases, we don't actually add them as inserts yet
+            # because their position will depend on what types we accrue.
             if isinstance(elem, Conditional):
                 # A conditional grammar will only ever return insertions.
                 # If it's not enabled it returns an empty match.
                 # NOTE: No deeper match here, it seemed unnecessary.
                 _match = elem.match2(segments, matched_idx, parse_context)
-                insert_segments += _match.insert_segments
+                # Rather than taking them as a match at this location, we
+                # requeue them for addition later.
+                for _, submatch in _match.insert_segments:
+                    meta_buffer.append(submatch)
                 continue
             # If it's a raw meta, just add it to our list.
             elif isinstance(elem, type) and issubclass(elem, Indent):
-                insert_segments += ((matched_idx, elem),)
+                meta_buffer.append(elem)
                 continue
 
             # 2. Match Segments.
@@ -321,6 +345,8 @@ class Sequence(BaseGrammar):
                 # To facilitate later logging of unparsable sections
                 # we still return a match object, but mark is as unclean
                 # so that it isn't prioritised.
+                # Flush any metas...
+                insert_segments += tuple((matched_idx, meta) for meta in meta_buffer)
                 return MatchResult2(
                     matched_slice=slice(start_idx, matched_idx),
                     insert_segments=insert_segments,
@@ -363,6 +389,10 @@ class Sequence(BaseGrammar):
                     is_clean=False,
                 )
 
+            # Flush any metas...
+            insert_segments += _flush_metas(matched_idx, _idx, meta_buffer)
+            meta_buffer = []
+
             # Otherwise we _do_ have a match. Update the position.
             matched_idx = elem_match.matched_slice.stop
             # How we deal with child segments depends on whether it had a matched
@@ -377,6 +407,7 @@ class Sequence(BaseGrammar):
             insert_segments += elem_match.insert_segments
 
         # If we get to here, we've matched all of the elements (or skipped them).
+        insert_segments += tuple((matched_idx, meta) for meta in meta_buffer)
         # Return successfully.
         return MatchResult2(
             matched_slice=slice(start_idx, matched_idx),
