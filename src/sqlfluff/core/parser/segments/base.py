@@ -1268,10 +1268,12 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
             # If we allow non-code on either end, iterate inwards.
             if self.can_start_end_non_code:
+                # TODO: Make a test which confirms this behaviour. It's important
+                # and easy to end up with off-by-one errors.
                 for start_idx, seg in enumerate(self.segments):
                     if seg.is_code:
                         break
-                for stop_idx in range(stop_idx, start_idx, -1):
+                for stop_idx in range(stop_idx, start_idx - 1, -1):
                     if self.segments[stop_idx - 1].is_code:
                         break
 
