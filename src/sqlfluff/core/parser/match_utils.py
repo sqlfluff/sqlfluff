@@ -227,7 +227,9 @@ def longest_match2(
         # We use our own cache on the context so there we can easily
         # change.
         # TODO: CHECK THIS.
-        -(max_idx - idx),
+        # NOTE: WE DO NEED THIS FOR VARYING AVAILABLE SEGMENT LENGTHS!
+        # Otherwise we won't know when we trim ends.
+        -max_idx,
     )
 
     best_match = MatchResult2.empty_at(idx)
