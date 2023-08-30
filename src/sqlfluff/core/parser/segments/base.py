@@ -1277,55 +1277,68 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     if self.segments[stop_idx - 1].is_code:
                         break
 
-            # NOTE: No match_depth kwarg, because this is the start of the matching.
-            with parse_context.deeper_match(name=self.__class__.__name__) as ctx:
-                # TODO: THIS IS ANOTHER STOP HACK!?
-                # But it works to make sure we don't over-match.
-                # Is this another place that the terminators aren't working properly?
-                match = parse_grammar.match2(self.segments[:stop_idx], start_idx, ctx)
+            # Check we have anything left.
+            # (because if we don't then we shouldn't try)
+            # TODO: This flow structure is crappy. Make it better.
+            if stop_idx > start_idx:
+                # Yes!
+                # NOTE: No match_depth kwarg, because this is the start of the matching.
+                with parse_context.deeper_match(name=self.__class__.__name__) as ctx:
+                    # TODO: THIS IS ANOTHER STOP HACK!?
+                    # But it works to make sure we don't over-match.
+                    # Is this another place that the terminators aren't working properly?
+                    match = parse_grammar.match2(
+                        self.segments[:stop_idx], start_idx, ctx
+                    )
+                    assert match.matched_slice.stop <= stop_idx, (
+                        f"Matched slice ({match.matched_slice}) sits outside segment "
+                        f"bounds: {stop_idx}. Grammar: {parse_grammar}"
+                    )
 
-            if match.matched_slice == slice(start_idx, stop_idx):
-                # For complete matches, just materialise the segments and we're done.
-                self.segments = (
-                    self.segments[:start_idx]
-                    + match.apply(self.segments)
-                    + self.segments[stop_idx:]
-                )
-            elif self.allow_empty and start_idx == stop_idx:
-                # Very edge case, but some segments are allowed to be empty other than
-                # non-code. Don't modify segments in this case.
-                pass
-            else:
-                # Otherwise (whether empty match or unclean match), take what we can
-                # and return the rest as unparsable.
-                # TODO: Check whether this is really what we want? Ideally the unparsable
-                # sections come out of the .apply() method.
-                _matched_segments = ()
-                if len(match) > 0:
-                    _matched_segments = match.apply(self.segments)
-                    if not match.is_clean:
-                        assert _matched_segments
-                        _matched_segments = (
+                if match.matched_slice == slice(start_idx, stop_idx):
+                    # For complete matches, just materialise the segments and we're done.
+                    self.segments = (
+                        self.segments[:start_idx]
+                        + match.apply(self.segments)
+                        + self.segments[stop_idx:]
+                    )
+                elif self.allow_empty and start_idx == stop_idx:
+                    # Very edge case, but some segments are allowed to be empty other than
+                    # non-code. Don't modify segments in this case.
+                    pass
+                else:
+                    # Otherwise (whether empty match or unclean match), take what we can
+                    # and return the rest as unparsable.
+                    # TODO: Check whether this is really what we want? Ideally the unparsable
+                    # sections come out of the .apply() method.
+                    _matched_segments = ()
+                    if len(match) > 0:
+                        _matched_segments = match.apply(self.segments)
+                        if not match.is_clean:
+                            assert _matched_segments
+                            _matched_segments = (
+                                UnparsableSegment(
+                                    segments=_matched_segments,
+                                    expected=self.expected_form,
+                                ),
+                            )
+                    _unexpected_segments = ()
+                    if match.matched_slice.stop < stop_idx:
+                        assert self.segments[match.matched_slice.stop : stop_idx]
+                        _unexpected_segments = (
                             UnparsableSegment(
-                                segments=_matched_segments,
-                                expected=self.expected_form,
+                                segments=self.segments[
+                                    match.matched_slice.stop : stop_idx
+                                ],
+                                expected="Nothing...",
                             ),
                         )
-                _unexpected_segments = ()
-                if match.matched_slice.stop < stop_idx:
-                    assert self.segments[match.matched_slice.stop : stop_idx]
-                    _unexpected_segments = (
-                        UnparsableSegment(
-                            segments=self.segments[match.matched_slice.stop : stop_idx],
-                            expected="Nothing...",
-                        ),
+                    self.segments = (
+                        self.segments[:start_idx]
+                        + _matched_segments
+                        + _unexpected_segments
+                        + self.segments[stop_idx:]
                     )
-                self.segments = (
-                    self.segments[:start_idx]
-                    + _matched_segments
-                    + _unexpected_segments
-                    + self.segments[stop_idx:]
-                )
 
         parse_depth_msg = (
             "###\n#\n# Beginning Parse Depth {}: {}\n#\n###\nInitial Structure:\n"

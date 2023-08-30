@@ -251,6 +251,15 @@ class MatchResult2:
         and any inserts. If there are overlaps, then we have a problem, and we
         should abort.
         """
+        assert slice_length(
+            self.matched_slice
+        ), f"Tried to apply result of zero length: {self}"
+
+        assert len(segments) >= self.matched_slice.stop, (
+            f"Matched slice ({self.matched_slice}) sits outside segment "
+            f"bounds: {len(segments)}"
+        )
+
         # Which are the locations we need to care about?
         trigger_locs: DefaultDict[
             int, List[MatchResult2, Type["MetaSegment"]]

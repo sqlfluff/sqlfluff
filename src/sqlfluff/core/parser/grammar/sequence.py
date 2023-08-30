@@ -293,8 +293,20 @@ class Sequence(BaseGrammar):
                 insert_segments += ((matched_idx, elem),)
                 continue
 
+            # 2. Match Segments.
+            # At this point we know there are segments left to match
+            # on and that the current element isn't a meta or conditional.
+            if self.allow_gaps:
+                # First, if we're allowing gaps, consume any non-code.
+                # NOTE: This won't consume from the end of a sequence
+                # because this happens only in the run up to matching
+                # another element. This is as designed.
+                for matched_idx in range(matched_idx, max_idx):
+                    if segments[matched_idx].is_code:
+                        break
+
             # Have we prematurely run out of segments?
-            if matched_idx == max_idx:
+            if matched_idx >= max_idx:
                 # If the current element is optional, carry on.
                 if elem.is_optional():
                     continue
@@ -311,18 +323,6 @@ class Sequence(BaseGrammar):
                     child_matches=child_matches,
                     is_clean=False,
                 )
-
-            # 2. Match Segments.
-            # At this point we know there are segments left to match
-            # on and that the current element isn't a meta or conditional.
-            if self.allow_gaps:
-                # First, if we're allowing gaps, consume any non-code.
-                # NOTE: This won't consume from the end of a sequence
-                # because this happens only in the run up to matching
-                # another element. This is as designed.
-                for matched_idx in range(matched_idx, max_idx):
-                    if segments[matched_idx].is_code:
-                        break
 
             # TODO: Check for terminators here, but my first pass didn't help.
 
