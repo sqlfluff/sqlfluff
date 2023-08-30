@@ -775,18 +775,12 @@ class BaseSegment(metaclass=SegmentMetaclass):
         assert cls.match_grammar, f"{cls.__name__} has no match grammar."
 
         with parse_context.deeper_match(name=cls.__name__) as ctx:
-            m = cls.match_grammar.match2(segments, idx, ctx)
+            match = cls.match_grammar.match2(segments, idx, ctx)
 
-        if not m:
-            return m
+        if not match:
+            return match
 
-        return MatchResult2(
-            m.matched_slice,
-            # Wrap in the current class.
-            matched_class=cls,
-            insert_segments=m.insert_segments,
-            child_matches=m.child_matches,
-        )
+        return match.wrap(cls)
 
     # ################ PRIVATE INSTANCE METHODS
 

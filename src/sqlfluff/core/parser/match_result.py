@@ -211,6 +211,36 @@ class MatchResult2:
             is_clean=other.is_clean,
         )
 
+    def wrap(self, outer_class: Type["BaseSegment"]) -> "MatchResult2":
+        """Wrap this result with an outer class.
+
+        NOTE: Because MatchResult2 is frozen, this returns a new
+        match.
+        """
+        if self.matched_class:
+            # If the match already has a class, then make
+            # the current one and child match and clear the
+            # other buffers.
+            insert_segments = ()
+            child_matches = (self,)
+            segment_kwargs = {}
+        else:
+            # Otherwise flatten the existing match into
+            # the new one.
+            insert_segments = self.insert_segments
+            child_matches = self.child_matches
+            segment_kwargs = self.segment_kwargs
+
+        # Otherwise flatten the content
+        return MatchResult2(
+            self.matched_slice,
+            matched_class=outer_class,
+            segment_kwargs=segment_kwargs,
+            insert_segments=insert_segments,
+            child_matches=child_matches,
+            is_clean=self.is_clean,
+        )
+
     def apply(self, segments: Tuple["BaseSegment", ...]) -> Tuple["BaseSegment", ...]:
         """Actually this match to segments to instantiate.
 
