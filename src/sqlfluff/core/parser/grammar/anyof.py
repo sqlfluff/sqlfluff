@@ -229,9 +229,8 @@ class AnyNumberOf(BaseGrammar):
             _idx = matched_idx
             if n_matches > 0 and self.allow_gaps:
                 # Skip forward through any non-code.
-                for i in range(matched_idx, len(segments)):
-                    _idx = i
-                    if segments[i].is_code:
+                for _idx in range(matched_idx, len(segments)):
+                    if segments[_idx].is_code:
                         break
 
             with parse_context.deeper_match(

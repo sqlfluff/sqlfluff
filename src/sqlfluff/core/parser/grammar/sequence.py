@@ -19,6 +19,7 @@ from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.match_utils import next_ex_bracket_match2, resolve_bracket2
 from sqlfluff.core.parser.matchable import Matchable
+from sqlfluff.core.slice_helpers import slice_length
 from sqlfluff.core.parser.segments import (
     BaseSegment,
     BracketedSegment,
@@ -296,17 +297,20 @@ class Sequence(BaseGrammar):
             # 2. Match Segments.
             # At this point we know there are segments left to match
             # on and that the current element isn't a meta or conditional.
+            _idx = matched_idx
+            # TODO: Need test cases to cover overmatching non code properly
+            # especially around optional elements.
             if self.allow_gaps:
                 # First, if we're allowing gaps, consume any non-code.
                 # NOTE: This won't consume from the end of a sequence
                 # because this happens only in the run up to matching
                 # another element. This is as designed.
-                for matched_idx in range(matched_idx, max_idx):
-                    if segments[matched_idx].is_code:
+                for _idx in range(matched_idx, max_idx):
+                    if segments[_idx].is_code:
                         break
 
             # Have we prematurely run out of segments?
-            if matched_idx >= max_idx:
+            if _idx >= max_idx:
                 # If the current element is optional, carry on.
                 if elem.is_optional():
                     continue
@@ -328,7 +332,7 @@ class Sequence(BaseGrammar):
 
             # Match the current element against the current position.
             with parse_context.deeper_match(name=f"Sequence-@{idx}") as ctx:
-                elem_match = elem.match2(segments, matched_idx, ctx)
+                elem_match = elem.match2(segments, _idx, ctx)
 
             # print(f"ELEM MATCH:\n{parse_context.stack()[1]}\n{elem_match}")
             # Did we fail to match? (totally or un-cleanly)
@@ -346,7 +350,7 @@ class Sequence(BaseGrammar):
 
                 # If the child match has a size (i.e. it matched *some* segments)
                 # then add it as a child and update out position before returning.
-                if elem_match.matched_slice:
+                if slice_length(elem_match.matched_slice):
                     # We should be able to rely on it being an unclean match at
                     # this stage.
                     assert not elem_match.is_clean
