@@ -754,4 +754,14 @@ class Bracketed(Sequence):
             )
             working_match = working_match.append(child_match)
 
-        return working_match.append(final_match)
+        return working_match.append(final_match).wrap(
+            BracketedSegment,
+            insert_segments=(
+                (start_match.matched_slice.stop, Indent),
+                (final_match.matched_slice.start, Dedent),
+            ),
+            segment_kwargs={
+                "start_bracket": (segments[start_match.matched_slice.start],),
+                "end_bracket": (segments[final_match.matched_slice.stop - 1],),
+            },
+        )
