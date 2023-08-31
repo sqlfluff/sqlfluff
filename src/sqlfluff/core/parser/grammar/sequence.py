@@ -680,7 +680,9 @@ class Bracketed(Sequence):
 
         # Are we dealing with a pre-existing BracketSegment?
         if segments[idx].is_type("bracketed"):
-            raise NotImplementedError("BRACKETED. WE'RE GOING TO NEED THIS. CASE 1")
+            # This feels a little risky to assume that the content is necessarily
+            # the same. TODO: Revisit whether this is too bullish.
+            return MatchResult2(matched_slice=slice(idx, idx + 1))
 
         # Otherwise try and match the segments directly.
         # Look for the first bracket
