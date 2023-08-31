@@ -157,28 +157,6 @@ exasol_dialect.add(
         Ref("ColumnReferenceSegment"),
         ephemeral_name="ColumnReferenceList",
     ),
-    TableDistributeByGrammar=Sequence(
-        "DISTRIBUTE",
-        "BY",
-        Delimited(
-            Ref("ColumnReferenceSegment"),
-            terminator=OneOf(
-                Ref("TablePartitionByGrammar"),
-                Ref("DelimiterGrammar"),
-            ),
-        ),
-    ),
-    TablePartitionByGrammar=Sequence(
-        "PARTITION",
-        "BY",
-        Delimited(
-            Ref("ColumnReferenceSegment"),
-            terminator=OneOf(
-                Ref("TableDistributeByGrammar"),
-                Ref("DelimiterGrammar"),
-            ),
-        ),
-    ),
     TableConstraintEnableDisableGrammar=OneOf("ENABLE", "DISABLE"),
     EscapedIdentifierSegment=TypedParser(
         "escaped_identifier", SymbolSegment, type="identifier"
@@ -817,6 +795,44 @@ class DropViewStatementSegment(BaseSegment):
 ############################
 # TABLE
 ############################
+
+
+class TableDistributeBySegment(BaseSegment):
+    """A DISTRIBUTE BY clause"""
+
+    type = "distribute_clause"
+
+    match_grammar = Sequence(
+        "DISTRIBUTE",
+        "BY",
+        Delimited(
+            Ref("ColumnReferenceSegment"),
+            terminator=OneOf(
+                "PARTITION",
+                Ref("DelimiterGrammar"),
+            ),
+        ),
+    )
+
+
+class TablePartitionBySegment(BaseSegment):
+    """A PARTITION BY clause"""
+
+    type = "partition_clause"
+
+    match_grammar = Sequence(
+        "PARTITION",
+        "BY",
+        Delimited(
+            Ref("ColumnReferenceSegment"),
+            terminator=OneOf(
+                "DISTRIBUTE",
+                Ref("DelimiterGrammar"),
+            ),
+        ),
+    )
+
+
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement.
 
@@ -841,11 +857,8 @@ class CreateTableStatementSegment(BaseSegment):
                 Sequence(
                     Delimited(
                         Ref("TableContentDefinitionSegment"),
-                    ),
-                    Sequence(
-                        Ref("CommaSegment"),
-                        Ref("TableDistributionPartitionClause"),
-                        optional=True,
+                        Ref("TableDistributeBySegment"),
+                        Ref("TablePartitionBySegment"),
                     ),
                 ),
             ),
@@ -1158,27 +1171,6 @@ class CreateTableLikeClauseSegment(BaseSegment):
     )
 
 
-class TableDistributionPartitionClause(BaseSegment):
-    """`CREATE / ALTER TABLE` distribution / partition clause.
-
-    DISTRIBUTE/PARTITION clause doesn't except the identifiers in brackets
-    """
-
-    type = "table_distribution_partition_clause"
-    match_grammar = OneOf(
-        Sequence(
-            Ref("TableDistributeByGrammar"),
-            Ref("CommaSegment", optional=True),
-            Ref("TablePartitionByGrammar", optional=True),
-        ),
-        Sequence(
-            Ref("TablePartitionByGrammar"),
-            Ref("CommaSegment", optional=True),
-            Ref("TableDistributeByGrammar", optional=True),
-        ),
-    )
-
-
 class AlterTableStatementSegment(BaseSegment):
     """`ALTER TABLE` statement."""
 
@@ -1370,21 +1362,13 @@ class AlterTableDistributePartitionSegment(BaseSegment):
         "TABLE",
         Ref("TableReferenceSegment"),
         OneOf(
-            Ref("TableDistributionPartitionClause"),
+            Delimited(
+                Ref("TableDistributeBySegment"),
+                Ref("TablePartitionBySegment"),
+            ),
             Sequence(
                 "DROP",
-                OneOf(
-                    Sequence(
-                        Ref.keyword("DISTRIBUTION"),
-                        Ref.keyword("AND", optional=True),
-                        Ref.keyword("PARTITION", optional=True),
-                    ),
-                    Sequence(
-                        Ref.keyword("PARTITION"),
-                        Ref.keyword("AND", optional=True),
-                        Ref.keyword("DISTRIBUTION", optional=True),
-                    ),
-                ),
+                Delimited("DISTRIBUTION", "PARTITION", delimiter=Ref.keyword("AND")),
                 "KEYS",
             ),
         ),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 899769991a0703ecd90c18a7162dc7f624521b1cebf46d87f2d18368c7461560
+_hash: ee00b1759d5b295fc100d1792c68b29b0ca887721a01bbfa024338d5c11cf7b4
 file:
 - statement:
     create_table_statement:
@@ -238,7 +238,7 @@ file:
               data_type:
                 keyword: DOUBLE
       - comma: ','
-      - table_distribution_partition_clause:
+      - distribute_clause:
         - keyword: DISTRIBUTE
         - keyword: BY
         - column_reference:
@@ -311,12 +311,13 @@ file:
                 naked_identifier: sales_id
             - end_bracket: )
       - comma: ','
-      - table_distribution_partition_clause:
+      - distribute_clause:
         - keyword: DISTRIBUTE
         - keyword: BY
         - column_reference:
             naked_identifier: order_id
-        - comma: ','
+      - comma: ','
+      - partition_clause:
         - keyword: PARTITION
         - keyword: BY
         - column_reference:
