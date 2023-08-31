@@ -2571,14 +2571,14 @@ class AlterPolicyStatementSegment(BaseSegment):
         "POLICY",
         Ref("ObjectReferenceSegment"),
         "ON",
-        Ref("TableRefrenceSegment"),
+        Ref("TableReferenceSegment"),
         OneOf(
             Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
             Sequence(
                 "TO",
                 Delimited(
                     OneOf(
-                        Ref("ObjectReferenceSegment"),
+                        Ref("RoleReferenceSegment"),
                         "PUBLIC",
                         "CURRENT_ROLE",
                         "CURRENT_USER",
@@ -3913,6 +3913,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateTableAsStatementSegment"),
             Ref("AlterTriggerStatementSegment"),
             Ref("SetStatementSegment"),
+            Ref("AlterPolicyStatementSegment"),
             Ref("CreatePolicyStatementSegment"),
             Ref("DropPolicyStatementSegment"),
             Ref("CreateDomainStatementSegment"),
