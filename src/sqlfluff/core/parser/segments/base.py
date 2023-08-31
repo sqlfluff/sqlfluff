@@ -777,9 +777,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         with parse_context.deeper_match(name=cls.__name__) as ctx:
             match = cls.match_grammar.match2(segments, idx, ctx)
 
-        if not match:
-            return match
-
+        # Wrap are return regardless of success.
         return match.wrap(cls)
 
     # ################ PRIVATE INSTANCE METHODS

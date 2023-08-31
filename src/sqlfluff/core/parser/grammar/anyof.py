@@ -271,7 +271,7 @@ class AnyNumberOf(BaseGrammar):
 
                 # If we've already met the hurdle rate, return what we've got
                 # without the most recent match.
-                if n_matches >= self.min_times:
+                if self.min_times and n_matches >= self.min_times:
                     return matched
                 return matched.append(match)
 

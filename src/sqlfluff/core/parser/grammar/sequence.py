@@ -374,6 +374,19 @@ class Sequence(BaseGrammar):
                 # we return a _partial_ match (i.e. an unclean one). We'll also
                 # use any unclean elements of the existing match to enrich that.
 
+                # In the case that we don't have any existing matches, we can
+                # just return the inner unclean match. This stops unnecessary
+                # nesting.
+                # NOTE: This is also the most likely return path, as it's where
+                # we go when we fail to match the first element of a sequence.
+                # In that case we just pass the match straight through.
+                if (
+                    not insert_segments
+                    and not child_matches
+                    and start_idx == elem_match.matched_slice.start
+                ):
+                    return elem_match
+
                 # If the child match has a size (i.e. it matched *some* segments)
                 # then add it as a child and update out position before returning.
                 if slice_length(elem_match.matched_slice):
@@ -736,6 +749,13 @@ class Bracketed(Sequence):
 
         # Regardless of whether the inner match was successful, append it.
         # We're going to pick out the rest as unparsable shortly.
+        # NOTE: If it's unparsable content, then wrap in an unparsable here.
+        # TODO: YESYESYES MORE TESTS
+        if len(content_match) and not content_match.is_clean:
+            content_match = content_match.wrap(
+                UnparsableSegment,
+                segment_kwargs={"expected": f"Bracketed Sequence of: {self._elements}"},
+            )
         working_match = start_match.append(content_match)
 
         # What's between the final match and the content. Hopefully just gap?

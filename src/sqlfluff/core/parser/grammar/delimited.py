@@ -308,6 +308,10 @@ class Delimited(OneOf):
                 # TODO: Should we handle the partial better?
                 # Looking for the next delimiter or terminator if we can and then
                 # claiming an unparsable.
+                # WIP: Check whether just appending the partial match is the best
+                # approach? Seems better than nothing.
+                # YES SEEMS BETTER. NEEDS TESTS.
+                working_match = working_match.append(match)
                 break
 
             # Otherwise we _did_ match. Handle it.

@@ -159,6 +159,27 @@ class MatchResult2:
         """
         return self.is_clean and (len(self) > 0 or bool(self.insert_segments))
 
+    def stringify(self, indent=""):
+        """Pretty print a match for debugging.
+
+        TODO: Needs tests (and probably being used more).
+        """
+        prefix = (
+            f"Match ({self.matched_class}"
+            + (" [UNCLEAN]" if not self.is_clean else "")
+            + f"): {self.matched_slice}"
+        )
+        buffer = prefix
+        for key, value in self.segment_kwargs.items():
+            buffer += f"\n  {indent}-{key}: {value!r}"
+        if self.insert_segments:
+            for idx, insert in self.insert_segments:
+                buffer += f"\n  {indent}+{idx}: {insert}"
+        if self.child_matches:
+            for child in self.child_matches:
+                buffer += f"\n  {indent}+{child.stringify(indent + '  ')}"
+        return buffer
+
     @classmethod
     def empty_at(cls, idx):
         """Create an empty match at a particular index.

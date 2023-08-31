@@ -235,7 +235,7 @@ def longest_match2(
     best_match = MatchResult2.empty_at(idx)
     best_matcher: Optional[MatchableType] = None
     # iterate at this position across all the matchers
-    for matcher in available_options:
+    for matcher_idx, matcher in enumerate(available_options):
         # Check parse cache.
         matcher_key = matcher.cache_key()
         res_match: Optional[MatchResult2] = parse_context.check_parse_cache2(
@@ -269,7 +269,7 @@ def longest_match2(
                 # end earlier, and claim an effectively "complete" match.
                 # NOTE: This means that by specifying terminators, we can
                 # significantly increase performance.
-                if idx == len(available_options) - 1:
+                if matcher_idx == len(available_options) - 1:
                     # If it's the last option - no need to check terminators.
                     # We're going to end anyway, so we can skip that step.
                     terminated = True
