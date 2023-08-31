@@ -320,7 +320,7 @@ class Delimited(OneOf):
                 if delimiter_match:
                     # NOTE: This should happen on every loop _except_ the first.
                     delimiters += 1
-                    working_match.append(delimiter_match)
+                    working_match = working_match.append(delimiter_match)
                 working_match = working_match.append(match)
 
             # Prep for going back around the loop...
