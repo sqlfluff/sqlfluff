@@ -223,6 +223,7 @@ class CreateTableAsStatementSegment(postgres.CreateTableAsStatementSegment):
                         )
                     )
                 ),
+                optional=True,
             ),
             Sequence(
                 "ON",

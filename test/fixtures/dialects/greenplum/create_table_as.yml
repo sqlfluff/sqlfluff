@@ -1,0 +1,69 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 10c464cde16f4f122e8516d6914d0a35a361f541d5aef30bd335ab3e31894eb6
+file:
+- statement:
+    create_table_as_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: t1
+    - keyword: as
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: t2
+        end_bracket: )
+    - keyword: distributed
+    - keyword: randomly
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: t1
+    - keyword: as
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: t2
+        end_bracket: )
+    - keyword: distributed
+    - keyword: by
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+- statement_terminator: ;
