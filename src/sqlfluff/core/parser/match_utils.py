@@ -235,7 +235,7 @@ def longest_match2(
     best_match = MatchResult2.empty_at(idx)
     best_matcher: Optional[MatchableType] = None
     # iterate at this position across all the matchers
-    for matcher_idx, matcher in enumerate(available_options):
+    for matcher in available_options:
         # Check parse cache.
         matcher_key = matcher.cache_key()
         res_match: Optional[MatchResult2] = parse_context.check_parse_cache2(

@@ -718,15 +718,8 @@ class Bracketed(Sequence):
             # TODO: MAKE THIS BETTER. GET RID OF THE HACK.
             content_match = super().match2(segments[:_end_idx], _idx, ctx)
 
-        if not content_match:
-            # NOTE: THIS IS A GREAT PLACE FOR PARTIAL UNPARSABLES.
-            raise NotImplementedError(
-                f"BRACKETED. WE'RE GOING TO NEED THIS. CASE 3 {content_match}"
-            )
-
-        working_match = start_match.append(content_match)
-
         # Wherever we got to, work forward to find the closing bracket.
+        # NOTE: We do this even if we didn't find a content match.
         with parse_context.deeper_match(name="Bracketed-End") as ctx:
             final_match, _ = next_ex_bracket_match2(
                 segments,
@@ -738,19 +731,29 @@ class Bracketed(Sequence):
         if not final_match:
             # NOTE: THIS IS A GREAT PLACE FOR PARTIAL UNPARSABLES??????
             raise NotImplementedError(
-                f"BRACKETED. WE'RE GOING TO NEED THIS. CASE 4\n{content_match}\n{final_match}\n{segments}"
+                f"BRACKETED. WE'RE GOING TO NEED THIS? CASE 4\n{content_match}\n{final_match}\n{segments}"
             )
+
+        # Regardless of whether the inner match was successful, append it.
+        # We're going to pick out the rest as unparsable shortly.
+        working_match = start_match.append(content_match)
 
         # What's between the final match and the content. Hopefully just gap?
         intermediate_slice = slice(
             content_match.matched_slice.stop, final_match.matched_slice.start
         )
         if any(seg.is_code for seg in segments[intermediate_slice]):
-            # Ok, there's something else in the gap. Add it as an unparsable section.
+            # Work out what to say for what we _were_ expecting.
+            if len(content_match):
+                expected = "Nothing else in bracketed expression."
+            else:
+                expected = str(self._elements)
+            # Ok, there's something else in the gap. Add it as an UnparsableSegment.
             child_match = MatchResult2(
                 intermediate_slice,
                 UnparsableSegment,
-                segment_kwargs={"expected": "Nothing else in bracketed expression."},
+                segment_kwargs={"expected": expected},
+                is_clean=False,
             )
             working_match = working_match.append(child_match)
 

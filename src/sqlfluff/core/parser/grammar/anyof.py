@@ -213,7 +213,8 @@ class AnyNumberOf(BaseGrammar):
 
         while True:
             if self.max_times and n_matches >= self.max_times:
-                # We've matched as many times as we can
+                # We've matched as many times as we're allowed.
+                # NOTE: For OneOf, this is the matched return path.
                 return matched
 
             # Is there anything left to match?

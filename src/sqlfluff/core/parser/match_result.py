@@ -173,7 +173,7 @@ class MatchResult2:
             return True
         return len(self) > len(other)
 
-    def append(self, other: "MatchResult2") -> "MatchResult2":
+    def append(self, other: "MatchResult2", is_clean: bool = True) -> "MatchResult2":
         """Combine another subsequent match onto this one.
 
         NOTE: Because MatchResult2 is frozen, this returns a new
@@ -185,9 +185,6 @@ class MatchResult2:
         # If the same is true of the other, just return self.
         if not len(other) and not other.insert_segments:
             return self
-
-        # We cannot append to an unclean match
-        assert self.is_clean, "Cannot append to unclean match."
 
         # Otherwise the two must follow each other.
         # NOTE: A gap is allowed, but is assumed to be included in the
@@ -208,7 +205,9 @@ class MatchResult2:
             new_slice,
             insert_segments=insert_segments,
             child_matches=child_matches,
-            is_clean=other.is_clean,
+            # Matches are clean if both input matches are.
+            # Optionally we can also override this with a kwarg to `.apply()`.
+            is_clean=other.is_clean and self.is_clean and is_clean,
         )
 
     def wrap(
