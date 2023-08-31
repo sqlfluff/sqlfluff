@@ -28,10 +28,10 @@ file:
               table_reference:
                 naked_identifier: a
           dedent: ""
-      - newline: "\n"
-      - dedent: ""
-      - placeholder: '{% endif %}'
-      - newline: "\n"
+    - newline: "\n"
+    - dedent: ""
+    - placeholder: '{% endif %}'
+    - newline: "\n"
     - limit_clause:
         keyword: LIMIT
         indent: ""

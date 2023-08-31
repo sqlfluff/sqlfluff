@@ -107,17 +107,18 @@ file:
                 column_reference:
                   naked_identifier: vector_array
                 array_accessor:
-                  start_square_bracket: "["
-                  expression:
-                    function:
-                      function_name:
-                        function_name_identifier: ORDINAL
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          numeric_literal: "0"
-                        end_bracket: )
-                  end_square_bracket: "]"
+                  bracketed:
+                    start_square_bracket: "["
+                    expression:
+                      function:
+                        function_name:
+                          function_name_identifier: ORDINAL
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            numeric_literal: "0"
+                          end_bracket: )
+                    end_square_bracket: "]"
               keyword: AS
               data_type:
                 data_type_identifier: FLOAT64
@@ -136,17 +137,18 @@ file:
                 column_reference:
                   naked_identifier: vector_array
                 array_accessor:
-                  start_square_bracket: "["
-                  expression:
-                    function:
-                      function_name:
-                        function_name_identifier: ORDINAL
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          numeric_literal: "1"
-                        end_bracket: )
-                  end_square_bracket: "]"
+                  bracketed:
+                    start_square_bracket: "["
+                    expression:
+                      function:
+                        function_name:
+                          function_name_identifier: ORDINAL
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            numeric_literal: "1"
+                          end_bracket: )
+                    end_square_bracket: "]"
               keyword: AS
               data_type:
                 data_type_identifier: FLOAT64
