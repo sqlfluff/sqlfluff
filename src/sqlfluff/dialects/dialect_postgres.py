@@ -2558,6 +2558,43 @@ class WithCheckOptionSegment(BaseSegment):
     )
 
 
+class AlterPolicyStatementSegment(BaseSegment):
+    """An ALTER POLICY statement.
+
+    As specified in https://www.postgresql.org/docs/current/sql-alterpolicy.html
+    """
+
+    type = "alter_policy_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "TO",
+                Delimited(
+                    OneOf(
+                        Ref("RoleReferenceSegment"),
+                        "PUBLIC",
+                        "CURRENT_ROLE",
+                        "CURRENT_USER",
+                        "SESSION_USER",
+                    )
+                ),
+                optional=True,
+            ),
+            Sequence("USING", Bracketed(Ref("ExpressionSegment")), optional=True),
+            Sequence(
+                "WITH", "CHECK", Bracketed(Ref("ExpressionSegment")), optional=True
+            ),
+        ),
+    )
+
+
 class CreateViewStatementSegment(BaseSegment):
     """An `Create VIEW` statement.
 
@@ -3876,6 +3913,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateTableAsStatementSegment"),
             Ref("AlterTriggerStatementSegment"),
             Ref("SetStatementSegment"),
+            Ref("AlterPolicyStatementSegment"),
             Ref("CreatePolicyStatementSegment"),
             Ref("DropPolicyStatementSegment"),
             Ref("CreateDomainStatementSegment"),
