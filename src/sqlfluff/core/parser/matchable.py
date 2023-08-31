@@ -2,16 +2,24 @@
 
 import copy
 from abc import ABC, abstractmethod
-from typing import Optional, Tuple, TYPE_CHECKING, FrozenSet
-
+from typing import TYPE_CHECKING, Any, FrozenSet, Optional, Tuple, TypeVar
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.context import ParseContext
     from sqlfluff.core.parser.match_result import MatchResult
+    from sqlfluff.core.parser.segments import BaseSegment
+
+
+T = TypeVar("T", bound="Matchable")
 
 
 class Matchable(ABC):
     """A base object defining the matching interface."""
+
+    # Matchables are expected to have a type
+    type: str
+    # Matchables are also not meta unless otherwise defined
+    is_meta = False
 
     @abstractmethod
     def is_optional(self) -> bool:
@@ -34,11 +42,25 @@ class Matchable(ABC):
         """
 
     @abstractmethod
-    def match(self, segments: tuple, parse_context: "ParseContext") -> "MatchResult":
+    def match(
+        self, segments: Tuple["BaseSegment", ...], parse_context: "ParseContext"
+    ) -> "MatchResult":
         """Match against this matcher."""
 
-    def copy(self, **kwargs) -> "Matchable":  # pragma: no cover TODO?
-        """Copy this Matchable."""
+    def copy(self: T, **kwargs: Any) -> T:  # pragma: no cover
+        """Copy this Matchable.
+
+        Matchable objects are usually copied during dialect inheritance.
+        One dialect might make a copy (usually with some modifications)
+        to a dialect element of a parent dialect which it can then use
+        itself. This provides a little more modularity in dialect definition.
+
+        NOTE: This method on the base class is not usually used, as the
+        base matchable doesn't have any options for customisation. It is
+        more frequently used by grammar objects such as Sequence, which
+        provide more options for customisation. Those grammar objects should
+        redefine this method accordingly.
+        """
         return copy.copy(self)
 
     @abstractmethod

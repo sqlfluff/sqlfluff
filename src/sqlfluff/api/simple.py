@@ -61,6 +61,7 @@ def lint(
     dialect: str = "ansi",
     rules: Optional[List[str]] = None,
     exclude_rules: Optional[List[str]] = None,
+    config: Optional[FluffConfig] = None,
     config_path: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     """Lint a SQL string.
@@ -73,13 +74,16 @@ def lint(
             references to lint for. Defaults to None.
         exclude_rules (:obj:`Optional[List[str]`, optional): A list of rule
             references to avoid linting for. Defaults to None.
-        config_path (:obj:`Optional[str]`, optional): A path to a .sqlfluff config.
+        config (:obj:`Optional[FluffConfig]`, optional): A configuration object
+            to use for the operation. Defaults to None.
+        config_path (:obj:`Optional[str]`, optional): A path to a .sqlfluff config,
+            which is only used if a `config` is not already provided.
             Defaults to None.
 
     Returns:
         :obj:`List[Dict[str, Any]]` for each violation found.
     """
-    cfg = get_simple_config(
+    cfg = config or get_simple_config(
         dialect=dialect,
         rules=rules,
         exclude_rules=exclude_rules,
@@ -98,6 +102,7 @@ def fix(
     dialect: str = "ansi",
     rules: Optional[List[str]] = None,
     exclude_rules: Optional[List[str]] = None,
+    config: Optional[FluffConfig] = None,
     config_path: Optional[str] = None,
     fix_even_unparsable: Optional[bool] = None,
 ) -> str:
@@ -111,13 +116,16 @@ def fix(
             references to fix for. Defaults to None.
         exclude_rules (:obj:`Optional[List[str]`, optional): A subset of rule
             references to avoid fixing for. Defaults to None.
-        config_path (:obj:`Optional[str]`, optional): A path to a .sqlfluff config.
+        config (:obj:`Optional[FluffConfig]`, optional): A configuration object
+            to use for the operation. Defaults to None.
+        config_path (:obj:`Optional[str]`, optional): A path to a .sqlfluff config,
+            which is only used if a `config` is not already provided.
             Defaults to None.
 
     Returns:
         :obj:`str` for the fixed SQL if possible.
     """
-    cfg = get_simple_config(
+    cfg = config or get_simple_config(
         dialect=dialect,
         rules=rules,
         exclude_rules=exclude_rules,
@@ -143,6 +151,7 @@ def fix(
 def parse(
     sql: str,
     dialect: str = "ansi",
+    config: Optional[FluffConfig] = None,
     config_path: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Parse a SQL string.
@@ -151,13 +160,16 @@ def parse(
         sql (:obj:`str`): The SQL to be parsed.
         dialect (:obj:`str`, optional): A reference to the dialect of the SQL
             to be parsed. Defaults to `ansi`.
-        config_path (:obj:`Optional[str]`, optional): A path to a .sqlfluff config.
+        config (:obj:`Optional[FluffConfig]`, optional): A configuration object
+            to use for the operation. Defaults to None.
+        config_path (:obj:`Optional[str]`, optional): A path to a .sqlfluff config,
+            which is only used if a `config` is not already provided.
             Defaults to None.
 
     Returns:
         :obj:`Dict[str, Any]` JSON containing the parsed structure.
     """
-    cfg = get_simple_config(
+    cfg = config or get_simple_config(
         dialect=dialect,
         config_path=config_path,
     )
@@ -170,4 +182,6 @@ def parse(
     # Return a JSON representation of the parse tree.
     if parsed.tree is None:  # pragma: no cover
         return {}
-    return parsed.tree.as_record(show_raw=True)
+    record = parsed.tree.as_record(show_raw=True)
+    assert record
+    return record

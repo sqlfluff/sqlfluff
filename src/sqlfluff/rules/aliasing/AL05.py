@@ -6,10 +6,7 @@ from typing import cast, List, Set
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.utils.analysis.select import get_select_statement_info
-from sqlfluff.utils.analysis.select_crawler import (
-    Query as SelectCrawlerQuery,
-    SelectCrawler,
-)
+from sqlfluff.utils.analysis.query import Query
 from sqlfluff.core.rules import (
     BaseRule,
     LintFix,
@@ -23,8 +20,8 @@ from sqlfluff.core.dialects.common import AliasInfo
 
 
 @dataclass
-class AL05Query(SelectCrawlerQuery):
-    """SelectCrawler Query with custom AL05 info."""
+class AL05Query(Query):
+    """Query subclass with custom AL05 info."""
 
     aliases: List[AliasInfo] = field(default_factory=list)
     tbl_refs: Set[str] = field(default_factory=set)
@@ -80,8 +77,7 @@ class Rule_AL05(BaseRule):
 
         # Analyze the SELECT.
         alias: AliasInfo
-        crawler = SelectCrawler(context.segment, context.dialect, query_class=AL05Query)
-        query: AL05Query = cast(AL05Query, crawler.query_tree)
+        query = AL05Query.from_segment(context.segment, dialect=context.dialect)
         self._analyze_table_aliases(query, context.dialect)
 
         if context.dialect.name == "redshift":
@@ -163,7 +159,7 @@ class Rule_AL05(BaseRule):
         return False  # pragma: no cover
 
     @classmethod
-    def _analyze_table_aliases(cls, query: AL05Query, dialect: Dialect):
+    def _analyze_table_aliases(cls, query: AL05Query, dialect: Dialect) -> None:
         # Get table aliases defined in query.
         for selectable in query.selectables:
             select_info = selectable.select_info
@@ -186,7 +182,7 @@ class Rule_AL05(BaseRule):
             cls._analyze_table_aliases(cast(AL05Query, child), dialect)
 
     @classmethod
-    def _resolve_and_mark_reference(cls, query: AL05Query, ref: str):
+    def _resolve_and_mark_reference(cls, query: AL05Query, ref: str) -> None:
         # Does this query define the referenced alias?
         if any(ref == a.ref_str for a in query.aliases):
             # Yes. Record the reference.

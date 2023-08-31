@@ -46,6 +46,8 @@ class Rule_LT05(BaseRule):
             for res in results[:]:
                 # First handle the easy case that the anchor (i.e. the start
                 # of the line is a comment).
+                assert res.anchor
+                assert res.anchor.pos_marker
                 if res.anchor.is_type("comment"):
                     self.logger.debug(
                         "Purging result on long line starting with comment: %s",
@@ -54,6 +56,7 @@ class Rule_LT05(BaseRule):
                     results.remove(res)
                     continue
                 # Then look for comments on the rest of the line:
+                assert res.anchor.pos_marker
                 raw_idx = raw_segments.index(res.anchor)
                 for seg in raw_segments[raw_idx:]:
                     if (
@@ -89,6 +92,8 @@ class Rule_LT05(BaseRule):
                 # The anchor should be the first raw on the line. Work forward
                 # until we're not on the line. Check if any have a parent which
                 # is a comment_clause.
+                assert res.anchor
+                assert res.anchor.pos_marker
                 raw_idx = raw_segments.index(res.anchor)
                 for seg in raw_segments[raw_idx:]:
                     if (

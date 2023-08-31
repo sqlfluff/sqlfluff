@@ -5,6 +5,7 @@ from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
     Bracketed,
+    BracketedSegment,
     CodeSegment,
     CommentSegment,
     Dedent,
@@ -24,7 +25,6 @@ from sqlfluff.core.parser import (
     StartsWith,
     StringParser,
 )
-from sqlfluff.core.parser.segments.base import BracketedSegment
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.grammar.anyof import AnySetOf
@@ -146,7 +146,18 @@ postgres_dialect.insert_lexer_matchers(
             "meta_command",
             r"\\([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
             CommentSegment,
-        )
+        ),
+        RegexLexer(
+            # pg_stat_statements which is an official postgres extension used for
+            # storing the query logs replaces the actual literals used in the
+            # query with $n where n is integer value. This grammar is for parsing
+            # those literals.
+            # ref: https://www.postgresql.org/docs/current/pgstatstatements.html
+            "dollar_numeric_literal",
+            r"\$\d+",
+            ansi.LiteralSegment,
+            segment_kwargs={"type": "dollar_numeric_literal"},
+        ),
     ],
     before="code",  # Final thing to search for - as psql specific
 )
@@ -284,6 +295,9 @@ postgres_dialect.add(
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
     OnKeywordAsIdentifierSegment=StringParser(
         "ON", ansi.IdentifierSegment, type="naked_identifier"
+    ),
+    DollarNumericLiteralSegment=TypedParser(
+        "dollar_numeric_literal", ansi.LiteralSegment, type="dollar_numeric_literal"
     ),
 )
 
@@ -471,6 +485,7 @@ postgres_dialect.replace(
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
+            Ref("DollarNumericLiteralSegment"),
             Ref("PsqlVariableGrammar"),
         ],
         before=Ref("ArrayLiteralSegment"),
@@ -1463,53 +1478,6 @@ class WithinGroupClauseSegment(BaseSegment):
     )
 
 
-class CubeRollupClauseSegment(BaseSegment):
-    """`CUBE` / `ROLLUP` clause within the `GROUP BY` clause.
-
-    https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-GROUPING-SETS
-    """
-
-    type = "cube_rollup_clause"
-    match_grammar = Sequence(
-        OneOf("CUBE", "ROLLUP"),
-        Bracketed(
-            Ref("GroupingExpressionList"),
-        ),
-    )
-
-
-class GroupingSetsClauseSegment(BaseSegment):
-    """`GROUPING SETS` clause within the `GROUP BY` clause.
-
-    https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-GROUPING-SETS
-    """
-
-    type = "grouping_sets_clause"
-    match_grammar = Sequence(
-        "GROUPING",
-        "SETS",
-        Bracketed(
-            Delimited(
-                Ref("CubeRollupClauseSegment"),
-                Ref("GroupingExpressionList"),
-            )
-        ),
-    )
-
-
-class GroupingExpressionList(BaseSegment):
-    """Grouping expression list within `CUBE` / `ROLLUP` `GROUPING SETS`."""
-
-    type = "grouping_expression_list"
-    match_grammar = Delimited(
-        OneOf(
-            Bracketed(Delimited(Ref("ExpressionSegment"))),
-            Ref("ExpressionSegment"),
-            Bracketed(),  # Allows empty parentheses
-        )
-    )
-
-
 class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`."""
 
@@ -1523,10 +1491,10 @@ class GroupByClauseSegment(BaseSegment):
                 Ref("ColumnReferenceSegment"),
                 # Can `GROUP BY 1`
                 Ref("NumericLiteralSegment"),
-                # Can `GROUP BY coalesce(col, 1)`
-                Ref("ExpressionSegment"),
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingSetsClauseSegment"),
+                # Can `GROUP BY coalesce(col, 1)`
+                Ref("ExpressionSegment"),
                 Bracketed(),  # Allows empty parentheses
             ),
             terminator=OneOf(
@@ -1592,9 +1560,15 @@ class AlterRoleStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         OneOf("ROLE", "USER"),
-        OneOf(Ref("RoleReferenceSegment"), "ALL"),
         OneOf(
+            # role_specification
             Sequence(
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    Ref("RoleReferenceSegment"),
+                ),
                 Ref.keyword("WITH", optional=True),
                 AnySetOf(
                     OneOf("SUPERUSER", "NOSUPERUSER"),
@@ -1605,13 +1579,28 @@ class AlterRoleStatementSegment(BaseSegment):
                     OneOf("REPLICATION", "NOREPLICATION"),
                     OneOf("BYPASSRLS", "NOBYPASSRLS"),
                     Sequence("CONNECTION", "LIMIT", Ref("NumericLiteralSegment")),
-                    Sequence("PASSWORD", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
+                    Sequence(
+                        Ref.keyword("ENCRYPTED", optional=True),
+                        "PASSWORD",
+                        OneOf(Ref("QuotedLiteralSegment"), "NULL"),
+                    ),
                     Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment")),
                 ),
-                optional=True,
             ),
-            Sequence("RENAME", "TO", Ref("RoleReferenceSegment"), optional=True),
+            # name only
             Sequence(
+                Ref("RoleReferenceSegment"),
+                Sequence("RENAME", "TO", Ref("RoleReferenceSegment")),
+            ),
+            # role_specification | all
+            Sequence(
+                OneOf(
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    "ALL",
+                    Ref("RoleReferenceSegment"),
+                ),
                 Sequence(
                     "IN",
                     "DATABASE",
@@ -1643,7 +1632,6 @@ class AlterRoleStatementSegment(BaseSegment):
                     ),
                     Sequence("RESET", OneOf(Ref("ParameterNameSegment"), "ALL")),
                 ),
-                optional=True,
             ),
         ),
     )
@@ -1768,8 +1756,8 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 Ref("ColumnReferenceSegment"),
                                 Ref("DatatypeSegment"),
                                 AnyNumberOf(
-                                    # A single COLLATE segment can come before or after
-                                    # constraint segments
+                                    # A single COLLATE segment can come before or
+                                    # after constraint segments
                                     OneOf(
                                         Ref("ColumnConstraintSegment"),
                                         Sequence(
@@ -1786,6 +1774,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 AnyNumberOf(Ref("LikeOptionSegment"), optional=True),
                             ),
                         ),
+                        optional=True,
                     )
                 ),
                 Sequence(
@@ -4887,8 +4876,10 @@ class UpdateStatementSegment(BaseSegment):
             OneOf(
                 Ref("StarSegment"),
                 Delimited(
-                    Ref("ExpressionSegment"),
-                    Ref("AliasExpressionSegment", optional=True),
+                    Sequence(
+                        Ref("ExpressionSegment"),
+                        Ref("AliasExpressionSegment", optional=True),
+                    ),
                 ),
             ),
             optional=True,
@@ -5189,7 +5180,7 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
         Ref("BareFunctionSegment"),
         Sequence(
             Ref("FunctionSegment"),
-            Sequence("WITH", "ORDINALITY", optional="True"),
+            Sequence("WITH", "ORDINALITY", optional=True),
         ),
         Ref("TableReferenceSegment"),
         # Nested Selects

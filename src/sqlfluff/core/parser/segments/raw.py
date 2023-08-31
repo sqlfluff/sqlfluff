@@ -4,11 +4,11 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
-from typing import List, Optional, Tuple, Set
+from typing import Any, List, Optional, Set, Tuple
 from uuid import UUID, uuid4
 
-from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 
 
 class RawSegment(BaseSegment):
@@ -47,6 +47,8 @@ class RawSegment(BaseSegment):
         # because it might *initially* be unset, but it will be reset
         # later.
         self.pos_marker: PositionMarker = pos_marker  # type: ignore
+        # Set the segments attribute to be an empty tuple.
+        self.segments = ()
         # if a surrogate type is provided, store it for later.
         self._surrogate_type = type
         # What should we trim off the ends to get to content
@@ -62,65 +64,57 @@ class RawSegment(BaseSegment):
             self.__class__.__name__, self.pos_marker, self.raw
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         # This is calculated at __init__, because all elements are immutable
         # and this was previously recalculating the pos marker,
         # and became very expensive
         return self.representation
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, key: str, value: Any) -> None:
         """Overwrite BaseSegment's __setattr__ with BaseSegment's superclass."""
         super(BaseSegment, self).__setattr__(key, value)
 
     # ################ PUBLIC PROPERTIES
 
     @property
-    def matched_length(self):
+    def matched_length(self) -> int:
         """Return the length of the segment in characters."""
         return len(self._raw)
 
     @property
-    def is_expandable(self):
+    def is_expandable(self) -> bool:
         """Return true if it is meaningful to call `expand` on this segment."""
         return False
 
     @property
-    def is_code(self):
+    def is_code(self) -> bool:
         """Return True if this segment is code."""
         return self._is_code
 
     @property
-    def is_comment(self):
+    def is_comment(self) -> bool:
         """Return True if this segment is a comment."""
         return self._is_comment
 
     @property
-    def is_whitespace(self):
+    def is_whitespace(self) -> bool:
         """Return True if this segment is whitespace."""
         return self._is_whitespace
 
     @property
-    def raw(self):
+    def raw(self) -> str:
         """Returns the raw segment."""
         return self._raw
 
     @property
-    def raw_upper(self):
+    def raw_upper(self) -> str:
         """Returns the raw segment in uppercase."""
         return self._raw_upper
 
     @property
-    def raw_segments(self):
+    def raw_segments(self) -> List["RawSegment"]:
         """Returns self to be compatible with calls to its superclass."""
         return [self]
-
-    @property
-    def segments(self):
-        """Return an empty list of child segments.
-
-        This is in case something tries to iterate on this segment.
-        """
-        return []
 
     @property
     def class_types(self) -> Set[str]:
@@ -139,25 +133,25 @@ class RawSegment(BaseSegment):
 
     # ################ INSTANCE METHODS
 
-    def invalidate_caches(self):
+    def invalidate_caches(self) -> None:
         """Overwrite superclass functionality."""
         pass
 
-    def get_type(self):
+    def get_type(self) -> str:
         """Returns the type of this segment as a string."""
         return self._surrogate_type or self.type
 
-    def is_type(self, *seg_type):
+    def is_type(self, *seg_type: str) -> bool:
         """Extend the parent class method with the surrogate types."""
         if self._surrogate_type and self._surrogate_type in seg_type:
             return True
         return self.class_is_type(*seg_type)
 
-    def get_raw_segments(self):
+    def get_raw_segments(self) -> List["RawSegment"]:
         """Iterate raw segments, mostly for searching."""
         return [self]
 
-    def raw_trimmed(self):
+    def raw_trimmed(self) -> str:
         """Return a trimmed version of the raw content."""
         raw_buff = self.raw
         if self.trim_start:
@@ -177,16 +171,14 @@ class RawSegment(BaseSegment):
             return raw_buff
         return raw_buff
 
-    def raw_list(self):  # pragma: no cover TODO?
-        """Return a list of the raw content of this segment."""
-        return [self.raw]
-
-    def stringify(self, ident=0, tabsize=4, code_only=False):
+    def stringify(
+        self, ident: int = 0, tabsize: int = 4, code_only: bool = False
+    ) -> str:
         """Use indentation to render this segment and its children as a string."""
         preface = self._preface(ident=ident, tabsize=tabsize)
         return preface + "\n"
 
-    def _suffix(self):
+    def _suffix(self) -> str:
         """Return any extra output required at the end when logging.
 
         NB Override this for specific subclasses if we want extra output.
@@ -195,7 +187,7 @@ class RawSegment(BaseSegment):
 
     def edit(
         self, raw: Optional[str] = None, source_fixes: Optional[List[SourceFix]] = None
-    ):
+    ) -> "RawSegment":
         """Create a new segment, with exactly the same position but different content.
 
         Returns:
@@ -285,6 +277,7 @@ class KeywordSegment(CodeSegment):
         pos_marker: Optional[PositionMarker] = None,
         type: Optional[str] = None,
         source_fixes: Optional[List[SourceFix]] = None,
+        trim_chars: Optional[Tuple[str, ...]] = None,
     ):
         """If no other name is provided we extrapolate it from the raw."""
         super().__init__(
@@ -294,7 +287,9 @@ class KeywordSegment(CodeSegment):
             source_fixes=source_fixes,
         )
 
-    def edit(self, raw=None, source_fixes=None):
+    def edit(
+        self, raw: Optional[str] = None, source_fixes: Optional[List[SourceFix]] = None
+    ) -> "KeywordSegment":
         """Create a new segment, with exactly the same position but different content.
 
         Returns:

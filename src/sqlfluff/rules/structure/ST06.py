@@ -1,5 +1,5 @@
 """Implementation of Rule ST06."""
-from typing import Iterator, List, Optional
+from typing import Iterator, List, Tuple, Optional, Union
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import (
@@ -62,7 +62,9 @@ class Rule_ST06(BaseRule):
     def _eval(self, context: RuleContext) -> EvalResultType:
         self.violation_exists = False
         # Bands of select targets in order to be enforced
-        select_element_order_preference = (
+        select_element_order_preference: Tuple[
+            Tuple[Union[str, Tuple[str, ...]], ...], ...
+        ] = (
             ("wildcard_expression",),
             (
                 "object_reference",
@@ -128,29 +130,31 @@ class Rule_ST06(BaseRule):
             for i, band in enumerate(select_element_order_preference):
                 for e in band:
                     # Identify simple select target
-                    if segment.get_child(e):
+                    if isinstance(e, str) and segment.get_child(e):
                         self._validate(i, segment)
 
                     # Identify function
-                    elif type(e) == tuple and e[0] == "function":
+                    elif isinstance(e, tuple) and e[0] == "function":
                         try:
-                            if (
-                                segment.get_child("function")
-                                .get_child("function_name")
-                                .raw
-                                == e[1]
-                            ):
+                            _function = segment.get_child("function")
+                            assert _function
+                            _function_name = _function.get_child("function_name")
+                            assert _function_name
+                            if _function_name.raw == e[1]:
                                 self._validate(i, segment)
-                        except AttributeError:
+                        except (AttributeError, AssertionError):
                             # If the segment doesn't match
                             pass
 
                     # Identify simple expression
-                    elif type(e) == tuple and e[0] == "expression":
+                    elif isinstance(e, tuple) and e[0] == "expression":
                         try:
+                            _expression = segment.get_child("expression")
+                            assert _expression
+
                             if (
-                                segment.get_child("expression").get_child(e[1])
-                                and segment.get_child("expression").segments[0].type
+                                _expression.get_child(e[1])
+                                and _expression.segments[0].type
                                 in (
                                     "column_reference",
                                     "object_reference",
@@ -159,14 +163,13 @@ class Rule_ST06(BaseRule):
                                 )
                                 # len == 2 to ensure the expression is 'simple'
                                 and (
-                                    len(segment.get_child("expression").segments) == 2
+                                    len(_expression.segments) == 2
                                     # cast_expression is one length
-                                    or len(segment.get_child("expression").segments)
-                                    == 1
+                                    or len(_expression.segments) == 1
                                 )
                             ):
                                 self._validate(i, segment)
-                        except AttributeError:
+                        except (AttributeError, AssertionError):
                             # If the segment doesn't match
                             pass
 

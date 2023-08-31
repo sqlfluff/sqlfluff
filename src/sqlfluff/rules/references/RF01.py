@@ -4,18 +4,13 @@ from typing import cast, List, Optional, Tuple
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
-from sqlfluff.utils.analysis.select_crawler import (
-    Query as SelectCrawlerQuery,
-    SelectCrawler,
-)
+from sqlfluff.utils.analysis.query import Query
 from sqlfluff.core.rules import (
     BaseRule,
     LintResult,
     RuleContext,
-    EvalResultType,
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import sp, FunctionalContext
 from sqlfluff.core.rules.reference import object_ref_matches_table
 
 
@@ -28,8 +23,8 @@ _START_TYPES = [
 
 
 @dataclass
-class RF01Query(SelectCrawlerQuery):
-    """SelectCrawler Query with custom RF01 info."""
+class RF01Query(Query):
+    """Query with custom RF01 info."""
 
     aliases: List[AliasInfo] = field(default_factory=list)
     standalone_aliases: List[str] = field(default_factory=list)
@@ -71,7 +66,9 @@ class Rule_RF01(BaseRule):
     aliases = ("L026",)
     groups = ("all", "core", "references")
     config_keywords = ["force_enable"]
-    crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES))
+    # If any of the parents would have also triggered the rule, don't fire
+    # because they will more accurately process any internal references.
+    crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES), allow_recurse=False)
     _dialects_disabled_by_default = [
         "bigquery",
         "databricks",
@@ -81,7 +78,7 @@ class Rule_RF01(BaseRule):
         "sparksql",
     ]
 
-    def _eval(self, context: RuleContext) -> EvalResultType:
+    def _eval(self, context: RuleContext) -> List[LintResult]:
         # Config type hints
         self.force_enable: bool
 
@@ -89,33 +86,28 @@ class Rule_RF01(BaseRule):
             context.dialect.name in self._dialects_disabled_by_default
             and not self.force_enable
         ):
-            return LintResult()
+            return []
 
         violations: List[LintResult] = []
-        if not FunctionalContext(context).parent_stack.any(sp.is_type(*_START_TYPES)):
-            dml_target_table: Optional[Tuple[str, ...]] = None
-            self.logger.debug("Trigger on: %s", context.segment)
-            if not context.segment.is_type("select_statement"):
-                # Extract first table reference. This will be the target
-                # table in a DML statement.
-                table_reference = next(
-                    context.segment.recursive_crawl("table_reference"), None
-                )
-                if table_reference:
-                    dml_target_table = self._table_ref_as_tuple(table_reference)
-
-            self.logger.debug("DML Reference Table: %s", dml_target_table)
-            # Verify table references in any SELECT statements found in or
-            # below context.segment in the parser tree.
-            crawler = SelectCrawler(
-                context.segment, context.dialect, query_class=RF01Query
+        dml_target_table: Optional[Tuple[str, ...]] = None
+        self.logger.debug("Trigger on: %s", context.segment)
+        if not context.segment.is_type("select_statement"):
+            # Extract first table reference. This will be the target
+            # table in a DML statement.
+            table_reference = next(
+                context.segment.recursive_crawl("table_reference"), None
             )
-            query: RF01Query = cast(RF01Query, crawler.query_tree)
-            if query:
-                self._analyze_table_references(
-                    query, dml_target_table, context.dialect, violations
-                )
-        return violations or None
+            if table_reference:
+                dml_target_table = self._table_ref_as_tuple(table_reference)
+
+        self.logger.debug("DML Reference Table: %s", dml_target_table)
+        # Verify table references in any SELECT statements found in or
+        # below context.segment in the parser tree.
+        query = RF01Query.from_segment(context.segment, context.dialect)
+        self._analyze_table_references(
+            query, dml_target_table, context.dialect, violations
+        )
+        return violations
 
     @classmethod
     def _alias_info_as_tuples(cls, alias_info: AliasInfo) -> List[Tuple[str, ...]]:
@@ -136,7 +128,7 @@ class Rule_RF01(BaseRule):
         dml_target_table: Optional[Tuple[str, ...]],
         dialect: Dialect,
         violations: List[LintResult],
-    ):
+    ) -> None:
         # For each query...
         for selectable in query.selectables:
             select_info = selectable.select_info
@@ -172,7 +164,7 @@ class Rule_RF01(BaseRule):
             )
 
     @staticmethod
-    def _should_ignore_reference(reference, selectable):
+    def _should_ignore_reference(reference, selectable) -> bool:
         ref_path = selectable.selectable.path_to(reference)
         # Ignore references occurring in an "INTO" clause:
         # - They are table references, not column references.

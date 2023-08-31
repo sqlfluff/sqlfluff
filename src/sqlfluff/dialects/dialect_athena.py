@@ -46,7 +46,7 @@ athena_dialect.insert_lexer_matchers(
     before="like_operator",
 )
 
-athena_dialect.sets("angle_bracket_pairs").update(
+athena_dialect.bracket_sets("angle_bracket_pairs").update(
     [
         ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
     ]
@@ -242,6 +242,12 @@ athena_dialect.replace(
         Ref("ComparisonOperatorGrammar"),
         # Add arrow operators for functions (e.g. filter)
         Ref("RightArrowOperator"),
+    ),
+    PostFunctionGrammar=ansi_dialect.get_grammar("PostFunctionGrammar").copy(
+        # UNNEST can optionally have a WITH ORDINALITY clause
+        insert=[
+            Sequence("WITH", "ORDINALITY", optional=True),
+        ]
     ),
 )
 
@@ -679,34 +685,6 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
     )
 
 
-class CubeRollupClauseSegment(BaseSegment):
-    """`[CUBE | ROLLUP]` clause within the `GROUP BY` clause."""
-
-    type = "cube_rollup_clause"
-
-    match_grammar = Sequence(
-        OneOf("CUBE", "ROLLUP"),
-        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-    )
-
-
-class GroupingSetsClauseSegment(BaseSegment):
-    """`GROUPING SETS` clause within the `GROUP BY` clause."""
-
-    type = "grouping_sets_clause"
-
-    match_grammar = Sequence(
-        "GROUPING",
-        "SETS",
-        Bracketed(
-            Delimited(
-                Ref("ColumnReferenceSegment"),
-                Bracketed(Delimited(Ref("ColumnReferenceSegment"), optional=True)),
-            ),
-        ),
-    )
-
-
 class ShowStatementSegment(BaseSegment):
     """A `show` execute statement.
 
@@ -722,9 +700,44 @@ class ShowStatementSegment(BaseSegment):
         "SHOW",
         OneOf(
             Sequence(
+                "COLUMNS",
+                OneOf("FROM", "IN"),
+                OneOf(
+                    Sequence(
+                        Ref("DatabaseReferenceSegment"), Ref("TableReferenceSegment")
+                    ),
+                    Sequence(
+                        Ref("TableReferenceSegment"),
+                        Sequence(
+                            OneOf("FROM", "IN"),
+                            Ref("DatabaseReferenceSegment"),
+                            optional=True,
+                        ),
+                    ),
+                ),
+            ),
+            Sequence(
+                "CREATE",
+                OneOf("TABLE", "VIEW"),
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                OneOf("DATABASES", "SCHEMAS"),
+                Sequence("LIKE", Ref("QuotedLiteralSegment"), optional=True),
+            ),
+            Sequence(
+                "PARTITIONS",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
                 "TABLES",
                 Sequence("IN", Ref("DatabaseReferenceSegment"), optional=True),
                 Ref("QuotedLiteralSegment", optional=True),
+            ),
+            Sequence(
+                "TBLPROPERTIES",
+                Ref("TableReferenceSegment"),
+                Bracketed(Ref("QuotedLiteralSegment"), optional=True),
             ),
             Sequence(
                 "VIEWS",

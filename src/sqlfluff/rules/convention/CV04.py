@@ -65,11 +65,13 @@ class Rule_CV04(BaseRule):
         self.prefer_count_0: bool
         self.prefer_count_1: bool
 
-        if (
-            # We already know we're in a function because of the crawl_behaviour
-            context.segment.get_child("function_name").raw_upper
-            == "COUNT"
-        ):
+        # We already know we're in a function because of the crawl_behaviour.
+        # This means it's very unlikely that there isn't a function_name here.
+        function_name = context.segment.get_child("function_name")
+        if not function_name:  # pragma: no cover
+            return None
+
+        if function_name.raw_upper == "COUNT":
             # Get bracketed content
             f_content = (
                 FunctionalContext(context)

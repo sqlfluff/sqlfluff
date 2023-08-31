@@ -501,3 +501,184 @@ test_pass_withingroup_snowflake:
   configs:
     core:
       dialect: snowflake
+
+test_pass_groupby_rollup_bigquery:
+  pass_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY 1, 2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_groupby_rollup_bigquery:
+  fail_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY column1, column2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_groupby_rollup_postgres:
+  pass_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY 1, 2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_groupby_rollup_postgres:
+  fail_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY column1, column2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_groupby_rollup_exasol:
+  pass_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY 1, 2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: exasol
+
+test_fail_groupby_rollup_exasol:
+  fail_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY column1, column2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_groupby_rollup_athena:
+  pass_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY 1, 2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: athena
+
+test_fail_groupby_rollup_athena:
+  fail_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY column1, column2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: athena
+
+test_pass_groupby_rollup_sparksql:
+  pass_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY 1, 2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_groupby_rollup_sparksql:
+  fail_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY column1, column2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_array_agg_bigquery:
+  pass_str: |
+    SELECT
+        to_json_string(array_agg(product_id order by started_at desc)) AS products
+    FROM purchased
+    GROUP by 1
+
+  configs:
+    core:
+      dialect: bigquery

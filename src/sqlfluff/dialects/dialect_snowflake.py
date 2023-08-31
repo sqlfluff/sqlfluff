@@ -18,7 +18,7 @@ from sqlfluff.core.parser import (
     Delimited,
     Indent,
     Matchable,
-    TypedParser,
+    MultiStringParser,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -31,14 +31,14 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
-    MultiStringParser,
+    TypedParser,
 )
 from sqlfluff.core.parser.segments.raw import KeywordSegment
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_snowflake_keywords import (
     snowflake_reserved_keywords,
     snowflake_unreserved_keywords,
 )
-from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 snowflake_dialect = ansi_dialect.copy_as("snowflake")
@@ -103,7 +103,7 @@ snowflake_dialect.insert_lexer_matchers(
     before="like_operator",
 )
 
-snowflake_dialect.sets("bracket_pairs").add(
+snowflake_dialect.bracket_sets("bracket_pairs").add(
     ("exclude", "StartExcludeBracketSegment", "EndExcludeBracketSegment", True)
 )
 
@@ -207,7 +207,7 @@ snowflake_dialect.add(
         r"\$[A-Z_][A-Z0-9_]*",
         CodeSegment,
         type="variable",
-        trim_chars=("$"),
+        trim_chars=("$",),
     ),
     # We use a RegexParser instead of keywords as some (those with dashes) require
     # quotes:
@@ -250,6 +250,7 @@ snowflake_dialect.add(
     CopyOptionOnErrorSegment=RegexParser(
         r"'?CONTINUE'?|'?SKIP_FILE(?:_[0-9]+%?)?'?|'?ABORT_STATEMENT'?",
         ansi.LiteralSegment,
+        type="copy_on_error_option",
     ),
     DoubleQuotedUDFBody=TypedParser(
         "double_quote",
@@ -773,6 +774,7 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
                 Ref("SingleIdentifierGrammar"),
                 Ref("DotSegment"),
             ),
+            terminators=[Ref("BracketedSegment")],
         ),
         # Base function name
         OneOf(
@@ -838,6 +840,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                     Ref("GroupByContentsGrammar"),
                 ),
             ),
+            "ALL",
             Ref("GroupByContentsGrammar"),
         ),
         Dedent,
@@ -1091,6 +1094,7 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
                 Ref("SamplingExpressionSegment"),
                 Ref("ChangesClauseSegment"),
                 Ref("JoinLikeClauseGrammar"),
+                "CROSS",
             ),
             optional=True,
         ),
@@ -2364,8 +2368,14 @@ class AccessStatementSegment(BaseSegment):
                 ),
                 optional=True,
             ),
-            Delimited(Ref("ObjectReferenceSegment"), terminator=OneOf("TO", "FROM")),
-            Ref("FunctionParameterListGrammar", optional=True),
+            Delimited(
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    Ref("FunctionNameSegment"),
+                    Ref("FunctionParameterListGrammar", optional=True),
+                ),
+                terminator=OneOf("TO", "FROM"),
+            ),
         ),
     )
 
@@ -2495,23 +2505,73 @@ class CreateProcedureStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Sequence("OR", "REPLACE", optional=True),
+        Sequence("SECURE", optional=True),
         "PROCEDURE",
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
+        Sequence("COPY", "GRANTS", optional=True),
         "RETURNS",
-        Ref("DatatypeSegment"),
-        Sequence("NOT", "NULL", optional=True),
-        "LANGUAGE",
-        OneOf("JAVASCRIPT", "SQL"),
         OneOf(
-            Sequence("CALLED", "ON", "NULL", "INPUT"),
-            Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
-            "STRICT",
+            Ref("DatatypeSegment"),
+            Sequence(
+                "TABLE",
+                Bracketed(Delimited(Ref("ColumnDefinitionSegment"), optional=True)),
+            ),
+        ),
+        AnySetOf(
+            Sequence("NOT", "NULL", optional=True),
+            Sequence(
+                "LANGUAGE",
+                OneOf(
+                    "JAVA",
+                    "JAVASCRIPT",
+                    "PYTHON",
+                    "SCALA",
+                    "SQL",
+                ),
+                optional=True,
+            ),
+            OneOf(
+                Sequence("CALLED", "ON", "NULL", "INPUT"),
+                Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
+                "STRICT",
+                optional=True,
+            ),
+            OneOf("VOLATILE", "IMMUTABLE", optional=True),
+            Sequence(
+                "RUNTIME_VERSION",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Ref("CommentEqualsClauseSegment", optional=True),
+            Sequence(
+                "IMPORTS",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                optional=True,
+            ),
+            Sequence(
+                "PACKAGES",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                optional=True,
+            ),
+            Sequence(
+                "HANDLER",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "TARGET_PATH",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence("EXECUTE", "AS", OneOf("CALLER", "OWNER"), optional=True),
             optional=True,
         ),
-        OneOf("VOLATILE", "IMMUTABLE", optional=True),
-        Ref("CommentEqualsClauseSegment", optional=True),
-        Sequence("EXECUTE", "AS", OneOf("CALLER", "OWNER"), optional=True),
         "AS",
         OneOf(
             Ref("DoubleQuotedUDFBody"),
@@ -2544,9 +2604,10 @@ class CreateFunctionStatementSegment(BaseSegment):
         AnySetOf(
             Sequence("NOT", "NULL", optional=True),
             Sequence(
-                "LANGUAGE", OneOf("JAVASCRIPT", "SQL", "PYTHON", "JAVA"), optional=True
+                "LANGUAGE",
+                OneOf("JAVASCRIPT", "SQL", "PYTHON", "JAVA", "SCALA"),
+                optional=True,
             ),
-            OneOf("VOLATILE", "IMMUTABLE", optional=True),
             OneOf(
                 Sequence("CALLED", "ON", "NULL", "INPUT"),
                 Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
@@ -3395,6 +3456,7 @@ class CreateStatementSegment(BaseSegment):
             "SHARE",
             "ROLE",
             "USER",
+            "TAG",
             "WAREHOUSE",
             Sequence("NOTIFICATION", "INTEGRATION"),
             Sequence("SECURITY", "INTEGRATION"),
@@ -3469,6 +3531,13 @@ class CreateStatementSegment(BaseSegment):
                 "COMMENT",
                 Ref("EqualsSegment"),
                 Ref("QuotedLiteralSegment"),
+            ),
+            # For tags
+            Sequence(
+                "ALLOWED_VALUES",
+                Delimited(
+                    Ref("QuotedLiteralSegment"),
+                ),
             ),
             # For network policy
             Sequence(
@@ -6547,4 +6616,21 @@ class RemoveStatementSegment(BaseSegment):
             OneOf(Ref("QuotedLiteralSegment"), Ref("ReferencedVariableNameSegment")),
             optional=True,
         ),
+    )
+
+
+class SetOperatorSegment(ansi.SetOperatorSegment):
+    """A set operator such as Union, Minus, Except or Intersect."""
+
+    type = "set_operator"
+    match_grammar: Matchable = OneOf(
+        Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
+        Sequence(
+            OneOf(
+                "INTERSECT",
+                "EXCEPT",
+            ),
+            Ref.keyword("ALL", optional=True),
+        ),
+        "MINUS",
     )

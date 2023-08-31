@@ -4,14 +4,16 @@ Matchable objects which return individual segments.
 """
 
 from abc import abstractmethod
+from typing import Collection, Optional, Tuple, Type, Union
 from uuid import uuid4
+
 import regex
-from typing import Collection, Type, Optional, Tuple, Union
 
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.segments import RawSegment, BaseSegment
+from sqlfluff.core.parser.matchable import Matchable
+from sqlfluff.core.parser.segments import BaseSegment, RawSegment
+from sqlfluff.core.parser.types import SimpleHintType
 
 
 class BaseParser(Matchable):
@@ -27,12 +29,13 @@ class BaseParser(Matchable):
         raw_class: Type[RawSegment],
         type: Optional[str] = None,
         optional: bool = False,
-        **segment_kwargs,
+        # The following kwargs are passed on to the segment:
+        trim_chars: Optional[Tuple[str, ...]] = None,
     ) -> None:
         self.raw_class = raw_class
-        self.type = type
+        self.type: str = type or raw_class.type
         self.optional = optional
-        self.segment_kwargs = segment_kwargs or {}
+        self._trim_chars = trim_chars
         # Generate a cache key
         self._cache_key = uuid4().hex
 
@@ -48,35 +51,40 @@ class BaseParser(Matchable):
         return self.optional
 
     @abstractmethod
-    def _is_first_match(self, segment: BaseSegment):
+    def _is_first_match(self, segment: BaseSegment) -> bool:
         """Does the segment provided match according to the current rules."""
 
-    def _make_match_from_segment(self, segment: BaseSegment):
+    def _make_match_from_segment(self, segment: BaseSegment) -> RawSegment:
         """Make a MatchResult from the first segment in the given list.
 
         This is a helper function for reuse by other parsers.
         """
-        # Construct the segment object
-        new_seg = self.raw_class(
+        return self.raw_class(
             raw=segment.raw,
             pos_marker=segment.pos_marker,
             type=self.type,
-            **self.segment_kwargs,
+            trim_chars=self._trim_chars,
         )
-        # Return as a tuple
-        return new_seg
 
-    def _match_single(self, segment: BaseSegment):
+    def _match_single(self, segment: BaseSegment) -> Optional[RawSegment]:
         """Match a single segment.
 
         Used in the context of matching against the first in a sequence.
+
+        NOTE: We try and allow here for fairly efficient matching against
+        segments which have already been matched. In those cases we still
+        check in the same way, but if matched, we don't try and create a
+        new segment, we just return the existing segment unchanged.
         """
-        # Is the segment already of this type?
-        if isinstance(segment, self.raw_class) and segment.is_type(self.type):
+        # Does it match? If not, return None.
+        if not self._is_first_match(segment):
+            return None
+        # If it does, we might have already matched it. Is it the right type
+        # already? If so, just return it unchanged.
+        if isinstance(segment, self.raw_class) and segment.type == self.type:
             return segment
-        # Does it match?
-        elif self._is_first_match(segment):
-            return self._make_match_from_segment(segment)
+        # Otherwise create a new match segment
+        return self._make_match_from_segment(segment)
 
     def match(
         self,
@@ -110,8 +118,8 @@ class TypedParser(BaseParser):
         raw_class: Type[RawSegment],
         type: Optional[str] = None,
         optional: bool = False,
-        **segment_kwargs,
-    ):
+        trim_chars: Optional[Tuple[str, ...]] = None,
+    ) -> None:
         # NB: the template in this case is the _target_ type.
         # The type kwarg is the eventual type.
         self.template = template
@@ -120,10 +128,12 @@ class TypedParser(BaseParser):
             # If no type specified we default to the template
             type=type or template,
             optional=optional,
-            **segment_kwargs,
+            trim_chars=trim_chars,
         )
 
-    def simple(cls, parse_context: ParseContext, crumbs=None):
+    def simple(
+        cls, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
+    ) -> SimpleHintType:
         """Does this matcher support a uppercase hash matching route?
 
         TypedParser segment doesn't support matching against raw strings,
@@ -131,7 +141,7 @@ class TypedParser(BaseParser):
         """
         return frozenset(), frozenset((cls.template,))
 
-    def _is_first_match(self, segment: BaseSegment):
+    def _is_first_match(self, segment: BaseSegment) -> bool:
         """Return true if the type matches the target type."""
         return segment.is_type(self.template)
 
@@ -145,7 +155,7 @@ class StringParser(BaseParser):
         raw_class: Type[RawSegment],
         type: Optional[str] = None,
         optional: bool = False,
-        **segment_kwargs,
+        trim_chars: Optional[Tuple[str, ...]] = None,
     ):
         self.template = template.upper()
         # Create list version upfront to avoid recreating it multiple times.
@@ -154,10 +164,12 @@ class StringParser(BaseParser):
             raw_class=raw_class,
             type=type,
             optional=optional,
-            **segment_kwargs,
+            trim_chars=trim_chars,
         )
 
-    def simple(self, parse_context: "ParseContext", crumbs=None):
+    def simple(
+        self, parse_context: "ParseContext", crumbs: Optional[Tuple[str, ...]] = None
+    ) -> SimpleHintType:
         """Return simple options for this matcher.
 
         Because string matchers are not case sensitive we can
@@ -165,7 +177,7 @@ class StringParser(BaseParser):
         """
         return self._simple, frozenset()
 
-    def _is_first_match(self, segment: BaseSegment):
+    def _is_first_match(self, segment: BaseSegment) -> bool:
         """Does the segment provided match according to the current rules."""
         # Is the target a match and IS IT CODE.
         # The latter stops us accidentally matching comments.
@@ -183,7 +195,7 @@ class MultiStringParser(BaseParser):
         raw_class: Type[RawSegment],
         type: Optional[str] = None,
         optional: bool = False,
-        **segment_kwargs,
+        trim_chars: Optional[Tuple[str, ...]] = None,
     ):
         self.templates = {template.upper() for template in templates}
         # Create list version upfront to avoid recreating it multiple times.
@@ -192,10 +204,12 @@ class MultiStringParser(BaseParser):
             raw_class=raw_class,
             type=type,
             optional=optional,
-            **segment_kwargs,
+            trim_chars=trim_chars,
         )
 
-    def simple(self, parse_context: "ParseContext", crumbs=None):
+    def simple(
+        self, parse_context: "ParseContext", crumbs: Optional[Tuple[str, ...]] = None
+    ) -> SimpleHintType:
         """Return simple options for this matcher.
 
         Because string matchers are not case sensitive we can
@@ -203,7 +217,7 @@ class MultiStringParser(BaseParser):
         """
         return self._simple, frozenset()
 
-    def _is_first_match(self, segment: BaseSegment):
+    def _is_first_match(self, segment: BaseSegment) -> bool:
         """Does the segment provided match according to the current rules."""
         # Is the target a match and IS IT CODE.
         # The latter stops us accidentally matching comments.
@@ -222,7 +236,7 @@ class RegexParser(BaseParser):
         type: Optional[str] = None,
         optional: bool = False,
         anti_template: Optional[str] = None,
-        **segment_kwargs,
+        trim_chars: Optional[Tuple[str, ...]] = None,
     ):
         # Store the optional anti-template
         self.template = template
@@ -234,17 +248,19 @@ class RegexParser(BaseParser):
             raw_class=raw_class,
             type=type,
             optional=optional,
-            **segment_kwargs,
+            trim_chars=trim_chars,
         )
 
-    def simple(cls, parse_context: ParseContext, crumbs=None):
+    def simple(
+        cls, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
+    ) -> None:
         """Does this matcher support a uppercase hash matching route?
 
         Regex segment does NOT for now. We might need to later for efficiency.
         """
         return None
 
-    def _is_first_match(self, segment: BaseSegment):
+    def _is_first_match(self, segment: BaseSegment) -> bool:
         """Does the segment provided match according to the current rules.
 
         RegexParser implements its own matching function where

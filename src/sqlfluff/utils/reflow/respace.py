@@ -22,7 +22,7 @@ if TYPE_CHECKING:  # pragma: no cover
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 
 
-def _unpack_constraint(constraint: str, strip_newlines: bool):
+def _unpack_constraint(constraint: str, strip_newlines: bool) -> Tuple[str, bool]:
     """Unpack a spacing constraint.
 
     Used as a helper function in `determine_constraints`.
@@ -198,13 +198,14 @@ def _determine_aligned_inline_spacing(
 
     # Edge case: if next_seg has no position, we should use the position
     # of the whitespace for searching.
-    for ps in root_segment.path_to(next_seg if next_seg.pos_marker else whitespace_seg)[
-        ::-1
-    ]:
-        if ps.segment.is_type(align_within):
-            parent_segment = ps.segment
-        if ps.segment.is_type(align_scope):
-            break
+    if align_within:
+        for ps in root_segment.path_to(
+            next_seg if next_seg.pos_marker else whitespace_seg
+        )[::-1]:
+            if ps.segment.is_type(align_within):
+                parent_segment = ps.segment
+            if align_scope and ps.segment.is_type(align_scope):
+                break
 
     if not parent_segment:
         reflow_logger.debug("    No Parent found for alignment case. Treat as single.")
@@ -213,17 +214,20 @@ def _determine_aligned_inline_spacing(
     # We've got a parent. Find some siblings.
     reflow_logger.debug("    Determining alignment within: %s", parent_segment)
     siblings = []
-    for sibling in parent_segment.recursive_crawl(segment_type):
-        # Purge any siblings with a boundary between them
-        if not any(
-            ps.segment.is_type(align_scope) for ps in parent_segment.path_to(sibling)
-        ):
-            siblings.append(sibling)
-        else:
-            reflow_logger.debug(
-                "    Purging a sibling because they're blocked " "by a boundary: %s",
-                sibling,
-            )
+    if align_scope:
+        for sibling in parent_segment.recursive_crawl(segment_type):
+            # Purge any siblings with a boundary between them
+            if not any(
+                ps.segment.is_type(align_scope)
+                for ps in parent_segment.path_to(sibling)
+            ):
+                siblings.append(sibling)
+            else:
+                reflow_logger.debug(
+                    "    Purging a sibling because they're blocked "
+                    "by a boundary: %s",
+                    sibling,
+                )
 
     # If there's only one sibling, we have nothing to compare to. Default to a single
     # space.
@@ -242,8 +246,9 @@ def _determine_aligned_inline_spacing(
 
     # Is the current indent the only one on the line?
     if any(
+        sibling.pos_marker
         # Same line
-        sibling.pos_marker.working_line_no == next_pos.working_line_no
+        and sibling.pos_marker.working_line_no == next_pos.working_line_no
         # And not same position (i.e. not self)
         and sibling.pos_marker.working_line_pos != next_pos.working_line_pos
         for sibling in siblings
@@ -259,7 +264,9 @@ def _determine_aligned_inline_spacing(
             # NOTE: We're asserting that there must have been
             # a last_code. Otherwise this won't work.
             if (
-                seg.pos_marker.working_loc == sibling.pos_marker.working_loc
+                seg.pos_marker
+                and sibling.pos_marker
+                and seg.pos_marker.working_loc == sibling.pos_marker.working_loc
                 and last_code
             ):
                 loc = last_code.pos_marker.working_loc_after(last_code.raw)

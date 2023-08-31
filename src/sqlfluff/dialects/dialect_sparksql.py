@@ -14,37 +14,38 @@ https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apa
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    AnySetOf,
+    Anything,
     BaseSegment,
     Bracketed,
+    BracketedSegment,
+    CodeSegment,
     CommentSegment,
     Conditional,
     Dedent,
     Delimited,
     Indent,
-    TypedParser,
+    KeywordSegment,
+    Matchable,
+    MultiStringParser,
     OneOf,
     OptionallyBracketed,
     Ref,
     RegexLexer,
+    RegexParser,
     Sequence,
+    StartsWith,
+    StringLexer,
     StringParser,
     SymbolSegment,
-    Anything,
-    StartsWith,
-    RegexParser,
-    Matchable,
-    MultiStringParser,
-    StringLexer,
-    AnySetOf,
+    TypedParser,
 )
-from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
+from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.dialects import dialect_hive as hive
 from sqlfluff.dialects.dialect_sparksql_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
 )
-
-from sqlfluff.dialects import dialect_ansi as ansi
-from sqlfluff.dialects import dialect_hive as hive
 
 ansi_dialect = load_raw_dialect("ansi")
 hive_dialect = load_raw_dialect("hive")
@@ -214,7 +215,7 @@ sparksql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 sparksql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
 # Set Angle Bracket Pairs
-sparksql_dialect.sets("angle_bracket_pairs").update(
+sparksql_dialect.bracket_sets("angle_bracket_pairs").update(
     [
         ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
     ]
@@ -396,7 +397,7 @@ sparksql_dialect.replace(
         Ref("BinaryOperatorGrammar"),
         Ref("DelimiterGrammar"),
         Ref("JoinLikeClauseGrammar"),
-        ansi.BracketedSegment,
+        BracketedSegment,
     ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),
@@ -668,7 +669,7 @@ sparksql_dialect.add(
         "at_sign_literal",
         ansi.LiteralSegment,
         type="at_sign_literal",
-        trim_chars="@",
+        trim_chars=("@",),
     ),
     # This is the same as QuotedLiteralSegment but
     # is given a different `name` to stop LT01 flagging
@@ -1803,9 +1804,9 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                 # Can `GROUP BY 1`
                 Ref("NumericLiteralSegment"),
                 # Can `GROUP BY coalesce(col, 1)`
-                Ref("ExpressionSegment"),
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingSetsClauseSegment"),
+                Ref("ExpressionSegment"),
             ),
             Sequence(
                 Delimited(
@@ -1854,53 +1855,6 @@ class WithCubeRollupClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "WITH",
         OneOf("CUBE", "ROLLUP"),
-    )
-
-
-class CubeRollupClauseSegment(BaseSegment):
-    """`[CUBE | ROLLUP]` clause within the `GROUP BY` clause.
-
-    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
-    """
-
-    type = "cube_rollup_clause"
-
-    match_grammar = Sequence(
-        OneOf("CUBE", "ROLLUP"),
-        Bracketed(
-            Ref("GroupingExpressionList"),
-        ),
-    )
-
-
-class GroupingSetsClauseSegment(BaseSegment):
-    """`GROUPING SETS` clause within the `GROUP BY` clause."""
-
-    type = "grouping_sets_clause"
-
-    match_grammar = Sequence(
-        "GROUPING",
-        "SETS",
-        Bracketed(
-            Delimited(
-                Ref("CubeRollupClauseSegment"),
-                Ref("GroupingExpressionList"),
-            )
-        ),
-    )
-
-
-class GroupingExpressionList(BaseSegment):
-    """Grouping expression list within `CUBE` / `ROLLUP` `GROUPING SETS`."""
-
-    type = "grouping_expression_list"
-
-    match_grammar = Delimited(
-        OneOf(
-            Bracketed(Delimited(Ref("ExpressionSegment"))),
-            Ref("ExpressionSegment"),
-            Bracketed(),  # Allows empty parentheses
-        )
     )
 
 
@@ -1987,9 +1941,20 @@ class LateralViewClauseSegment(BaseSegment):
         "VIEW",
         Ref.keyword("OUTER", optional=True),
         Ref("FunctionSegment"),
-        # This allows for a table name to precede the alias expression.
-        Ref("SingleIdentifierGrammar", optional=True),
-        Ref("AliasExpressionSegment", optional=True),
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Sequence(
+                    Ref.keyword("AS", optional=True),
+                    Delimited(Ref("SingleIdentifierGrammar")),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                Ref.keyword("AS", optional=True),
+                Delimited(Ref("SingleIdentifierGrammar")),
+            ),
+        ),
         Dedent,
     )
 

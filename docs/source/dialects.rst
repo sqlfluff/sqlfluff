@@ -247,3 +247,12 @@ Teradata
 The dialect for `Teradata`_.
 
 .. _`Teradata`: https://www.teradata.co.uk/
+
+.. _trino_dialect_ref:
+
+Trino
+--------
+
+The dialect for `Trino`_.
+
+.. _`Trino`: https://trino.io/docs/current/

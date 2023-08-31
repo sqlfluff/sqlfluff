@@ -123,13 +123,19 @@ def benchmark(cmd, runs, from_file):
 @cli.command()
 @click.argument("new_version_num")
 def release(new_version_num):
-    """Change version number in the cfg files."""
+    """Change version number in the cfg files.
+
+    NOTE: For fine grained personal access tokens, this requires
+    _write_ access to the "contents" scope. For dome reason, if you
+    only grant the _read_ access, you can't see any *draft* PRs
+    which are necessary for this script to run.
+    """
     api = GhApi(
         owner=os.environ["GITHUB_REPOSITORY_OWNER"],
         repo="sqlfluff",
         token=os.environ["GITHUB_TOKEN"],
     )
-    releases = api.repos.list_releases()
+    releases = api.repos.list_releases(per_page=100)
 
     latest_draft_release = None
     for rel in releases:
@@ -251,7 +257,8 @@ def release(new_version_num):
 
     for filename in ["setup.cfg", "plugins/sqlfluff-templater-dbt/setup.cfg"]:
         input_file = open(filename, "r").readlines()
-        write_file = open(filename, "w")
+        # Regardless of platform, write newlines as \n
+        write_file = open(filename, "w", newline="\n")
         for line in input_file:
             for key in ["stable_version", "version"]:
                 if line.startswith(key):
@@ -264,7 +271,8 @@ def release(new_version_num):
 
     for filename in ["docs/source/gettingstarted.rst"]:
         input_file = open(filename, "r").readlines()
-        write_file = open(filename, "w")
+        # Regardless of platform, write newlines as \n
+        write_file = open(filename, "w", newline="\n")
         change_next_line = False
         for line in input_file:
             if change_next_line:

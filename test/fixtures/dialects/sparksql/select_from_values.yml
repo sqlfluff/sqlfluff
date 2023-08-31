@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ce7928fc2eb0db606e323705e960d94706705a2700edd13c1870024f60f3f1e0
+_hash: e2be6cb1b9f519d9837f273582ef24e37ba6d75f4ec4a9d70563ca10188da095
 file:
 - statement:
     select_statement:
@@ -79,9 +79,9 @@ file:
       from_clause:
         keyword: from
         from_expression:
-          from_expression_element:
-            bracketed:
-              start_bracket: (
+          bracketed:
+            start_bracket: (
+            from_expression_element:
               table_expression:
                 values_clause:
                 - keyword: values
@@ -93,7 +93,7 @@ file:
                 - comma: ','
                 - expression:
                     numeric_literal: '3'
-              end_bracket: )
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -106,9 +106,9 @@ file:
       from_clause:
         keyword: from
         from_expression:
-          from_expression_element:
-            bracketed:
-              start_bracket: (
+          bracketed:
+            start_bracket: (
+            from_expression_element:
               table_expression:
                 values_clause:
                 - keyword: values
@@ -129,7 +129,7 @@ file:
                     expression:
                       numeric_literal: '3'
                     end_bracket: )
-              end_bracket: )
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -142,9 +142,9 @@ file:
       from_clause:
         keyword: from
         from_expression:
-          from_expression_element:
-            bracketed:
-              start_bracket: (
+          bracketed:
+            start_bracket: (
+            from_expression_element:
               table_expression:
                 values_clause:
                 - keyword: values
@@ -165,7 +165,7 @@ file:
                   - expression:
                       numeric_literal: '4'
                   - end_bracket: )
-              end_bracket: )
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -204,9 +204,9 @@ file:
       from_clause:
       - keyword: from
       - from_expression:
-          from_expression_element:
-            bracketed:
-              start_bracket: (
+          bracketed:
+            start_bracket: (
+            from_expression_element:
               table_expression:
                 values_clause:
                 - keyword: values
@@ -227,12 +227,12 @@ file:
                   - expression:
                       numeric_literal: '4'
                   - end_bracket: )
-              end_bracket: )
+            end_bracket: )
       - comma: ','
       - from_expression:
-          from_expression_element:
-            bracketed:
-              start_bracket: (
+          bracketed:
+            start_bracket: (
+            from_expression_element:
               table_expression:
                 values_clause:
                 - keyword: values
@@ -253,7 +253,7 @@ file:
                   - expression:
                       numeric_literal: '4'
                   - end_bracket: )
-              end_bracket: )
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -266,9 +266,9 @@ file:
       from_clause:
         keyword: from
         from_expression:
-          from_expression_element:
-            bracketed:
-              start_bracket: (
+          bracketed:
+            start_bracket: (
+            from_expression_element:
               table_expression:
                 values_clause:
                 - keyword: values
@@ -300,7 +300,7 @@ file:
                       - expression:
                           numeric_literal: '5'
                       - end_bracket: )
-              end_bracket: )
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:

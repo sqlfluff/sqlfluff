@@ -1,13 +1,11 @@
 """Implementation of Rule LT07."""
 
-from sqlfluff.core.parser import (
-    IdentitySet,
-    NewlineSegment,
-)
+from typing import Optional, Set, cast
 
+from sqlfluff.core.parser import NewlineSegment, RawSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import sp, FunctionalContext
+from sqlfluff.utils.functional import FunctionalContext, sp
 
 
 class Rule_LT07(BaseRule):
@@ -47,7 +45,7 @@ class Rule_LT07(BaseRule):
     )
     is_fix_compatible = True
 
-    def _eval(self, context: RuleContext):
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """WITH clause closing bracket should be aligned with WITH keyword.
 
         Look for a with clause and evaluate the position of closing brackets.
@@ -57,7 +55,7 @@ class Rule_LT07(BaseRule):
 
         # Find the end brackets for the CTE *query* (i.e. ignore optional
         # list of CTE columns).
-        cte_end_brackets = IdentitySet()
+        cte_end_brackets: Set[RawSegment] = set()
         for cte in (
             FunctionalContext(context)
             .segment.children(sp.is_type("common_table_expression"))
@@ -95,7 +93,7 @@ class Rule_LT07(BaseRule):
                     self.logger.debug("Skipping because on same line.")
                     continue
                 # Otherwise add to the ones to check.
-                cte_end_brackets.add(cte_end_bracket[0])
+                cte_end_brackets.add(cast(RawSegment, cte_end_bracket[0]))
 
         for seg in cte_end_brackets:
             contains_non_whitespace = False
@@ -124,3 +122,5 @@ class Rule_LT07(BaseRule):
                         )
                     ],
                 )
+
+        return None

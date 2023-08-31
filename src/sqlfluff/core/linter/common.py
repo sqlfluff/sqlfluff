@@ -1,17 +1,11 @@
 """Defines small container classes to hold intermediate results during linting."""
 
-from typing import (
-    List,
-    NamedTuple,
-    Optional,
-    Tuple,
-    Dict,
-)
+from typing import Any, Dict, List, NamedTuple, Optional, Tuple
 
-from sqlfluff.core.errors import SQLBaseError, SQLTemplaterError
-from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.errors import SQLBaseError, SQLTemplaterError
 from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.templaters import TemplatedFile
 
 
 class RuleTuple(NamedTuple):
@@ -22,14 +16,6 @@ class RuleTuple(NamedTuple):
     description: str
     groups: Tuple[str, ...]
     aliases: Tuple[str, ...]
-
-
-class NoQaDirective(NamedTuple):
-    """Parsed version of a 'noqa' comment."""
-
-    line_no: int  # Source line number
-    rules: Optional[Tuple[str, ...]]  # Affected rule names
-    action: Optional[str]  # "enable", "disable", or "None"
 
 
 class RenderedFile(NamedTuple):
@@ -65,7 +51,7 @@ class ParsedString(NamedTuple):
 
     tree: Optional[BaseSegment]
     violations: List[SQLBaseError]
-    time_dict: dict
+    time_dict: Dict[str, Any]
     templated_file: TemplatedFile
     config: FluffConfig
     fname: str

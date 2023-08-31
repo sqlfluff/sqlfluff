@@ -16,6 +16,8 @@ test_pass_on_tableless_table:
   pass_str: SELECT (SELECT MAX(bar) FROM tbl) + 1 AS col
 
 test_fail_single_table_mixed_qualification_of_references_subquery:
+  # NOTE: Even though there's a subquery here, we can still fix it
+  # because there is no ambiguity about which table we're referencing.
   fail_str: SELECT * FROM (SELECT my_tbl.bar, baz FROM my_tbl)
   fix_str: SELECT * FROM (SELECT my_tbl.bar, my_tbl.baz FROM my_tbl)
 
@@ -272,6 +274,9 @@ test_pass_tsql_pivot:
       dialect: tsql
 
 test_unfixable_ambiguous_reference_subquery:
+  # `field_2` could be from the outer query or the inner
+  # query (i.e. from `other_table` or `my_alias`) and because
+  # it's ambiguous we shouldn't provide a fix.
   fail_str: |
     SELECT (
         SELECT other_table.other_table_field_1

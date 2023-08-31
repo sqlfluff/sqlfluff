@@ -1,5 +1,7 @@
 """Implementation of Rule CP03."""
 
+from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.rules import LintFix
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 from sqlfluff.rules.capitalisation.CP01 import Rule_CP01
@@ -49,5 +51,5 @@ class Rule_CP03(Rule_CP01):
     ]
     _description_elem = "Function names"
 
-    def _get_fix(self, segment, fixed_raw):
+    def _get_fix(self, segment: BaseSegment, fixed_raw: str) -> LintFix:
         return super()._get_fix(segment, fixed_raw)

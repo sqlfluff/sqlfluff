@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 609ca8da28f7b8a1e747b166405e4155cea0353f3bc55919d5133379cca1cf29
+_hash: 987ac8b8f29bfe092c81571ac50c3e3a9658807051484df125a605c3893d2488
 file:
 - statement:
     select_statement:
@@ -39,7 +39,7 @@ file:
       system_model_segment:
       - keyword: RELOAD
       - keyword: MODELS
-      - on_cluster:
+      - on_cluster_clause:
         - keyword: 'ON'
         - keyword: CLUSTER
         - naked_identifier: cluster_name
@@ -52,9 +52,9 @@ file:
       - keyword: MODEL
       - path_segment:
         - slash: /
-        - code: model
+        - path_segment: model
         - slash: /
-        - code: path
+        - path_segment: path
 - statement_terminator: ;
 - statement:
     system_statement:
@@ -62,15 +62,15 @@ file:
       system_model_segment:
       - keyword: RELOAD
       - keyword: MODEL
-      - on_cluster:
+      - on_cluster_clause:
         - keyword: 'ON'
         - keyword: CLUSTER
         - naked_identifier: cluster_name
       - path_segment:
         - slash: /
-        - code: model
+        - path_segment: model
         - slash: /
-        - code: path
+        - path_segment: path
 - statement_terminator: ;
 - statement:
     system_statement:
@@ -590,7 +590,7 @@ file:
       system_replica_segment:
       - keyword: SYNC
       - keyword: REPLICA
-      - on_cluster:
+      - on_cluster_clause:
         - keyword: 'ON'
         - keyword: CLUSTER
         - naked_identifier: cluster_name
@@ -603,7 +603,7 @@ file:
       system_replica_segment:
       - keyword: SYNC
       - keyword: REPLICA
-      - on_cluster:
+      - on_cluster_clause:
         - keyword: 'ON'
         - keyword: CLUSTER
         - naked_identifier: cluster_name
@@ -617,7 +617,7 @@ file:
       system_replica_segment:
       - keyword: SYNC
       - keyword: REPLICA
-      - on_cluster:
+      - on_cluster_clause:
         - keyword: 'ON'
         - keyword: CLUSTER
         - naked_identifier: cluster_name
@@ -632,7 +632,7 @@ file:
       system_replica_segment:
       - keyword: SYNC
       - keyword: REPLICA
-      - on_cluster:
+      - on_cluster_clause:
         - keyword: 'ON'
         - keyword: CLUSTER
         - naked_identifier: cluster_name
@@ -690,7 +690,7 @@ file:
       - keyword: REPLICA
       - table_reference:
           naked_identifier: replicated_merge_tree_family_table_name
-      - on_cluster:
+      - on_cluster_clause:
         - keyword: 'ON'
         - keyword: CLUSTER
         - naked_identifier: cluster_name
@@ -705,7 +705,7 @@ file:
         - naked_identifier: db
         - dot: .
         - naked_identifier: replicated_merge_tree_family_table_name
-      - on_cluster:
+      - on_cluster_clause:
         - keyword: 'ON'
         - keyword: CLUSTER
         - naked_identifier: cluster_name

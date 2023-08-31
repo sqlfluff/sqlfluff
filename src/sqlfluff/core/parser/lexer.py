@@ -1,26 +1,28 @@
 """The code for the Lexer."""
 
 import logging
-from typing import Iterator, Optional, List, Tuple, Union, NamedTuple, Dict
+from typing import Any, Dict, Iterator, List, NamedTuple, Optional, Tuple, Type, Union
 from uuid import UUID, uuid4
+
 import regex
 
+from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.errors import SQLLexError
+from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments import (
     BaseSegment,
-    RawSegment,
-    Indent,
     Dedent,
+    EndOfFile,
+    Indent,
+    MetaSegment,
+    RawSegment,
+    TemplateLoop,
     TemplateSegment,
     UnlexableSegment,
-    EndOfFile,
-    TemplateLoop,
 )
-from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.errors import SQLLexError
-from sqlfluff.core.templaters import TemplatedFile
-from sqlfluff.core.config import FluffConfig
-from sqlfluff.core.templaters.base import TemplatedFileSlice
 from sqlfluff.core.slice_helpers import is_zero_slice, offset_slice, to_tuple
+from sqlfluff.core.templaters import TemplatedFile
+from sqlfluff.core.templaters.base import TemplatedFileSlice
 
 # Instantiate the lexer logger
 lexer_logger = logging.getLogger("sqlfluff.lexer")
@@ -92,13 +94,17 @@ class TemplateElement(NamedTuple):
     matcher: "StringLexer"
 
     @classmethod
-    def from_element(cls, element: LexedElement, template_slice: slice):
+    def from_element(
+        cls, element: LexedElement, template_slice: slice
+    ) -> "TemplateElement":
         """Make a TemplateElement from a LexedElement."""
         return cls(
             raw=element.raw, template_slice=template_slice, matcher=element.matcher
         )
 
-    def to_segment(self, pos_marker, subslice=None):
+    def to_segment(
+        self, pos_marker: PositionMarker, subslice: Optional[slice] = None
+    ) -> RawSegment:
         """Create a segment from this lexed element."""
         return self.matcher.construct_segment(
             self.raw[subslice] if subslice else self.raw, pos_marker=pos_marker
@@ -111,9 +117,12 @@ class LexMatch(NamedTuple):
     forward_string: str
     elements: List[LexedElement]
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         """A LexMatch is truthy if it contains a non-zero number of matched elements."""
         return len(self.elements) > 0
+
+
+LexerType = Union["RegexLexer", "StringLexer"]
 
 
 class StringLexer:
@@ -127,22 +136,30 @@ class StringLexer:
 
     def __init__(
         self,
-        name,
-        template,
-        segment_class,
-        subdivider=None,
-        trim_post_subdivide=None,
-        segment_kwargs=None,
-    ):
+        name: str,
+        template: str,
+        segment_class: Type[RawSegment],
+        subdivider: Optional[LexerType] = None,
+        trim_post_subdivide: Optional[LexerType] = None,
+        segment_kwargs: Optional[Dict[str, Any]] = None,
+    ) -> None:
         self.name = name
         self.template = template
         self.segment_class = segment_class
         self.subdivider = subdivider
         self.trim_post_subdivide = trim_post_subdivide
         self.segment_kwargs = segment_kwargs or {}
+        self.__post_init__()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: {self.name}>"
+
+    def __post_init__(self) -> None:
+        """Optional post-init method called after __init__().
+
+        Designed for subclasses to use.
+        """
+        pass
 
     def _match(self, forward_string: str) -> Optional[LexedElement]:
         """The private match function. Just look for a literal string."""
@@ -265,7 +282,7 @@ class StringLexer:
         else:
             return LexMatch(forward_string, [])
 
-    def construct_segment(self, raw, pos_marker):
+    def construct_segment(self, raw: str, pos_marker: PositionMarker) -> RawSegment:
         """Construct a segment using the given class a properties."""
         return self.segment_class(raw=raw, pos_marker=pos_marker, **self.segment_kwargs)
 
@@ -273,8 +290,8 @@ class StringLexer:
 class RegexLexer(StringLexer):
     """This RegexLexer matches based on regular expressions."""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __post_init__(self) -> None:
+        """Handle setup for RegexLexer."""
         # We might want to configure this at some point, but for now, newlines
         # do get matched by .
         flags = regex.DOTALL
@@ -316,7 +333,7 @@ def _handle_zero_length_slice(
     block_stack: BlockTracker,
     templated_file: TemplatedFile,
     add_indents: bool,
-):
+) -> Iterator[MetaSegment]:
     """Generate placeholders and loop segments from a zero length slice.
 
     This method checks for:

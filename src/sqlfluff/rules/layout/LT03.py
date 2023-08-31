@@ -52,7 +52,9 @@ class Rule_LT03(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"binary_operator", "comparison_operator"})
     is_fix_compatible = True
 
-    def _seek_newline(self, segments: Sequence[BaseSegment], idx: int, dir: int):
+    def _seek_newline(
+        self, segments: Sequence[BaseSegment], idx: int, dir: int
+    ) -> bool:
         """Seek in a direction, looking for newlines.
 
         Args:

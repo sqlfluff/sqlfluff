@@ -1,13 +1,14 @@
 """Indent and Dedent classes."""
 
+from typing import List, Optional, Tuple
 from uuid import UUID
 
-from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.parser.match_wrapper import match_wrapper
-from sqlfluff.core.parser.segments.raw import RawSegment, SourceFix
 from sqlfluff.core.parser.context import ParseContext
-from typing import Optional, List
-
+from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.segments.raw import RawSegment, SourceFix
 from sqlfluff.core.templaters.base import TemplatedFile
 
 
@@ -26,27 +27,30 @@ class MetaSegment(RawSegment):
 
     def __init__(
         self,
+        pos_marker: Optional[PositionMarker] = None,
         is_template: bool = False,
         block_uuid: Optional[UUID] = None,
-        *args,
-        **kwargs,
+        source_fixes: Optional[List[SourceFix]] = None,
     ):
         """Constructor for MetaSegment.
 
         Args:
-            is_template (:obj:`bool`): A flag to indicate whether
-                this meta segment is related to a templated section.
-                This allows proper handling.
-            block_uuid (:obj:`UUID`): A reference to link together
-                markers which refer to the same structure in a
-                template (e.g. the beginning and end of an if
-                statement).
+            pos_marker (:obj:`PositionMarker`, optional): The position
+                of the segment.
+            is_template (:obj:`bool`, optional): A flag to indicate whether
+                this meta segment is related to a templated section. This
+                allows proper handling.
+            block_uuid (:obj:`UUID`, optional): A reference to link together
+                markers which refer to the same structure in a template
+                (e.g. the beginning and end of an if statement).
+            source_fixes: (:obj:`list` of :obj:`SourceFix`, optional): A
+                list of any source fixes to apply to this segment.
         """
-        super().__init__(*args, **kwargs)
+        super().__init__(pos_marker=pos_marker, source_fixes=source_fixes)
         self.is_template = is_template
         self.block_uuid = block_uuid
 
-    def _suffix(self):
+    def _suffix(self) -> str:
         """Return any extra output required at the end when logging.
 
         Meta classes have not much to say here so just stay blank.
@@ -55,7 +59,9 @@ class MetaSegment(RawSegment):
 
     @classmethod
     @match_wrapper()
-    def match(cls, segments, parse_context):  # pragma: no cover
+    def match(
+        cls, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+    ) -> MatchResult:  # pragma: no cover
         """This will never be called. If it is then we're using it wrong."""
         raise NotImplementedError(
             "{} has no match method, it should only be used in a Sequence!".format(
@@ -64,7 +70,9 @@ class MetaSegment(RawSegment):
         )
 
     @classmethod
-    def simple(cls, parse_context: ParseContext, crumbs=None):
+    def simple(
+        cls, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
+    ) -> None:
         """Does this matcher support an uppercase hash matching route?
 
         This should be true if the MATCH grammar is simple. Most more
@@ -196,7 +204,7 @@ class TemplateSegment(MetaSegment):
         block_type: str,
         templated_file: TemplatedFile,
         block_uuid: Optional[UUID] = None,
-    ):
+    ) -> "TemplateSegment":
         """Construct template segment from slice of a source file."""
         pos_marker = PositionMarker(
             source_slice,
@@ -210,24 +218,30 @@ class TemplateSegment(MetaSegment):
             block_uuid=block_uuid,
         )
 
-    def to_tuple(self, code_only=False, show_raw=False, include_meta=False):
+    def to_tuple(
+        self,
+        code_only: bool = False,
+        show_raw: bool = False,
+        include_meta: bool = False,
+    ) -> Tuple[str, str]:
         """Return a tuple structure from this segment.
 
         Unlike most segments, we return the _source_ content for placeholders
         if viewing metas is allowed. This allows verification of the content
         of those placeholders for inspection or debugging.
+
+        NOTE: This method does not use the `include_meta` argument. This method
+        relies on any parent segment to do filtering associated with whether to
+        include or not include meta segments.
         """
-        if include_meta:
-            return (self.get_type(), self.source_str)
-        else:  # pragma: no cover TODO?
-            return (self.get_type(), self.raw)
+        return (self.get_type(), self.source_str)
 
     def edit(
         self,
         raw: Optional[str] = None,
         source_fixes: Optional[List[SourceFix]] = None,
         source_str: Optional[str] = None,
-    ):
+    ) -> MetaSegment:
         """Create a new segment, with exactly the same position but different content.
 
         Returns:

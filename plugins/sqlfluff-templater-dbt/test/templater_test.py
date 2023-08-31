@@ -1,6 +1,7 @@
 """Tests for the dbt templater."""
 
 from copy import deepcopy
+import json
 import glob
 import os
 import logging
@@ -13,12 +14,15 @@ import pytest
 from sqlfluff.core import FluffConfig, Lexer, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff.utils.testing.logging import fluff_log_catcher
+from sqlfluff.utils.testing.cli import invoke_assert_code
+from sqlfluff.cli.commands import lint
+
 from test.fixtures.dbt.templater import (  # noqa: F401
     DBT_FLUFF_CONFIG,
     dbt_templater,
     project_dir,
 )
-from sqlfluff_templater_dbt.templater import DbtFailedToConnectException, DbtTemplater
+from sqlfluff_templater_dbt.templater import DbtTemplater
 
 
 def test__templater_dbt_missing(dbt_templater, project_dir):  # noqa: F811
@@ -210,10 +214,22 @@ def test__templater_dbt_slice_file_wrapped_test(
     raw_file, templated_file, result, dbt_templater, caplog  # noqa: F811
 ):
     """Test that wrapped queries are sliced safely using _check_for_wrapped()."""
+
+    def _render_func(in_str) -> str:
+        """Create a dummy render func.
+
+        Importantly one that does actually allow different content to be added.
+        """
+        # Find the raw location in the template for the test case.
+        loc = templated_file.find(raw_file)
+        # Replace the new content at the previous position.
+        # NOTE: Doing this allows the tracer logic to do what it needs to do.
+        return templated_file[:loc] + in_str + templated_file[loc + len(raw_file) :]
+
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
         _, resp, _ = dbt_templater.slice_file(
             raw_file,
-            templated_file,
+            render_func=_render_func,
         )
     assert resp == result
 
@@ -233,18 +249,25 @@ def test__templater_dbt_templating_test_lex(
 
     Handle any number of newlines.
     """
-    source_fpath = os.path.join(project_dir, fname)
-    with open(source_fpath, "r") as source_dbt_model:
-        source_dbt_sql = source_dbt_model.read()
-    n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
-    lexer = Lexer(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
     path = Path(project_dir) / fname
-    templated_file, _ = dbt_templater.process(
-        in_str=path.read_text(),
-        fname=str(path),
-        config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+    config = FluffConfig(configs=DBT_FLUFF_CONFIG)
+    source_dbt_sql = path.read_text()
+    # Count the newlines.
+    n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
+    print(
+        f"Loaded {path!r} (n_newlines: {n_trailing_newlines}): " f"{source_dbt_sql!r}",
     )
-    tokens, lex_vs = lexer.lex(templated_file)
+
+    templated_file, _ = dbt_templater.process(
+        in_str=source_dbt_sql,
+        fname=str(path),
+        config=config,
+    )
+
+    lexer = Lexer(config=config)
+    # Test that it successfully lexes.
+    _, _ = lexer.lex(templated_file)
+
     assert (
         templated_file.source_str
         == "select a\nfrom table_a" + "\n" * n_trailing_newlines
@@ -404,6 +427,15 @@ def test__templater_dbt_handle_database_connection_failure(
     """Test the result of a failed database connection."""
     from dbt.adapters.factory import get_adapter
 
+    try:
+        from dbt.exceptions import (
+            FailedToConnectException as DbtFailedToConnectException,
+        )
+    except ImportError:
+        from dbt.exceptions import (
+            FailedToConnectError as DbtFailedToConnectException,
+        )
+
     # Clear the adapter cache to force this test to create a new connection.
     DbtTemplater.adapters.clear()
 
@@ -485,3 +517,40 @@ def test__context_in_config_is_loaded(
 
     assert violations == []
     assert str(var_value) in processed.templated_str
+
+
+def test__dbt_log_supression():
+    """Test that when we try and parse in JSON format we get JSON.
+
+    This actually tests that we can successfully suppress unwanted
+    logging from dbt.
+    """
+    oldcwd = os.getcwd()
+    try:
+        os.chdir("plugins/sqlfluff-templater-dbt/test/fixtures/dbt")
+        result = invoke_assert_code(
+            ret_code=1,
+            args=[
+                lint,
+                [
+                    "--disable-progress-bar",
+                    "dbt_project/models/my_new_project/operator_errors.sql",
+                    "-f",
+                    "json",
+                ],
+            ],
+        )
+    finally:
+        os.chdir(oldcwd)
+    # Check that the full output parses as json
+    parsed = json.loads(result.output)
+    assert isinstance(parsed, list)
+    assert len(parsed) == 1
+    first_file = parsed[0]
+    assert isinstance(first_file, dict)
+    # NOTE: Path translation for linux/windows.
+    assert (
+        first_file["filepath"].replace("\\", "/")
+        == "dbt_project/models/my_new_project/operator_errors.sql"
+    )
+    assert len(first_file["violations"]) == 2

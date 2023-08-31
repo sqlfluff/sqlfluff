@@ -1,11 +1,10 @@
 """Implementation of Rule AM04."""
 from typing import Optional, Tuple
 
-from sqlfluff.utils.analysis.select_crawler import Query, SelectCrawler
+from sqlfluff.utils.analysis.query import Query
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import sp, FunctionalContext
 
 
 _START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
@@ -69,12 +68,13 @@ class Rule_AM04(BaseRule):
     name = "ambiguous.column_count"
     aliases = ("L044",)
     groups: Tuple[str, ...] = ("all", "ambiguous")
-    crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES))
+    # Only evaluate the outermost query.
+    crawl_behaviour = SegmentSeekerCrawler(set(_START_TYPES), allow_recurse=False)
 
-    def _handle_alias(self, selectable, alias_info, query):
-        select_info_target = SelectCrawler.get(
-            query, alias_info.from_expression_element
-        )[0]
+    def _handle_alias(self, selectable, alias_info, query) -> None:
+        select_info_target = next(
+            query.crawl_sources(alias_info.from_expression_element, True)
+        )
         if isinstance(select_info_target, str):
             # It's an alias to an external table whose
             # number of columns could vary without our
@@ -87,13 +87,13 @@ class Rule_AM04(BaseRule):
             # Handle nested SELECT.
             self._analyze_result_columns(select_info_target)
 
-    def _analyze_result_columns(self, query: Query):
+    def _analyze_result_columns(self, query: Query) -> None:
         """Given info on a list of SELECTs, determine whether to warn."""
         # Recursively walk from the given query (select_info_list) to any
         # wildcard columns in the select targets. If every wildcard evdentually
         # resolves to a query without wildcards, all is well. Otherwise, warn.
         if not query.selectables:
-            return  # pragma: no cover
+            return None  # pragma: no cover
         for selectable in query.selectables:
             self.logger.debug(f"Analyzing query: {selectable.selectable.raw}")
             for wildcard in selectable.get_wildcard_info():
@@ -126,13 +126,10 @@ class Rule_AM04(BaseRule):
                 else:
                     # No table was specified with the wildcard. Assume we're
                     # querying from a nested select in FROM.
-                    query_list = SelectCrawler.get(
-                        query, query.selectables[0].selectable
-                    )
-                    for o in query_list:
+                    for o in query.crawl_sources(query.selectables[0].selectable, True):
                         if isinstance(o, Query):
                             self._analyze_result_columns(o)
-                            return
+                            return None
                     self.logger.debug(
                         f'Query target "{query.selectables[0].selectable.raw}" has no '
                         "targets. Generating warning."
@@ -141,13 +138,11 @@ class Rule_AM04(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Outermost query should produce known number of columns."""
-        if not FunctionalContext(context).parent_stack.any(sp.is_type(*_START_TYPES)):
-            crawler = SelectCrawler(context.segment, context.dialect)
+        query: Query = Query.from_segment(context.segment, context.dialect)
 
+        try:
             # Begin analysis at the outer query.
-            if crawler.query_tree:
-                try:
-                    return self._analyze_result_columns(crawler.query_tree)
-                except RuleFailure as e:
-                    return LintResult(anchor=e.anchor)
-        return None
+            self._analyze_result_columns(query)
+            return None
+        except RuleFailure as e:
+            return LintResult(anchor=e.anchor)

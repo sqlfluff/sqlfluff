@@ -314,6 +314,14 @@ test_pass_bigquery_specific_arrays_2:
     core:
       dialect: bigquery
 
+test_pass_bigquery_array_function:
+  # Test spacing of Array Generator function brackets
+  pass_str: |
+    SELECT ARRAY(SELECT 1 FROM table1);
+  configs:
+    core:
+      dialect: bigquery
+
 test_pass_bigquery_specific_structs:
   # Test spacing of complex STRUCT brackets
   pass_str: |
@@ -338,6 +346,20 @@ test_pass_bigquery_specific_struct_access:
       testFunction(a)[ORDINAL(1)].* AS field_with_ordinal_wildcard,
       testFunction(a)[ORDINAL(1)].a AS field_with_ordinal_field
     FROM table1
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_struct_function_no_spaces:
+  # Test struct function does not flag for missing spaces
+  # e.g. doesn't flag `STRUCT()` as should be `STRUCT ()`
+  pass_str: |
+    SELECT
+      TO_JSON(STRUCT()),
+      TO_JSON(STRUCT(1, 2, 3)),
+      STRUCT(1, 2, 3)
+    FROM
+      table1
   configs:
     core:
       dialect: bigquery

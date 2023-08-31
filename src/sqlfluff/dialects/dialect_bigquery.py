@@ -13,6 +13,7 @@ from sqlfluff.core.parser import (
     BaseFileSegment,
     BaseSegment,
     Bracketed,
+    BracketedSegment,
     CodeSegment,
     Dedent,
     Delimited,
@@ -33,7 +34,6 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     MultiStringParser,
 )
-from sqlfluff.core.parser.segments.base import BracketedSegment
 from sqlfluff.dialects.dialect_bigquery_keywords import (
     bigquery_reserved_keywords,
     bigquery_unreserved_keywords,
@@ -306,7 +306,7 @@ bigquery_dialect.sets("value_table_functions").update(["UNNEST"])
 # pairs that are only available in specific contexts where they are
 # applicable. This limits the scope where BigQuery allows angle brackets,
 # eliminating many potential parsing errors with the "<" and ">" operators.
-bigquery_dialect.sets("angle_bracket_pairs").update(
+bigquery_dialect.bracket_sets("angle_bracket_pairs").update(
     [
         ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
     ]
@@ -476,10 +476,7 @@ class AssertStatementSegment(BaseSegment):
         Ref("ExpressionSegment"),
         Sequence(
             "AS",
-            OneOf(
-                Ref("SingleQuotedLiteralSegment"),
-                Ref("DoubleQuotedLiteralSegment"),
-            ),
+            Ref("QuotedLiteralSegment"),
             optional=True,
         ),
     )
@@ -708,7 +705,15 @@ class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
     match_grammar = Sequence(
         "INTERVAL",
         Ref("ExpressionSegment"),
-        OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("DatetimeUnitSegment"),
+            Sequence(
+                Ref("DatetimeUnitSegment"),
+                "TO",
+                Ref("DatetimeUnitSegment"),
+            ),
+        ),
     )
 
 
@@ -724,10 +729,13 @@ bigquery_dialect.replace(
         TypedParser("numeric_literal", ansi.LiteralSegment, type="numeric_literal"),
         Ref("ParameterizedSegment"),
     ),
-    # Add three elements to the ansi LiteralGrammar
+    QuotedLiteralSegment=OneOf(
+        Ref("SingleQuotedLiteralSegment"),
+        Ref("DoubleQuotedLiteralSegment"),
+    ),
+    # Add elements to the ansi LiteralGrammar
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
-            Ref("DoubleQuotedLiteralSegment"),
             Ref("ParameterizedSegment"),
         ]
     ),
@@ -770,6 +778,21 @@ class ExtractFunctionNameSegment(BaseSegment):
     type = "function_name"
     match_grammar: Matchable = StringParser(
         "EXTRACT",
+        CodeSegment,
+        type="function_name_identifier",
+    )
+
+
+class ArrayFunctionNameSegment(BaseSegment):
+    """ARRAY function name segment.
+
+    Need to be able to specify this as type `function_name_identifier`
+    within a `function_name` so that linting rules identify it properly.
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = StringParser(
+        "ARRAY",
         CodeSegment,
         type="function_name_identifier",
     )
@@ -839,11 +862,13 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
                 OneOf("SAFE", Ref("SingleIdentifierGrammar")),
                 Ref("DotSegment"),
             ),
+            terminators=[Ref("BracketedSegment")],
         ),
         # Base function name
         OneOf(
             Ref("FunctionNameIdentifierSegment"),
             Ref("QuotedIdentifierSegment"),
+            terminators=[Ref("BracketedSegment")],
         ),
         # BigQuery allows whitespaces between the `.` of a function refrence or
         # SAFE prefix. Keeping the explicit `allow_gaps=True` here to
@@ -1082,7 +1107,7 @@ class ArrayExpressionSegment(ansi.ArrayExpressionSegment):
     """
 
     match_grammar = Sequence(
-        "ARRAY",
+        Ref("ArrayFunctionNameSegment"),
         Bracketed(
             Ref("SelectableGrammar"),
         ),
@@ -1754,8 +1779,7 @@ class UnpivotAliasExpressionSegment(BaseSegment):
         Indent,
         Ref.keyword("AS", optional=True),
         OneOf(
-            Ref("SingleQuotedLiteralSegment"),
-            Ref("DoubleQuotedLiteralSegment"),
+            Ref("QuotedLiteralSegment"),
             Ref("NumericLiteralSegment"),
         ),
         Dedent,
@@ -1986,10 +2010,7 @@ class ExportStatementSegment(BaseSegment):
                         ),
                     ),
                     Ref("EqualsSegment"),
-                    OneOf(
-                        Ref("SingleQuotedLiteralSegment"),
-                        Ref("DoubleQuotedLiteralSegment"),
-                    ),
+                    Ref("QuotedLiteralSegment"),
                 ),
                 # Bool options
                 # Note: adding as own type, rather than keywords as convention with

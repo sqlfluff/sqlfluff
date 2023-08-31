@@ -1,8 +1,10 @@
 """Implementation of Rule AL01."""
-from typing import Optional, Tuple
+from typing import cast, Optional, Tuple
 
 from sqlfluff.core.parser import (
     KeywordSegment,
+    BaseSegment,
+    RawSegment,
 )
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
@@ -62,6 +64,7 @@ class Rule_AL01(BaseRule):
         assert context.segment.is_type("alias_expression")
         if context.parent_stack[-1].is_type(*self._target_parent_types):
             # Search for an AS keyword.
+            as_keyword: Optional[BaseSegment]
             for as_keyword in context.segment.segments:
                 if as_keyword.raw_upper == "AS":
                     break
@@ -79,7 +82,7 @@ class Rule_AL01(BaseRule):
                             context.parent_stack[0],
                             config=context.config,
                         )
-                        .without(as_keyword)
+                        .without(cast(RawSegment, as_keyword))
                         .respace()
                         .get_fixes(),
                     )

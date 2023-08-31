@@ -1,7 +1,7 @@
 """Timing summary class."""
 
-from typing import Optional, List, Dict, Tuple, Set, Union
 from collections import defaultdict
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 
 class TimingSummary:
@@ -11,7 +11,7 @@ class TimingSummary:
         self.steps = steps
         self._timings: List[Dict[str, float]] = []
 
-    def add(self, timing_dict: Dict[str, float]):
+    def add(self, timing_dict: Dict[str, float]) -> None:
         """Add a timing dictionary to the summary."""
         self._timings.append(timing_dict)
         if not self.steps:
@@ -46,12 +46,14 @@ class RuleTimingSummary:
     def __init__(self) -> None:
         self._timings: List[Tuple[str, str, float]] = []
 
-    def add(self, rule_timings: List[Tuple[str, str, float]]):
+    def add(self, rule_timings: List[Tuple[str, str, float]]) -> None:
         """Add a set of rule timings."""
         # Add records to the main list.
         self._timings.extend(rule_timings)
 
-    def summary(self, threshold=0.5) -> Dict[str, Dict[str, Union[float, str]]]:
+    def summary(
+        self, threshold: float = 0.5
+    ) -> Dict[str, Dict[str, Union[float, str]]]:
         """Generate a summary for display."""
         keys: Set[Tuple[str, str]] = set()
         vals: Dict[Tuple[str, str], List[float]] = defaultdict(list)
@@ -67,7 +69,10 @@ class RuleTimingSummary:
             # `threshold`, then don't display.
             if sum(timings) < threshold:
                 continue
-            summary[f"{code}: {name}"] = {
+            # NOTE: This summary isn't covered in tests, it's tricky
+            # to force it to exist in a test environment without
+            # making things complicated.
+            summary[f"{code}: {name}"] = {  # pragma: no cover
                 "sum (n)": f"{sum(timings):.2f} ({len(timings)})",
                 "min": min(timings),
                 "max": max(timings),

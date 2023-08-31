@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 395b48c34e9c2652d61220b12abffe11f67b90929ebf2faa8b053406caf530ea
+_hash: 7d0df57b5c85a69c3d6155fc53a5d0294c392601ad748cdcf5e78191a73ef7d9
 file:
 - statement:
     alter_table_statement:
@@ -60,6 +60,20 @@ file:
     - keyword: RENAME
     - table_reference:
         quoted_identifier: '`user`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`users`'
+    - keyword: RENAME
+    - keyword: COLUMN
+    - column_reference:
+        quoted_identifier: '`col_1`'
+    - keyword: TO
+    - column_reference:
+        quoted_identifier: '`del_col_1`'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -400,6 +414,38 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: RENAME
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '`index_name`'
+    - keyword: to
+    - index_reference:
+        quoted_identifier: '`new_index_name`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: RENAME
+    - keyword: KEY
+    - index_reference:
+        quoted_identifier: '`key_name`'
+    - keyword: to
+    - index_reference:
+        quoted_identifier: '`new_key_name`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
         quoted_identifier: '`x`'
     - keyword: ADD
     - table_constraint:
@@ -419,4 +465,49 @@ file:
           column_reference:
             quoted_identifier: '`yk`'
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`users`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        quoted_identifier: '`active`'
+        data_type:
+          data_type_identifier: tinyint
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '1'
+              end_bracket: )
+        column_constraint_segment:
+          keyword: DEFAULT
+          quoted_literal: "'0'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`users`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - column_definition:
+        quoted_identifier: '`active`'
+        data_type:
+          data_type_identifier: tinyint
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '1'
+              end_bracket: )
+        column_constraint_segment:
+          keyword: DEFAULT
+          quoted_literal: "'0'"
 - statement_terminator: ;

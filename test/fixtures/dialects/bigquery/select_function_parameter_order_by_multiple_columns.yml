@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 87f5a5df052d37110cb46046ad44bbb48dc479d0cbce6a926c08b2406322ffc0
+_hash: 369719879934cc50e9157180a6c18f02451bcd9c966bf8632f2e2621e25290af
 file:
   statement:
     select_statement:
@@ -18,14 +18,15 @@ file:
               expression:
                 column_reference:
                   naked_identifier: a
-              orderby_clause:
-              - keyword: ORDER
-              - keyword: BY
-              - column_reference:
-                  naked_identifier: b
-              - comma: ','
-              - column_reference:
-                  naked_identifier: c
+              aggregate_order_by:
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: b
+                - comma: ','
+                - column_reference:
+                    naked_identifier: c
               end_bracket: )
       from_clause:
         keyword: FROM
