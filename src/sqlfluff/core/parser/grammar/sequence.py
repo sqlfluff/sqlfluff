@@ -779,6 +779,20 @@ class Bracketed(Sequence):
             )
             working_match = working_match.append(child_match)
 
+        # NOTE: For backward compatibility reasons (and not ones I'm sure
+        # I agree with), we only wrap if the brackets are _round_. Otherwise
+        # we just return flat.
+        # HACK: We should probably remove this, I think it just perpetuates an
+        # old existing inconsistency.
+        if segments[start_match.matched_slice.start].raw != "(":
+            return working_match.append(
+                final_match,
+                insert_segments=(
+                    (start_match.matched_slice.stop, Indent),
+                    (final_match.matched_slice.start, Dedent),
+                ),
+            )
+
         return working_match.append(final_match).wrap(
             BracketedSegment,
             insert_segments=(

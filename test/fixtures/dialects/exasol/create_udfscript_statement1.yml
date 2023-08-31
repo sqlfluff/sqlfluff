@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a1731e61d1110ed23395aab516655bdfc035804b79aa6e109dc032043c38700a
+_hash: 036acf3f7d83d0e8aaf403f6bb0a3d97d0d1fd50622d5334f2905785b0889f50
 file:
 - statement:
     create_udf_script:
@@ -37,10 +37,9 @@ file:
     - script_content:
       - code: function
       - code: run
-      - bracketed:
-          start_bracket: (
-          code: ctx
-          end_bracket: )
+      - raw: (
+      - code: ctx
+      - raw: )
       - code: if
       - code: ctx
       - raw: .
@@ -60,16 +59,15 @@ file:
       - code: 'NULL'
       - code: end
       - code: return
-      - bracketed:
-        - start_bracket: (
-        - code: ctx
-        - raw: .
-        - code: a
-        - raw: +
-        - code: ctx
-        - raw: .
-        - code: b
-        - end_bracket: )
+      - raw: (
+      - code: ctx
+      - raw: .
+      - code: a
+      - raw: +
+      - code: ctx
+      - raw: .
+      - code: b
+      - raw: )
       - raw: /
       - numeric_literal: '2'
       - code: end
@@ -106,10 +104,9 @@ file:
     - script_content:
       - code: function
       - code: run
-      - bracketed:
-          start_bracket: (
-          code: ctx
-          end_bracket: )
+      - raw: (
+      - code: ctx
+      - raw: )
       - code: if
       - code: ctx
       - raw: .
@@ -134,16 +131,15 @@ file:
       - raw: /
       - numeric_literal: '2'
       - code: return
-      - bracketed:
-        - start_bracket: (
-        - code: ctx
-        - raw: .
-        - code: a
-        - raw: +
-        - code: ctx
-        - raw: .
-        - code: b
-        - end_bracket: )
+      - raw: (
+      - code: ctx
+      - raw: .
+      - code: a
+      - raw: +
+      - code: ctx
+      - raw: .
+      - code: b
+      - raw: )
       - raw: /
       - numeric_literal: '2'
       - code: end

@@ -194,7 +194,12 @@ class MatchResult2:
             return True
         return len(self) > len(other)
 
-    def append(self, other: "MatchResult2", is_clean: bool = True) -> "MatchResult2":
+    def append(
+        self,
+        other: "MatchResult2",
+        insert_segments: Tuple[Tuple[int, Type["MetaSegment"]], ...] = (),
+        is_clean: bool = True,
+    ) -> "MatchResult2":
         """Combine another subsequent match onto this one.
 
         NOTE: Because MatchResult2 is frozen, this returns a new
@@ -212,7 +217,6 @@ class MatchResult2:
         # match.
         assert self.matched_slice.stop <= other.matched_slice.start
         new_slice = slice(self.matched_slice.start, other.matched_slice.stop)
-        insert_segments = ()
         child_matches = ()
         for match in (self, other):
             # If it's got a matched class, add it as a child.
@@ -220,6 +224,8 @@ class MatchResult2:
                 child_matches += (match,)
             # Otherwise incorporate
             else:
+                # Note: We're appending to the optional insert segments
+                # provided in the kwargs.
                 insert_segments += match.insert_segments
                 child_matches += match.child_matches
         return MatchResult2(
