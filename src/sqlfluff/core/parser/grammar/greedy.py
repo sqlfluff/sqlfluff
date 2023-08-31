@@ -1,6 +1,6 @@
 """GreedyUntil and StartsWith Grammars."""
 
-from typing import Optional, Tuple, Union, List
+from typing import List, Optional, Tuple, Union
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (

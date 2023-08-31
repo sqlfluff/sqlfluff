@@ -2,7 +2,8 @@
 
 import logging
 from bisect import bisect_left
-from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple, Iterable, Any
+from typing import Any, Dict, Iterable, Iterator, List, NamedTuple, Optional, Tuple
+
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLFluffSkipFile
 from sqlfluff.core.slice_helpers import zero_slice
