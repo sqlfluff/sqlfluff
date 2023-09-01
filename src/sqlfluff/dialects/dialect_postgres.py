@@ -3952,6 +3952,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterTypeStatementSegment"),
             Ref("AlterSchemaStatementSegment"),
             Ref("LockTableStatementSegment"),
+            Ref("ClusterStatementSegment"),
             Ref("CreateCollationStatementSegment"),
             Ref("CallStoredProcedureSegment"),
         ],
@@ -5150,6 +5151,25 @@ class LockTableStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref.keyword("NOWAIT", optional=True),
+    )
+
+
+class ClusterStatementSegment(BaseSegment):
+    """A `CLUSTER` statement.
+
+    https://www.postgresql.org/docs/current/sql-cluster.html
+    """
+
+    type = "cluster_statement"
+    match_grammar = Sequence(
+        "CLUSTER",
+        Ref.keyword("VERBOSE", optional=True),
+        Ref("ObjectReferenceSegment", optional=True),
+        OneOf(
+            Sequence("USING", Ref("ObjectReferenceSegment")),
+            Sequence("ON", Ref("ObjectReferenceSegment")),
+            optional=True,
+        ),
     )
 
 
