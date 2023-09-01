@@ -3,31 +3,31 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 24132618df10622f7dd50fafca928c0f0ba4020ab7035c13c9b2c8b9ffd42250
+_hash: 0d16521927fc3186064bbef4aa28fc13853179831ee346d6cbc2186d1bb483a7
 file:
 - statement:
     cluster_statement:
     - keyword: CLUSTER
-    - object_reference:
+    - table_reference:
         naked_identifier: employees
     - keyword: USING
-    - object_reference:
+    - index_reference:
         naked_identifier: employees_ind
 - statement_terminator: ;
 - statement:
     cluster_statement:
     - keyword: CLUSTER
     - keyword: VERBOSE
-    - object_reference:
+    - table_reference:
         naked_identifier: employees
     - keyword: USING
-    - object_reference:
+    - index_reference:
         naked_identifier: employees_ind
 - statement_terminator: ;
 - statement:
     cluster_statement:
       keyword: CLUSTER
-      object_reference:
+      table_reference:
         naked_identifier: employees
 - statement_terminator: ;
 - statement:
@@ -42,20 +42,20 @@ file:
 - statement:
     cluster_statement:
     - keyword: CLUSTER
-    - object_reference:
+    - index_reference:
         naked_identifier: index_name
     - keyword: 'ON'
-    - object_reference:
+    - table_reference:
         naked_identifier: table_name
 - statement_terminator: ;
 - statement:
     cluster_statement:
     - keyword: CLUSTER
-    - object_reference:
+    - table_reference:
       - naked_identifier: public
       - dot: .
       - naked_identifier: temp_table
     - keyword: USING
-    - object_reference:
+    - index_reference:
         naked_identifier: idx_temp_table_ra
 - statement_terminator: ;

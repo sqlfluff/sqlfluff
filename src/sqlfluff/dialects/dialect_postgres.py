@@ -5164,10 +5164,12 @@ class ClusterStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CLUSTER",
         Ref.keyword("VERBOSE", optional=True),
-        Ref("TableReferenceSegment", optional=True),
         OneOf(
-            Sequence("USING", Ref("IndexReferenceSegment")),
-            Sequence("ON", Ref("TableReferenceSegment")),
+            Sequence(
+                Ref("TableReferenceSegment"),
+                Sequence("USING", Ref("IndexReferenceSegment"), optional=True),
+            ),
+            Sequence(Ref("IndexReferenceSegment"), "ON", Ref("TableReferenceSegment")),
             optional=True,
         ),
     )
