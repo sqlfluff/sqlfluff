@@ -122,90 +122,77 @@ class Delimited(OneOf):
         while True:
             progressbar_matching.update(n=1)
 
-            if seeking_delimiter:
-                elements = delimiter_matchers
+            if len(seg_buff) == 0:  # pragma: no cover
+                break
 
-            else:
-                elements = self._elements
+            pre_non_code, seg_content, post_non_code = trim_non_code_segments(seg_buff)
 
-            if len(seg_buff) > 0:
-                pre_non_code, seg_content, post_non_code = trim_non_code_segments(
-                    seg_buff
+            if not self.allow_gaps and any(seg.is_whitespace for seg in pre_non_code):
+                unmatched_segments = seg_buff
+                break
+
+            if not seg_content:  # pragma: no cover
+                matched_segments += pre_non_code
+                break
+
+            # Check whether there is a terminator before checking for content
+            with parse_context.deeper_match(name="Delimited-Term") as ctx:
+                match, _ = self._longest_trimmed_match(
+                    segments=seg_content,
+                    matchers=terminator_matchers,
+                    parse_context=ctx,
+                    # We've already trimmed
+                    trim_noncode=False,
                 )
 
-                if not self.allow_gaps and any(
-                    seg.is_whitespace for seg in pre_non_code
-                ):
-                    unmatched_segments = seg_buff
-                    break
-
-                if not seg_content:  # pragma: no cover
-                    matched_segments += pre_non_code
-                    break
-
-                # Check whether there is a terminator before checking for content
-                with parse_context.deeper_match(name="Delimited-Term") as ctx:
-                    match, _ = self._longest_trimmed_match(
-                        segments=seg_content,
-                        matchers=terminator_matchers,
-                        parse_context=ctx,
-                        # We've already trimmed
-                        trim_noncode=False,
-                    )
-
-                    if match:
-                        terminated = True
-                        unmatched_segments = (
-                            pre_non_code + match.all_segments() + post_non_code
-                        )
-                        break
-
-                _push_terminators = []
-                if delimiter_matchers and elements != delimiter_matchers:
-                    _push_terminators = delimiter_matchers
-                with parse_context.deeper_match(
-                    name="Delimited", push_terminators=_push_terminators
-                ) as ctx:
-                    match, _ = self._longest_trimmed_match(
-                        segments=seg_content,
-                        matchers=elements,
-                        parse_context=ctx,
-                        # We've already trimmed
-                        trim_noncode=False,
-                    )
-
                 if match:
-                    if elements == delimiter_matchers:
-                        delimiters += 1
-                        matched_delimiter = True
-                        cached_matched_segments = matched_segments
-                        cached_unmatched_segments = seg_buff
-
-                    else:
-                        matched_delimiter = False
-
-                    has_matched_segs = True
-                    seg_buff = match.unmatched_segments + post_non_code
-                    unmatched_segments = match.unmatched_segments
-
-                    if match.is_complete():
-                        matched_segments += (
-                            pre_non_code + match.matched_segments + post_non_code
-                        )
-
-                        unmatched_segments = match.unmatched_segments
-                        break
-
-                    matched_segments += pre_non_code + match.matched_segments
-                    seeking_delimiter = not seeking_delimiter
-
-                else:
-                    matched_segments += pre_non_code
-                    unmatched_segments = match.unmatched_segments + post_non_code
+                    terminated = True
+                    unmatched_segments = (
+                        pre_non_code + match.all_segments() + post_non_code
+                    )
                     break
 
+            with parse_context.deeper_match(
+                name="Delimited",
+                push_terminators=[] if seeking_delimiter else delimiter_matchers,
+            ) as ctx:
+                match, _ = self._longest_trimmed_match(
+                    segments=seg_content,
+                    matchers=delimiter_matchers
+                    if seeking_delimiter
+                    else self._elements,
+                    parse_context=ctx,
+                    # We've already trimmed
+                    trim_noncode=False,
+                )
+
+            if not match:
+                matched_segments += pre_non_code
+                unmatched_segments = match.unmatched_segments + post_non_code
+                break
+
+            if seeking_delimiter:
+                delimiters += 1
+                matched_delimiter = True
+                cached_matched_segments = matched_segments
+                cached_unmatched_segments = seg_buff
             else:
-                break  # pragma: no cover
+                matched_delimiter = False
+
+            has_matched_segs = True
+            seg_buff = match.unmatched_segments + post_non_code
+            unmatched_segments = match.unmatched_segments
+
+            if match.is_complete():
+                matched_segments += (
+                    pre_non_code + match.matched_segments + post_non_code
+                )
+
+                unmatched_segments = match.unmatched_segments
+                break
+
+            matched_segments += pre_non_code + match.matched_segments
+            seeking_delimiter = not seeking_delimiter
 
         if self.min_delimiters:
             if delimiters < self.min_delimiters:
