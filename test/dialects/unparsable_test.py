@@ -1,12 +1,12 @@
 """Test the behaviour of the unparsable routines."""
 
-import pytest
 import logging
+from typing import Any, Optional
 
-from typing import Optional, Any
+import pytest
 
 from sqlfluff.core import FluffConfig, Linter
-from sqlfluff.core.parser import Lexer, BaseSegment, RawSegment
+from sqlfluff.core.parser import BaseSegment, Lexer, RawSegment
 from sqlfluff.core.parser.context import ParseContext
 
 
@@ -38,12 +38,10 @@ from sqlfluff.core.parser.context import ParseContext
                                                 "select_clause_element",
                                                 (("numeric_literal", "1"),),
                                             ),
+                                            ("whitespace", " "),
                                             (
                                                 "unparsable",
-                                                (
-                                                    ("whitespace", " "),
-                                                    ("numeric_literal", "1"),
-                                                ),
+                                                (("numeric_literal", "1"),),
                                             ),
                                         ),
                                     ),
@@ -67,14 +65,66 @@ from sqlfluff.core.parser.context import ParseContext
                         "select_clause_element",
                         (("numeric_literal", "1"),),
                     ),
+                    ("whitespace", " "),
                     # We should get a single unparsable section
                     # here at the end.
                     (
                         "unparsable",
+                        (("numeric_literal", "1"),),
+                    ),
+                ),
+            ),
+        ),
+        # This more complex example looks a little strange, but does
+        # reflect current unparsable behaviour. During future work
+        # on the parser, the structure of this result may change
+        # but it should still result in am unparsable section _within_
+        # the brackets, and not just a totally unparsable statement.
+        (
+            "SelectClauseSegment",
+            "ansi",
+            "SELECT 1 + (2 2 2)",
+            (
+                "select_clause",
+                (
+                    ("keyword", "SELECT"),
+                    ("whitespace", " "),
+                    (
+                        "select_clause_element",
                         (
-                            ("whitespace", " "),
-                            ("numeric_literal", "1"),
+                            (
+                                "expression",
+                                (
+                                    ("numeric_literal", "1"),
+                                    ("whitespace", " "),
+                                    ("binary_operator", "+"),
+                                    ("whitespace", " "),
+                                    (
+                                        "bracketed",
+                                        (
+                                            ("start_bracket", "("),
+                                            ("expression", (("numeric_literal", "2"),)),
+                                            (
+                                                "unparsable",
+                                                (
+                                                    ("whitespace", " "),
+                                                    ("numeric_literal", "2"),
+                                                    ("whitespace", " "),
+                                                    ("numeric_literal", "2"),
+                                                ),
+                                            ),
+                                            ("end_bracket", ")"),
+                                        ),
+                                    ),
+                                ),
+                            ),
                         ),
+                    ),
+                    # This is a bit odd but it reflects current
+                    # behaviour. Ideally it should not be present.
+                    (
+                        "unparsable",
+                        (),
                     ),
                 ),
             ),
