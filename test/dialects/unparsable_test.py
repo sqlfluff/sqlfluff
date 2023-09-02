@@ -157,7 +157,6 @@ def test_dialect_unparsable(
     ctx = ParseContext.from_config(config)
     result = seg.parse(parse_context=ctx)
 
-    print(result)
     assert len(result) == 1
     parsed = result[0]
     assert isinstance(parsed, Seg)
