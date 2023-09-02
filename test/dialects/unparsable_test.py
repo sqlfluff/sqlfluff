@@ -1,11 +1,10 @@
 """Test the behaviour of the unparsable routines."""
 
-import logging
 from typing import Any, Optional
 
 import pytest
 
-from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core import FluffConfig
 from sqlfluff.core.parser import BaseSegment, Lexer, RawSegment
 from sqlfluff.core.parser.context import ParseContext
 
