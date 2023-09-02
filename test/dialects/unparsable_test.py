@@ -149,7 +149,6 @@ def test_dialect_unparsable(
     lex = Lexer(config=config)
     seg_list, vs = lex.lex(raw)
     assert not vs
-    print(seg_list)
 
     # Construct an unparsed segment
     seg = Seg(seg_list, pos_marker=seg_list[0].pos_marker)
