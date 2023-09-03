@@ -205,7 +205,7 @@ class OneOf(AnyNumberOf):
         self,
         *args: Union[MatchableType, str],
         exclude: Optional[MatchableType] = None,
-        terminators: Optional[SequenceType[MatchableType]] = None,
+        terminators: Optional[SequenceType[Union[MatchableType, str]]] = None,
         reset_terminators: bool = False,
         allow_gaps: bool = True,
         optional: bool = False,

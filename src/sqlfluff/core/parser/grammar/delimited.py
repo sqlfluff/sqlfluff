@@ -1,6 +1,6 @@
 """Definitions for Grammar."""
 
-from typing import Optional, Tuple, Union, Sequence
+from typing import Optional, Sequence, Tuple, Union
 
 from tqdm import tqdm
 
