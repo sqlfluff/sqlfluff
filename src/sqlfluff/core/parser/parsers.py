@@ -131,6 +131,9 @@ class TypedParser(BaseParser):
             trim_chars=trim_chars,
         )
 
+    def __repr__(self) -> str:
+        return f"<TypedParser: {self.template!r}>"
+
     def simple(
         cls, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
     ) -> SimpleHintType:
@@ -166,6 +169,9 @@ class StringParser(BaseParser):
             optional=optional,
             trim_chars=trim_chars,
         )
+
+    def __repr__(self) -> str:
+        return f"<StringParser: {self.template!r}>"
 
     def simple(
         self, parse_context: "ParseContext", crumbs: Optional[Tuple[str, ...]] = None
@@ -206,6 +212,9 @@ class MultiStringParser(BaseParser):
             optional=optional,
             trim_chars=trim_chars,
         )
+
+    def __repr__(self) -> str:
+        return f"<MultiStringParser: {self.templates!r}>"
 
     def simple(
         self, parse_context: "ParseContext", crumbs: Optional[Tuple[str, ...]] = None
@@ -250,6 +259,9 @@ class RegexParser(BaseParser):
             optional=optional,
             trim_chars=trim_chars,
         )
+
+    def __repr__(self) -> str:
+        return f"<RegexParser: {self.template!r}>"
 
     def simple(
         cls, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
