@@ -1,5 +1,6 @@
 """The PostgreSQL dialect."""
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     Anything,
@@ -12,7 +13,6 @@ from sqlfluff.core.parser import (
     Delimited,
     Indent,
     Matchable,
-    TypedParser,
     NewlineSegment,
     OneOf,
     OptionallyBracketed,
@@ -21,21 +21,19 @@ from sqlfluff.core.parser import (
     RegexParser,
     SegmentGenerator,
     Sequence,
-    SymbolSegment,
     StartsWith,
     StringParser,
+    SymbolSegment,
+    TypedParser,
 )
-
-from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.grammar.anyof import AnySetOf
 from sqlfluff.core.parser.lexer import StringLexer
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_postgres_keywords import (
-    postgres_keywords,
     get_keywords,
+    postgres_keywords,
     postgres_postgis_datatype_keywords,
 )
-
-from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 
@@ -1390,14 +1388,15 @@ class ForClauseSegment(BaseSegment):
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Overrides ANSI Statement, to allow for SELECT INTO statements."""
 
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
+        add_terminators=[
+            Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
             Sequence("ON", "CONFLICT"),
             Ref.keyword("RETURNING"),
             Ref("WithCheckOptionSegment"),
-        ],
+        ]
     )
+
     parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[
             Ref("IntoClauseSegment", optional=True),
@@ -1409,14 +1408,15 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Overrides ANSI as the parse grammar copy needs to be reapplied."""
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
+        add_terminators=[
+            Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
             Sequence("ON", "CONFLICT"),
             Ref.keyword("RETURNING"),
             Ref("WithCheckOptionSegment"),
-        ],
+        ]
     )
+
     parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
@@ -1434,7 +1434,7 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
 
     match_grammar = StartsWith(
         "SELECT",
-        terminator=OneOf(
+        terminators=[
             "INTO",
             "FROM",
             "WHERE",
@@ -1442,7 +1442,9 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
             "LIMIT",
             "OVERLAPS",
             Ref("SetOperatorSegment"),
-        ),
+            Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
+            Ref("WithCheckOptionSegment"),
+        ],
         enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = ansi.SelectClauseSegment.parse_grammar
