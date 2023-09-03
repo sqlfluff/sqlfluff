@@ -111,6 +111,9 @@ class Delimited(OneOf):
         terminated = False
 
         delimiter_matchers = [self.delimiter]
+        # TODO: We should also be able to add the `parse_context.terminators`
+        # here but that currently presents issues in several dialects. That
+        # will need to be resolved in future.
         terminator_matchers = list(self.terminators)
 
         # If gaps aren't allowed, a gap (or non-code segment), acts like a terminator.
