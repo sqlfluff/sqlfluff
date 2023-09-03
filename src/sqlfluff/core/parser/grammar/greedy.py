@@ -221,8 +221,8 @@ class StartsWith(GreedyUntil):
         assert not (
             terminators and add_terminators
         ), "Cannot set `terminators` AND `add_terminators`."
-        # Override
-        if terminators:
+        # Override (NOTE: Not currently used).
+        if terminators:  # pragma: no cover
             new_grammar.terminators = [self._resolve_ref(t) for t in terminators]
         # Append
         elif add_terminators:
