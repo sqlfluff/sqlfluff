@@ -1190,7 +1190,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
                 delimiter=OneOf(
                     Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
                 ),
-                terminator=OneOf(
+                terminators=[
                     "ON",
                     "AS",
                     "USING",
@@ -1202,7 +1202,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
                     Ref("ColonSegment"),
                     Ref("DelimiterGrammar"),
                     BracketedSegment,
-                ),
+                ],
                 allow_gaps=False,
             ),
             allow_gaps=False,
@@ -1278,7 +1278,7 @@ class TableReferenceSegment(ObjectReferenceSegment):
         delimiter=OneOf(
             Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
         ),
-        terminator=OneOf(
+        terminators=[
             "ON",
             "AS",
             "USING",
@@ -1290,7 +1290,7 @@ class TableReferenceSegment(ObjectReferenceSegment):
             Ref("DelimiterGrammar"),
             Ref("JoinLikeClauseGrammar"),
             BracketedSegment,
-        ),
+        ],
         allow_gaps=False,
     )
 
