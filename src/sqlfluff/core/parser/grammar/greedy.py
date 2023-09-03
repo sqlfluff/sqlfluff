@@ -72,7 +72,7 @@ class GreedyUntil(BaseGrammar):
         while True:
             with parse_context.deeper_match(name="GreedyUntil") as ctx:
                 pre, mat, _ = cls._bracket_sensitive_look_ahead_match(
-                    seg_buff, matchers, parse_context=ctx
+                    seg_buff, list(matchers), parse_context=ctx
                 )
 
             # Do we have a match?
@@ -155,7 +155,7 @@ class GreedyUntil(BaseGrammar):
                 return MatchResult.from_matched(segments)
 
 
-T = TypeVar("T", bound="GreedyUntil")
+T = TypeVar("T", bound="StartsWith")
 
 
 class StartsWith(GreedyUntil):
@@ -223,18 +223,14 @@ class StartsWith(GreedyUntil):
         ), "Cannot set `terminators` AND `add_terminators`."
         # Override
         if terminators:
-            new_grammar.terminators: List[MatchableType] = [
-                self._resolve_ref(t) for t in terminators
-            ]
+            new_grammar.terminators = [self._resolve_ref(t) for t in terminators]
         # Append
         elif add_terminators:
-            new_terminators: List[MatchableType] = [
-                self._resolve_ref(t) for t in add_terminators
-            ]
+            new_terminators = [self._resolve_ref(t) for t in add_terminators]
             # NOTE: We slice to make sure we copy the list.
             # NOTE: The new ones always go _first_. It shouldn't matter, but
             # for currently unknown reasons, it does.
-            new_grammar.terminators = new_terminators + new_grammar.terminators[:]
+            new_grammar.terminators = new_terminators + list(new_grammar.terminators)
 
         return new_grammar
 
