@@ -2556,7 +2556,7 @@ class WithCheckOptionSegment(BaseSegment):
 
     type = "with_check_option"
     match_grammar: Matchable = Sequence(
-        "WITH", OneOf("CASCADED", "LOCAL"), Sequence("CHECK", "OPTION")
+        "WITH", OneOf("CASCADED", "LOCAL"), "CHECK", "OPTION"
     )
 
 
