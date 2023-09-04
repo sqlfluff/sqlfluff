@@ -913,6 +913,7 @@ class BaseGrammar(Matchable):
                 Elements are searched for individually.
 
         """
+        assert not kwargs, f"Unexpected kwargs to .copy(): {kwargs}"
         # Copy only the *grammar* elements. The rest comes through
         # as is because they should just be classes rather than
         # instances.

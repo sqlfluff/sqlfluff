@@ -1,0 +1,61 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0d16521927fc3186064bbef4aa28fc13853179831ee346d6cbc2186d1bb483a7
+file:
+- statement:
+    cluster_statement:
+    - keyword: CLUSTER
+    - table_reference:
+        naked_identifier: employees
+    - keyword: USING
+    - index_reference:
+        naked_identifier: employees_ind
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+    - keyword: CLUSTER
+    - keyword: VERBOSE
+    - table_reference:
+        naked_identifier: employees
+    - keyword: USING
+    - index_reference:
+        naked_identifier: employees_ind
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+      keyword: CLUSTER
+      table_reference:
+        naked_identifier: employees
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+      keyword: CLUSTER
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+    - keyword: CLUSTER
+    - keyword: VERBOSE
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+    - keyword: CLUSTER
+    - index_reference:
+        naked_identifier: index_name
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: table_name
+- statement_terminator: ;
+- statement:
+    cluster_statement:
+    - keyword: CLUSTER
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: temp_table
+    - keyword: USING
+    - index_reference:
+        naked_identifier: idx_temp_table_ra
+- statement_terminator: ;
