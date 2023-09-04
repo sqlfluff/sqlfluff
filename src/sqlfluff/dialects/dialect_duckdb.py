@@ -14,10 +14,11 @@ from sqlfluff.core.parser import (
     OneOf,
     Ref,
     Sequence,
+    StringLexer,
+    StringParser,
 )
 
 postgres_dialect = load_raw_dialect("postgres")
-
 duckdb_dialect = postgres_dialect.copy_as("duckdb")
 
 duckdb_dialect.replace(
@@ -26,6 +27,17 @@ duckdb_dialect.replace(
         Ref("QuotedIdentifierSegment"),
         Ref("SingleQuotedIdentifierSegment"),
     ),
+    DivideSegment=OneOf(
+        StringParser("//", ansi.BinaryOperatorSegment),
+        StringParser("/", ansi.BinaryOperatorSegment),
+    ),
+)
+
+duckdb_dialect.insert_lexer_matchers(
+    [
+        StringLexer("double_divide", "//", ansi.CodeSegment),
+    ],
+    before="divide",
 )
 
 
@@ -85,7 +97,7 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
             ),
             allow_trailing=True,
-            terminator=Ref("OrderByClauseTerminators"),
+            terminators=[Ref("OrderByClauseTerminators")],
         ),
         Dedent,
     )
@@ -106,7 +118,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                 Ref("ExpressionSegment"),
             ),
             allow_trailing=True,
-            terminator=Ref("GroupByClauseTerminatorGrammar"),
+            terminators=[Ref("GroupByClauseTerminatorGrammar")],
         ),
         Dedent,
     )

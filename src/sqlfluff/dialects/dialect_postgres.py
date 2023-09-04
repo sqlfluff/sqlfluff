@@ -1499,14 +1499,14 @@ class GroupByClauseSegment(BaseSegment):
                 Ref("ExpressionSegment"),
                 Bracketed(),  # Allows empty parentheses
             ),
-            terminator=OneOf(
+            terminators=[
                 Sequence("ORDER", "BY"),
                 "LIMIT",
                 "HAVING",
                 "QUALIFY",
                 "WINDOW",
                 Ref("SetOperatorSegment"),
-            ),
+            ],
         ),
         Dedent,
     )
@@ -2267,7 +2267,7 @@ class PublicationObjectsSegment(BaseSegment):
             "TABLE",
             Delimited(
                 Ref("PublicationTableSegment"),
-                terminator=Sequence(Ref("CommaSegment"), OneOf("TABLE", "TABLES")),
+                terminators=[Sequence(Ref("CommaSegment"), OneOf("TABLE", "TABLES"))],
             ),
         ),
         Sequence(
@@ -2276,7 +2276,7 @@ class PublicationObjectsSegment(BaseSegment):
             "SCHEMA",
             Delimited(
                 OneOf(Ref("SchemaReferenceSegment"), "CURRENT_SCHEMA"),
-                terminator=Sequence(Ref("CommaSegment"), OneOf("TABLE", "TABLES")),
+                terminators=[Sequence(Ref("CommaSegment"), OneOf("TABLE", "TABLES"))],
             ),
         ),
     )
@@ -3269,7 +3269,7 @@ class AlterDefaultPrivilegesStatementSegment(BaseSegment):
             OneOf("ROLE", "USER"),
             Delimited(
                 Ref("ObjectReferenceSegment"),
-                terminator=OneOf("IN", "GRANT", "REVOKE"),
+                terminators=["IN", "GRANT", "REVOKE"],
             ),
             optional=True,
         ),
@@ -3278,7 +3278,7 @@ class AlterDefaultPrivilegesStatementSegment(BaseSegment):
             "SCHEMA",
             Delimited(
                 Ref("SchemaReferenceSegment"),
-                terminator=OneOf("GRANT", "REVOKE"),
+                terminators=["GRANT", "REVOKE"],
             ),
             optional=True,
         ),
@@ -3309,7 +3309,7 @@ class AlterDefaultPrivilegesObjectPrivilegesSegment(BaseSegment):
             "TRUNCATE",
             "UPDATE",
             "USAGE",
-            terminator="ON",
+            terminators=["ON"],
         ),
     )
 
@@ -3364,7 +3364,7 @@ class AlterDefaultPrivilegesGrantSegment(BaseSegment):
         "TO",
         Delimited(
             Ref("AlterDefaultPrivilegesToFromRolesSegment"),
-            terminator="WITH",
+            terminators=["WITH"],
         ),
         Sequence("WITH", "GRANT", "OPTION", optional=True),
     )
@@ -3386,7 +3386,7 @@ class AlterDefaultPrivilegesRevokeSegment(BaseSegment):
         "FROM",
         Delimited(
             Ref("AlterDefaultPrivilegesToFromRolesSegment"),
-            terminator=OneOf("RESTRICT", "CASCADE"),
+            terminators=["RESTRICT", "CASCADE"],
         ),
         Ref("DropBehaviorGrammar", optional=True),
     )
@@ -3984,7 +3984,7 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
                     "OF",
                     Delimited(
                         Ref("ColumnReferenceSegment"),
-                        terminator=OneOf("OR", "ON"),
+                        terminators=["OR", "ON"],
                     ),
                     optional=True,
                 ),
@@ -5194,7 +5194,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
                 delimiter=OneOf(
                     Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
                 ),
-                terminator=OneOf(
+                terminators=[
                     "ON",
                     "AS",
                     "USING",
@@ -5207,7 +5207,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
                     Ref("DelimiterGrammar"),
                     Ref("JoinLikeClauseGrammar"),
                     BracketedSegment,
-                ),
+                ],
                 allow_gaps=False,
             ),
             allow_gaps=False,

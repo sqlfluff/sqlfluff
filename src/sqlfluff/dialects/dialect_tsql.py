@@ -891,7 +891,7 @@ class WithCompoundStatementSegment(BaseSegment):
         Conditional(Indent, indented_ctes=True),
         Delimited(
             Ref("CTEDefinitionSegment"),
-            terminator=Ref.keyword("SELECT"),
+            terminators=["SELECT"],
         ),
         Conditional(Dedent, indented_ctes=True),
         OneOf(
@@ -4879,7 +4879,7 @@ class AccessStatementSegment(BaseSegment):
             Sequence("ALL", _schema_object_types_plural, "IN", "SCHEMA"),
             optional=True,
         ),
-        Delimited(Ref("ObjectReferenceSegment"), terminator=OneOf("TO", "FROM")),
+        Delimited(Ref("ObjectReferenceSegment"), terminators=["TO", "FROM"]),
         Ref("FunctionParameterListGrammar", optional=True),
     )
 
@@ -4892,7 +4892,7 @@ class AccessStatementSegment(BaseSegment):
                 Sequence(
                     Delimited(
                         OneOf(_global_permissions, _permissions),
-                        terminator="ON",
+                        terminators=["ON"],
                     ),
                 ),
                 Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
@@ -4923,7 +4923,7 @@ class AccessStatementSegment(BaseSegment):
             OneOf(
                 Delimited(
                     OneOf(_global_permissions, _permissions),
-                    terminator="ON",
+                    terminators=["ON"],
                 ),
                 Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
             ),
@@ -4950,7 +4950,7 @@ class AccessStatementSegment(BaseSegment):
             OneOf(
                 Delimited(
                     OneOf(_global_permissions, _permissions),
-                    terminator="ON",
+                    terminators=["ON"],
                 ),
                 Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
             ),

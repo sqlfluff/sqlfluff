@@ -673,13 +673,13 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                 Ref("NumericLiteralSegment"),  # Can `GROUP BY 1`
                 Ref("ExpressionSegment"),  # Can `GROUP BY coalesce(col, 1)`
             ),
-            terminator=OneOf(
+            terminators=[
                 Sequence("ORDER", "BY"),
                 "LIMIT",
                 "OFFSET",
                 "HAVING",
                 Ref("SetOperatorSegment"),
-            ),
+            ],
         ),
         Dedent,
     )

@@ -349,9 +349,15 @@ snowflake_dialect.add(
             # Can `GROUP BY coalesce(col, 1)`
             Ref("ExpressionSegment"),
         ),
-        terminator=OneOf(
-            "ORDER", "LIMIT", "FETCH", "OFFSET", "HAVING", "QUALIFY", "WINDOW"
-        ),
+        terminators=[
+            "ORDER",
+            "LIMIT",
+            "FETCH",
+            "OFFSET",
+            "HAVING",
+            "QUALIFY",
+            "WINDOW",
+        ],
     ),
     LimitLiteralGrammar=OneOf(
         Ref("NumericLiteralSegment"),
@@ -2374,7 +2380,7 @@ class AccessStatementSegment(BaseSegment):
                     Ref("FunctionNameSegment"),
                     Ref("FunctionParameterListGrammar", optional=True),
                 ),
-                terminator=OneOf("TO", "FROM"),
+                terminators=["TO", "FROM"],
             ),
         ),
     )
@@ -2387,7 +2393,7 @@ class AccessStatementSegment(BaseSegment):
                 Sequence(
                     Delimited(
                         OneOf(_global_permissions, _permissions),
-                        terminator="ON",
+                        terminators=["ON"],
                     ),
                     "ON",
                     _objects,
@@ -2429,7 +2435,7 @@ class AccessStatementSegment(BaseSegment):
                 Sequence(
                     Delimited(
                         OneOf(_global_permissions, _permissions),
-                        terminator="ON",
+                        terminators=["ON"],
                     ),
                     "ON",
                     _objects,
@@ -6349,7 +6355,7 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
                 OneOf("ASC", "DESC", optional=True),
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
             ),
-            terminator=OneOf("LIMIT", "FETCH", "OFFSET", Ref("FrameClauseUnitGrammar")),
+            terminators=["LIMIT", "FETCH", "OFFSET", Ref("FrameClauseUnitGrammar")],
         ),
         Dedent,
     )

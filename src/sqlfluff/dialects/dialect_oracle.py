@@ -458,7 +458,7 @@ class TableReferenceSegment(ObjectReferenceSegment):
             Sequence(Ref("DotSegment"), Ref("DotSegment")),
             Ref("AtSignSegment"),
         ),
-        terminator=OneOf(
+        terminators=[
             "ON",
             "AS",
             "USING",
@@ -471,7 +471,7 @@ class TableReferenceSegment(ObjectReferenceSegment):
             Ref("DelimiterGrammar"),
             Ref("JoinLikeClauseGrammar"),
             BracketedSegment,
-        ),
+        ],
         allow_gaps=False,
     )
 

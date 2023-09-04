@@ -1,6 +1,6 @@
 """Definitions for Grammar."""
 
-from typing import Optional, Tuple, Union
+from typing import Optional, Sequence, Tuple, Union
 
 from tqdm import tqdm
 
@@ -38,9 +38,8 @@ class Delimited(OneOf):
         *args: Union[MatchableType, str],
         delimiter: Union[MatchableType, str] = Ref("CommaSegment"),
         allow_trailing: bool = False,
-        # NOTE: Other grammars support terminators (plural)
-        # TODO: Align these to be the same eventually.
-        terminator: Optional[Union[MatchableType, str]] = None,
+        terminators: Optional[Sequence[Union[MatchableType, str]]] = None,
+        reset_terminators: bool = False,
         min_delimiters: Optional[int] = None,
         bracket_pairs_set: str = "bracket_pairs",
         allow_gaps: bool = True,
@@ -52,11 +51,12 @@ class Delimited(OneOf):
         self.bracket_pairs_set = bracket_pairs_set
         self.delimiter = self._resolve_ref(delimiter)
         self.allow_trailing = allow_trailing
-        self.terminator = self._resolve_ref(terminator)
         # Setting min delimiters means we have to match at least this number
         self.min_delimiters = min_delimiters
         super().__init__(
             *args,
+            terminators=terminators,
+            reset_terminators=reset_terminators,
             allow_gaps=allow_gaps,
             optional=optional,
             ephemeral_name=ephemeral_name,
@@ -111,10 +111,11 @@ class Delimited(OneOf):
         terminated = False
 
         delimiter_matchers = [self.delimiter]
-        terminator_matchers = []
+        # TODO: We should also be able to add the `parse_context.terminators`
+        # here but that currently presents issues in several dialects. That
+        # will need to be resolved in future.
+        terminator_matchers = list(self.terminators)
 
-        if self.terminator:
-            terminator_matchers.append(self.terminator)
         # If gaps aren't allowed, a gap (or non-code segment), acts like a terminator.
         if not self.allow_gaps:
             terminator_matchers.append(NonCodeMatcher())
@@ -155,6 +156,7 @@ class Delimited(OneOf):
             with parse_context.deeper_match(
                 name="Delimited",
                 push_terminators=[] if seeking_delimiter else delimiter_matchers,
+                clear_terminators=self.reset_terminators,
             ) as ctx:
                 match, _ = self._longest_trimmed_match(
                     segments=seg_content,

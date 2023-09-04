@@ -637,14 +637,12 @@ class DeleteStatementSegment(BaseSegment):
         OneOf(
             Sequence(
                 "FROM",
-                Delimited(
-                    Ref("TableReferenceSegment"), terminator=Ref.keyword("USING")
-                ),
+                Delimited(Ref("TableReferenceSegment"), terminators=["USING"]),
                 Ref("DeleteUsingClauseSegment"),
                 Ref("WhereClauseSegment", optional=True),
             ),
             Sequence(
-                Delimited(Ref("TableReferenceSegment"), terminator=Ref.keyword("FROM")),
+                Delimited(Ref("TableReferenceSegment"), terminators=["FROM"]),
                 Ref("FromClauseSegment"),
                 Ref("WhereClauseSegment", optional=True),
             ),
@@ -2423,7 +2421,7 @@ class FlushStatementSegment(BaseSegment):
             Sequence(
                 "TABLES",
                 Sequence(
-                    Delimited(Ref("TableReferenceSegment"), terminator="WITH"),
+                    Delimited(Ref("TableReferenceSegment"), terminators=["WITH"]),
                     optional=True,
                 ),
                 Sequence("WITH", "READ", "LOCK", optional=True),
@@ -2431,7 +2429,7 @@ class FlushStatementSegment(BaseSegment):
             Sequence(
                 "TABLES",
                 Sequence(
-                    Delimited(Ref("TableReferenceSegment"), terminator="FOR"),
+                    Delimited(Ref("TableReferenceSegment"), terminators=["FOR"]),
                     optional=False,
                 ),
                 Sequence("FOR", "EXPORT", optional=True),

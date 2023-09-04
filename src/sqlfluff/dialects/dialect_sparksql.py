@@ -1579,14 +1579,14 @@ class ClusterByClauseSegment(BaseSegment):
                     Ref("ExpressionSegment"),
                 ),
             ),
-            terminator=OneOf(
+            terminators=[
                 "LIMIT",
                 "HAVING",
                 # For window functions
                 "WINDOW",
                 Ref("FrameClauseUnitGrammar"),
                 "SEPARATOR",
-            ),
+            ],
         ),
         Dedent,
     )
@@ -1615,7 +1615,7 @@ class DistributeByClauseSegment(BaseSegment):
                     Ref("ExpressionSegment"),
                 ),
             ),
-            terminator=OneOf(
+            terminators=[
                 "SORT",
                 "LIMIT",
                 "HAVING",
@@ -1623,7 +1623,7 @@ class DistributeByClauseSegment(BaseSegment):
                 "WINDOW",
                 Ref("FrameClauseUnitGrammar"),
                 "SEPARATOR",
-            ),
+            ],
         ),
         Dedent,
     )
@@ -1672,7 +1672,7 @@ class SelectHintSegment(BaseSegment):
                     # At least function should be supplied
                     min_times=1,
                 ),
-                terminator=Ref("EndHintSegment"),
+                terminators=[Ref("EndHintSegment")],
             ),
             Ref("EndHintSegment"),
         ),
@@ -1867,7 +1867,7 @@ class SortByClauseSegment(BaseSegment):
                 # sense here for now.
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
             ),
-            terminator=OneOf(
+            terminators=[
                 "LIMIT",
                 "HAVING",
                 "QUALIFY",
@@ -1875,7 +1875,7 @@ class SortByClauseSegment(BaseSegment):
                 "WINDOW",
                 Ref("FrameClauseUnitGrammar"),
                 "SEPARATOR",
-            ),
+            ],
         ),
         Dedent,
     )

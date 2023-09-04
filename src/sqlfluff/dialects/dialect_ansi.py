@@ -984,7 +984,7 @@ class ObjectReferenceSegment(BaseSegment):
     match_grammar: Matchable = Delimited(
         Ref("SingleIdentifierGrammar"),
         delimiter=Ref("ObjectReferenceDelimiterGrammar"),
-        terminator=Ref("ObjectReferenceTerminatorGrammar"),
+        terminators=[Ref("ObjectReferenceTerminatorGrammar")],
         allow_gaps=False,
     )
 
@@ -1116,7 +1116,7 @@ class CollationReferenceSegment(ObjectReferenceSegment):
         Delimited(
             Ref("SingleIdentifierGrammar"),
             delimiter=Ref("ObjectReferenceDelimiterGrammar"),
-            terminator=Ref("ObjectReferenceTerminatorGrammar"),
+            terminators=[Ref("ObjectReferenceTerminatorGrammar")],
             allow_gaps=False,
         ),
     )
@@ -2371,7 +2371,7 @@ class OrderByClauseSegment(BaseSegment):
                 # for now.
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
             ),
-            terminator=OneOf(Ref.keyword("LIMIT"), Ref("FrameClauseUnitGrammar")),
+            terminators=["LIMIT", Ref("FrameClauseUnitGrammar")],
         ),
         Dedent,
     )
@@ -2440,7 +2440,7 @@ class GroupingExpressionList(BaseSegment):
                 Ref("ExpressionSegment"),
                 Bracketed(),  # Allows empty parentheses
             ),
-            terminator=Ref("GroupByClauseTerminatorGrammar"),
+            terminators=[Ref("GroupByClauseTerminatorGrammar")],
         ),
         Dedent,
     )
@@ -2482,7 +2482,7 @@ class GroupByClauseSegment(BaseSegment):
                         # Can `GROUP BY coalesce(col, 1)`
                         Ref("ExpressionSegment"),
                     ),
-                    terminator=Ref("GroupByClauseTerminatorGrammar"),
+                    terminators=[Ref("GroupByClauseTerminatorGrammar")],
                 ),
                 Dedent,
             ),
@@ -2791,7 +2791,7 @@ class WithCompoundStatementSegment(BaseSegment):
         Conditional(Indent, indented_ctes=True),
         Delimited(
             Ref("CTEDefinitionSegment"),
-            terminator=Ref.keyword("SELECT"),
+            terminators=["SELECT"],
         ),
         Conditional(Dedent, indented_ctes=True),
         OneOf(
@@ -3510,7 +3510,7 @@ class AccessStatementSegment(BaseSegment):
                     Ref("FunctionNameSegment"),
                     Ref("FunctionParameterListGrammar", optional=True),
                 ),
-                terminator=OneOf("TO", "FROM"),
+                terminators=["TO", "FROM"],
             ),
         ),
         Sequence("LARGE", "OBJECT", Ref("NumericLiteralSegment")),
@@ -3525,7 +3525,7 @@ class AccessStatementSegment(BaseSegment):
                 Sequence(
                     Delimited(
                         OneOf(_global_permissions, _permissions),
-                        terminator="ON",
+                        terminators=["ON"],
                     ),
                     "ON",
                     _objects,
@@ -3567,7 +3567,7 @@ class AccessStatementSegment(BaseSegment):
                 Sequence(
                     Delimited(
                         OneOf(_global_permissions, _permissions),
-                        terminator="ON",
+                        terminators=["ON"],
                     ),
                     "ON",
                     _objects,
@@ -4188,11 +4188,11 @@ class CreateTriggerStatementSegment(BaseSegment):
                 "OF",
                 Delimited(
                     Ref("ColumnReferenceSegment"),
-                    terminator=OneOf("OR", "ON"),
+                    terminators=["OR", "ON"],
                 ),
             ),
             delimiter="OR",
-            terminator="ON",
+            terminators=["ON"],
         ),
         "ON",
         Ref("TableReferenceSegment"),
