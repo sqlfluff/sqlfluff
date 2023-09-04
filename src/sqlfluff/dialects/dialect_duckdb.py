@@ -14,10 +14,12 @@ from sqlfluff.core.parser import (
     OneOf,
     Ref,
     Sequence,
+    StringParser,
+    SymbolSegment,
 )
 
+ansi_dialect = load_raw_dialect("ansi")
 postgres_dialect = load_raw_dialect("postgres")
-
 duckdb_dialect = postgres_dialect.copy_as("duckdb")
 
 duckdb_dialect.replace(
@@ -26,6 +28,19 @@ duckdb_dialect.replace(
         Ref("QuotedIdentifierSegment"),
         Ref("SingleQuotedIdentifierSegment"),
     ),
+    ArithmeticBinaryOperatorGrammar=ansi_dialect.get_grammar(
+        "ArithmeticBinaryOperatorGrammar"
+    ).copy(
+        insert=[
+            Ref("IntegerDivideSegment"),
+        ]
+    ),
+)
+
+duckdb_dialect.add(
+    IntegerDivideSegment=StringParser(
+        "//", SymbolSegment, type="binary_operator"
+    ),  # https://duckdb.org/docs/sql/functions/numeric.html
 )
 
 
