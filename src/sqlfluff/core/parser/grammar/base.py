@@ -15,7 +15,6 @@ from typing import (
     TypeVar,
     Union,
     cast,
-    overload,
 )
 from uuid import UUID, uuid4
 
@@ -135,24 +134,10 @@ class BaseGrammar(Matchable):
     is_meta = False
     equality_kwargs: Tuple[str, ...] = ("_elements", "optional", "allow_gaps")
 
-    @overload
-    @staticmethod
-    def _resolve_ref(elem: None) -> None:
-        """Return None when None."""
-
-    @overload
     @staticmethod
     def _resolve_ref(elem: Union[str, MatchableType]) -> MatchableType:
-        """Otherwise always return a MatchableType."""
-
-    @staticmethod
-    def _resolve_ref(
-        elem: Union[None, str, MatchableType]
-    ) -> Union[None, MatchableType]:
         """Resolve potential string references to things we can match against."""
-        if elem is None:
-            return None
-        elif isinstance(elem, str):
+        if isinstance(elem, str):
             return Ref.keyword(elem)
         elif isinstance(elem, Matchable):
             return elem
@@ -561,7 +546,9 @@ class BaseGrammar(Matchable):
         best_simple_match = None
         simple_match = None
         for idx, seg in enumerate(segments):
+            trimmed_seg = first_trimmed_raw(seg)
             for matcher in matchers:
+                simple_match = None
                 simple = matcher.simple(parse_context=parse_context)
                 if not simple:  # pragma: no cover
                     # NOTE: For all bundled dialects, this clause is true, but until
@@ -580,31 +567,35 @@ class BaseGrammar(Matchable):
 
                 assert simple_raws or simple_types
                 if simple_raws:
-                    trimmed_seg = first_trimmed_raw(seg)
                     if trimmed_seg in simple_raws:
                         simple_match = matcher
-                        break
+
                 if simple_types and not simple_match:
                     intersection = simple_types.intersection(seg.class_types)
                     if intersection:
                         simple_match = matcher
-                        break
 
-            # We've managed to match. We can shortcut home.
-            # NB: We may still need to deal with whitespace.
-            if simple_match:
-                # If we have a _simple_ match, now we should call the
-                # full match method to actually produce the result.
+                # If we couldn't achieve a simple match, move on to the next option.
+                if not simple_match:
+                    continue
+
+                # If there is, check the full version matches. If it doesn't
+                # then discount it and move on.
                 match = simple_match.match(segments[idx:], parse_context)
-                if match:
-                    best_simple_match = (
-                        segments[:idx],
-                        match,
-                        simple_match,
-                    )
-                    break
-                else:
-                    simple_match = None
+                if not match:
+                    continue
+
+                best_simple_match = (
+                    segments[:idx],
+                    match,
+                    simple_match,
+                )
+                # Stop looking through matchers
+                break
+
+            # If we have a valid match, stop looking through segments
+            if best_simple_match:
+                break
 
         # There are no other matchers, we can just shortcut now. Either with
         # no match, or the best one we found (if we found one).

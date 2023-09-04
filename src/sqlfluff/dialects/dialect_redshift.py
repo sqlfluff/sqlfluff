@@ -2663,7 +2663,7 @@ class SelectStatementSegment(postgres.SelectStatementSegment):
         # mitigate that here. But this isn't BigQuery! So we can be more
         # efficient and just use the keyword.
         "SELECT",
-        terminator=Ref("SetOperatorSegment"),
+        terminators=[Ref("SetOperatorSegment")],
     )
 
     parse_grammar = postgres.SelectStatementSegment.parse_grammar.copy(

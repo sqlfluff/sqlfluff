@@ -19,11 +19,11 @@ from sqlfluff.core.parser import (
     StartsWith,
     TypedParser,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_trino_keywords import (
     trino_reserved_keywords,
     trino_unreserved_keywords,
 )
-from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 trino_dialect = ansi_dialect.copy_as("trino")
@@ -220,14 +220,14 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
 
     match_grammar: Matchable = StartsWith(
         "SELECT",
-        terminator=OneOf(
+        terminators=[
             "FROM",
             "WHERE",
             Sequence("ORDER", "BY"),
             "LIMIT",
             Ref("SetOperatorSegment"),
             "FETCH",
-        ),
+        ],
         enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = ansi.SelectClauseSegment.parse_grammar

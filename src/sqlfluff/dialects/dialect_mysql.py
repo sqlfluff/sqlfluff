@@ -13,10 +13,11 @@ from sqlfluff.core.parser import (
     Bracketed,
     CodeSegment,
     CommentSegment,
+    Dedent,
     Delimited,
+    Indent,
     KeywordSegment,
     Matchable,
-    TypedParser,
     OneOf,
     OptionallyBracketed,
     Ref,
@@ -27,14 +28,13 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
-    Indent,
-    Dedent,
+    TypedParser,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_mysql_keywords import (
     mysql_reserved_keywords,
     mysql_unreserved_keywords,
 )
-from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 mysql_dialect = ansi_dialect.copy_as("mysql")
@@ -1578,7 +1578,7 @@ class IntoClauseSegment(BaseSegment):
     type = "into_clause"
 
     match_grammar = StartsWith(
-        "INTO", terminator=Ref("SelectClauseElementTerminatorGrammar")
+        "INTO", terminators=[Ref("SelectClauseElementTerminatorGrammar")]
     )
 
     parse_grammar = Sequence(
@@ -1644,16 +1644,14 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """
 
     type = "select_statement"
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
-    match_grammar.terminator = (  # type: ignore
-        match_grammar.terminator.copy(  # type: ignore
-            insert=[Ref("IntoClauseSegment")],
-            before=Ref("SetOperatorSegment"),
-        )
-        .copy(insert=[Ref("ForClauseSegment")])
-        .copy(insert=[Ref("IndexHintClauseSegment")])
-        .copy(insert=[Ref("SelectPartitionClauseSegment")])
-        .copy(insert=[Ref("UpsertClauseListSegment")])
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
+        add_terminators=[
+            Ref("IntoClauseSegment"),
+            Ref("ForClauseSegment"),
+            Ref("IndexHintClauseSegment"),
+            Ref("SelectPartitionClauseSegment"),
+            Ref("UpsertClauseListSegment"),
+        ]
     )
 
     parse_grammar = (
@@ -1682,9 +1680,8 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
 class SelectClauseSegment(ansi.SelectClauseSegment):
     """A group of elements in a select target statement."""
 
-    match_grammar = ansi.SelectClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[Ref("IntoKeywordSegment")]
+    match_grammar = ansi.SelectClauseSegment.match_grammar.copy(
+        add_terminators=[Ref("IntoKeywordSegment")]
     )
     parse_grammar = ansi.SelectClauseSegment.parse_grammar
 
@@ -1695,9 +1692,11 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     https://dev.mysql.com/doc/refman/5.7/en/select.html
     """
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[OneOf(Ref("UpsertClauseListSegment"), Ref("WithCheckOptionSegment"))]
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
+        add_terminators=[
+            Ref("UpsertClauseListSegment"),
+            Ref("WithCheckOptionSegment"),
+        ]
     )
 
     # Inherit most of the parse grammar from the original.

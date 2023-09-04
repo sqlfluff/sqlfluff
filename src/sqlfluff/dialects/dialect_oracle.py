@@ -696,11 +696,8 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     SelectStatementSegment.
     """
 
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[
-            Ref("HierarchicalQueryClauseSegment"),
-        ],
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
+        add_terminators=[Ref("HierarchicalQueryClauseSegment")]
     )
     parse_grammar: Matchable = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[Ref("HierarchicalQueryClauseSegment", optional=True)],

@@ -1,6 +1,6 @@
 """GreedyUntil and StartsWith Grammars."""
 
-from typing import List, Optional, Tuple, Union
+from typing import Any, List, Optional, Sequence, Tuple, TypeVar, Union
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (
@@ -61,7 +61,7 @@ class GreedyUntil(BaseGrammar):
         cls,
         segments: Tuple[BaseSegment, ...],
         parse_context: ParseContext,
-        matchers: List[MatchableType],
+        matchers: Sequence[MatchableType],
         enforce_whitespace_preceding_terminator: bool,
         include_terminator: bool = False,
     ) -> MatchResult:
@@ -72,7 +72,7 @@ class GreedyUntil(BaseGrammar):
         while True:
             with parse_context.deeper_match(name="GreedyUntil") as ctx:
                 pre, mat, _ = cls._bracket_sensitive_look_ahead_match(
-                    seg_buff, matchers, parse_context=ctx
+                    seg_buff, list(matchers), parse_context=ctx
                 )
 
             # Do we have a match?
@@ -155,6 +155,9 @@ class GreedyUntil(BaseGrammar):
                 return MatchResult.from_matched(segments)
 
 
+T = TypeVar("T", bound="StartsWith")
+
+
 class StartsWith(GreedyUntil):
     """Match if this sequence starts with a match.
 
@@ -165,20 +168,22 @@ class StartsWith(GreedyUntil):
         self,
         target: Union[MatchableType, str],
         *args: Union[MatchableType, str],
-        # NOTE: Other grammars support terminators (plural)
-        # TODO: Align these to be the same eventually.
-        terminator: Optional[Union[MatchableType, str]] = None,
+        terminators: Optional[Sequence[Union[MatchableType, str]]] = None,
+        reset_terminators: bool = False,
         include_terminator: bool = False,
         enforce_whitespace_preceding_terminator: bool = False,
         optional: bool = False,
         ephemeral_name: Optional[str] = None,
     ) -> None:
         self.target = self._resolve_ref(target)
-        self.terminator = self._resolve_ref(terminator)
+        self.terminators: Sequence[MatchableType] = [
+            self._resolve_ref(t) for t in terminators or []
+        ]
+        self.reset_terminators = reset_terminators
         self.include_terminator = include_terminator
 
         # StartsWith should only be used with a terminator
-        assert self.terminator
+        assert self.terminators
 
         super().__init__(
             *args,
@@ -186,6 +191,47 @@ class StartsWith(GreedyUntil):
             optional=optional,
             ephemeral_name=ephemeral_name,
         )
+
+    def copy(
+        self: T,
+        insert: Optional[List[MatchableType]] = None,
+        at: Optional[int] = None,
+        before: Optional[Any] = None,
+        remove: Optional[List[MatchableType]] = None,
+        terminators: List[Union[str, MatchableType]] = [],
+        add_terminators: List[Union[str, MatchableType]] = [],
+        # NOTE: Optionally allow other kwargs to be provided to this
+        # method for type compatibility. Any provided won't be used.
+        **kwargs: Any,
+    ) -> T:
+        """Create a copy of this grammar, optionally with differences.
+
+        For StartsWith, we optionally also allow additional terminators
+        to be added.
+
+        NOTE: This might be worth extending to other grammars in future too.
+        """
+        new_grammar = super().copy(
+            insert=insert,
+            at=at,
+            before=before,
+            remove=remove,
+            **kwargs,
+        )
+        assert not (
+            terminators and add_terminators
+        ), "Cannot set `terminators` AND `add_terminators`."
+        # Override (NOTE: Not currently used).
+        if terminators:  # pragma: no cover
+            new_grammar.terminators = [self._resolve_ref(t) for t in terminators]
+        # Append
+        elif add_terminators:
+            new_grammar.terminators = [
+                *new_grammar.terminators,
+                *(self._resolve_ref(t) for t in add_terminators),
+            ]
+
+        return new_grammar
 
     @cached_method_for_parse_context
     def simple(
@@ -228,11 +274,13 @@ class StartsWith(GreedyUntil):
         # of a partial match, given that we're only interested in what it STARTS
         # with, then we can still used the unmatched parts on the end.
         # We still need to deal with any non-code segments at the start.
-        assert self.terminator
+        assert self.terminators
         greedy_match = self.greedy_match(
             match.unmatched_segments,
             parse_context,
-            matchers=[self.terminator],
+            # We match up to the terminators for this segment, but _also_
+            # any existing terminators within the context.
+            matchers=[*self.terminators, *parse_context.terminators],
             enforce_whitespace_preceding_terminator=(
                 self.enforce_whitespace_preceding_terminator
             ),

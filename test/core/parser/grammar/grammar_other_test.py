@@ -3,19 +3,20 @@
 NOTE: All of these tests depend somewhat on the KeywordSegment working as planned.
 """
 
-import pytest
 import logging
+
+import pytest
 
 from sqlfluff.core.parser import KeywordSegment, StringParser, SymbolSegment
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 from sqlfluff.core.parser.grammar import (
-    GreedyUntil,
-    Delimited,
-    StartsWith,
     Anything,
+    Delimited,
+    GreedyUntil,
     Nothing,
+    StartsWith,
 )
+from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 
 
 def test__parser__grammar_startswith_a():
@@ -39,7 +40,7 @@ def test__parser__grammar_startswith_b(
     """Test the StartsWith grammar with a terminator (included & excluded)."""
     baar = StringParser("baar", KeywordSegment)
     bar = StringParser("bar", KeywordSegment)
-    grammar = StartsWith(bar, terminator=baar, include_terminator=include_terminator)
+    grammar = StartsWith(bar, terminators=[baar], include_terminator=include_terminator)
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
         m = grammar.match(seg_list, parse_context=ctx)

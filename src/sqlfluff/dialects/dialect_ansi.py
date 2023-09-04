@@ -1739,7 +1739,7 @@ class SelectClauseSegment(BaseSegment):
     type = "select_clause"
     match_grammar: Matchable = StartsWith(
         "SELECT",
-        terminator=OneOf(
+        terminators=[
             "FROM",
             "WHERE",
             Sequence("ORDER", "BY"),
@@ -1747,7 +1747,7 @@ class SelectClauseSegment(BaseSegment):
             "OVERLAPS",
             Ref("SetOperatorSegment"),
             "FETCH",
-        ),
+        ],
         enforce_whitespace_preceding_terminator=True,
     )
 
@@ -2649,13 +2649,13 @@ class UnorderedSelectStatementSegment(BaseSegment):
         # select clause rather than just the SELECT keyword, we mitigate that
         # here.
         Ref("SelectClauseSegment"),
-        terminator=OneOf(
+        terminators=[
             Ref("SetOperatorSegment"),
             Ref("WithNoSchemaBindingClauseSegment"),
             Ref("WithDataClauseSegment"),
             Ref("OrderByClauseSegment"),
             Ref("LimitClauseSegment"),
-        ),
+        ],
         enforce_whitespace_preceding_terminator=True,
     )
 
@@ -2685,11 +2685,11 @@ class SelectStatementSegment(BaseSegment):
         # select clause rather than just the SELECT keyword, we mitigate that
         # here.
         Ref("SelectClauseSegment"),
-        terminator=OneOf(
+        terminators=[
             Ref("SetOperatorSegment"),
             Ref("WithNoSchemaBindingClauseSegment"),
             Ref("WithDataClauseSegment"),
-        ),
+        ],
         enforce_whitespace_preceding_terminator=True,
     )
 
