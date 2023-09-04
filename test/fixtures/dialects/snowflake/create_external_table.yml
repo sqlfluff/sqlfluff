@@ -106,6 +106,8 @@ file:
               data_type:
                 data_type_identifier: integer
               end_bracket: )
+      - keyword: not
+      - keyword: 'null'
       - comma: ','
       - naked_identifier: starttime
       - data_type:

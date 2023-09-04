@@ -9,7 +9,7 @@ create or replace external table "_p08"
     pattern='.*[.]parquet.*';
 
 CREATE EXTERNAL TABLE EXTERNAL_TABLES.TRIPS(
-  tripduration integer as try_cast(VALUE:c1::varchar as integer),
+  tripduration integer as try_cast(VALUE:c1::varchar as integer) not null,
   starttime timestamp as try_cast(VALUE:c2::varchar as timestamp),
   stoptime timestamp as try_cast(VALUE:c3::varchar as timestamp),
   start_station_id integer as try_cast(VALUE:c4::varchar as integer),
