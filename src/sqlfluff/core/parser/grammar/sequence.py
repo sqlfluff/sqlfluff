@@ -443,42 +443,42 @@ class Bracketed(Sequence):
             content_match = super().match(content_segs, ctx)
 
         # We require a complete match for the content (hopefully for obvious reasons)
-        if content_match.is_complete():
-            # Reconstruct the bracket segment post match.
-            # We need to realign the meta segments so the pos markers are correct.
-            # Have we already got indents?
-            meta_idx = None
-            for idx, _seg in enumerate(bracket_segment.segments):
-                if _seg.is_meta:
-                    _meta_seg = cast(MetaSegment, _seg)
-                    if _meta_seg.indent_val > 0 and not _meta_seg.is_template:
-                        meta_idx = idx
-                        break
-            # If we've already got indents, don't add more.
-            if meta_idx:
-                bracket_segment.segments = BaseSegment._position_segments(
-                    bracket_segment.start_bracket
-                    + pre_segs
-                    + content_match.all_segments()
-                    + post_segs
-                    + bracket_segment.end_bracket
-                )
-            # Append some indent and dedent tokens at the start and the end.
-            else:
-                bracket_segment.segments = BaseSegment._position_segments(
-                    # NB: The nc segments go *outside* the indents.
-                    bracket_segment.start_bracket
-                    + (Indent(),)  # Add a meta indent here
-                    + pre_segs
-                    + content_match.all_segments()
-                    + post_segs
-                    + (Dedent(),)  # Add a meta indent here
-                    + bracket_segment.end_bracket
-                )
-            return MatchResult(
-                (bracket_segment,) if bracket_persists else bracket_segment.segments,
-                trailing_segments,
-            )
-        # No complete match. Fail.
-        else:
+        if not content_match.is_complete():
+            # No complete match. Fail.
             return MatchResult.from_unmatched(segments)
+
+        # Reconstruct the bracket segment post match.
+        # We need to realign the meta segments so the pos markers are correct.
+        # Have we already got indents?
+        meta_idx = None
+        for idx, _seg in enumerate(bracket_segment.segments):
+            if _seg.is_meta:
+                _meta_seg = cast(MetaSegment, _seg)
+                if _meta_seg.indent_val > 0 and not _meta_seg.is_template:
+                    meta_idx = idx
+                    break
+        # If we've already got indents, don't add more.
+        if meta_idx:
+            bracket_segment.segments = BaseSegment._position_segments(
+                bracket_segment.start_bracket
+                + pre_segs
+                + content_match.all_segments()
+                + post_segs
+                + bracket_segment.end_bracket
+            )
+        # Append some indent and dedent tokens at the start and the end.
+        else:
+            bracket_segment.segments = BaseSegment._position_segments(
+                # NB: The nc segments go *outside* the indents.
+                bracket_segment.start_bracket
+                + (Indent(),)  # Add a meta indent here
+                + pre_segs
+                + content_match.all_segments()
+                + post_segs
+                + (Dedent(),)  # Add a meta indent here
+                + bracket_segment.end_bracket
+            )
+        return MatchResult(
+            (bracket_segment,) if bracket_persists else bracket_segment.segments,
+            trailing_segments,
+        )
