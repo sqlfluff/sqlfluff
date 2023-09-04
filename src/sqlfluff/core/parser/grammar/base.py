@@ -135,24 +135,10 @@ class BaseGrammar(Matchable):
     is_meta = False
     equality_kwargs: Tuple[str, ...] = ("_elements", "optional", "allow_gaps")
 
-    @overload
-    @staticmethod
-    def _resolve_ref(elem: None) -> None:
-        """Return None when None."""
-
-    @overload
     @staticmethod
     def _resolve_ref(elem: Union[str, MatchableType]) -> MatchableType:
-        """Otherwise always return a MatchableType."""
-
-    @staticmethod
-    def _resolve_ref(
-        elem: Union[None, str, MatchableType]
-    ) -> Union[None, MatchableType]:
         """Resolve potential string references to things we can match against."""
-        if elem is None:
-            return None
-        elif isinstance(elem, str):
+        if isinstance(elem, str):
             return Ref.keyword(elem)
         elif isinstance(elem, Matchable):
             return elem
