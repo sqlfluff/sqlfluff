@@ -226,11 +226,10 @@ class StartsWith(GreedyUntil):
             new_grammar.terminators = [self._resolve_ref(t) for t in terminators]
         # Append
         elif add_terminators:
-            new_terminators = [self._resolve_ref(t) for t in add_terminators]
-            # NOTE: We slice to make sure we copy the list.
-            # NOTE: The new ones always go _first_. It shouldn't matter, but
-            # for currently unknown reasons, it does.
-            new_grammar.terminators = new_terminators + list(new_grammar.terminators)
+            new_grammar.terminators = [
+                *new_grammar.terminators,
+                *(self._resolve_ref(t) for t in add_terminators),
+            ]
 
         return new_grammar
 
@@ -279,9 +278,9 @@ class StartsWith(GreedyUntil):
         greedy_match = self.greedy_match(
             match.unmatched_segments,
             parse_context,
-            # TODO: We _should_ also be able to pass `parse_context.terminators`
-            # here too - but that currently creates problems elsewhere.
-            matchers=self.terminators,
+            # We match up to the terminators for this segment, but _also_
+            # any existing terminators within the context.
+            matchers=[*self.terminators, *parse_context.terminators],
             enforce_whitespace_preceding_terminator=(
                 self.enforce_whitespace_preceding_terminator
             ),

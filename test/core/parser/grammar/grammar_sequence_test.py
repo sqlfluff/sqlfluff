@@ -40,7 +40,7 @@ def test__parser__grammar_sequence(seg_list, caplog):
         assert not g.match(seg_list[1:], parse_context=ctx)
 
 
-def test__parser__grammar_sequence_Rerp():
+def test__parser__grammar_sequence_repr():
     """Test the Sequence grammar __repr__ method."""
     bar = StringParser("bar", KeywordSegment)
     assert repr(bar) == "<StringParser: 'BAR'>"
