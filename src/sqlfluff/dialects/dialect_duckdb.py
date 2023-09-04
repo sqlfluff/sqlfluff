@@ -85,7 +85,7 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
             ),
             allow_trailing=True,
-            terminator=Ref("OrderByClauseTerminators"),
+            terminators=[Ref("OrderByClauseTerminators")],
         ),
         Dedent,
     )
@@ -106,7 +106,7 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                 Ref("ExpressionSegment"),
             ),
             allow_trailing=True,
-            terminator=Ref("GroupByClauseTerminatorGrammar"),
+            terminators=[Ref("GroupByClauseTerminatorGrammar")],
         ),
         Dedent,
     )

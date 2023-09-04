@@ -1013,7 +1013,7 @@ class ClusterByClauseSegment(ansi.OrderByClauseSegment):
                     Ref("ExpressionSegment"),
                 ),
             ),
-            terminator=OneOf(Ref.keyword("LIMIT"), Ref("FrameClauseUnitGrammar")),
+            terminators=["LIMIT", Ref("FrameClauseUnitGrammar")],
         ),
         Dedent,
     )
@@ -1035,7 +1035,7 @@ class DistributeByClauseSegment(ansi.OrderByClauseSegment):
                     Ref("ExpressionSegment"),
                 ),
             ),
-            terminator=OneOf(
+            terminators=[
                 "SORT",
                 "LIMIT",
                 "HAVING",
@@ -1044,7 +1044,7 @@ class DistributeByClauseSegment(ansi.OrderByClauseSegment):
                 "WINDOW",
                 Ref("FrameClauseUnitGrammar"),
                 "SEPARATOR",
-            ),
+            ],
         ),
         Dedent,
     )
@@ -1068,7 +1068,7 @@ class SortByClauseSegment(ansi.OrderByClauseSegment):
                 OneOf("ASC", "DESC", optional=True),
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
             ),
-            terminator=OneOf(Ref.keyword("LIMIT"), Ref("FrameClauseUnitGrammar")),
+            terminators=["LIMIT", Ref("FrameClauseUnitGrammar")],
         ),
         Dedent,
     )
