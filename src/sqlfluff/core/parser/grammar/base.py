@@ -30,28 +30,6 @@ if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.dialects.base import Dialect
 
 
-def first_trimmed_raw(seg: BaseSegment) -> str:
-    """Trim whitespace off a whole element raw.
-
-    Used as a helper function in BaseGrammar._look_ahead_match.
-
-    For existing compound segments, we should assume that within
-    that segment, things are internally consistent, that means
-    rather than enumerating all the individual segments of a longer
-    one we just dump out the whole segment, but splitting off the
-    first element separated by whitespace. This is a) faster and
-    also b) prevents some really horrible bugs with bracket matching.
-    See https://github.com/sqlfluff/sqlfluff/issues/433
-
-    This fetches the _whole_ raw of a potentially compound segment
-    to match against, trimming off any whitespace. This is the
-    most efficient way to get at the first element of a potentially
-    longer segment.
-    """
-    s = seg.raw_upper.split(maxsplit=1)
-    return s[0] if s else ""
-
-
 def cached_method_for_parse_context(
     func: Callable[[Any, ParseContext, Optional[Tuple[str]]], SimpleHintType]
 ) -> Callable[..., SimpleHintType]:

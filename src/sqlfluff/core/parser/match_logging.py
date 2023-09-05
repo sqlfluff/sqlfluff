@@ -100,17 +100,3 @@ def parse_match_logging(
     ParseMatchLogObject(
         parse_context, grammar, func, msg, v_level=v_level, **kwargs
     ).log()
-
-
-class LateBoundJoinSegmentsCurtailed:
-    """Object to delay `join_segments_raw_curtailed` until later.
-
-    This allows us to defer the string manipulation involved
-    until actually required by the logger.
-    """
-
-    def __init__(self, segments: Tuple["BaseSegment", ...]) -> None:
-        self.segments = segments
-
-    def __str__(self) -> str:
-        return repr(join_segments_raw_curtailed(self.segments))
