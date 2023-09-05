@@ -228,7 +228,6 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
             Ref("SetOperatorSegment"),
             "FETCH",
         ],
-        enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = ansi.SelectClauseSegment.parse_grammar
 

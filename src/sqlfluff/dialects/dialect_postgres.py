@@ -1445,7 +1445,6 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
             Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
             Ref("WithCheckOptionSegment"),
         ],
-        enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = ansi.SelectClauseSegment.parse_grammar
 
@@ -4871,17 +4870,22 @@ class SetClauseSegment(BaseSegment):
                 ),
                 Ref("EqualsSegment"),
                 Bracketed(
-                    Delimited(
-                        Sequence(
-                            OneOf(
-                                Ref("LiteralGrammar"),
-                                Ref("BareFunctionSegment"),
-                                Ref("FunctionSegment"),
-                                Ref("ColumnReferenceSegment"),
-                                Ref("ExpressionSegment"),
-                                "DEFAULT",
+                    OneOf(
+                        # Potentially a bracketed SELECT
+                        Ref("SelectableGrammar"),
+                        # Or a delimited list of literals
+                        Delimited(
+                            Sequence(
+                                OneOf(
+                                    Ref("LiteralGrammar"),
+                                    Ref("BareFunctionSegment"),
+                                    Ref("FunctionSegment"),
+                                    Ref("ColumnReferenceSegment"),
+                                    Ref("ExpressionSegment"),
+                                    "DEFAULT",
+                                ),
+                                AnyNumberOf(Ref("ShorthandCastSegment")),
                             ),
-                            AnyNumberOf(Ref("ShorthandCastSegment")),
                         ),
                     ),
                 ),

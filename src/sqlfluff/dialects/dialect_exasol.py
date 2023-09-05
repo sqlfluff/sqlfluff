@@ -334,7 +334,6 @@ class UnorderedSelectStatementSegment(BaseSegment):
             Ref("OrderByClauseSegment"),
             Ref("LimitClauseSegment"),
         ],
-        enforce_whitespace_preceding_terminator=True,
     )
 
     parse_grammar = Sequence(
@@ -382,7 +381,6 @@ class SelectStatementSegment(BaseSegment):
             Ref("WithDataClauseSegment"),
             Ref("CommentClauseSegment"),  # within CREATE TABLE / VIEW statements
         ],
-        enforce_whitespace_preceding_terminator=True,
     )
 
     # Inherit most of the parse grammar from the original.
@@ -3223,7 +3221,6 @@ class ScriptContentSegment(BaseSegment):
     type = "script_content"
     match_grammar = GreedyUntil(
         Ref("FunctionScriptTerminatorSegment"),
-        enforce_whitespace_preceding_terminator=False,
     )
 
 
@@ -3471,7 +3468,6 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     # Important to split elements before parsing, otherwise debugging is really hard.
     match_grammar = GreedyUntil(  # type: ignore
         Ref("SelectClauseElementTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=False,
     )
 
     parse_grammar = OneOf(

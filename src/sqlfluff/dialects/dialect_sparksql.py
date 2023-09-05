@@ -3209,7 +3209,6 @@ class SelectClauseSegment(BaseSegment):
             "LIMIT",
             "OVERLAPS",
         ],
-        enforce_whitespace_preceding_terminator=True,
     )
 
     parse_grammar: Matchable = Ref("SelectClauseSegmentGrammar")

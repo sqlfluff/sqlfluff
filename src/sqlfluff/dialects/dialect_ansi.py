@@ -1748,7 +1748,6 @@ class SelectClauseSegment(BaseSegment):
             Ref("SetOperatorSegment"),
             "FETCH",
         ],
-        enforce_whitespace_preceding_terminator=True,
     )
 
     parse_grammar: Matchable = Ref("SelectClauseSegmentGrammar")
@@ -2656,7 +2655,6 @@ class UnorderedSelectStatementSegment(BaseSegment):
             Ref("OrderByClauseSegment"),
             Ref("LimitClauseSegment"),
         ],
-        enforce_whitespace_preceding_terminator=True,
     )
 
     parse_grammar: Matchable = Sequence(
@@ -2690,7 +2688,6 @@ class SelectStatementSegment(BaseSegment):
             Ref("WithNoSchemaBindingClauseSegment"),
             Ref("WithDataClauseSegment"),
         ],
-        enforce_whitespace_preceding_terminator=True,
     )
 
     # Inherit most of the parse grammar from the original.
@@ -3642,12 +3639,11 @@ class SetClauseListSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "SET",
         Indent,
-        OneOf(
+        Ref("SetClauseSegment"),
+        # set clause
+        AnyNumberOf(
+            Ref("CommaSegment"),
             Ref("SetClauseSegment"),
-            # set clause
-            AnyNumberOf(
-                Delimited(Ref("SetClauseSegment")),
-            ),
         ),
         Dedent,
     )
