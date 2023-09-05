@@ -38,7 +38,7 @@ class Delimited(OneOf):
         *args: Union[MatchableType, str],
         delimiter: Union[MatchableType, str] = Ref("CommaSegment"),
         allow_trailing: bool = False,
-        terminators: Optional[Sequence[Union[MatchableType, str]]] = None,
+        terminators: Sequence[Union[MatchableType, str]] = (),
         reset_terminators: bool = False,
         min_delimiters: Optional[int] = None,
         bracket_pairs_set: str = "bracket_pairs",
