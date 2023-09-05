@@ -71,25 +71,46 @@ class GreedyUntil(BaseGrammar):
 
         while True:
             with parse_context.deeper_match(name="GreedyUntil") as ctx:
-                pre, mat, _ = cls._bracket_sensitive_look_ahead_match(
+                pre, mat, matcher = cls._bracket_sensitive_look_ahead_match(
                     seg_buff, list(matchers), parse_context=ctx
                 )
 
-            # Do we have a match?
-            if mat:
-                # Do we need to enforce whitespace preceding?
-                if enforce_whitespace_preceding_terminator:
-                    # Does the match include some whitespace already?
-                    # Work forward
-                    idx = 0
+            if not mat:
+                # No terminator match? Return everything
+                return MatchResult.from_matched(segments)
+
+            # Do we need to enforce whitespace preceding?
+            if enforce_whitespace_preceding_terminator:
+                # Does the match include some whitespace already?
+                # Work forward
+                idx = 0
+                while True:
+                    elem = mat.matched_segments[idx]
+                    if elem.is_meta:  # pragma: no cover TODO?
+                        idx += 1
+                        continue
+                    elif elem.is_type(
+                        "whitespace", "newline"
+                    ):  # pragma: no cover TODO?
+                        allowable_match = True
+                        break
+                    else:
+                        # No whitespace before. Not allowed.
+                        allowable_match = False
+                        break
+
+                # If we're not ok yet, work backward to the preceding sections.
+                if not allowable_match:
+                    idx = -1
                     while True:
-                        elem = mat.matched_segments[idx]
-                        if elem.is_meta:  # pragma: no cover TODO?
-                            idx += 1
+                        if len(pre) < abs(idx):  # pragma: no cover TODO?
+                            # If we're at the start, it's ok
+                            allowable_match = True
+                            break
+                        if pre[idx].is_meta:  # pragma: no cover TODO?
+                            idx -= 1
                             continue
-                        elif elem.is_type(
-                            "whitespace", "newline"
-                        ):  # pragma: no cover TODO?
+                        elif pre[idx].is_type("whitespace", "newline"):
                             allowable_match = True
                             break
                         else:
@@ -97,62 +118,30 @@ class GreedyUntil(BaseGrammar):
                             allowable_match = False
                             break
 
-                    # If we're not ok yet, work backward to the preceding sections.
-                    if not allowable_match:
-                        idx = -1
-                        while True:
-                            if len(pre) < abs(idx):  # pragma: no cover TODO?
-                                # If we're at the start, it's ok
-                                allowable_match = True
-                                break
-                            if pre[idx].is_meta:  # pragma: no cover TODO?
-                                idx -= 1
-                                continue
-                            elif pre[idx].is_type("whitespace", "newline"):
-                                allowable_match = True
-                                break
-                            else:
-                                # No whitespace before. Not allowed.
-                                allowable_match = False
-                                break
+                # If this match isn't preceded by whitespace and that is
+                # a requirement, then we can't use it. Carry on...
+                if not allowable_match:
+                    # Update our buffers and continue onward
+                    seg_bank = seg_bank + pre + mat.matched_segments
+                    seg_buff = mat.unmatched_segments
+                    # Loop around, don't return yet
+                    continue
 
-                    # If this match isn't preceded by whitespace and that is
-                    # a requirement, then we can't use it. Carry on...
-                    if not allowable_match:
-                        # Update our buffers and continue onward
-                        seg_bank = seg_bank + pre + mat.matched_segments
-                        seg_buff = mat.unmatched_segments
-                        # Loop around, don't return yet
-                        continue
+            # Return everything up to the match unless it's a gap matcher.
+            if include_terminator:
+                return MatchResult(
+                    seg_bank + pre + mat.matched_segments,
+                    mat.unmatched_segments,
+                )
 
-                # Depending on whether we found a terminator or not we treat
-                # the result slightly differently. If no terminator was found,
-                # we just use the whole unmatched segment. If we did find one,
-                # we match up until (but not including [unless self.include_terminator
-                # is true]) that terminator.
-                if mat:
-                    # Return everything up to the match unless it's a gap matcher.
-                    if include_terminator:
-                        return MatchResult(
-                            seg_bank + pre + mat.matched_segments,
-                            mat.unmatched_segments,
-                        )
-
-                    # We can't claim any non-code segments, so we trim them off the end.
-                    leading_nc, pre_seg_mid, trailing_nc = trim_non_code_segments(
-                        seg_bank + pre
-                    )
-                    return MatchResult(
-                        leading_nc + pre_seg_mid,
-                        trailing_nc + mat.all_segments(),
-                    )
-                # No terminator, just return the whole thing.
-                return MatchResult.from_matched(
-                    mat.unmatched_segments
-                )  # pragma: no cover TODO?
-            else:
-                # Return everything
-                return MatchResult.from_matched(segments)
+            # We can't claim any non-code segments, so we trim them off the end.
+            leading_nc, pre_seg_mid, trailing_nc = trim_non_code_segments(
+                seg_bank + pre
+            )
+            return MatchResult(
+                leading_nc + pre_seg_mid,
+                trailing_nc + mat.all_segments(),
+            )
 
 
 T = TypeVar("T", bound="StartsWith")
