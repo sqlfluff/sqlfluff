@@ -1593,7 +1593,7 @@ class FromExpressionSegment(BaseSegment):
                 Ref("MLTableExpressionSegment"),
                 Ref("FromExpressionElementSegment"),
                 Bracketed(Ref("FromExpressionSegment")),
-                terminators=[Ref.keyword("ORDER"), Ref.keyword("GROUP")],
+                terminators=[Sequence("ORDER", "BY"), Sequence("GROUP", "BY")],
             ),
             Dedent,
             Conditional(Indent, indented_joins=True),
@@ -1602,7 +1602,7 @@ class FromExpressionSegment(BaseSegment):
                     OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
                 ),
                 optional=True,
-                terminators=[Ref.keyword("ORDER"), Ref.keyword("GROUP")],
+                terminators=[Sequence("ORDER", "BY"), Sequence("GROUP", "BY")],
             ),
             Conditional(Dedent, indented_joins=True),
         )

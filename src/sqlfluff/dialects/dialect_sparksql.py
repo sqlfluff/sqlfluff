@@ -1095,7 +1095,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
             ),
             # ALTER TABLE - CHANGE FILE LOCATION
             Sequence(
-                Ref("PartitionSpecGrammar"),
+                Ref("PartitionSpecGrammar", optional=True),
                 "SET",
                 Ref("LocationGrammar"),
             ),
