@@ -1,12 +1,9 @@
 """Classes to help with match logging."""
 
 import logging
-from typing import TYPE_CHECKING, Any, Tuple
-
-from sqlfluff.core.parser.helpers import join_segments_raw_curtailed
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:  # pragma: no cover
-    from sqlfluff.core.parser import BaseSegment
     from sqlfluff.core.parser.context import ParseContext
 
 
