@@ -1,5 +1,5 @@
 # Requirements for building docs
-sphinx>=2.4.1
+sphinx>=3.0.4
 # 2.13.0 added the sql+jinja syntax
 pygments>=2.13.0
 sphinx-click
