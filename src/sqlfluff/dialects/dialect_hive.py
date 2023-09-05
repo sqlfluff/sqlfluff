@@ -925,11 +925,11 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Enhance unordered SELECT statement to include CLUSTER, DISTRIBUTE, SORT BY."""
 
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
-        add_terminators=[
+        terminators=[
             Ref("ClusterByClauseSegment"),
             Ref("DistributeByClauseSegment"),
             Ref("SortByClauseSegment"),
-        ]
+        ],
     )
 
     parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy()
@@ -953,11 +953,11 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
     """Overriding SelectClauseSegment to allow for additional segment parsing."""
 
     match_grammar = ansi.SelectClauseSegment.match_grammar.copy(
-        add_terminators=[
+        terminators=[
             Sequence("CLUSTER", "BY"),
             Sequence("DISTRIBUTE", "BY"),
             Sequence("SORT", "BY"),
-        ]
+        ],
     )
     parse_grammar = ansi.SelectClauseSegment.parse_grammar.copy()
 

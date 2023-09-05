@@ -900,7 +900,7 @@ class BaseGrammar(Matchable):
         before: Optional[Any] = None,
         remove: Optional[List[MatchableType]] = None,
         terminators: List[Union[str, MatchableType]] = [],
-        add_terminators: List[Union[str, MatchableType]] = [],
+        replace_terminators: bool = False,
         # NOTE: Optionally allow other kwargs to be provided to this
         # method for type compatibility. Any provided won't be used.
         **kwargs: Any,
@@ -927,16 +927,14 @@ class BaseGrammar(Matchable):
                 elements to remove from a grammar. Removal is done
                 *after* insertion so that order is preserved.
                 Elements are searched for individually.
-            terminators (:obj:`list` of :obj:`str` or Matchable): Override
-                existing terminators with a new list of terminators.
+            terminators (:obj:`list` of :obj:`str` or Matchable): New
+                terminators to add to the existing ones. Whether they
+                replace or append is controlled by `append_terminators`.
                 :obj:`str` objects will be interpreted as keywords and
-                passed to `Ref.keyword()`. NOTE: Cannot be used together
-                with `add_terminators`.
-            add_terminators (:obj:`list` of :obj:`str` or Matchable): Add
-                new terminators to the existing set.
-                :obj:`str` objects will be interpreted as keywords and
-                passed to `Ref.keyword()`. NOTE: Cannot be used together
-                with `terminators`.
+                passed to `Ref.keyword()`.
+            replace_terminators (:obj:`bool`, default False): When `True`
+                we replace the existing terminators from the copied grammar,
+                otherwise we just append.
         """
         assert not kwargs, f"Unexpected kwargs to .copy(): {kwargs}"
         # Copy only the *grammar* elements. The rest comes through
@@ -978,17 +976,15 @@ class BaseGrammar(Matchable):
         new_grammar = copy.copy(self)
         new_grammar._elements = new_elems
 
-        assert not (
-            terminators and add_terminators
-        ), "Cannot set `terminators` AND `add_terminators`."
-        # Override (NOTE: Not currently used).
-        if terminators:  # pragma: no cover
+        if replace_terminators:  # pragma: no cover
+            # Override (NOTE: Not currently used).
             new_grammar.terminators = [self._resolve_ref(t) for t in terminators]
-        # Append
-        elif add_terminators:
+        else:
+            # NOTE: This is also safe in the case that neither `terminators` or
+            # `replace_terminators` are set. In that case, nothing will change.
             new_grammar.terminators = [
                 *new_grammar.terminators,
-                *(self._resolve_ref(t) for t in add_terminators),
+                *(self._resolve_ref(t) for t in terminators),
             ]
 
         return new_grammar
