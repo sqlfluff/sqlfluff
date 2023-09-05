@@ -2161,8 +2161,9 @@ class CacheTableSegment(BaseSegment):
         "TABLE",
         Ref("TableReferenceSegment"),
         Ref("OptionsGrammar", optional=True),
-        Ref.keyword("AS", optional=True),
-        Ref("SelectableGrammar"),
+        Sequence(
+            Ref.keyword("AS", optional=True), Ref("SelectableGrammar"), optional=True
+        ),
     )
 
 
