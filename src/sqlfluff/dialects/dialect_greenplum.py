@@ -256,7 +256,9 @@ class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
 class CreateTableAsStatementSegment(postgres.CreateTableAsStatementSegment):
     """A `CREATE TABLE AS` statement.
 
-    As specified in https://www.postgresql.org/docs/13/sql-createtableas.html
+    As specified in
+    https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html
+    This is overriden from Postgres to add the `DISTRIBUTED` clause.
     """
 
     match_grammar = Sequence(
