@@ -1389,12 +1389,12 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Overrides ANSI Statement, to allow for SELECT INTO statements."""
 
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
-        add_terminators=[
+        terminators=[
             Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
             Sequence("ON", "CONFLICT"),
             Ref.keyword("RETURNING"),
             Ref("WithCheckOptionSegment"),
-        ]
+        ],
     )
 
     parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
@@ -1409,12 +1409,12 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     """Overrides ANSI as the parse grammar copy needs to be reapplied."""
 
     match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
-        add_terminators=[
+        terminators=[
             Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
             Sequence("ON", "CONFLICT"),
             Ref.keyword("RETURNING"),
             Ref("WithCheckOptionSegment"),
-        ]
+        ],
     )
 
     parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(

@@ -1,6 +1,6 @@
 """GreedyUntil and StartsWith Grammars."""
 
-from typing import Any, List, Optional, Sequence, Tuple, TypeVar, Union
+from typing import Optional, Sequence, Tuple, TypeVar, Union
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (
@@ -31,10 +31,18 @@ class GreedyUntil(BaseGrammar):
         *args: Union[MatchableType, str],
         optional: bool = False,
         ephemeral_name: Optional[str] = None,
+        terminators: Sequence[Union[MatchableType, str]] = (),
+        reset_terminators: bool = False,
     ) -> None:
         # NOTE: This grammar does not support allow_gaps=False,
         # therefore that option is not provided here.
-        super().__init__(*args, optional=optional, ephemeral_name=ephemeral_name)
+        super().__init__(
+            *args,
+            optional=optional,
+            ephemeral_name=ephemeral_name,
+            terminators=terminators,
+            reset_terminators=reset_terminators,
+        )
 
     @match_wrapper()
     @allow_ephemeral
@@ -162,68 +170,25 @@ class StartsWith(GreedyUntil):
         self,
         target: Union[MatchableType, str],
         *args: Union[MatchableType, str],
-        terminators: Optional[Sequence[Union[MatchableType, str]]] = None,
+        terminators: Sequence[Union[MatchableType, str]] = (),
         reset_terminators: bool = False,
         include_terminator: bool = False,
         optional: bool = False,
         ephemeral_name: Optional[str] = None,
     ) -> None:
         self.target = self._resolve_ref(target)
-        self.terminators: Sequence[MatchableType] = [
-            self._resolve_ref(t) for t in terminators or []
-        ]
-        self.reset_terminators = reset_terminators
         self.include_terminator = include_terminator
-
-        # StartsWith should only be used with a terminator
-        assert self.terminators
 
         super().__init__(
             *args,
             optional=optional,
             ephemeral_name=ephemeral_name,
+            terminators=terminators,
+            reset_terminators=reset_terminators,
         )
 
-    def copy(
-        self: T,
-        insert: Optional[List[MatchableType]] = None,
-        at: Optional[int] = None,
-        before: Optional[Any] = None,
-        remove: Optional[List[MatchableType]] = None,
-        terminators: List[Union[str, MatchableType]] = [],
-        add_terminators: List[Union[str, MatchableType]] = [],
-        # NOTE: Optionally allow other kwargs to be provided to this
-        # method for type compatibility. Any provided won't be used.
-        **kwargs: Any,
-    ) -> T:
-        """Create a copy of this grammar, optionally with differences.
-
-        For StartsWith, we optionally also allow additional terminators
-        to be added.
-
-        NOTE: This might be worth extending to other grammars in future too.
-        """
-        new_grammar = super().copy(
-            insert=insert,
-            at=at,
-            before=before,
-            remove=remove,
-            **kwargs,
-        )
-        assert not (
-            terminators and add_terminators
-        ), "Cannot set `terminators` AND `add_terminators`."
-        # Override (NOTE: Not currently used).
-        if terminators:  # pragma: no cover
-            new_grammar.terminators = [self._resolve_ref(t) for t in terminators]
-        # Append
-        elif add_terminators:
-            new_grammar.terminators = [
-                *new_grammar.terminators,
-                *(self._resolve_ref(t) for t in add_terminators),
-            ]
-
-        return new_grammar
+        # StartsWith should only be used with a terminator
+        assert self.terminators
 
     @cached_method_for_parse_context
     def simple(

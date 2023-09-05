@@ -1645,13 +1645,13 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 
     type = "select_statement"
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
-        add_terminators=[
+        terminators=[
             Ref("IntoClauseSegment"),
             Ref("ForClauseSegment"),
             Ref("IndexHintClauseSegment"),
             Ref("SelectPartitionClauseSegment"),
             Ref("UpsertClauseListSegment"),
-        ]
+        ],
     )
 
     parse_grammar = (
@@ -1681,7 +1681,7 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
     """A group of elements in a select target statement."""
 
     match_grammar = ansi.SelectClauseSegment.match_grammar.copy(
-        add_terminators=[Ref("IntoKeywordSegment")]
+        terminators=[Ref("IntoKeywordSegment")],
     )
     parse_grammar = ansi.SelectClauseSegment.parse_grammar
 
@@ -1693,10 +1693,10 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     """
 
     match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
-        add_terminators=[
+        terminators=[
             Ref("UpsertClauseListSegment"),
             Ref("WithCheckOptionSegment"),
-        ]
+        ],
     )
 
     # Inherit most of the parse grammar from the original.
