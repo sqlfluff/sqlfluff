@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4365dc3e6ab7cd269f5d84bafa6c9298f3eb5e5d2e2727235ab88d604bcc102a
+_hash: 3fd9d3efb6620e03f0d42e0aac7b4cd42ebb5bbb57618ecf0729e9c12557f981
 file:
 - statement:
     create_external_table_statement:
@@ -183,6 +183,7 @@ file:
               data_type:
                 data_type_identifier: integer
               end_bracket: )
+      - keyword: 'null'
       - comma: ','
       - naked_identifier: start_station_name
       - data_type:
