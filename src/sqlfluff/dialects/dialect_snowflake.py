@@ -4613,6 +4613,9 @@ class CreateExternalTableSegment(BaseSegment):
                         Sequence(
                             Ref("ExpressionSegment"),
                             Ref("TableConstraintSegment", optional=True),
+                            Sequence(
+                                Ref.keyword("NOT", optional=True), "NULL", optional=True
+                            ),
                         )
                     ),
                 )
