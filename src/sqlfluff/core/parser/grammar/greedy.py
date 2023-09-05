@@ -29,13 +29,9 @@ class GreedyUntil(BaseGrammar):
     def __init__(
         self,
         *args: Union[MatchableType, str],
-        enforce_whitespace_preceding_terminator: bool = False,
         optional: bool = False,
         ephemeral_name: Optional[str] = None,
     ) -> None:
-        self.enforce_whitespace_preceding_terminator = (
-            enforce_whitespace_preceding_terminator
-        )
         # NOTE: This grammar does not support allow_gaps=False,
         # therefore that option is not provided here.
         super().__init__(*args, optional=optional, ephemeral_name=ephemeral_name)
@@ -50,9 +46,6 @@ class GreedyUntil(BaseGrammar):
             segments,
             parse_context,
             matchers=self._elements,
-            enforce_whitespace_preceding_terminator=(
-                self.enforce_whitespace_preceding_terminator
-            ),
             include_terminator=False,
         )
 
@@ -62,7 +55,6 @@ class GreedyUntil(BaseGrammar):
         segments: Tuple[BaseSegment, ...],
         parse_context: ParseContext,
         matchers: Sequence[MatchableType],
-        enforce_whitespace_preceding_terminator: bool,
         include_terminator: bool = False,
     ) -> MatchResult:
         """Matching for GreedyUntil works just how you'd expect."""
@@ -79,8 +71,21 @@ class GreedyUntil(BaseGrammar):
                 # No terminator match? Return everything
                 return MatchResult.from_matched(segments)
 
+            # NOTE: For some terminators we only count them if they're preceded
+            # by whitespace, and others we don't. In principle, we aim that for
+            # _keywords_ we require whitespace, and for symbols we don't.
+            # We do this by looking at the `simple` method of the returned
+            # matcher, and if it's entirely alphabetical (as defined by
+            # str.isalpha()) then we infer that it's a keyword, and therefore
+            # _does_ require whitespace before it.
+            assert matcher, f"Match without matcher: {mat}"
+            _simple = matcher.simple(parse_context)
+            assert _simple, f"Terminators require a simple method: {matcher}"
+            _strings, _types = _simple
+            # NOTE: Typed matchers aren't common here, but we assume that they
+            # _don't_ require preceding whitespace.
             # Do we need to enforce whitespace preceding?
-            if enforce_whitespace_preceding_terminator:
+            if all(_s.isalpha() for _s in _strings) and not _types:
                 # Does the match include some whitespace already?
                 # Work forward
                 idx = 0
@@ -160,7 +165,6 @@ class StartsWith(GreedyUntil):
         terminators: Optional[Sequence[Union[MatchableType, str]]] = None,
         reset_terminators: bool = False,
         include_terminator: bool = False,
-        enforce_whitespace_preceding_terminator: bool = False,
         optional: bool = False,
         ephemeral_name: Optional[str] = None,
     ) -> None:
@@ -176,7 +180,6 @@ class StartsWith(GreedyUntil):
 
         super().__init__(
             *args,
-            enforce_whitespace_preceding_terminator=enforce_whitespace_preceding_terminator,  # noqa: E501
             optional=optional,
             ephemeral_name=ephemeral_name,
         )
@@ -270,9 +273,6 @@ class StartsWith(GreedyUntil):
             # We match up to the terminators for this segment, but _also_
             # any existing terminators within the context.
             matchers=[*self.terminators, *parse_context.terminators],
-            enforce_whitespace_preceding_terminator=(
-                self.enforce_whitespace_preceding_terminator
-            ),
             include_terminator=self.include_terminator,
         )
 

@@ -853,7 +853,6 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
             "LIMIT",
             Ref("SetOperatorSegment"),
         ],
-        enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = ansi.SelectClauseSegment.parse_grammar
 
