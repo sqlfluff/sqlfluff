@@ -1,9 +1,12 @@
-create table t1 as (
-select *
-from t2
+create table table1 (
+    column1 int
+    , column2 varchar
+    , column3 boolean
 )
-distributed randomly;
+with (appendoptimized = true, compresstype = zstd)
+distributed by (column1, column2);
 
-create table t1 as
-    select *
-    from t2;
+create table new_table as
+select *
+from old_table
+distributed randomly;

@@ -3,67 +3,53 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 10c464cde16f4f122e8516d6914d0a35a361f541d5aef30bd335ab3e31894eb6
+_hash: 041310ef5e23653d9fba8a9d461faad7288d46748dd5bf374d0fe605033e2a39
 file:
-- statement:
-    create_table_as_statement:
+  statement:
+    create_table_statement:
     - keyword: create
     - keyword: table
     - table_reference:
-        naked_identifier: t1
-    - keyword: as
-    - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: select
-            select_clause_element:
-              wildcard_expression:
-                wildcard_identifier:
-                  star: '*'
-          from_clause:
-            keyword: from
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: t2
-        end_bracket: )
-    - keyword: distributed
-    - keyword: randomly
-- statement_terminator: ;
-- statement:
-    create_table_as_statement:
-    - keyword: create
-    - keyword: table
-    - table_reference:
-        naked_identifier: t1
-    - keyword: as
-    - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: select
-            select_clause_element:
-              wildcard_expression:
-                wildcard_identifier:
-                  star: '*'
-          from_clause:
-            keyword: from
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: t2
-        end_bracket: )
-    - keyword: distributed
-    - keyword: by
+        naked_identifier: table1
     - bracketed:
       - start_bracket: (
       - column_reference:
-          naked_identifier: col1
+          naked_identifier: column1
+      - data_type:
+          keyword: int
       - comma: ','
       - column_reference:
-          naked_identifier: col2
+          naked_identifier: column2
+      - data_type:
+          keyword: varchar
+      - comma: ','
+      - column_reference:
+          naked_identifier: column3
+      - data_type:
+          keyword: boolean
       - end_bracket: )
-- statement_terminator: ;
+    - keyword: with
+    - bracketed:
+      - start_bracket: (
+      - parameter: appendoptimized
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - parameter: compresstype
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: zstd
+      - end_bracket: )
+    - distributed_by:
+      - keyword: distributed
+      - keyword: by
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: column1
+        - comma: ','
+        - column_reference:
+            naked_identifier: column2
+        - end_bracket: )
+  statement_terminator: ;

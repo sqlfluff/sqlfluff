@@ -16,7 +16,7 @@ unitsales int
 DISTRIBUTED BY (txn_id);
 
 
-CREATE TABLE test (
+CREATE TEMP TABLE test (
 test_id int NOT NULL,
 logdate date NOT NULL,
 test_text int

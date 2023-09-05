@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 61741b349b22dfa69fb48bf2b073f532fe8db778e1d35ec302c821d3a56ce4a5
+_hash: fa079509f47722b87061b8271e67c58da8a3f67bfa948ae63312847c7cc96952
 file:
 - statement:
     create_table_statement:
@@ -53,16 +53,17 @@ file:
           raw_comparison_operator: '='
       - numeric_literal: '5'
       - end_bracket: )
-    - keyword: DISTRIBUTED
-    - keyword: BY
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: txn_id
-      - comma: ','
-      - column_reference:
-          naked_identifier: other_field
-      - end_bracket: )
+    - distributed_by:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: txn_id
+        - comma: ','
+        - column_reference:
+            naked_identifier: other_field
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -107,17 +108,19 @@ file:
           raw_comparison_operator: '='
         boolean_literal: 'true'
         end_bracket: )
-    - keyword: DISTRIBUTED
-    - keyword: BY
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          naked_identifier: txn_id
-        end_bracket: )
+    - distributed_by:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: txn_id
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
     - keyword: CREATE
+    - keyword: TEMP
     - keyword: TABLE
     - table_reference:
         naked_identifier: test
@@ -145,13 +148,14 @@ file:
       - data_type:
           keyword: int
       - end_bracket: )
-    - keyword: DISTRIBUTED
-    - keyword: BY
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          naked_identifier: txn_id
-        end_bracket: )
+    - distributed_by:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: txn_id
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -183,8 +187,9 @@ file:
       - data_type:
           keyword: int
       - end_bracket: )
-    - keyword: DISTRIBUTED
-    - keyword: RANDOMLY
+    - distributed_by:
+      - keyword: DISTRIBUTED
+      - keyword: RANDOMLY
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -216,6 +221,7 @@ file:
       - data_type:
           keyword: int
       - end_bracket: )
-    - keyword: DISTRIBUTED
-    - keyword: REPLICATED
+    - distributed_by:
+      - keyword: DISTRIBUTED
+      - keyword: REPLICATED
 - statement_terminator: ;

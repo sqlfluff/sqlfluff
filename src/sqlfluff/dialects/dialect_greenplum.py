@@ -7,6 +7,7 @@ so we base this dialect on Postgres.
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.dialects import dialect_postgres as postgres
 from sqlfluff.core.parser import (
+    BaseSegment,
     AnyNumberOf,
     Bracketed,
     Delimited,
@@ -23,6 +24,82 @@ greenplum_dialect = postgres_dialect.copy_as("greenplum")
 greenplum_dialect.sets("reserved_keywords").update(
     ["DISTRIBUTED", "RANDOMLY", "REPLICATED"]
 )
+
+greenplum_dialect.replace(
+    FromClauseTerminatorGrammar=OneOf(
+        "WHERE",
+        "LIMIT",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        Ref("SetOperatorSegment"),
+        Ref("WithNoSchemaBindingClauseSegment"),
+        Ref("WithDataClauseSegment"),
+        "FETCH",
+        Ref("ForClauseSegment"),
+        Ref("DistributedBySegment"),
+    ),
+    WhereClauseTerminatorGrammar=OneOf(
+        "LIMIT",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        "OVERLAPS",
+        "RETURNING",
+        Sequence("ON", "CONFLICT"),
+        Ref("ForClauseSegment"),
+        Ref("DistributedBySegment"),
+    ),
+    OrderByClauseTerminators=OneOf(
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        # For window functions
+        "WINDOW",
+        Ref("FrameClauseUnitGrammar"),
+        "SEPARATOR",
+        Sequence("WITH", "DATA"),
+        Ref("ForClauseSegment"),
+        Ref("DistributedBySegment"),
+    ),
+    GroupByClauseTerminatorGrammar=OneOf(
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        "FETCH",
+        Ref("DistributedBySegment"),
+    ),
+    HavingClauseTerminatorGrammar=OneOf(
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        "QUALIFY",
+        "WINDOW",
+        "FETCH",
+        Ref("DistributedBySegment"),
+    ),
+)
+
+class DistributedBySegment(BaseSegment):
+
+    type = "distributed_by"
+
+    match_grammar = Sequence(
+        "DISTRIBUTED",
+        OneOf(
+            "RANDOMLY",
+            "REPLICATED",
+            Sequence(
+                "BY",
+                Bracketed(Delimited(Ref("ColumnReferenceSegment")))
+            )
+        )
+    )
 
 
 class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
@@ -155,7 +232,10 @@ class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
                             Ref("ParameterNameSegment"),
                             Sequence(
                                 Ref("EqualsSegment"),
-                                Ref("LiteralGrammar"),
+                                OneOf(
+                                    Ref("LiteralGrammar"),
+                                    Ref("NakedIdentifierSegment"),
+                                ),
                                 optional=True,
                             ),
                         ),
@@ -168,24 +248,15 @@ class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
                 OneOf(Sequence("PRESERVE", "ROWS"), Sequence("DELETE", "ROWS"), "DROP"),
             ),
             Sequence("TABLESPACE", Ref("TablespaceReferenceSegment")),
-            Sequence(
-                "DISTRIBUTED",
-                OneOf(
-                    "RANDOMLY",
-                    "REPLICATED",
-                    Sequence("BY", Bracketed(Delimited(Ref("ColumnReferenceSegment")))),
-                ),
-            ),
+            Ref("DistributedBySegment")
         ),
     )
 
 
 class CreateTableAsStatementSegment(postgres.CreateTableAsStatementSegment):
-    """A `CREATE TABLE` statement.
+    """A `CREATE TABLE AS` statement.
 
-    As specified in
-    https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html
-    This is overriden from Postgres to add the `DISTRIBUTED` clause.
+    As specified in https://www.postgresql.org/docs/13/sql-createtableas.html
     """
 
     match_grammar = Sequence(
@@ -209,20 +280,26 @@ class CreateTableAsStatementSegment(postgres.CreateTableAsStatementSegment):
                 optional=True,
             ),
             Sequence("USING", Ref("ParameterNameSegment"), optional=True),
-            Sequence(
-                "WITH",
-                Bracketed(
-                    Delimited(
-                        Sequence(
-                            Ref("ParameterNameSegment"),
+            OneOf(
+                Sequence(
+                    "WITH",
+                    Bracketed(
+                        Delimited(
                             Sequence(
-                                Ref("EqualsSegment"),
-                                Ref("LiteralGrammar"),
-                                optional=True,
-                            ),
+                                Ref("ParameterNameSegment"),
+                                Sequence(
+                                    Ref("EqualsSegment"),
+                                    OneOf(
+                                        Ref("LiteralGrammar"),
+                                        Ref("NakedIdentifierSegment"),
+                                    ),
+                                    optional=True,
+                                ),
+                            )
                         )
-                    )
+                    ),
                 ),
+                Sequence("WITHOUT", "OIDS"),
                 optional=True,
             ),
             Sequence(
@@ -241,12 +318,5 @@ class CreateTableAsStatementSegment(postgres.CreateTableAsStatementSegment):
             OptionallyBracketed(Sequence("EXECUTE", Ref("FunctionSegment"))),
         ),
         Ref("WithDataClauseSegment", optional=True),
-        Sequence(
-            "DISTRIBUTED",
-            OneOf(
-                "RANDOMLY",
-                "REPLICATED",
-                Sequence("BY", Bracketed(Delimited(Ref("ColumnReferenceSegment")))),
-            ),
-        ),
+        Ref("DistributedBySegment"),
     )
