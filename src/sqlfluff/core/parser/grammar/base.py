@@ -611,7 +611,7 @@ class Ref(BaseGrammar):
 
     def __repr__(self) -> str:
         return "<Ref: {}{}>".format(
-            str(self._ref), " [opt]" if self.is_optional() else ""
+            repr(self._ref), " [opt]" if self.is_optional() else ""
         )
 
     @match_wrapper(v_level=4)  # Log less for Ref
