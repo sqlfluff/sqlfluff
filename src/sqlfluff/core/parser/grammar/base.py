@@ -106,6 +106,8 @@ class BaseGrammar(Matchable):
         allow_gaps: bool = True,
         optional: bool = False,
         ephemeral_name: Optional[str] = None,
+        terminators: Sequence[Union[MatchableType, str]] = (),
+        reset_terminators: bool = False,
     ) -> None:
         """Deal with kwargs common to all grammars.
 
@@ -129,6 +131,18 @@ class BaseGrammar(Matchable):
                 for it. If used widely this is an excellent way of breaking
                 up the parse process and also signposting the name of a given
                 chunk of code that might be parsed separately.
+            terminators (Sequence of :obj:`str` or Matchable): Matchable objects
+                which can terminate the grammar early. These are also used in some
+                parse modes to dictate how many segments to claim when handling
+                unparsable sections. Items passed as :obj:`str` are assumed to
+                refer to keywords and so will be passed to `Ref.keyword()` to
+                be resolved. Terminators are also added to the parse context
+                during deeper matching of child elements.
+            reset_terminators (:obj:`bool`, default `False`): Controls whether
+                any inherited terminators from outer grammars should be cleared
+                before matching child elements. Situations where this might be
+                appropriate are within bracketed expressions, where outer
+                terminators should be temporarily ignored.
         """
         # We provide a common interface for any grammar that allows positional elements.
         # If *any* for the elements are a string and not a grammar, then this is a
@@ -138,6 +152,15 @@ class BaseGrammar(Matchable):
         # Now we deal with the standard kwargs
         self.allow_gaps = allow_gaps
         self.optional: bool = optional
+
+        # The intent here is that if we match something, and then the _next_
+        # item is one of these, we can safely conclude it's a "total" match.
+        # In those cases, we return early without considering more options.
+        self.terminators: Sequence[MatchableType] = [
+            self._resolve_ref(t) for t in terminators
+        ]
+        self.reset_terminators = reset_terminators
+
         # ephemeral_name is a flag to indicate whether we need to make an
         # EphemeralSegment class. This is effectively syntactic sugar
         # to allow us to avoid specifying a EphemeralSegment directly in a dialect.
@@ -478,6 +501,8 @@ class BaseGrammar(Matchable):
         at: Optional[int] = None,
         before: Optional[Any] = None,
         remove: Optional[List[MatchableType]] = None,
+        terminators: List[Union[str, MatchableType]] = [],
+        replace_terminators: bool = False,
         # NOTE: Optionally allow other kwargs to be provided to this
         # method for type compatibility. Any provided won't be used.
         **kwargs: Any,
@@ -504,7 +529,14 @@ class BaseGrammar(Matchable):
                 elements to remove from a grammar. Removal is done
                 *after* insertion so that order is preserved.
                 Elements are searched for individually.
-
+            terminators (:obj:`list` of :obj:`str` or Matchable): New
+                terminators to add to the existing ones. Whether they
+                replace or append is controlled by `append_terminators`.
+                :obj:`str` objects will be interpreted as keywords and
+                passed to `Ref.keyword()`.
+            replace_terminators (:obj:`bool`, default False): When `True`
+                we replace the existing terminators from the copied grammar,
+                otherwise we just append.
         """
         assert not kwargs, f"Unexpected kwargs to .copy(): {kwargs}"
         # Copy only the *grammar* elements. The rest comes through
@@ -543,9 +575,21 @@ class BaseGrammar(Matchable):
                             elem, self
                         )
                     )
-        new_seg = copy.copy(self)
-        new_seg._elements = new_elems
-        return new_seg
+        new_grammar = copy.copy(self)
+        new_grammar._elements = new_elems
+
+        if replace_terminators:  # pragma: no cover
+            # Override (NOTE: Not currently used).
+            new_grammar.terminators = [self._resolve_ref(t) for t in terminators]
+        else:
+            # NOTE: This is also safe in the case that neither `terminators` or
+            # `replace_terminators` are set. In that case, nothing will change.
+            new_grammar.terminators = [
+                *new_grammar.terminators,
+                *(self._resolve_ref(t) for t in terminators),
+            ]
+
+        return new_grammar
 
 
 class Ref(BaseGrammar):
@@ -557,7 +601,7 @@ class Ref(BaseGrammar):
         self,
         *args: str,
         exclude: Optional[MatchableType] = None,
-        terminators: Optional[Sequence[MatchableType]] = None,
+        terminators: Sequence[Union[MatchableType, str]] = (),
         reset_terminators: bool = False,
         allow_gaps: bool = True,
         optional: bool = False,
@@ -572,17 +616,16 @@ class Ref(BaseGrammar):
         self._ref = args[0]
         # Any patterns to _prevent_ a match.
         self.exclude = exclude
-        # The intent here is that if we match something, and then the _next_
-        # item is one of these, we can safely conclude it's a "total" match.
-        # In those cases, we return early without considering more options.
-        # Terminators don't take effect directly within this grammar, but
-        # the Ref grammar is an effective place to manage the terminators
-        # inherited via the context.
-        self.terminators = terminators
-        self.reset_terminators = reset_terminators
-        # NOTE: Don't pass on any args (we've already handled it with self._ref)
         super().__init__(
-            allow_gaps=allow_gaps, optional=optional, ephemeral_name=ephemeral_name
+            # NOTE: Don't pass on any args (we've already handled it with self._ref)
+            allow_gaps=allow_gaps,
+            optional=optional,
+            ephemeral_name=ephemeral_name,
+            # Terminators don't take effect directly within this grammar, but
+            # the Ref grammar is an effective place to manage the terminators
+            # inherited via the context.
+            terminators=terminators,
+            reset_terminators=reset_terminators,
         )
 
     @cached_method_for_parse_context

@@ -6331,7 +6331,7 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
     """A group of elements in a select target statement."""
 
     match_grammar = ansi.SelectClauseSegment.match_grammar.copy(
-        add_terminators=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")]
+        terminators=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
     )
     parse_grammar = ansi.SelectClauseSegment.parse_grammar.copy()
 
