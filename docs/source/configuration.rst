@@ -167,7 +167,7 @@ A few common examples are shown below:
 .. code-block:: sql
 
     -- Set Indented Joins
-    -- sqlfluff:indentation:indented_joins:true
+    -- sqlfluff:indentation:indented_joins:True
 
     -- Set a smaller indent for this file
     -- sqlfluff:indentation:tab_space_size:2
