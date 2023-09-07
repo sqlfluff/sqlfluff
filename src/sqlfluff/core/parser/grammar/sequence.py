@@ -80,7 +80,7 @@ class Sequence(BaseGrammar):
                 # A conditional grammar will only ever return insertions.
                 # If it's not enabled it returns an empty match.
                 # NOTE: No deeper match here, it seemed unnecessary.
-                _match = elem.match(segments, parse_context)
+                _match = elem.match(unmatched_segments, parse_context)
                 # We don't add them directly to the result, we buffer them
                 # for later.
                 # NOTE: If it's not enabled, it will be an empty tuple
@@ -105,8 +105,8 @@ class Sequence(BaseGrammar):
                 # happen at the *start* of a sequence either.
                 for _idx in range(len(unmatched_segments)):
                     if unmatched_segments[_idx].is_code:
-                        non_code_buffer.extend(unmatched_segments[:_idx])
-                        unmatched_segments = unmatched_segments[_idx:]
+                        non_code_buffer.extend(unmatched_segments[: _idx + 1])
+                        unmatched_segments = unmatched_segments[_idx + 1 :]
                         break
 
             # 3. Check we still have segments left to work on.
