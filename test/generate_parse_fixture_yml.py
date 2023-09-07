@@ -1,22 +1,21 @@
 """Utility to generate yml files for all the parsing examples."""
+import fnmatch
 import multiprocessing
 import os
-import fnmatch
 import re
-import click
+import sys
 from typing import Callable, Dict, List, Optional, TypeVar
 
-
+import click
 import yaml
-
 from conftest import (
+    ParseExample,
     compute_parse_tree_hash,
     get_parse_fixtures,
     parse_example_file,
-    ParseExample,
 )
-from sqlfluff.core.errors import SQLParseError
 
+from sqlfluff.core.errors import SQLParseError
 
 S = TypeVar("S")
 
@@ -54,11 +53,16 @@ def _is_matching_new_criteria(example: ParseExample):
 def generate_one_parse_fixture(example: ParseExample) -> None:
     """Parse example SQL file, write parse tree to YAML file."""
     dialect, sqlfile = example
-    tree = parse_example_file(dialect, sqlfile)
+    sql_path = _create_file_path(example, ".sql")
+
+    try:
+        tree = parse_example_file(dialect, sqlfile)
+    except SQLParseError as err:
+        # Catch parsing errors, and wrap the file path only it.
+        raise SQLParseError(f"Fatal parsing error: {sql_path}: {err}")
 
     # Check we don't have any base types or unparsable sections
     types = tree.type_set()
-    sql_path = _create_file_path(example, ".sql")
     if "base" in types:
         raise SQLParseError(f"Unnamed base section when parsing: {sql_path}")
     if "unparsable" in types:
@@ -151,7 +155,12 @@ def generate_parse_fixtures(
     print(f"\tfilter={filter_str} dialect={dialect_str} new-only={new_only}")
     parse_success_examples = gather_file_list(dialect, filter, new_only)
     print(f"Found {len(parse_success_examples)} file(s) to generate")
-    distribute_work(parse_success_examples, generate_one_parse_fixture)
+    try:
+        distribute_work(parse_success_examples, generate_one_parse_fixture)
+    except SQLParseError as err:
+        # If one fails, exit early and cleanly.
+        print(f"PARSING FAILED: {err}")
+        sys.exit(1)
     print(f"Fixture built: {len(parse_success_examples)}")
 
 
