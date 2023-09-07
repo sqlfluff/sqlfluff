@@ -18,6 +18,7 @@ from sqlfluff.core.parser import (
     StringParser,
 )
 
+ansi_dialect = load_raw_dialect("ansi")
 postgres_dialect = load_raw_dialect("postgres")
 duckdb_dialect = postgres_dialect.copy_as("duckdb")
 
@@ -31,10 +32,10 @@ duckdb_dialect.replace(
         StringParser("//", ansi.BinaryOperatorSegment),
         StringParser("/", ansi.BinaryOperatorSegment),
     ),
-    UnionGrammar=Sequence(
-        "UNION",
-        OneOf("DISTINCT", "ALL", optional=True),
-        Sequence("BY", "NAME", optional=True),
+    UnionGrammar=ansi_dialect.get_grammar("UnionGrammar").copy(
+        insert=[
+            Sequence("BY", "NAME", optional=True),
+        ]
     ),
 )
 
