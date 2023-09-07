@@ -105,8 +105,8 @@ class Sequence(BaseGrammar):
                 # happen at the *start* of a sequence either.
                 for _idx in range(len(unmatched_segments)):
                     if unmatched_segments[_idx].is_code:
-                        non_code_buffer.extend(unmatched_segments[: _idx + 1])
-                        unmatched_segments = unmatched_segments[_idx + 1 :]
+                        non_code_buffer.extend(unmatched_segments[:_idx])
+                        unmatched_segments = unmatched_segments[_idx:]
                         break
 
             # 3. Check we still have segments left to work on.
@@ -160,6 +160,14 @@ class Sequence(BaseGrammar):
             # Add on the match itself
             matched_segments += elem_match.matched_segments
             unmatched_segments = elem_match.unmatched_segments
+
+        # If we finished on an optional, and so still have some unflushed metas,
+        # we should do that first, then add any unmatched noncode back onto the
+        # stack to match next time.
+        if meta_buffer:
+            matched_segments += tuple(meta_buffer)
+        if non_code_buffer:
+            unmatched_segments = tuple(non_code_buffer) + unmatched_segments
 
         # If we're in a test environment, we do a sense check to make sure we
         # haven't dropped anything. (Because it's happened before!).
