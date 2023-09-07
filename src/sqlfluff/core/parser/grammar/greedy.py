@@ -16,15 +16,7 @@ from sqlfluff.core.parser.types import MatchableType, SimpleHintType
 
 
 class GreedyUntil(BaseGrammar):
-    """Matching for GreedyUntil works just how you'd expect.
-
-    Args:
-        enforce_whitespace_preceding (:obj:`bool`): Should the GreedyUntil
-            match only match the content if it's preceded by whitespace?
-            (defaults to False). This is useful for some keywords which may
-            have false alarms on some array accessors.
-
-    """
+    """Matching for GreedyUntil works just how you'd expect."""
 
     def __init__(
         self,

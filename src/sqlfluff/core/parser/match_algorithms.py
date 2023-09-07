@@ -369,7 +369,7 @@ def greedy_match(
     seg_bank: Tuple[BaseSegment, ...] = ()  # Empty tuple
 
     while True:
-        with parse_context.deeper_match(name="GreedyUntil") as ctx:
+        with parse_context.deeper_match(name="Greedy") as ctx:
             pre, mat, matcher = bracket_sensitive_look_ahead_match(
                 seg_buff, list(matchers), parse_context=ctx
             )

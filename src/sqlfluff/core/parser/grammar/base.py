@@ -23,7 +23,7 @@ from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
-from sqlfluff.core.parser.types import MatchableType, SimpleHintType
+from sqlfluff.core.parser.types import MatchableType, ParseMode, SimpleHintType
 from sqlfluff.core.string_helpers import curtail_string
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -84,6 +84,7 @@ class BaseGrammar(Matchable):
 
     is_meta = False
     equality_kwargs: Tuple[str, ...] = ("_elements", "optional", "allow_gaps")
+    supported_parse_modes: Set[ParseMode] = {ParseMode.STRICT}
 
     @staticmethod
     def _resolve_ref(elem: Union[str, MatchableType]) -> MatchableType:
@@ -108,6 +109,7 @@ class BaseGrammar(Matchable):
         ephemeral_name: Optional[str] = None,
         terminators: Sequence[Union[MatchableType, str]] = (),
         reset_terminators: bool = False,
+        parse_mode: ParseMode = ParseMode.STRICT,
     ) -> None:
         """Deal with kwargs common to all grammars.
 
@@ -143,6 +145,12 @@ class BaseGrammar(Matchable):
                 before matching child elements. Situations where this might be
                 appropriate are within bracketed expressions, where outer
                 terminators should be temporarily ignored.
+            parse_mode (:obj:`ParseMode`): Defines how eager the grammar should
+                be in claiming unmatched segments. By default, grammars usually
+                only claim what they can match, but by setting this to something
+                more eager, grammars can control how unparsable sections are
+                treated to give the user more granular feedback on what can (and
+                what *cannot*) be parsed.
         """
         # We provide a common interface for any grammar that allows positional elements.
         # If *any* for the elements are a string and not a grammar, then this is a
@@ -161,6 +169,16 @@ class BaseGrammar(Matchable):
         ]
         self.reset_terminators = reset_terminators
 
+        # TODO: Currently, `parse_mode` is not fully supported in all grammars.
+        # See the implementation of each one to confirm which do (and do not)
+        # have full support.
+        # TODO: We should probably validate (at least on run), that grammars
+        # only accept configurations they are set up for.
+        assert parse_mode in self.supported_parse_modes, (
+            f"{self.__class__.__name__} does not support {parse_mode} "
+            f"(only {self.supported_parse_modes})"
+        )
+        self.parse_mode = parse_mode
         # ephemeral_name is a flag to indicate whether we need to make an
         # EphemeralSegment class. This is effectively syntactic sugar
         # to allow us to avoid specifying a EphemeralSegment directly in a dialect.

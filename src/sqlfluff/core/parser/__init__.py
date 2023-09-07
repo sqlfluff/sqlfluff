@@ -42,6 +42,7 @@ from sqlfluff.core.parser.segments import (
     UnlexableSegment,
     WhitespaceSegment,
 )
+from sqlfluff.core.parser.types import ParseMode
 
 __all__ = (
     "BaseSegment",
@@ -82,4 +83,5 @@ __all__ = (
     "RegexLexer",
     "Parser",
     "Matchable",
+    "ParseMode",
 )
