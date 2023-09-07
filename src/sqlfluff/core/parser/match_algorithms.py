@@ -393,40 +393,23 @@ def greedy_match(
         # _don't_ require preceding whitespace.
         # Do we need to enforce whitespace preceding?
         if all(_s.isalpha() for _s in _strings) and not _types:
-            # Does the match include some whitespace already?
-            # Work forward
-            idx = 0
-            while True:
-                elem = mat.matched_segments[idx]
-                if elem.is_meta:  # pragma: no cover TODO?
-                    idx += 1
+            allowable_match = False
+            # NOTE: Edge case - if we're matching the _first_ element (i.e. that
+            # there are no `pre` segments) then we _do_ allow it.
+            # TODO: Review whether this is as designed, but it is consistent
+            # with past behaviour.
+            if not pre:
+                allowable_match = True
+            # Work backward through previous segments looking for whitespace.
+            for _idx in range(len(pre) - 1, -1, -1):
+                if pre[_idx].is_meta:
                     continue
-                elif elem.is_type("whitespace", "newline"):  # pragma: no cover TODO?
+                elif pre[_idx].is_type("whitespace", "newline"):
                     allowable_match = True
                     break
                 else:
-                    # No whitespace before. Not allowed.
-                    allowable_match = False
+                    # Found something other than metas and whitespace.
                     break
-
-            # If we're not ok yet, work backward to the preceding sections.
-            if not allowable_match:
-                idx = -1
-                while True:
-                    if len(pre) < abs(idx):  # pragma: no cover TODO?
-                        # If we're at the start, it's ok
-                        allowable_match = True
-                        break
-                    if pre[idx].is_meta:  # pragma: no cover TODO?
-                        idx -= 1
-                        continue
-                    elif pre[idx].is_type("whitespace", "newline"):
-                        allowable_match = True
-                        break
-                    else:
-                        # No whitespace before. Not allowed.
-                        allowable_match = False
-                        break
 
             # If this match isn't preceded by whitespace and that is
             # a requirement, then we can't use it. Carry on...
