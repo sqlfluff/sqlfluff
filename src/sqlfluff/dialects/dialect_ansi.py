@@ -490,6 +490,7 @@ ansi_dialect.add(
     IfExistsGrammar=Sequence("IF", "EXISTS"),
     IfNotExistsGrammar=Sequence("IF", "NOT", "EXISTS"),
     LikeGrammar=OneOf("LIKE", "RLIKE", "ILIKE"),
+    UnionGrammar=Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
     IsClauseGrammar=OneOf(
         Ref("NullLiteralSegment"),
         Ref("NanLiteralSegment"),
@@ -2803,11 +2804,7 @@ class SetOperatorSegment(BaseSegment):
 
     type = "set_operator"
     match_grammar: Matchable = OneOf(
-        Sequence(
-            "UNION",
-            OneOf("DISTINCT", "ALL", optional=True),
-            Sequence("BY", "NAME", optional=True),
-        ),
+        Ref("UnionGrammar"),
         Sequence(
             OneOf(
                 "INTERSECT",

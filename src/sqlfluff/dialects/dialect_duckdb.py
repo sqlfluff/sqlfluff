@@ -31,6 +31,11 @@ duckdb_dialect.replace(
         StringParser("//", ansi.BinaryOperatorSegment),
         StringParser("/", ansi.BinaryOperatorSegment),
     ),
+    UnionGrammar=Sequence(
+        "UNION",
+        OneOf("DISTINCT", "ALL", optional=True),
+        Sequence("BY", "NAME", optional=True),
+    ),
 )
 
 duckdb_dialect.insert_lexer_matchers(
