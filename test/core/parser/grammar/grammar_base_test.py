@@ -11,7 +11,6 @@ from sqlfluff.core.parser import KeywordSegment, StringParser
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar import OneOf, Sequence
 from sqlfluff.core.parser.grammar.base import BaseGrammar
-from sqlfluff.core.parser.segments import EphemeralSegment
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 

@@ -1,11 +1,9 @@
-"""Test the KeywordSegment and EphemeralSegment classes."""
+"""Test the KeywordSegment class."""
 
 import pytest
 
 from sqlfluff.core.parser import KeywordSegment, StringParser
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.segments import EphemeralSegment
-from sqlfluff.core.parser.segments.base import UnparsableSegment
 
 
 # NOTE: For legacy reasons we override this fixture for this module
