@@ -84,6 +84,9 @@ class BaseGrammar(Matchable):
 
     is_meta = False
     equality_kwargs: Tuple[str, ...] = ("_elements", "optional", "allow_gaps")
+    # All grammars are assumed to support STRICT mode by default.
+    # If they wish to support other modes, they should declare
+    # it by overriding this attribute.
     supported_parse_modes: Set[ParseMode] = {ParseMode.STRICT}
 
     @staticmethod
@@ -161,11 +164,6 @@ class BaseGrammar(Matchable):
         ]
         self.reset_terminators = reset_terminators
 
-        # TODO: Currently, `parse_mode` is not fully supported in all grammars.
-        # See the implementation of each one to confirm which do (and do not)
-        # have full support.
-        # TODO: We should probably validate (at least on run), that grammars
-        # only accept configurations they are set up for.
         assert parse_mode in self.supported_parse_modes, (
             f"{self.__class__.__name__} does not support {parse_mode} "
             f"(only {self.supported_parse_modes})"
