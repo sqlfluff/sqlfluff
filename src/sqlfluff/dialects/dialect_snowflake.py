@@ -27,7 +27,6 @@ from sqlfluff.core.parser import (
     RegexParser,
     SegmentGenerator,
     Sequence,
-    StartsWith,
     StringLexer,
     StringParser,
     SymbolSegment,
@@ -599,7 +598,6 @@ snowflake_dialect.replace(
         "LIMIT",
         "FETCH",
         "OFFSET",
-        Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
     ),
     FromClauseTerminatorGrammar=OneOf(
@@ -1423,17 +1421,8 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     """
 
     type = "select_statement"
-    match_grammar = StartsWith(
-        # NB: In bigquery, the select clause may include an EXCEPT, which
-        # will also match the set operator, but by starting with the whole
-        # select clause rather than just the SELECT keyword, we normally
-        # mitigate that here. But this isn't BigQuery! So we can be more
-        # efficient and just use the keyword.
-        "SELECT",
-        terminators=[Ref("SetOperatorSegment")],
-    )
 
-    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
     )
@@ -2211,9 +2200,8 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """
 
     type = "select_statement"
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
 
-    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OverlapsClauseSegment", optional=True),
     )
@@ -6333,7 +6321,6 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
     match_grammar = ansi.SelectClauseSegment.match_grammar.copy(
         terminators=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
     )
-    parse_grammar = ansi.SelectClauseSegment.parse_grammar.copy()
 
 
 class OrderByClauseSegment(ansi.OrderByClauseSegment):
