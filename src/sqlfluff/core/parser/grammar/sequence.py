@@ -15,6 +15,7 @@ from sqlfluff.core.parser.grammar.base import (
 )
 from sqlfluff.core.parser.grammar.conditional import Conditional
 from sqlfluff.core.parser.helpers import check_still_complete, trim_non_code_segments
+from sqlfluff.core.parser.match_algorithms import bracket_sensitive_look_ahead_match
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.matchable import Matchable
@@ -386,7 +387,7 @@ class Bracketed(Sequence):
             with parse_context.deeper_match(
                 name="Bracketed-End", clear_terminators=True
             ) as ctx:
-                content_segs, end_match, _ = self._bracket_sensitive_look_ahead_match(
+                content_segs, end_match, _ = bracket_sensitive_look_ahead_match(
                     segments=seg_buff,
                     matchers=[end_bracket],
                     parse_context=ctx,
