@@ -398,14 +398,14 @@ jobs:
             let comment_id = null;
             console.log("Got %d comments", comments.length);
 
-            for (const comment of comments) {
+            comments.forEach(comment => {
               if (comment.body.indexOf(trigger_str) >= 0) {
                 console.log("Found target comment ID: %d", comment.id);
                 comment_id = comment.id;
               } else {
                 console.log("Comment ID %d not valid with body:\n%s.", comment.id, comment.body);
               }
-            }
+            });
 
             const previous_outcome = "${{ steps.report_coverage.outcome }}";
             console.log("Previous coverage step outcome: %s", previous_outcome);
