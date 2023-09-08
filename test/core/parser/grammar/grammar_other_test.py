@@ -9,43 +9,8 @@ import pytest
 
 from sqlfluff.core.parser import KeywordSegment, StringParser, SymbolSegment
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.grammar import (
-    Anything,
-    Delimited,
-    GreedyUntil,
-    Nothing,
-    StartsWith,
-)
+from sqlfluff.core.parser.grammar import Anything, Delimited, GreedyUntil, Nothing
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
-
-
-def test__parser__grammar_startswith_a():
-    """Test the StartsWith grammar fails when no terminator supplied."""
-    Keyword = StringParser("foo", KeywordSegment)
-    with pytest.raises(AssertionError):
-        StartsWith(Keyword)
-
-
-@pytest.mark.parametrize(
-    "include_terminator,match_length",
-    [
-        # NOTE: this case shouldn't include the whitespace between "bar" and "foo".
-        (False, 1),
-        # ...and in this case it _should_.
-        (True, 3),
-    ],
-)
-def test__parser__grammar_startswith_b(
-    include_terminator, match_length, seg_list, fresh_ansi_dialect, caplog
-):
-    """Test the StartsWith grammar with a terminator (included & excluded)."""
-    foo = StringParser("foo", KeywordSegment)
-    bar = StringParser("bar", KeywordSegment)
-    grammar = StartsWith(bar, terminators=[foo], include_terminator=include_terminator)
-    ctx = ParseContext(dialect=fresh_ansi_dialect)
-    with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
-        m = grammar.match(seg_list, parse_context=ctx)
-        assert len(m) == match_length
 
 
 @pytest.mark.parametrize(

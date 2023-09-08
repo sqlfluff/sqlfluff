@@ -16,7 +16,6 @@ from sqlfluff.core.parser import (
     OneOf,
     Ref,
     Sequence,
-    StartsWith,
     TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
