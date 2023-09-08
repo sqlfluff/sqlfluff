@@ -430,19 +430,6 @@ tsql_dialect.replace(
             optional=True,
         ),
     ),
-    # Overriding SelectClauseSegmentGrammar to remove Delimited logic which assumes
-    # statements have been delimited
-    SelectClauseSegmentGrammar=Sequence(
-        "SELECT",
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        Delimited(
-            Ref("SelectClauseElementSegment"),
-        ),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
-    ),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
         Sequence("GROUP", "BY"),
@@ -744,7 +731,17 @@ class SelectClauseSegment(BaseSegment):
     """
 
     type = "select_clause"
-    match_grammar = Ref("SelectClauseSegmentGrammar")
+    match_grammar: Matchable = Sequence(
+        "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        # NOTE: Don't allow trailing.
+        Delimited(Ref("SelectClauseElementSegment")),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
+        # NOTE: In TSQL - this grammar is NOT greedy.
+    )
 
 
 class UnorderedSelectStatementSegment(BaseSegment):
@@ -753,7 +750,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
     We need to change ANSI slightly to remove LimitClauseSegment
     and NamedWindowSegment which don't exist in T-SQL.
 
-    We also need to get away from ANSI's use of StartsWith.
+    We also need to get away from ANSI's use of terminators.
     There's not a clean list of terminators that can be used
     to identify the end of a TSQL select statement.  Semi-colon is optional.
     """
