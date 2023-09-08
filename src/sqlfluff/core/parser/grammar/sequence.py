@@ -36,7 +36,7 @@ from sqlfluff.core.parser.types import MatchableType, ParseMode, SimpleHintType
 def _trim_to_terminator(segments, tail, terminators, parse_context):
     # In the greedy mode, we first look ahead to find a terminator
     # before matching any code.
-    with parse_context.deeper_match(name=f"Sequence-Greedy-@0") as ctx:
+    with parse_context.deeper_match(name="Sequence-Greedy-@0") as ctx:
         term_match = greedy_match(
             segments,
             parse_context=ctx,
@@ -60,7 +60,7 @@ def _trim_to_terminator(segments, tail, terminators, parse_context):
 
 
 def _position_metas(
-    metas: SequenceType[BaseSegment], non_code: SequenceType[BaseSegment]
+    metas: SequenceType[Indent], non_code: SequenceType[BaseSegment]
 ) -> Tuple[BaseSegment, ...]:
     # First flush any metas along with the gap.
     # Elements with a negative indent value come AFTER
@@ -145,7 +145,7 @@ class Sequence(BaseGrammar):
             )
 
         # Buffers of segments, not yet added.
-        meta_buffer: List[MetaSegment] = []
+        meta_buffer: List[Indent] = []
         non_code_buffer: List[BaseSegment] = []
 
         for idx, elem in enumerate(self._elements):
@@ -218,7 +218,10 @@ class Sequence(BaseGrammar):
                             # return value so that if any have already been
                             # matched, the user can see that.
                             matched_segments,
-                            expected=f"{elem} after {matched_segments[-1]}. Found nothing.",
+                            expected=(
+                                f"{elem} after {matched_segments[-1]}. "
+                                "Found nothing."
+                            ),
                         ),
                     ),
                     # Any trailing non code isn't claimed.
@@ -322,6 +325,7 @@ class Sequence(BaseGrammar):
                 matched_segments += _position_metas(
                     meta_buffer, tuple(non_code_buffer) + pre
                 ) + (unparsable_seg,)
+                unmatched_segments = ()
                 meta_buffer = []
                 non_code_buffer = []
                 # Add the trailing non code to the tail (if it exists)
