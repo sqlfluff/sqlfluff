@@ -3,7 +3,9 @@
 # NOTE: We rename the typing.Sequence here so it doesn't collide
 # with the grammar class that we're defining.
 from os import getenv
-from typing import List, Optional, Set, Tuple, Union, cast
+from typing import List, Optional
+from typing import Sequence as SequenceType
+from typing import Set, Tuple, Union, cast
 
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.parser.context import ParseContext
@@ -13,7 +15,10 @@ from sqlfluff.core.parser.grammar.base import (
 )
 from sqlfluff.core.parser.grammar.conditional import Conditional
 from sqlfluff.core.parser.helpers import check_still_complete, trim_non_code_segments
-from sqlfluff.core.parser.match_algorithms import bracket_sensitive_look_ahead_match
+from sqlfluff.core.parser.match_algorithms import (
+    bracket_sensitive_look_ahead_match,
+    greedy_match,
+)
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.segments import (
@@ -22,14 +27,61 @@ from sqlfluff.core.parser.segments import (
     Dedent,
     Indent,
     MetaSegment,
+    UnparsableSegment,
     allow_ephemeral,
 )
-from sqlfluff.core.parser.types import MatchableType, SimpleHintType
+from sqlfluff.core.parser.types import MatchableType, ParseMode, SimpleHintType
+
+
+def _trim_to_terminator(segments, tail, terminators, parse_context):
+    # In the greedy mode, we first look ahead to find a terminator
+    # before matching any code.
+    with parse_context.deeper_match(name=f"Sequence-Greedy-@0") as ctx:
+        term_match = greedy_match(
+            segments,
+            parse_context=ctx,
+            matchers=terminators,
+        )
+
+    # NOTE: If there's no match, i.e. no terminator, then we continue
+    # to consider all the segments, and therefore take no different
+    # action at this stage.
+    if term_match:
+        # If we _do_ find a terminator, we separate off everything
+        # beyond that terminator (and any preceding non-code) so that
+        # it's not available to match against for the rest of this.
+        tail = term_match.unmatched_segments
+        segments = term_match.matched_segments
+        for _idx in range(len(segments), -1, -1):
+            if segments[_idx - 1].is_code:
+                return segments[:_idx], segments[_idx:] + tail
+
+    return segments, tail
+
+
+def _position_metas(
+    metas: SequenceType[BaseSegment], non_code: SequenceType[BaseSegment]
+) -> Tuple[BaseSegment, ...]:
+    # First flush any metas along with the gap.
+    # Elements with a negative indent value come AFTER
+    # the whitespace. Positive or neutral come BEFORE.
+    # HOWEVER: If one is already there, we must preserve
+    # the order. This forced ordering is fine if there's
+    # a positive followed by a negative in the sequence,
+    # but if by design a positive arrives *after* a
+    # negative then we should insert it after the positive
+    # instead.
+    # https://github.com/sqlfluff/sqlfluff/issues/3836
+    if all(m.indent_val >= 0 for m in metas):
+        return tuple((*metas, *non_code))
+    else:
+        return tuple((*non_code, *metas))
 
 
 class Sequence(BaseGrammar):
     """Match a specific sequence of elements."""
 
+    supported_parse_modes = {ParseMode.STRICT, ParseMode.GREEDY}
     test_env = getenv("SQLFLUFF_TESTENV", "")
 
     @cached_method_for_parse_context
@@ -64,6 +116,18 @@ class Sequence(BaseGrammar):
         """Match a specific sequence of elements."""
         matched_segments: Tuple[BaseSegment, ...] = ()
         unmatched_segments = segments
+        tail: Tuple[BaseSegment, ...] = ()
+        first_match = True
+
+        if self.parse_mode == ParseMode.GREEDY:
+            # In the greedy mode, we first look ahead to find a terminator
+            # before matching any code.
+            unmatched_segments, tail = _trim_to_terminator(
+                unmatched_segments,
+                tail,
+                terminators=[*self.terminators, *parse_context.terminators],
+                parse_context=parse_context,
+            )
 
         # Buffers of segments, not yet added.
         meta_buffer: List[MetaSegment] = []
@@ -141,19 +205,7 @@ class Sequence(BaseGrammar):
 
             # 5. Successful match: Update the buffers.
             # First flush any metas along with the gap.
-            # Elements with a negative indent value come AFTER
-            # the whitespace. Positive or neutral come BEFORE.
-            # HOWEVER: If one is already there, we must preserve
-            # the order. This forced ordering is fine if there's
-            # a positive followed by a negative in the sequence,
-            # but if by design a positive arrives *after* a
-            # negative then we should insert it after the positive
-            # instead.
-            # https://github.com/sqlfluff/sqlfluff/issues/3836
-            if all(m.indent_val >= 0 for m in meta_buffer):
-                matched_segments += tuple((*meta_buffer, *non_code_buffer))
-            else:
-                matched_segments += tuple((*non_code_buffer, *meta_buffer))
+            matched_segments += _position_metas(meta_buffer, non_code_buffer)
             non_code_buffer = []
             meta_buffer = []
 
@@ -161,9 +213,42 @@ class Sequence(BaseGrammar):
             matched_segments += elem_match.matched_segments
             unmatched_segments = elem_match.unmatched_segments
 
+            if first_match and self.parse_mode == ParseMode.GREEDY_ONCE_STARTED:
+                # In the GREEDY_ONCE_STARTED mode, we first look ahead to find a
+                # terminator after the first match (and only the first match).
+                unmatched_segments, tail = _trim_to_terminator(
+                    unmatched_segments,
+                    tail,
+                    terminators=[*self.terminators, *parse_context.terminators],
+                    parse_context=parse_context,
+                )
+                first_match = False
+
+        # TODO: After the main loop is when we would loop for terminators if
+        # we are going to be greedy but only _after_ matching content.
+
+        # Finally if we're in one of the greedy modes, and there's anything
+        # left as unclaimed, mark it as unparsable.
+        if self.parse_mode in (ParseMode.GREEDY, ParseMode.GREEDY_ONCE_STARTED):
+            pre, unmatched_mid, post = trim_non_code_segments(unmatched_segments)
+            if unmatched_mid:
+                unparsable_seg = UnparsableSegment(
+                    segments=unmatched_mid,
+                    # TODO: We should come up with a better "expected" string
+                    # than this
+                    expected="Nothing here.",
+                )
+                matched_segments += _position_metas(
+                    meta_buffer, tuple(non_code_buffer) + pre
+                ) + (unparsable_seg,)
+                meta_buffer = []
+                non_code_buffer = []
+                # Add the trailing non code to the tail (if it exists)
+                tail = post + tail
+
         # If we finished on an optional, and so still have some unflushed metas,
         # we should do that first, then add any unmatched noncode back onto the
-        # stack to match next time.
+        # unmatched sequence.
         if meta_buffer:
             matched_segments += tuple(meta_buffer)
         if non_code_buffer:
@@ -175,7 +260,7 @@ class Sequence(BaseGrammar):
             check_still_complete(
                 segments,
                 matched_segments,
-                unmatched_segments,
+                unmatched_segments + tail,
             )
 
         # If we get to here, we've matched all of the elements (or skipped them).
@@ -190,7 +275,7 @@ class Sequence(BaseGrammar):
                 # of isolating them.
                 metas_only=True,
             ),
-            unmatched_segments,
+            unmatched_segments + tail,
         )
 
 
