@@ -378,7 +378,7 @@ jobs:
       - name: Update PR Comment.
         uses: actions/github-script@v6
         # Run even if the coverage step failed.
-        if: always()
+        if: github.event_name == 'pull_request'
         with:
           script: |
             // First list the existing comments
