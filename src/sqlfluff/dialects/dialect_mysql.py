@@ -1629,7 +1629,7 @@ class IntoClauseSegment(BaseSegment):
             ),
         ),
         parse_mode=ParseMode.GREEDY_ONCE_STARTED,
-        terminators=[Ref("SelectClauseElementTerminatorGrammar")],
+        terminators=[Ref("SelectClauseTerminatorGrammar")],
     )
 
 

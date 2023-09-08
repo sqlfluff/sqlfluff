@@ -77,7 +77,7 @@ trino_dialect.replace(
         Ref("FrameClauseUnitGrammar"),
         "FETCH",
     ),
-    SelectClauseElementTerminatorGrammar=OneOf(
+    SelectClauseTerminatorGrammar=OneOf(
         "FROM",
         "WHERE",
         Sequence("ORDER", "BY"),

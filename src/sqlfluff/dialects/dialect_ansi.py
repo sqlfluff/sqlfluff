@@ -495,7 +495,7 @@ ansi_dialect.add(
         Ref("NanLiteralSegment"),
         Ref("BooleanLiteralGrammar"),
     ),
-    SelectClauseElementTerminatorGrammar=OneOf(
+    SelectClauseTerminatorGrammar=OneOf(
         "FROM",
         "WHERE",
         Sequence("ORDER", "BY"),
@@ -1673,13 +1673,13 @@ class SelectClauseElementSegment(BaseSegment):
                 "BaseExpressionElementGrammar",
                 # To avoid over-claiming, we shouldn't mistakenly class
                 # a keyword as an alias.
-                exclude=Ref("SelectClauseElementTerminatorGrammar"),
+                exclude=Ref("SelectClauseTerminatorGrammar"),
             ),
             Ref(
                 "AliasExpressionSegment",
                 # To avoid over-claiming, we shouldn't mistakenly class
                 # a keyword as an alias.
-                exclude=Ref("SelectClauseElementTerminatorGrammar"),
+                exclude=Ref("SelectClauseTerminatorGrammar"),
                 optional=True,
             ),
         ),
@@ -1750,7 +1750,7 @@ class SelectClauseSegment(BaseSegment):
         # NB: The Dedent for the indent above lives in the
         # SelectStatementSegment so that it sits in the right
         # place corresponding to the whitespace.
-        terminators=[Ref("SelectClauseElementTerminatorGrammar")],
+        terminators=[Ref("SelectClauseTerminatorGrammar")],
         parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
 

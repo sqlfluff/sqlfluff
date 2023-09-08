@@ -100,7 +100,7 @@ sqlite_dialect.replace(
     ),
     PostFunctionGrammar=Ref("FilterClauseGrammar"),
     IgnoreRespectNullsGrammar=Nothing(),
-    SelectClauseElementTerminatorGrammar=OneOf(
+    SelectClauseTerminatorGrammar=OneOf(
         "FROM",
         "WHERE",
         Sequence("ORDER", "BY"),

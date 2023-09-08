@@ -458,7 +458,7 @@ postgres_dialect.replace(
     IsNullGrammar=Ref.keyword("ISNULL"),
     NotNullGrammar=Ref.keyword("NOTNULL"),
     JoinKeywordsGrammar=Sequence("JOIN", Sequence("LATERAL", optional=True)),
-    SelectClauseElementTerminatorGrammar=OneOf(
+    SelectClauseTerminatorGrammar=OneOf(
         "INTO",
         "FROM",
         "WHERE",

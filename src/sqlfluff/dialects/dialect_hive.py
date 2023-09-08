@@ -150,8 +150,8 @@ hive_dialect.replace(
             Ref("BackQuotedIdentifierSegment"),
         ]
     ),
-    SelectClauseElementTerminatorGrammar=ansi_dialect.get_grammar(
-        "SelectClauseElementTerminatorGrammar"
+    SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "SelectClauseTerminatorGrammar"
     ).copy(
         insert=[
             Sequence("CLUSTER", "BY"),

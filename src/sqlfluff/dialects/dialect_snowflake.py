@@ -591,7 +591,7 @@ snowflake_dialect.replace(
         Sequence("ILIKE", Ref.keyword("ANY", optional=True)),
         "REGEXP",
     ),
-    SelectClauseElementTerminatorGrammar=OneOf(
+    SelectClauseTerminatorGrammar=OneOf(
         "FROM",
         "WHERE",
         Sequence("ORDER", "BY"),
