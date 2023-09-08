@@ -18,6 +18,7 @@ from sqlfluff.core.parser.helpers import check_still_complete, trim_non_code_seg
 from sqlfluff.core.parser.match_algorithms import (
     bracket_sensitive_look_ahead_match,
     greedy_match,
+    prune_options,
 )
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
@@ -56,7 +57,20 @@ def _trim_to_terminator(
     """
     # In the greedy mode, we first look ahead to find a terminator
     # before matching any code.
-    with parse_context.deeper_match(name="Sequence-Greedy-@0") as ctx:
+
+    # NOTE: If there is a terminator _immediately_, then greedy
+    # match will appear to not match (because there's "nothing" before
+    # the terminator). To resolve that case, we first match immediately
+    # on the terminators and handle that case explicitly if it occurs.
+    with parse_context.deeper_match(name="Sequence-GreedyA-@0") as ctx:
+        pruned_terms = prune_options(terminators, segments, parse_context=ctx)
+        for term in pruned_terms:
+            if term.match(segments, ctx):
+                # One matched immediately. Claim everything to the tail.
+                return (), segments + tail
+
+    # If the above case didn't match then we proceed as expected.
+    with parse_context.deeper_match(name="Sequence-GreedyB-@0") as ctx:
         term_match = greedy_match(
             segments,
             parse_context=ctx,
@@ -67,6 +81,8 @@ def _trim_to_terminator(
     # to consider all the segments, and therefore take no different
     # action at this stage.
     if term_match:
+        if segments and segments[0].raw == "COMMENT":
+            print(f"YES: {term_match}")
         # If we _do_ find a terminator, we separate off everything
         # beyond that terminator (and any preceding non-code) so that
         # it's not available to match against for the rest of this.
@@ -226,6 +242,10 @@ class Sequence(BaseGrammar):
                 if self.parse_mode == ParseMode.STRICT:
                     # In a strict mode, running out a segments to match
                     # on means that we don't match anything.
+                    return MatchResult.from_unmatched(segments)
+
+                if not matched_segments:
+                    # If nothing has been matched _anyway_ then just bail out.
                     return MatchResult.from_unmatched(segments)
 
                 # On any of the other modes (GREEDY or GREEDY_ONCE_STARTED)

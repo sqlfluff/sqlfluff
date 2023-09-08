@@ -5,7 +5,7 @@ or BaseGrammar to un-bloat those classes.
 """
 
 from dataclasses import dataclass
-from typing import List, Optional, Sequence, Tuple, cast
+from typing import Iterable, List, Optional, Sequence, Set, Tuple, cast
 
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.parser.context import ParseContext
@@ -37,6 +37,19 @@ def first_trimmed_raw(seg: BaseSegment) -> str:
     return s[0] if s else ""
 
 
+def _first_non_whitespace(
+    segments: Iterable["BaseSegment"],
+) -> Optional[Tuple[str, Set[str]]]:
+    """Return the upper first non-whitespace segment in the iterable."""
+    for segment in segments:
+        if segment.first_non_whitespace_segment_raw_upper:
+            return (
+                segment.first_non_whitespace_segment_raw_upper,
+                segment.class_types,
+            )
+    return None
+
+
 @dataclass
 class BracketInfo:
     """BracketInfo tuple for keeping track of brackets during matching.
@@ -56,6 +69,64 @@ class BracketInfo:
             start_bracket=(self.bracket,),
             end_bracket=cast(Tuple[BaseSegment], end_bracket),
         )
+
+
+def prune_options(
+    options: List[MatchableType],
+    segments: Tuple[BaseSegment, ...],
+    parse_context: ParseContext,
+) -> List[MatchableType]:
+    """Use the simple matchers to prune which options to match on.
+
+    Works in the context of a grammar making choices between options
+    such as AnyOf or the content of Delimited.
+    """
+    available_options = []
+    prune_buff = []
+
+    # Find the first code element to match against.
+    first_segment = _first_non_whitespace(segments)
+    # If we don't have an appropriate option to match against,
+    # then we should just return immediately. Nothing will match.
+    if not first_segment:
+        return options
+    first_raw, first_types = first_segment
+
+    for opt in options:
+        simple = opt.simple(parse_context=parse_context)
+        if simple is None:
+            # This element is not simple, we have to do a
+            # full match with it...
+            available_options.append(opt)
+            continue
+
+        # Otherwise we have a simple option, so let's use
+        # it for pruning.
+        simple_raws, simple_types = simple
+        matched = False
+
+        # We want to know if the first meaningful element of the str_buff
+        # matches the option, based on either simple _raw_ matching or
+        # simple _type_ matching.
+
+        # Match Raws
+        if simple_raws and first_raw in simple_raws:
+            # If we get here, it's matched the FIRST element of the string buffer.
+            available_options.append(opt)
+            matched = True
+
+        # Match Types
+        if simple_types and not matched and first_types.intersection(simple_types):
+            # If we get here, it's matched the FIRST element of the string buffer.
+            available_options.append(opt)
+            matched = True
+
+        if not matched:
+            # Ditch this option, the simple match has failed
+            prune_buff.append(opt)
+            continue
+
+    return available_options
 
 
 def look_ahead_match(

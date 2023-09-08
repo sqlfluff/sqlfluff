@@ -234,11 +234,7 @@ def test__parser__grammar_sequence_indent_conditional(seg_list, caplog):
         ),
         # #####
         # Test competition between sequence elements and terminators.
-        # What *should* happen is that the terminator is matched _first_ and so takes
-        # precedence in GREEDY and GREEDY_ONCE_STARTED.
-        # NOTE: When the terminator conflicts with the _first_ element, the behaviour is
-        # a little unexpected because often the terminator will fail to match because we
-        # require whitespace before keyword terminators.
+        # In GREEDY_ONCE_STARTED, the first element is matched before any terminators.
         (
             ParseMode.GREEDY_ONCE_STARTED,
             ["a"],
@@ -246,12 +242,13 @@ def test__parser__grammar_sequence_indent_conditional(seg_list, caplog):
             slice(None, 2),
             (("keyword", "a"),),
         ),
+        # In GREEDY, the terminator is matched first and so takes precedence.
         (
             ParseMode.GREEDY,
             ["a"],
             ["a"],
             slice(None, 2),
-            (("keyword", "a"),),
+            (),
         ),
         # NOTE: In these last two cases, the "b" isn't included because it acted as
         # a terminator before being considered in the sequence.
