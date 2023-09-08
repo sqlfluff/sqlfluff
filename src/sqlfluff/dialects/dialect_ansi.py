@@ -40,12 +40,12 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
     SegmentGenerator,
     Sequence,
-    StartsWith,
     StringLexer,
     StringParser,
     SymbolSegment,
@@ -494,18 +494,6 @@ ansi_dialect.add(
         Ref("NullLiteralSegment"),
         Ref("NanLiteralSegment"),
         Ref("BooleanLiteralGrammar"),
-    ),
-    SelectClauseSegmentGrammar=Sequence(
-        "SELECT",
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        Delimited(
-            Ref("SelectClauseElementSegment"),
-            allow_trailing=True,
-        ),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
     ),
     SelectClauseElementTerminatorGrammar=OneOf(
         "FROM",
@@ -1678,8 +1666,22 @@ class SelectClauseElementSegment(BaseSegment):
         # *, blah.*, blah.blah.*, etc.
         Ref("WildcardExpressionSegment"),
         Sequence(
-            Ref("BaseExpressionElementGrammar"),
-            Ref("AliasExpressionSegment", optional=True),
+            # TODO: Before merging, this should be tidied up. It's a bit
+            # messy. Perhaps a new parse mode which checks for terminators
+            # first.
+            Ref(
+                "BaseExpressionElementGrammar",
+                # To avoid over-claiming, we shouldn't mistakenly class
+                # a keyword as an alias.
+                exclude=Ref("SelectClauseElementTerminatorGrammar"),
+            ),
+            Ref(
+                "AliasExpressionSegment",
+                # To avoid over-claiming, we shouldn't mistakenly class
+                # a keyword as an alias.
+                exclude=Ref("SelectClauseElementTerminatorGrammar"),
+                optional=True,
+            ),
         ),
     )
 
@@ -1737,20 +1739,20 @@ class SelectClauseSegment(BaseSegment):
     """A group of elements in a select target statement."""
 
     type = "select_clause"
-    match_grammar: Matchable = StartsWith(
+    match_grammar: Matchable = Sequence(
         "SELECT",
-        terminators=[
-            "FROM",
-            "WHERE",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            "OVERLAPS",
-            Ref("SetOperatorSegment"),
-            "FETCH",
-        ],
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        Delimited(
+            Ref("SelectClauseElementSegment"),
+            allow_trailing=True,
+        ),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
+        terminators=[Ref("SelectClauseElementTerminatorGrammar")],
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
-
-    parse_grammar: Matchable = Ref("SelectClauseSegmentGrammar")
 
 
 class JoinClauseSegment(BaseSegment):
@@ -2640,24 +2642,8 @@ class UnorderedSelectStatementSegment(BaseSegment):
     """
 
     type = "select_statement"
-    # match grammar. This one makes sense in the context of knowing that it's
-    # definitely a statement, we just don't know what type yet.
-    match_grammar: Matchable = StartsWith(
-        # NB: In bigquery, the select clause may include an EXCEPT, which
-        # will also match the set operator, but by starting with the whole
-        # select clause rather than just the SELECT keyword, we mitigate that
-        # here.
-        Ref("SelectClauseSegment"),
-        terminators=[
-            Ref("SetOperatorSegment"),
-            Ref("WithNoSchemaBindingClauseSegment"),
-            Ref("WithDataClauseSegment"),
-            Ref("OrderByClauseSegment"),
-            Ref("LimitClauseSegment"),
-        ],
-    )
 
-    parse_grammar: Matchable = Sequence(
+    match_grammar: Matchable = Sequence(
         Ref("SelectClauseSegment"),
         # Dedent for the indent in the select clause.
         # It's here so that it can come AFTER any whitespace.
@@ -2668,6 +2654,14 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Ref("HavingClauseSegment", optional=True),
         Ref("OverlapsClauseSegment", optional=True),
         Ref("NamedWindowSegment", optional=True),
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithDataClauseSegment"),
+            Ref("OrderByClauseSegment"),
+            Ref("LimitClauseSegment"),
+        ],
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
 
 
@@ -2675,29 +2669,22 @@ class SelectStatementSegment(BaseSegment):
     """A `SELECT` statement."""
 
     type = "select_statement"
-    # match grammar. This one makes sense in the context of knowing that it's
-    # definitely a statement, we just don't know what type yet.
-    match_grammar: Matchable = StartsWith(
-        # NB: In bigquery, the select clause may include an EXCEPT, which
-        # will also match the set operator, but by starting with the whole
-        # select clause rather than just the SELECT keyword, we mitigate that
-        # here.
-        Ref("SelectClauseSegment"),
-        terminators=[
-            Ref("SetOperatorSegment"),
-            Ref("WithNoSchemaBindingClauseSegment"),
-            Ref("WithDataClauseSegment"),
-        ],
-    )
 
-    # Inherit most of the parse grammar from the original.
-    parse_grammar: Matchable = UnorderedSelectStatementSegment.parse_grammar.copy(
+    # Inherit most of the parse grammar from the unordered version.
+    match_grammar: Matchable = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
             Ref("FetchClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
             Ref("NamedWindowSegment", optional=True),
-        ]
+        ],
+        # Overwrite the terminators, because we want to remove some.
+        replace_terminators=True,
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithDataClauseSegment"),
+        ],
     )
 
 
