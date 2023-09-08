@@ -386,12 +386,15 @@ jobs:
             const trigger_str = 'Coverage Results';
             console.log("Getting existing comments...");
 
+            const issue_number = context.issue.number;
+            console.log("Issue number: " + issue_number);
+
             const comments = await github.paginate(
               github.rest.issues.listComments,
               {
                 owner: 'sqlfluff',
                 repo: 'sqlfluff',
-                issue_number: context.issue.number
+                issue_number: issue_number
               }
             );
 
