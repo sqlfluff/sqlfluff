@@ -72,7 +72,7 @@ class BracketInfo:
 
 
 def prune_options(
-    options: List[MatchableType],
+    options: Iterable[MatchableType],
     segments: Tuple[BaseSegment, ...],
     parse_context: ParseContext,
 ) -> List[MatchableType]:
@@ -89,7 +89,7 @@ def prune_options(
     # If we don't have an appropriate option to match against,
     # then we should just return immediately. Nothing will match.
     if not first_segment:
-        return options
+        return list(options)
     first_raw, first_types = first_segment
 
     for opt in options:

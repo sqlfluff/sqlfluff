@@ -2,6 +2,8 @@
 
 This inherits from the ansi dialect.
 """
+from typing import cast
+
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -714,7 +716,9 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("NamedWindowSegment", optional=True),
         ],
         replace_terminators=True,
-        terminators=ansi.SelectStatementSegment.match_grammar.terminators,
+        terminators=cast(
+            Sequence, ansi.SelectStatementSegment.match_grammar
+        ).terminators,
     )
 
 

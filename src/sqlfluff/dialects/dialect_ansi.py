@@ -2657,7 +2657,7 @@ class SelectStatementSegment(BaseSegment):
     type = "select_statement"
 
     # Inherit most of the parse grammar from the unordered version.
-    match_grammar: Matchable = UnorderedSelectStatementSegment.match_grammar.copy(
+    match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
             Ref("FetchClauseSegment", optional=True),
