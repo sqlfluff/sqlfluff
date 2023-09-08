@@ -4657,6 +4657,82 @@ class CopyStatementSegment(BaseSegment):
         optional=True,
     )
 
+    _option_compatability_stdin = Sequence(
+        Ref.keyword("WITH", optional=True),
+        AnySetOf(
+            "BINARY",
+            Sequence(
+                "DELIMITER",
+                Ref.keyword("AS", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "NULL", Ref.keyword("AS", optional=True), Ref("QuotedLiteralSegment")
+            ),
+            Sequence(
+                "CSV",
+                OneOf(
+                    "HEADER",
+                    Sequence(
+                        "QUOTE",
+                        Ref.keyword("AS", optional=True),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "ESCAPE",
+                        Ref.keyword("AS", optional=True),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "FORCE_NOT_NULL",
+                        Delimited(Ref("ColumnReferenceSegment")),
+                    ),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+        optional=True,
+    )
+
+    _option_compatability_stdout = Sequence(
+        Ref.keyword("WITH", optional=True),
+        AnySetOf(
+            "BINARY",
+            Sequence(
+                "DELIMITER",
+                Ref.keyword("AS", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "NULL", Ref.keyword("AS", optional=True), Ref("QuotedLiteralSegment")
+            ),
+            Sequence(
+                "CSV",
+                OneOf(
+                    "HEADER",
+                    Sequence(
+                        "QUOTE",
+                        Ref.keyword("AS", optional=True),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "ESCAPE",
+                        Ref.keyword("AS", optional=True),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "FORCE_QUOTE",
+                        Delimited(Ref("ColumnReferenceSegment")),
+                    ),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+        optional=True,
+    )
+
     match_grammar = Sequence(
         "COPY",
         OneOf(
