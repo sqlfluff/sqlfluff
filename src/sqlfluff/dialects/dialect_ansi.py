@@ -1666,22 +1666,8 @@ class SelectClauseElementSegment(BaseSegment):
         # *, blah.*, blah.blah.*, etc.
         Ref("WildcardExpressionSegment"),
         Sequence(
-            # TODO: Before merging, this should be tidied up. It's a bit
-            # messy. Perhaps a new parse mode which checks for terminators
-            # first.
-            Ref(
-                "BaseExpressionElementGrammar",
-                # To avoid over-claiming, we shouldn't mistakenly class
-                # a keyword as an alias.
-                exclude=Ref("SelectClauseTerminatorGrammar"),
-            ),
-            Ref(
-                "AliasExpressionSegment",
-                # To avoid over-claiming, we shouldn't mistakenly class
-                # a keyword as an alias.
-                exclude=Ref("SelectClauseTerminatorGrammar"),
-                optional=True,
-            ),
+            Ref("BaseExpressionElementGrammar"),
+            Ref("AliasExpressionSegment", optional=True),
         ),
     )
 
