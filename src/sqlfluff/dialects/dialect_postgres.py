@@ -16,12 +16,12 @@ from sqlfluff.core.parser import (
     NewlineSegment,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
     SegmentGenerator,
     Sequence,
-    StartsWith,
     StringParser,
     SymbolSegment,
     TypedParser,
@@ -466,20 +466,6 @@ postgres_dialect.replace(
         "LIMIT",
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
-    ),
-    SelectClauseSegmentGrammar=Sequence(
-        "SELECT",
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        Delimited(
-            Ref("SelectClauseElementSegment"),
-            # In Postgres you don't need an element so make it optional
-            optional=True,
-            allow_trailing=True,
-        ),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
@@ -1389,35 +1375,24 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Overrides ANSI Statement, to allow for SELECT INTO statements."""
 
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("IntoClauseSegment", optional=True),
+        ],
+        before=Ref("FromClauseSegment", optional=True),
         terminators=[
             Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
             Sequence("ON", "CONFLICT"),
             Ref.keyword("RETURNING"),
             Ref("WithCheckOptionSegment"),
         ],
-    )
-
-    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
-        insert=[
-            Ref("IntoClauseSegment", optional=True),
-        ],
-        before=Ref("FromClauseSegment", optional=True),
     )
 
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Overrides ANSI as the parse grammar copy needs to be reapplied."""
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
-        terminators=[
-            Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
-            Sequence("ON", "CONFLICT"),
-            Ref.keyword("RETURNING"),
-            Ref("WithCheckOptionSegment"),
-        ],
-    )
-
-    parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
+    # Inherit most of the parse grammar from the unordered version.
+    match_grammar: Matchable = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
@@ -1426,14 +1401,35 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     ).copy(
         insert=[Ref("ForClauseSegment", optional=True)],
         before=Ref("LimitClauseSegment", optional=True),
+        # Overwrite the terminators, because we want to remove some.
+        replace_terminators=True,
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithDataClauseSegment"),
+            Sequence("ON", "CONFLICT"),
+            Ref.keyword("RETURNING"),
+            Ref("WithCheckOptionSegment"),
+        ],
     )
 
 
 class SelectClauseSegment(ansi.SelectClauseSegment):
     """Overrides ANSI to allow INTO as a terminator."""
 
-    match_grammar = StartsWith(
+    match_grammar = Sequence(
         "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        Delimited(
+            Ref("SelectClauseElementSegment"),
+            # In Postgres you don't need an element so make it optional
+            optional=True,
+            allow_trailing=True,
+        ),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
         terminators=[
             "INTO",
             "FROM",
@@ -1445,8 +1441,8 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
             Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
             Ref("WithCheckOptionSegment"),
         ],
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
-    parse_grammar = ansi.SelectClauseSegment.parse_grammar
 
 
 class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
