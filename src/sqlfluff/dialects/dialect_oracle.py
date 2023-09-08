@@ -697,25 +697,24 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """
 
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
-        terminators=[Ref("HierarchicalQueryClauseSegment")],
-    )
-    parse_grammar: Matchable = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[Ref("HierarchicalQueryClauseSegment", optional=True)],
         before=Ref("GroupByClauseSegment", optional=True),
+        terminators=[Ref("HierarchicalQueryClauseSegment")],
     )
 
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """A `SELECT` statement."""
 
-    match_grammar: Matchable = ansi.SelectStatementSegment.match_grammar.copy()
-    parse_grammar: Matchable = UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar: Matchable = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
             Ref("FetchClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
             Ref("NamedWindowSegment", optional=True),
-        ]
+        ],
+        replace_terminators=True,
+        terminators=ansi.SelectStatementSegment.match_grammar.terminators,
     )
 
 
