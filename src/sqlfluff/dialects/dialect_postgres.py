@@ -4734,8 +4734,8 @@ class CopyStatementSegment(BaseSegment):
     )
 
     # Add the compatibility code to see if it fixes the issue before refactoring.
-    # Parse error for STDOUT comptability at CSV keyword.
-    # STDIN compatability CSV parses without issue.
+    # Parse error for STDOUT compatibility at CSV keyword.
+    # STDIN compatibility CSV parses without issue.
 
     match_grammar = Sequence(
         "COPY",
