@@ -20,7 +20,7 @@ from sqlfluff.core.parser import (
     GreedyUntil,
     Indent,
     Matchable,
-    TypedParser,
+    MultiStringParser,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -32,13 +32,13 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
-    MultiStringParser,
+    TypedParser,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_bigquery_keywords import (
     bigquery_reserved_keywords,
     bigquery_unreserved_keywords,
 )
-from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 bigquery_dialect = ansi_dialect.copy_as("bigquery")
@@ -380,8 +380,7 @@ class SetExpressionSegment(ansi.SetExpressionSegment):
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Enhance `SELECT` statement to include QUALIFY."""
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar
-    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
     )
@@ -390,8 +389,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Enhance unordered `SELECT` statement to include QUALIFY."""
 
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar
-    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OverlapsClauseSegment", optional=True),
     )

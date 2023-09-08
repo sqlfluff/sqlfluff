@@ -30,11 +30,11 @@ from sqlfluff.core.parser import (
     MultiStringParser,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
     Sequence,
-    StartsWith,
     StringLexer,
     StringParser,
     SymbolSegment,
@@ -283,26 +283,6 @@ sparksql_dialect.replace(
         ),
         "RLIKE",
         "REGEXP",
-    ),
-    SelectClauseSegmentGrammar=Sequence(
-        "SELECT",
-        OneOf(
-            Ref("TransformClauseSegment"),
-            Sequence(
-                Ref(
-                    "SelectClauseModifierSegment",
-                    optional=True,
-                ),
-                Indent,
-                Delimited(
-                    Ref("SelectClauseElementSegment"),
-                    allow_trailing=True,
-                ),
-            ),
-        ),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
     ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -1761,8 +1741,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     SelectStatementSegment.
     """
 
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar
-    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         # Removing non-valid clauses that exist in ANSI dialect
         remove=[Ref("OverlapsClauseSegment", optional=True)],
@@ -1772,8 +1751,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Enhance `SELECT` statement for valid SparkSQL clauses."""
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar
-    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
         # TODO New Rule: Warn of mutual exclusion of following clauses
         #  DISTRIBUTE, SORT, CLUSTER and ORDER BY if multiple specified
         insert=[
@@ -3200,8 +3178,25 @@ class SelectClauseSegment(BaseSegment):
     """
 
     type = "select_clause"
-    match_grammar: Matchable = StartsWith(
+    match_grammar = Sequence(
         "SELECT",
+        OneOf(
+            Ref("TransformClauseSegment"),
+            Sequence(
+                Ref(
+                    "SelectClauseModifierSegment",
+                    optional=True,
+                ),
+                Indent,
+                Delimited(
+                    Ref("SelectClauseElementSegment"),
+                    allow_trailing=True,
+                ),
+            ),
+        ),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
         terminators=[
             "FROM",
             "WHERE",
@@ -3210,9 +3205,8 @@ class SelectClauseSegment(BaseSegment):
             "LIMIT",
             "OVERLAPS",
         ],
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
-
-    parse_grammar: Matchable = Ref("SelectClauseSegmentGrammar")
 
 
 class UsingClauseSegment(BaseSegment):

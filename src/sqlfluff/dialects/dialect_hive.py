@@ -932,14 +932,11 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
         ],
     )
 
-    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy()
-
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Overriding SelectStatementSegment to allow for additional segment parsing."""
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar.copy()
-    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("ClusterByClauseSegment", optional=True),
             Ref("DistributeByClauseSegment", optional=True),
@@ -953,13 +950,13 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
     """Overriding SelectClauseSegment to allow for additional segment parsing."""
 
     match_grammar = ansi.SelectClauseSegment.match_grammar.copy(
+        # Add additional terminators
         terminators=[
             Sequence("CLUSTER", "BY"),
             Sequence("DISTRIBUTE", "BY"),
             Sequence("SORT", "BY"),
         ],
     )
-    parse_grammar = ansi.SelectClauseSegment.parse_grammar.copy()
 
 
 class SetExpressionSegment(ansi.SetExpressionSegment):
