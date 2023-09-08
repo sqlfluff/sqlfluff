@@ -33,7 +33,27 @@ from sqlfluff.core.parser.segments import (
 from sqlfluff.core.parser.types import MatchableType, ParseMode, SimpleHintType
 
 
-def _trim_to_terminator(segments, tail, terminators, parse_context):
+def _trim_to_terminator(
+    segments: Tuple[BaseSegment, ...],
+    tail: Tuple[BaseSegment, ...],
+    terminators: SequenceType[MatchableType],
+    parse_context: ParseContext,
+) -> Tuple[Tuple[BaseSegment, ...], Tuple[BaseSegment, ...]]:
+    """Trim forward segments based on terminators.
+
+    Given a forward set of segments, trim elements from `segments` to
+    `tail` by using a `greedy_match()` to identify terminators.
+
+    If no terminators are found, no change is made.
+
+    NOTE: This method is designed to be used to mutate `segments` and
+    `tail` and used as such:
+
+    .. code-block:: python
+
+        segments, tail = _trim_to_terminator(segments, tail, ...)
+
+    """
     # In the greedy mode, we first look ahead to find a terminator
     # before matching any code.
     with parse_context.deeper_match(name="Sequence-Greedy-@0") as ctx:
