@@ -144,7 +144,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # We define the type here but no value. Subclasses must provide a value.
     match_grammar: Matchable
     comment_separate = False
-    optional = False  # NB: See the sequence grammar for details
     is_meta = False
     # Are we able to have non-code at the start or end?
     can_start_end_non_code = False
@@ -637,13 +636,21 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return cls._cache_key
 
     @classmethod
-    def is_optional(cls) -> bool:
-        """Return True if this segment is optional.
+    def is_optional(cls) -> bool:  # pragma: no cover
+        """Returns False because Segments are never optional.
 
-        This is used primarily in sequence matching, where optional
-        segments can be skipped.
+        This is used _only_ in the `Sequence` & `Bracketed` grammars
+        to indicate optional elements in a sequence which may not be
+        present while still returning a valid match.
+
+        Typically in dialect definition, Segments are rarely referred to
+        directly, but normally are referenced via a `Ref()` grammar.
+        The `Ref()` grammar supports optional referencing and so we
+        recommend wrapping a segment in an optional `Ref()` to take
+        advantage of optional sequence elements as this is not
+        supported directly on the Segment itself.
         """
-        return cls.optional
+        return False
 
     @classmethod
     def class_is_type(cls, *seg_type: str) -> bool:

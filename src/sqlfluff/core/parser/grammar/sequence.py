@@ -3,9 +3,7 @@
 # NOTE: We rename the typing.Sequence here so it doesn't collide
 # with the grammar class that we're defining.
 from os import getenv
-from typing import Optional
-from typing import Sequence as SequenceType
-from typing import Set, Tuple, Type, Union, cast
+from typing import List, Optional, Set, Tuple, Union, cast
 
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.parser.context import ParseContext
@@ -18,7 +16,6 @@ from sqlfluff.core.parser.helpers import check_still_complete, trim_non_code_seg
 from sqlfluff.core.parser.match_algorithms import bracket_sensitive_look_ahead_match
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
-from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import (
     BaseSegment,
     BracketedSegment,
@@ -28,45 +25,6 @@ from sqlfluff.core.parser.segments import (
     allow_ephemeral,
 )
 from sqlfluff.core.parser.types import MatchableType, SimpleHintType
-
-
-def _all_remaining_metas(
-    remaining_elements: SequenceType[MatchableType], parse_context: ParseContext
-) -> Optional[Tuple[MetaSegment, ...]]:
-    """Check the remaining elements, instantiate them if they're metas.
-
-    Helper function in `Sequence.match()`.
-    """
-    # Are all the remaining elements metas?
-    if not all(
-        e.is_optional()
-        or isinstance(e, Conditional)
-        or (not isinstance(e, Matchable) and e.is_meta)
-        for e in remaining_elements
-    ):
-        # No? Return Nothing.
-        return None
-
-    # Yes, so we shortcut back early because we don't want
-    # to claim any more whitespace.
-    return_segments: Tuple[MetaSegment, ...] = tuple()
-    # Instantiate all the metas
-    for e in remaining_elements:
-        # If it's meta, instantiate it.
-        if e.is_optional():
-            continue
-        elif isinstance(e, Conditional):
-            if e.is_enabled(parse_context):
-                meta_match = e.match(tuple(), parse_context)
-                if meta_match:
-                    return_segments += cast(
-                        Tuple[MetaSegment, ...], meta_match.matched_segments
-                    )
-            continue
-        elif not isinstance(e, Matchable) and e.is_meta:
-            indent_seg = cast(Type[MetaSegment], e)
-            return_segments += (indent_seg(),)
-    return return_segments
 
 
 class Sequence(BaseGrammar):
@@ -104,144 +62,127 @@ class Sequence(BaseGrammar):
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
     ) -> MatchResult:
         """Match a specific sequence of elements."""
-        matched_segments = MatchResult.from_empty()
+        matched_segments: Tuple[BaseSegment, ...] = ()
         unmatched_segments = segments
 
-        # Buffers of uninstantiated meta segments.
-        meta_pre_nc: Tuple[MetaSegment, ...] = ()
-        meta_post_nc: Tuple[MetaSegment, ...] = ()
-        early_break = False
+        # Buffers of segments, not yet added.
+        meta_buffer: List[MetaSegment] = []
+        non_code_buffer: List[BaseSegment] = []
 
         for idx, elem in enumerate(self._elements):
-            # Check for an early break.
-            if early_break:
-                break
+            # 1. Handle any metas or conditionals.
+            # We do this first so that it's the same whether we've run
+            # out of segments or not.
+            # If it's a conditional, evaluate it.
+            # In both cases, we don't actually add them as inserts yet
+            # because their position will depend on what types we accrue.
+            if isinstance(elem, Conditional):
+                # A conditional grammar will only ever return insertions.
+                # If it's not enabled it returns an empty match.
+                # NOTE: No deeper match here, it seemed unnecessary.
+                _match = elem.match(unmatched_segments, parse_context)
+                # We don't add them directly to the result, we buffer them
+                # for later.
+                # NOTE: If it's not enabled, it will be an empty tuple
+                # so this code is safe regardless of whether it matches or
+                # not.
+                meta_buffer.extend(cast(Tuple[Indent], _match.matched_segments))
+                continue
+            # If it's a raw meta, just add it to our list.
+            elif isinstance(elem, type) and issubclass(elem, Indent):
+                meta_buffer.append(elem())
+                continue
 
-            while True:
-                # Is there anything left to match on?
-                if len(unmatched_segments) == 0:
-                    # There isn't, but we still have elements left to match.
-                    # Do only optional or meta elements remain?
-                    remaining_metas = _all_remaining_metas(
-                        self._elements[idx:], parse_context
-                    )
-                    if remaining_metas is not None:
-                        # We're safe. Claim them and return.
-                        meta_post_nc += remaining_metas
-                        early_break = True
+            # 2. Handle any gaps in the sequence.
+            # At this point we know the next element isn't a meta or conditional
+            # so if we're going to look for it we need to work up to the next
+            # code element (if allowed)
+            if self.allow_gaps and matched_segments:
+                # First, if we're allowing gaps, consume any non-code.
+                # NOTE: This won't consume from the end of a sequence
+                # because this happens only in the run up to matching
+                # another element. This is as designed. It also won't
+                # happen at the *start* of a sequence either.
+                for _idx in range(len(unmatched_segments)):
+                    if unmatched_segments[_idx].is_code:
+                        non_code_buffer.extend(unmatched_segments[:_idx])
+                        unmatched_segments = unmatched_segments[_idx:]
                         break
-                    else:
-                        # No, there's more left to match.
-                        # That means we've haven't matched the whole
-                        # sequence.
-                        return MatchResult.from_unmatched(segments)
 
-                # Then handle any metas mid-sequence.
-                new_metas: Tuple[MetaSegment, ...] = ()
-                # Is it a raw meta?
-                if elem.is_meta:
-                    # Instantiate a new instance of it.
-                    new_metas = (cast(Type[MetaSegment], elem)(),)
-                elif isinstance(elem, Conditional):
-                    if not elem.is_enabled(parse_context):
-                        # If it's not active, skip it.
-                        break
-                    # Then if it _is_ active. Match against it.
-                    with parse_context.deeper_match(
-                        name=f"Sequence-Meta-@{idx}"
-                    ) as ctx:
-                        meta_match = elem.match(unmatched_segments, ctx)
-                    # Did it match and leave the unmatched portion the same?
-                    if (
-                        meta_match
-                        and meta_match.unmatched_segments == unmatched_segments
-                    ):
-                        # If it did, it's just returned a new meta, keep it.
-                        new_metas = cast(
-                            Tuple[MetaSegment, ...], meta_match.matched_segments
-                        )
+            # 3. Check we still have segments left to work on.
+            # Have we prematurely run out of segments?
+            if not unmatched_segments:
+                # If the current element is optional, carry on.
+                if elem.is_optional():
+                    continue
+                # Otherwise we have a problem. We've already consumed
+                # any metas, optionals and conditionals.
+                # This is a failed match because we couldn't complete
+                # the sequence.
 
-                # Do we have a new meta?
-                if new_metas:
-                    # Elements with a negative indent value come AFTER
-                    # the whitespace. Positive or neutral come BEFORE.
-                    # HOWEVER: If one is already there, we must preserve
-                    # the order. This forced ordering is fine if there's
-                    # a positive followed by a negative in the sequence,
-                    # but if by design a positive arrives *after* a
-                    # negative then we should insert it after the positive
-                    # instead.
-                    # https://github.com/sqlfluff/sqlfluff/issues/3836
-                    if all(e.indent_val >= 0 for e in new_metas) and not any(
-                        seg.indent_val < 1 for seg in meta_post_nc
-                    ):
-                        meta_pre_nc += new_metas
-                    else:
-                        meta_post_nc += new_metas
-                    break
+                # TODO: Outcome here should depend on parse mode.
+                return MatchResult.from_unmatched(segments)
 
-                # NOTE: If we get this far, we know:
-                # - there are segments left to match on.
-                # - the next elements aren't metas (including metas in conditionals)
+            # 4. Match the current element against the current position.
+            with parse_context.deeper_match(name=f"Sequence-@{idx}") as ctx:
+                elem_match = elem.match(unmatched_segments, ctx)
 
-                # Split off any non-code before continuing to match.
-                if self.allow_gaps:
-                    pre_nc, mid_seg, post_nc = trim_non_code_segments(
-                        unmatched_segments
-                    )
-                else:
-                    pre_nc = ()
-                    mid_seg = unmatched_segments
-                    post_nc = ()
+            # Did we fail to match? (totally or un-cleanly)
+            if not elem_match:
+                # If we can't match an element, we should ascertain whether it's
+                # required. If so then fine, move on, but otherwise we should
+                # crash out without a match. We have not matched the sequence.
+                if elem.is_optional():
+                    # Pass this one and move onto the next element.
+                    continue
 
-                # We've already dealt with potential whitespace above, so carry on
-                # to matching
-                with parse_context.deeper_match(name=f"Sequence-@{idx}") as ctx:
-                    elem_match = elem.match(mid_seg, ctx)
+                # TODO: Outcome here should depend on parse mode.
+                return MatchResult.from_unmatched(segments)
 
-                if not elem_match.has_match():
-                    # If we can't match an element, we should ascertain whether it's
-                    # required. If so then fine, move on, but otherwise we should
-                    # crash out without a match. We have not matched the sequence.
-                    if elem.is_optional():
-                        # This will crash us out of the while loop and move us
-                        # onto the next matching element
-                        break
-                    else:
-                        return MatchResult.from_unmatched(segments)
+            # 5. Successful match: Update the buffers.
+            # First flush any metas along with the gap.
+            # Elements with a negative indent value come AFTER
+            # the whitespace. Positive or neutral come BEFORE.
+            # HOWEVER: If one is already there, we must preserve
+            # the order. This forced ordering is fine if there's
+            # a positive followed by a negative in the sequence,
+            # but if by design a positive arrives *after* a
+            # negative then we should insert it after the positive
+            # instead.
+            # https://github.com/sqlfluff/sqlfluff/issues/3836
+            if all(m.indent_val >= 0 for m in meta_buffer):
+                matched_segments += tuple((*meta_buffer, *non_code_buffer))
+            else:
+                matched_segments += tuple((*non_code_buffer, *meta_buffer))
+            non_code_buffer = []
+            meta_buffer = []
 
-                # Otherwise we _do_ mave a match.
+            # Add on the match itself
+            matched_segments += elem_match.matched_segments
+            unmatched_segments = elem_match.unmatched_segments
 
-                # We're expecting mostly partial matches here, but complete
-                # matches are possible. Don't be greedy with whitespace!
-                matched_segments += (
-                    meta_pre_nc + pre_nc + meta_post_nc + elem_match.matched_segments
-                )
-                meta_pre_nc = ()
-                meta_post_nc = ()
-                unmatched_segments = elem_match.unmatched_segments + post_nc
-                # Each time we do this, we do a sense check to make sure we
-                # haven't dropped anything. (Because it's happened before!).
-                if self.test_env:
-                    check_still_complete(
-                        segments,
-                        matched_segments.matched_segments,
-                        unmatched_segments,
-                    )
-                # Break out of the while loop. If there are more segments, we'll
-                # begin again with the next one. Otherwise well fall out to the
-                # closing return below.
-                break
+        # If we finished on an optional, and so still have some unflushed metas,
+        # we should do that first, then add any unmatched noncode back onto the
+        # stack to match next time.
+        if meta_buffer:
+            matched_segments += tuple(meta_buffer)
+        if non_code_buffer:
+            unmatched_segments = tuple(non_code_buffer) + unmatched_segments
 
-        # If we get to here, we've matched all of the elements (or skipped them)
-        # but still have some segments left (or perhaps have precisely zero left).
-        # In either case, we're golden. Return successfully, with any leftovers as
-        # the unmatched elements. Meta all go at the end regardless of any trailing
-        # whitespace.
+        # If we're in a test environment, we do a sense check to make sure we
+        # haven't dropped anything. (Because it's happened before!).
+        if self.test_env:
+            check_still_complete(
+                segments,
+                matched_segments,
+                unmatched_segments,
+            )
 
+        # If we get to here, we've matched all of the elements (or skipped them).
+        # Return successfully.
         return MatchResult(
             BaseSegment._position_segments(
-                matched_segments.matched_segments + meta_pre_nc + meta_post_nc,
+                matched_segments,
                 # Repositioning only meta segments at this stage does increase the
                 # risk of leakage a little (by not fully copying everything on
                 # return), but it does drastically improve performance. Future
