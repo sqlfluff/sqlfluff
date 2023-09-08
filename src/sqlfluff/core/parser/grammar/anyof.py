@@ -13,7 +13,7 @@ from sqlfluff.core.parser.grammar.sequence import Bracketed, Sequence
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
-from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
+from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.core.parser.types import MatchableType, SimpleHintType
 
 
@@ -31,7 +31,6 @@ class AnyNumberOf(BaseGrammar):
         reset_terminators: bool = False,
         allow_gaps: bool = True,
         optional: bool = False,
-        ephemeral_name: Optional[str] = None,
     ) -> None:
         self.max_times = max_times
         self.min_times = min_times
@@ -42,7 +41,6 @@ class AnyNumberOf(BaseGrammar):
             *args,
             allow_gaps=allow_gaps,
             optional=optional,
-            ephemeral_name=ephemeral_name,
             terminators=terminators,
             reset_terminators=reset_terminators,
         )
@@ -102,7 +100,6 @@ class AnyNumberOf(BaseGrammar):
         return match, matched_option
 
     @match_wrapper()
-    @allow_ephemeral
     def match(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
     ) -> MatchResult:
@@ -204,7 +201,6 @@ class OneOf(AnyNumberOf):
         reset_terminators: bool = False,
         allow_gaps: bool = True,
         optional: bool = False,
-        ephemeral_name: Optional[str] = None,
     ) -> None:
         super().__init__(
             *args,
@@ -215,7 +211,6 @@ class OneOf(AnyNumberOf):
             reset_terminators=reset_terminators,
             allow_gaps=allow_gaps,
             optional=optional,
-            ephemeral_name=ephemeral_name,
         )
 
 
@@ -233,7 +228,6 @@ class OptionallyBracketed(OneOf):
         terminators: SequenceType[Union[MatchableType, str]] = (),
         reset_terminators: bool = False,
         optional: bool = False,
-        ephemeral_name: Optional[str] = None,
     ) -> None:
         super().__init__(
             Bracketed(*args),
@@ -243,7 +237,6 @@ class OptionallyBracketed(OneOf):
             terminators=terminators,
             reset_terminators=reset_terminators,
             optional=optional,
-            ephemeral_name=ephemeral_name,
         )
 
 
@@ -260,7 +253,6 @@ class AnySetOf(AnyNumberOf):
         reset_terminators: bool = False,
         allow_gaps: bool = True,
         optional: bool = False,
-        ephemeral_name: Optional[str] = None,
     ) -> None:
         super().__init__(
             *args,
@@ -272,5 +264,4 @@ class AnySetOf(AnyNumberOf):
             reset_terminators=reset_terminators,
             allow_gaps=allow_gaps,
             optional=optional,
-            ephemeral_name=ephemeral_name,
         )

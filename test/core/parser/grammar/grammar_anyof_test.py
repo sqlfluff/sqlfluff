@@ -7,41 +7,13 @@ import pytest
 
 from sqlfluff.core.parser import (
     KeywordSegment,
-    StringParser,
     RegexParser,
+    StringParser,
     WhitespaceSegment,
 )
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.grammar.anyof import AnySetOf
-from sqlfluff.core.parser.segments import EphemeralSegment, BaseSegment
 from sqlfluff.core.parser.grammar import OneOf, Sequence
-
-
-def test__parser__grammar__oneof__ephemeral_segment(seg_list):
-    """A realistic full test of ephemeral segments."""
-
-    class TestSegment(BaseSegment):
-        match_grammar = OneOf(
-            StringParser("bar", KeywordSegment), ephemeral_name="foofoo"
-        )
-
-    ctx = ParseContext(dialect=None)
-    m = TestSegment.match(seg_list[:1], ctx)
-    # Make sure we've matched
-    assert m
-    seg = m.matched_segments[0]
-    assert isinstance(seg, TestSegment)
-    # Check the content is ephemeral
-    assert isinstance(seg.segments[0], EphemeralSegment)
-    assert seg.segments[0].ephemeral_name == "foofoo"
-    # Expand the segment
-    result = seg.parse(ctx)
-    assert isinstance(result, tuple)
-    res = result[0]
-    # Check we still have a test segment
-    assert isinstance(res, TestSegment)
-    # But that it contains a keyword segment now
-    assert isinstance(res.segments[0], KeywordSegment)
+from sqlfluff.core.parser.grammar.anyof import AnySetOf
 
 
 def test__parser__grammar__oneof__copy():

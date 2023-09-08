@@ -22,7 +22,7 @@ from sqlfluff.core.parser.match_logging import parse_match_logging
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.matchable import Matchable
-from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
+from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.core.parser.types import MatchableType, ParseMode, SimpleHintType
 from sqlfluff.core.string_helpers import curtail_string
 
@@ -106,7 +106,6 @@ class BaseGrammar(Matchable):
         *args: Union[MatchableType, str],
         allow_gaps: bool = True,
         optional: bool = False,
-        ephemeral_name: Optional[str] = None,
         terminators: Sequence[Union[MatchableType, str]] = (),
         reset_terminators: bool = False,
         parse_mode: ParseMode = ParseMode.STRICT,
@@ -126,13 +125,6 @@ class BaseGrammar(Matchable):
                 is this grammar *optional*, i.e. can it be skipped if no
                 match is found. Outside of a Sequence, this option does nothing.
                 Defaults `False`.
-            ephemeral_name (:obj:`str`, optional): If specified this allows
-                the grammar to match anything, and create an EphemeralSegment
-                with the given name in its place. The content of this grammar
-                is passed to the segment, and will become the parse grammar
-                for it. If used widely this is an excellent way of breaking
-                up the parse process and also signposting the name of a given
-                chunk of code that might be parsed separately.
             terminators (Sequence of :obj:`str` or Matchable): Matchable objects
                 which can terminate the grammar early. These are also used in some
                 parse modes to dictate how many segments to claim when handling
@@ -179,12 +171,6 @@ class BaseGrammar(Matchable):
             f"(only {self.supported_parse_modes})"
         )
         self.parse_mode = parse_mode
-        # ephemeral_name is a flag to indicate whether we need to make an
-        # EphemeralSegment class. This is effectively syntactic sugar
-        # to allow us to avoid specifying a EphemeralSegment directly in a dialect.
-        # If this is the case, the actual segment construction happens in the
-        # match_wrapper.
-        self.ephemeral_name = ephemeral_name
         # Generate a cache key
         self._cache_key = uuid4().hex
 
@@ -203,7 +189,6 @@ class BaseGrammar(Matchable):
         return self.optional
 
     @match_wrapper()
-    @allow_ephemeral
     def match(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
     ) -> MatchResult:
@@ -551,7 +536,6 @@ class Ref(BaseGrammar):
         reset_terminators: bool = False,
         allow_gaps: bool = True,
         optional: bool = False,
-        ephemeral_name: Optional[str] = None,
     ) -> None:
         # For Ref, there should only be one arg.
         assert len(args) == 1, (
@@ -566,7 +550,6 @@ class Ref(BaseGrammar):
             # NOTE: Don't pass on any args (we've already handled it with self._ref)
             allow_gaps=allow_gaps,
             optional=optional,
-            ephemeral_name=ephemeral_name,
             # Terminators don't take effect directly within this grammar, but
             # the Ref grammar is an effective place to manage the terminators
             # inherited via the context.
@@ -604,7 +587,6 @@ class Ref(BaseGrammar):
         )
 
     @match_wrapper(v_level=4)  # Log less for Ref
-    @allow_ephemeral
     def match(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
     ) -> "MatchResult":

@@ -86,24 +86,3 @@ def test__parser__grammar__base__longest_trimmed_match__adv(seg_list, caplog):
     assert matcher is matchers[2]
     # And it matched the first three segments
     assert len(match) == 3
-
-
-def test__parser__grammar__base__ephemeral_segment(seg_list):
-    """Test the ephemeral features on BaseGrammar.
-
-    Normally you can't call .match() on a BaseGrammar, but
-    if things are set up right, then it should be possible
-    in the case that the ephemeral_name is set.
-
-    This indirectly tests the allow_ephemeral decorator.
-    """
-    g = BaseGrammar(ephemeral_name="TestGrammar")
-
-    ctx = ParseContext(dialect=None)
-    m = g.match(seg_list, ctx)
-    # Check we get an ephemeral segment
-    assert isinstance(m.matched_segments[0], EphemeralSegment)
-    assert len(m.matched_segments) == 1
-    chkpoint = m.matched_segments[0]
-    # Check it's got the same content.
-    assert chkpoint.segments == seg_list
