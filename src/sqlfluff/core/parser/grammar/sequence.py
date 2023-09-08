@@ -81,7 +81,11 @@ def _position_metas(
 class Sequence(BaseGrammar):
     """Match a specific sequence of elements."""
 
-    supported_parse_modes = {ParseMode.STRICT, ParseMode.GREEDY}
+    supported_parse_modes = {
+        ParseMode.STRICT,
+        ParseMode.GREEDY,
+        ParseMode.GREEDY_ONCE_STARTED,
+    }
     test_env = getenv("SQLFLUFF_TESTENV", "")
 
     @cached_method_for_parse_context
@@ -113,7 +117,18 @@ class Sequence(BaseGrammar):
     def match(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
     ) -> MatchResult:
-        """Match a specific sequence of elements."""
+        """Match a specific sequence of elements.
+
+        When returning incomplete matches in one of the greedy parse
+        modes, we don't return any new meta segments (whether from conditionals
+        or otherwise). This is because we meta segments (typically indents)
+        may only make sense in the context of a full sequence, as their
+        corresponding pair may be later (and yet unrendered).
+
+        Partial matches should however still return the matched (mutated)
+        versions of any segments which _have_ been processed to provide
+        better feedback to the user.
+        """
         matched_segments: Tuple[BaseSegment, ...] = ()
         unmatched_segments = segments
         tail: Tuple[BaseSegment, ...] = ()
@@ -172,6 +187,10 @@ class Sequence(BaseGrammar):
                         non_code_buffer.extend(unmatched_segments[:_idx])
                         unmatched_segments = unmatched_segments[_idx:]
                         break
+                else:
+                    # If _all_ of it is non code then consume all of it.
+                    non_code_buffer.extend(unmatched_segments)
+                    unmatched_segments = ()
 
             # 3. Check we still have segments left to work on.
             # Have we prematurely run out of segments?
@@ -184,8 +203,27 @@ class Sequence(BaseGrammar):
                 # This is a failed match because we couldn't complete
                 # the sequence.
 
-                # TODO: Outcome here should depend on parse mode.
-                return MatchResult.from_unmatched(segments)
+                if self.parse_mode == ParseMode.STRICT:
+                    # In a strict mode, running out a segments to match
+                    # on means that we don't match anything.
+                    return MatchResult.from_unmatched(segments)
+
+                # On any of the other modes (GREEDY or GREEDY_ONCE_STARTED)
+                # we've effectively already claimed the segments, we've
+                # just failed to match. In which case it's unparsable.
+                return MatchResult(
+                    (
+                        UnparsableSegment(
+                            # NOTE: We use the already matched segments in the
+                            # return value so that if any have already been
+                            # matched, the user can see that.
+                            matched_segments,
+                            expected=f"{elem} after {matched_segments[-1]}. Found nothing.",
+                        ),
+                    ),
+                    # Any trailing non code isn't claimed.
+                    tuple(non_code_buffer) + tail,
+                )
 
             # 4. Match the current element against the current position.
             with parse_context.deeper_match(name=f"Sequence-@{idx}") as ctx:
@@ -200,8 +238,51 @@ class Sequence(BaseGrammar):
                     # Pass this one and move onto the next element.
                     continue
 
-                # TODO: Outcome here should depend on parse mode.
-                return MatchResult.from_unmatched(segments)
+                if self.parse_mode == ParseMode.STRICT:
+                    # In a strict mode, failing to match an element means that
+                    # we don't match anything.
+                    return MatchResult.from_unmatched(segments)
+
+                if (
+                    self.parse_mode == ParseMode.GREEDY_ONCE_STARTED
+                    and not matched_segments
+                ):
+                    # If it's only greedy once started, and we haven't matched
+                    # anything yet, then we also don't match anything.
+                    return MatchResult.from_unmatched(segments)
+
+                # On any of the other modes (GREEDY or GREEDY_ONCE_STARTED)
+                # we've effectively already claimed the segments, we've
+                # just failed to match. In which case it's unparsable.
+                if matched_segments:
+                    _expected = (
+                        f"{elem} after {matched_segments[-1]}. "
+                        f"Found {elem_match.unmatched_segments[0]}"
+                    )
+                else:
+                    _expected = (
+                        f"{elem} to start sequence. "
+                        f"Found {elem_match.unmatched_segments[0]}"
+                    )
+
+                return MatchResult(
+                    # NOTE: We use the already matched segments in the
+                    # return value so that if any have already been
+                    # matched, the user can see that. Those are not
+                    # part of the unparsable section.
+                    matched_segments
+                    + tuple(non_code_buffer)
+                    + (
+                        # The unparsable section is just the remaining
+                        # segments we were unable to match from the
+                        # sequence.
+                        UnparsableSegment(
+                            unmatched_segments,
+                            expected=_expected,
+                        ),
+                    ),
+                    tail,
+                )
 
             # 5. Successful match: Update the buffers.
             # First flush any metas along with the gap.

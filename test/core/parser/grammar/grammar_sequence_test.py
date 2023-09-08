@@ -6,9 +6,12 @@ NOTE: All of these tests depend somewhat on the KeywordSegment working as planne
 import logging
 from os import getenv
 
+import pytest
+
 from sqlfluff.core.parser import Indent, KeywordSegment, StringParser, WhitespaceSegment
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar import Conditional, Sequence
+from sqlfluff.core.parser.types import ParseMode
 
 
 def test__parser__grammar_sequence(seg_list, caplog):
@@ -112,3 +115,190 @@ def test__parser__grammar_sequence_indent_conditional(seg_list, caplog):
         # Check the second Indent does not appear
         assert not isinstance(m.matched_segments[3], Indent)
         assert isinstance(m.matched_segments[3], KeywordSegment)
+
+
+@pytest.mark.parametrize(
+    "mode,sequence,terminators,input_slice,output_tuple",
+    [
+        # #####
+        # Test matches where we should get something, and that's
+        # the whole sequence.
+        # NOTE: Include a little whitespace in the slice (i.e. the first _two_
+        # segments) to check that it isn't included in the match.
+        (ParseMode.STRICT, ["a"], [], slice(None, 2), (("keyword", "a"),)),
+        (ParseMode.GREEDY, ["a"], [], slice(None, 2), (("keyword", "a"),)),
+        (ParseMode.GREEDY_ONCE_STARTED, ["a"], [], slice(None, 2), (("keyword", "a"),)),
+        # #####
+        # Test matching on sequences where we run out of segments before matching
+        # the whole sequence.
+        # STRICT returns no match.
+        (ParseMode.STRICT, ["a", "b"], [], slice(None, 2), ()),
+        # GREEDY & GREEDY_ONCE_STARTED returns the content as unparsable, and
+        # still don't include the trailing whitespace. The return value does
+        # however have the matched "a" as a keyword and not a raw.
+        (
+            ParseMode.GREEDY,
+            ["a", "b"],
+            [],
+            slice(None, 2),
+            (("unparsable", (("keyword", "a"),)),),
+        ),
+        (
+            ParseMode.GREEDY_ONCE_STARTED,
+            ["a", "b"],
+            [],
+            slice(None, 2),
+            (("unparsable", (("keyword", "a"),)),),
+        ),
+        # #####
+        # Test matching on sequences where we fail to match the first element.
+        # STRICT & GREEDY_ONCE_STARTED return no match.
+        (ParseMode.STRICT, ["b"], [], slice(None, 2), ()),
+        (ParseMode.GREEDY_ONCE_STARTED, ["b"], [], slice(None, 2), ()),
+        # GREEDY claims the remaining elements (unmutated) as unparsable, but
+        # does not claim any trailing whitespace.
+        (
+            ParseMode.GREEDY,
+            ["b"],
+            [],
+            slice(None, 2),
+            (("unparsable", (("raw", "a"),)),),
+        ),
+        # #####
+        # Test matches where we should match the sequence fully, but there's more
+        # to match.
+        # First without terminators...
+        # STRICT ignores the rest.
+        (ParseMode.STRICT, ["a"], [], slice(None, 5), (("keyword", "a"),)),
+        # The GREEDY modes claim the rest as unparsable.
+        # NOTE: the whitespace in between is _not_ unparsable.
+        (
+            ParseMode.GREEDY,
+            ["a"],
+            [],
+            slice(None, 5),
+            (
+                ("keyword", "a"),
+                ("whitespace", " "),
+                ("unparsable", (("raw", "b"), ("whitespace", " "), ("raw", "c"))),
+            ),
+        ),
+        (
+            ParseMode.GREEDY_ONCE_STARTED,
+            ["a"],
+            [],
+            slice(None, 5),
+            (
+                ("keyword", "a"),
+                ("whitespace", " "),
+                ("unparsable", (("raw", "b"), ("whitespace", " "), ("raw", "c"))),
+            ),
+        ),
+        # Second *with* terminators.
+        # NOTE: The whitespace before the terminator is not included.
+        (ParseMode.STRICT, ["a"], ["c"], slice(None, 5), (("keyword", "a"),)),
+        (
+            ParseMode.GREEDY,
+            ["a"],
+            ["c"],
+            slice(None, 5),
+            (("keyword", "a"), ("whitespace", " "), ("unparsable", (("raw", "b"),))),
+        ),
+        (
+            ParseMode.GREEDY_ONCE_STARTED,
+            ["a"],
+            ["c"],
+            slice(None, 5),
+            (("keyword", "a"), ("whitespace", " "), ("unparsable", (("raw", "b"),))),
+        ),
+        # #####
+        # Test matches where we match the first element of a sequence but not the
+        # second (with terminators)
+        (ParseMode.STRICT, ["a", "x"], ["c"], slice(None, 5), ()),
+        # NOTE: For GREEDY modes, the matched portion is not included as an "unparsable"
+        # only the portion which failed to match. The terminator is not included and
+        # the matched portion is still mutated correctly.
+        (
+            ParseMode.GREEDY,
+            ["a", "x"],
+            ["c"],
+            slice(None, 5),
+            (("keyword", "a"), ("whitespace", " "), ("unparsable", (("raw", "b"),))),
+        ),
+        (
+            ParseMode.GREEDY_ONCE_STARTED,
+            ["a", "x"],
+            ["c"],
+            slice(None, 5),
+            (("keyword", "a"), ("whitespace", " "), ("unparsable", (("raw", "b"),))),
+        ),
+        # #####
+        # Test competition between sequence elements and terminators.
+        # What *should* happen is that the terminator is matched _first_ and so takes
+        # precedence in GREEDY and GREEDY_ONCE_STARTED.
+        # NOTE: When the terminator conflicts with the _first_ element, the behaviour is
+        # a little unexpected because often the terminator will fail to match because we
+        # require whitespace before keyword terminators.
+        (
+            ParseMode.GREEDY_ONCE_STARTED,
+            ["a"],
+            ["a"],
+            slice(None, 2),
+            (("keyword", "a"),),
+        ),
+        (
+            ParseMode.GREEDY,
+            ["a"],
+            ["a"],
+            slice(None, 2),
+            (("keyword", "a"),),
+        ),
+        # NOTE: In these last two cases, the "b" isn't included because it acted as
+        # a terminator before being considered in the sequence.
+        (
+            ParseMode.GREEDY_ONCE_STARTED,
+            ["a", "b"],
+            ["b"],
+            slice(None, 3),
+            (("unparsable", (("keyword", "a"),)),),
+        ),
+        (
+            ParseMode.GREEDY,
+            ["a", "b"],
+            ["b"],
+            slice(None, 3),
+            (("unparsable", (("keyword", "a"),)),),
+        ),
+    ],
+)
+def test__parser__grammar_sequence_modes(
+    mode,
+    sequence,
+    terminators,
+    input_slice,
+    output_tuple,
+    generate_test_segments,
+    fresh_ansi_dialect,
+):
+    """Test the Sequence grammar with various parse modes.
+
+    In particular here we're testing the treatment of unparsable
+    sections.
+    """
+    segments = generate_test_segments(["a", " ", "b", " ", "c", "d", " ", "d"])
+    # Dialect is required here only to have access to bracket segments.
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+
+    _seq = Sequence(
+        *(StringParser(e, KeywordSegment) for e in sequence),
+        parse_mode=mode,
+        terminators=[StringParser(e, KeywordSegment) for e in terminators]
+    )
+    _match = _seq.match(segments[input_slice], ctx)
+    # If we're expecting an output tuple, assert the match is truthy.
+    if output_tuple:
+        assert _match
+    _result = tuple(
+        e.to_tuple(show_raw=True, code_only=False) for e in _match.matched_segments
+    )
+    assert _result == output_tuple
