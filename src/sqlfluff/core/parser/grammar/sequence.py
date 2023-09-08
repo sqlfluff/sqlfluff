@@ -29,7 +29,6 @@ from sqlfluff.core.parser.segments import (
     Indent,
     MetaSegment,
     UnparsableSegment,
-    allow_ephemeral,
 )
 from sqlfluff.core.parser.types import MatchableType, ParseMode, SimpleHintType
 
@@ -149,7 +148,6 @@ class Sequence(BaseGrammar):
         return frozenset(simple_raws), frozenset(simple_types)
 
     @match_wrapper()
-    @allow_ephemeral
     def match(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
     ) -> MatchResult:
@@ -430,7 +428,7 @@ class Bracketed(Sequence):
         end_bracket: Optional[MatchableType] = None,
         allow_gaps: bool = True,
         optional: bool = False,
-        ephemeral_name: Optional[str] = None,
+        parse_mode: ParseMode = ParseMode.STRICT,
     ) -> None:
         # Store the bracket type. NB: This is only
         # hydrated into segments at runtime.
@@ -443,7 +441,7 @@ class Bracketed(Sequence):
             *args,
             allow_gaps=allow_gaps,
             optional=optional,
-            ephemeral_name=ephemeral_name,
+            parse_mode=parse_mode,
         )
 
     @cached_method_for_parse_context
@@ -476,7 +474,6 @@ class Bracketed(Sequence):
         return start_bracket, end_bracket, persists
 
     @match_wrapper()
-    @allow_ephemeral
     def match(
         self, segments: Tuple["BaseSegment", ...], parse_context: ParseContext
     ) -> MatchResult:

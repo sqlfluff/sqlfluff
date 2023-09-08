@@ -22,6 +22,7 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
@@ -532,8 +533,8 @@ tsql_dialect.replace(
                         ),  # WHERE (a, substr(b,1,3)) IN (select c,d FROM...)
                         Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
                     ),
-                    ephemeral_name="BracketedExpression",
                 ),
+                parse_mode=ParseMode.GREEDY,
             ),
             # Allow potential select statement without brackets
             Ref("SelectStatementSegment"),
@@ -2822,9 +2823,9 @@ class FunctionSegment(BaseSegment):
                         "FunctionContentsGrammar",
                         # The brackets might be empty for some functions...
                         optional=True,
-                        ephemeral_name="FunctionContentsGrammar",
                     ),
-                )
+                ),
+                parse_mode=ParseMode.GREEDY,
             ),
         ),
         Sequence(
@@ -2868,9 +2869,9 @@ class FunctionSegment(BaseSegment):
                         "FunctionContentsGrammar",
                         # The brackets might be empty for some functions...
                         optional=True,
-                        ephemeral_name="FunctionContentsGrammar",
                     ),
                 ),
+                parse_mode=ParseMode.GREEDY,
             ),
             Ref("WithinGroupClause", optional=True),
         ),
@@ -2895,8 +2896,8 @@ class FunctionSegment(BaseSegment):
                     "FunctionContentsGrammar",
                     # The brackets might be empty for some functions...
                     optional=True,
-                    ephemeral_name="FunctionContentsGrammar",
-                )
+                ),
+                parse_mode=ParseMode.GREEDY,
             ),
             Ref("PostFunctionGrammar", optional=True),
         ),
@@ -4655,7 +4656,6 @@ class WindowSpecificationSegment(BaseSegment):
         Ref("OrderByClauseSegment", optional=True),
         Ref("FrameClauseSegment", optional=True),
         optional=True,
-        ephemeral_name="OverClauseContent",
     )
 
 

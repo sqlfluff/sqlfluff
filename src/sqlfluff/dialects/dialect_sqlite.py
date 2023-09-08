@@ -15,6 +15,7 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     Sequence,
     TypedParser,
@@ -236,8 +237,8 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                     Delimited(
                         "DEFAULT",
                         Ref("ExpressionSegment"),
-                        ephemeral_name="ValuesClauseElements",
-                    )
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
         ),

@@ -155,7 +155,6 @@ exasol_dialect.add(
     ),
     ColumnReferenceListGrammar=Delimited(
         Ref("ColumnReferenceSegment"),
-        ephemeral_name="ColumnReferenceList",
     ),
     TableDistributeByGrammar=Sequence(
         "DISTRIBUTE",
@@ -458,8 +457,8 @@ class ValuesClauseSegment(BaseSegment):
                         "DEFAULT",
                         Ref("LiteralGrammar"),
                         Ref("ExpressionSegment"),
-                        ephemeral_name="ValuesClauseElements",
-                    )
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
                 Delimited(
                     "DEFAULT",
@@ -1554,8 +1553,8 @@ class ValuesInsertClauseSegment(BaseSegment):
                     Ref("BareFunctionSegment"),
                     "DEFAULT",
                     Ref("SelectableGrammar"),
-                    ephemeral_name="ValuesClauseElements",
-                )
+                ),
+                parse_mode=ParseMode.GREEDY,
             ),
         ),
     )

@@ -482,7 +482,7 @@ ansi_dialect.add(
     BracketedColumnReferenceListGrammar=Bracketed(
         Delimited(
             Ref("ColumnReferenceSegment"),
-        )
+        ),
     ),
     OrReplaceGrammar=Sequence("OR", "REPLACE"),
     TemporaryTransientGrammar=OneOf("TRANSIENT", Ref("TemporaryGrammar")),
@@ -1168,9 +1168,9 @@ class ArrayAccessorSegment(BaseSegment):
         Delimited(
             OneOf(Ref("NumericLiteralSegment"), Ref("ExpressionSegment")),
             delimiter=Ref("SliceSegment"),
-            ephemeral_name="ArrayAccessorContent",
         ),
         bracket_type="square",
+        parse_mode=ParseMode.GREEDY,
     )
 
 
@@ -1336,6 +1336,7 @@ class OverClauseSegment(BaseSegment):
             Ref("SingleIdentifierGrammar"),  # Window name
             Bracketed(
                 Ref("WindowSpecificationSegment", optional=True),
+                parse_mode=ParseMode.GREEDY,
             ),
         ),
         Dedent,
@@ -1354,7 +1355,6 @@ class WindowSpecificationSegment(BaseSegment):
         Ref("OrderByClauseSegment", optional=True),
         Ref("FrameClauseSegment", optional=True),
         optional=True,
-        ephemeral_name="OverClauseContent",
     )
 
 
@@ -1405,9 +1405,9 @@ class FunctionSegment(BaseSegment):
                             "FunctionContentsGrammar",
                             # The brackets might be empty for some functions...
                             optional=True,
-                            ephemeral_name="FunctionContentsGrammar",
                         ),
-                    )
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
         ),
@@ -1425,8 +1425,8 @@ class FunctionSegment(BaseSegment):
                         "FunctionContentsGrammar",
                         # The brackets might be empty for some functions...
                         optional=True,
-                        ephemeral_name="FunctionContentsGrammar",
-                    )
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
             Ref("PostFunctionGrammar", optional=True),
@@ -1774,10 +1774,8 @@ class JoinClauseSegment(BaseSegment):
                             # This is a) so that we don't lint it as a reference and
                             # b) because the column will probably be returned anyway
                             # during parsing.
-                            Delimited(
-                                Ref("SingleIdentifierGrammar"),
-                                ephemeral_name="UsingClauseContents",
-                            )
+                            Delimited(Ref("SingleIdentifierGrammar")),
+                            parse_mode=ParseMode.GREEDY,
                         ),
                         Dedent,
                     ),
@@ -2070,8 +2068,8 @@ ansi_dialect.add(
                                 Ref("Expression_A_Grammar"),
                             ),
                             Ref("SelectableGrammar"),
-                            ephemeral_name="InExpression",
-                        )
+                        ),
+                        parse_mode=ParseMode.GREEDY,
                     ),
                 ),
                 Sequence(
@@ -2171,8 +2169,8 @@ ansi_dialect.add(
                         Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
                         Ref("LocalAliasSegment"),  # WHERE (LOCAL.a, LOCAL.b) IN (...)
                     ),
-                    ephemeral_name="BracketedExpression",
                 ),
+                parse_mode=ParseMode.GREEDY,
             ),
             # Allow potential select statement without brackets
             Ref("SelectStatementSegment"),
@@ -2585,6 +2583,7 @@ class NamedWindowExpressionSegment(BaseSegment):
             Ref("SingleIdentifierGrammar"),  # Window name
             Bracketed(
                 Ref("WindowSpecificationSegment"),
+                parse_mode=ParseMode.GREEDY,
             ),
         ),
     )
@@ -2611,8 +2610,8 @@ class ValuesClauseSegment(BaseSegment):
                         "DEFAULT",
                         Ref("LiteralGrammar"),
                         Ref("ExpressionSegment"),
-                        ephemeral_name="ValuesClauseElements",
-                    )
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
         ),
@@ -2730,7 +2729,8 @@ class CTEDefinitionSegment(BaseSegment):
         Ref.keyword("AS", optional=True),
         Bracketed(
             # Ephemeral here to subdivide the query.
-            Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
+            Ref("SelectableGrammar"),
+            parse_mode=ParseMode.GREEDY,
         ),
     )
 

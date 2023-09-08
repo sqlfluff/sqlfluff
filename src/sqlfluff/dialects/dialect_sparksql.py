@@ -1954,8 +1954,8 @@ class PivotClauseSegment(BaseSegment):
                             Bracketed(
                                 Delimited(
                                     Ref("ExpressionSegment"),
-                                    ephemeral_name="ValuesClauseElements",
-                                )
+                                ),
+                                parse_mode=ParseMode.GREEDY,
                             ),
                             Delimited(
                                 Ref("ExpressionSegment"),
@@ -1984,8 +1984,8 @@ class TransformClauseSegment(BaseSegment):
         Bracketed(
             Delimited(
                 Ref("SingleIdentifierGrammar"),
-                ephemeral_name="TransformClauseContents",
             ),
+            parse_mode=ParseMode.GREEDY,
         ),
         Indent,
         Ref("RowFormatClauseSegment", optional=True),
@@ -2582,10 +2582,8 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
                         # ColumnReferenceSegment. This is a) so that we don't
                         # lint it as a reference and b) because the column will
                         # probably be returned anyway during parsing.
-                        Delimited(
-                            Ref("SingleIdentifierGrammar"),
-                            ephemeral_name="UsingClauseContents",
-                        )
+                        Delimited(Ref("SingleIdentifierGrammar")),
+                        parse_mode=ParseMode.GREEDY,
                     ),
                     Conditional(Dedent, indented_using_on=False),
                 ),
@@ -2673,8 +2671,8 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                         # INSERT INTO statement.
                         "NULL",
                         Ref("ExpressionSegment"),
-                        ephemeral_name="ValuesClauseElements",
-                    )
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
                 "NULL",
                 Ref("ExpressionSegment"),

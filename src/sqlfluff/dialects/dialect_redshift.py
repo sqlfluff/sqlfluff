@@ -18,6 +18,7 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
@@ -2488,9 +2489,9 @@ class FunctionSegment(ansi.FunctionSegment):
                             "FunctionContentsGrammar",
                             # The brackets might be empty for some functions...
                             optional=True,
-                            ephemeral_name="FunctionContentsGrammar",
                         ),
-                    )
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
         ),
@@ -2522,8 +2523,8 @@ class FunctionSegment(ansi.FunctionSegment):
                         "FunctionContentsGrammar",
                         # The brackets might be empty for some functions...
                         optional=True,
-                        ephemeral_name="FunctionContentsGrammar",
-                    )
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
             Ref("PostFunctionGrammar", optional=True),

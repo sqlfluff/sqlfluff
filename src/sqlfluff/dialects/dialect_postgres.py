@@ -4729,8 +4729,8 @@ class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
         "AS",
         Sequence(Ref.keyword("NOT", optional=True), "MATERIALIZED", optional=True),
         Bracketed(
-            # Ephemeral here to subdivide the query.
-            Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
+            Ref("SelectableGrammar"),
+            parse_mode=ParseMode.GREEDY,
         ),
         OneOf(
             Sequence(
@@ -4770,8 +4770,8 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                     # DEFAULT keyword used in
                     # INSERT INTO statement.
                     "DEFAULT",
-                    ephemeral_name="ValuesClauseElements",
-                )
+                ),
+                parse_mode=ParseMode.GREEDY,
             ),
         ),
         Ref("AliasExpressionSegment", optional=True),

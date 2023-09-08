@@ -242,10 +242,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
 
     match_grammar = Sequence(
         "VALUES",
-        Delimited(
-            Ref("ExpressionSegment"),
-            ephemeral_name="ValuesClauseElements",
-        ),
+        Delimited(Ref("ExpressionSegment")),
     )
 
 

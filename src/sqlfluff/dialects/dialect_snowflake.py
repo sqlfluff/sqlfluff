@@ -22,6 +22,7 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
@@ -864,8 +865,8 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                     "DEFAULT",
                     "NULL",
                     Ref("ExpressionSegment"),
-                    ephemeral_name="ValuesClauseElements",
-                )
+                ),
+                parse_mode=ParseMode.GREEDY,
             ),
         ),
     )
@@ -6256,8 +6257,8 @@ class CallStatementSegment(BaseSegment):
                     "FunctionContentsGrammar",
                     # The brackets might be empty for some functions...
                     optional=True,
-                    ephemeral_name="FunctionContentsGrammar",
                 ),
+                parse_mode=ParseMode.GREEDY,
             ),
         ),
     )
