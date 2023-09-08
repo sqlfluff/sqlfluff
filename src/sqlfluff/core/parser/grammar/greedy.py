@@ -1,6 +1,6 @@
 """GreedyUntil Grammar."""
 
-from typing import Optional, Sequence, Tuple, Union
+from typing import Sequence, Tuple, Union
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import BaseGrammar, BaseSegment
