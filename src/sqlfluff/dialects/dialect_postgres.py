@@ -4657,10 +4657,10 @@ class CopyStatementSegment(BaseSegment):
         optional=True,
     )
 
-    _option_compatability_stdin = Sequence(
+    postgres9_compatible_stdin = Sequence(
         Ref.keyword("WITH", optional=True),
         AnySetOf(
-            "BINARY",
+            Sequence("BINARY"),
             Sequence(
                 "DELIMITER",
                 Ref.keyword("AS", optional=True),
@@ -4695,10 +4695,10 @@ class CopyStatementSegment(BaseSegment):
         optional=True,
     )
 
-    _option_compatability_stdout = Sequence(
+    postgres9_compatible_stdout = Sequence(
         Ref.keyword("WITH", optional=True),
         AnySetOf(
-            "BINARY",
+            Sequence("BINARY"),
             Sequence(
                 "DELIMITER",
                 Ref.keyword("AS", optional=True),
@@ -4733,6 +4733,10 @@ class CopyStatementSegment(BaseSegment):
         optional=True,
     )
 
+    # Add the compatibility code to see if it fixes the issue before refactoring.
+    # Parse error for STDOUT comptability at CSV keyword.
+    # STDIN compatability CSV parses without issue.
+
     match_grammar = Sequence(
         "COPY",
         OneOf(
@@ -4747,6 +4751,15 @@ class CopyStatementSegment(BaseSegment):
                 Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
             ),
             Sequence(
+                _table_definition,
+                "FROM",
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Sequence("STDIN"),
+                ),
+                postgres9_compatible_stdin,
+            ),
+            Sequence(
                 OneOf(
                     _table_definition, Bracketed(Ref("UnorderedSelectStatementSegment"))
                 ),
@@ -4756,6 +4769,17 @@ class CopyStatementSegment(BaseSegment):
                     Sequence("STDOUT"),
                 ),
                 _option,
+            ),
+            Sequence(
+                OneOf(
+                    _table_definition, Bracketed(Ref("UnorderedSelectStatementSegment"))
+                ),
+                "TO",
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Sequence("STDOUT"),
+                ),
+                postgres9_compatible_stdout,
             ),
         ),
     )
