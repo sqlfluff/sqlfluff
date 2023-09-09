@@ -80,8 +80,6 @@ def _trim_to_terminator(
     # to consider all the segments, and therefore take no different
     # action at this stage.
     if term_match:
-        if segments and segments[0].raw == "COMMENT":
-            print(f"YES: {term_match}")
         # If we _do_ find a terminator, we separate off everything
         # beyond that terminator (and any preceding non-code) so that
         # it's not available to match against for the rest of this.

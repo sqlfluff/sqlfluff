@@ -492,7 +492,9 @@ def greedy_match(
                 continue
 
         # Return everything up to the match unless it's a gap matcher.
-        if include_terminator:
+        if include_terminator:  # pragma: no cover
+            # TODO: Review whether to remove this clause if it's no longer
+            # covered in any tests.
             return MatchResult(
                 seg_bank + pre + mat.matched_segments,
                 mat.unmatched_segments,
