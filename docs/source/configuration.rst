@@ -883,7 +883,8 @@ These can be configured by setting `param_style` to the names above:
 
 then you can set sample values for each parameter, like `my_name`
 above. Notice that the value needs to be escaped as it will be replaced as a
-string during parsing. (templater will use blank string by default)
+string during parsing. When the sample values aren't provided, the templater
+will use parameter names themselves by default.
 
 When parameters are positional, like `question_mark`, then their name is
 simply the order in which they appear, starting with `1`.
