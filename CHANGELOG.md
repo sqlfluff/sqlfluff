@@ -10,6 +10,43 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.3.2] - 2023-09-09
+
+## Highlights
+
+## What’s Changed
+
+* Duckdb: UNION BY NAME [#5176](https://github.com/sqlfluff/sqlfluff/pull/5176) [@greg-finley](https://github.com/greg-finley)
+* Output coverage report direct to PR [#5180](https://github.com/sqlfluff/sqlfluff/pull/5180) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Upgrades to the parse fixture generation script [#5182](https://github.com/sqlfluff/sqlfluff/pull/5182) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Refactor of Sequence match [#5177](https://github.com/sqlfluff/sqlfluff/pull/5177) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Simplify Greedy Match [#5178](https://github.com/sqlfluff/sqlfluff/pull/5178) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Quality of life improvements on parse fixture script [#5179](https://github.com/sqlfluff/sqlfluff/pull/5179) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Lift and shift matching algorithms [#5170](https://github.com/sqlfluff/sqlfluff/pull/5170) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Capitalise boolean values in example configs, for consistency [#5175](https://github.com/sqlfluff/sqlfluff/pull/5175) [@pilou-komoot](https://github.com/pilou-komoot)
+* Pull terminator setting up into the base grammar [#5172](https://github.com/sqlfluff/sqlfluff/pull/5172) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Flip the if in sequence and un-nest [#5171](https://github.com/sqlfluff/sqlfluff/pull/5171) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* SparkSQL: Support CACHE TABLE without query [#5165](https://github.com/sqlfluff/sqlfluff/pull/5165) [@reata](https://github.com/reata)
+* Remove configurable `enforce_whitespace_preceding_terminator` [#5162](https://github.com/sqlfluff/sqlfluff/pull/5162) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Adding optional sequence block for columns parsing in Snowflake external tables [#5157](https://github.com/sqlfluff/sqlfluff/pull/5157) [@adilkhanekt](https://github.com/adilkhanekt)
+* SparkSQL: Support ALTER TABLE SET LOCATION without partition spec [#5168](https://github.com/sqlfluff/sqlfluff/pull/5168) [@reata](https://github.com/reata)
+* Tighten terminators on `Delimited` [#5161](https://github.com/sqlfluff/sqlfluff/pull/5161) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* `terminator` > `terminators` on StartsWith [#5152](https://github.com/sqlfluff/sqlfluff/pull/5152) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Redshift: Support SELECT INTO [#5159](https://github.com/sqlfluff/sqlfluff/pull/5159) [@reata](https://github.com/reata)
+* Duckdb: Integer division [#5154](https://github.com/sqlfluff/sqlfluff/pull/5154) [@greg-finley](https://github.com/greg-finley)
+* `terminator` > `terminators` on Delimited grammar [#5150](https://github.com/sqlfluff/sqlfluff/pull/5150) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Tests for unparsable sections [#5149](https://github.com/sqlfluff/sqlfluff/pull/5149) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Un-nest the delimited match method [#5147](https://github.com/sqlfluff/sqlfluff/pull/5147) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Grammar .copy() assert no unexpected kwargs [#5148](https://github.com/sqlfluff/sqlfluff/pull/5148) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Postgres: CLUSTER [#5146](https://github.com/sqlfluff/sqlfluff/pull/5146) [@greg-finley](https://github.com/greg-finley)
+* Postgres alter policy [#5138](https://github.com/sqlfluff/sqlfluff/pull/5138) [@Fullcure3](https://github.com/Fullcure3)
+
+## New Contributors
+
+* [@Fullcure3](https://github.com/Fullcure3) made their first contribution in [#5138](https://github.com/sqlfluff/sqlfluff/pull/5138)
+* [@adilkhanekt](https://github.com/adilkhanekt) made their first contribution in [#5157](https://github.com/sqlfluff/sqlfluff/pull/5157)
+* [@pilou-komoot](https://github.com/pilou-komoot) made their first contribution in [#5175](https://github.com/sqlfluff/sqlfluff/pull/5175)
+
 ## [2.3.1] - 2023-08-29
 
 ## Highlights
