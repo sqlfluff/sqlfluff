@@ -162,10 +162,10 @@ exasol_dialect.add(
         "BY",
         Delimited(
             Ref("ColumnReferenceSegment"),
-            terminator=OneOf(
+            terminators=[
                 Ref("TablePartitionByGrammar"),
                 Ref("DelimiterGrammar"),
-            ),
+            ],
         ),
     ),
     TablePartitionByGrammar=Sequence(
@@ -173,10 +173,10 @@ exasol_dialect.add(
         "BY",
         Delimited(
             Ref("ColumnReferenceSegment"),
-            terminator=OneOf(
+            terminators=[
                 Ref("TableDistributeByGrammar"),
                 Ref("DelimiterGrammar"),
-            ),
+            ],
         ),
     ),
     TableConstraintEnableDisableGrammar=OneOf("ENABLE", "DISABLE"),
@@ -513,7 +513,7 @@ class ConnectByClauseSegment(BaseSegment):
             Delimited(
                 Ref("ExpressionSegment"),
                 delimiter="AND",
-                terminator="START",
+                terminators=["START"],
             ),
             Sequence("START", "WITH", Ref("ExpressionSegment"), optional=True),
         ),
@@ -548,13 +548,13 @@ class GroupByClauseSegment(BaseSegment):
                 Ref("ExpressionSegment"),
                 Bracketed(),  # Allows empty parentheses
             ),
-            terminator=OneOf(
+            terminators=[
                 Sequence("ORDER", "BY"),
                 "LIMIT",
                 "HAVING",
                 "QUALIFY",
                 Ref("SetOperatorSegment"),
-            ),
+            ],
         ),
         Dedent,
     )
@@ -1601,7 +1601,7 @@ class SetClauseListSegment(BaseSegment):
         Indent,
         Delimited(
             Ref("SetClauseSegment"),
-            terminator="FROM",
+            terminators=["FROM"],
         ),
         Dedent,
     )
@@ -2579,7 +2579,7 @@ class GrantRevokeSystemPrivilegesSegment(BaseSegment):
             ),
             Delimited(
                 Ref("SystemPrivilegesSegment"),
-                terminator=OneOf("TO", "FROM"),
+                terminators=["TO", "FROM"],
             ),
         ),
         OneOf("TO", "FROM"),
@@ -2597,7 +2597,7 @@ class GrantRevokeObjectPrivilegesSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf(
             Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
-            Delimited(Ref("ObjectPrivilegesSegment"), terminator="ON"),
+            Delimited(Ref("ObjectPrivilegesSegment"), terminators=["ON"]),
         ),
         "ON",
         OneOf(
@@ -2627,7 +2627,7 @@ class GrantRevokeRolesSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf(
             Sequence("ALL", "ROLES"),  # Revoke only
-            Delimited(Ref("RoleReferenceSegment"), terminator=OneOf("TO", "FROM")),
+            Delimited(Ref("RoleReferenceSegment"), terminators=["TO", "FROM"]),
         ),
         OneOf("TO", "FROM"),
         Delimited(Ref("RoleReferenceSegment")),
@@ -2644,7 +2644,7 @@ class GrantRevokeImpersonationSegment(BaseSegment):
         "ON",
         Delimited(
             Ref("SingleIdentifierGrammar"),
-            terminator=OneOf("TO", "FROM"),
+            terminators=["TO", "FROM"],
         ),
         OneOf("TO", "FROM"),
         Delimited(Ref("SingleIdentifierGrammar")),
@@ -2659,7 +2659,7 @@ class GrantRevokeConnectionSegment(BaseSegment):
         "CONNECTION",
         Delimited(
             Ref("SingleIdentifierGrammar"),
-            terminator=OneOf("TO", "FROM"),
+            terminators=["TO", "FROM"],
         ),
         OneOf("TO", "FROM"),
         Delimited(Ref("SingleIdentifierGrammar")),

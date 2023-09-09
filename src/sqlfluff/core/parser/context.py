@@ -8,16 +8,17 @@ to common configuration and dialects, logging and also the parse
 and match depth of the current operation.
 """
 
-from collections import defaultdict
-from contextlib import contextmanager
 import logging
 import uuid
-from typing import Iterator, Optional, TYPE_CHECKING, Dict, Any, Tuple, Sequence, List
+from collections import defaultdict
+from contextlib import contextmanager
+from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Sequence, Tuple
 
 if TYPE_CHECKING:  # pragma: no cover
-    from sqlfluff.core.parser.match_result import MatchResult
-    from sqlfluff.core.dialects.base import Dialect, ExpandedDialectElementType
     from sqlfluff.core.config import FluffConfig
+    from sqlfluff.core.dialects.base import Dialect
+    from sqlfluff.core.parser.match_result import MatchResult
+    from sqlfluff.core.parser.types import MatchableType
 
 # Get the parser logger
 parser_logger = logging.getLogger("sqlfluff.parser")
@@ -82,7 +83,7 @@ class ParseContext:
         # a little more overhead than a list, but we manage this by only
         # copying it when necessary.
         # NOTE: Includes inherited parent terminators.
-        self.terminators: Tuple["ExpandedDialectElementType", ...] = ()
+        self.terminators: Tuple["MatchableType", ...] = ()
 
     @classmethod
     def from_config(cls, config: "FluffConfig") -> "ParseContext":
@@ -103,8 +104,8 @@ class ParseContext:
     def _set_terminators(
         self,
         clear_terminators: bool = False,
-        push_terminators: Optional[Sequence["ExpandedDialectElementType"]] = None,
-    ) -> Tuple[int, Tuple["ExpandedDialectElementType", ...]]:
+        push_terminators: Optional[Sequence["MatchableType"]] = None,
+    ) -> Tuple[int, Tuple["MatchableType", ...]]:
         _appended = 0
         # Retain a reference to the original terminators.
         _terminators = self.terminators
@@ -126,7 +127,7 @@ class ParseContext:
     def _reset_terminators(
         self,
         appended: int,
-        terminators: Tuple["ExpandedDialectElementType", ...],
+        terminators: Tuple["MatchableType", ...],
         clear_terminators: bool = False,
     ) -> None:
         # If we totally reset them, just reinstate the old object.
@@ -145,7 +146,7 @@ class ParseContext:
         self,
         name: str,
         clear_terminators: bool = False,
-        push_terminators: Optional[Sequence["ExpandedDialectElementType"]] = None,
+        push_terminators: Optional[Sequence["MatchableType"]] = None,
     ) -> Iterator["ParseContext"]:
         """Increment match depth.
 

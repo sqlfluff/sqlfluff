@@ -4,23 +4,13 @@ This stores the idea of a collection of linted files at a single start path
 
 """
 
-from typing import (
-    Any,
-    Dict,
-    List,
-    Optional,
-    Union,
-    overload,
-)
+from typing import Any, Dict, List, Optional, Union, overload
+
 from typing_extensions import Literal
 
-
-from sqlfluff.core.errors import (
-    CheckTuple,
-)
-from sqlfluff.core.parser.segments.base import BaseSegment
-
+from sqlfluff.core.errors import CheckTuple
 from sqlfluff.core.linter.linted_file import LintedFile
+from sqlfluff.core.parser.segments.base import BaseSegment
 
 
 class LintedDir:
@@ -39,23 +29,16 @@ class LintedDir:
         self.files.append(file)
 
     @overload
-    def check_tuples(
-        self, by_path: Literal[False]
-    ) -> List[CheckTuple]:  # pragma: no cover
+    def check_tuples(self, by_path: Literal[False]) -> List[CheckTuple]:
         """Return a List of CheckTuples when by_path is False."""
-        ...
 
     @overload
-    def check_tuples(
-        self, by_path: Literal[True]
-    ) -> Dict[str, List[CheckTuple]]:  # pragma: no cover
+    def check_tuples(self, by_path: Literal[True]) -> Dict[str, List[CheckTuple]]:
         """Return a Dict of paths and CheckTuples when by_path is True."""
-        ...
 
     @overload
-    def check_tuples(self, by_path: bool = False):  # pragma: no cover
+    def check_tuples(self, by_path: bool = False):
         """Default overload method."""
-        ...
 
     def check_tuples(
         self, by_path=False, raise_on_non_linting_violations=True

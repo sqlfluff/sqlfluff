@@ -14,38 +14,38 @@ https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apa
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    AnySetOf,
+    Anything,
     BaseSegment,
     Bracketed,
+    BracketedSegment,
+    CodeSegment,
     CommentSegment,
     Conditional,
     Dedent,
     Delimited,
     Indent,
-    TypedParser,
+    KeywordSegment,
+    Matchable,
+    MultiStringParser,
     OneOf,
     OptionallyBracketed,
     Ref,
     RegexLexer,
+    RegexParser,
     Sequence,
+    StartsWith,
+    StringLexer,
     StringParser,
     SymbolSegment,
-    Anything,
-    StartsWith,
-    RegexParser,
-    Matchable,
-    MultiStringParser,
-    StringLexer,
-    AnySetOf,
+    TypedParser,
 )
-from sqlfluff.core.parser.segments import BracketedSegment
-from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
+from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.dialects import dialect_hive as hive
 from sqlfluff.dialects.dialect_sparksql_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
 )
-
-from sqlfluff.dialects import dialect_ansi as ansi
-from sqlfluff.dialects import dialect_hive as hive
 
 ansi_dialect = load_raw_dialect("ansi")
 hive_dialect = load_raw_dialect("hive")
@@ -669,7 +669,7 @@ sparksql_dialect.add(
         "at_sign_literal",
         ansi.LiteralSegment,
         type="at_sign_literal",
-        trim_chars="@",
+        trim_chars=("@",),
     ),
     # This is the same as QuotedLiteralSegment but
     # is given a different `name` to stop LT01 flagging
@@ -1579,14 +1579,14 @@ class ClusterByClauseSegment(BaseSegment):
                     Ref("ExpressionSegment"),
                 ),
             ),
-            terminator=OneOf(
+            terminators=[
                 "LIMIT",
                 "HAVING",
                 # For window functions
                 "WINDOW",
                 Ref("FrameClauseUnitGrammar"),
                 "SEPARATOR",
-            ),
+            ],
         ),
         Dedent,
     )
@@ -1615,7 +1615,7 @@ class DistributeByClauseSegment(BaseSegment):
                     Ref("ExpressionSegment"),
                 ),
             ),
-            terminator=OneOf(
+            terminators=[
                 "SORT",
                 "LIMIT",
                 "HAVING",
@@ -1623,7 +1623,7 @@ class DistributeByClauseSegment(BaseSegment):
                 "WINDOW",
                 Ref("FrameClauseUnitGrammar"),
                 "SEPARATOR",
-            ),
+            ],
         ),
         Dedent,
     )
@@ -1672,7 +1672,7 @@ class SelectHintSegment(BaseSegment):
                     # At least function should be supplied
                     min_times=1,
                 ),
-                terminator=Ref("EndHintSegment"),
+                terminators=[Ref("EndHintSegment")],
             ),
             Ref("EndHintSegment"),
         ),
@@ -1886,7 +1886,7 @@ class SortByClauseSegment(BaseSegment):
                 # sense here for now.
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
             ),
-            terminator=OneOf(
+            terminators=[
                 "LIMIT",
                 "HAVING",
                 "QUALIFY",
@@ -1894,7 +1894,7 @@ class SortByClauseSegment(BaseSegment):
                 "WINDOW",
                 Ref("FrameClauseUnitGrammar"),
                 "SEPARATOR",
-            ),
+            ],
         ),
         Dedent,
     )

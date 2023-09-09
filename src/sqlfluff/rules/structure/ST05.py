@@ -30,7 +30,7 @@ from sqlfluff.core.rules import (
     RuleContext,
 )
 from sqlfluff.utils.analysis.select import get_select_statement_info
-from sqlfluff.utils.analysis.select_crawler import Query, Selectable, SelectCrawler
+from sqlfluff.utils.analysis.query import Query, Selectable
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional.segment_predicates import (
     is_keyword,
@@ -57,7 +57,6 @@ class _NestedSubQuerySummary(NamedTuple):
     query: Query
     selectable: Selectable
     table_alias: AliasInfo
-    sc: SelectCrawler
     select_source_names: Set[str]
 
 
@@ -123,15 +122,14 @@ class Rule_ST05(BaseRule):
             # Nothing to do.
             return None
 
-        crawler = SelectCrawler(context.segment, context.dialect)
-        assert crawler.query_tree
+        query: Query = Query.from_segment(context.segment, context.dialect)
 
         # generate an instance which will track and shape our output CTE
         ctes = _CTEBuilder()
         # Init the output/final select &
         # populate existing CTEs
-        for cte in crawler.query_tree.ctes.values():
-            ctes.insert_cte(cte.cte_definition_segment)  # type: ignore
+        for cte in query.ctes.values():
+            ctes.insert_cte(cte.cte_definition_segment)
 
         is_with = segment.all(is_type("with_compound_statement"))
         # TODO: consider if we can fix recursive CTEs
@@ -150,7 +148,7 @@ class Rule_ST05(BaseRule):
         clone_map = SegmentCloneMap(segment[0])
         result = self._lint_query(
             dialect=context.dialect,
-            query=crawler.query_tree,
+            query=query,
             ctes=ctes,
             case_preference=case_preference,
             clone_map=clone_map,
@@ -214,27 +212,33 @@ class Rule_ST05(BaseRule):
                     if a.object_reference:
                         select_source_names.add(a.object_reference.raw)
                 for table_alias in selectable.select_info.table_aliases:
-                    sc = SelectCrawler(table_alias.from_expression_element, dialect)
-                    if sc.query_tree:
-                        path_to = selectable.selectable.path_to(
-                            table_alias.from_expression_element
+                    try:
+                        query = Query.from_root(
+                            table_alias.from_expression_element, dialect
                         )
-                        if not (
-                            # The from_expression_element
-                            table_alias.from_expression_element.is_type(*parent_types)
-                            # Or any of it's parents up to the selectable
-                            or any(ps.segment.is_type(*parent_types) for ps in path_to)
-                        ):
-                            continue
-                        if _is_correlated_subquery(
-                            Segments(sc.query_tree.selectables[0].selectable),
-                            select_source_names,
-                            dialect,
-                        ):
-                            continue
-                        yield _NestedSubQuerySummary(
-                            q, selectable, table_alias, sc, select_source_names
-                        )
+                    except AssertionError:
+                        # Couldn't find a selectable, carry on.
+                        continue
+
+                    path_to = selectable.selectable.path_to(
+                        table_alias.from_expression_element
+                    )
+                    if not (
+                        # The from_expression_element
+                        table_alias.from_expression_element.is_type(*parent_types)
+                        # Or any of it's parents up to the selectable
+                        or any(ps.segment.is_type(*parent_types) for ps in path_to)
+                    ):
+                        continue
+                    if _is_correlated_subquery(
+                        Segments(query.selectables[0].selectable),
+                        select_source_names,
+                        dialect,
+                    ):
+                        continue
+                    yield _NestedSubQuerySummary(
+                        q, selectable, table_alias, select_source_names
+                    )
 
     def _lint_query(
         self,
@@ -247,7 +251,7 @@ class Rule_ST05(BaseRule):
         """Given the root query, compute lint warnings."""
         nsq: _NestedSubQuerySummary
         for nsq in self._nested_subqueries(query, dialect):
-            alias_name, is_new_name = ctes.create_cte_alias(nsq.table_alias)
+            alias_name, _ = ctes.create_cte_alias(nsq.table_alias)
             # 'anchor' is the TableExpressionSegment we fix/replace w/CTE name.
             anchor = nsq.table_alias.from_expression_element.segments[0]
             new_cte = _create_cte_seg(  # 'prep_1 as (select ...)'
@@ -531,13 +535,21 @@ def _create_table_ref(table_name: str, dialect: Dialect) -> TableExpressionSegme
 
 
 def _get_case_preference(root_select: Segments):
-    first_keyword = root_select.recursive_crawl(
-        "keyword",
-        recurse_into=False,
-    ).first()[0]
-    if first_keyword.raw[0].islower():
+    # First get the segment itself so we have access to the generator
+    root_segment = root_select.get()
+    assert root_segment, "Root SELECT not found."
+    # Get the first item of the recursive crawl.
+    first_keyword = next(
+        root_segment.recursive_crawl(
+            "keyword",
+            recurse_into=False,
+        ),
+        None,
+    )
+    assert first_keyword, "Keyword not found."
+    # Get case preference based on the case of that keyword.
+    if first_keyword.raw.islower():
         return "LOWER"
-
     return "UPPER"
 
 

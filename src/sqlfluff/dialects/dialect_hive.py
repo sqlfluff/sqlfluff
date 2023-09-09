@@ -1,31 +1,30 @@
 """The Hive dialect."""
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     BaseSegment,
-    Sequence,
-    Ref,
-    OneOf,
     Bracketed,
-    Delimited,
-    TypedParser,
-    Nothing,
-    SymbolSegment,
-    StringParser,
-    OptionallyBracketed,
-    RegexParser,
-    Matchable,
-    Indent,
     Dedent,
+    Delimited,
+    Indent,
+    Matchable,
+    Nothing,
+    OneOf,
+    OptionallyBracketed,
+    Ref,
+    RegexParser,
+    Sequence,
+    StringParser,
+    SymbolSegment,
+    TypedParser,
 )
-
-from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_hive_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
 )
-from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 hive_dialect = ansi_dialect.copy_as("hive")
@@ -422,7 +421,7 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
         insert=[
             AnyNumberOf(Ref("LateralViewClauseSegment")),
         ],
-        after=Ref("SamplingExpressionSegment"),
+        before=Ref("PostTableExpressionGrammar", optional=True),
     )
 
 
@@ -1014,7 +1013,7 @@ class ClusterByClauseSegment(ansi.OrderByClauseSegment):
                     Ref("ExpressionSegment"),
                 ),
             ),
-            terminator=OneOf(Ref.keyword("LIMIT"), Ref("FrameClauseUnitGrammar")),
+            terminators=["LIMIT", Ref("FrameClauseUnitGrammar")],
         ),
         Dedent,
     )
@@ -1036,7 +1035,7 @@ class DistributeByClauseSegment(ansi.OrderByClauseSegment):
                     Ref("ExpressionSegment"),
                 ),
             ),
-            terminator=OneOf(
+            terminators=[
                 "SORT",
                 "LIMIT",
                 "HAVING",
@@ -1045,7 +1044,7 @@ class DistributeByClauseSegment(ansi.OrderByClauseSegment):
                 "WINDOW",
                 Ref("FrameClauseUnitGrammar"),
                 "SEPARATOR",
-            ),
+            ],
         ),
         Dedent,
     )
@@ -1069,7 +1068,7 @@ class SortByClauseSegment(ansi.OrderByClauseSegment):
                 OneOf("ASC", "DESC", optional=True),
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
             ),
-            terminator=OneOf(Ref.keyword("LIMIT"), Ref("FrameClauseUnitGrammar")),
+            terminators=["LIMIT", Ref("FrameClauseUnitGrammar")],
         ),
         Dedent,
     )

@@ -1,15 +1,12 @@
 """Defines the Parser class."""
 
-from typing import Optional, Sequence, Type, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Sequence, Type
 
-from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.parser.context import ParseContext
 
 if TYPE_CHECKING:  # pragma: no cover
-    from sqlfluff.core.parser.segments import (
-        BaseSegment,
-        BaseFileSegment,
-    )
+    from sqlfluff.core.parser.segments import BaseFileSegment, BaseSegment
 
 
 class Parser:
@@ -37,7 +34,7 @@ class Parser:
             # api use cases.
             return None
         # Instantiate the root segment
-        root_segment = self.RootSegment(segments=segments, fname=fname)
+        root_segment = self.RootSegment(segments=tuple(segments), fname=fname)
         # Call .parse() on that segment
 
         # NOTE: This is the only time we use the parse context not in the

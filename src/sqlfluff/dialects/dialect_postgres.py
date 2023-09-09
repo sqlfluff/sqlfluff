@@ -5,6 +5,7 @@ from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
     Bracketed,
+    BracketedSegment,
     CodeSegment,
     CommentSegment,
     Dedent,
@@ -24,7 +25,6 @@ from sqlfluff.core.parser import (
     StartsWith,
     StringParser,
 )
-from sqlfluff.core.parser.segments.base import BracketedSegment
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.grammar.anyof import AnySetOf
@@ -1497,14 +1497,14 @@ class GroupByClauseSegment(BaseSegment):
                 Ref("ExpressionSegment"),
                 Bracketed(),  # Allows empty parentheses
             ),
-            terminator=OneOf(
+            terminators=[
                 Sequence("ORDER", "BY"),
                 "LIMIT",
                 "HAVING",
                 "QUALIFY",
                 "WINDOW",
                 Ref("SetOperatorSegment"),
-            ),
+            ],
         ),
         Dedent,
     )
@@ -1756,8 +1756,8 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 Ref("ColumnReferenceSegment"),
                                 Ref("DatatypeSegment"),
                                 AnyNumberOf(
-                                    # A single COLLATE segment can come before or after
-                                    # constraint segments
+                                    # A single COLLATE segment can come before or
+                                    # after constraint segments
                                     OneOf(
                                         Ref("ColumnConstraintSegment"),
                                         Sequence(
@@ -1774,6 +1774,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 AnyNumberOf(Ref("LikeOptionSegment"), optional=True),
                             ),
                         ),
+                        optional=True,
                     )
                 ),
                 Sequence(
@@ -2264,7 +2265,7 @@ class PublicationObjectsSegment(BaseSegment):
             "TABLE",
             Delimited(
                 Ref("PublicationTableSegment"),
-                terminator=Sequence(Ref("CommaSegment"), OneOf("TABLE", "TABLES")),
+                terminators=[Sequence(Ref("CommaSegment"), OneOf("TABLE", "TABLES"))],
             ),
         ),
         Sequence(
@@ -2273,7 +2274,7 @@ class PublicationObjectsSegment(BaseSegment):
             "SCHEMA",
             Delimited(
                 OneOf(Ref("SchemaReferenceSegment"), "CURRENT_SCHEMA"),
-                terminator=Sequence(Ref("CommaSegment"), OneOf("TABLE", "TABLES")),
+                terminators=[Sequence(Ref("CommaSegment"), OneOf("TABLE", "TABLES"))],
             ),
         ),
     )
@@ -2554,6 +2555,43 @@ class WithCheckOptionSegment(BaseSegment):
     type = "with_check_option"
     match_grammar: Matchable = Sequence(
         "WITH", OneOf("CASCADED", "LOCAL"), Sequence("CHECK", "OPTION")
+    )
+
+
+class AlterPolicyStatementSegment(BaseSegment):
+    """An ALTER POLICY statement.
+
+    As specified in https://www.postgresql.org/docs/current/sql-alterpolicy.html
+    """
+
+    type = "alter_policy_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "TO",
+                Delimited(
+                    OneOf(
+                        Ref("RoleReferenceSegment"),
+                        "PUBLIC",
+                        "CURRENT_ROLE",
+                        "CURRENT_USER",
+                        "SESSION_USER",
+                    )
+                ),
+                optional=True,
+            ),
+            Sequence("USING", Bracketed(Ref("ExpressionSegment")), optional=True),
+            Sequence(
+                "WITH", "CHECK", Bracketed(Ref("ExpressionSegment")), optional=True
+            ),
+        ),
     )
 
 
@@ -3229,7 +3267,7 @@ class AlterDefaultPrivilegesStatementSegment(BaseSegment):
             OneOf("ROLE", "USER"),
             Delimited(
                 Ref("ObjectReferenceSegment"),
-                terminator=OneOf("IN", "GRANT", "REVOKE"),
+                terminators=["IN", "GRANT", "REVOKE"],
             ),
             optional=True,
         ),
@@ -3238,7 +3276,7 @@ class AlterDefaultPrivilegesStatementSegment(BaseSegment):
             "SCHEMA",
             Delimited(
                 Ref("SchemaReferenceSegment"),
-                terminator=OneOf("GRANT", "REVOKE"),
+                terminators=["GRANT", "REVOKE"],
             ),
             optional=True,
         ),
@@ -3269,7 +3307,7 @@ class AlterDefaultPrivilegesObjectPrivilegesSegment(BaseSegment):
             "TRUNCATE",
             "UPDATE",
             "USAGE",
-            terminator="ON",
+            terminators=["ON"],
         ),
     )
 
@@ -3324,7 +3362,7 @@ class AlterDefaultPrivilegesGrantSegment(BaseSegment):
         "TO",
         Delimited(
             Ref("AlterDefaultPrivilegesToFromRolesSegment"),
-            terminator="WITH",
+            terminators=["WITH"],
         ),
         Sequence("WITH", "GRANT", "OPTION", optional=True),
     )
@@ -3346,7 +3384,7 @@ class AlterDefaultPrivilegesRevokeSegment(BaseSegment):
         "FROM",
         Delimited(
             Ref("AlterDefaultPrivilegesToFromRolesSegment"),
-            terminator=OneOf("RESTRICT", "CASCADE"),
+            terminators=["RESTRICT", "CASCADE"],
         ),
         Ref("DropBehaviorGrammar", optional=True),
     )
@@ -3875,6 +3913,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateTableAsStatementSegment"),
             Ref("AlterTriggerStatementSegment"),
             Ref("SetStatementSegment"),
+            Ref("AlterPolicyStatementSegment"),
             Ref("CreatePolicyStatementSegment"),
             Ref("DropPolicyStatementSegment"),
             Ref("CreateDomainStatementSegment"),
@@ -3913,6 +3952,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterTypeStatementSegment"),
             Ref("AlterSchemaStatementSegment"),
             Ref("LockTableStatementSegment"),
+            Ref("ClusterStatementSegment"),
             Ref("CreateCollationStatementSegment"),
             Ref("CallStoredProcedureSegment"),
         ],
@@ -3942,7 +3982,7 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
                     "OF",
                     Delimited(
                         Ref("ColumnReferenceSegment"),
-                        terminator=OneOf("OR", "ON"),
+                        terminators=["OR", "ON"],
                     ),
                     optional=True,
                 ),
@@ -4875,8 +4915,10 @@ class UpdateStatementSegment(BaseSegment):
             OneOf(
                 Ref("StarSegment"),
                 Delimited(
-                    Ref("ExpressionSegment"),
-                    Ref("AliasExpressionSegment", optional=True),
+                    Sequence(
+                        Ref("ExpressionSegment"),
+                        Ref("AliasExpressionSegment", optional=True),
+                    ),
                 ),
             ),
             optional=True,
@@ -5112,6 +5154,27 @@ class LockTableStatementSegment(BaseSegment):
     )
 
 
+class ClusterStatementSegment(BaseSegment):
+    """A `CLUSTER` statement.
+
+    https://www.postgresql.org/docs/current/sql-cluster.html
+    """
+
+    type = "cluster_statement"
+    match_grammar = Sequence(
+        "CLUSTER",
+        Ref.keyword("VERBOSE", optional=True),
+        OneOf(
+            Sequence(
+                Ref("TableReferenceSegment"),
+                Sequence("USING", Ref("IndexReferenceSegment"), optional=True),
+            ),
+            Sequence(Ref("IndexReferenceSegment"), "ON", Ref("TableReferenceSegment")),
+            optional=True,
+        ),
+    )
+
+
 class ColumnReferenceSegment(ObjectReferenceSegment):
     """A reference to column, field or alias.
 
@@ -5129,7 +5192,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
                 delimiter=OneOf(
                     Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
                 ),
-                terminator=OneOf(
+                terminators=[
                     "ON",
                     "AS",
                     "USING",
@@ -5142,7 +5205,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
                     Ref("DelimiterGrammar"),
                     Ref("JoinLikeClauseGrammar"),
                     BracketedSegment,
-                ),
+                ],
                 allow_gaps=False,
             ),
             allow_gaps=False,
@@ -5177,7 +5240,7 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
         Ref("BareFunctionSegment"),
         Sequence(
             Ref("FunctionSegment"),
-            Sequence("WITH", "ORDINALITY", optional="True"),
+            Sequence("WITH", "ORDINALITY", optional=True),
         ),
         Ref("TableReferenceSegment"),
         # Nested Selects

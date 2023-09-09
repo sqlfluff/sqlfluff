@@ -4,40 +4,37 @@ import copy
 from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterable,
     List,
     Optional,
-    Union,
+    Sequence,
     Set,
-    Type,
     Tuple,
-    Any,
+    TypeVar,
+    Union,
     cast,
+    overload,
 )
-from typing_extensions import Literal
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from sqlfluff.core.errors import SQLParseError
-from sqlfluff.core.parser.grammar.types import SimpleHintType
-from sqlfluff.core.string_helpers import curtail_string
-
-from sqlfluff.core.parser.segments import BaseSegment, BracketedSegment, allow_ephemeral
+from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.helpers import trim_non_code_segments
-from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_logging import (
-    parse_match_logging,
     LateBoundJoinSegmentsCurtailed,
+    parse_match_logging,
 )
+from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.matchable import Matchable
-from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.parsers import BaseParser
+from sqlfluff.core.parser.segments import BaseSegment, BracketedSegment, allow_ephemeral
+from sqlfluff.core.parser.types import MatchableType, SimpleHintType
+from sqlfluff.core.string_helpers import curtail_string
 
-# Either a Matchable (a grammar or parser) or a Segment CLASS
-
-MatchableType = Union[Matchable, Type[BaseSegment]]
-
-if TYPE_CHECKING:
-    from sqlfluff.core.dialects.base import Dialect  # pragma: no cover
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.dialects.base import Dialect
 
 
 def first_trimmed_raw(seg: BaseSegment) -> str:
@@ -73,16 +70,19 @@ class BracketInfo:
     bracket: BaseSegment
     segments: Tuple[BaseSegment, ...]
 
-    def to_segment(self, end_bracket) -> BracketedSegment:
+    def to_segment(self, end_bracket: Tuple[BaseSegment, ...]) -> BracketedSegment:
         """Turn the contained segments into a bracketed segment."""
+        assert len(end_bracket) == 1
         return BracketedSegment(
             segments=self.segments,
             start_bracket=(self.bracket,),
-            end_bracket=end_bracket,
+            end_bracket=cast(Tuple[BaseSegment], end_bracket),
         )
 
 
-def cached_method_for_parse_context(func):
+def cached_method_for_parse_context(
+    func: Callable[[Any, ParseContext, Optional[Tuple[str]]], SimpleHintType]
+) -> Callable[..., SimpleHintType]:
     """A decorator to cache the output of this method for a given parse context.
 
     This cache automatically invalidates if the uuid
@@ -92,23 +92,35 @@ def cached_method_for_parse_context(func):
     """
     cache_key = "__cache_" + func.__name__
 
-    def wrapped_method(self, parse_context: ParseContext, **kwargs):
+    def wrapped_method(
+        self: Any, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
+    ) -> SimpleHintType:
         """Cache the output of the method against a given parse context.
 
         Note: kwargs are not taken into account in the caching, but
         for the current use case of dependency loop debugging that's
         ok.
         """
-        cache_tuple: tuple = self.__dict__.get(cache_key, (None, None))
-        # Do we currently have a cached value?
-        if cache_tuple[0] == parse_context.uuid:
-            return cache_tuple[1]
-        # Generate a new value, cache it and return
-        result = func(self, parse_context=parse_context, **kwargs)
+        try:
+            cache_tuple: Tuple[UUID, SimpleHintType] = self.__dict__[cache_key]
+            # Is the value for the current context?
+            if cache_tuple[0] == parse_context.uuid:
+                # If so return it.
+                return cache_tuple[1]
+        except KeyError:
+            # Failed to find an item in the cache.
+            pass
+
+        # If we're here, we either didn't find a match in the cache or it
+        # wasn't valid. Generate a new value, cache it and return
+        result = func(self, parse_context, crumbs)
         self.__dict__[cache_key] = (parse_context.uuid, result)
         return result
 
     return wrapped_method
+
+
+T = TypeVar("T", bound="BaseGrammar")
 
 
 class BaseGrammar(Matchable):
@@ -121,30 +133,32 @@ class BaseGrammar(Matchable):
     """
 
     is_meta = False
-    # Are we allowed to refer to keywords as strings instead of only passing
-    # grammars or segments?
-    allow_keyword_string_refs = True
-    equality_kwargs: Tuple[str, ...] = ("optional", "allow_gaps")
+    equality_kwargs: Tuple[str, ...] = ("_elements", "optional", "allow_gaps")
+
+    @overload
+    @staticmethod
+    def _resolve_ref(elem: None) -> None:
+        """Return None when None."""
+
+    @overload
+    @staticmethod
+    def _resolve_ref(elem: Union[str, MatchableType]) -> MatchableType:
+        """Otherwise always return a MatchableType."""
 
     @staticmethod
-    def _resolve_ref(elem):
+    def _resolve_ref(
+        elem: Union[None, str, MatchableType]
+    ) -> Union[None, MatchableType]:
         """Resolve potential string references to things we can match against."""
-        initialisers = [
-            # t: instance / f: class, ref, func
-            (True, str, Ref.keyword),
-            (True, BaseGrammar, lambda x: x),
-            (True, BaseParser, lambda x: x),
-            (False, BaseSegment, lambda x: x),
-        ]
-        # Get-out clause for None
         if elem is None:
             return None
+        elif isinstance(elem, str):
+            return Ref.keyword(elem)
+        elif isinstance(elem, Matchable):
+            return elem
+        elif issubclass(elem, BaseSegment):
+            return elem
 
-        for instance, init_type, init_func in initialisers:
-            if (instance and isinstance(elem, init_type)) or (
-                not instance and issubclass(elem, init_type)
-            ):
-                return init_func(elem)
         raise TypeError(
             "Grammar element [{!r}] was found of unexpected type [{}] was "
             "found.".format(elem, type(elem))  # pragma: no cover
@@ -153,9 +167,9 @@ class BaseGrammar(Matchable):
     def __init__(
         self,
         *args: Union[MatchableType, str],
-        allow_gaps=True,
-        optional=False,
-        ephemeral_name=None,
+        allow_gaps: bool = True,
+        optional: bool = False,
+        ephemeral_name: Optional[str] = None,
     ) -> None:
         """Deal with kwargs common to all grammars.
 
@@ -183,12 +197,7 @@ class BaseGrammar(Matchable):
         # We provide a common interface for any grammar that allows positional elements.
         # If *any* for the elements are a string and not a grammar, then this is a
         # shortcut to the Ref.keyword grammar by default.
-        if self.allow_keyword_string_refs:
-            self._elements = []
-            for elem in args:
-                self._elements.append(self._resolve_ref(elem))
-        else:
-            self._elements = list(args)
+        self._elements: List[MatchableType] = [self._resolve_ref(e) for e in args]
 
         # Now we deal with the standard kwargs
         self.allow_gaps = allow_gaps
@@ -233,13 +242,15 @@ class BaseGrammar(Matchable):
 
     @cached_method_for_parse_context
     def simple(
-        self, parse_context: ParseContext, crumbs: Optional[List[str]] = None
+        self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
     ) -> SimpleHintType:
         """Does this matcher support a lowercase hash matching route?"""
         return None
 
     @staticmethod
-    def _first_non_whitespace(segments) -> Optional[Tuple[str, Set[str]]]:
+    def _first_non_whitespace(
+        segments: Iterable["BaseSegment"],
+    ) -> Optional[Tuple[str, Set[str]]]:
         """Return the upper first non-whitespace segment in the iterable."""
         for segment in segments:
             if segment.first_non_whitespace_segment_raw_upper:
@@ -415,9 +426,6 @@ class BaseGrammar(Matchable):
                 res_match = matcher.match(segments, parse_context)
                 # Cache it for later to for performance.
                 parse_context.put_parse_cache(loc_key, matcher_key, res_match)
-
-            # By here we know that it's a MatchResult
-            res_match = cast(MatchResult, res_match)
 
             if res_match.is_complete():
                 # Just return it! (WITH THE RIGHT OTHER STUFF)
@@ -626,11 +634,9 @@ class BaseGrammar(Matchable):
         segments: Tuple[BaseSegment, ...],
         matchers: List[MatchableType],
         parse_context: ParseContext,
-        start_bracket: Optional[Matchable] = None,
-        end_bracket: Optional[Matchable] = None,
-        bracket_pairs_set: Literal[
-            "bracket_pairs", "angle_bracket_pairs"
-        ] = "bracket_pairs",
+        start_bracket: Optional[MatchableType] = None,
+        end_bracket: Optional[MatchableType] = None,
+        bracket_pairs_set: str = "bracket_pairs",
     ) -> Tuple[Tuple[BaseSegment, ...], MatchResult, Optional[MatchableType]]:
         """Same as `_look_ahead_match` but with bracket counting.
 
@@ -861,30 +867,28 @@ class BaseGrammar(Matchable):
             ),
         )
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         """Two grammars are equal if their elements and types are equal.
 
         NOTE: We use the equality_kwargs tuple on the class to define
         other kwargs which should also be checked so that things like
         "optional" is also taken into account in considering equality.
         """
-        return (
-            type(self) is type(other)
-            and self._elements == other._elements
-            and all(
-                getattr(self, k, None) == getattr(other, k, None)
-                for k in self.equality_kwargs
-            )
+        return type(self) is type(other) and all(
+            getattr(self, k, None) == getattr(other, k, None)
+            for k in self.equality_kwargs
         )
 
     def copy(
-        self,
-        insert: Optional[list] = None,
+        self: T,
+        insert: Optional[List[MatchableType]] = None,
         at: Optional[int] = None,
         before: Optional[Any] = None,
-        remove: Optional[list] = None,
-        **kwargs,
-    ):
+        remove: Optional[List[MatchableType]] = None,
+        # NOTE: Optionally allow other kwargs to be provided to this
+        # method for type compatibility. Any provided won't be used.
+        **kwargs: Any,
+    ) -> T:
         """Create a copy of this grammar, optionally with differences.
 
         This is mainly used in dialect inheritance.
@@ -909,6 +913,7 @@ class BaseGrammar(Matchable):
                 Elements are searched for individually.
 
         """
+        assert not kwargs, f"Unexpected kwargs to .copy(): {kwargs}"
         # Copy only the *grammar* elements. The rest comes through
         # as is because they should just be classes rather than
         # instances.
@@ -953,22 +958,39 @@ class BaseGrammar(Matchable):
 class Ref(BaseGrammar):
     """A kind of meta-grammar that references other grammars by name at runtime."""
 
-    # We can't allow keyword refs here, because it doesn't make sense
-    # and it also causes infinite recursion.
-    allow_keyword_string_refs = False
+    equality_kwargs: Tuple[str, ...] = ("_ref", "optional", "allow_gaps")
 
-    def __init__(self, *args: str, **kwargs) -> None:
+    def __init__(
+        self,
+        *args: str,
+        exclude: Optional[MatchableType] = None,
+        terminators: Optional[Sequence[MatchableType]] = None,
+        reset_terminators: bool = False,
+        allow_gaps: bool = True,
+        optional: bool = False,
+        ephemeral_name: Optional[str] = None,
+    ) -> None:
+        # For Ref, there should only be one arg.
+        assert len(args) == 1, (
+            "Ref grammar can only deal with precisely one element for now. Instead "
+            f"found {args!r}"
+        )
+        assert isinstance(args[0], str), f"Ref must be string. Found {args}."
+        self._ref = args[0]
         # Any patterns to _prevent_ a match.
-        self.exclude = kwargs.pop("exclude", None)
+        self.exclude = exclude
         # The intent here is that if we match something, and then the _next_
         # item is one of these, we can safely conclude it's a "total" match.
         # In those cases, we return early without considering more options.
         # Terminators don't take effect directly within this grammar, but
         # the Ref grammar is an effective place to manage the terminators
         # inherited via the context.
-        self.terminators = kwargs.pop("terminators", None)
-        self.reset_terminators = kwargs.pop("reset_terminators", False)
-        super().__init__(*args, **kwargs)
+        self.terminators = terminators
+        self.reset_terminators = reset_terminators
+        # NOTE: Don't pass on any args (we've already handled it with self._ref)
+        super().__init__(
+            allow_gaps=allow_gaps, optional=optional, ephemeral_name=ephemeral_name
+        )
 
     @cached_method_for_parse_context
     def simple(
@@ -978,45 +1000,25 @@ class Ref(BaseGrammar):
 
         A ref is simple, if the thing it references is simple.
         """
-        ref = self._get_ref()
-        if crumbs and ref in crumbs:  # pragma: no cover
+        if crumbs and self._ref in crumbs:  # pragma: no cover
             loop = " -> ".join(crumbs)
             raise RecursionError(f"Self referential grammar detected: {loop}")
         return self._get_elem(dialect=parse_context.dialect).simple(
             parse_context=parse_context,
-            crumbs=(crumbs or ()) + (ref,),
+            crumbs=(crumbs or ()) + (self._ref,),
         )
 
-    def _get_ref(self) -> str:
-        """Get the name of the thing we're referencing."""
-        # Unusually for a grammar we expect _elements to be a list of strings.
-        # Notable ONE string for now.
-        if len(self._elements) == 1:
-            # We're good on length. Get the name of the reference
-            ref = self._elements[0]
-            if not isinstance(ref, str):  # pragma: no cover
-                raise ValueError(
-                    "Ref Grammar expects elements to be strings. "
-                    f"Found {ref!r} instead."
-                )
-            return self._elements[0]
-        else:  # pragma: no cover
-            raise ValueError(
-                "Ref grammar can only deal with precisely one element for now. Instead "
-                "found {!r}".format(self._elements)
-            )
-
-    def _get_elem(self, dialect: "Dialect") -> Union[Type[BaseSegment], Matchable]:
+    def _get_elem(self, dialect: "Dialect") -> MatchableType:
         """Get the actual object we're referencing."""
         if dialect:
             # Use the dialect to retrieve the grammar it refers to.
-            return dialect.ref(self._get_ref())
+            return dialect.ref(self._ref)
         else:  # pragma: no cover
             raise ReferenceError("No Dialect has been provided to Ref grammar!")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<Ref: {}{}>".format(
-            ", ".join(self._elements), " [opt]" if self.is_optional() else ""
+            ", ".join(str(self._elements)), " [opt]" if self.is_optional() else ""
         )
 
     @match_wrapper(v_level=4)  # Log less for Ref
@@ -1036,17 +1038,17 @@ class Ref(BaseGrammar):
         # which would prevent the rest of this grammar from matching.
         if self.exclude:
             with parse_context.deeper_match(
-                name=self._get_ref() + "-Exclude",
+                name=self._ref + "-Exclude",
                 clear_terminators=self.reset_terminators,
                 push_terminators=self.terminators,
             ) as ctx:
-                if self.exclude.match(segments, parse_context=ctx):
+                if self.exclude.match(segments, ctx):
                     return MatchResult.from_unmatched(segments)
 
         # Match against that. NB We're not incrementing the match_depth here.
         # References shouldn't really count as a depth of match.
         with parse_context.deeper_match(
-            name=self._get_ref(),
+            name=self._ref,
             clear_terminators=self.reset_terminators,
             push_terminators=self.terminators,
         ) as ctx:
@@ -1055,7 +1057,7 @@ class Ref(BaseGrammar):
         return resp
 
     @classmethod
-    def keyword(cls, keyword: str, **kwargs) -> BaseGrammar:
+    def keyword(cls, keyword: str, optional: bool = False) -> BaseGrammar:
         """Generate a reference to a keyword by name.
 
         This function is entirely syntactic sugar, and designed
@@ -1065,7 +1067,7 @@ class Ref(BaseGrammar):
 
         """
         name = keyword.capitalize() + "KeywordSegment"
-        return cls(name, **kwargs)
+        return cls(name, optional=optional)
 
 
 class Anything(BaseGrammar):
