@@ -307,7 +307,7 @@ def test__templater_raw():
         (
             "SELECT metadata$filename, $1 FROM @stg_data_export_${env_name};",
             "flyway_var",
-            "SELECT metadata$filename, $1 FROM @stg_data_export_;",
+            "SELECT metadata$filename, $1 FROM @stg_data_export_env_name;",
             {},
         ),
     ],

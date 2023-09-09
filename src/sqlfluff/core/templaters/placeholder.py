@@ -152,7 +152,10 @@ class PlaceholderTemplater(RawTemplater):
             else:
                 param_name = found_param["param_name"]
             last_literal_length = span[0] - last_pos_raw
-            replacement = str(context.get(param_name, ""))
+            if param_name in context:
+                replacement = str(context[param_name])
+            else:
+                replacement = param_name
             # add the literal to the slices
             template_slices.append(
                 TemplatedFileSlice(
