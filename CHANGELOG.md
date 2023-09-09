@@ -14,6 +14,17 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+Much of this release is internal optimisations and refactoring. We're in the
+process of upgrading some quite old code in the parser, most of which should
+not be visible to end users (apart from perhaps some performance improvements!).
+
+Beyond that this includes some dialect improvements for DuckDB, SparkSQL,
+Snowflake, Redshift & Postgres.
+
+Thanks particularly to [@Fullcure3](https://github.com/Fullcure3),
+[@adilkhanekt](https://github.com/adilkhanekt) & [@pilou-komoot](https://github.com/pilou-komoot)
+who made their first contributions as part of this release. 🎉🎉🎉
+
 ## What’s Changed
 
 * Duckdb: UNION BY NAME [#5176](https://github.com/sqlfluff/sqlfluff/pull/5176) [@greg-finley](https://github.com/greg-finley)
