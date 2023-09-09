@@ -2649,7 +2649,7 @@ class QualifyClauseSegment(BaseSegment):
     )
 
 
-class SelectStatementSegment(ansi.SelectStatementSegment):
+class SelectStatementSegment(postgres.SelectStatementSegment):
     """A snowflake `SELECT` statement including optional Qualify.
 
     https://docs.aws.amazon.com/redshift/latest/dg/r_QUALIFY_clause.html
@@ -2663,10 +2663,10 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
         # mitigate that here. But this isn't BigQuery! So we can be more
         # efficient and just use the keyword.
         "SELECT",
-        terminator=Ref("SetOperatorSegment"),
+        terminators=[Ref("SetOperatorSegment")],
     )
 
-    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
+    parse_grammar = postgres.SelectStatementSegment.parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
     )

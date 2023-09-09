@@ -490,6 +490,7 @@ ansi_dialect.add(
     IfExistsGrammar=Sequence("IF", "EXISTS"),
     IfNotExistsGrammar=Sequence("IF", "NOT", "EXISTS"),
     LikeGrammar=OneOf("LIKE", "RLIKE", "ILIKE"),
+    UnionGrammar=Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
     IsClauseGrammar=OneOf(
         Ref("NullLiteralSegment"),
         Ref("NanLiteralSegment"),
@@ -1593,7 +1594,7 @@ class FromExpressionSegment(BaseSegment):
                 Ref("MLTableExpressionSegment"),
                 Ref("FromExpressionElementSegment"),
                 Bracketed(Ref("FromExpressionSegment")),
-                terminators=[Ref.keyword("ORDER"), Ref.keyword("GROUP")],
+                terminators=[Sequence("ORDER", "BY"), Sequence("GROUP", "BY")],
             ),
             Dedent,
             Conditional(Indent, indented_joins=True),
@@ -1602,7 +1603,7 @@ class FromExpressionSegment(BaseSegment):
                     OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
                 ),
                 optional=True,
-                terminators=[Ref.keyword("ORDER"), Ref.keyword("GROUP")],
+                terminators=[Sequence("ORDER", "BY"), Sequence("GROUP", "BY")],
             ),
             Conditional(Dedent, indented_joins=True),
         )
@@ -1739,7 +1740,7 @@ class SelectClauseSegment(BaseSegment):
     type = "select_clause"
     match_grammar: Matchable = StartsWith(
         "SELECT",
-        terminator=OneOf(
+        terminators=[
             "FROM",
             "WHERE",
             Sequence("ORDER", "BY"),
@@ -1747,8 +1748,7 @@ class SelectClauseSegment(BaseSegment):
             "OVERLAPS",
             Ref("SetOperatorSegment"),
             "FETCH",
-        ),
-        enforce_whitespace_preceding_terminator=True,
+        ],
     )
 
     parse_grammar: Matchable = Ref("SelectClauseSegmentGrammar")
@@ -2649,14 +2649,13 @@ class UnorderedSelectStatementSegment(BaseSegment):
         # select clause rather than just the SELECT keyword, we mitigate that
         # here.
         Ref("SelectClauseSegment"),
-        terminator=OneOf(
+        terminators=[
             Ref("SetOperatorSegment"),
             Ref("WithNoSchemaBindingClauseSegment"),
             Ref("WithDataClauseSegment"),
             Ref("OrderByClauseSegment"),
             Ref("LimitClauseSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
+        ],
     )
 
     parse_grammar: Matchable = Sequence(
@@ -2685,12 +2684,11 @@ class SelectStatementSegment(BaseSegment):
         # select clause rather than just the SELECT keyword, we mitigate that
         # here.
         Ref("SelectClauseSegment"),
-        terminator=OneOf(
+        terminators=[
             Ref("SetOperatorSegment"),
             Ref("WithNoSchemaBindingClauseSegment"),
             Ref("WithDataClauseSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
+        ],
     )
 
     # Inherit most of the parse grammar from the original.
@@ -2806,7 +2804,7 @@ class SetOperatorSegment(BaseSegment):
 
     type = "set_operator"
     match_grammar: Matchable = OneOf(
-        Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
+        Ref("UnionGrammar"),
         Sequence(
             OneOf(
                 "INTERSECT",
@@ -3642,12 +3640,11 @@ class SetClauseListSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "SET",
         Indent,
-        OneOf(
+        Ref("SetClauseSegment"),
+        # set clause
+        AnyNumberOf(
+            Ref("CommaSegment"),
             Ref("SetClauseSegment"),
-            # set clause
-            AnyNumberOf(
-                Delimited(Ref("SetClauseSegment")),
-            ),
         ),
         Dedent,
     )

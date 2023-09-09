@@ -1095,7 +1095,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
             ),
             # ALTER TABLE - CHANGE FILE LOCATION
             Sequence(
-                Ref("PartitionSpecGrammar"),
+                Ref("PartitionSpecGrammar", optional=True),
                 "SET",
                 Ref("LocationGrammar"),
             ),
@@ -1825,25 +1825,6 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
     )
 
 
-class OrderByClauseSegment(ansi.OrderByClauseSegment):
-    """A `ORDER BY` clause like in `SELECT`."""
-
-    match_grammar = ansi.OrderByClauseSegment.match_grammar.copy()
-    match_grammar.terminator = OneOf(  # type: ignore
-        "CLUSTER",
-        "DISTRIBUTE",
-        "SORT",
-        "LIMIT",
-        "HAVING",
-        "QUALIFY",
-        # For window functions
-        "WINDOW",
-        Ref("FrameClauseUnitGrammar"),
-        "SEPARATOR",
-    )
-    parse_grammar = ansi.OrderByClauseSegment.parse_grammar
-
-
 class WithCubeRollupClauseSegment(BaseSegment):
     """A `[WITH CUBE | WITH ROLLUP]` clause after the `GROUP BY` clause.
 
@@ -2180,8 +2161,9 @@ class CacheTableSegment(BaseSegment):
         "TABLE",
         Ref("TableReferenceSegment"),
         Ref("OptionsGrammar", optional=True),
-        Ref.keyword("AS", optional=True),
-        Ref("SelectableGrammar"),
+        Sequence(
+            Ref.keyword("AS", optional=True), Ref("SelectableGrammar"), optional=True
+        ),
     )
 
 
@@ -3220,15 +3202,14 @@ class SelectClauseSegment(BaseSegment):
     type = "select_clause"
     match_grammar: Matchable = StartsWith(
         "SELECT",
-        terminator=OneOf(
+        terminators=[
             "FROM",
             "WHERE",
             "UNION",
             Sequence("ORDER", "BY"),
             "LIMIT",
             "OVERLAPS",
-        ),
-        enforce_whitespace_preceding_terminator=True,
+        ],
     )
 
     parse_grammar: Matchable = Ref("SelectClauseSegmentGrammar")

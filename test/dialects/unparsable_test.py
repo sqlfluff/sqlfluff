@@ -119,12 +119,6 @@ from sqlfluff.core.parser.context import ParseContext
                             ),
                         ),
                     ),
-                    # This is a bit odd but it reflects current
-                    # behaviour. Ideally it should not be present.
-                    (
-                        "unparsable",
-                        (),
-                    ),
                 ),
             ),
         ),

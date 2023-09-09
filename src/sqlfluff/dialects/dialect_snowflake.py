@@ -1430,7 +1430,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
         # mitigate that here. But this isn't BigQuery! So we can be more
         # efficient and just use the keyword.
         "SELECT",
-        terminator=Ref("SetOperatorSegment"),
+        terminators=[Ref("SetOperatorSegment")],
     )
 
     parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
@@ -4613,6 +4613,9 @@ class CreateExternalTableSegment(BaseSegment):
                         Sequence(
                             Ref("ExpressionSegment"),
                             Ref("TableConstraintSegment", optional=True),
+                            Sequence(
+                                Ref.keyword("NOT", optional=True), "NULL", optional=True
+                            ),
                         )
                     ),
                 )
@@ -6327,9 +6330,8 @@ class LimitClauseSegment(ansi.LimitClauseSegment):
 class SelectClauseSegment(ansi.SelectClauseSegment):
     """A group of elements in a select target statement."""
 
-    match_grammar = ansi.SelectClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
+    match_grammar = ansi.SelectClauseSegment.match_grammar.copy(
+        terminators=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
     )
     parse_grammar = ansi.SelectClauseSegment.parse_grammar.copy()
 

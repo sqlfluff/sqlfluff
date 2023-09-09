@@ -6,14 +6,9 @@ NOTE: All of these tests depend somewhat on the KeywordSegment working as planne
 import logging
 from os import getenv
 
-from sqlfluff.core.parser import (
-    KeywordSegment,
-    StringParser,
-    WhitespaceSegment,
-    Indent,
-)
+from sqlfluff.core.parser import Indent, KeywordSegment, StringParser, WhitespaceSegment
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.grammar import Sequence, Conditional
+from sqlfluff.core.parser.grammar import Conditional, Sequence
 
 
 def test__parser__grammar_sequence(seg_list, caplog):
@@ -43,6 +38,17 @@ def test__parser__grammar_sequence(seg_list, caplog):
         # Shouldn't match even on the normal one if we don't start at the beginning
         logging.info("#### TEST 2")
         assert not g.match(seg_list[1:], parse_context=ctx)
+
+
+def test__parser__grammar_sequence_repr():
+    """Test the Sequence grammar __repr__ method."""
+    bar = StringParser("bar", KeywordSegment)
+    assert repr(bar) == "<StringParser: 'BAR'>"
+    foo = StringParser("foo", KeywordSegment)
+    sequence = Sequence(bar, foo)
+    assert (
+        repr(sequence) == "<Sequence: [<StringParser: 'BAR'>, <StringParser: 'FOO'>]>"
+    )
 
 
 def test__parser__grammar_sequence_nested(seg_list, caplog):

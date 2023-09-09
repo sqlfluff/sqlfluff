@@ -4,34 +4,35 @@ https://docs.exasol.com
 https://docs.exasol.com/sql_references/sqlstandardcompliance.htm
 """
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    BaseFileSegment,
     BaseSegment,
     Bracketed,
-    OptionallyBracketed,
-    BaseFileSegment,
+    CodeSegment,
+    CommentSegment,
     Dedent,
     Delimited,
     GreedyUntil,
     Indent,
+    MultiStringParser,
+    NewlineSegment,
     Nothing,
     OneOf,
+    OptionallyBracketed,
     Ref,
+    RegexLexer,
+    RegexParser,
     Sequence,
     StartsWith,
-    RegexLexer,
     StringLexer,
-    CodeSegment,
-    CommentSegment,
-    TypedParser,
-    SymbolSegment,
     StringParser,
-    RegexParser,
-    NewlineSegment,
-    MultiStringParser,
+    SymbolSegment,
+    TypedParser,
 )
-from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.segments.generator import SegmentGenerator
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_exasol_keywords import (
     BARE_FUNCTIONS,
     RESERVED_KEYWORDS,
@@ -39,7 +40,6 @@ from sqlfluff.dialects.dialect_exasol_keywords import (
     SYSTEM_PARAMETERS,
     UNRESERVED_KEYWORDS,
 )
-from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 exasol_dialect = ansi_dialect.copy_as("exasol")
@@ -327,14 +327,13 @@ class UnorderedSelectStatementSegment(BaseSegment):
     type = "select_statement"
     match_grammar = StartsWith(
         "SELECT",
-        terminator=OneOf(
+        terminators=[
             Ref("SetOperatorSegment"),
             Ref("WithDataClauseSegment"),
             Ref("CommentClauseSegment"),  # within CREATE TABLE / VIEW statements
             Ref("OrderByClauseSegment"),
             Ref("LimitClauseSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
+        ],
     )
 
     parse_grammar = Sequence(
@@ -377,12 +376,11 @@ class SelectStatementSegment(BaseSegment):
     type = "select_statement"
     match_grammar = StartsWith(
         "SELECT",
-        terminator=OneOf(
+        terminators=[
             Ref("SetOperatorSegment"),
             Ref("WithDataClauseSegment"),
             Ref("CommentClauseSegment"),  # within CREATE TABLE / VIEW statements
-        ),
-        enforce_whitespace_preceding_terminator=True,
+        ],
     )
 
     # Inherit most of the parse grammar from the original.
@@ -3223,7 +3221,6 @@ class ScriptContentSegment(BaseSegment):
     type = "script_content"
     match_grammar = GreedyUntil(
         Ref("FunctionScriptTerminatorSegment"),
-        enforce_whitespace_preceding_terminator=False,
     )
 
 
@@ -3471,7 +3468,6 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     # Important to split elements before parsing, otherwise debugging is really hard.
     match_grammar = GreedyUntil(  # type: ignore
         Ref("SelectClauseElementTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=False,
     )
 
     parse_grammar = OneOf(

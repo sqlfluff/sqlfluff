@@ -33,7 +33,7 @@ def check_still_complete(
     if initial_str != current_str:  # pragma: no cover
         segment = unmatched_segments[0] if unmatched_segments else None
         raise SQLParseError(
-            f"Could not parse: {current_str}",
+            f"Parse completeness check fail: {current_str!r} != {initial_str!r}",
             segment=segment,
         )
     return True

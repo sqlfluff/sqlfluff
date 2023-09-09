@@ -924,14 +924,12 @@ class SamplingExpressionSegment(BaseSegment):
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Enhance unordered SELECT statement to include CLUSTER, DISTRIBUTE, SORT BY."""
 
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
+        terminators=[
             Ref("ClusterByClauseSegment"),
             Ref("DistributeByClauseSegment"),
             Ref("SortByClauseSegment"),
         ],
-        before=Ref("LimitClauseSegment"),
     )
 
     parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy()
@@ -954,14 +952,12 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
 class SelectClauseSegment(ansi.SelectClauseSegment):
     """Overriding SelectClauseSegment to allow for additional segment parsing."""
 
-    match_grammar = ansi.SelectClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[
+    match_grammar = ansi.SelectClauseSegment.match_grammar.copy(
+        terminators=[
             Sequence("CLUSTER", "BY"),
             Sequence("DISTRIBUTE", "BY"),
             Sequence("SORT", "BY"),
         ],
-        before=Ref.keyword("LIMIT"),
     )
     parse_grammar = ansi.SelectClauseSegment.parse_grammar.copy()
 
@@ -976,24 +972,6 @@ class SetExpressionSegment(ansi.SetExpressionSegment):
             Ref("SortByClauseSegment", optional=True),
         ],
         before=Ref("LimitClauseSegment", optional=True),
-    )
-
-
-class OrderByClauseSegment(ansi.OrderByClauseSegment):
-    """A `ORDER BY` clause like in `SELECT`."""
-
-    match_grammar = ansi.OrderByClauseSegment.match_grammar.copy()
-    match_grammar.terminator = OneOf(  # type: ignore
-        "CLUSTER",
-        "DISTRIBUTE",
-        "SORT",
-        "LIMIT",
-        "HAVING",
-        "QUALIFY",
-        # For window functions
-        "WINDOW",
-        Ref("FrameClauseUnitGrammar"),
-        "SEPARATOR",
     )
 
 

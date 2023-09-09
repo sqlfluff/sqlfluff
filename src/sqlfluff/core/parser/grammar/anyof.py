@@ -27,7 +27,7 @@ class AnyNumberOf(BaseGrammar):
         min_times: int = 0,
         max_times_per_element: Optional[int] = None,
         exclude: Optional[MatchableType] = None,
-        terminators: Optional[SequenceType[Union[MatchableType, str]]] = None,
+        terminators: SequenceType[Union[MatchableType, str]] = (),
         reset_terminators: bool = False,
         allow_gaps: bool = True,
         optional: bool = False,
@@ -38,18 +38,13 @@ class AnyNumberOf(BaseGrammar):
         self.max_times_per_element = max_times_per_element
         # Any patterns to _prevent_ a match.
         self.exclude = exclude
-        # The intent here is that if we match something, and then the _next_
-        # item is one of these, we can safely conclude it's a "total" match.
-        # In those cases, we return early without considering more options.
-        self.terminators: SequenceType[MatchableType] = [
-            self._resolve_ref(t) for t in terminators or []
-        ]
-        self.reset_terminators = reset_terminators
         super().__init__(
             *args,
             allow_gaps=allow_gaps,
             optional=optional,
             ephemeral_name=ephemeral_name,
+            terminators=terminators,
+            reset_terminators=reset_terminators,
         )
 
     @cached_method_for_parse_context
@@ -205,7 +200,7 @@ class OneOf(AnyNumberOf):
         self,
         *args: Union[MatchableType, str],
         exclude: Optional[MatchableType] = None,
-        terminators: Optional[SequenceType[Union[MatchableType, str]]] = None,
+        terminators: SequenceType[Union[MatchableType, str]] = (),
         reset_terminators: bool = False,
         allow_gaps: bool = True,
         optional: bool = False,
@@ -235,7 +230,7 @@ class OptionallyBracketed(OneOf):
         self,
         *args: Union[MatchableType, str],
         exclude: Optional[MatchableType] = None,
-        terminators: Optional[SequenceType[MatchableType]] = None,
+        terminators: SequenceType[Union[MatchableType, str]] = (),
         reset_terminators: bool = False,
         optional: bool = False,
         ephemeral_name: Optional[str] = None,
@@ -261,7 +256,7 @@ class AnySetOf(AnyNumberOf):
         max_times: Optional[int] = None,
         min_times: int = 0,
         exclude: Optional[MatchableType] = None,
-        terminators: Optional[SequenceType[MatchableType]] = None,
+        terminators: SequenceType[Union[MatchableType, str]] = (),
         reset_terminators: bool = False,
         allow_gaps: bool = True,
         optional: bool = False,

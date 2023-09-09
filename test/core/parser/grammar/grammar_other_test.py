@@ -3,19 +3,20 @@
 NOTE: All of these tests depend somewhat on the KeywordSegment working as planned.
 """
 
-import pytest
 import logging
+
+import pytest
 
 from sqlfluff.core.parser import KeywordSegment, StringParser, SymbolSegment
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 from sqlfluff.core.parser.grammar import (
-    GreedyUntil,
-    Delimited,
-    StartsWith,
     Anything,
+    Delimited,
+    GreedyUntil,
     Nothing,
+    StartsWith,
 )
+from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 
 
 def test__parser__grammar_startswith_a():
@@ -28,18 +29,19 @@ def test__parser__grammar_startswith_a():
 @pytest.mark.parametrize(
     "include_terminator,match_length",
     [
-        (False, 3),
-        # NB: In this case we still shouldn't match the trailing whitespace.
-        (True, 4),
+        # NOTE: this case shouldn't include the whitespace between "bar" and "foo".
+        (False, 1),
+        # ...and in this case it _should_.
+        (True, 3),
     ],
 )
 def test__parser__grammar_startswith_b(
     include_terminator, match_length, seg_list, fresh_ansi_dialect, caplog
 ):
     """Test the StartsWith grammar with a terminator (included & excluded)."""
-    baar = StringParser("baar", KeywordSegment)
+    foo = StringParser("foo", KeywordSegment)
     bar = StringParser("bar", KeywordSegment)
-    grammar = StartsWith(bar, terminator=baar, include_terminator=include_terminator)
+    grammar = StartsWith(bar, terminators=[foo], include_terminator=include_terminator)
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
         m = grammar.match(seg_list, parse_context=ctx)
@@ -97,26 +99,22 @@ def test__parser__grammar_delimited(
 
 
 @pytest.mark.parametrize(
-    "keyword,enforce_ws,slice_len",
+    "keyword,slice_len",
     [
         # Basic testing
-        ("foo", False, 1),
+        ("foo", 1),
         # Greedy matching until the first item should return none
-        ("bar", False, 0),
-        # Greedy matching up to baar should return bar, foo...
-        ("baar", False, 3),
-        # ... except if whitespace is required to precede it
-        ("baar", True, 6),
+        ("bar", 0),
+        # NOTE: the greedy until "baar" won't match because baar is
+        # a keyword and therefore is required to have whitespace
+        # before it. In the test sequence "baar" does not.
+        # See `greedy_match()` for details.
+        ("baar", 6),
     ],
 )
-def test__parser__grammar_greedyuntil(
-    keyword, seg_list, enforce_ws, slice_len, fresh_ansi_dialect
-):
+def test__parser__grammar_greedyuntil(keyword, seg_list, slice_len, fresh_ansi_dialect):
     """Test the GreedyUntil grammar."""
-    grammar = GreedyUntil(
-        StringParser(keyword, KeywordSegment),
-        enforce_whitespace_preceding_terminator=enforce_ws,
-    )
+    grammar = GreedyUntil(StringParser(keyword, KeywordSegment))
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     assert (
         grammar.match(seg_list, parse_context=ctx).matched_segments

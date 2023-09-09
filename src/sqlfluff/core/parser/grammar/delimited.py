@@ -38,7 +38,7 @@ class Delimited(OneOf):
         *args: Union[MatchableType, str],
         delimiter: Union[MatchableType, str] = Ref("CommaSegment"),
         allow_trailing: bool = False,
-        terminators: Optional[Sequence[Union[MatchableType, str]]] = None,
+        terminators: Sequence[Union[MatchableType, str]] = (),
         reset_terminators: bool = False,
         min_delimiters: Optional[int] = None,
         bracket_pairs_set: str = "bracket_pairs",
@@ -111,10 +111,13 @@ class Delimited(OneOf):
         terminated = False
 
         delimiter_matchers = [self.delimiter]
-        # TODO: We should also be able to add the `parse_context.terminators`
-        # here but that currently presents issues in several dialects. That
-        # will need to be resolved in future.
-        terminator_matchers = list(self.terminators)
+        # NOTE: If the configured delimiter is in parse_context.terminators then
+        # treat is _only_ as a delimiter and not as a terminator. This happens
+        # frequently during nested comma expressions.
+        terminator_matchers = [
+            *self.terminators,
+            *(t for t in parse_context.terminators if t not in delimiter_matchers),
+        ]
 
         # If gaps aren't allowed, a gap (or non-code segment), acts like a terminator.
         if not self.allow_gaps:
