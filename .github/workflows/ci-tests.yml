@@ -373,12 +373,12 @@ jobs:
         with:
           name: html-report
           path: htmlcov
-        if: ${{ failure() }}
+        if: failure() && github.event_name == 'pull_request'
 
-      - name: Update PR Comment.
+      - name: Update PR comment with coverage report.
         uses: actions/github-script@v6
         # Run even if the coverage step failed.
-        if: github.event_name == 'pull_request'
+        if: always() && github.event_name == 'pull_request'
         with:
           script: |
             // First list the existing comments
