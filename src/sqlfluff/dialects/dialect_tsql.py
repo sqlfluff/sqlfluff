@@ -691,8 +691,6 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
         ),
     )
 
-    parse_grammar = None
-
 
 class AltAliasExpressionSegment(BaseSegment):
     """An alternative alias clause as used by tsql using `=`."""
@@ -2752,7 +2750,6 @@ class PartitionClauseSegment(ansi.PartitionClauseSegment):
             )
         ),
     )
-    parse_grammar = None
 
 
 class OnPartitionsSegment(BaseSegment):
@@ -2946,8 +2943,6 @@ class CreateTableStatementSegment(BaseSegment):
         Ref("TableOptionSegment", optional=True),
         Ref("DelimiterGrammar", optional=True),
     )
-
-    parse_grammar = match_grammar
 
 
 class AlterTableStatementSegment(BaseSegment):
