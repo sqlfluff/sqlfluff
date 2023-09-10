@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [2.3.2] - 2023-09-09
+## [2.3.2] - 2023-09-10
 
 ## Highlights
 
@@ -18,15 +18,21 @@ Much of this release is internal optimisations and refactoring. We're in the
 process of upgrading some quite old code in the parser, most of which should
 not be visible to end users (apart from perhaps some performance improvements!).
 
+This release also allows missing template variables in the placeholder templater
+to be automatically filled with the name of the variable rather than raising
+an error (see: [#5101](https://github.com/sqlfluff/sqlfluff/pull/5101)).
+
 Beyond that this includes some dialect improvements for DuckDB, SparkSQL,
 Snowflake, Redshift & Postgres.
 
-Thanks particularly to [@Fullcure3](https://github.com/Fullcure3),
+Thanks particularly to [@shyaginuma](https://github.com/shyaginuma), [@Fullcure3](https://github.com/Fullcure3),
 [@adilkhanekt](https://github.com/adilkhanekt) & [@pilou-komoot](https://github.com/pilou-komoot)
 who made their first contributions as part of this release. 🎉🎉🎉
 
 ## What’s Changed
 
+* Allow not specifying parameters names when using placeholder templater [#5101](https://github.com/sqlfluff/sqlfluff/pull/5101) [@shyaginuma](https://github.com/shyaginuma)
+* Update coverage job to run in the right conditions [#5183](https://github.com/sqlfluff/sqlfluff/pull/5183) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Duckdb: UNION BY NAME [#5176](https://github.com/sqlfluff/sqlfluff/pull/5176) [@greg-finley](https://github.com/greg-finley)
 * Output coverage report direct to PR [#5180](https://github.com/sqlfluff/sqlfluff/pull/5180) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Upgrades to the parse fixture generation script [#5182](https://github.com/sqlfluff/sqlfluff/pull/5182) [@alanmcruickshank](https://github.com/alanmcruickshank)
@@ -52,11 +58,12 @@ who made their first contributions as part of this release. 🎉🎉🎉
 * Postgres: CLUSTER [#5146](https://github.com/sqlfluff/sqlfluff/pull/5146) [@greg-finley](https://github.com/greg-finley)
 * Postgres alter policy [#5138](https://github.com/sqlfluff/sqlfluff/pull/5138) [@Fullcure3](https://github.com/Fullcure3)
 
-## New Contributors
 
+## New Contributors
 * [@Fullcure3](https://github.com/Fullcure3) made their first contribution in [#5138](https://github.com/sqlfluff/sqlfluff/pull/5138)
 * [@adilkhanekt](https://github.com/adilkhanekt) made their first contribution in [#5157](https://github.com/sqlfluff/sqlfluff/pull/5157)
 * [@pilou-komoot](https://github.com/pilou-komoot) made their first contribution in [#5175](https://github.com/sqlfluff/sqlfluff/pull/5175)
+* [@shyaginuma](https://github.com/shyaginuma) made their first contribution in [#5101](https://github.com/sqlfluff/sqlfluff/pull/5101)
 
 ## [2.3.1] - 2023-08-29
 
