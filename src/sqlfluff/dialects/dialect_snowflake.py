@@ -1071,16 +1071,11 @@ class WithinGroupClauseSegment(BaseSegment):
     """
 
     type = "withingroup_clause"
+
     match_grammar = Sequence(
         "WITHIN",
         "GROUP",
-        Bracketed(Anything(optional=True)),
-    )
-
-    parse_grammar = Sequence(
-        "WITHIN",
-        "GROUP",
-        Bracketed(Ref("OrderByClauseSegment", optional=True)),
+        Bracketed(Ref("OrderByClauseSegment", optional=True), parse_mode=ParseMode.GREEDY),
     )
 
 
@@ -1273,14 +1268,13 @@ class FromBeforeExpressionSegment(BaseSegment):
     """A BEFORE expression."""
 
     type = "from_before_expression"
-    match_grammar = Sequence("BEFORE", Bracketed(Anything()))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "BEFORE",
         Bracketed(
             OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
             Ref("ParameterAssignerSegment"),
             Ref("ExpressionSegment"),
+            parse_mode=ParseMode.GREEDY,
         ),
     )
 
