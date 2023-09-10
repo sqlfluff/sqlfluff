@@ -382,7 +382,6 @@ jobs:
         with:
           script: |
             // First list the existing comments
-
             const trigger_str = 'Coverage Results';
             console.log("Getting existing comments...");
 

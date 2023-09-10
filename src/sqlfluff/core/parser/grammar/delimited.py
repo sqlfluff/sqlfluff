@@ -12,7 +12,7 @@ from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
-from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
+from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.core.parser.types import MatchableType
 
 
@@ -44,7 +44,6 @@ class Delimited(OneOf):
         bracket_pairs_set: str = "bracket_pairs",
         allow_gaps: bool = True,
         optional: bool = False,
-        ephemeral_name: Optional[str] = None,
     ) -> None:
         if delimiter is None:  # pragma: no cover
             raise ValueError("Delimited grammars require a `delimiter`")
@@ -59,11 +58,9 @@ class Delimited(OneOf):
             reset_terminators=reset_terminators,
             allow_gaps=allow_gaps,
             optional=optional,
-            ephemeral_name=ephemeral_name,
         )
 
     @match_wrapper()
-    @allow_ephemeral
     def match(
         self,
         segments: Tuple[BaseSegment, ...],

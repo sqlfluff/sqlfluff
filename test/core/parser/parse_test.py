@@ -1,10 +1,10 @@
 """The Test file for The New Parser (Grammar Classes)."""
 
 import logging
+
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.linter.linter import Linter
-
-from sqlfluff.core.parser import BaseSegment, KeywordSegment, Anything, StringParser
+from sqlfluff.core.parser import Anything, BaseSegment, KeywordSegment, StringParser
 from sqlfluff.core.parser.context import ParseContext
 
 BarKeyword = StringParser("bar", KeywordSegment)
@@ -79,4 +79,11 @@ def test__parser__parse_error():
     assert violation.desc() == "Line 1, Position 1: Found unparsable section: 'SELECT'"
 
     # Check that the expected labels work for logging.
-    assert "Expected: 'select_clause'" in parsed.tree.stringify()
+    # TODO: This is more specific that in previous iterations, but we could
+    # definitely make this easier to read.
+    assert (
+        'Expected: "<Delimited: '
+        "[<Ref: 'SelectClauseElementSegment'>]> "
+        "after <KeywordSegment: ([L:  1, P:  1]) 'SELECT'>. "
+        "Found nothing."
+    ) in parsed.tree.stringify()
