@@ -305,9 +305,8 @@ class SetOperatorSegment(BaseSegment):
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         remove=[
             Ref("TransactionStatementSegment"),
         ],
     )
-    match_grammar = ansi.StatementSegment.match_grammar

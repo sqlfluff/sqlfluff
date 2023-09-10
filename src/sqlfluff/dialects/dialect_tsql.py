@@ -564,7 +564,7 @@ tsql_dialect.replace(
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    match_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("IfExpressionStatement"),
             Ref("DeclareStatementSegment"),
@@ -616,8 +616,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DescribeStatementSegment"),
         ],
     )
-
-    parse_grammar = match_grammar
 
 
 class GreaterThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):

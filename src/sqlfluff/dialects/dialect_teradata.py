@@ -710,7 +710,7 @@ class StatementSegment(ansi.StatementSegment):
 
     type = "statement"
 
-    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("TdCollectStatisticsStatementSegment"),
             Ref("BteqStatementSegment"),
@@ -722,8 +722,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SetQueryBandStatementSegment"),
         ],
     )
-
-    match_grammar = ansi.StatementSegment.match_grammar.copy()
 
 
 class QualifyClauseSegment(BaseSegment):

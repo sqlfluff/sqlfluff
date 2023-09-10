@@ -9,10 +9,10 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     Delimited,
+    MultiStringParser,
     OneOf,
     Ref,
     Sequence,
-    MultiStringParser,
 )
 from sqlfluff.core.parser.segments.raw import KeywordSegment
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -37,8 +37,7 @@ materialize_dialect.update_keywords_set_from_multiline_string(
 class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
-    match_grammar = ansi.StatementSegment.match_grammar
-    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("AlterConnectionRotateKeys"),
             Ref("AlterIndexStatementSegment"),
@@ -336,11 +335,7 @@ class CreateConnectionStatementSegment(BaseSegment):
                 "TUNNEL",
             ),
         ),
-        Bracketed(
-            Delimited(
-                Anything(),
-            )
-        ),
+        Bracketed(Anything()),
     )
 
 

@@ -553,5 +553,3 @@ class StatementSegment(ansi.StatementSegment):
         Ref("UpdateStatementSegment"),
         Bracketed(Ref("StatementSegment")),
     )
-
-    parse_grammar = match_grammar
