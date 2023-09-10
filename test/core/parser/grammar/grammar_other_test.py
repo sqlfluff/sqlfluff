@@ -102,10 +102,25 @@ def test__parser__grammar_greedyuntil_bracketed(bracket_seg_list, fresh_ansi_dia
     assert len(match.unmatched_segments) == 2
 
 
-def test__parser__grammar_anything(seg_list, fresh_ansi_dialect):
+@pytest.mark.parametrize(
+    "terminators,match_length",
+    [
+        # No terminators, full match.
+        ([], 6),
+        # If terminate with foo - match length 1.
+        (["foo"], 1),
+        # If terminate with foof - unterminated. Match everything
+        (["foof"], 6),
+    ],
+)
+def test__parser__grammar_anything(
+    terminators, match_length, seg_list, fresh_ansi_dialect
+):
     """Test the Anything grammar."""
     ctx = ParseContext(dialect=fresh_ansi_dialect)
-    assert Anything().match(seg_list, parse_context=ctx)
+    terms = [StringParser(kw, KeywordSegment) for kw in terminators]
+    result = Anything(terminators=terms).match(seg_list, parse_context=ctx)
+    assert len(result) == match_length
 
 
 def test__parser__grammar_nothing(seg_list, fresh_ansi_dialect):
