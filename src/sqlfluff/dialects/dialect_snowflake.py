@@ -9,7 +9,6 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
-    Anything,
     BaseSegment,
     Bracketed,
     CodeSegment,
@@ -1075,7 +1074,9 @@ class WithinGroupClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "WITHIN",
         "GROUP",
-        Bracketed(Ref("OrderByClauseSegment", optional=True), parse_mode=ParseMode.GREEDY),
+        Bracketed(
+            Ref("OrderByClauseSegment", optional=True), parse_mode=ParseMode.GREEDY
+        ),
     )
 
 

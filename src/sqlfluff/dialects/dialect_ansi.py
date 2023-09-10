@@ -30,7 +30,6 @@ from sqlfluff.core.parser import (
     Conditional,
     Dedent,
     Delimited,
-    GreedyUntil,
     ImplicitIndent,
     Indent,
     KeywordSegment,
