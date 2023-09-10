@@ -1,26 +1,25 @@
 """Tests for the Linter class and LintingResult class."""
 
-import os
 import logging
+import os
 from unittest.mock import patch
 
 import pytest
 
-from sqlfluff.core import Linter, FluffConfig
-from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.core.linter import runner
-from sqlfluff.core.errors import (
-    SQLFluffSkipFile,
-    SQLLexError,
-    SQLBaseError,
-    SQLLintError,
-    SQLFluffUserError,
-)
 from sqlfluff.cli.formatters import OutputStreamFormatter
 from sqlfluff.cli.outputstream import make_output_stream
-from sqlfluff.core.linter import LintingResult
+from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.core.errors import (
+    SQLBaseError,
+    SQLFluffSkipFile,
+    SQLFluffUserError,
+    SQLLexError,
+    SQLLintError,
+)
+from sqlfluff.core.linter import LintingResult, runner
 from sqlfluff.core.linter.runner import get_runner
-from sqlfluff.core.parser import GreedyUntil, Ref
+from sqlfluff.core.parser import BaseSegment, GreedyUntil, Ref
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 
 
@@ -547,20 +546,26 @@ def test_require_match_parse_grammar():
     """
     ansi_dialect = load_raw_dialect("ansi")
 
+    class FooSegment(BaseSegment):
+        match_grammar = GreedyUntil(Ref("DelimiterSegment"))
+        parse_grammar = GreedyUntil(Ref("DelimiterSegment"))
+
+    ansi_dialect.add(FooSegment=FooSegment)
+
     # Try to register a segment that defines match_grammar but not
     # parse_grammar.
-    class StatementSegment(ansi_dialect.get_segment("StatementSegment")):
+    class FooSegment1(FooSegment):
         match_grammar = GreedyUntil(Ref("DelimiterSegment"))
 
     with pytest.raises(ValueError) as e:
-        ansi_dialect.replace(StatementSegment=StatementSegment)
+        ansi_dialect.replace(FooSegment=FooSegment1)
     assert "needs to define 'parse_grammar'" in str(e.value)
 
     # Now try to register a segment that defines parse_grammar but not
     # match_grammar.
-    class StatementSegment(ansi_dialect.get_segment("StatementSegment")):
+    class FooSegment2(FooSegment):
         parse_grammar = GreedyUntil(Ref("DelimiterSegment"))
 
     with pytest.raises(ValueError) as e:
-        ansi_dialect.replace(StatementSegment=StatementSegment)
+        ansi_dialect.replace(FooSegment=FooSegment2)
     assert "needs to define 'match_grammar'" in str(e.value)
