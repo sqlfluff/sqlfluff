@@ -178,6 +178,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     *(seg.pos_marker for seg in segments)
                 )
 
+        assert not self.parse_grammar, "parse_grammar is deprecated."
+
         self.pos_marker = pos_marker
         self.segments: Tuple["BaseSegment", ...] = segments
         # Tracker for matching when things start moving.
