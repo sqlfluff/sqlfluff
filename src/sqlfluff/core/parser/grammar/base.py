@@ -255,8 +255,11 @@ class BaseGrammar(Matchable):
             return MatchResult.from_unmatched(segments), None
 
         # Prune available options, based on their simple representation for efficiency.
+        # NOTE: We're also passing in terminators as options.
         available_options = prune_options(
-            matchers, segments, parse_context=parse_context
+            matchers,
+            segments,
+            parse_context=parse_context,
         )
 
         # If we've pruned all the options, return no match
@@ -271,9 +274,6 @@ class BaseGrammar(Matchable):
         # than only being used in a per-grammar basis.
         if parse_context.terminators:
             parse_context.increment("ltm_calls_w_ctx_terms")
-            terminators = parse_context.terminators
-        else:
-            terminators = ()
 
         # If gaps are allowed, trim the ends.
         if trim_noncode:
@@ -315,6 +315,10 @@ class BaseGrammar(Matchable):
                 # Cache it for later to for performance.
                 parse_context.put_parse_cache(loc_key, matcher_key, res_match)
 
+            # No match. Skip this one.
+            if not res_match:
+                continue
+
             if res_match.is_complete():
                 # Just return it! (WITH THE RIGHT OTHER STUFF)
                 parse_context.increment("complete_match")
@@ -342,11 +346,11 @@ class BaseGrammar(Matchable):
                         # We're going to end anyway, so we can skip that step.
                         terminated = True
                         break
-                    elif terminators:
+                    elif parse_context.terminators:
                         _, segs, _ = trim_non_code_segments(
                             best_match[0].unmatched_segments
                         )
-                        for terminator in terminators:
+                        for terminator in parse_context.terminators:
                             terminator_match: MatchResult = terminator.match(
                                 segs, parse_context
                             )
