@@ -17,7 +17,6 @@ from sqlfluff.core.parser import (
     CodeSegment,
     Dedent,
     Delimited,
-    GreedyUntil,
     Indent,
     Matchable,
     MultiStringParser,
