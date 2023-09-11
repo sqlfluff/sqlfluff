@@ -11,9 +11,9 @@ as regular functions, `lambda`, etc.
 from typing import Callable, Optional
 
 from sqlfluff.core.parser import BaseSegment
+from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.utils.functional.raw_file_slices import RawFileSlices
 from sqlfluff.utils.functional.templated_file_slices import TemplatedFileSlices
-from sqlfluff.core.templaters.base import TemplatedFile
 
 
 def raw_is(*raws: str) -> Callable[[BaseSegment], bool]:  # pragma: no cover
@@ -64,15 +64,6 @@ def is_comment() -> Callable[[BaseSegment], bool]:
 
     def _(segment: BaseSegment) -> bool:
         return segment.is_comment
-
-    return _
-
-
-def is_expandable() -> Callable[[BaseSegment], bool]:
-    """Returns a function that checks if segment is expandable."""
-
-    def _(segment: BaseSegment) -> bool:
-        return segment.is_expandable
 
     return _
 

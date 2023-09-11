@@ -180,8 +180,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         self.pos_marker = pos_marker
         self.segments: Tuple["BaseSegment", ...] = segments
-        # A cache variable for expandable
-        self._is_expandable: Optional[bool] = None
         # Tracker for matching when things start moving.
         self.uuid = uuid or uuid4()
 
@@ -259,30 +257,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return [seg for seg in self.segments if not seg.is_type("comment")]
 
     # ################ PUBLIC PROPERTIES
-
-    @property
-    def is_expandable(self) -> bool:
-        """Return true if it is meaningful to call `expand` on this segment.
-
-        We need to do this recursively because even if *this* segment doesn't
-        need expanding, maybe one of its children does.
-
-        Once a segment is *not* expandable, it can never become so, which is
-        why the variable is cached.
-        """
-        # NOTE: This whole method is soon to be removed so coverage is
-        # starting to get patchy.
-        if self._is_expandable is False:
-            return self._is_expandable  # pragma: no cover
-        elif self.parse_grammar:
-            return True
-        elif self.segments and any(s.is_expandable for s in self.segments):
-            return True  # pragma: no cover
-        else:
-            # Cache the variable
-            self._is_expandable = False
-            return False
-
     @cached_property
     def is_code(self) -> bool:
         """Return True if this segment contains any code."""
@@ -429,47 +403,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         NB Override this for specific subclasses if we want extra output.
         """
         return ""
-
-    @classmethod
-    def expand(
-        cls, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
-    ) -> Tuple[BaseSegment, ...]:
-        """Expand the list of child segments using their `parse` methods."""
-        expanded_segments: Tuple[BaseSegment, ...] = ()
-
-        # Renders progress bar only for `BaseFileSegments`.
-        disable_progress_bar = (
-            not cls.class_is_type("file")
-            or progress_bar_configuration.disable_progress_bar
-        )
-
-        progressbar_segments = tqdm(
-            segments,
-            desc="parsing",
-            miniters=30,
-            leave=False,
-            disable=disable_progress_bar,
-        )
-
-        for stmt in progressbar_segments:
-            if not stmt.is_expandable:
-                parse_context.logger.info(
-                    "[PD:%s] Skipping expansion of %s...",
-                    parse_context.parse_depth,
-                    stmt,
-                )
-                expanded_segments += (stmt,)
-                continue
-
-            parse_depth_msg = "Parse Depth {}. Expanding: {}: {!r}".format(
-                parse_context.parse_depth,
-                stmt.__class__.__name__,
-                curtail_string(stmt.raw, length=40),
-            )
-            parse_context.logger.info(frame_msg(parse_depth_msg))
-            expanded_segments += stmt.parse(parse_context=parse_context)
-
-        return expanded_segments
 
     @classmethod
     def _position_segments(
@@ -1334,18 +1267,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     + post_nc
                 )
 
-        parse_depth_msg = (
-            "###\n#\n# Beginning Parse Depth {}: {}\n#\n###\nInitial Structure:\n"
-            "{}".format(
-                parse_context.parse_depth + 1, self.__class__.__name__, self.stringify()
-            )
-        )
-        parse_context.logger.debug(parse_depth_msg)
-        with parse_context.deeper_parse(name=self.__class__.__name__) as ctx:
-            self.segments = self.expand(
-                self.segments,
-                parse_context=ctx,
-            )
         # Once parsed, populate any parent relationships.
         for _seg in self.segments:
             _seg.set_as_parent()

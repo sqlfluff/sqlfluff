@@ -50,23 +50,6 @@ def test__parser__parse_parse(seg_list, caplog):
     assert isinstance(res.segments[0], KeywordSegment)
 
 
-def test__parser__parse_expand(seg_list):
-    """Test expand method on a real segment."""
-    ctx = ParseContext(dialect=None)
-    # Match the segment, and get the matched segments
-    segments = BasicSegment.match(seg_list[:1], parse_context=ctx).matched_segments
-    # Remind ourselves that this should be tuple containing a BasicSegment
-    assert isinstance(segments[0], BasicSegment)
-
-    # Now expand those segments, using the base class version (not that it should
-    # matter)
-    res = BasicSegment.expand(segments, parse_context=ctx)
-    # Check we get an iterable containing a BasicSegment
-    assert isinstance(res[0], BasicSegment)
-    # Check that we now have a keyword inside
-    assert isinstance(res[0].segments[0], KeywordSegment)
-
-
 def test__parser__parse_error():
     """Test that SQLParseError is raised for unparsable section."""
     in_str = "SELECT ;"

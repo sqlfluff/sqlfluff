@@ -54,8 +54,6 @@ class RawSegment(BaseSegment):
         # What should we trim off the ends to get to content
         self.trim_start = trim_start
         self.trim_chars = trim_chars
-        # A cache variable for expandable
-        self._is_expandable = None
         # Keep track of any source fixes
         self._source_fixes = source_fixes
         # UUID for matching
@@ -80,11 +78,6 @@ class RawSegment(BaseSegment):
     def matched_length(self) -> int:
         """Return the length of the segment in characters."""
         return len(self._raw)
-
-    @property
-    def is_expandable(self) -> bool:
-        """Return true if it is meaningful to call `expand` on this segment."""
-        return False
 
     @property
     def is_code(self) -> bool:
