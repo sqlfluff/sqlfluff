@@ -17,7 +17,6 @@ from sqlfluff.core.parser import (
     CodeSegment,
     Dedent,
     Delimited,
-    GreedyUntil,
     Indent,
     Matchable,
     MultiStringParser,
@@ -488,8 +487,7 @@ class ForInStatementsSegment(BaseSegment):
     """
 
     type = "for_in_statements"
-    match_grammar = GreedyUntil(Sequence("END", "FOR"))
-    parse_grammar = AnyNumberOf(
+    match_grammar = AnyNumberOf(
         Sequence(
             OneOf(
                 Ref("StatementSegment"),
@@ -497,6 +495,8 @@ class ForInStatementsSegment(BaseSegment):
             ),
             Ref("DelimiterGrammar"),
         ),
+        terminators=[Sequence("END", "FOR")],
+        parse_mode=ParseMode.GREEDY,
     )
 
 
@@ -530,8 +530,7 @@ class RepeatStatementsSegment(BaseSegment):
     """
 
     type = "repeat_statements"
-    match_grammar = GreedyUntil(Ref.keyword("UNTIL"))
-    parse_grammar = AnyNumberOf(
+    match_grammar = AnyNumberOf(
         Sequence(
             OneOf(
                 Ref("StatementSegment"),
@@ -539,6 +538,8 @@ class RepeatStatementsSegment(BaseSegment):
             ),
             Ref("DelimiterGrammar"),
         ),
+        terminators=["UNTIL"],
+        parse_mode=ParseMode.GREEDY,
     )
 
 
@@ -568,8 +569,7 @@ class IfStatementsSegment(BaseSegment):
     """
 
     type = "if_statements"
-    match_grammar = GreedyUntil(OneOf("ELSE", "ELSEIF", Sequence("END", "IF")))
-    parse_grammar = AnyNumberOf(
+    match_grammar = AnyNumberOf(
         Sequence(
             OneOf(
                 Ref("StatementSegment"),
@@ -577,6 +577,12 @@ class IfStatementsSegment(BaseSegment):
             ),
             Ref("DelimiterGrammar"),
         ),
+        terminators=[
+            "ELSE",
+            "ELSEIF",
+            Sequence("END", "IF"),
+        ],
+        parse_mode=ParseMode.GREEDY,
     )
 
 
@@ -623,8 +629,7 @@ class LoopStatementsSegment(BaseSegment):
     """
 
     type = "loop_statements"
-    match_grammar = GreedyUntil(Sequence("END", "LOOP"))
-    parse_grammar = AnyNumberOf(
+    match_grammar = AnyNumberOf(
         Sequence(
             OneOf(
                 Ref("StatementSegment"),
@@ -632,6 +637,8 @@ class LoopStatementsSegment(BaseSegment):
             ),
             Ref("DelimiterGrammar"),
         ),
+        terminators=[Sequence("END", "LOOP")],
+        parse_mode=ParseMode.GREEDY,
     )
 
 
@@ -659,12 +666,13 @@ class WhileStatementsSegment(BaseSegment):
     """
 
     type = "while_statements"
-    match_grammar = GreedyUntil(Sequence("END", "WHILE"))
-    parse_grammar = AnyNumberOf(
+    match_grammar = AnyNumberOf(
         Sequence(
             Ref("StatementSegment"),
             Ref("DelimiterGrammar"),
         ),
+        terminators=[Sequence("END", "WHILE")],
+        parse_mode=ParseMode.GREEDY,
     )
 
 
@@ -1735,8 +1743,11 @@ class PivotForClauseSegment(BaseSegment):
     """
 
     type = "pivot_for_clause"
-    match_grammar = GreedyUntil("IN")
-    parse_grammar = Ref("BaseExpressionElementGrammar")
+    match_grammar = Sequence(
+        Ref("BaseExpressionElementGrammar"),
+        terminators=["IN"],
+        parse_mode=ParseMode.GREEDY,
+    )
 
 
 class FromPivotExpressionSegment(BaseSegment):
@@ -2084,12 +2095,13 @@ class ProcedureStatements(BaseSegment):
     """
 
     type = "procedure_statements"
-    match_grammar = GreedyUntil("END")
-    parse_grammar = AnyNumberOf(
+    match_grammar = AnyNumberOf(
         Sequence(
             Ref("StatementSegment"),
             Ref("DelimiterGrammar"),
         ),
+        terminators=["END"],
+        parse_mode=ParseMode.GREEDY,
     )
 
 
