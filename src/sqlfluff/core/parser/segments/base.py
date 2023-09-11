@@ -1499,12 +1499,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         # Rather than fix that here, we simply assert that it has been
         # done. This will raise issues in testing, but shouldn't in use.
-        if (
-            # TODO: Rethink this assertion once parse_grammar is gone.
-            self.parse_grammar
-            and not self.can_start_end_non_code
-            and seg_buffer
-        ):  # pragma: no cover
+        if not r.can_start_end_non_code and seg_buffer:
             assert not self._find_start_or_end_non_code(seg_buffer), (
                 "Found inappropriate fix application: inappropriate "
                 "whitespace positioning. Post `_choose_anchor_segment`. "
