@@ -3437,7 +3437,7 @@ class FileSegment(BaseFileSegment):
     A semicolon is the terminator of the statement within the function / script
     """
 
-    parse_grammar = Delimited(
+    match_grammar = Delimited(
         Ref("FunctionScriptStatementSegment"),
         Ref("StatementSegment"),
         delimiter=OneOf(

@@ -419,7 +419,7 @@ class FileSegment(BaseFileSegment):
 
     # NB: We don't need a match_grammar here because we're
     # going straight into instantiating it directly usually.
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         Sequence(
             OneOf(
                 Ref("MultiStatementSegment"),

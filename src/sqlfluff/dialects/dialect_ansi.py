@@ -735,9 +735,7 @@ class FileSegment(BaseFileSegment):
     has no match_grammar.
     """
 
-    # NB: We don't need a match_grammar here because we're
-    # going straight into instantiating it directly usually.
-    parse_grammar: Optional[Matchable] = Delimited(
+    match_grammar = Delimited(
         Ref("StatementSegment"),
         delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
         allow_gaps=True,
