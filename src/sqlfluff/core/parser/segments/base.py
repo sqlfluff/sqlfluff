@@ -139,7 +139,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # `type` should be the *category* of this kind of segment
     type: ClassVar[str] = "base"
     _class_types: ClassVar[Set[str]]  # NOTE: Set by SegmentMetaclass
-    parse_grammar: Optional[Matchable] = None
     # We define the type here but no value. Subclasses must provide a value.
     match_grammar: Matchable
     comment_separate = False
@@ -178,7 +177,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     *(seg.pos_marker for seg in segments)
                 )
 
-        assert not self.parse_grammar, "parse_grammar is deprecated."
+        assert not hasattr(self, "parse_grammar"), "parse_grammar is deprecated."
 
         self.pos_marker = pos_marker
         self.segments: Tuple["BaseSegment", ...] = segments
@@ -1322,8 +1321,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # Rather than fix that here, we simply assert that it has been
         # done. This will raise issues in testing, but shouldn't in use.
         if (
-            # TODO: Rethink this assertion once parse_grammar is gone.
-            self.parse_grammar
             and not self.can_start_end_non_code
             and seg_buffer
         ):  # pragma: no cover

@@ -599,30 +599,16 @@ class Bracketed(Sequence):
         # We need to realign the meta segments so the pos markers are correct.
         # If we've already got indents, don't add more (we only need to check
         # the initial non-code section).
-        if any(isinstance(s, Indent) for s in pre_segs):  # pragma: no cover
-            # NOTE: In single pass parsing, this is no longer required.
-            # While it's not covered any longer in tests, it is still
-            # theoretically reachable. I'll remove this once parse_grammar
-            # is fully gone.
-            bracket_segment.segments = BaseSegment._position_segments(
-                bracket_segment.start_bracket
-                + pre_segs
-                + content_match.all_segments()
-                + post_segs
-                + bracket_segment.end_bracket
-            )
-        # Append some indent and dedent tokens at the start and the end.
-        else:
-            bracket_segment.segments = BaseSegment._position_segments(
-                # NB: The nc segments go *outside* the indents.
-                bracket_segment.start_bracket
-                + (Indent(),)  # Add a meta indent here
-                + pre_segs
-                + content_match.all_segments()
-                + post_segs
-                + (Dedent(),)  # Add a meta indent here
-                + bracket_segment.end_bracket
-            )
+        bracket_segment.segments = BaseSegment._position_segments(
+            # NB: The nc segments go *outside* the indents.
+            bracket_segment.start_bracket
+            + (Indent(),)  # Add a meta indent here
+            + pre_segs
+            + content_match.all_segments()
+            + post_segs
+            + (Dedent(),)  # Add a meta indent here
+            + bracket_segment.end_bracket
+        )
         return MatchResult(
             (bracket_segment,) if bracket_persists else bracket_segment.segments,
             trailing_segments,

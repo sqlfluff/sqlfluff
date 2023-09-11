@@ -68,7 +68,9 @@ class BaseFileSegment(BaseSegment):
             return cls(segments, fname=fname)
 
         # Match the middle
-        assert not cls.parse_grammar, "`parse_grammar` is deprecated on FileSegment."
+        assert not hasattr(
+            cls, "parse_grammar"
+        ), "`parse_grammar` is deprecated on FileSegment."
         assert cls.match_grammar
         # NOTE: Don't call .match() on the segment class itself, but go
         # straight to the match grammar inside.
