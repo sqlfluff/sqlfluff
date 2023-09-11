@@ -47,7 +47,7 @@ class Parser:
         )
 
         # Basic Validation, that we haven't dropped anything.
-        check_still_complete(tuple(segments), parsed, ())
+        check_still_complete(tuple(segments), (root,), ())
 
         if parse_statistics:  # pragma: no cover
             # NOTE: We use ctx.logger.warning here to output the statistics.
