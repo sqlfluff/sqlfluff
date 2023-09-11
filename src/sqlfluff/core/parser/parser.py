@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Optional, Sequence, Type
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser.context import ParseContext
+from sqlfluff.core.parser.helpers import check_still_complete
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.segments import BaseFileSegment, BaseSegment
@@ -42,6 +43,9 @@ class Parser:
         # instantiation.
         ctx = ParseContext.from_config(config=self.config)
         parsed = root_segment.parse(parse_context=ctx)
+
+        # Basic Validation, that we haven't dropped anything.
+        check_still_complete(segments, (root,), ())
 
         if parse_statistics:  # pragma: no cover
             # NOTE: We use ctx.logger.warning here to output the statistics.
