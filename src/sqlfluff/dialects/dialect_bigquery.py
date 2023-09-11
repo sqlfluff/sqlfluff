@@ -638,7 +638,7 @@ class LoopStatementsSegment(BaseSegment):
             ),
             Ref("DelimiterGrammar"),
         ),
-        terminators=["END", "LOOP"],
+        terminators=[Sequence("END", "LOOP")],
         parse_mode=ParseMode.GREEDY,
     )
 

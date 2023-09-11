@@ -257,7 +257,7 @@ class BaseGrammar(Matchable):
         # Prune available options, based on their simple representation for efficiency.
         # NOTE: We're also passing in terminators as options.
         available_options = prune_options(
-            (*matchers, *parse_context.terminators),
+            matchers,
             segments,
             parse_context=parse_context,
         )
@@ -318,11 +318,6 @@ class BaseGrammar(Matchable):
             # No match. Skip this one.
             if not res_match:
                 continue
-
-            # If there's a match but it's a terminator, we're done.
-            if matcher in parse_context.terminators:
-                # We hit a terminator. No match.
-                return MatchResult.from_unmatched(segments), None
 
             if res_match.is_complete():
                 # Just return it! (WITH THE RIGHT OTHER STUFF)

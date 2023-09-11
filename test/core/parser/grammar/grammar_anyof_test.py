@@ -175,15 +175,6 @@ def test__parser__grammar_anysetof(generate_test_segments):
             {"max_times": 1},
             (("keyword", "a"),),
         ),
-        # 5. Terminated match
-        (
-            ParseMode.STRICT,
-            ["b", "a"],
-            ["b"],
-            slice(None, None),
-            {},
-            (("keyword", "a"),),
-        ),
         # #####
         # Greedy matches
         # #####
@@ -205,7 +196,7 @@ def test__parser__grammar_anysetof(generate_test_segments):
             {},
             (("unparsable", (("raw", "a"),)),),
         ),
-        # 2. Terminated, but not matching the first element.
+        # 3. Terminated, but only a partial match.
         (
             ParseMode.GREEDY,
             ["a"],
