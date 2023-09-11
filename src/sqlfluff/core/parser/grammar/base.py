@@ -650,10 +650,7 @@ class Anything(BaseGrammar):
         if not terminators:
             return MatchResult.from_matched(segments)
 
-        _match = greedy_match(segments, parse_context, terminators)
-        if not _match:
-            return MatchResult.from_matched(segments)
-        return _match
+        return greedy_match(segments, parse_context, terminators)
 
 
 class Nothing(BaseGrammar):
