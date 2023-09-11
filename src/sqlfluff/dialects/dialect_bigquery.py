@@ -17,13 +17,13 @@ from sqlfluff.core.parser import (
     CodeSegment,
     Dedent,
     Delimited,
-    GreedyUntil,
     Indent,
     Matchable,
-    TypedParser,
+    MultiStringParser,
     Nothing,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
@@ -32,13 +32,13 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
-    MultiStringParser,
+    TypedParser,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_bigquery_keywords import (
     bigquery_reserved_keywords,
     bigquery_unreserved_keywords,
 )
-from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 bigquery_dialect = ansi_dialect.copy_as("bigquery")
@@ -380,8 +380,7 @@ class SetExpressionSegment(ansi.SetExpressionSegment):
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Enhance `SELECT` statement to include QUALIFY."""
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar
-    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
     )
@@ -390,8 +389,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Enhance unordered `SELECT` statement to include QUALIFY."""
 
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar
-    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OverlapsClauseSegment", optional=True),
     )
@@ -489,8 +487,7 @@ class ForInStatementsSegment(BaseSegment):
     """
 
     type = "for_in_statements"
-    match_grammar = GreedyUntil(Sequence("END", "FOR"))
-    parse_grammar = AnyNumberOf(
+    match_grammar = AnyNumberOf(
         Sequence(
             OneOf(
                 Ref("StatementSegment"),
@@ -498,6 +495,8 @@ class ForInStatementsSegment(BaseSegment):
             ),
             Ref("DelimiterGrammar"),
         ),
+        terminators=[Sequence("END", "FOR")],
+        parse_mode=ParseMode.GREEDY,
     )
 
 
@@ -531,8 +530,7 @@ class RepeatStatementsSegment(BaseSegment):
     """
 
     type = "repeat_statements"
-    match_grammar = GreedyUntil(Ref.keyword("UNTIL"))
-    parse_grammar = AnyNumberOf(
+    match_grammar = AnyNumberOf(
         Sequence(
             OneOf(
                 Ref("StatementSegment"),
@@ -540,6 +538,8 @@ class RepeatStatementsSegment(BaseSegment):
             ),
             Ref("DelimiterGrammar"),
         ),
+        terminators=["UNTIL"],
+        parse_mode=ParseMode.GREEDY,
     )
 
 
@@ -569,8 +569,7 @@ class IfStatementsSegment(BaseSegment):
     """
 
     type = "if_statements"
-    match_grammar = GreedyUntil(OneOf("ELSE", "ELSEIF", Sequence("END", "IF")))
-    parse_grammar = AnyNumberOf(
+    match_grammar = AnyNumberOf(
         Sequence(
             OneOf(
                 Ref("StatementSegment"),
@@ -578,6 +577,12 @@ class IfStatementsSegment(BaseSegment):
             ),
             Ref("DelimiterGrammar"),
         ),
+        terminators=[
+            "ELSE",
+            "ELSEIF",
+            Sequence("END", "IF"),
+        ],
+        parse_mode=ParseMode.GREEDY,
     )
 
 
@@ -624,8 +629,7 @@ class LoopStatementsSegment(BaseSegment):
     """
 
     type = "loop_statements"
-    match_grammar = GreedyUntil(Sequence("END", "LOOP"))
-    parse_grammar = AnyNumberOf(
+    match_grammar = AnyNumberOf(
         Sequence(
             OneOf(
                 Ref("StatementSegment"),
@@ -633,6 +637,8 @@ class LoopStatementsSegment(BaseSegment):
             ),
             Ref("DelimiterGrammar"),
         ),
+        terminators=[Sequence("END", "LOOP")],
+        parse_mode=ParseMode.GREEDY,
     )
 
 
@@ -660,12 +666,13 @@ class WhileStatementsSegment(BaseSegment):
     """
 
     type = "while_statements"
-    match_grammar = GreedyUntil(Sequence("END", "WHILE"))
-    parse_grammar = AnyNumberOf(
+    match_grammar = AnyNumberOf(
         Sequence(
             Ref("StatementSegment"),
             Ref("DelimiterGrammar"),
         ),
+        terminators=[Sequence("END", "WHILE")],
+        parse_mode=ParseMode.GREEDY,
     )
 
 
@@ -928,9 +935,9 @@ class FunctionSegment(ansi.FunctionSegment):
                         Ref("DatePartWeekSegment"),
                         Ref(
                             "FunctionContentsGrammar",
-                            ephemeral_name="FunctionContentsGrammar",
                         ),
                     ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
             Sequence(
@@ -948,8 +955,8 @@ class FunctionSegment(ansi.FunctionSegment):
                             "FunctionContentsGrammar",
                             # The brackets might be empty for some functions...
                             optional=True,
-                            ephemeral_name="FunctionContentsGrammar",
-                        )
+                        ),
+                        parse_mode=ParseMode.GREEDY,
                     ),
                 ),
                 # Functions returning ARRAYS in BigQuery can have optional
@@ -1736,8 +1743,11 @@ class PivotForClauseSegment(BaseSegment):
     """
 
     type = "pivot_for_clause"
-    match_grammar = GreedyUntil("IN")
-    parse_grammar = Ref("BaseExpressionElementGrammar")
+    match_grammar = Sequence(
+        Ref("BaseExpressionElementGrammar"),
+        terminators=["IN"],
+        parse_mode=ParseMode.GREEDY,
+    )
 
 
 class FromPivotExpressionSegment(BaseSegment):
@@ -2085,12 +2095,13 @@ class ProcedureStatements(BaseSegment):
     """
 
     type = "procedure_statements"
-    match_grammar = GreedyUntil("END")
-    parse_grammar = AnyNumberOf(
+    match_grammar = AnyNumberOf(
         Sequence(
             Ref("StatementSegment"),
             Ref("DelimiterGrammar"),
         ),
+        terminators=["END"],
+        parse_mode=ParseMode.GREEDY,
     )
 
 

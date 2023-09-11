@@ -13,7 +13,6 @@ from sqlfluff.core.parser.grammar import (
     OptionallyBracketed,
     Ref,
     Sequence,
-    StartsWith,
 )
 from sqlfluff.core.parser.lexer import Lexer, RegexLexer, StringLexer
 from sqlfluff.core.parser.markers import PositionMarker
@@ -42,6 +41,7 @@ from sqlfluff.core.parser.segments import (
     UnlexableSegment,
     WhitespaceSegment,
 )
+from sqlfluff.core.parser.types import ParseMode
 
 __all__ = (
     "BaseSegment",
@@ -61,7 +61,6 @@ __all__ = (
     "SegmentGenerator",
     "Sequence",
     "GreedyUntil",
-    "StartsWith",
     "OneOf",
     "Delimited",
     "Bracketed",
@@ -82,4 +81,5 @@ __all__ = (
     "RegexLexer",
     "Parser",
     "Matchable",
+    "ParseMode",
 )

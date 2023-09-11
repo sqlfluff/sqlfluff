@@ -16,7 +16,6 @@ from sqlfluff.core.parser import (
     OneOf,
     Ref,
     Sequence,
-    StartsWith,
     TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -77,7 +76,7 @@ trino_dialect.replace(
         Ref("FrameClauseUnitGrammar"),
         "FETCH",
     ),
-    SelectClauseElementTerminatorGrammar=OneOf(
+    SelectClauseTerminatorGrammar=OneOf(
         "FROM",
         "WHERE",
         Sequence("ORDER", "BY"),
@@ -215,23 +214,6 @@ class DatatypeSegment(BaseSegment):
     )
 
 
-class SelectClauseSegment(ansi.SelectClauseSegment):
-    """A group of elements in a select target statement."""
-
-    match_grammar: Matchable = StartsWith(
-        "SELECT",
-        terminators=[
-            "FROM",
-            "WHERE",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-            "FETCH",
-        ],
-    )
-    parse_grammar = ansi.SelectClauseSegment.parse_grammar
-
-
 class OverlapsClauseSegment(BaseSegment):
     """An `OVERLAPS` clause like in `SELECT."""
 
@@ -242,8 +224,7 @@ class OverlapsClauseSegment(BaseSegment):
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """A `SELECT` statement without any ORDER clauses or later."""
 
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar
-    parse_grammar: Matchable = Sequence(
+    match_grammar: Matchable = Sequence(
         Ref("SelectClauseSegment"),
         # Dedent for the indent in the select clause.
         # It's here so that it can come AFTER any whitespace.
@@ -261,10 +242,7 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
 
     match_grammar = Sequence(
         "VALUES",
-        Delimited(
-            Ref("ExpressionSegment"),
-            ephemeral_name="ValuesClauseElements",
-        ),
+        Delimited(Ref("ExpressionSegment")),
     )
 
 

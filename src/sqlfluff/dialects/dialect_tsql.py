@@ -22,6 +22,7 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
@@ -430,19 +431,6 @@ tsql_dialect.replace(
             optional=True,
         ),
     ),
-    # Overriding SelectClauseSegmentGrammar to remove Delimited logic which assumes
-    # statements have been delimited
-    SelectClauseSegmentGrammar=Sequence(
-        "SELECT",
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        Delimited(
-            Ref("SelectClauseElementSegment"),
-        ),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
-    ),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
         Sequence("GROUP", "BY"),
@@ -545,8 +533,8 @@ tsql_dialect.replace(
                         ),  # WHERE (a, substr(b,1,3)) IN (select c,d FROM...)
                         Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
                     ),
-                    ephemeral_name="BracketedExpression",
                 ),
+                parse_mode=ParseMode.GREEDY,
             ),
             # Allow potential select statement without brackets
             Ref("SelectStatementSegment"),
@@ -739,12 +727,22 @@ class SelectClauseModifierSegment(BaseSegment):
 class SelectClauseSegment(BaseSegment):
     """A group of elements in a select target statement.
 
-    Overriding ANSI to remove StartsWith logic which assumes statements have been
+    Overriding ANSI to remove greedy logic which assumes statements have been
     delimited
     """
 
     type = "select_clause"
-    match_grammar = Ref("SelectClauseSegmentGrammar")
+    match_grammar: Matchable = Sequence(
+        "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        # NOTE: Don't allow trailing.
+        Delimited(Ref("SelectClauseElementSegment")),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
+        # NOTE: In TSQL - this grammar is NOT greedy.
+    )
 
 
 class UnorderedSelectStatementSegment(BaseSegment):
@@ -753,7 +751,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
     We need to change ANSI slightly to remove LimitClauseSegment
     and NamedWindowSegment which don't exist in T-SQL.
 
-    We also need to get away from ANSI's use of StartsWith.
+    We also need to get away from ANSI's use of terminators.
     There's not a clean list of terminators that can be used
     to identify the end of a TSQL select statement.  Semi-colon is optional.
     """
@@ -775,7 +773,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
 class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement.
 
-    Overriding ANSI definition to remove StartsWith logic that doesn't handle optional
+    Overriding ANSI definition to remove terminator logic that doesn't handle optional
     delimitation well.
     """
 
@@ -880,7 +878,7 @@ class WithCompoundStatementSegment(BaseSegment):
 
     `WITH tab (col1,col2) AS (SELECT a,b FROM x)`
 
-    Overriding ANSI to remove the greedy matching of StartsWith().
+    Overriding ANSI to remove the greedy use of terminators.
     """
 
     type = "with_compound_statement"
@@ -908,7 +906,7 @@ class SelectStatementSegment(BaseSegment):
     We need to change ANSI slightly to remove LimitClauseSegment
     and NamedWindowSegment which don't exist in T-SQL.
 
-    We also need to get away from ANSI's use of StartsWith.
+    We also need to get away from ANSI's use of terminators.
     There's not a clean list of terminators that can be used
     to identify the end of a TSQL select statement.  Semi-colon is optional.
     """
@@ -939,7 +937,7 @@ class WhereClauseSegment(BaseSegment):
     """A `WHERE` clause like in `SELECT` or `INSERT`.
 
     Overriding ANSI in order to get away from the use of
-    StartsWith. There's not a clean list of terminators that can be used
+    terminators. There's not a clean list of terminators that can be used
     to identify the end of a TSQL select statement.  Semi-colon is optional.
     """
 
@@ -2825,9 +2823,9 @@ class FunctionSegment(BaseSegment):
                         "FunctionContentsGrammar",
                         # The brackets might be empty for some functions...
                         optional=True,
-                        ephemeral_name="FunctionContentsGrammar",
                     ),
-                )
+                ),
+                parse_mode=ParseMode.GREEDY,
             ),
         ),
         Sequence(
@@ -2871,9 +2869,9 @@ class FunctionSegment(BaseSegment):
                         "FunctionContentsGrammar",
                         # The brackets might be empty for some functions...
                         optional=True,
-                        ephemeral_name="FunctionContentsGrammar",
                     ),
                 ),
+                parse_mode=ParseMode.GREEDY,
             ),
             Ref("WithinGroupClause", optional=True),
         ),
@@ -2898,8 +2896,8 @@ class FunctionSegment(BaseSegment):
                     "FunctionContentsGrammar",
                     # The brackets might be empty for some functions...
                     optional=True,
-                    ephemeral_name="FunctionContentsGrammar",
-                )
+                ),
+                parse_mode=ParseMode.GREEDY,
             ),
             Ref("PostFunctionGrammar", optional=True),
         ),
@@ -3636,7 +3634,7 @@ class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/statements/delete-transact-sql?view=sql-server-ver15
-    Overriding ANSI to remove StartsWith logic which assumes statements have been
+    Overriding ANSI to remove greedy logic which assumes statements have been
     delimited and to allow for Azure Synapse Analytics-specific DELETE statements
     """
 
@@ -3819,7 +3817,7 @@ class GroupByClauseSegment(BaseSegment):
 class HavingClauseSegment(BaseSegment):
     """A `HAVING` clause like in `SELECT`.
 
-    Overriding ANSI to remove StartsWith with greedy terminator
+    Overriding ANSI to remove greedy terminator
     """
 
     type = "having_clause"
@@ -3834,7 +3832,7 @@ class HavingClauseSegment(BaseSegment):
 class OrderByClauseSegment(BaseSegment):
     """A `ORDER BY` clause like in `SELECT`.
 
-    Overriding ANSI to remove StartsWith logic which assumes statements have been
+    Overriding ANSI to remove Greedy logic which assumes statements have been
     delimited
     """
 
@@ -4658,7 +4656,6 @@ class WindowSpecificationSegment(BaseSegment):
         Ref("OrderByClauseSegment", optional=True),
         Ref("FrameClauseSegment", optional=True),
         optional=True,
-        ephemeral_name="OverClauseContent",
     )
 
 
