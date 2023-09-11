@@ -1488,7 +1488,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 # Pass through any additional kwargs
                 **{k: getattr(self, k) for k in self.additional_kwargs},
             )
-            if fixes_applied:
+            # Only validate if there's a match_grammar. Otherwise we may get
+            # strange results (for example with the BracketedSegment).
+            if fixes_applied and hasattr(r.__class__, "match_grammar"):
                 self._validate_segment_after_fixes(rule_code, dialect, fixes_applied, r)
             # Return the new segment and any non-code that needs to bubble up
             # the tree.
@@ -1518,20 +1520,22 @@ class BaseSegment(metaclass=SegmentMetaclass):
     ) -> None:
         """Checks correctness of new segment against match or parse grammar."""
         ctx = ParseContext(dialect=dialect)
+        # We're going to check the rematch without any metas because the
+        # matching routines will assume they haven't already been added.
+        # We also strip any non-code from the ends which might have moved.
+        raw_content = tuple(s for s in segment.raw_segments if not s.is_meta)
+        _, trimmed_content, _ = trim_non_code_segments(raw_content)
         try:
-            # :HACK: Calling parse() corrupts the segment 'r'
-            # in some cases, e.g. adding additional Dedent child
-            # segments. Here, we work around this by calling
-            # parse() on a "backup copy" of the segment.
-            segment_copy = segment.copy()
-            segment_copy.parse(ctx)
-        except ValueError:  # pragma: no cover
+            rematch = segment.match(trimmed_content, ctx)
+            assert rematch.is_complete()
+        except (ValueError, AssertionError):  # pragma: no cover
             self._log_apply_fixes_check_issue(
                 "After %s fixes were applied, segment %r failed the "
-                "parse() check. Fixes: %r",
+                "rematch check. Fixes: %r. New raw: %r",
                 rule_code,
-                segment_copy,
+                segment,
                 fixes_applied,
+                segment.raw,
             )
 
     @staticmethod
