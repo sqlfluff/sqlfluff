@@ -1343,12 +1343,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         new_seg.set_as_parent(recurse=False)
         # Only validate if there's a match_grammar. Otherwise we may get
         # strange results (for example with the BracketedSegment).
-        if requires_validate and (
-            hasattr(new_seg, "match_grammar")
-            # TODO: We temporarily allow parse_grammar here until the file segment
-            # has been migrated. Then we should remove this.
-            or new_seg.parse_grammar
-        ):
+        if requires_validate and hasattr(new_seg, "match_grammar"):
             validated = self._validate_segment_after_fixes(dialect, new_seg)
         else:
             validated = not requires_validate
@@ -1389,12 +1384,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         if not trimmed_content and self.can_start_end_non_code:
             # Edge case for empty segments which are allowed to be empty.
             return True
-        if segment.parse_grammar:
-            # TODO: We should remove this clause when the file segment
-            # is migrated.
-            rematch = segment.parse_grammar.match(trimmed_content, ctx)
-        else:
-            rematch = segment.match(trimmed_content, ctx)
+        rematch = segment.match(trimmed_content, ctx)
         if not rematch.is_complete():
             linter_logger.debug(
                 f"Validation Check Fail for {segment}.Incomplete Match. "
