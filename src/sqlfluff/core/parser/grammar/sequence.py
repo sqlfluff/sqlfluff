@@ -27,7 +27,6 @@ from sqlfluff.core.parser.segments import (
     BracketedSegment,
     Dedent,
     Indent,
-    MetaSegment,
     UnparsableSegment,
 )
 from sqlfluff.core.parser.types import MatchableType, ParseMode, SimpleHintType
@@ -596,8 +595,9 @@ class Bracketed(Sequence):
 
         # Reconstruct the bracket segment post match.
         # We need to realign the meta segments so the pos markers are correct.
-        # If we've already got indents, don't add more.
-        if any(isinstance(s, Indent) for s in bracket_segment.segments):
+        # If we've already got indents, don't add more (we only need to check
+        # the initial non-code section).
+        if any(isinstance(s, Indent) for s in pre_segs):
             bracket_segment.segments = BaseSegment._position_segments(
                 bracket_segment.start_bracket
                 + pre_segs
