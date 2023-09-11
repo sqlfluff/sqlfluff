@@ -276,7 +276,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
         elif self.parse_grammar:
             return True
         elif self.segments and any(s.is_expandable for s in self.segments):
-            return True
+            # NOTE: This whole method is soon to be removed so coverage is
+            # starting to get patchy.
+            return True  # pragma: no cover
         else:
             # Cache the variable
             self._is_expandable = False
