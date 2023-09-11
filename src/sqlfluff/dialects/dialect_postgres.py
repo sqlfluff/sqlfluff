@@ -297,6 +297,18 @@ postgres_dialect.add(
     DollarNumericLiteralSegment=TypedParser(
         "dollar_numeric_literal", ansi.LiteralSegment, type="dollar_numeric_literal"
     ),
+    ForeignDataWrapperGrammar=Sequence("FOREIGN", "DATA", "WRAPPER"),
+    OptionsListGrammar=Sequence(
+        Delimited(Ref("NakedIdentifierFullSegment"), Ref("QuotedLiteralSegment"))
+    ),
+    OptionsGrammar=Sequence(
+        "OPTIONS", Bracketed(AnyNumberOf(Ref("OptionsListGrammar")))
+    ),
+    CreateUserMappingGrammar=Sequence("CREATE", "USER", "MAPPING"),
+    SessionInformationUserFunctionsGrammar=OneOf(
+        "USER", "CURRENT_ROLE", "CURRENT_USER", "SESSION_USER"
+    ),
+    ImportForeignSchemaGrammar=Sequence("IMPORT", "FOREIGN", "SCHEMA"),
 )
 
 postgres_dialect.replace(
@@ -3951,6 +3963,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ClusterStatementSegment"),
             Ref("CreateCollationStatementSegment"),
             Ref("CallStoredProcedureSegment"),
+            Ref("CreateServerStatementSegment"),
+            Ref("CreateUserMappingStatementSegment"),
+            Ref("ImportForeignSchemaStatementSegment"),
         ],
     )
 
@@ -5247,4 +5262,79 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
         Bracketed(Ref("MergeStatementSegment")),
+    )
+
+
+class ServerReferenceSegment(ObjectReferenceSegment):
+    """A reference to a server."""
+
+    type = "server_reference"
+
+
+class CreateServerStatementSegment(BaseSegment):
+    """Create server statement.
+
+    https://www.postgresql.org/docs/15/sql-createserver.html
+    """
+
+    type = "create_server_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SERVER",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ServerReferenceSegment"),
+        Sequence("TYPE", Ref("QuotedLiteralSegment"), optional=True),
+        Sequence("VERSION", Ref("VersionIdentifierSegment"), optional=True),
+        Ref("ForeignDataWrapperGrammar"),
+        Ref("ObjectReferenceSegment"),
+        Ref("OptionsGrammar", optional=True),
+    )
+
+
+class CreateUserMappingStatementSegment(BaseSegment):
+    """Create user mapping statement.
+
+    https://www.postgresql.org/docs/15/sql-createusermapping.html
+    """
+
+    type = "create_user_mapping_statement"
+
+    match_grammar: Matchable = Sequence(
+        Ref("CreateUserMappingGrammar"),
+        Ref("IfNotExistsGrammar", optional=True),
+        "FOR",
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Ref("SessionInformationUserFunctionsGrammar"),
+            "PUBLIC",
+        ),
+        "SERVER",
+        Ref("ServerReferenceSegment"),
+        Ref("OptionsGrammar", optional=True),
+    )
+
+
+class ImportForeignSchemaStatementSegment(BaseSegment):
+    """Import foreign schema statement.
+
+    https://www.postgresql.org/docs/15/sql-importforeignschema.html
+    """
+
+    type = "import_foreign_schema_statement"
+
+    match_grammar: Matchable = Sequence(
+        Ref("ImportForeignSchemaGrammar"),
+        Ref("SchemaReferenceSegment"),
+        Sequence(
+            OneOf(Sequence("LIMIT", "TO"), "EXCEPT"),
+            Bracketed(Delimited(Ref("NakedIdentifierFullSegment"))),
+            optional=True,
+        ),
+        "FROM",
+        "SERVER",
+        Ref("ServerReferenceSegment"),
+        "INTO",
+        Ref("SchemaReferenceSegment"),
+        Ref("OptionsGrammar", optional=True),
     )
