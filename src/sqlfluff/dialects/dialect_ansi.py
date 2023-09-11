@@ -30,7 +30,6 @@ from sqlfluff.core.parser import (
     Conditional,
     Dedent,
     Delimited,
-    GreedyUntil,
     ImplicitIndent,
     Indent,
     KeywordSegment,
@@ -3901,9 +3900,7 @@ class StatementSegment(BaseSegment):
     """A generic segment, to any of its child subsegments."""
 
     type = "statement"
-    match_grammar: Matchable = GreedyUntil(Ref("DelimiterGrammar"))
-
-    parse_grammar: Matchable = OneOf(
+    match_grammar: Matchable = OneOf(
         Ref("SelectableGrammar"),
         Ref("MergeStatementSegment"),
         Ref("InsertStatementSegment"),
@@ -3943,6 +3940,7 @@ class StatementSegment(BaseSegment):
         Ref("DropSequenceStatementSegment"),
         Ref("CreateTriggerStatementSegment"),
         Ref("DropTriggerStatementSegment"),
+        terminators=[Ref("DelimiterGrammar")],
     )
 
     def get_table_references(self) -> Set[str]:

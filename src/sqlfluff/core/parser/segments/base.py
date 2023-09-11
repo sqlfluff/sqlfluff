@@ -276,7 +276,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
         elif self.parse_grammar:
             return True
         elif self.segments and any(s.is_expandable for s in self.segments):
-            return True
+            # NOTE: This whole method is soon to be removed so coverage is
+            # starting to get patchy.
+            return True  # pragma: no cover
         else:
             # Cache the variable
             self._is_expandable = False
@@ -1469,7 +1471,12 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
             # Rather than fix that here, we simply assert that it has been
             # done. This will raise issues in testing, but shouldn't in use.
-            if r.parse_grammar and not r.can_start_end_non_code and seg_buffer:
+            if (
+                # TODO: Rethink this assertion once parse_grammar is gone.
+                r.parse_grammar
+                and not r.can_start_end_non_code
+                and seg_buffer
+            ):  # pragma: no cover
                 assert not self._find_start_or_end_non_code(seg_buffer), (
                     "Found inappropriate fix application: inappropriate "
                     "whitespace positioning. Post `_choose_anchor_segment`. "

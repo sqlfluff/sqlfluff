@@ -9,7 +9,6 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
-    Anything,
     BaseSegment,
     Bracketed,
     CodeSegment,
@@ -961,8 +960,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
 class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
-    match_grammar = ansi.StatementSegment.match_grammar
-    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("AccessStatementSegment"),
             Ref("CreateStatementSegment"),
@@ -1072,16 +1070,13 @@ class WithinGroupClauseSegment(BaseSegment):
     """
 
     type = "withingroup_clause"
+
     match_grammar = Sequence(
         "WITHIN",
         "GROUP",
-        Bracketed(Anything(optional=True)),
-    )
-
-    parse_grammar = Sequence(
-        "WITHIN",
-        "GROUP",
-        Bracketed(Ref("OrderByClauseSegment", optional=True)),
+        Bracketed(
+            Ref("OrderByClauseSegment", optional=True), parse_mode=ParseMode.GREEDY
+        ),
     )
 
 
@@ -1274,14 +1269,13 @@ class FromBeforeExpressionSegment(BaseSegment):
     """A BEFORE expression."""
 
     type = "from_before_expression"
-    match_grammar = Sequence("BEFORE", Bracketed(Anything()))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "BEFORE",
         Bracketed(
             OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
             Ref("ParameterAssignerSegment"),
             Ref("ExpressionSegment"),
+            parse_mode=ParseMode.GREEDY,
         ),
     )
 

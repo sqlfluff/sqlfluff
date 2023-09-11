@@ -15,7 +15,6 @@ from sqlfluff.core.parser import (
     CodeSegment,
     CommentSegment,
     Delimited,
-    GreedyUntil,
     Matchable,
     OneOf,
     OptionallyBracketed,
@@ -54,7 +53,7 @@ oracle_dialect.sets("reserved_keywords").update(
 )
 
 oracle_dialect.sets("unreserved_keywords").update(
-    ["EDITIONABLE", "EDITIONING", "NONEDITIONABLE"]
+    ["EDITIONABLE", "EDITIONING", "NONEDITIONABLE", "KEEP"]
 )
 
 oracle_dialect.sets("bare_functions").clear()
@@ -360,10 +359,7 @@ class StatementSegment(ansi.StatementSegment):
 
     type = "statement"
 
-    match_grammar = OneOf(
-        GreedyUntil(Ref("DelimiterGrammar")), exclude=Ref("ExecuteFileSegment")
-    )
-    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("CommentStatementSegment"),
         ],

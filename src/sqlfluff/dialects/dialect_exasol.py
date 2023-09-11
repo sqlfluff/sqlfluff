@@ -3367,9 +3367,7 @@ class StatementSegment(ansi.StatementSegment):
 
     type = "statement"
 
-    match_grammar = GreedyUntil(Ref("DelimiterGrammar"))
-
-    parse_grammar = OneOf(
+    match_grammar = OneOf(
         # Data Query Language (DQL)
         Ref("SelectableGrammar"),
         # Data Modifying Language (DML)
@@ -3424,6 +3422,7 @@ class StatementSegment(ansi.StatementSegment):
         # Others
         Ref("TransactionStatementSegment"),
         Ref("ExecuteScriptSegment"),
+        terminators=[Ref("DelimiterGrammar")],
     )
 
 

@@ -118,7 +118,7 @@ def parse_example_file(dialect: str, sqlfile: str):
     raw = load_file(dialect, sqlfile)
     # Lex and parse the file
     tokens, _ = Lexer(config=config).lex(raw)
-    tree = Parser(config=config).parse(tokens)
+    tree = Parser(config=config).parse(tokens, fname=dialect + "/" + sqlfile)
     return tree
 
 
