@@ -19,11 +19,16 @@ from sqlfluff.core.parser.types import MatchableType, ParseMode, SimpleHintType
 
 
 def _parse_mode_match_result(
-    matched_segments,
-    unmatched_segments,
-    tail,
-    parse_mode,
+    matched_segments: Tuple[BaseSegment, ...],
+    unmatched_segments: Tuple[BaseSegment, ...],
+    tail: Tuple[BaseSegment, ...],
+    parse_mode: ParseMode,
 ) -> MatchResult:
+    """A helper function for the return values of AnyNumberOf.
+
+    This method creates UnparsableSegments as appropriate
+    depending on the parse mode and return values.
+    """
     # If we're being strict, just return.
     if parse_mode == ParseMode.STRICT:
         return MatchResult(matched_segments, unmatched_segments + tail)
