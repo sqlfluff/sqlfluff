@@ -1,14 +1,10 @@
 """Sharing fixtures to test the dialects."""
-import pytest
-
 import logging
 
+import pytest
+
 from sqlfluff.core import FluffConfig, Linter
-from sqlfluff.core.parser import (
-    Lexer,
-    BaseSegment,
-    RawSegment,
-)
+from sqlfluff.core.parser import BaseSegment, Lexer, RawSegment
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
@@ -58,29 +54,13 @@ def _dialect_specific_segment_parses(dialect, segmentref, raw, caplog):
     if seg_list[-1].is_type("end_of_file"):
         seg_list = seg_list[:-1]
 
-    # This test is different if we're working with RawSegment
-    # derivatives or not.
-    if isinstance(Seg, Matchable) or issubclass(Seg, RawSegment):
-        print("Raw/Parser route...")
-        ctx = ParseContext.from_config(config)
-        with caplog.at_level(logging.DEBUG):
-            parsed = Seg.match(segments=seg_list, parse_context=ctx)
-        assert isinstance(parsed, MatchResult)
-        assert len(parsed.matched_segments) == 1
-        print(parsed)
-        parsed = parsed.matched_segments[0]
-        print(parsed)
-    else:
-        print("Base route...")
-        # Construct an unparsed segment
-        seg = Seg(seg_list, pos_marker=seg_list[0].pos_marker)
-        # Perform the match (THIS IS THE MEAT OF THE TEST)
-        ctx = ParseContext.from_config(config)
-        with caplog.at_level(logging.DEBUG):
-            result = seg.parse(parse_context=ctx)
-        print(result)
-        parsed = result[0]
-        assert isinstance(parsed, Seg)
+    ctx = ParseContext.from_config(config)
+    with caplog.at_level(logging.DEBUG):
+        parsed = Seg.match(segments=seg_list, parse_context=ctx)
+    assert isinstance(parsed, MatchResult)
+    assert len(parsed.matched_segments) == 1
+    print(parsed)
+    parsed = parsed.matched_segments[0]
 
     # Check we get a good response
     print(parsed)
