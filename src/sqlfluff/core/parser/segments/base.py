@@ -1518,7 +1518,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         fixes_applied: List[LintFix],
         segment: BaseSegment,
     ) -> None:
-        """Checks correctness of new segment against match or parse grammar."""
+        """Checks correctness of new segment by re-parsing it."""
         ctx = ParseContext(dialect=dialect)
         # We're going to check the rematch without any metas because the
         # matching routines will assume they haven't already been added.
