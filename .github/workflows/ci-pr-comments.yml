@@ -16,11 +16,9 @@ on:
 jobs:
   upload:
     runs-on: ubuntu-latest
-    #if: >
-    #  github.event.workflow_run.event == 'pull_request'
+    if: >
+      github.event.workflow_run.event == 'pull_request'
     steps:
-      - run: echo "foo  ${{github.event.workflow_run.event}}"
-
       - name: 'Download txt artifact'
         uses: actions/github-script@v6
         with:
