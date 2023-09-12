@@ -1500,7 +1500,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # Rather than fix that here, we simply assert that it has been
         # done. This will raise issues in testing, but shouldn't in use.
         if not r.can_start_end_non_code and seg_buffer:
-            assert not self._find_start_or_end_non_code(seg_buffer), (
+            assert self._find_start_or_end_non_code(seg_buffer) is None, (
                 "Found inappropriate fix application: inappropriate "
                 "whitespace positioning. Post `_choose_anchor_segment`. "
                 "Please report this issue on GitHub with your SQL query. "
