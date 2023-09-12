@@ -40,7 +40,7 @@ from tqdm import tqdm
 from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.config import progress_bar_configuration
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.helpers import check_still_complete, trim_non_code_segments
+from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.match_logging import parse_match_logging
 from sqlfluff.core.parser.match_result import MatchResult
@@ -470,8 +470,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
             parse_context.logger.info(frame_msg(parse_depth_msg))
             expanded_segments += stmt.parse(parse_context=parse_context)
 
-        # Basic Validation
-        check_still_complete(segments, expanded_segments, ())
         return expanded_segments
 
     @classmethod
@@ -1262,9 +1260,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # NOTE: No match_depth kwarg, because this is the start of the matching.
             with parse_context.deeper_match(name=self.__class__.__name__) as ctx:
                 m = parse_grammar.match(segments=segments, parse_context=ctx)
-
-            # Basic Validation, that we haven't dropped anything.
-            check_still_complete(segments, m.matched_segments, m.unmatched_segments)
 
             if m.has_match():
                 if m.is_complete():
