@@ -1527,9 +1527,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def _validate_segment_after_fixes(
         self,
-        rule_code: str,
         dialect: "Dialect",
-        fixes_applied: List[LintFix],
         segment: BaseSegment,
     ) -> bool:
         """Checks correctness of new segment by re-parsing it."""
@@ -1542,16 +1540,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
         try:
             rematch = segment.match(trimmed_content, ctx)
             assert rematch.is_complete()
-        except (ValueError, AssertionError):  # pragma: no cover
+        except (ValueError, AssertionError):
             return False
-            self._log_apply_fixes_check_issue(
-                "After %s fixes were applied, segment %r failed the "
-                "rematch check. Fixes: %r. New raw: %r",
-                rule_code,
-                segment,
-                fixes_applied,
-                segment.raw,
-            )
         return True
 
     @staticmethod
