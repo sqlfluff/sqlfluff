@@ -1334,7 +1334,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def apply_fixes(
         self, dialect: "Dialect", rule_code: str, fixes: Dict[UUID, AnchorEditInfo]
-    ) -> Tuple["BaseSegment", List["BaseSegment"], List["BaseSegment"]]:
+    ) -> Tuple["BaseSegment", List["BaseSegment"], List["BaseSegment"], bool]:
         """Apply an iterable of fixes to this segment.
 
         Used in applying fixes if we're fixing linting errors.
@@ -1447,10 +1447,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 )
 
             # Then recurse (i.e. deal with the children) (Requeueing)
+            requires_validate = fixes_applied
             seg_queue = seg_buffer
             seg_buffer = []
             for seg in seg_queue:
-                s, before, after = seg.apply_fixes(dialect, rule_code, fixes)
+                s, before, after, validated = seg.apply_fixes(dialect, rule_code, fixes)
                 # 'before' and 'after' will usually be empty. Only used when
                 # lower-level fixes left 'seg' with non-code (usually
                 # whitespace) segments as the first or last children. This is
@@ -1459,6 +1460,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 seg_buffer.extend(before)
                 seg_buffer.append(s)
                 seg_buffer.extend(after)
+                # If we fail to validate a child segment, make sure to validate this
+                # segment.
+                if not validated:
+                    requires_validate = True
 
             # After fixing we should be able to rely on whitespace being
             # inserted in appropriate places. That logic now lives in
@@ -1490,13 +1495,22 @@ class BaseSegment(metaclass=SegmentMetaclass):
             )
             # Only validate if there's a match_grammar. Otherwise we may get
             # strange results (for example with the BracketedSegment).
-            if fixes_applied and hasattr(r.__class__, "match_grammar"):
-                self._validate_segment_after_fixes(rule_code, dialect, fixes_applied, r)
+            if requires_validate and hasattr(r.__class__, "match_grammar"):
+                validated = self._validate_segment_after_fixes(
+                    rule_code, dialect, fixes_applied, r
+                )
+            else:
+                validated = not requires_validate
             # Return the new segment and any non-code that needs to bubble up
             # the tree.
-            return r, before, after
+            # NOTE: We pass on whether this segment has been validated. It's
+            # very possible that our parsing here may fail depending on the
+            # type of segment that has been replaced, but if not we rely on
+            # a parent segment still being valid. If we get all the way up
+            # to the root and it's still not valid - that's a problem.
+            return r, before, after, validated
         else:
-            return self, [], []
+            return self, [], [], True
 
     @classmethod
     def compute_anchor_edit_info(
@@ -1517,7 +1531,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         dialect: "Dialect",
         fixes_applied: List[LintFix],
         segment: BaseSegment,
-    ) -> None:
+    ) -> bool:
         """Checks correctness of new segment by re-parsing it."""
         ctx = ParseContext(dialect=dialect)
         # We're going to check the rematch without any metas because the
@@ -1529,6 +1543,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             rematch = segment.match(trimmed_content, ctx)
             assert rematch.is_complete()
         except (ValueError, AssertionError):  # pragma: no cover
+            return False
             self._log_apply_fixes_check_issue(
                 "After %s fixes were applied, segment %r failed the "
                 "rematch check. Fixes: %r. New raw: %r",
@@ -1537,6 +1552,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 fixes_applied,
                 segment.raw,
             )
+        return True
 
     @staticmethod
     def _log_apply_fixes_check_issue(

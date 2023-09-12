@@ -490,9 +490,12 @@ class Linter:
                             # This is the happy path. We have fixes, now we want to
                             # apply them.
                             last_fixes = fixes
-                            new_tree, _, _ = tree.apply_fixes(
+                            new_tree, _, _, _valid = tree.apply_fixes(
                                 config.get("dialect_obj"), crawler.code, anchor_info
                             )
+                            assert (
+                                _valid
+                            ), "Fix application resulted re-parse check fail."
                             # Check for infinite loops. We use a combination of the
                             # fixed templated file and the list of source fixes to
                             # apply.
