@@ -1496,9 +1496,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # Only validate if there's a match_grammar. Otherwise we may get
             # strange results (for example with the BracketedSegment).
             if requires_validate and hasattr(r.__class__, "match_grammar"):
-                validated = self._validate_segment_after_fixes(
-                    rule_code, dialect, fixes_applied, r
-                )
+                validated = self._validate_segment_after_fixes(dialect, r)
             else:
                 validated = not requires_validate
             # Return the new segment and any non-code that needs to bubble up
