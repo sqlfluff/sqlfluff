@@ -52,7 +52,8 @@ jobs:
             const trigger_str = 'Coverage Results';
             console.log("Getting existing comments...");
 
-            const issue_number = context.issue.number;
+            const { promises: fs } = require('fs');
+            const issue_number = Number(fs.readFileSync('pr_number.txt', 'utf8'));
             console.log("Issue number: " + issue_number);
 
             const comments = await github.paginate(
@@ -84,7 +85,6 @@ jobs:
               status_emoji = "⚠️";
             }
 
-            const { promises: fs } = require('fs');
             const content = await fs.readFile('cov-report.txt', 'utf8');
             body = "# " + trigger_str + " " + status_emoji + "\n```\n" + content + "\n```\n";
 
