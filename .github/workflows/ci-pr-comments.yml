@@ -40,9 +40,10 @@ jobs:
                archive_format: 'zip',
             });
             var fs = require('fs');
-            fs.writeFileSync('${{github.workspace}}/cov-report.txt', Buffer.from(download.data));
+            fs.writeFileSync('${{github.workspace}}/cov-report.zip', Buffer.from(download.data));
 
-      # MAYBE NEED TO UNZIP?
+      - name: Unzip Downloaded Artifact
+        run: unzip cov-report.zip
 
       - name: Update PR comment with coverage report.
         uses: actions/github-script@v6
