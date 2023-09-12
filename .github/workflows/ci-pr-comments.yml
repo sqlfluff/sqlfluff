@@ -53,7 +53,7 @@ jobs:
             console.log("Getting existing comments...");
 
             const { promises: fs } = require('fs');
-            const issue_number = await fs.readFile('pr_number.txt', 'utf8');
+            const issue_number = await fs.readFile('pr-number.txt', 'utf8');
             console.log("Issue number: " + issue_number);
 
             const comments = await github.paginate(
@@ -85,7 +85,7 @@ jobs:
               status_emoji = "⚠️";
             }
 
-            const content = await fs.readFile('cov-report.txt', 'utf8');
+            const content = await fs.readFile('coverage-report.txt', 'utf8');
             body = "# " + trigger_str + " " + status_emoji + "\n```\n" + content + "\n```\n";
 
             try {
