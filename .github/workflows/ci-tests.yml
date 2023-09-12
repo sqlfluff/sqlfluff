@@ -378,6 +378,11 @@ jobs:
           path: htmlcov
         if: failure() && github.event_name == 'pull_request'
 
+      - name: Stash PR Number.
+        if: always() && github.event_name == 'pull_request'
+        # NOTE: We do this so we know what PR to comment on when we pick up the report.
+        run: echo ${{ github.event.number }} > ./pr_number.txt
+
       - name: Upload TXT report always (to add as comment to PR).
         # NOTE: We don't actually comment on the PR from here, we'll do that in
         # a more secure way by triggering a more secure workflow.
@@ -385,5 +390,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: txt-report
-          path: coverage-report.txt
+          path: |
+            coverage-report.txt
+            pr_number.txt
         if: always() && github.event_name == 'pull_request'
