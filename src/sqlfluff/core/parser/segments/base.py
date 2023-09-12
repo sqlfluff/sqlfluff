@@ -34,10 +34,7 @@ from typing import (
 )
 from uuid import UUID, uuid4
 
-from tqdm import tqdm
-
 from sqlfluff.core.cached_property import cached_property
-from sqlfluff.core.config import progress_bar_configuration
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.markers import PositionMarker
@@ -47,7 +44,6 @@ from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments.fix import AnchorEditInfo, FixPatch, SourceFix
 from sqlfluff.core.parser.types import SimpleHintType
-from sqlfluff.core.string_helpers import curtail_string, frame_msg
 from sqlfluff.core.templaters.base import TemplatedFile
 
 if TYPE_CHECKING:  # pragma: no cover

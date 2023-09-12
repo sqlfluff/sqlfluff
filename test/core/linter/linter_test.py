@@ -9,7 +9,6 @@ import pytest
 from sqlfluff.cli.formatters import OutputStreamFormatter
 from sqlfluff.cli.outputstream import make_output_stream
 from sqlfluff.core import FluffConfig, Linter
-from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.errors import (
     SQLBaseError,
     SQLFluffSkipFile,
@@ -19,7 +18,6 @@ from sqlfluff.core.errors import (
 )
 from sqlfluff.core.linter import LintingResult, runner
 from sqlfluff.core.linter.runner import get_runner
-from sqlfluff.core.parser import BaseSegment, GreedyUntil, Ref
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 
 

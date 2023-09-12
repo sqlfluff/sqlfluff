@@ -5,7 +5,6 @@ import pickle
 import pytest
 
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
-from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.segments.base import PathStep
 from sqlfluff.core.rules.base import LintFix
 from sqlfluff.core.templaters import TemplatedFile

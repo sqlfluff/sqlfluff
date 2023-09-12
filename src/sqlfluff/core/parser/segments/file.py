@@ -78,7 +78,9 @@ class BaseFileSegment(BaseSegment):
 
         if not matched:
             raise NotImplementedError(
-                f"No match for {fname}: {matched} {segments[_start_idx:_end_idx]}, {_start_idx}:{_end_idx}"
+                f"No match for {fname}: {matched} "
+                f"{segments[_start_idx:_end_idx]}, "
+                f"{_start_idx}:{_end_idx}"
             )
         elif matched.unmatched_segments:
             raise NotImplementedError("Unmatched tail. Needs work.")

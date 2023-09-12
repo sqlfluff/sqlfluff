@@ -87,7 +87,6 @@ class Rule_LT13(BaseRule):
                 raw_segments.append(seg)
                 continue
 
-            segment = Segments(seg)
             raw_stack = Segments(*raw_segments, templated_file=context.templated_file)
             # Non-whitespace segment.
             if (

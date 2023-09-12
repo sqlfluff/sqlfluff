@@ -4,7 +4,7 @@ import logging
 import pytest
 
 from sqlfluff.core import FluffConfig, Linter
-from sqlfluff.core.parser import BaseSegment, Lexer, RawSegment
+from sqlfluff.core.parser import BaseSegment, Lexer
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
