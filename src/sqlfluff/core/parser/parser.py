@@ -45,7 +45,7 @@ class Parser:
         parsed = root_segment.parse(parse_context=ctx)
 
         # Basic Validation, that we haven't dropped anything.
-        check_still_complete(segments, (root,), ())
+        check_still_complete(segments, parsed, ())
 
         if parse_statistics:  # pragma: no cover
             # NOTE: We use ctx.logger.warning here to output the statistics.
