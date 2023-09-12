@@ -376,6 +376,8 @@ class Sequence(BaseGrammar):
 
         # If we're in a test environment, we do a sense check to make sure we
         # haven't dropped anything. (Because it's happened before!).
+        # NOTE: This adds an overhead to do on _every_ sequence match so we
+        # only do it here within the test environment.
         if self.test_env:
             check_still_complete(
                 segments,
