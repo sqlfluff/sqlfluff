@@ -377,7 +377,7 @@ jobs:
           name: html-report
           path: htmlcov
         if: failure() && github.event_name == 'pull_request'
-      
+
       - name: Upload TXT report always (to add as comment to PR).
         # NOTE: We don't actually comment on the PR from here, we'll do that in
         # a more secure way by triggering a more secure workflow.
