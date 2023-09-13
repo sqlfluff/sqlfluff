@@ -381,7 +381,9 @@ jobs:
       - name: Stash PR Number.
         if: always() && github.event_name == 'pull_request'
         # NOTE: We do this so we know what PR to comment on when we pick up the report.
-        run: echo ${{ github.event.number }} > ./pr-number.txt
+        run: |
+          echo ${{ github.event.number }} > ./pr-number.txt
+          echo ${{ steps.report_coverage.outcome }} > ./outcome.txt
 
       - name: Upload TXT report always (to add as comment to PR).
         # NOTE: We don't actually comment on the PR from here, we'll do that in
@@ -393,4 +395,5 @@ jobs:
           path: |
             coverage-report.txt
             pr-number.txt
+            outcome.txt
         if: always() && github.event_name == 'pull_request'

@@ -77,7 +77,7 @@ jobs:
               }
             });
 
-            const previous_outcome = "${{ steps.report_coverage.outcome }}";
+            const previous_outcome = await fs.readFile('outcome.txt', 'utf8');
             console.log("Previous coverage step outcome: %s", previous_outcome);
             if (previous_outcome == "success") {
               status_emoji = "✅";
