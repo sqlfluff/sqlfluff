@@ -14,7 +14,7 @@ on:
       - completed
 
 jobs:
-  upload:
+  comment-on-pr:
     runs-on: ubuntu-latest
     if: >
       github.event.workflow_run.event == 'pull_request'
@@ -79,7 +79,7 @@ jobs:
 
             const previous_outcome = await fs.readFile('outcome.txt', 'utf8');
             console.log("Previous coverage step outcome: %s", previous_outcome);
-            if (previous_outcome == "success") {
+            if (previous_outcome == "success\n") {
               status_emoji = "✅";
             } else {
               status_emoji = "⚠️";
