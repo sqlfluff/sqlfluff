@@ -1444,8 +1444,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         # Then recurse (i.e. deal with the children) (Requeueing)
         requires_validate = bool(fixes_applied)
-        if requires_validate:
-            print(f"Self requires validate: {self}")
         seg_queue = seg_buffer
         seg_buffer = []
         for seg in seg_queue:
@@ -1462,7 +1460,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # segment.
             if not validated:
                 requires_validate = True
-                print("Requiring validate because child.")
 
         # After fixing we should be able to rely on whitespace being
         # inserted in appropriate places. That logic now lives in
