@@ -271,13 +271,13 @@ class BaseSegment(metaclass=SegmentMetaclass):
         Once a segment is *not* expandable, it can never become so, which is
         why the variable is cached.
         """
+        # NOTE: This whole method is soon to be removed so coverage is
+        # starting to get patchy.
         if self._is_expandable is False:
-            return self._is_expandable
+            return self._is_expandable  # pragma: no cover
         elif self.parse_grammar:
             return True
         elif self.segments and any(s.is_expandable for s in self.segments):
-            # NOTE: This whole method is soon to be removed so coverage is
-            # starting to get patchy.
             return True  # pragma: no cover
         else:
             # Cache the variable
@@ -1537,15 +1537,12 @@ class BaseSegment(metaclass=SegmentMetaclass):
         if not trimmed_content and self.can_start_end_non_code:
             # Edge case for empty segments which are allowed to be empty.
             return True
-        try:
-            if segment.parse_grammar:
-                # TODO: We should remove this clause when the file segment
-                # is migrated.
-                rematch = segment.parse_grammar.match(trimmed_content, ctx)
-            else:
-                rematch = segment.match(trimmed_content, ctx)
-        except ValueError:
-            return False
+        if segment.parse_grammar:
+            # TODO: We should remove this clause when the file segment
+            # is migrated.
+            rematch = segment.parse_grammar.match(trimmed_content, ctx)
+        else:
+            rematch = segment.match(trimmed_content, ctx)
         return rematch.is_complete()
 
     @staticmethod

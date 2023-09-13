@@ -495,7 +495,8 @@ class Linter:
                             )
                             assert _valid, (
                                 f"Fix application of {crawler.code} resulted re-parse "
-                                f"check fail. Attempted to apply fixes: {fixes}"
+                                f"check fail. Attempted to apply fixes: {fixes}\n"
+                                f"{new_tree.raw!r}"
                             )
                             # Check for infinite loops. We use a combination of the
                             # fixed templated file and the list of source fixes to
