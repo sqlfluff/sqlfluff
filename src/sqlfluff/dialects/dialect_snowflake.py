@@ -450,20 +450,6 @@ snowflake_dialect.add(
             allow_gaps=False,
         ),
     ),
-    PatternGrammar=Sequence(
-        # https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html#pattern-specifying-the-pattern-to-match
-        Ref("CaretSegment", optional=True),
-        OneOf(
-            AnyNumberOf(
-                Ref("PatternOperatorGrammar"),
-            ),
-            Delimited(
-                Ref("PatternOperatorGrammar"),
-                delimiter=Ref("BitwiseOrSegment"),
-            ),
-        ),
-        Ref("DollarSegment", optional=True),
-    ),
     ContextHeadersGrammar=OneOf(
         "CURRENT_ACCOUNT",
         "CURRENT_CLIENT",
@@ -1105,6 +1091,28 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     )
 
 
+class PatternSegment(BaseSegment):
+    """A `PATTERN` expression.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html
+    """
+    type = "pattern_expression"
+    match_grammar = Sequence(
+        # https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html#pattern-specifying-the-pattern-to-match
+        Ref("CaretSegment", optional=True),
+        OneOf(
+            AnyNumberOf(
+                Ref("PatternOperatorGrammar"),
+            ),
+            Delimited(
+                Ref("PatternOperatorGrammar"),
+                delimiter=Ref("BitwiseOrSegment"),
+            ),
+        ),
+        Ref("DollarSegment", optional=True),
+    )
+
+
 class MatchRecognizeClauseSegment(BaseSegment):
     """A `MATCH_RECOGNIZE` clause.
 
@@ -1193,7 +1201,7 @@ class MatchRecognizeClauseSegment(BaseSegment):
             ),
             "PATTERN",
             Bracketed(
-                Ref("PatternGrammar"),
+                Ref("PatternSegment"),
             ),
             "DEFINE",
             Delimited(
