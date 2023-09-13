@@ -88,25 +88,20 @@ jobs:
             const content = await fs.readFile('coverage-report.txt', 'utf8');
             body = "# " + trigger_str + " " + status_emoji + "\n```\n" + content + "\n```\n";
 
-            try {
-              if (comment_id > 0) {
-                console.log("Updating comment id: %d", comment_id);
-                await github.rest.issues.updateComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  comment_id: comment_id,
-                  body: body
-                });
-              } else {
-                console.log("No existing comment matched, creating a new one...");
-                await github.rest.issues.createComment({
-                  issue_number: context.issue.number,
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  body: body
-                });
-              }
-            } catch(err) {
-              // NOTE: This shouldn't happen, but has in the past.
-              console.log("Failed to create/update comment. Skipping...", err);
+            if (comment_id > 0) {
+              console.log("Updating comment id: %d", comment_id);
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: comment_id,
+                body: body
+              });
+            } else {
+              console.log("No existing comment matched, creating a new one...");
+              await github.rest.issues.createComment({
+                issue_number: Number(issue_number),
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
             }
