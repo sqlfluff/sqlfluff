@@ -640,7 +640,7 @@ class SetStatementSegment(BaseSegment):
             Sequence(
                 Delimited(
                     Ref("ParameterNameSegment"),
-                    delimiter=OneOf(Ref("DotSegment"), Ref("ColonSegment")),
+                    delimiter=OneOf(Ref("DotSegment"), Ref("ColonDelimiterSegment")),
                     allow_gaps=False,
                 ),
                 Ref("RawEqualsSegment"),
