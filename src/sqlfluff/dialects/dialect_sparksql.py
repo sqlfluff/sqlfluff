@@ -425,11 +425,6 @@ sparksql_dialect.add(
     ),
     NoscanKeywordSegment=StringParser("NOSCAN", KeywordSegment, type="keyword"),
     WhlKeywordSegment=StringParser("WHL", KeywordSegment, type="file_keyword"),
-    SQLConfPropertiesSegment=Sequence(
-        StringParser("-", SymbolSegment, type="dash"),
-        StringParser("v", SymbolSegment, type="sql_conf_option"),
-        allow_gaps=False,
-    ),
     # Add relevant Hive Grammar
     CommentGrammar=hive_dialect.get_grammar("CommentGrammar"),
     LocationGrammar=hive_dialect.get_grammar("LocationGrammar"),
@@ -766,6 +761,17 @@ sparksql_dialect.insert_lexer_matchers(
     ],
     before="like_operator",
 )
+
+
+class SQLConfPropertiesSegment(BaseSegment):
+    """A SQL Config Option."""
+
+    type = "sql_conf_option"
+    match_grammar = Sequence(
+        StringParser("-", SymbolSegment, type="dash"),
+        StringParser("v", SymbolSegment, type="sql_conf_option"),
+        allow_gaps=False,
+    )
 
 
 class DivBinaryOperatorSegment(BaseSegment):
