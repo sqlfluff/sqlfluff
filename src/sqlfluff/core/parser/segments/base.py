@@ -1345,170 +1345,172 @@ class BaseSegment(metaclass=SegmentMetaclass):
         of raw segments, they will be replaced or removed by their parent and
         so this function should just return self.
         """
-        if fixes and not self.is_raw():
-            # Get a reference to self to start with, but this will rapidly
-            # become a working copy.
-            r = self
-
-            # Make a working copy
-            seg_buffer = []
-            fixes_applied: List[LintFix] = []
-            todo_buffer = list(self.segments)
-            while True:
-                if len(todo_buffer) == 0:
-                    break
-                else:
-                    seg = todo_buffer.pop(0)
-
-                    # Look for uuid match.
-                    # This handles potential positioning ambiguity.
-                    anchor_info: Optional[AnchorEditInfo] = fixes.pop(seg.uuid, None)
-                    if anchor_info is not None:
-                        seg_fixes = anchor_info.fixes
-                        if (
-                            len(seg_fixes) == 2
-                            and seg_fixes[0].edit_type == "create_after"
-                        ):  # pragma: no cover
-                            # Must be create_before & create_after. Swap so the
-                            # "before" comes first.
-                            seg_fixes.reverse()
-
-                        for f in anchor_info.fixes:
-                            assert f.anchor.uuid == seg.uuid
-                            fixes_applied.append(f)
-                            linter_logger.debug(
-                                "Matched fix for %s against segment: %s -> %s",
-                                rule_code,
-                                f,
-                                seg,
-                            )
-                            if f.edit_type == "delete":
-                                # We're just getting rid of this segment.
-                                pass
-                            elif f.edit_type in (
-                                "replace",
-                                "create_before",
-                                "create_after",
-                            ):
-                                if (
-                                    f.edit_type == "create_after"
-                                    and len(anchor_info.fixes) == 1
-                                ):
-                                    # in the case of a creation after that is not part
-                                    # of a create_before/create_after pair, also add
-                                    # this segment before the edit.
-                                    seg_buffer.append(seg)
-                                    seg.set_parent(self)
-
-                                # We're doing a replacement (it could be a single
-                                # segment or an iterable)
-                                assert f.edit, f"Edit {f.edit_type!r} requires `edit`."
-                                consumed_pos = False
-                                for s in f.edit:
-                                    seg_buffer.append(s)
-                                    s.set_parent(self)
-                                    # If one of them has the same raw representation
-                                    # then the first that matches gets to take the
-                                    # original position marker.
-                                    if (
-                                        f.edit_type == "replace"
-                                        and s.raw == seg.raw
-                                        and not consumed_pos
-                                    ):
-                                        seg_buffer[-1].pos_marker = seg.pos_marker
-                                        consumed_pos = True
-
-                                if f.edit_type == "create_before":
-                                    # in the case of a creation before, also add this
-                                    # segment on the end
-                                    seg_buffer.append(seg)
-                                    seg.set_parent(self)
-
-                            else:  # pragma: no cover
-                                raise ValueError(
-                                    "Unexpected edit_type: {!r} in {!r}".format(
-                                        f.edit_type, f
-                                    )
-                                )
-                    else:
-                        seg_buffer.append(seg)
-                        seg.set_parent(self)
-                # Invalidate any caches
-                self.invalidate_caches()
-
-            # If any fixes applied, do an intermediate reposition. When applying
-            # fixes to children and then trying to reposition them, that recursion
-            # may rely on the parent having already populated positions for any
-            # of the fixes applied there first. This ensures those segments have
-            # working positions to work with.
-            if fixes_applied:
-                seg_buffer = list(
-                    self._position_segments(tuple(seg_buffer), parent_pos=r.pos_marker)
-                )
-
-            # Then recurse (i.e. deal with the children) (Requeueing)
-            requires_validate = fixes_applied
-            seg_queue = seg_buffer
-            seg_buffer = []
-            for seg in seg_queue:
-                s, before, after, validated = seg.apply_fixes(dialect, rule_code, fixes)
-                # 'before' and 'after' will usually be empty. Only used when
-                # lower-level fixes left 'seg' with non-code (usually
-                # whitespace) segments as the first or last children. This is
-                # generally not allowed (see the can_start_end_non_code field),
-                # and these segments need to be "bubbled up" the tree.
-                seg_buffer.extend(before)
-                seg_buffer.append(s)
-                seg_buffer.extend(after)
-                # If we fail to validate a child segment, make sure to validate this
-                # segment.
-                if not validated:
-                    requires_validate = True
-
-            # After fixing we should be able to rely on whitespace being
-            # inserted in appropriate places. That logic now lives in
-            # `BaseRule._choose_anchor_segment()`, rather than here.
-
-            # Rather than fix that here, we simply assert that it has been
-            # done. This will raise issues in testing, but shouldn't in use.
-            if (
-                # TODO: Rethink this assertion once parse_grammar is gone.
-                r.parse_grammar
-                and not r.can_start_end_non_code
-                and seg_buffer
-            ):  # pragma: no cover
-                assert not self._find_start_or_end_non_code(seg_buffer), (
-                    "Found inappropriate fix application: inappropriate "
-                    "whitespace positioning. Post `_choose_anchor_segment`. "
-                    "Please report this issue on GitHub with your SQL query. "
-                )
-
-            # Reform into a new segment
-            r = r.__class__(
-                # Realign the segments within
-                segments=self._position_segments(
-                    tuple(seg_buffer), parent_pos=r.pos_marker
-                ),
-                pos_marker=r.pos_marker,
-                # Pass through any additional kwargs
-                **{k: getattr(self, k) for k in self.additional_kwargs},
-            )
-            # Only validate if there's a match_grammar. Otherwise we may get
-            # strange results (for example with the BracketedSegment).
-            if requires_validate and hasattr(r.__class__, "match_grammar"):
-                validated = self._validate_segment_after_fixes(dialect, r)
-            else:
-                validated = not requires_validate
-            # Return the new segment and any non-code that needs to bubble up
-            # the tree.
-            # NOTE: We pass on whether this segment has been validated. It's
-            # very possible that our parsing here may fail depending on the
-            # type of segment that has been replaced, but if not we rely on
-            # a parent segment still being valid. If we get all the way up
-            # to the root and it's still not valid - that's a problem.
-            return r, before, after, validated
-        else:
+        if not fixes or self.is_raw():
             return self, [], [], True
+
+        seg_buffer = []
+        fixes_applied: List[LintFix] = []
+        todo_buffer = list(self.segments)
+        while True:
+            if len(todo_buffer) == 0:
+                break
+            else:
+                seg = todo_buffer.pop(0)
+
+                # Look for uuid match.
+                # This handles potential positioning ambiguity.
+                anchor_info: Optional[AnchorEditInfo] = fixes.pop(seg.uuid, None)
+                if anchor_info is not None:
+                    seg_fixes = anchor_info.fixes
+                    if (
+                        len(seg_fixes) == 2 and seg_fixes[0].edit_type == "create_after"
+                    ):  # pragma: no cover
+                        # Must be create_before & create_after. Swap so the
+                        # "before" comes first.
+                        seg_fixes.reverse()
+
+                    for f in anchor_info.fixes:
+                        assert f.anchor.uuid == seg.uuid
+                        fixes_applied.append(f)
+                        linter_logger.debug(
+                            "Matched fix for %s against segment: %s -> %s",
+                            rule_code,
+                            f,
+                            seg,
+                        )
+                        if f.edit_type == "delete":
+                            # We're just getting rid of this segment.
+                            pass
+                        elif f.edit_type in (
+                            "replace",
+                            "create_before",
+                            "create_after",
+                        ):
+                            if (
+                                f.edit_type == "create_after"
+                                and len(anchor_info.fixes) == 1
+                            ):
+                                # in the case of a creation after that is not part
+                                # of a create_before/create_after pair, also add
+                                # this segment before the edit.
+                                seg_buffer.append(seg)
+                                seg.set_parent(self)
+
+                            # We're doing a replacement (it could be a single
+                            # segment or an iterable)
+                            assert f.edit, f"Edit {f.edit_type!r} requires `edit`."
+                            consumed_pos = False
+                            for s in f.edit:
+                                seg_buffer.append(s)
+                                s.set_parent(self)
+                                # If one of them has the same raw representation
+                                # then the first that matches gets to take the
+                                # original position marker.
+                                if (
+                                    f.edit_type == "replace"
+                                    and s.raw == seg.raw
+                                    and not consumed_pos
+                                ):
+                                    seg_buffer[-1].pos_marker = seg.pos_marker
+                                    consumed_pos = True
+
+                            if f.edit_type == "create_before":
+                                # in the case of a creation before, also add this
+                                # segment on the end
+                                seg_buffer.append(seg)
+                                seg.set_parent(self)
+
+                        else:  # pragma: no cover
+                            raise ValueError(
+                                "Unexpected edit_type: {!r} in {!r}".format(
+                                    f.edit_type, f
+                                )
+                            )
+                else:
+                    seg_buffer.append(seg)
+                    seg.set_parent(self)
+            # Invalidate any caches
+            self.invalidate_caches()
+
+        # If any fixes applied, do an intermediate reposition. When applying
+        # fixes to children and then trying to reposition them, that recursion
+        # may rely on the parent having already populated positions for any
+        # of the fixes applied there first. This ensures those segments have
+        # working positions to work with.
+        if fixes_applied:
+            seg_buffer = list(
+                self._position_segments(tuple(seg_buffer), parent_pos=self.pos_marker)
+            )
+
+        # Then recurse (i.e. deal with the children) (Requeueing)
+        requires_validate = bool(fixes_applied)
+        if requires_validate:
+            print(f"Self requires validate: {self}")
+        seg_queue = seg_buffer
+        seg_buffer = []
+        for seg in seg_queue:
+            s, before, after, validated = seg.apply_fixes(dialect, rule_code, fixes)
+            # 'before' and 'after' will usually be empty. Only used when
+            # lower-level fixes left 'seg' with non-code (usually
+            # whitespace) segments as the first or last children. This is
+            # generally not allowed (see the can_start_end_non_code field),
+            # and these segments need to be "bubbled up" the tree.
+            seg_buffer.extend(before)
+            seg_buffer.append(s)
+            seg_buffer.extend(after)
+            # If we fail to validate a child segment, make sure to validate this
+            # segment.
+            if not validated:
+                requires_validate = True
+                print("Requiring validate because child.")
+
+        # After fixing we should be able to rely on whitespace being
+        # inserted in appropriate places. That logic now lives in
+        # `BaseRule._choose_anchor_segment()`, rather than here.
+
+        # Rather than fix that here, we simply assert that it has been
+        # done. This will raise issues in testing, but shouldn't in use.
+        if (
+            # TODO: Rethink this assertion once parse_grammar is gone.
+            self.parse_grammar
+            and not self.can_start_end_non_code
+            and seg_buffer
+        ):  # pragma: no cover
+            assert not self._find_start_or_end_non_code(seg_buffer), (
+                "Found inappropriate fix application: inappropriate "
+                "whitespace positioning. Post `_choose_anchor_segment`. "
+                "Please report this issue on GitHub with your SQL query. "
+            )
+
+        # Reform into a new segment
+        new_seg = self.__class__(
+            # Realign the segments within
+            segments=self._position_segments(
+                tuple(seg_buffer), parent_pos=self.pos_marker
+            ),
+            pos_marker=self.pos_marker,
+            # Pass through any additional kwargs
+            **{k: getattr(self, k) for k in self.additional_kwargs},
+        )
+        # Only validate if there's a match_grammar. Otherwise we may get
+        # strange results (for example with the BracketedSegment).
+        if requires_validate and (
+            hasattr(new_seg, "match_grammar")
+            # TODO: We temporarily allow parse_grammar here until the file segment
+            # has been migrated. Then we should remove this.
+            or new_seg.parse_grammar
+        ):
+            validated = self._validate_segment_after_fixes(dialect, new_seg)
+        else:
+            validated = not requires_validate
+        # Return the new segment and any non-code that needs to bubble up
+        # the tree.
+        # NOTE: We pass on whether this segment has been validated. It's
+        # very possible that our parsing here may fail depending on the
+        # type of segment that has been replaced, but if not we rely on
+        # a parent segment still being valid. If we get all the way up
+        # to the root and it's still not valid - that's a problem.
+        return new_seg, before, after, validated
 
     @classmethod
     def compute_anchor_edit_info(
@@ -1536,7 +1538,12 @@ class BaseSegment(metaclass=SegmentMetaclass):
         raw_content = tuple(s for s in segment.raw_segments if not s.is_meta)
         _, trimmed_content, _ = trim_non_code_segments(raw_content)
         try:
-            rematch = segment.match(trimmed_content, ctx)
+            if segment.parse_grammar:
+                # TODO: We should remove this clause when the file segment
+                # is migrated.
+                rematch = segment.parse_grammar.match(trimmed_content, ctx)
+            else:
+                rematch = segment.match(trimmed_content, ctx)
             assert rematch.is_complete()
         except (ValueError, AssertionError):
             return False
