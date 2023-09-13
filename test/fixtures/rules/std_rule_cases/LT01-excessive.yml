@@ -515,3 +515,18 @@ test_snowflake_match_pattern:
   configs:
     core:
       dialect: snowflake
+
+test_hive_set_statement:
+  # This should use ColonDelimiter so it shouldn't have spacing around it.
+  pass_str: |
+    set hivevar:cat = "Chloe";
+  configs:
+    core:
+      dialect: hive
+
+test_spark_set_statement:
+  pass_str: |
+    SET -v;
+  configs:
+    core:
+      dialect: sparksql
