@@ -1534,6 +1534,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # We also strip any non-code from the ends which might have moved.
         raw_content = tuple(s for s in segment.raw_segments if not s.is_meta)
         _, trimmed_content, _ = trim_non_code_segments(raw_content)
+        if not trimmed_content and self.can_start_end_non_code:
+            # Edge case for empty segments which are allowed to be empty.
+            return True
         try:
             if segment.parse_grammar:
                 # TODO: We should remove this clause when the file segment
