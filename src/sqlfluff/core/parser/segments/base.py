@@ -1544,10 +1544,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 rematch = segment.parse_grammar.match(trimmed_content, ctx)
             else:
                 rematch = segment.match(trimmed_content, ctx)
-            assert rematch.is_complete()
-        except (ValueError, AssertionError):
+        except ValueError:
             return False
-        return True
+        return rematch.is_complete()
 
     @staticmethod
     def _log_apply_fixes_check_issue(
