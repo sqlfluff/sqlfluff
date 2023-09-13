@@ -1096,6 +1096,7 @@ class PatternSegment(BaseSegment):
 
     https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html
     """
+
     type = "pattern_expression"
     match_grammar = Sequence(
         # https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html#pattern-specifying-the-pattern-to-match
