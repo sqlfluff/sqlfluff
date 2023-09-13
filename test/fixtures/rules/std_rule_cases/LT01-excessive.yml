@@ -530,3 +530,11 @@ test_spark_set_statement:
   configs:
     core:
       dialect: sparksql
+
+test_clickhouse_system_path:
+  # We shouldn't introduce extra spaces within the path.
+  pass_str: |
+    SYSTEM RELOAD MODEL /model/path;
+  configs:
+    core:
+      dialect: clickhouse
