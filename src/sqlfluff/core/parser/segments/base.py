@@ -1544,6 +1544,11 @@ class BaseSegment(metaclass=SegmentMetaclass):
         else:
             rematch = segment.match(trimmed_content, ctx)
         if not rematch.is_complete():
+            linter_logger.debug(
+                f"Validation Check Fail for {segment}.Incomplete Match. "
+                f"\nMatched: {rematch.matched_segments}. "
+                f"\nUnmatched: {rematch.unmatched_segments}."
+            )
             return False
         opening_unparsables = set(segment.recursive_crawl("unparsable"))
         closing_unparsables: Set[BaseSegment] = set()
@@ -1552,7 +1557,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # Check we don't introduce any _additional_ unparsables.
         # Pre-existing unparsables are ok, and for some rules that's as
         # designed. The idea is that we shouldn't make the situation _worse_.
-        return opening_unparsables == closing_unparsables
+        if opening_unparsables >= closing_unparsables:
+            return True
+
+        linter_logger.debug(
+            f"Validation Check Fail for {segment}.\nFound additional Unparsables: "
+            f"{closing_unparsables - opening_unparsables}"
+        )
+        return False
 
     @staticmethod
     def _log_apply_fixes_check_issue(
