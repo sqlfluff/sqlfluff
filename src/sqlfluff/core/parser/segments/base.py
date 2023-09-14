@@ -986,10 +986,13 @@ class BaseSegment(metaclass=SegmentMetaclass):
         new_segment.__dict__.update(self.__dict__)
 
         # If the segment doesn't have a segments property, we're done.
-        if "_raw" not in self.__dict__:
+        # NOTE: This is a proxy way of understanding whether it's a RawSegment
+        # of not. Typically will _have_ a `segments` attribute, but it's an
+        # empty tuple.
+        if not self.__dict__.get("segments", None):
             assert (
                 not segments
-            ), "Cannot provide `segments` argument to raw segment `.copy()`"
+            ), f"Cannot provide `segments` argument to {self.__name__} `.copy()`\n"
         # If segments were provided, use them.
         elif segments:
             new_segment.segments = segments
