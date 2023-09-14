@@ -1546,7 +1546,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         if not rematch.is_complete():
             return False
         opening_unparsables = set(segment.recursive_crawl("unparsable"))
-        closing_unparsables = set()
+        closing_unparsables: Set[BaseSegment] = set()
         for seg in rematch.matched_segments:
             closing_unparsables.update(seg.recursive_crawl("unparsable"))
         # Check we don't introduce any _additional_ unparsables.
