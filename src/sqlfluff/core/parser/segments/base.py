@@ -981,6 +981,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # Position markers are immutable, and it's important that we keep
         # a reference to the same TemplatedFile, so keep the same position
         # marker. By updating from the source dict, we achieve that.
+        # By using the __dict__ object we also transfer the _cache_ too
+        # which is stored there by @cached_property.
         new_segment.__dict__.update(self.__dict__)
 
         # If the segment doesn't have a segments property, we're done.
