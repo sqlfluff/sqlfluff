@@ -1543,7 +1543,12 @@ class BaseSegment(metaclass=SegmentMetaclass):
             rematch = segment.parse_grammar.match(trimmed_content, ctx)
         else:
             rematch = segment.match(trimmed_content, ctx)
-        return rematch.is_complete()
+        if not rematch.is_complete():
+            return False
+        # Check we don't contain any unparsables.
+        return not any(
+            "unparsable" in seg.descendant_type_set for seg in rematch.matched_segments
+        )
 
     @staticmethod
     def _log_apply_fixes_check_issue(
