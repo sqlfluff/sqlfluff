@@ -864,22 +864,22 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def get_start_point_marker(self) -> PositionMarker:  # pragma: no cover
         """Get a point marker at the start of this segment."""
-        assert self.pos_marker
+        assert self.pos_marker, f"{self} has no PositionMarker"
         return self.pos_marker.start_point_marker()
 
     def get_end_point_marker(self) -> PositionMarker:
         """Get a point marker at the end of this segment."""
-        assert self.pos_marker
+        assert self.pos_marker, f"{self} has no PositionMarker"
         return self.pos_marker.end_point_marker()
 
     def get_start_loc(self) -> Tuple[int, int]:
         """Get a location tuple at the start of this segment."""
-        assert self.pos_marker
+        assert self.pos_marker, f"{self} has no PositionMarker"
         return self.pos_marker.working_loc
 
     def get_end_loc(self) -> Tuple[int, int]:
         """Get a location tuple at the end of this segment."""
-        assert self.pos_marker
+        assert self.pos_marker, f"{self} has no PositionMarker"
         return self.pos_marker.working_loc_after(
             self.raw,
         )
@@ -1157,6 +1157,12 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # If we've run out of parents, stop for now.
             if not _higher:
                 break
+            # If the higher doesn't have a position we'll run into problems.
+            # Check that in advance.
+            assert _higher.pos_marker, (
+                f"`path_to()` found segment {_higher} without position. "
+                "This shouldn't happen post-parse."
+            )
             lower_path.append(
                 PathStep(
                     _higher,
