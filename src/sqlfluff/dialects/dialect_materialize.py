@@ -130,8 +130,7 @@ materialize_dialect.add(
         "CREATEROLE",
         "CREATEDB",
         "CREATECLUSTER",
-        "ALL",
-        Sequence("ALL", "PRIVILEGES"),
+        Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
     ),
 )
 
