@@ -4662,6 +4662,20 @@ class GotoStatement(BaseSegment):
     match_grammar = Sequence("GOTO", Ref("SingleIdentifierGrammar"))
 
 
+class ExecuteAsClause(BaseSegment):
+    """EXECUTE AS Clause.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/execute-as-clause-transact-sql?view=sql-server-ver16
+    """
+
+    type = "execute_as_clause"
+    match_grammar = Sequence(
+        "EXECUTE",
+        "AS",
+        Ref("SingleQuotedIdentifierSegment"),
+    )
+
+
 class CreateTriggerStatementSegment(BaseSegment):
     """Create Trigger Statement.
 
@@ -4682,36 +4696,14 @@ class CreateTriggerStatementSegment(BaseSegment):
         ),
         Sequence(
             "WITH",
-            OneOf(
-                Sequence(
-                    Ref.keyword("ENCRYPTION", optional=True),
-                    Sequence(
-                        "EXECUTE",
-                        "AS",
-                        Ref("SingleQuotedIdentifierSegment"),
-                        optional=True,
-                    ),
-                ),
-                Sequence(
-                    Ref.keyword("NATIVE_COMPILATION", optional=True),
-                    Ref.keyword("SCHEMABINDING", optional=True),
-                    Sequence(
-                        "EXECUTE",
-                        "AS",
-                        Ref("SingleQuotedIdentifierSegment"),
-                        optional=True,
-                    ),
-                ),
-                Sequence(
-                    Ref.keyword("ENCRYPTION", optional=True),
-                    Sequence(
-                        "EXECUTE",
-                        "AS",
-                        Ref("SingleQuotedIdentifierSegment"),
-                        optional=True,
-                    ),
-                ),
+            AnySetOf(
+                # NOTE: Techincally, ENCRYPTION can't be combined with the other two,
+                # but this slightly more generous parsing is ok for SQLFluff.
+                Ref.keyword("ENCRYPTION"),
+                Ref.keyword("NATIVE_COMPILATION"),
+                Ref.keyword("SCHEMABINDING"),
             ),
+            Ref("ExecuteAsClause", optional=True),
             optional=True,
         ),
         OneOf(
