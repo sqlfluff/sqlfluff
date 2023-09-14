@@ -971,19 +971,34 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         Optionally provide child segments which have already been dealt
         with to avoid another copy operation.
+
+        NOTE: In the copy operation it's really important that we get
+        a clean segregation so that we can't go backward and mutate the
+        source object, but at the same time we should be mindful of what
+        _needs_ to be copied to avoid a deep copy where one isn't required.
         """
-        new_seg = copy(self)
+        cls = self.__class__
+        new_segment = cls.__new__(cls)
         # Position markers are immutable, and it's important that we keep
         # a reference to the same TemplatedFile, so keep the same position
-        # marker.
-        new_seg.pos_marker = self.pos_marker
+        # marker. By updating from the source dict, we achieve that.
+        new_segment.__dict__.update(self.__dict__)
+
+        # If the segment doesn't have a segments property, we're done.
+        if "_raw" not in self.__dict__:
+            assert (
+                not segments
+            ), "Cannot provide `segments` argument to raw segment `.copy()`"
         # If segments were provided, use them.
-        if segments:
-            new_seg.segments = segments
-        # Otherwise copy them.
-        elif self.segments:
-            new_seg.segments = tuple(seg.copy() for seg in self.segments)
-        return new_seg
+        elif segments:
+            new_segment.segments = segments
+        # Otherwise we should handle recursive segment coping.
+        # We use the native .copy() method (this method!) appropriately
+        # so that the same logic is applied in recursion.
+        else:
+            new_segment.segments = tuple(seg.copy() for seg in self.segments)
+
+        return new_segment
 
     def as_record(self, **kwargs: bool) -> Optional[RecordSerialisedSegment]:
         """Return the segment as a structurally simplified record.
