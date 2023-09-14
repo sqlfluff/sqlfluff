@@ -13,7 +13,6 @@ from __future__ import annotations
 import logging
 import weakref
 from collections import defaultdict
-from copy import copy
 from dataclasses import dataclass
 from io import StringIO
 from itertools import chain
