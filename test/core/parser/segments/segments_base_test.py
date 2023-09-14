@@ -334,3 +334,26 @@ def test__parser__base_segments_copy_isolation(DummySegment, raw_seg_list):
     for s in fix.edit:
         assert not s.pos_marker
     assert b_seg.pos_marker
+
+
+def test__parser__base_segments_parent_ref(DummySegment, raw_seg_list):
+    """Test getting and setting parents on BaseSegment."""
+    # Check initially no parent (because not set)
+    assert not raw_seg_list[0].get_parent()
+    # Add it to a segment (still not set)
+    seg = DummySegment(segments=raw_seg_list)
+    assert not seg.segments[0].get_parent()
+    # Set one parent on one of them (but not another)
+    seg.segments[0].set_parent(seg)
+    assert seg.segments[0].get_parent() is seg
+    assert not seg.segments[1].get_parent()
+    # Set parent on all of them
+    seg.set_as_parent()
+    assert seg.segments[0].get_parent() is seg
+    assert seg.segments[1].get_parent() is seg
+    # Remove segment from parent, but don't unset.
+    # Should still check an return None.
+    seg_0 = seg.segments[0]
+    seg.segments = seg.segments[1:]
+    assert seg_0 not in seg.segments
+    assert not seg_0.get_parent()
