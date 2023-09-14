@@ -141,6 +141,9 @@ exasol_dialect.patch_lexer_matchers(
 )
 
 exasol_dialect.add(
+    PasswordLiteralSegment=TypedParser(
+        "double_quote", CodeSegment, type="password_literal"
+    ),
     UDFParameterDotSyntaxSegment=TypedParser(
         "udf_param_dot_syntax", SymbolSegment, type="identifier"
     ),
@@ -2215,7 +2218,7 @@ class AlterUserStatementSegment(BaseSegment):
                         Ref("UserPasswordAuthSegment"),
                         Sequence(
                             "REPLACE",
-                            Ref("QuotedIdentifierSegment"),
+                            Ref("PasswordLiteralSegment"),
                             optional=True,
                         ),
                     ),
@@ -2248,7 +2251,7 @@ class UserPasswordAuthSegment(BaseSegment):
     match_grammar = Sequence(
         # password
         "BY",
-        Ref("QuotedIdentifierSegment"),
+        Ref("PasswordLiteralSegment"),
     )
 
 

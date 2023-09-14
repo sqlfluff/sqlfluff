@@ -298,6 +298,9 @@ ansi_dialect.add(
     SemicolonSegment=StringParser(";", SymbolSegment, type="statement_terminator"),
     ColonSegment=StringParser(":", SymbolSegment, type="colon"),
     SliceSegment=StringParser(":", SymbolSegment, type="slice"),
+    # NOTE: The purpose of the colon_delimiter is that it has different layout rules.
+    # It assumes no whitespace on either side.
+    ColonDelimiterSegment=StringParser(":", SymbolSegment, type="colon_delimiter"),
     StartBracketSegment=StringParser("(", SymbolSegment, type="start_bracket"),
     EndBracketSegment=StringParser(")", SymbolSegment, type="end_bracket"),
     StartSquareBracketSegment=StringParser(
@@ -640,6 +643,12 @@ ansi_dialect.add(
         Sequence("SET", "DEFAULT"),
     ),
     DropBehaviorGrammar=OneOf("RESTRICT", "CASCADE", optional=True),
+    ColumnConstraintDefaultGrammar=OneOf(
+        Ref("ShorthandCastSegment"),
+        Ref("LiteralGrammar"),
+        Ref("FunctionSegment"),
+        Ref("BareFunctionSegment"),
+    ),
     ReferenceDefinitionGrammar=Sequence(
         "REFERENCES",
         Ref("TableReferenceSegment"),
@@ -2984,12 +2993,7 @@ class ColumnConstraintSegment(BaseSegment):
             Sequence("CHECK", Bracketed(Ref("ExpressionSegment"))),
             Sequence(  # DEFAULT <value>
                 "DEFAULT",
-                OneOf(
-                    Ref("ShorthandCastSegment"),
-                    Ref("LiteralGrammar"),
-                    Ref("FunctionSegment"),
-                    Ref("BareFunctionSegment"),
-                ),
+                Ref("ColumnConstraintDefaultGrammar"),
             ),
             Ref("PrimaryKeyGrammar"),
             Ref("UniqueKeyGrammar"),  # UNIQUE
