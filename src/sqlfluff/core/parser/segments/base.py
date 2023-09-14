@@ -1433,7 +1433,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
                                     # of a create_before/create_after pair, also add
                                     # this segment before the edit.
                                     seg_buffer.append(seg)
-                                    seg.set_parent(self)
 
                                 # We're doing a replacement (it could be a single
                                 # segment or an iterable)
@@ -1441,7 +1440,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
                                 consumed_pos = False
                                 for s in f.edit:
                                     seg_buffer.append(s)
-                                    s.set_parent(self)
                                     # If one of them has the same raw representation
                                     # then the first that matches gets to take the
                                     # original position marker.
@@ -1457,7 +1455,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
                                     # in the case of a creation before, also add this
                                     # segment on the end
                                     seg_buffer.append(seg)
-                                    seg.set_parent(self)
 
                             else:  # pragma: no cover
                                 raise ValueError(
@@ -1467,7 +1464,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                                 )
                     else:
                         seg_buffer.append(seg)
-                        seg.set_parent(self)
+
                 # Invalidate any caches
                 self.invalidate_caches()
 
@@ -1523,6 +1520,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 # Pass through any additional kwargs
                 **{k: getattr(self, k) for k in self.additional_kwargs},
             )
+            r.set_as_parent(recurse=False)
             if fixes_applied:
                 self._validate_segment_after_fixes(rule_code, dialect, fixes_applied, r)
             # Return the new segment and any non-code that needs to bubble up
