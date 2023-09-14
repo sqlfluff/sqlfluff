@@ -221,8 +221,7 @@ class AlterRenameStatementSegment(BaseSegment):
         "ALTER",
         OneOf(
             "CONNECTION",
-            "CLUSTER",
-            Sequence("CLUSTER", "REPLICA"),
+            Sequence("CLUSTER", Ref.keyword("REPLICA", optional=True)),
             "INDEX",
             "SOURCE",
             "SINK",
