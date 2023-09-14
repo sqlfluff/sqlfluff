@@ -1502,7 +1502,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
         if not r.can_start_end_non_code and seg_buffer:
             assert self._find_start_or_end_non_code(seg_buffer) is None, (
                 "Found inappropriate fix application: inappropriate "
-                "whitespace positioning. Post `_choose_anchor_segment`. "
+                "whitespace positioning. Post `_choose_anchor_segment`. \n\n"
+                f"{self}\n{fixes_applied}\n\n"
+                f"{[(s.type, s.raw) for s in seg_buffer]}\n\n"
                 "Please report this issue on GitHub with your SQL query. "
             )
 
