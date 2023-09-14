@@ -998,7 +998,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         if not self.__dict__.get("segments", None):
             assert (
                 not segments
-            ), f"Cannot provide `segments` argument to {self.__name__} `.copy()`\n"
+            ), f"Cannot provide `segments` argument to {cls.__name__} `.copy()`\n"
         # If segments were provided, use them.
         elif segments:
             new_segment.segments = segments
