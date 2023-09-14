@@ -490,7 +490,7 @@ class Linter:
                             # This is the happy path. We have fixes, now we want to
                             # apply them.
                             last_fixes = fixes
-                            new_tree, _, _ = tree.apply_fixes(
+                            new_tree, _, _, _valid = tree.apply_fixes(
                                 config.get("dialect_obj"), crawler.code, anchor_info
                             )
                             # Check for infinite loops. We use a combination of the
@@ -500,7 +500,16 @@ class Linter:
                                 new_tree.raw,
                                 tuple(new_tree.source_fixes),
                             )
-                            if loop_check_tuple not in previous_versions:
+                            if not _valid:
+                                # The fixes result in an invalid file. Don't apply
+                                # the fix and skip onward. Show a warning.
+                                linter_logger.warning(
+                                    f"Fixes for {crawler.code} not applied, as it "
+                                    "would result in an unparsable file. Please "
+                                    "report this as a bug with a minimal query "
+                                    "which demonstrates this warning."
+                                )
+                            elif loop_check_tuple not in previous_versions:
                                 # We've not seen this version of the file so
                                 # far. Continue.
                                 tree = new_tree

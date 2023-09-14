@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e4637e97ea11a573f43a5e1d0a19f101f3e569164fa4f0886387efd47fb8053a
+_hash: 3f66a5c2f8b2d5c7cfec43dfc9dff187f330d01a9ec1809266e7e4b2d3f740d0
 file:
 - statement:
     create_source_kafka_statement:
@@ -242,6 +242,51 @@ file:
     - keyword: CREATE
     - keyword: SOURCE
     - object_reference:
+        naked_identifier: marketing
+    - keyword: FROM
+    - keyword: LOAD
+    - keyword: GENERATOR
+    - keyword: MARKETING
+    - bracketed:
+      - start_bracket: (
+      - code: SCALE
+      - code: FACTOR
+      - numeric_literal: '1'
+      - end_bracket: )
+    - keyword: FOR
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        code: SIZE
+        raw: '='
+        single_quote: "'3xsmall'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_load_generator_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: marketing
+    - keyword: IN
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: my_cluster
+    - keyword: FROM
+    - keyword: LOAD
+    - keyword: GENERATOR
+    - keyword: MARKETING
+    - keyword: FOR
+    - keyword: ALL
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+    create_source_load_generator_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
         naked_identifier: tpch
     - keyword: FROM
     - keyword: LOAD
@@ -308,6 +353,30 @@ file:
         raw: '='
         single_quote: "'3xsmall'"
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_postgres_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: mz_source
+    - keyword: IN
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: my_cluster
+    - keyword: FROM
+    - keyword: POSTGRES
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: pg_connection
+    - bracketed:
+        start_bracket: (
+        code: PUBLICATION
+        single_quote: "'mz_source'"
+        end_bracket: )
+    - keyword: FOR
+    - keyword: ALL
+    - keyword: TABLES
 - statement_terminator: ;
 - statement:
     create_source_postgres_statement:
@@ -402,6 +471,120 @@ file:
         raw: '='
         single_quote: "'3xsmall'"
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_load_generator_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: my_webhook_source
+    - keyword: IN
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: my_cluster
+    - keyword: FROM
+    - keyword: WEBHOOK
+    - keyword: BODY
+    - keyword: FORMAT
+    - keyword: JSON
+    - keyword: INCLUDE
+    - keyword: HEADERS
+    - bracketed:
+      - start_bracket: (
+      - code: NOT
+      - single_quote: "'authorization'"
+      - comma: ','
+      - code: NOT
+      - single_quote: "'x-api-key'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_load_generator_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: my_webhook_source
+    - keyword: IN
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: my_cluster
+    - keyword: FROM
+    - keyword: WEBHOOK
+    - keyword: BODY
+    - keyword: FORMAT
+    - keyword: JSON
+    - code: CHECK
+    - bracketed:
+      - start_bracket: (
+      - code: WITH
+      - bracketed:
+        - start_bracket: (
+        - code: HEADERS
+        - comma: ','
+        - code: BODY
+        - code: AS
+        - code: request_body
+        - comma: ','
+        - code: SECRET
+        - code: my_webhook_shared_secret
+        - end_bracket: )
+      - code: decode
+      - bracketed:
+        - start_bracket: (
+        - code: headers
+        - json_operator: ->
+        - single_quote: "'x-signature'"
+        - comma: ','
+        - single_quote: "'base64'"
+        - end_bracket: )
+      - raw: '='
+      - code: hmac
+      - bracketed:
+        - start_bracket: (
+        - code: request_body
+        - comma: ','
+        - code: my_webhook_shared_secret
+        - comma: ','
+        - single_quote: "'sha256'"
+        - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_load_generator_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: webhook_with_basic_auth
+    - keyword: IN
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: my_cluster
+    - keyword: FROM
+    - keyword: WEBHOOK
+    - keyword: BODY
+    - keyword: FORMAT
+    - keyword: JSON
+    - code: CHECK
+    - bracketed:
+      - start_bracket: (
+      - code: WITH
+      - bracketed:
+        - start_bracket: (
+        - code: HEADERS
+        - comma: ','
+        - code: BODY
+        - code: AS
+        - code: request_body
+        - comma: ','
+        - code: SECRET
+        - code: BASIC_HOOK_AUTH
+        - end_bracket: )
+      - code: headers
+      - json_operator: ->
+      - single_quote: "'authorization'"
+      - raw: '='
+      - code: BASIC_HOOK_AUTH
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_type_statement:

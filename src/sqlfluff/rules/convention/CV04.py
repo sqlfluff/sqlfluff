@@ -1,9 +1,11 @@
 """Implementation of Rule CV04."""
 from typing import Optional
 
+from sqlfluff.core.parser import RawSegment, SymbolSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import sp, FunctionalContext
+from sqlfluff.dialects.dialect_ansi import LiteralSegment
+from sqlfluff.utils.functional import FunctionalContext, sp
 
 
 class Rule_CV04(BaseRule):
@@ -64,6 +66,7 @@ class Rule_CV04(BaseRule):
         # Config type hints
         self.prefer_count_0: bool
         self.prefer_count_1: bool
+        new_segment: RawSegment
 
         # We already know we're in a function because of the crawl_behaviour.
         # This means it's very unlikely that there isn't a function_name here.
@@ -99,16 +102,13 @@ class Rule_CV04(BaseRule):
             if f_content[0].is_type("star") and (
                 self.prefer_count_1 or self.prefer_count_0
             ):
+                new_segment = LiteralSegment(raw=preferred, type="numeric_literal")
                 return LintResult(
                     anchor=context.segment,
                     fixes=[
                         LintFix.replace(
                             f_content[0],
-                            [
-                                f_content[0].edit(
-                                    f_content[0].raw.replace("*", preferred)
-                                )
-                            ],
+                            [new_segment],
                         ),
                     ],
                 )
@@ -124,6 +124,12 @@ class Rule_CV04(BaseRule):
                     and expression_content[0].raw in ["0", "1"]
                     and expression_content[0].raw != preferred
                 ):
+                    if preferred == "*":
+                        new_segment = SymbolSegment(raw=preferred, type="star")
+                    else:
+                        new_segment = LiteralSegment(
+                            raw=preferred, type="numeric_literal"
+                        )
                     return LintResult(
                         anchor=context.segment,
                         fixes=[

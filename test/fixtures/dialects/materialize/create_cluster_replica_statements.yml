@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 463be35f1c6e42bf30ab2665e71ea802e4f444715047607ee668e52eb30b6136
+_hash: 81bf092bb3bcdcd8b8c2e0f4f7d8e784a58180f3fe0efab9bd89359dbcb21149
 file:
 - statement:
     create_cluster_statement:
@@ -47,39 +47,83 @@ file:
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_cluster_replica_statement:
+    create_cluster_statement:
     - keyword: CREATE
     - keyword: CLUSTER
-    - keyword: REPLICA
     - object_reference:
-      - naked_identifier: default
-      - dot: .
-      - naked_identifier: size_1
+        naked_identifier: c1
+    - code: SIZE
+    - raw: '='
+    - single_quote: "'medium'"
+    - comma: ','
+    - code: REPLICATION
+    - code: FACTOR
+    - raw: '='
+    - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    create_cluster_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: c
+    - code: SIZE
+    - raw: '='
+    - single_quote: "'xsmall'"
+    - comma: ','
+    - code: INTROSPECTION
+    - code: INTERVAL
+    - raw: '='
+    - numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    create_cluster_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: c1
+    - code: SIZE
+    - single_quote: "'xsmall'"
+    - comma: ','
+    - code: REPLICATION
+    - code: FACTOR
+    - raw: '='
+    - numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    create_cluster_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: REPLICA
+    - code: default
+    - raw: .
+    - code: size_1
     - code: SIZE
     - single_quote: "'large'"
 - statement_terminator: ;
 - statement:
-    create_cluster_replica_statement:
+    create_cluster_statement:
     - keyword: CREATE
     - keyword: CLUSTER
-    - keyword: REPLICA
     - object_reference:
-      - naked_identifier: c1
-      - dot: .
-      - naked_identifier: r1
+        naked_identifier: REPLICA
+    - code: c1
+    - raw: .
+    - code: r1
     - code: SIZE
     - raw: '='
     - single_quote: "'medium'"
 - statement_terminator: ;
 - statement:
-    create_cluster_replica_statement:
+    create_cluster_statement:
     - keyword: CREATE
     - keyword: CLUSTER
-    - keyword: REPLICA
     - object_reference:
-      - naked_identifier: default
-      - dot: .
-      - naked_identifier: replica
+        naked_identifier: REPLICA
+    - code: default
+    - raw: .
+    - code: replica
     - code: AVAILABILITY
     - code: ZONE
     - single_quote: "'a'"
