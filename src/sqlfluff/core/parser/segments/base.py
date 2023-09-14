@@ -1545,10 +1545,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
             rematch = segment.match(trimmed_content, ctx)
         if not rematch.is_complete():
             return False
-        # Check we don't contain any unparsables.
-        return not any(
-            "unparsable" in seg.descendant_type_set for seg in rematch.matched_segments
-        )
+        assert len(rematch.matched_segments) == 1
+        new_segment = rematch.matched_segments[0]
+        opening_unparsables = set(segment.recursive_crawl("unparsable"))
+        closing_unparsables = set(new_segment.recursive_crawl("unparsable"))
+        # Check we don't introduce any _additional_ unparsables.
+        # Pre-existing unparsables are ok, and for some rules that's as
+        # designed. The idea is that we shouldn't make the situation _worse_.
+        return opening_unparsables == closing_unparsables
 
     @staticmethod
     def _log_apply_fixes_check_issue(
