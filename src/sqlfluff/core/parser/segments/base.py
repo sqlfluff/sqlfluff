@@ -964,7 +964,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
             )
 
     def copy(
-        self, segments: Optional[Tuple["BaseSegment", ...]] = None
+        self,
+        segments: Optional[Tuple["BaseSegment", ...]] = None,
+        parent: Optional["BaseSegment"] = None,
     ) -> "BaseSegment":
         """Copy the segment recursively, with appropriate copying of references.
 
@@ -985,6 +987,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # which is stored there by @cached_property.
         new_segment.__dict__.update(self.__dict__)
 
+        # Reset the parent if provided.
+        if parent:
+            new_segment.set_parent(parent)
+
         # If the segment doesn't have a segments property, we're done.
         # NOTE: This is a proxy way of understanding whether it's a RawSegment
         # of not. Typically will _have_ a `segments` attribute, but it's an
@@ -999,8 +1005,12 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # Otherwise we should handle recursive segment coping.
         # We use the native .copy() method (this method!) appropriately
         # so that the same logic is applied in recursion.
+        # We set the parent for children directly on the copy method
+        # to ensure those line up properly.
         else:
-            new_segment.segments = tuple(seg.copy() for seg in self.segments)
+            new_segment.segments = tuple(
+                seg.copy(parent=new_segment) for seg in self.segments
+            )
 
         return new_segment
 
