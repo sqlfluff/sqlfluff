@@ -242,6 +242,10 @@ mysql_dialect.replace(
         ),
         ansi_dialect.get_grammar("Expression_C_Grammar"),
     ),
+    ColumnConstraintDefaultGrammar=OneOf(
+        Bracketed(ansi_dialect.get_grammar("ColumnConstraintDefaultGrammar")),
+        ansi_dialect.get_grammar("ColumnConstraintDefaultGrammar"),
+    ),
 )
 
 mysql_dialect.add(

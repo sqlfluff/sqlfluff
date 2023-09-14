@@ -643,6 +643,12 @@ ansi_dialect.add(
         Sequence("SET", "DEFAULT"),
     ),
     DropBehaviorGrammar=OneOf("RESTRICT", "CASCADE", optional=True),
+    ColumnConstraintDefaultGrammar=OneOf(
+        Ref("ShorthandCastSegment"),
+        Ref("LiteralGrammar"),
+        Ref("FunctionSegment"),
+        Ref("BareFunctionSegment"),
+    ),
     ReferenceDefinitionGrammar=Sequence(
         "REFERENCES",
         Ref("TableReferenceSegment"),
@@ -2987,12 +2993,7 @@ class ColumnConstraintSegment(BaseSegment):
             Sequence("CHECK", Bracketed(Ref("ExpressionSegment"))),
             Sequence(  # DEFAULT <value>
                 "DEFAULT",
-                OneOf(
-                    Ref("ShorthandCastSegment"),
-                    Ref("LiteralGrammar"),
-                    Ref("FunctionSegment"),
-                    Ref("BareFunctionSegment"),
-                ),
+                Ref("ColumnConstraintDefaultGrammar"),
             ),
             Ref("PrimaryKeyGrammar"),
             Ref("UniqueKeyGrammar"),  # UNIQUE
