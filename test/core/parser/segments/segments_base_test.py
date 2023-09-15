@@ -302,3 +302,58 @@ def test__parser__base_segments_pickle_safe(raw_seg_list):
     assert test_seg == result_seg
     # Check specifically the treatment of the parent position.
     assert result_seg.segments[0].get_parent() is result_seg
+
+
+def test__parser__base_segments_copy_isolation(DummySegment, raw_seg_list):
+    """Test copy isolation in BaseSegment.
+
+    First on one of the raws and then on the dummy segment.
+    """
+    # On a raw
+    a_seg = raw_seg_list[0]
+    a_copy = a_seg.copy()
+    assert a_seg is not a_copy
+    assert a_seg == a_copy
+    assert a_seg.pos_marker is a_copy.pos_marker
+    a_copy.pos_marker = None
+    assert a_copy.pos_marker is None
+    assert a_seg.pos_marker is not None
+
+    # On a base
+    b_seg = DummySegment(segments=raw_seg_list)
+    b_copy = b_seg.copy()
+    assert b_seg is not b_copy
+    assert b_seg == b_copy
+    assert b_seg.pos_marker is b_copy.pos_marker
+    b_copy.pos_marker = None
+    assert b_copy.pos_marker is None
+    assert b_seg.pos_marker is not None
+
+    # On addition to a lint Fix
+    fix = LintFix("replace", a_seg, [b_seg])
+    for s in fix.edit:
+        assert not s.pos_marker
+    assert b_seg.pos_marker
+
+
+def test__parser__base_segments_parent_ref(DummySegment, raw_seg_list):
+    """Test getting and setting parents on BaseSegment."""
+    # Check initially no parent (because not set)
+    assert not raw_seg_list[0].get_parent()
+    # Add it to a segment (still not set)
+    seg = DummySegment(segments=raw_seg_list)
+    assert not seg.segments[0].get_parent()
+    # Set one parent on one of them (but not another)
+    seg.segments[0].set_parent(seg)
+    assert seg.segments[0].get_parent() is seg
+    assert not seg.segments[1].get_parent()
+    # Set parent on all of them
+    seg.set_as_parent()
+    assert seg.segments[0].get_parent() is seg
+    assert seg.segments[1].get_parent() is seg
+    # Remove segment from parent, but don't unset.
+    # Should still check an return None.
+    seg_0 = seg.segments[0]
+    seg.segments = seg.segments[1:]
+    assert seg_0 not in seg.segments
+    assert not seg_0.get_parent()

@@ -13,7 +13,6 @@ from __future__ import annotations
 import logging
 import weakref
 from collections import defaultdict
-from copy import copy
 from dataclasses import dataclass
 from io import StringIO
 from itertools import chain
@@ -965,25 +964,55 @@ class BaseSegment(metaclass=SegmentMetaclass):
             )
 
     def copy(
-        self, segments: Optional[Tuple["BaseSegment", ...]] = None
+        self,
+        segments: Optional[Tuple["BaseSegment", ...]] = None,
+        parent: Optional["BaseSegment"] = None,
     ) -> "BaseSegment":
         """Copy the segment recursively, with appropriate copying of references.
 
         Optionally provide child segments which have already been dealt
         with to avoid another copy operation.
+
+        NOTE: In the copy operation it's really important that we get
+        a clean segregation so that we can't go backward and mutate the
+        source object, but at the same time we should be mindful of what
+        _needs_ to be copied to avoid a deep copy where one isn't required.
         """
-        new_seg = copy(self)
+        cls = self.__class__
+        new_segment = cls.__new__(cls)
         # Position markers are immutable, and it's important that we keep
         # a reference to the same TemplatedFile, so keep the same position
-        # marker.
-        new_seg.pos_marker = self.pos_marker
+        # marker. By updating from the source dict, we achieve that.
+        # By using the __dict__ object we also transfer the _cache_ too
+        # which is stored there by @cached_property.
+        new_segment.__dict__.update(self.__dict__)
+
+        # Reset the parent if provided.
+        if parent:
+            new_segment.set_parent(parent)
+
+        # If the segment doesn't have a segments property, we're done.
+        # NOTE: This is a proxy way of understanding whether it's a RawSegment
+        # of not. Typically will _have_ a `segments` attribute, but it's an
+        # empty tuple.
+        if not self.__dict__.get("segments", None):
+            assert (
+                not segments
+            ), f"Cannot provide `segments` argument to {cls.__name__} `.copy()`\n"
         # If segments were provided, use them.
-        if segments:
-            new_seg.segments = segments
-        # Otherwise copy them.
-        elif self.segments:
-            new_seg.segments = tuple(seg.copy() for seg in self.segments)
-        return new_seg
+        elif segments:
+            new_segment.segments = segments
+        # Otherwise we should handle recursive segment coping.
+        # We use the native .copy() method (this method!) appropriately
+        # so that the same logic is applied in recursion.
+        # We set the parent for children directly on the copy method
+        # to ensure those line up properly.
+        else:
+            new_segment.segments = tuple(
+                seg.copy(parent=new_segment) for seg in self.segments
+            )
+
+        return new_segment
 
     def as_record(self, **kwargs: bool) -> Optional[RecordSerialisedSegment]:
         """Return the segment as a structurally simplified record.
@@ -1400,7 +1429,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
                                 # of a create_before/create_after pair, also add
                                 # this segment before the edit.
                                 seg_buffer.append(seg)
-                                seg.set_parent(self)
 
                             # We're doing a replacement (it could be a single
                             # segment or an iterable)
@@ -1408,7 +1436,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
                             consumed_pos = False
                             for s in f.edit:
                                 seg_buffer.append(s)
-                                s.set_parent(self)
                                 # If one of them has the same raw representation
                                 # then the first that matches gets to take the
                                 # original position marker.
@@ -1424,7 +1451,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
                                 # in the case of a creation before, also add this
                                 # segment on the end
                                 seg_buffer.append(seg)
-                                seg.set_parent(self)
 
                         else:  # pragma: no cover
                             raise ValueError(
@@ -1434,7 +1460,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                             )
                 else:
                     seg_buffer.append(seg)
-                    seg.set_parent(self)
+
             # Invalidate any caches
             self.invalidate_caches()
 
@@ -1495,6 +1521,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # Pass through any additional kwargs
             **{k: getattr(self, k) for k in self.additional_kwargs},
         )
+        new_seg.set_as_parent(recurse=False)
         # Only validate if there's a match_grammar. Otherwise we may get
         # strange results (for example with the BracketedSegment).
         if requires_validate and (
