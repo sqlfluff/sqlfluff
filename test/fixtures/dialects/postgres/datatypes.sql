@@ -157,3 +157,7 @@ SELECT
     b,
     c::DATE
 FROM a;
+
+create table test (
+    situation bpchar(1) null default 'A'::bpchar
+);
