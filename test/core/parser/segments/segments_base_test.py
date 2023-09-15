@@ -140,22 +140,26 @@ def test__parser__base_segments_count_segments(
 @pytest.mark.parametrize(
     "list_in, result",
     [
-        (["foo"], None),
-        (["foo", " "], -1),
-        ([" ", "foo", " "], 0),
-        ([" ", "foo"], 0),
-        ([" "], 0),
-        ([], None),
+        (["foo"], False),
+        (["foo", " "], True),
+        ([" ", "foo", " "], True),
+        ([" ", "foo"], True),
+        ([" "], True),
+        (["foo", " ", "foo"], False),
     ],
 )
-def test__parser_base_segments_find_start_or_end_non_code(
-    generate_test_segments, list_in, result
+def test__parser_base_segments_validate_non_code_ends(
+    generate_test_segments, DummySegment, list_in, result
 ):
-    """Test BaseSegment._find_start_or_end_non_code()."""
-    assert (
-        BaseSegment._find_start_or_end_non_code(generate_test_segments(list_in))
-        == result
-    )
+    """Test BaseSegment.validate_non_code_ends()."""
+    seg = DummySegment(segments=generate_test_segments(list_in))
+    if result:
+        # Assert that it _does_ raise an exception.
+        with pytest.raises(AssertionError):
+            seg.validate_non_code_ends()
+    else:
+        # Check that it _doesn't_ raise an exception.
+        seg.validate_non_code_ends()
 
 
 def test__parser_base_segments_compute_anchor_edit_info(raw_seg_list):

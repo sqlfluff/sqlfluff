@@ -185,6 +185,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # Tracker for matching when things start moving.
         self.uuid = uuid or uuid4()
 
+        self.validate_non_code_ends()
         self._recalculate_caches()
 
     def __setattr__(self, key: str, value: Any) -> None:
@@ -1278,19 +1279,13 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # For debugging purposes. Ensure that we don't have non-code elements
             # at the start or end of the segments. They should always in the middle,
             # or in the parent expression.
+            self.validate_non_code_ends()
             segments = self.segments
             if self.can_start_end_non_code:
                 pre_nc, segments, post_nc = trim_non_code_segments(segments)
             else:
                 pre_nc = ()
                 post_nc = ()
-                idx_non_code = self._find_start_or_end_non_code(segments)
-                if idx_non_code is not None:  # pragma: no cover
-                    raise ValueError(
-                        f"Segment {self} {'starts' if idx_non_code == 0 else 'ends'} "
-                        f"with non code segment: "
-                        f"{segments[idx_non_code].raw!r}.\n{segments!r}"
-                    )
 
             # NOTE: No match_depth kwarg, because this is the start of the matching.
             with parse_context.deeper_match(name=self.__class__.__name__) as ctx:
@@ -1356,16 +1351,32 @@ class BaseSegment(metaclass=SegmentMetaclass):
     def _is_code_or_meta(segment: "BaseSegment") -> bool:
         return segment.is_code or segment.is_meta
 
-    @classmethod
-    def _find_start_or_end_non_code(
-        cls, segments: Sequence[BaseSegment]
-    ) -> Optional[int]:
-        """If segment's first/last child is non-code, return index."""
-        if segments:
-            for idx in [0, -1]:
-                if not cls._is_code_or_meta(segments[idx]):
-                    return idx
-        return None
+    def validate_non_code_ends(self) -> None:
+        """Validates the start and end of the sequence based on it's config.
+
+        Most normal segments may *not* start or end with whitespace. Any
+        surrounding whitespace should be within the outer segment containing
+        this one.
+
+        The exception is for segments which configure `can_start_end_non_code`
+        for which not check is conducted.
+
+        TODO: Check whether it's only `can_start_end_non_code` is only set for
+        FileSegment, in which case - take away the config and just override
+        this method for that segment.
+        """
+        if self.can_start_end_non_code:
+            return None
+        if not self.segments:
+            return None
+        assert self._is_code_or_meta(self.segments[0]), (
+            f"Segment {self} starts with whitespace segment: "
+            f"{self.segments[0].raw!r}.\n{self.segments!r}"
+        )
+        assert self._is_code_or_meta(self.segments[-1]), (
+            f"Segment {self} ends with whitespace segment: "
+            f"{self.segments[-1].raw!r}.\n{self.segments!r}"
+        )
 
     def apply_fixes(
         self, dialect: "Dialect", rule_code: str, fixes: Dict[UUID, AnchorEditInfo]
@@ -1493,21 +1504,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
             if not validated:
                 requires_validate = True
 
-        # After fixing we should be able to rely on whitespace being
-        # inserted in appropriate places. That logic now lives in
-        # `BaseRule._choose_anchor_segment()`, rather than here.
-
-        # Rather than fix that here, we simply assert that it has been
-        # done. This will raise issues in testing, but shouldn't in use.
-        if not self.can_start_end_non_code and seg_buffer:
-            assert self._find_start_or_end_non_code(seg_buffer) is None, (
-                "Found inappropriate fix application: inappropriate "
-                "whitespace positioning. Post `_choose_anchor_segment`. \n\n"
-                f"{self}\n{fixes_applied}\n\n"
-                f"{[(s.type, s.raw) for s in seg_buffer]}\n\n"
-                "Please report this issue on GitHub with your SQL query. "
-            )
-
         # Reform into a new segment
         new_seg = self.__class__(
             # Realign the segments within
@@ -1519,6 +1515,21 @@ class BaseSegment(metaclass=SegmentMetaclass):
             **{k: getattr(self, k) for k in self.additional_kwargs},
         )
         new_seg.set_as_parent(recurse=False)
+
+        # After fixing we should be able to rely on whitespace being
+        # inserted in appropriate places. That logic now lives in
+        # `BaseRule._choose_anchor_segment()`, rather than here.
+
+        # Rather than fix that here, we simply assert that it has been
+        # done. This will raise issues in testing, but shouldn't in use.
+        try:
+            new_seg.validate_non_code_ends()
+        except AssertionError as err:
+            # NOTE: only available in python 3.11.
+            if hasattr(err, "add_note"):
+                err.add_note(f" While applying fixes: {fixes_applied}.")
+            raise err
+
         # Only validate if there's a match_grammar. Otherwise we may get
         # strange results (for example with the BracketedSegment).
         if requires_validate and (
