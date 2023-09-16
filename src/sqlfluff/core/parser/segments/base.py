@@ -1548,7 +1548,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 # Pass through any additional kwargs
                 **{k: getattr(self, k) for k in self.additional_kwargs},
             )
-        except AssertionError as err:
+        except AssertionError as err:  # pragma: no cover
             # An AssertionError on creating a new segment is likely a whitespace
             # check fail. If possible add information about the fixes we tried to
             # apply, before re-raising.
