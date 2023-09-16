@@ -185,6 +185,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # Tracker for matching when things start moving.
         self.uuid = uuid or uuid4()
 
+        self.set_as_parent(recurse=False)
         self.validate_non_code_ends()
         self._recalculate_caches()
 
@@ -1508,9 +1509,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
             seg_buffer.extend(pre)
             seg_buffer.append(s)
             seg_buffer.extend(post)
-            # Set parents of any ejected segments:
-            for s in (*pre, *post):
-                s.set_parent(self)
             # If we fail to validate a child segment, make sure to validate this
             # segment.
             if not validated:
@@ -1558,7 +1556,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
             if hasattr(err, "add_note"):
                 err.add_note(f" After applying fixes: {fixes_applied}.")
             raise err
-        new_seg.set_as_parent(recurse=False)
 
         # Only validate if there's a match_grammar. Otherwise we may get
         # strange results (for example with the BracketedSegment).
