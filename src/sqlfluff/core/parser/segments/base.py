@@ -1375,7 +1375,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """
         if self.can_start_end_non_code:
             return None
-        if not self.segments:
+        if not self.segments:  # pragma: no cover
             return None
         assert self._is_code_or_meta(self.segments[0]), (
             f"Segment {self} starts with whitespace segment: "
