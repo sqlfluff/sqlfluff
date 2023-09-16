@@ -1169,6 +1169,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         # Not found.
         return []  # pragma: no cover
+
     @staticmethod
     def _is_code_or_meta(segment: "BaseSegment") -> bool:
         return segment.is_code or segment.is_meta
@@ -1316,10 +1317,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         # Rather than fix that here, we simply assert that it has been
         # done. This will raise issues in testing, but shouldn't in use.
-        if (
-            and not self.can_start_end_non_code
-            and seg_buffer
-        ):  # pragma: no cover
+        if seg_buffer and not self.can_start_end_non_code:  # pragma: no cover
             assert not self._find_start_or_end_non_code(seg_buffer), (
                 "Found inappropriate fix application: inappropriate "
                 "whitespace positioning. Post `_choose_anchor_segment`. "
