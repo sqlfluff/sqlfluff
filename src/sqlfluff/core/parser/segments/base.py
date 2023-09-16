@@ -1484,26 +1484,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # Invalidate any caches
             self.invalidate_caches()
 
-        # Most correct whitespace positioning will have already been handled
-        # _however_, the exception is `replace` edits which match start or
-        # end with whitespace. Here we handle those by checking the start
-        # and end of the resulting segment sequence for whitespace.
-        # If we're left with any non-code at the end, trim them off.
-        if not self.can_start_end_non_code:
-            _idx = 0
-            for _idx in range(0, len(seg_buffer)):
-                if self._is_code_or_meta(seg_buffer[_idx]):
-                    break
-            before = seg_buffer[:_idx]
-            seg_buffer = seg_buffer[_idx:]
-
-            _idx = len(seg_buffer)
-            for _idx in range(len(seg_buffer), 0, -1):
-                if self._is_code_or_meta(seg_buffer[_idx - 1]):
-                    break
-            after = seg_buffer[_idx:]
-            seg_buffer = seg_buffer[:_idx]
-
         # If any fixes applied, do an intermediate reposition. When applying
         # fixes to children and then trying to reposition them, that recursion
         # may rely on the parent having already populated positions for any
@@ -1535,6 +1515,29 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # segment.
             if not validated:
                 requires_validate = True
+
+        # Most correct whitespace positioning will have already been handled
+        # _however_, the exception is `replace` edits which match start or
+        # end with whitespace. We also need to handle any leading or trailing
+        # whitespace ejected from the any fixes applied to child segments.
+        # Here we handle those by checking the start and end of the resulting
+        # segment sequence for whitespace.
+        # If we're left with any non-code at the end, trim them off and pass them
+        # up to the parent segment for handling.
+        if not self.can_start_end_non_code:
+            _idx = 0
+            for _idx in range(0, len(seg_buffer)):
+                if self._is_code_or_meta(seg_buffer[_idx]):
+                    break
+            before = seg_buffer[:_idx]
+            seg_buffer = seg_buffer[_idx:]
+
+            _idx = len(seg_buffer)
+            for _idx in range(len(seg_buffer), 0, -1):
+                if self._is_code_or_meta(seg_buffer[_idx - 1]):
+                    break
+            after = seg_buffer[_idx:]
+            seg_buffer = seg_buffer[:_idx]
 
         # Reform into a new segment
         try:
