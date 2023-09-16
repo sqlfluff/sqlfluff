@@ -1498,7 +1498,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             seg_buffer = seg_buffer[_idx:]
 
             _idx = len(seg_buffer)
-            for _idx in range(len(seg_buffer), 1, -1):
+            for _idx in range(len(seg_buffer), 0, -1):
                 if self._is_code_or_meta(seg_buffer[_idx - 1]):
                     break
             after = seg_buffer[_idx:]
@@ -1537,30 +1537,25 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 requires_validate = True
 
         # Reform into a new segment
-        new_seg = self.__class__(
-            # Realign the segments within
-            segments=self._position_segments(
-                tuple(seg_buffer), parent_pos=self.pos_marker
-            ),
-            pos_marker=self.pos_marker,
-            # Pass through any additional kwargs
-            **{k: getattr(self, k) for k in self.additional_kwargs},
-        )
-        new_seg.set_as_parent(recurse=False)
-
-        # After fixing we should be able to rely on whitespace being
-        # inserted in appropriate places. That logic now lives in
-        # `BaseRule._choose_anchor_segment()`, rather than here.
-
-        # Rather than fix that here, we simply assert that it has been
-        # done. This will raise issues in testing, but shouldn't in use.
         try:
-            new_seg.validate_non_code_ends()
+            new_seg = self.__class__(
+                # Realign the segments within
+                segments=self._position_segments(
+                    tuple(seg_buffer), parent_pos=self.pos_marker
+                ),
+                pos_marker=self.pos_marker,
+                # Pass through any additional kwargs
+                **{k: getattr(self, k) for k in self.additional_kwargs},
+            )
         except AssertionError as err:
+            # An AssertionError on creating a new segment is likely a whitespace
+            # check fail. If possible add information about the fixes we tried to
+            # apply, before re-raising.
             # NOTE: only available in python 3.11.
             if hasattr(err, "add_note"):
-                err.add_note(f" While applying fixes: {fixes_applied}.")
+                err.add_note(f" After applying fixes: {fixes_applied}.")
             raise err
+        new_seg.set_as_parent(recurse=False)
 
         # Only validate if there's a match_grammar. Otherwise we may get
         # strange results (for example with the BracketedSegment).
