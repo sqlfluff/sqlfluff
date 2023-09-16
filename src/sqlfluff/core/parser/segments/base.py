@@ -1299,14 +1299,19 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     # Incomplete match.
                     # For now this means the parsing has failed. Lets add the unmatched
                     # bit at the end as something unparsable.
-                    # TODO: Do something more intelligent here.
+                    # NOTE: Don't claim any additional whitespace in the failed match.
+                    _idx = 0
+                    for _idx in range(len(m.unmatched_segments)):
+                        if m.unmatched_segments[_idx].is_code:
+                            break
                     self.segments = (
                         pre_nc
                         + m.matched_segments
+                        + m.unmatched_segments[:_idx]
                         + (
                             UnparsableSegment(
-                                segments=m.unmatched_segments + post_nc,
-                                expected="Nothing...",
+                                segments=m.unmatched_segments[_idx:] + post_nc,
+                                expected=f"Nothing else within {self.__class__.__name__}",
                             ),
                         )
                     )
@@ -1797,6 +1802,8 @@ class UnparsableSegment(BaseSegment):
     type = "unparsable"
     # From here down, comments are printed separately.
     comment_separate = True
+    # Unparsable segments could contain anything.
+    can_start_end_non_code = True
     _expected = ""
 
     def __init__(
