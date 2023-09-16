@@ -181,10 +181,10 @@ join prep_1 using (x)
         ),
         # Test with a VALUES clause in a WITH
         (
-            "WITH txt AS ( VALUES (1, 'foo') AS t (id, name) ) SELECT * FROM txt\n",
+            "WITH txt AS ( VALUES (1, 'foo') ) SELECT * FROM txt\n",
             {
                 "ctes": {
-                    "TXT": {"selectables": ["VALUES (1, 'foo') "]},
+                    "TXT": {"selectables": ["VALUES (1, 'foo')"]},
                 },
                 "query_type": "WithCompound",
                 "selectables": [

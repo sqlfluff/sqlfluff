@@ -1311,7 +1311,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
                         + (
                             UnparsableSegment(
                                 segments=m.unmatched_segments[_idx:] + post_nc,
-                                expected=f"Nothing else within {self.__class__.__name__}",
+                                expected=(
+                                    f"Nothing else within {self.__class__.__name__}"
+                                ),
                             ),
                         )
                     )
@@ -1400,6 +1402,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
             return self, [], [], True
 
         seg_buffer = []
+        before = []
+        after = []
         fixes_applied: List[LintFix] = []
         todo_buffer = list(self.segments)
         while True:
@@ -1480,6 +1484,26 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # Invalidate any caches
             self.invalidate_caches()
 
+        # Most correct whitespace positioning will have already been handled
+        # _however_, the exception is `replace` edits which match start or
+        # end with whitespace. Here we handle those by checking the start
+        # and end of the resulting segment sequence for whitespace.
+        # If we're left with any non-code at the end, trim them off.
+        if not self.can_start_end_non_code:
+            _idx = 0
+            for _idx in range(0, len(seg_buffer)):
+                if self._is_code_or_meta(seg_buffer[_idx]):
+                    break
+            before = seg_buffer[:_idx]
+            seg_buffer = seg_buffer[_idx:]
+
+            _idx = len(seg_buffer)
+            for _idx in range(len(seg_buffer), 1, -1):
+                if self._is_code_or_meta(seg_buffer[_idx - 1]):
+                    break
+            after = seg_buffer[_idx:]
+            seg_buffer = seg_buffer[:_idx]
+
         # If any fixes applied, do an intermediate reposition. When applying
         # fixes to children and then trying to reposition them, that recursion
         # may rely on the parent having already populated positions for any
@@ -1495,15 +1519,18 @@ class BaseSegment(metaclass=SegmentMetaclass):
         seg_queue = seg_buffer
         seg_buffer = []
         for seg in seg_queue:
-            s, before, after, validated = seg.apply_fixes(dialect, rule_code, fixes)
+            s, pre, post, validated = seg.apply_fixes(dialect, rule_code, fixes)
             # 'before' and 'after' will usually be empty. Only used when
             # lower-level fixes left 'seg' with non-code (usually
             # whitespace) segments as the first or last children. This is
             # generally not allowed (see the can_start_end_non_code field),
             # and these segments need to be "bubbled up" the tree.
-            seg_buffer.extend(before)
+            seg_buffer.extend(pre)
             seg_buffer.append(s)
-            seg_buffer.extend(after)
+            seg_buffer.extend(post)
+            # Set parents of any ejected segments:
+            for s in (*pre, *post):
+                s.set_parent(self)
             # If we fail to validate a child segment, make sure to validate this
             # segment.
             if not validated:

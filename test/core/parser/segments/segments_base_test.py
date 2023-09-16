@@ -152,7 +152,6 @@ def test__parser_base_segments_validate_non_code_ends(
     generate_test_segments, DummySegment, list_in, result
 ):
     """Test BaseSegment.validate_non_code_ends()."""
-
     if result:
         # Assert that it _does_ raise an exception.
         with pytest.raises(AssertionError):
