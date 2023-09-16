@@ -705,6 +705,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                     OneOf(
                         Sequence(
                             OneOf(
+                                "BPCHAR",
                                 "CHAR",
                                 # CHAR VARYING is not documented, but it's
                                 # in the real grammar:
