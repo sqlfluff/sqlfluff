@@ -185,6 +185,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # Tracker for matching when things start moving.
         self.uuid = uuid or uuid4()
 
+        self.set_as_parent(recurse=False)
+        self.validate_non_code_ends()
         self._recalculate_caches()
 
     def __setattr__(self, key: str, value: Any) -> None:
@@ -1278,19 +1280,13 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # For debugging purposes. Ensure that we don't have non-code elements
             # at the start or end of the segments. They should always in the middle,
             # or in the parent expression.
+            self.validate_non_code_ends()
             segments = self.segments
             if self.can_start_end_non_code:
                 pre_nc, segments, post_nc = trim_non_code_segments(segments)
             else:
                 pre_nc = ()
                 post_nc = ()
-                idx_non_code = self._find_start_or_end_non_code(segments)
-                if idx_non_code is not None:  # pragma: no cover
-                    raise ValueError(
-                        f"Segment {self} {'starts' if idx_non_code == 0 else 'ends'} "
-                        f"with non code segment: "
-                        f"{segments[idx_non_code].raw!r}.\n{segments!r}"
-                    )
 
             # NOTE: No match_depth kwarg, because this is the start of the matching.
             with parse_context.deeper_match(name=self.__class__.__name__) as ctx:
@@ -1304,14 +1300,21 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     # Incomplete match.
                     # For now this means the parsing has failed. Lets add the unmatched
                     # bit at the end as something unparsable.
-                    # TODO: Do something more intelligent here.
+                    # NOTE: Don't claim any additional whitespace in the failed match.
+                    _idx = 0
+                    for _idx in range(len(m.unmatched_segments)):
+                        if m.unmatched_segments[_idx].is_code:
+                            break
                     self.segments = (
                         pre_nc
                         + m.matched_segments
+                        + m.unmatched_segments[:_idx]
                         + (
                             UnparsableSegment(
-                                segments=m.unmatched_segments + post_nc,
-                                expected="Nothing...",
+                                segments=m.unmatched_segments[_idx:] + post_nc,
+                                expected=(
+                                    f"Nothing else within {self.__class__.__name__}"
+                                ),
                             ),
                         )
                     )
@@ -1356,16 +1359,32 @@ class BaseSegment(metaclass=SegmentMetaclass):
     def _is_code_or_meta(segment: "BaseSegment") -> bool:
         return segment.is_code or segment.is_meta
 
-    @classmethod
-    def _find_start_or_end_non_code(
-        cls, segments: Sequence[BaseSegment]
-    ) -> Optional[int]:
-        """If segment's first/last child is non-code, return index."""
-        if segments:
-            for idx in [0, -1]:
-                if not cls._is_code_or_meta(segments[idx]):
-                    return idx
-        return None
+    def validate_non_code_ends(self) -> None:
+        """Validates the start and end of the sequence based on it's config.
+
+        Most normal segments may *not* start or end with whitespace. Any
+        surrounding whitespace should be within the outer segment containing
+        this one.
+
+        The exception is for segments which configure `can_start_end_non_code`
+        for which not check is conducted.
+
+        TODO: Check whether it's only `can_start_end_non_code` is only set for
+        FileSegment, in which case - take away the config and just override
+        this method for that segment.
+        """
+        if self.can_start_end_non_code:
+            return None
+        if not self.segments:  # pragma: no cover
+            return None
+        assert self._is_code_or_meta(self.segments[0]), (
+            f"Segment {self} starts with whitespace segment: "
+            f"{self.segments[0].raw!r}.\n{self.segments!r}"
+        )
+        assert self._is_code_or_meta(self.segments[-1]), (
+            f"Segment {self} ends with whitespace segment: "
+            f"{self.segments[-1].raw!r}.\n{self.segments!r}"
+        )
 
     def apply_fixes(
         self, dialect: "Dialect", rule_code: str, fixes: Dict[UUID, AnchorEditInfo]
@@ -1384,6 +1403,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
             return self, [], [], True
 
         seg_buffer = []
+        before = []
+        after = []
         fixes_applied: List[LintFix] = []
         todo_buffer = list(self.segments)
         while True:
@@ -1479,49 +1500,63 @@ class BaseSegment(metaclass=SegmentMetaclass):
         seg_queue = seg_buffer
         seg_buffer = []
         for seg in seg_queue:
-            s, before, after, validated = seg.apply_fixes(dialect, rule_code, fixes)
+            s, pre, post, validated = seg.apply_fixes(dialect, rule_code, fixes)
             # 'before' and 'after' will usually be empty. Only used when
             # lower-level fixes left 'seg' with non-code (usually
             # whitespace) segments as the first or last children. This is
             # generally not allowed (see the can_start_end_non_code field),
             # and these segments need to be "bubbled up" the tree.
-            seg_buffer.extend(before)
+            seg_buffer.extend(pre)
             seg_buffer.append(s)
-            seg_buffer.extend(after)
+            seg_buffer.extend(post)
             # If we fail to validate a child segment, make sure to validate this
             # segment.
             if not validated:
                 requires_validate = True
 
-        # After fixing we should be able to rely on whitespace being
-        # inserted in appropriate places. That logic now lives in
-        # `BaseRule._choose_anchor_segment()`, rather than here.
+        # Most correct whitespace positioning will have already been handled
+        # _however_, the exception is `replace` edits which match start or
+        # end with whitespace. We also need to handle any leading or trailing
+        # whitespace ejected from the any fixes applied to child segments.
+        # Here we handle those by checking the start and end of the resulting
+        # segment sequence for whitespace.
+        # If we're left with any non-code at the end, trim them off and pass them
+        # up to the parent segment for handling.
+        if not self.can_start_end_non_code:
+            _idx = 0
+            for _idx in range(0, len(seg_buffer)):
+                if self._is_code_or_meta(seg_buffer[_idx]):
+                    break
+            before = seg_buffer[:_idx]
+            seg_buffer = seg_buffer[_idx:]
 
-        # Rather than fix that here, we simply assert that it has been
-        # done. This will raise issues in testing, but shouldn't in use.
-        if (
-            # TODO: Rethink this assertion once parse_grammar is gone.
-            self.parse_grammar
-            and not self.can_start_end_non_code
-            and seg_buffer
-        ):  # pragma: no cover
-            assert not self._find_start_or_end_non_code(seg_buffer), (
-                "Found inappropriate fix application: inappropriate "
-                "whitespace positioning. Post `_choose_anchor_segment`. "
-                "Please report this issue on GitHub with your SQL query. "
-            )
+            _idx = len(seg_buffer)
+            for _idx in range(len(seg_buffer), 0, -1):
+                if self._is_code_or_meta(seg_buffer[_idx - 1]):
+                    break
+            after = seg_buffer[_idx:]
+            seg_buffer = seg_buffer[:_idx]
 
         # Reform into a new segment
-        new_seg = self.__class__(
-            # Realign the segments within
-            segments=self._position_segments(
-                tuple(seg_buffer), parent_pos=self.pos_marker
-            ),
-            pos_marker=self.pos_marker,
-            # Pass through any additional kwargs
-            **{k: getattr(self, k) for k in self.additional_kwargs},
-        )
-        new_seg.set_as_parent(recurse=False)
+        try:
+            new_seg = self.__class__(
+                # Realign the segments within
+                segments=self._position_segments(
+                    tuple(seg_buffer), parent_pos=self.pos_marker
+                ),
+                pos_marker=self.pos_marker,
+                # Pass through any additional kwargs
+                **{k: getattr(self, k) for k in self.additional_kwargs},
+            )
+        except AssertionError as err:  # pragma: no cover
+            # An AssertionError on creating a new segment is likely a whitespace
+            # check fail. If possible add information about the fixes we tried to
+            # apply, before re-raising.
+            # NOTE: only available in python 3.11.
+            if hasattr(err, "add_note"):
+                err.add_note(f" After applying fixes: {fixes_applied}.")
+            raise err
+
         # Only validate if there's a match_grammar. Otherwise we may get
         # strange results (for example with the BracketedSegment).
         if requires_validate and (
@@ -1789,6 +1824,8 @@ class UnparsableSegment(BaseSegment):
     type = "unparsable"
     # From here down, comments are printed separately.
     comment_separate = True
+    # Unparsable segments could contain anything.
+    can_start_end_non_code = True
     _expected = ""
 
     def __init__(
