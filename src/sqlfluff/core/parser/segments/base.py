@@ -1171,6 +1171,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         # Not found.
         return []  # pragma: no cover
+
     @staticmethod
     def _is_code_or_meta(segment: "BaseSegment") -> bool:
         return segment.is_code or segment.is_meta

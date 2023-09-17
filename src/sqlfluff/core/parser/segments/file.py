@@ -5,7 +5,7 @@ from typing import Optional, Set, Tuple
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.segments.base import BaseSegment, UnparsableSegment
 
 
 class BaseFileSegment(BaseSegment):
@@ -42,7 +42,10 @@ class BaseFileSegment(BaseSegment):
 
     @classmethod
     def root_parse(
-        cls, segments: Tuple[BaseSegment, ...], fname: str, parse_context: ParseContext
+        cls,
+        segments: Tuple[BaseSegment, ...],
+        parse_context: ParseContext,
+        fname: Optional[str] = None,
     ):
         """This is the entry method into parsing a file lexed segments.
 
@@ -74,20 +77,31 @@ class BaseFileSegment(BaseSegment):
         assert cls.match_grammar
         # NOTE: Don't call .match() on the segment class itself, but go
         # straight to the match grammar inside.
-        matched = cls.match_grammar.match(segments[_start_idx:_end_idx], parse_context)
+        match = cls.match_grammar.match(segments[_start_idx:_end_idx], parse_context)
+        unmatched = match.unmatched_segments
 
-        if not matched:
+        if not match:
             raise NotImplementedError(
-                f"No match for {fname}: {matched} "
+                f"No match for {fname}: {match} "
                 f"{segments[_start_idx:_end_idx]}, "
                 f"{_start_idx}:{_end_idx}"
             )
-        elif matched.unmatched_segments:
-            raise NotImplementedError("Unmatched tail. Needs work.")
+        elif unmatched:
+            _idx = 0
+            for _idx in range(len(unmatched)):
+                if unmatched[_idx].is_code:
+                    break
+            unmatched = unmatched[:_idx] + (
+                UnparsableSegment(
+                    unmatched[_idx:], expected="Nothing else in FileSegment."
+                ),
+            )
 
-        assert matched.matched_segments
-        assert matched.is_complete()
+        assert match.matched_segments
         return cls(
-            segments[:_start_idx] + matched.matched_segments + segments[_end_idx:],
+            segments[:_start_idx]
+            + match.matched_segments
+            + unmatched
+            + segments[_end_idx:],
             fname=fname,
         )
