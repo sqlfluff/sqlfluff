@@ -169,8 +169,9 @@ class Delimited(OneOf):
                 )
 
             if not match:
-                matched_segments += pre_non_code
-                unmatched_segments = match.unmatched_segments + post_non_code
+                unmatched_segments = (
+                    pre_non_code + match.unmatched_segments + post_non_code
+                )
                 break
 
             if seeking_delimiter:

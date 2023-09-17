@@ -139,22 +139,28 @@ def test__parser__base_segments_count_segments(
 @pytest.mark.parametrize(
     "list_in, result",
     [
-        (["foo"], None),
-        (["foo", " "], -1),
-        ([" ", "foo", " "], 0),
-        ([" ", "foo"], 0),
-        ([" "], 0),
-        ([], None),
+        (["foo"], False),
+        (["foo", " "], True),
+        ([" ", "foo", " "], True),
+        ([" ", "foo"], True),
+        ([" "], True),
+        (["foo", " ", "foo"], False),
     ],
 )
-def test__parser_base_segments_find_start_or_end_non_code(
-    generate_test_segments, list_in, result
+def test__parser_base_segments_validate_non_code_ends(
+    generate_test_segments, DummySegment, list_in, result
 ):
-    """Test BaseSegment._find_start_or_end_non_code()."""
-    assert (
-        BaseSegment._find_start_or_end_non_code(generate_test_segments(list_in))
-        == result
-    )
+    """Test BaseSegment.validate_non_code_ends()."""
+    if result:
+        # Assert that it _does_ raise an exception.
+        with pytest.raises(AssertionError):
+            # Validation happens on instantiation.
+            seg = DummySegment(segments=generate_test_segments(list_in))
+    else:
+        # Check that it _doesn't_ raise an exception...
+        seg = DummySegment(segments=generate_test_segments(list_in))
+        # ...even when explicitly validating.
+        seg.validate_non_code_ends()
 
 
 def test__parser_base_segments_compute_anchor_edit_info(raw_seg_list):
@@ -336,15 +342,8 @@ def test__parser__base_segments_parent_ref(DummySegment, raw_seg_list):
     """Test getting and setting parents on BaseSegment."""
     # Check initially no parent (because not set)
     assert not raw_seg_list[0].get_parent()
-    # Add it to a segment (still not set)
+    # Add it to a segment (which also sets the parent value)
     seg = DummySegment(segments=raw_seg_list)
-    assert not seg.segments[0].get_parent()
-    # Set one parent on one of them (but not another)
-    seg.segments[0].set_parent(seg)
-    assert seg.segments[0].get_parent() is seg
-    assert not seg.segments[1].get_parent()
-    # Set parent on all of them
-    seg.set_as_parent()
     assert seg.segments[0].get_parent() is seg
     assert seg.segments[1].get_parent() is seg
     # Remove segment from parent, but don't unset.
@@ -353,3 +352,5 @@ def test__parser__base_segments_parent_ref(DummySegment, raw_seg_list):
     seg.segments = seg.segments[1:]
     assert seg_0 not in seg.segments
     assert not seg_0.get_parent()
+    # Check the other still works.
+    assert seg.segments[0].get_parent()
