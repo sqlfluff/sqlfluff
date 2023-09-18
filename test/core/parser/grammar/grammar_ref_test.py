@@ -3,8 +3,32 @@
 NOTE: All of these tests depend somewhat on the KeywordSegment working as planned.
 """
 
+import pytest
+
+from sqlfluff.core.dialects import Dialect
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar import Ref
+from sqlfluff.core.parser.lexer import RegexLexer
+from sqlfluff.core.parser.match_result import MatchResult2
+from sqlfluff.core.parser.parsers import StringParser
+from sqlfluff.core.parser.segments import CodeSegment, WhitespaceSegment
+
+
+@pytest.fixture(scope="function")
+def test_dialect():
+    """A stripped back test dialect for testing."""
+    test_dialect = Dialect("test", root_segment_name="FileSegment")
+    test_dialect.set_lexer_matchers(
+        [
+            RegexLexer("whitespace", r"[^\S\r\n]+", WhitespaceSegment),
+            RegexLexer(
+                "code", r"[0-9a-zA-Z_]+", CodeSegment, segment_kwargs={"type": "code"}
+            ),
+        ]
+    )
+    test_dialect.add(FooSegment=StringParser("foo", CodeSegment, type="foo"))
+    # Return the expanded copy.
+    return test_dialect.expand()
 
 
 def test__parser__grammar__ref_eq():
@@ -38,3 +62,29 @@ def test__parser__grammar_ref_exclude(generate_test_segments, fresh_ansi_dialect
     assert not ni.match([ts[0]], parse_context=ctx)
     # Assert ABSOLUTE does match
     assert ni.match([ts[1]], parse_context=ctx)
+
+
+def test__parser__grammar_ref_match2(generate_test_segments, test_dialect):
+    """Test the Ref grammar match2 method."""
+    foo_ref = Ref("FooSegment")
+    test_segments = generate_test_segments(["bar", "foo", "bar"])
+    ctx = ParseContext(dialect=test_dialect)
+
+    match = foo_ref.match2(test_segments, 1, ctx)
+
+    assert match == MatchResult2(
+        matched_slice=slice(1, 2),
+        matched_class=CodeSegment,
+        segment_kwargs={"type": "foo"},
+    )
+
+
+def test__parser__grammar_ref_exclude2(generate_test_segments, fresh_ansi_dialect):
+    """Test the Ref grammar exclude option with the match2 method."""
+    identifier = Ref("NakedIdentifierSegment", exclude=Ref.keyword("ABS"))
+    test_segments = generate_test_segments(["ABS", "ABSOLUTE"])
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    # Assert ABS does not match, due to the exclude
+    assert not identifier.match2(test_segments, 0, ctx)
+    # Assert ABSOLUTE does match
+    assert identifier.match2(test_segments, 1, ctx)

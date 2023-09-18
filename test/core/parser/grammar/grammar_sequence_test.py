@@ -8,9 +8,16 @@ from os import getenv
 
 import pytest
 
-from sqlfluff.core.parser import Indent, KeywordSegment, StringParser, WhitespaceSegment
+from sqlfluff.core.parser import (
+    Dedent,
+    Indent,
+    KeywordSegment,
+    StringParser,
+    WhitespaceSegment,
+)
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar import Conditional, Sequence
+from sqlfluff.core.parser.match_result import MatchResult2
 from sqlfluff.core.parser.types import ParseMode
 
 
@@ -74,6 +81,72 @@ def test__parser__grammar_sequence_nested(test_segments, caplog):
             KeywordSegment("baar", test_segments[3].pos_marker)
             # NB: No whitespace at the end, this shouldn't be consumed.
         )
+
+
+def test__parser__grammar_sequence_nested_match2(test_segments, caplog):
+    """Test the Sequence grammar when nested."""
+    bar = StringParser("bar", KeywordSegment)
+    foo = StringParser("foo", KeywordSegment)
+    baar = StringParser("baar", KeywordSegment)
+    g = Sequence(Sequence(bar, foo), baar)
+
+    ctx = ParseContext(dialect=None)
+    # Confirm the structure of the test segments:
+    assert [s.raw for s in test_segments] == ["bar", " \t ", "foo", "baar", " \t ", ""]
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
+        # Matching just the start of the list shouldn't work.
+        result1 = g.match2(test_segments[:3], 0, ctx)
+
+    assert not result1  # Check it returns falsy
+    assert result1 == MatchResult2(
+        matched_slice=slice(0, 3),  # NOTE: One of these is space.
+        child_matches=(
+            # NOTE: Two child matches, both clean. These
+            # *were* in the initial list and should still have
+            # matched.
+            # It's also important that the subsequence has been flattened
+            # here. There isn't a sub-match for the inner sequence. That's
+            # because it didn't have a class attached to it.
+            MatchResult2(
+                matched_slice=slice(0, 1),
+                matched_class=KeywordSegment,
+                segment_kwargs={"type": "keyword"},
+            ),
+            MatchResult2(
+                matched_slice=slice(2, 3),
+                matched_class=KeywordSegment,
+                segment_kwargs={"type": "keyword"},
+            ),
+        ),
+        # ...but the overall match is partial and unclean.
+        is_clean=False,
+    )
+
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
+        # Matching the whole list should.
+        result2 = g.match2(test_segments, 0, ctx)
+
+    assert result2  # Check it returns truthy
+    assert result2 == MatchResult2(
+        matched_slice=slice(0, 4),  # NOTE: One of these is space.
+        child_matches=(
+            MatchResult2(
+                matched_slice=slice(0, 1),
+                matched_class=KeywordSegment,
+                segment_kwargs={"type": "keyword"},
+            ),
+            MatchResult2(
+                matched_slice=slice(2, 3),
+                matched_class=KeywordSegment,
+                segment_kwargs={"type": "keyword"},
+            ),
+            MatchResult2(
+                matched_slice=slice(3, 4),
+                matched_class=KeywordSegment,
+                segment_kwargs={"type": "keyword"},
+            ),
+        ),
+    )
 
 
 def test__parser__grammar_sequence_indent(test_segments, caplog):
@@ -299,3 +372,48 @@ def test__parser__grammar_sequence_modes(
         e.to_tuple(show_raw=True, code_only=False) for e in _match.matched_segments
     )
     assert _result == output_tuple
+
+
+def test__parser__grammar_sequence_indent_conditional_match2(test_segments, caplog):
+    """Test the Sequence grammar with indents."""
+    bar = StringParser("bar", KeywordSegment)
+    foo = StringParser("foo", KeywordSegment)
+    # We will assume the default config has indented_joins = False.
+    # We're testing without explicitly setting the `config_type` because
+    # that's the assumed way of using the grammar in practice.
+    g = Sequence(
+        Dedent,
+        Conditional(Indent, indented_joins=False),
+        bar,
+        Conditional(Indent, indented_joins=True),
+        foo,
+        Dedent,
+    )
+    ctx = ParseContext(dialect=None)
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
+        m = g.match2(test_segments, 0, parse_context=ctx)
+
+    assert m == MatchResult2(
+        matched_slice=slice(0, 3),  # NOTE: One of these is space.
+        child_matches=(
+            # The two child keywords
+            MatchResult2(
+                matched_slice=slice(0, 1),
+                matched_class=KeywordSegment,
+                segment_kwargs={"type": "keyword"},
+            ),
+            MatchResult2(
+                matched_slice=slice(2, 3),
+                matched_class=KeywordSegment,
+                segment_kwargs={"type": "keyword"},
+            ),
+        ),
+        insert_segments=(
+            (0, Dedent),  # The starting, unconditional dedent.
+            (0, Indent),  # The conditional (activated) Indent.
+            # NOTE: There *isn't* the other Indent.
+            (3, Dedent),  # The closing unconditional dedent.
+            # NOTE: This last one is still included even though it's
+            # after the last matched segment.
+        ),
+    )
