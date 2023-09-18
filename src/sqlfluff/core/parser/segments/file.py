@@ -46,7 +46,7 @@ class BaseFileSegment(BaseSegment):
         segments: Tuple[BaseSegment, ...],
         parse_context: ParseContext,
         fname: Optional[str] = None,
-    ):
+    ) -> "BaseFileSegment":
         """This is the entry method into parsing a file lexed segments.
 
         For single pass matching, this trims any non code off
