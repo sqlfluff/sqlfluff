@@ -40,15 +40,17 @@ def first_trimmed_raw(seg: BaseSegment) -> str:
     return s[0] if s else ""
 
 
-def _first_non_whitespace(
-    segments: Iterable["BaseSegment"],
+def first_non_whitespace(
+    segments: Sequence[BaseSegment],
+    start_idx=0,
 ) -> Optional[Tuple[str, Set[str]]]:
     """Return the upper first non-whitespace segment in the iterable."""
-    for segment in segments:
-        if segment.first_non_whitespace_segment_raw_upper:
+    for i in range(start_idx, len(segments)):
+        _segment = segments[i]
+        if _segment.first_non_whitespace_segment_raw_upper:
             return (
-                segment.first_non_whitespace_segment_raw_upper,
-                segment.class_types,
+                _segment.first_non_whitespace_segment_raw_upper,
+                _segment.class_types,
             )
     return None
 
@@ -75,9 +77,10 @@ class BracketInfo:
 
 
 def prune_options(
-    options: Iterable[MatchableType],
-    segments: Tuple[BaseSegment, ...],
+    options: List[MatchableType],
+    segments: Sequence[BaseSegment],
     parse_context: ParseContext,
+    start_idx=0,
 ) -> List[MatchableType]:
     """Use the simple matchers to prune which options to match on.
 
@@ -88,12 +91,12 @@ def prune_options(
     prune_buff = []
 
     # Find the first code element to match against.
-    first_segment = _first_non_whitespace(segments)
+    first = first_non_whitespace(segments, start_idx=start_idx)
     # If we don't have an appropriate option to match against,
     # then we should just return immediately. Nothing will match.
-    if not first_segment:
+    if not first:
         return list(options)
-    first_raw, first_types = first_segment
+    first_raw, first_types = first
 
     for opt in options:
         simple = opt.simple(parse_context=parse_context)

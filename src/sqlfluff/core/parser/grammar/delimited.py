@@ -38,7 +38,7 @@ class Delimited(OneOf):
         allow_trailing: bool = False,
         terminators: Sequence[Union[MatchableType, str]] = (),
         reset_terminators: bool = False,
-        min_delimiters: Optional[int] = None,
+        min_delimiters: int = 0,
         bracket_pairs_set: str = "bracket_pairs",
         allow_gaps: bool = True,
         optional: bool = False,

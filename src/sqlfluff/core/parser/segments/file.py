@@ -81,12 +81,14 @@ class BaseFileSegment(BaseSegment):
         assert _final_seg.pos_marker
         _closing_position = _final_seg.pos_marker.templated_slice.stop
         with parse_context.progress_bar(_closing_position):
-            # NOTE: Don't call .match() on the segment class itself, but go
+            # NOTE: Don't call .match2() on the segment class itself, but go
             # straight to the match grammar inside.
-            match = cls.match_grammar.match(
-                segments[_start_idx:_end_idx], parse_context
+            match = cls.match_grammar.match2(
+                segments[:_end_idx], _start_idx, parse_context
             )
-        unmatched = match.unmatched_segments
+
+        _matched = match.apply(segments)
+        _unmatched = segments[match.matched_slice.stop : _end_idx]
 
         content: Tuple[BaseSegment, ...]
         if not match:
@@ -95,22 +97,22 @@ class BaseFileSegment(BaseSegment):
                     segments[_start_idx:_end_idx], expected=str(cls.match_grammar)
                 ),
             )
-        elif unmatched:
+        elif _unmatched:
             _idx = 0
-            for _idx in range(len(unmatched)):
-                if unmatched[_idx].is_code:
+            for _idx in range(len(_unmatched)):
+                if _unmatched[_idx].is_code:
                     break
             content = (
-                match.matched_segments
-                + unmatched[:_idx]
+                _matched
+                + _unmatched[:_idx]
                 + (
                     UnparsableSegment(
-                        unmatched[_idx:], expected="Nothing else in FileSegment."
+                        _unmatched[_idx:], expected="Nothing else in FileSegment."
                     ),
                 )
             )
         else:
-            content = match.matched_segments + unmatched
+            content = _matched + _unmatched
 
         return cls(
             segments[:_start_idx] + content + segments[_end_idx:],
