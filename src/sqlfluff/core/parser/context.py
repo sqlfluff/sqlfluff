@@ -237,8 +237,6 @@ class ParseContext:
         If progress isn't configured, we do nothing.
         If `track_progress` is false we do nothing.
         """
-        if not self._tqdm or not self.track_progress:
-            return None
         for _idx in range(len(matched_segments) - 1, -1, -1):
             _seg = matched_segments[_idx]
             if _seg.pos_marker:
@@ -246,10 +244,20 @@ class ParseContext:
                 break
         else:  # pragma: no cover
             raise ValueError("Could not find progress position!")
-        if current_char <= self._current_char:
+        return self.update_progress2(current_char)
+
+    def update_progress2(self, char_idx: int) -> None:
+        """Update the progress bar if configured.
+
+        If progress isn't configured, we do nothing.
+        If `track_progress` is false we do nothing.
+        """
+        if not self._tqdm or not self.track_progress:
             return None
-        self._tqdm.update(current_char - self._current_char)
-        self._current_char = current_char
+        if char_idx <= self._current_char:
+            return None
+        self._tqdm.update(char_idx - self._current_char)
+        self._current_char = char_idx
         return None
 
     def stack(self) -> Tuple[Tuple[str, ...], Tuple[str, ...]]:  # pragma: no cover

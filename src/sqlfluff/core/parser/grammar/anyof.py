@@ -341,6 +341,7 @@ class AnyNumberOf(BaseGrammar):
             if match:
                 matched = matched.append(match)
                 matched_idx = matched.matched_slice.stop
+                parse_context.update_progress2(matched_idx)
                 n_matches += 1
             else:
                 # If we get here, then we've not managed to match.

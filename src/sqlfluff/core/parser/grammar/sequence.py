@@ -560,6 +560,7 @@ class Sequence(BaseGrammar):
 
             # Otherwise we _do_ have a match. Update the position.
             matched_idx = elem_match.matched_slice.stop
+            parse_context.update_progress2(matched_idx)
             # How we deal with child segments depends on whether it had a matched
             # class or not.
             # If it did, then just add it as a child match and we're done. Move on.
