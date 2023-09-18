@@ -243,7 +243,7 @@ class ParseContext:
             if _seg.pos_marker:
                 current_char = _seg.pos_marker.templated_slice.stop
                 break
-        else:  # pragma no cover
+        else:  # pragma: no cover
             raise ValueError("Could not find progress position!")
         if current_char <= self._current_char:
             return None
