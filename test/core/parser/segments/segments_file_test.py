@@ -1,14 +1,6 @@
 """Test the BaseFileSegment class."""
 
-import pytest
-
 from sqlfluff.core.parser import BaseFileSegment
-
-
-@pytest.fixture(scope="module")
-def raw_segments(generate_test_segments):
-    """Construct a list of raw segments as a fixture."""
-    return generate_test_segments(["foobar", ".barfoo"])
 
 
 def test__parser__base_segments_file(raw_segments):
