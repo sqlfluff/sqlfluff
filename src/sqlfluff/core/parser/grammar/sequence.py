@@ -68,7 +68,9 @@ def _trim_to_terminator(
                 return (), segments + tail
 
     # If the above case didn't match then we proceed as expected.
-    with parse_context.deeper_match(name="Sequence-GreedyB-@0") as ctx:
+    with parse_context.deeper_match(
+        name="Sequence-GreedyB-@0", track_progress=False
+    ) as ctx:
         term_match = greedy_match(
             segments,
             parse_context=ctx,
@@ -331,6 +333,7 @@ class Sequence(BaseGrammar):
             # Add on the match itself
             matched_segments += elem_match.matched_segments
             unmatched_segments = elem_match.unmatched_segments
+            parse_context.update_progress(matched_segments)
 
             if first_match and self.parse_mode == ParseMode.GREEDY_ONCE_STARTED:
                 # In the GREEDY_ONCE_STARTED mode, we first look ahead to find a

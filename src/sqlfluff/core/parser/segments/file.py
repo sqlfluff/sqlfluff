@@ -75,9 +75,17 @@ class BaseFileSegment(BaseSegment):
             cls, "parse_grammar"
         ), "`parse_grammar` is deprecated on FileSegment."
         assert cls.match_grammar
-        # NOTE: Don't call .match() on the segment class itself, but go
-        # straight to the match grammar inside.
-        match = cls.match_grammar.match(segments[_start_idx:_end_idx], parse_context)
+
+        # Set up the progress bar for parsing.
+        _final_seg = segments[-1]
+        assert _final_seg.pos_marker
+        _closing_position = _final_seg.pos_marker.templated_slice.stop
+        with parse_context.progress_bar(_closing_position):
+            # NOTE: Don't call .match() on the segment class itself, but go
+            # straight to the match grammar inside.
+            match = cls.match_grammar.match(
+                segments[_start_idx:_end_idx], parse_context
+            )
         unmatched = match.unmatched_segments
 
         if not match:

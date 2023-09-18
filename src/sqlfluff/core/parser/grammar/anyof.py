@@ -170,11 +170,14 @@ class AnyNumberOf(BaseGrammar):
         # Secondly, if we're in a greedy mode, handle that first.
         if self.parse_mode == ParseMode.GREEDY:
             _terminators = [*self.terminators, *parse_context.terminators]
-            _term_match = greedy_match(
-                segments,
-                parse_context,
-                matchers=_terminators,
-            )
+            with parse_context.deeper_match(
+                name="AnyOf-Greedy-@0", track_progress=False
+            ) as ctx:
+                _term_match = greedy_match(
+                    segments,
+                    parse_context,
+                    matchers=_terminators,
+                )
             if _term_match:
                 # If we found a terminator, trim off the tail of the available
                 # segments to match on.
@@ -241,6 +244,7 @@ class AnyNumberOf(BaseGrammar):
             if match:
                 matched_segments += pre_seg + match.matched_segments
                 unmatched_segments = match.unmatched_segments
+                parse_context.update_progress(matched_segments.matched_segments)
                 n_matches += 1
             else:
                 # If we get here, then we've not managed to match. And the next

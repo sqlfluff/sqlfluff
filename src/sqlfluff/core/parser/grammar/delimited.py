@@ -2,9 +2,6 @@
 
 from typing import Optional, Sequence, Tuple, Union
 
-from tqdm import tqdm
-
-from sqlfluff.core.config import progress_bar_configuration
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar import Ref
 from sqlfluff.core.parser.grammar.anyof import OneOf
@@ -85,24 +82,6 @@ class Delimited(OneOf):
         delimiters = 0
         matched_delimiter = False
 
-        # We want to render progress bar only for the main matching loop,
-        # so disable it when in deeper parsing.
-        disable_progress_bar = (
-            parse_context.parse_depth > 0
-            or progress_bar_configuration.disable_progress_bar
-        )
-
-        # We use amount of `NewLineSegment` to estimate how many steps could be in
-        # a big file. It's not perfect, but should do a job in most cases.
-        new_line_segments = [s for s in segments if s.is_type("newline")]
-        progressbar_matching = tqdm(
-            total=len(new_line_segments),
-            desc="matching",
-            miniters=30,
-            disable=disable_progress_bar,
-            leave=False,
-        )
-
         seeking_delimiter = False
         has_matched_segs = False
         terminated = False
@@ -121,8 +100,6 @@ class Delimited(OneOf):
             terminator_matchers.append(NonCodeMatcher())
 
         while True:
-            progressbar_matching.update(n=1)
-
             if len(seg_buff) == 0:  # pragma: no cover
                 break
 
@@ -196,6 +173,7 @@ class Delimited(OneOf):
 
             matched_segments += pre_non_code + match.matched_segments
             seeking_delimiter = not seeking_delimiter
+            parse_context.update_progress(matched_segments)
 
         if self.min_delimiters:
             if delimiters < self.min_delimiters:
