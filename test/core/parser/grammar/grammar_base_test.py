@@ -30,7 +30,7 @@ def make_result_tuple(result_slice, matcher_keywords, test_segments):
 
 
 @pytest.mark.parametrize(
-    "seg_list_slice,matcher_keywords,trim_noncode,result_slice",
+    "segments_slice,matcher_keywords,trim_noncode,result_slice",
     [
         # Matching the first element of the list
         (slice(None, None), ["bar"], False, slice(None, 1)),
@@ -43,7 +43,7 @@ def make_result_tuple(result_slice, matcher_keywords, test_segments):
     ],
 )
 def test__parser__grammar__base__longest_trimmed_match__basic(
-    test_segments, seg_list_slice, matcher_keywords, trim_noncode, result_slice
+    test_segments, segments_slice, matcher_keywords, trim_noncode, result_slice
 ):
     """Test the _longest_trimmed_match method of the BaseGrammar."""
     # Make the matcher keywords
@@ -51,7 +51,7 @@ def test__parser__grammar__base__longest_trimmed_match__basic(
 
     ctx = ParseContext(dialect=None)
     m, _ = BaseGrammar._longest_trimmed_match(
-        test_segments[seg_list_slice], matchers, ctx, trim_noncode=trim_noncode
+        test_segments[segments_slice], matchers, ctx, trim_noncode=trim_noncode
     )
 
     # Make the check tuple
