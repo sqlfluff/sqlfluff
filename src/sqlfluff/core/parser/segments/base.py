@@ -292,11 +292,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # custom.
         return self._class_types
 
-    @property
-    def expected_form(self) -> str:
-        """What to return to the user when unparsable."""
-        return self.get_type()
-
     @cached_property
     def descendant_type_set(self) -> Set[str]:
         """The set of all contained types.

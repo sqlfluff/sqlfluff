@@ -69,7 +69,7 @@ class Delimited(OneOf):
         as different options of what can be delimited, rather than a sequence.
         """
         # Have we been passed an empty list?
-        if len(segments) == 0:
+        if len(segments) == 0:  # pragma: no cover
             return MatchResult.from_empty()
 
         # Make some buffers

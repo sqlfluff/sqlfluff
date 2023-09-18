@@ -187,7 +187,7 @@ class ParseContext:
         _track_progress = self.track_progress
         if track_progress is False:
             self.track_progress = False
-        elif track_progress is True:
+        elif track_progress is True:  # pragma: no cover
             # We can't go from False to True. Raise an issue if not.
             assert self.track_progress is True, "Cannot set tracking from False to True"
         try:
@@ -201,34 +201,6 @@ class ParseContext:
             self.match_segment = self._match_stack.pop()
             # Reset back to old progress tracking.
             self.track_progress = _track_progress
-
-    @contextmanager
-    def deeper_parse(self, name: str) -> Iterator["ParseContext"]:
-        """Increment parse depth.
-
-        Args:
-            name (:obj:`str`): Name of segment we are starting to parse.
-                NOTE: This value is entirely used for tracking and logging
-                purposes.
-        """
-        _match_depth = self.match_depth
-        _match_stack = self._match_stack
-        self._parse_stack.append(self.match_segment)
-        self._match_stack = []  # Reset Parse Stack
-        self.match_segment = name
-        self.parse_depth += 1
-        self.match_depth = 0
-        _append, _terms = self._set_terminators(clear_terminators=True)
-        try:
-            yield self
-        finally:
-            self.parse_depth -= 1
-            self.match_depth = _match_depth
-            self._reset_terminators(_append, _terms, clear_terminators=True)
-            # Reset back to old name
-            self.match_segment = self._parse_stack.pop()
-            # And old stack
-            self._match_stack = _match_stack
 
     @contextmanager
     def progress_bar(self, last_char: int) -> Iterator["ParseContext"]:
