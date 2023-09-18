@@ -9,7 +9,7 @@ import pytest
 
 from sqlfluff.core.parser import KeywordSegment, StringParser, SymbolSegment
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.grammar import Anything, Delimited, GreedyUntil, Nothing
+from sqlfluff.core.parser.grammar import Anything, Delimited, GreedyUntil
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 
 
