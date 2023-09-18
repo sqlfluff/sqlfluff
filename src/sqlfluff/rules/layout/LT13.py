@@ -3,7 +3,7 @@ from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
-from sqlfluff.utils.functional import Segments, sp, rsp
+from sqlfluff.utils.functional import Segments, rsp, sp
 
 
 class Rule_LT13(BaseRule):
@@ -87,13 +87,10 @@ class Rule_LT13(BaseRule):
                 raw_segments.append(seg)
                 continue
 
-            segment = Segments(seg)
             raw_stack = Segments(*raw_segments, templated_file=context.templated_file)
             # Non-whitespace segment.
             if (
                 not raw_stack.all(sp.is_meta())
-                # Found leaf of parse tree.
-                and not segment.all(sp.is_expandable())
                 # It is possible that a template segment (e.g.
                 # {{ config(materialized='view') }}) renders to an empty string
                 # and as such is omitted from the parsed tree. We therefore

@@ -5,7 +5,6 @@ import pickle
 import pytest
 
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
-from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.segments.base import PathStep
 from sqlfluff.core.rules.base import LintFix
 from sqlfluff.core.templaters import TemplatedFile
@@ -254,9 +253,6 @@ def test__parser__base_segments_base(raw_seg_list, fresh_ansi_dialect, DummySegm
         == raw_seg_list[-1].pos_marker.end_point_marker()
     )
 
-    ctx = ParseContext(dialect=fresh_ansi_dialect)
-    # Expand and given we don't have a grammar we should get the same thing
-    assert base_seg.parse(parse_context=ctx)[0] == base_seg
     # Check that we correctly reconstruct the raw
     assert base_seg.raw == "foobar.barfoo"
     # Check tuple

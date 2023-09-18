@@ -419,7 +419,7 @@ class FileSegment(BaseFileSegment):
 
     # NB: We don't need a match_grammar here because we're
     # going straight into instantiating it directly usually.
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         Sequence(
             OneOf(
                 Ref("MultiStatementSegment"),
@@ -1190,12 +1190,10 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),
         Sequence(
-            OneOf(Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))),
+            Ref("ObjectReferenceDelimiterGrammar"),
             Delimited(
                 Ref("SingleIdentifierFullGrammar"),
-                delimiter=OneOf(
-                    Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
-                ),
+                delimiter=Ref("ObjectReferenceDelimiterGrammar"),
                 terminators=[
                     "ON",
                     "AS",
@@ -1281,9 +1279,7 @@ class TableReferenceSegment(ObjectReferenceSegment):
             ),
             allow_gaps=False,
         ),
-        delimiter=OneOf(
-            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
-        ),
+        delimiter=Ref("ObjectReferenceDelimiterGrammar"),
         terminators=[
             "ON",
             "AS",

@@ -377,9 +377,7 @@ class FileSegment(BaseFileSegment):
     ending in DelimiterGrammar
     """
 
-    # NB: We don't need a match_grammar here because we're
-    # going straight into instantiating it directly usually.
-    parse_grammar = AnyNumberOf(
+    match_grammar = AnyNumberOf(
         Ref("ExecuteFileSegment"),
         Delimited(
             Ref("StatementSegment"),

@@ -150,24 +150,10 @@ def test_dialect_unparsable(
 
     ctx = ParseContext.from_config(config)
 
-    # TODO: This is more complicated than it needs to be. Ideally
-    # we rethink the grammars on the `BaseFileSegment` which should
-    # resolve this complexity, and then we just need the first method.
-    # Given the plan is to only have one grammar on each segment
-    # eventually, that should be possible very soon.
-    if not Seg.parse_grammar:
-        # Match against the segment.
-        # NOTE: In the long run, only this path should exist.
-        match = Seg.match(segments, ctx)
-        assert not match.unmatched_segments
-        result = match.matched_segments
-    else:
-        # Construct an unparsed segment.
-        # NOTE: This path exists for segments which still have a parse
-        # grammar, in which case we need to call `.parse()` to reach it.
-        seg = Seg(segments, pos_marker=segments[0].pos_marker)
-        # Perform the match
-        result = seg.parse(parse_context=ctx)
+    # Match against the segment.
+    match = Seg.match(segments, ctx)
+    assert not match.unmatched_segments
+    result = match.matched_segments
 
     assert len(result) == 1
     parsed = result[0]
