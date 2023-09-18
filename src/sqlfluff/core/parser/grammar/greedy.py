@@ -4,8 +4,8 @@ from typing import Sequence, Tuple, Union
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import BaseGrammar, BaseSegment
-from sqlfluff.core.parser.match_algorithms import greedy_match
-from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_algorithms import greedy_match, greedy_match2
+from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.types import MatchableType
 
@@ -38,5 +38,23 @@ class GreedyUntil(BaseGrammar):
             segments,
             parse_context,
             matchers=self._elements,
+            include_terminator=False,
+        )
+
+    def match2(
+        self,
+        segments: Sequence["BaseSegment"],
+        idx: int,
+        parse_context: "ParseContext",
+    ) -> MatchResult2:
+        """Match against this matcher."""
+        return greedy_match2(
+            segments,
+            idx=idx,
+            parse_context=parse_context,
+            matchers=self._elements,
+            enforce_whitespace_preceding_terminator=(
+                self.enforce_whitespace_preceding_terminator
+            ),
             include_terminator=False,
         )

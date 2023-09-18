@@ -1,10 +1,10 @@
 """Conditional Grammar."""
 
-from typing import Tuple, Type, Union
+from typing import Sequence, Tuple, Type, Union
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import BaseGrammar
-from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.segments import BaseSegment, Indent
 
@@ -92,3 +92,18 @@ class Conditional(BaseGrammar):
 
         # Instantiate the new element and return
         return MatchResult((self._meta(),), segments)
+
+    def match2(
+        self,
+        segments: Sequence["BaseSegment"],
+        idx: int,
+        parse_context: "ParseContext",
+    ) -> MatchResult2:
+        """Match against this matcher."""
+        if not self.is_enabled(parse_context):
+            return MatchResult2.empty_at(idx)
+
+        # This looks weird, but yes it's just a raw insert.
+        return MatchResult2(
+            matched_slice=slice(idx, idx), insert_segments=((idx, self._meta),)
+        )

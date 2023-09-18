@@ -21,7 +21,7 @@ from sqlfluff.core.config import progress_bar_configuration
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.config import FluffConfig
     from sqlfluff.core.dialects.base import Dialect
-    from sqlfluff.core.parser.match_result import MatchResult
+    from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
     from sqlfluff.core.parser.segments import BaseSegment
     from sqlfluff.core.parser.types import MatchableType
 
@@ -68,6 +68,7 @@ class ParseContext:
         # A dict for parse caching. This is reset for each file,
         # but persists for the duration of an individual file parse.
         self._parse_cache: Dict[Tuple[Any, ...], "MatchResult"] = {}
+        self._parse_cache2: Dict[Tuple[Any, ...], "MatchResult2"] = {}
         # A dictionary for keeping track of some statistics on parsing
         # for performance optimisation.
         # Focused around BaseGrammar._longest_trimmed_match().
@@ -264,11 +265,26 @@ class ParseContext:
         """
         return self._parse_cache.get((loc_key, matcher_key))
 
+    def check_parse_cache2(
+        self, loc_key: Tuple[Any, ...], matcher_key: str
+    ) -> Optional["MatchResult2"]:
+        """Check against the parse cache for a pre-existing match.
+
+        If no match is found in the cache, this returns None.
+        """
+        return self._parse_cache2.get((loc_key, matcher_key))
+
     def put_parse_cache(
         self, loc_key: Tuple[Any, ...], matcher_key: str, match: "MatchResult"
     ) -> None:
         """Store a match in the cache for later retrieval."""
         self._parse_cache[(loc_key, matcher_key)] = match
+
+    def put_parse_cache2(
+        self, loc_key: Tuple[Any, ...], matcher_key: str, match: "MatchResult2"
+    ) -> None:
+        """Store a match in the cache for later retrieval."""
+        self._parse_cache2[(loc_key, matcher_key)] = match
 
     def increment(self, key: str, default: int = 0) -> None:
         """Increment one of the parse stats by name."""

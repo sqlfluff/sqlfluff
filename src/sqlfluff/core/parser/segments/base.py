@@ -39,7 +39,7 @@ from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.match_logging import parse_match_logging
-from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments.fix import AnchorEditInfo, FixPatch, SourceFix
@@ -684,6 +684,33 @@ class BaseSegment(metaclass=SegmentMetaclass):
             raise NotImplementedError(
                 f"{cls.__name__} has no match function implemented"
             )
+
+    @classmethod
+    def match2(
+        cls, segments: Sequence["BaseSegment"], idx: int, parse_context: ParseContext
+    ) -> MatchResult2:
+        """Match a list of segments against this segment.
+
+        Note: Match for segments is done in the ABSTRACT.
+        When dealing with concrete then we're always in parse.
+        Parse is what happens during expand.
+
+        Matching can be done from either the raw or the segments.
+        This raw function can be overridden, or a grammar defined
+        on the underlying class.
+        """
+        # Is this already the right kind of segment?
+        if isinstance(segments[idx], cls):
+            # Very simple "consume one" result.
+            return MatchResult2(slice(idx, idx + 1))
+
+        assert cls.match_grammar, f"{cls.__name__} has no match grammar."
+
+        with parse_context.deeper_match(name=cls.__name__) as ctx:
+            match = cls.match_grammar.match2(segments, idx, ctx)
+
+        # Wrap are return regardless of success.
+        return match.wrap(cls)
 
     # ################ PRIVATE INSTANCE METHODS
 

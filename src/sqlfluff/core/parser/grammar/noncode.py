@@ -4,10 +4,10 @@ This is a stub of a grammar, intended for use entirely as a
 terminator or similar alongside other matchers.
 """
 
-from typing import Optional, Tuple
+from typing import Optional, Sequence, Tuple
 
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import BaseSegment
@@ -52,3 +52,19 @@ class NonCodeMatcher(Matchable):
         while idx < len(segments) and not segments[idx].is_code:
             idx += 1
         return MatchResult(segments[:idx], segments[idx:])
+
+    def match2(
+        self,
+        segments: Sequence["BaseSegment"],
+        idx: int,
+        parse_context: "ParseContext",
+    ) -> MatchResult2:
+        """Match any starting non-code segments."""
+        matched_idx = idx
+        for matched_idx in range(idx, len(segments)):
+            if segments[matched_idx].is_code:
+                break
+        if matched_idx > idx:
+            return MatchResult2(matched_slice=slice(idx, matched_idx))
+        # Otherwise return no match
+        return MatchResult2.empty_at(idx)

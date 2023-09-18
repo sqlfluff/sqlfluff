@@ -131,6 +131,12 @@ def test__parser__grammar_nothing(test_segments, fresh_ansi_dialect):
     assert not Nothing().match(test_segments, parse_context=ctx)
 
 
+def test__parser__grammar_nothing_match2(test_segments, fresh_ansi_dialect):
+    """Test the Nothing grammar."""
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    assert not Nothing().match2(test_segments, 0, ctx)
+
+
 def test__parser__grammar_noncode(test_segments, fresh_ansi_dialect):
     """Test the NonCodeMatcher."""
     ctx = ParseContext(dialect=fresh_ansi_dialect)
