@@ -7,41 +7,14 @@ import pytest
 
 from sqlfluff.core.parser import (
     KeywordSegment,
-    StringParser,
+    ParseMode,
     RegexParser,
+    StringParser,
     WhitespaceSegment,
 )
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.grammar.anyof import AnySetOf
-from sqlfluff.core.parser.segments import EphemeralSegment, BaseSegment
 from sqlfluff.core.parser.grammar import OneOf, Sequence
-
-
-def test__parser__grammar__oneof__ephemeral_segment(seg_list):
-    """A realistic full test of ephemeral segments."""
-
-    class TestSegment(BaseSegment):
-        match_grammar = OneOf(
-            StringParser("bar", KeywordSegment), ephemeral_name="foofoo"
-        )
-
-    ctx = ParseContext(dialect=None)
-    m = TestSegment.match(seg_list[:1], ctx)
-    # Make sure we've matched
-    assert m
-    seg = m.matched_segments[0]
-    assert isinstance(seg, TestSegment)
-    # Check the content is ephemeral
-    assert isinstance(seg.segments[0], EphemeralSegment)
-    assert seg.segments[0].ephemeral_name == "foofoo"
-    # Expand the segment
-    result = seg.parse(ctx)
-    assert isinstance(result, tuple)
-    res = result[0]
-    # Check we still have a test segment
-    assert isinstance(res, TestSegment)
-    # But that it contains a keyword segment now
-    assert isinstance(res.segments[0], KeywordSegment)
+from sqlfluff.core.parser.grammar.anyof import AnyNumberOf, AnySetOf
 
 
 def test__parser__grammar__oneof__copy():
@@ -168,3 +141,106 @@ def test__parser__grammar_anysetof(generate_test_segments):
     )
     # Check with a bit of whitespace
     assert not g.match(seg_list[1:], parse_context=ctx)
+
+
+@pytest.mark.parametrize(
+    "mode,sequence,terminators,input_slice,kwargs,output_tuple",
+    [
+        # #####
+        # Strict matches
+        # #####
+        # 1. Match once
+        (ParseMode.STRICT, ["a"], [], slice(None, None), {}, (("keyword", "a"),)),
+        # 2. Match none
+        (ParseMode.STRICT, ["b"], [], slice(None, None), {}, ()),
+        # 3. Match twice
+        (
+            ParseMode.STRICT,
+            ["b", "a"],
+            [],
+            slice(None, None),
+            {},
+            (
+                ("keyword", "a"),
+                ("whitespace", " "),
+                ("keyword", "b"),
+            ),
+        ),
+        # 4. Limited match
+        (
+            ParseMode.STRICT,
+            ["b", "a"],
+            [],
+            slice(None, None),
+            {"max_times": 1},
+            (("keyword", "a"),),
+        ),
+        # #####
+        # Greedy matches
+        # #####
+        # 1. Terminated match
+        (
+            ParseMode.GREEDY,
+            ["b", "a"],
+            ["b"],
+            slice(None, None),
+            {},
+            (("keyword", "a"),),
+        ),
+        # 2. Terminated, but not matching the first element.
+        (
+            ParseMode.GREEDY,
+            ["b"],
+            ["b"],
+            slice(None, None),
+            {},
+            (("unparsable", (("raw", "a"),)),),
+        ),
+        # 3. Terminated, but only a partial match.
+        (
+            ParseMode.GREEDY,
+            ["a"],
+            ["c"],
+            slice(None, None),
+            {},
+            (
+                ("keyword", "a"),
+                ("whitespace", " "),
+                ("unparsable", (("raw", "b"),)),
+            ),
+        ),
+    ],
+)
+def test__parser__grammar_anyof_modes(
+    mode,
+    sequence,
+    terminators,
+    input_slice,
+    kwargs,
+    output_tuple,
+    generate_test_segments,
+    fresh_ansi_dialect,
+):
+    """Test the Sequence grammar with various parse modes.
+
+    In particular here we're testing the treatment of unparsable
+    sections.
+    """
+    segments = generate_test_segments(["a", " ", "b", " ", "c", "d", " ", "d"])
+    # Dialect is required here only to have access to bracket segments.
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+
+    _seq = AnyNumberOf(
+        *(StringParser(e, KeywordSegment) for e in sequence),
+        parse_mode=mode,
+        terminators=[StringParser(e, KeywordSegment) for e in terminators],
+        **kwargs,
+    )
+    _match = _seq.match(segments[input_slice], ctx)
+    # If we're expecting an output tuple, assert the match is truthy.
+    if output_tuple:
+        assert _match
+    _result = tuple(
+        e.to_tuple(show_raw=True, code_only=False) for e in _match.matched_segments
+    )
+    assert _result == output_tuple

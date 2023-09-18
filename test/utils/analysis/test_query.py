@@ -13,6 +13,8 @@ def _parse_and_crawl_outer(sql):
     """
     linter = Linter(dialect="ansi")
     parsed = linter.parse_string(sql)
+    # Make sure it's fully parsable.
+    assert "unparsable" not in parsed.tree.descendant_type_set
     # Create a crawler from the root segment.
     query = Query.from_root(parsed.tree, linter.dialect)
     # Analyse the segment.
@@ -181,10 +183,10 @@ join prep_1 using (x)
         ),
         # Test with a VALUES clause in a WITH
         (
-            "WITH txt AS ( VALUES (1, 'foo') AS t (id, name) ) SELECT * FROM txt\n",
+            "WITH txt AS ( VALUES (1, 'foo') ) SELECT * FROM txt\n",
             {
                 "ctes": {
-                    "TXT": {"selectables": ["VALUES (1, 'foo') "]},
+                    "TXT": {"selectables": ["VALUES (1, 'foo')"]},
                 },
                 "query_type": "WithCompound",
                 "selectables": [

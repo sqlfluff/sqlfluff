@@ -1,13 +1,13 @@
 """Implementation of Rule AL07."""
 
 from collections import Counter, defaultdict
-from typing import Generator, NamedTuple, Optional, List
+from typing import Generator, List, NamedTuple, Optional
 
-from sqlfluff.core.parser import BaseSegment
+from sqlfluff.core.parser import BaseSegment, SymbolSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-
-from sqlfluff.utils.functional import sp, FunctionalContext
+from sqlfluff.dialects.dialect_ansi import IdentifierSegment
+from sqlfluff.utils.functional import FunctionalContext, sp
 
 
 class TableAliasInfo(NamedTuple):
@@ -248,22 +248,28 @@ class Rule_AL07(BaseRule):
             # Fixes for deleting ` as sth` and for editing references to aliased tables
             # Note unparsable errors have cause the delete to fail (see #2484)
             # so check there is a d before doing deletes.
-            fixes = [
-                *[
-                    LintFix.delete(d)
-                    for d in [alias_info.alias_exp_ref, alias_info.whitespace_ref]
-                    if d
-                ],
-                *[
-                    LintFix.replace(
-                        alias,
-                        [alias.edit(alias_info.table_ref.raw)],
-                        source=[alias_info.table_ref],
-                    )
-                    for alias in [alias_info.alias_identifier_ref, *ids_refs]
-                    if alias
-                ],
+            fixes: List[LintFix] = []
+            fixes += [
+                LintFix.delete(d)
+                for d in [alias_info.alias_exp_ref, alias_info.whitespace_ref]
+                if d
             ]
+            for alias in [alias_info.alias_identifier_ref, *ids_refs]:
+                if alias:
+                    identifier_parts = alias_info.table_ref.raw.split(".")
+                    edits: List[BaseSegment] = []
+                    for part in identifier_parts:
+                        if edits:
+                            edits.append(SymbolSegment(".", type="dot"))
+                        edits.append(IdentifierSegment(part, type="naked_identifier"))
+
+                    fixes.append(
+                        LintFix.replace(
+                            alias,
+                            edits,
+                            source=[alias_info.table_ref],
+                        )
+                    )
 
             violation_buff.append(
                 LintResult(

@@ -6,19 +6,13 @@ It also has some extensions.
 """
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.core.parser import (
-    BaseSegment,
-    OneOf,
-    Ref,
-    Sequence,
-)
+from sqlfluff.core.parser import BaseSegment, OneOf, Ref, Sequence
+from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.dialects import dialect_sparksql as sparksql
 from sqlfluff.dialects.dialect_databricks_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
 )
-
-from sqlfluff.dialects import dialect_ansi as ansi
-from sqlfluff.dialects import dialect_sparksql as sparksql
 
 sparksql_dialect = load_raw_dialect("sparksql")
 databricks_dialect = sparksql_dialect.copy_as("databricks")
@@ -142,8 +136,7 @@ class SetTimeZoneStatementSegment(BaseSegment):
 class StatementSegment(sparksql.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    match_grammar = sparksql.StatementSegment.match_grammar
-    parse_grammar = sparksql.StatementSegment.parse_grammar.copy(
+    match_grammar = sparksql.StatementSegment.match_grammar.copy(
         # Segments defined in Databricks SQL dialect
         insert=[
             # Unity Catalog

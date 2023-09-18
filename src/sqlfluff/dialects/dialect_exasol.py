@@ -4,34 +4,35 @@ https://docs.exasol.com
 https://docs.exasol.com/sql_references/sqlstandardcompliance.htm
 """
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    BaseFileSegment,
     BaseSegment,
     Bracketed,
-    OptionallyBracketed,
-    BaseFileSegment,
+    CodeSegment,
+    CommentSegment,
     Dedent,
     Delimited,
     GreedyUntil,
     Indent,
+    MultiStringParser,
+    NewlineSegment,
     Nothing,
     OneOf,
+    OptionallyBracketed,
+    ParseMode,
     Ref,
-    Sequence,
-    StartsWith,
     RegexLexer,
-    StringLexer,
-    CodeSegment,
-    CommentSegment,
-    TypedParser,
-    SymbolSegment,
-    StringParser,
     RegexParser,
-    NewlineSegment,
-    MultiStringParser,
+    Sequence,
+    StringLexer,
+    StringParser,
+    SymbolSegment,
+    TypedParser,
 )
-from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.segments.generator import SegmentGenerator
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_exasol_keywords import (
     BARE_FUNCTIONS,
     RESERVED_KEYWORDS,
@@ -39,7 +40,6 @@ from sqlfluff.dialects.dialect_exasol_keywords import (
     SYSTEM_PARAMETERS,
     UNRESERVED_KEYWORDS,
 )
-from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 exasol_dialect = ansi_dialect.copy_as("exasol")
@@ -141,6 +141,9 @@ exasol_dialect.patch_lexer_matchers(
 )
 
 exasol_dialect.add(
+    PasswordLiteralSegment=TypedParser(
+        "double_quote", CodeSegment, type="password_literal"
+    ),
     UDFParameterDotSyntaxSegment=TypedParser(
         "udf_param_dot_syntax", SymbolSegment, type="identifier"
     ),
@@ -155,17 +158,16 @@ exasol_dialect.add(
     ),
     ColumnReferenceListGrammar=Delimited(
         Ref("ColumnReferenceSegment"),
-        ephemeral_name="ColumnReferenceList",
     ),
     TableDistributeByGrammar=Sequence(
         "DISTRIBUTE",
         "BY",
         Delimited(
             Ref("ColumnReferenceSegment"),
-            terminator=OneOf(
+            terminators=[
                 Ref("TablePartitionByGrammar"),
                 Ref("DelimiterGrammar"),
-            ),
+            ],
         ),
     ),
     TablePartitionByGrammar=Sequence(
@@ -173,10 +175,10 @@ exasol_dialect.add(
         "BY",
         Delimited(
             Ref("ColumnReferenceSegment"),
-            terminator=OneOf(
+            terminators=[
                 Ref("TableDistributeByGrammar"),
                 Ref("DelimiterGrammar"),
-            ),
+            ],
         ),
     ),
     TableConstraintEnableDisableGrammar=OneOf("ENABLE", "DISABLE"),
@@ -230,32 +232,11 @@ exasol_dialect.replace(
         "NULL",
         Ref("BooleanLiteralGrammar"),
     ),
-    SelectClauseSegmentGrammar=Sequence(
-        "SELECT",
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        Delimited(
-            Ref("SelectClauseElementSegment"),
-            allow_trailing=True,
-            optional=True,  # optional in favor of SELECT INVALID....
-        ),
-        OneOf(Ref("WithInvalidUniquePKSegment"), Ref("IntoTableSegment"), optional=True)
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
-    ),
-    SelectClauseElementTerminatorGrammar=OneOf(
-        Sequence(
-            Ref.keyword("WITH", optional=True),
-            "INVALID",
-            OneOf("UNIQUE", Ref("PrimaryKeyGrammar"), Ref("ForeignKeyGrammar")),
-        ),
-        Sequence("INTO", "TABLE"),
+    SelectClauseTerminatorGrammar=OneOf(
         "FROM",
         "WHERE",
         Sequence("ORDER", "BY"),
         "LIMIT",
-        Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
         Ref("WithDataClauseSegment"),
         Ref("CommentClauseSegment"),
@@ -325,46 +306,28 @@ class UnorderedSelectStatementSegment(BaseSegment):
     """
 
     type = "select_statement"
-    match_grammar = StartsWith(
-        "SELECT",
-        terminator=OneOf(
-            Ref("SetOperatorSegment"),
-            Ref("WithDataClauseSegment"),
-            Ref("CommentClauseSegment"),  # within CREATE TABLE / VIEW statements
-            Ref("OrderByClauseSegment"),
-            Ref("LimitClauseSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
-    )
 
-    parse_grammar = Sequence(
-        OneOf(
-            Sequence(
-                # to allow SELECT INVALID FOREIGN KEY
-                "SELECT",
-                Ref("SelectClauseModifierSegment", optional=True),
-                Indent,
-                Delimited(
-                    Ref("SelectClauseElementSegment", optional=True),
-                    allow_trailing=True,
-                    optional=True,
-                ),
-                Ref("WithInvalidForeignKeySegment"),
-            ),
-            Sequence(
-                Ref("SelectClauseSegment"),
-                #     # Dedent for the indent in the select clause.
-                #     # It's here so that it can come AFTER any whitespace.
-                Dedent,
-                Ref("FromClauseSegment", optional=True),
-            ),
-        ),
+    match_grammar = Sequence(
+        Ref("SelectClauseSegment"),
+        #     # Dedent for the indent in the select clause.
+        #     # It's here so that it can come AFTER any whitespace.
+        Dedent,
+        Ref("FromClauseSegment", optional=True),
+        Ref("ReferencingClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("ConnectByClauseSegment", optional=True),
         Ref("PreferringClauseSegment", optional=True),
         Ref("GroupByClauseSegment", optional=True),
         Ref("HavingClauseSegment", optional=True),
         Ref("QualifyClauseSegment", optional=True),
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("WithDataClauseSegment"),
+            Ref("CommentClauseSegment"),  # within CREATE TABLE / VIEW statements
+            Ref("OrderByClauseSegment"),
+            Ref("LimitClauseSegment"),
+        ],
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
 
 
@@ -375,22 +338,54 @@ class SelectStatementSegment(BaseSegment):
     """
 
     type = "select_statement"
-    match_grammar = StartsWith(
-        "SELECT",
-        terminator=OneOf(
-            Ref("SetOperatorSegment"),
-            Ref("WithDataClauseSegment"),
-            Ref("CommentClauseSegment"),  # within CREATE TABLE / VIEW statements
-        ),
-        enforce_whitespace_preceding_terminator=True,
-    )
 
-    # Inherit most of the parse grammar from the original.
-    parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
+    # Inherit most of the match grammar from the original.
+    match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
-        ]
+        ],
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("WithDataClauseSegment"),
+            Ref("CommentClauseSegment"),  # within CREATE TABLE / VIEW statements
+        ],
+        # Replace terminators because we're removing some.
+        replace_terminators=True,
+    )
+
+
+class SelectClauseSegment(BaseSegment):
+    """A group of elements in a select target statement."""
+
+    type = "select_clause"
+    match_grammar = Sequence(
+        "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        Delimited(
+            Ref(
+                "SelectClauseElementSegment",
+                exclude=OneOf(
+                    Sequence(
+                        Ref.keyword("WITH", optional=True),
+                        "INVALID",
+                        OneOf("FOREIGN", "PRIMARY"),
+                    ),
+                    Sequence("INTO", "TABLE"),
+                ),
+            ),
+            allow_trailing=True,
+            optional=True,  # optional in favour of SELECT INVALID....
+        ),
+        Ref("WithInvalidForeignKeySegment", optional=True),
+        Ref("WithInvalidUniquePKSegment", optional=True),
+        Ref("IntoTableSegment", optional=True),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
+        terminators=[Ref("SelectClauseTerminatorGrammar")],
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
 
 
@@ -415,9 +410,14 @@ class WithInvalidForeignKeySegment(BaseSegment):
         "INVALID",
         Ref("ForeignKeyGrammar"),
         Ref("BracketedColumnReferenceListGrammar"),
-        Dedent,  # dedent for the indent in the select clause
-        "FROM",
-        Ref("TableReferenceSegment"),
+    )
+
+
+class ReferencingClauseSegment(BaseSegment):
+    """Part of `WITH INVALID FOREIGN KEY` clause within `SELECT`."""
+
+    type = "referencing_clause"
+    match_grammar = Sequence(
         "REFERENCING",
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
@@ -460,8 +460,8 @@ class ValuesClauseSegment(BaseSegment):
                         "DEFAULT",
                         Ref("LiteralGrammar"),
                         Ref("ExpressionSegment"),
-                        ephemeral_name="ValuesClauseElements",
-                    )
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
                 Delimited(
                     "DEFAULT",
@@ -513,7 +513,7 @@ class ConnectByClauseSegment(BaseSegment):
             Delimited(
                 Ref("ExpressionSegment"),
                 delimiter="AND",
-                terminator="START",
+                terminators=["START"],
             ),
             Sequence("START", "WITH", Ref("ExpressionSegment"), optional=True),
         ),
@@ -548,13 +548,13 @@ class GroupByClauseSegment(BaseSegment):
                 Ref("ExpressionSegment"),
                 Bracketed(),  # Allows empty parentheses
             ),
-            terminator=OneOf(
+            terminators=[
                 Sequence("ORDER", "BY"),
                 "LIMIT",
                 "HAVING",
                 "QUALIFY",
                 Ref("SetOperatorSegment"),
-            ),
+            ],
         ),
         Dedent,
     )
@@ -1556,8 +1556,8 @@ class ValuesInsertClauseSegment(BaseSegment):
                     Ref("BareFunctionSegment"),
                     "DEFAULT",
                     Ref("SelectableGrammar"),
-                    ephemeral_name="ValuesClauseElements",
-                )
+                ),
+                parse_mode=ParseMode.GREEDY,
             ),
         ),
     )
@@ -1601,7 +1601,7 @@ class SetClauseListSegment(BaseSegment):
         Indent,
         Delimited(
             Ref("SetClauseSegment"),
-            terminator="FROM",
+            terminators=["FROM"],
         ),
         Dedent,
     )
@@ -2218,7 +2218,7 @@ class AlterUserStatementSegment(BaseSegment):
                         Ref("UserPasswordAuthSegment"),
                         Sequence(
                             "REPLACE",
-                            Ref("QuotedIdentifierSegment"),
+                            Ref("PasswordLiteralSegment"),
                             optional=True,
                         ),
                     ),
@@ -2251,7 +2251,7 @@ class UserPasswordAuthSegment(BaseSegment):
     match_grammar = Sequence(
         # password
         "BY",
-        Ref("QuotedIdentifierSegment"),
+        Ref("PasswordLiteralSegment"),
     )
 
 
@@ -2579,7 +2579,7 @@ class GrantRevokeSystemPrivilegesSegment(BaseSegment):
             ),
             Delimited(
                 Ref("SystemPrivilegesSegment"),
-                terminator=OneOf("TO", "FROM"),
+                terminators=["TO", "FROM"],
             ),
         ),
         OneOf("TO", "FROM"),
@@ -2597,7 +2597,7 @@ class GrantRevokeObjectPrivilegesSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf(
             Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
-            Delimited(Ref("ObjectPrivilegesSegment"), terminator="ON"),
+            Delimited(Ref("ObjectPrivilegesSegment"), terminators=["ON"]),
         ),
         "ON",
         OneOf(
@@ -2627,7 +2627,7 @@ class GrantRevokeRolesSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf(
             Sequence("ALL", "ROLES"),  # Revoke only
-            Delimited(Ref("RoleReferenceSegment"), terminator=OneOf("TO", "FROM")),
+            Delimited(Ref("RoleReferenceSegment"), terminators=["TO", "FROM"]),
         ),
         OneOf("TO", "FROM"),
         Delimited(Ref("RoleReferenceSegment")),
@@ -2644,7 +2644,7 @@ class GrantRevokeImpersonationSegment(BaseSegment):
         "ON",
         Delimited(
             Ref("SingleIdentifierGrammar"),
-            terminator=OneOf("TO", "FROM"),
+            terminators=["TO", "FROM"],
         ),
         OneOf("TO", "FROM"),
         Delimited(Ref("SingleIdentifierGrammar")),
@@ -2659,7 +2659,7 @@ class GrantRevokeConnectionSegment(BaseSegment):
         "CONNECTION",
         Delimited(
             Ref("SingleIdentifierGrammar"),
-            terminator=OneOf("TO", "FROM"),
+            terminators=["TO", "FROM"],
         ),
         OneOf("TO", "FROM"),
         Delimited(Ref("SingleIdentifierGrammar")),
@@ -3223,7 +3223,6 @@ class ScriptContentSegment(BaseSegment):
     type = "script_content"
     match_grammar = GreedyUntil(
         Ref("FunctionScriptTerminatorSegment"),
-        enforce_whitespace_preceding_terminator=False,
     )
 
 
@@ -3371,9 +3370,7 @@ class StatementSegment(ansi.StatementSegment):
 
     type = "statement"
 
-    match_grammar = GreedyUntil(Ref("DelimiterGrammar"))
-
-    parse_grammar = OneOf(
+    match_grammar = OneOf(
         # Data Query Language (DQL)
         Ref("SelectableGrammar"),
         # Data Modifying Language (DML)
@@ -3428,6 +3425,7 @@ class StatementSegment(ansi.StatementSegment):
         # Others
         Ref("TransactionStatementSegment"),
         Ref("ExecuteScriptSegment"),
+        terminators=[Ref("DelimiterGrammar")],
     )
 
 
@@ -3461,24 +3459,4 @@ class EmitsSegment(BaseSegment):
     match_grammar = Sequence(
         "EMITS",
         Bracketed(Ref("UDFParameterGrammar")),
-    )
-
-
-class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
-    """An element in the targets of a select statement."""
-
-    type = "select_clause_element"
-    # Important to split elements before parsing, otherwise debugging is really hard.
-    match_grammar = GreedyUntil(  # type: ignore
-        Ref("SelectClauseElementTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=False,
-    )
-
-    parse_grammar = OneOf(
-        # *, blah.*, blah.blah.*, etc.
-        Ref("WildcardExpressionSegment"),
-        Sequence(
-            Ref("BaseExpressionElementGrammar"),
-            Ref("AliasExpressionSegment", optional=True),
-        ),
     )

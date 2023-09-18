@@ -30,7 +30,6 @@ from sqlfluff.core.parser import (
     Conditional,
     Dedent,
     Delimited,
-    GreedyUntil,
     ImplicitIndent,
     Indent,
     KeywordSegment,
@@ -40,12 +39,12 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
     SegmentGenerator,
     Sequence,
-    StartsWith,
     StringLexer,
     StringParser,
     SymbolSegment,
@@ -299,6 +298,9 @@ ansi_dialect.add(
     SemicolonSegment=StringParser(";", SymbolSegment, type="statement_terminator"),
     ColonSegment=StringParser(":", SymbolSegment, type="colon"),
     SliceSegment=StringParser(":", SymbolSegment, type="slice"),
+    # NOTE: The purpose of the colon_delimiter is that it has different layout rules.
+    # It assumes no whitespace on either side.
+    ColonDelimiterSegment=StringParser(":", SymbolSegment, type="colon_delimiter"),
     StartBracketSegment=StringParser("(", SymbolSegment, type="start_bracket"),
     EndBracketSegment=StringParser(")", SymbolSegment, type="end_bracket"),
     StartSquareBracketSegment=StringParser(
@@ -482,7 +484,7 @@ ansi_dialect.add(
     BracketedColumnReferenceListGrammar=Bracketed(
         Delimited(
             Ref("ColumnReferenceSegment"),
-        )
+        ),
     ),
     OrReplaceGrammar=Sequence("OR", "REPLACE"),
     TemporaryTransientGrammar=OneOf("TRANSIENT", Ref("TemporaryGrammar")),
@@ -490,24 +492,13 @@ ansi_dialect.add(
     IfExistsGrammar=Sequence("IF", "EXISTS"),
     IfNotExistsGrammar=Sequence("IF", "NOT", "EXISTS"),
     LikeGrammar=OneOf("LIKE", "RLIKE", "ILIKE"),
+    UnionGrammar=Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
     IsClauseGrammar=OneOf(
         Ref("NullLiteralSegment"),
         Ref("NanLiteralSegment"),
         Ref("BooleanLiteralGrammar"),
     ),
-    SelectClauseSegmentGrammar=Sequence(
-        "SELECT",
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        Delimited(
-            Ref("SelectClauseElementSegment"),
-            allow_trailing=True,
-        ),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
-    ),
-    SelectClauseElementTerminatorGrammar=OneOf(
+    SelectClauseTerminatorGrammar=OneOf(
         "FROM",
         "WHERE",
         Sequence("ORDER", "BY"),
@@ -652,6 +643,12 @@ ansi_dialect.add(
         Sequence("SET", "DEFAULT"),
     ),
     DropBehaviorGrammar=OneOf("RESTRICT", "CASCADE", optional=True),
+    ColumnConstraintDefaultGrammar=OneOf(
+        Ref("ShorthandCastSegment"),
+        Ref("LiteralGrammar"),
+        Ref("FunctionSegment"),
+        Ref("BareFunctionSegment"),
+    ),
     ReferenceDefinitionGrammar=Sequence(
         "REFERENCES",
         Ref("TableReferenceSegment"),
@@ -984,7 +981,7 @@ class ObjectReferenceSegment(BaseSegment):
     match_grammar: Matchable = Delimited(
         Ref("SingleIdentifierGrammar"),
         delimiter=Ref("ObjectReferenceDelimiterGrammar"),
-        terminator=Ref("ObjectReferenceTerminatorGrammar"),
+        terminators=[Ref("ObjectReferenceTerminatorGrammar")],
         allow_gaps=False,
     )
 
@@ -1116,7 +1113,7 @@ class CollationReferenceSegment(ObjectReferenceSegment):
         Delimited(
             Ref("SingleIdentifierGrammar"),
             delimiter=Ref("ObjectReferenceDelimiterGrammar"),
-            terminator=Ref("ObjectReferenceTerminatorGrammar"),
+            terminators=[Ref("ObjectReferenceTerminatorGrammar")],
             allow_gaps=False,
         ),
     )
@@ -1180,9 +1177,9 @@ class ArrayAccessorSegment(BaseSegment):
         Delimited(
             OneOf(Ref("NumericLiteralSegment"), Ref("ExpressionSegment")),
             delimiter=Ref("SliceSegment"),
-            ephemeral_name="ArrayAccessorContent",
         ),
         bracket_type="square",
+        parse_mode=ParseMode.GREEDY,
     )
 
 
@@ -1348,6 +1345,7 @@ class OverClauseSegment(BaseSegment):
             Ref("SingleIdentifierGrammar"),  # Window name
             Bracketed(
                 Ref("WindowSpecificationSegment", optional=True),
+                parse_mode=ParseMode.GREEDY,
             ),
         ),
         Dedent,
@@ -1366,7 +1364,6 @@ class WindowSpecificationSegment(BaseSegment):
         Ref("OrderByClauseSegment", optional=True),
         Ref("FrameClauseSegment", optional=True),
         optional=True,
-        ephemeral_name="OverClauseContent",
     )
 
 
@@ -1417,9 +1414,9 @@ class FunctionSegment(BaseSegment):
                             "FunctionContentsGrammar",
                             # The brackets might be empty for some functions...
                             optional=True,
-                            ephemeral_name="FunctionContentsGrammar",
                         ),
-                    )
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
         ),
@@ -1437,8 +1434,8 @@ class FunctionSegment(BaseSegment):
                         "FunctionContentsGrammar",
                         # The brackets might be empty for some functions...
                         optional=True,
-                        ephemeral_name="FunctionContentsGrammar",
-                    )
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
             Ref("PostFunctionGrammar", optional=True),
@@ -1593,7 +1590,7 @@ class FromExpressionSegment(BaseSegment):
                 Ref("MLTableExpressionSegment"),
                 Ref("FromExpressionElementSegment"),
                 Bracketed(Ref("FromExpressionSegment")),
-                terminators=[Ref.keyword("ORDER"), Ref.keyword("GROUP")],
+                terminators=[Sequence("ORDER", "BY"), Sequence("GROUP", "BY")],
             ),
             Dedent,
             Conditional(Indent, indented_joins=True),
@@ -1602,7 +1599,7 @@ class FromExpressionSegment(BaseSegment):
                     OneOf(Ref("JoinClauseSegment"), Ref("JoinLikeClauseGrammar")),
                 ),
                 optional=True,
-                terminators=[Ref.keyword("ORDER"), Ref.keyword("GROUP")],
+                terminators=[Sequence("ORDER", "BY"), Sequence("GROUP", "BY")],
             ),
             Conditional(Dedent, indented_joins=True),
         )
@@ -1737,21 +1734,20 @@ class SelectClauseSegment(BaseSegment):
     """A group of elements in a select target statement."""
 
     type = "select_clause"
-    match_grammar: Matchable = StartsWith(
+    match_grammar: Matchable = Sequence(
         "SELECT",
-        terminator=OneOf(
-            "FROM",
-            "WHERE",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            "OVERLAPS",
-            Ref("SetOperatorSegment"),
-            "FETCH",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        Delimited(
+            Ref("SelectClauseElementSegment"),
+            allow_trailing=True,
         ),
-        enforce_whitespace_preceding_terminator=True,
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
+        terminators=[Ref("SelectClauseTerminatorGrammar")],
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
-
-    parse_grammar: Matchable = Ref("SelectClauseSegmentGrammar")
 
 
 class JoinClauseSegment(BaseSegment):
@@ -1787,10 +1783,8 @@ class JoinClauseSegment(BaseSegment):
                             # This is a) so that we don't lint it as a reference and
                             # b) because the column will probably be returned anyway
                             # during parsing.
-                            Delimited(
-                                Ref("SingleIdentifierGrammar"),
-                                ephemeral_name="UsingClauseContents",
-                            )
+                            Delimited(Ref("SingleIdentifierGrammar")),
+                            parse_mode=ParseMode.GREEDY,
                         ),
                         Dedent,
                     ),
@@ -2083,8 +2077,8 @@ ansi_dialect.add(
                                 Ref("Expression_A_Grammar"),
                             ),
                             Ref("SelectableGrammar"),
-                            ephemeral_name="InExpression",
-                        )
+                        ),
+                        parse_mode=ParseMode.GREEDY,
                     ),
                 ),
                 Sequence(
@@ -2184,8 +2178,8 @@ ansi_dialect.add(
                         Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
                         Ref("LocalAliasSegment"),  # WHERE (LOCAL.a, LOCAL.b) IN (...)
                     ),
-                    ephemeral_name="BracketedExpression",
                 ),
+                parse_mode=ParseMode.GREEDY,
             ),
             # Allow potential select statement without brackets
             Ref("SelectStatementSegment"),
@@ -2371,7 +2365,7 @@ class OrderByClauseSegment(BaseSegment):
                 # for now.
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
             ),
-            terminator=OneOf(Ref.keyword("LIMIT"), Ref("FrameClauseUnitGrammar")),
+            terminators=["LIMIT", Ref("FrameClauseUnitGrammar")],
         ),
         Dedent,
     )
@@ -2440,7 +2434,7 @@ class GroupingExpressionList(BaseSegment):
                 Ref("ExpressionSegment"),
                 Bracketed(),  # Allows empty parentheses
             ),
-            terminator=Ref("GroupByClauseTerminatorGrammar"),
+            terminators=[Ref("GroupByClauseTerminatorGrammar")],
         ),
         Dedent,
     )
@@ -2482,7 +2476,7 @@ class GroupByClauseSegment(BaseSegment):
                         # Can `GROUP BY coalesce(col, 1)`
                         Ref("ExpressionSegment"),
                     ),
-                    terminator=Ref("GroupByClauseTerminatorGrammar"),
+                    terminators=[Ref("GroupByClauseTerminatorGrammar")],
                 ),
                 Dedent,
             ),
@@ -2598,6 +2592,7 @@ class NamedWindowExpressionSegment(BaseSegment):
             Ref("SingleIdentifierGrammar"),  # Window name
             Bracketed(
                 Ref("WindowSpecificationSegment"),
+                parse_mode=ParseMode.GREEDY,
             ),
         ),
     )
@@ -2624,8 +2619,8 @@ class ValuesClauseSegment(BaseSegment):
                         "DEFAULT",
                         Ref("LiteralGrammar"),
                         Ref("ExpressionSegment"),
-                        ephemeral_name="ValuesClauseElements",
-                    )
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
         ),
@@ -2641,25 +2636,8 @@ class UnorderedSelectStatementSegment(BaseSegment):
     """
 
     type = "select_statement"
-    # match grammar. This one makes sense in the context of knowing that it's
-    # definitely a statement, we just don't know what type yet.
-    match_grammar: Matchable = StartsWith(
-        # NB: In bigquery, the select clause may include an EXCEPT, which
-        # will also match the set operator, but by starting with the whole
-        # select clause rather than just the SELECT keyword, we mitigate that
-        # here.
-        Ref("SelectClauseSegment"),
-        terminator=OneOf(
-            Ref("SetOperatorSegment"),
-            Ref("WithNoSchemaBindingClauseSegment"),
-            Ref("WithDataClauseSegment"),
-            Ref("OrderByClauseSegment"),
-            Ref("LimitClauseSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
-    )
 
-    parse_grammar: Matchable = Sequence(
+    match_grammar: Matchable = Sequence(
         Ref("SelectClauseSegment"),
         # Dedent for the indent in the select clause.
         # It's here so that it can come AFTER any whitespace.
@@ -2670,6 +2648,14 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Ref("HavingClauseSegment", optional=True),
         Ref("OverlapsClauseSegment", optional=True),
         Ref("NamedWindowSegment", optional=True),
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithDataClauseSegment"),
+            Ref("OrderByClauseSegment"),
+            Ref("LimitClauseSegment"),
+        ],
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
 
 
@@ -2677,30 +2663,22 @@ class SelectStatementSegment(BaseSegment):
     """A `SELECT` statement."""
 
     type = "select_statement"
-    # match grammar. This one makes sense in the context of knowing that it's
-    # definitely a statement, we just don't know what type yet.
-    match_grammar: Matchable = StartsWith(
-        # NB: In bigquery, the select clause may include an EXCEPT, which
-        # will also match the set operator, but by starting with the whole
-        # select clause rather than just the SELECT keyword, we mitigate that
-        # here.
-        Ref("SelectClauseSegment"),
-        terminator=OneOf(
-            Ref("SetOperatorSegment"),
-            Ref("WithNoSchemaBindingClauseSegment"),
-            Ref("WithDataClauseSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
-    )
 
-    # Inherit most of the parse grammar from the original.
-    parse_grammar: Matchable = UnorderedSelectStatementSegment.parse_grammar.copy(
+    # Inherit most of the parse grammar from the unordered version.
+    match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
             Ref("FetchClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
             Ref("NamedWindowSegment", optional=True),
-        ]
+        ],
+        # Overwrite the terminators, because we want to remove some.
+        replace_terminators=True,
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithDataClauseSegment"),
+        ],
     )
 
 
@@ -2760,7 +2738,8 @@ class CTEDefinitionSegment(BaseSegment):
         Ref.keyword("AS", optional=True),
         Bracketed(
             # Ephemeral here to subdivide the query.
-            Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
+            Ref("SelectableGrammar"),
+            parse_mode=ParseMode.GREEDY,
         ),
     )
 
@@ -2791,7 +2770,7 @@ class WithCompoundStatementSegment(BaseSegment):
         Conditional(Indent, indented_ctes=True),
         Delimited(
             Ref("CTEDefinitionSegment"),
-            terminator=Ref.keyword("SELECT"),
+            terminators=["SELECT"],
         ),
         Conditional(Dedent, indented_ctes=True),
         OneOf(
@@ -2806,7 +2785,7 @@ class SetOperatorSegment(BaseSegment):
 
     type = "set_operator"
     match_grammar: Matchable = OneOf(
-        Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
+        Ref("UnionGrammar"),
         Sequence(
             OneOf(
                 "INTERSECT",
@@ -3014,12 +2993,7 @@ class ColumnConstraintSegment(BaseSegment):
             Sequence("CHECK", Bracketed(Ref("ExpressionSegment"))),
             Sequence(  # DEFAULT <value>
                 "DEFAULT",
-                OneOf(
-                    Ref("ShorthandCastSegment"),
-                    Ref("LiteralGrammar"),
-                    Ref("FunctionSegment"),
-                    Ref("BareFunctionSegment"),
-                ),
+                Ref("ColumnConstraintDefaultGrammar"),
             ),
             Ref("PrimaryKeyGrammar"),
             Ref("UniqueKeyGrammar"),  # UNIQUE
@@ -3510,7 +3484,7 @@ class AccessStatementSegment(BaseSegment):
                     Ref("FunctionNameSegment"),
                     Ref("FunctionParameterListGrammar", optional=True),
                 ),
-                terminator=OneOf("TO", "FROM"),
+                terminators=["TO", "FROM"],
             ),
         ),
         Sequence("LARGE", "OBJECT", Ref("NumericLiteralSegment")),
@@ -3525,7 +3499,7 @@ class AccessStatementSegment(BaseSegment):
                 Sequence(
                     Delimited(
                         OneOf(_global_permissions, _permissions),
-                        terminator="ON",
+                        terminators=["ON"],
                     ),
                     "ON",
                     _objects,
@@ -3567,7 +3541,7 @@ class AccessStatementSegment(BaseSegment):
                 Sequence(
                     Delimited(
                         OneOf(_global_permissions, _permissions),
-                        terminator="ON",
+                        terminators=["ON"],
                     ),
                     "ON",
                     _objects,
@@ -3642,12 +3616,11 @@ class SetClauseListSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "SET",
         Indent,
-        OneOf(
+        Ref("SetClauseSegment"),
+        # set clause
+        AnyNumberOf(
+            Ref("CommaSegment"),
             Ref("SetClauseSegment"),
-            # set clause
-            AnyNumberOf(
-                Delimited(Ref("SetClauseSegment")),
-            ),
         ),
         Dedent,
     )
@@ -3931,9 +3904,7 @@ class StatementSegment(BaseSegment):
     """A generic segment, to any of its child subsegments."""
 
     type = "statement"
-    match_grammar: Matchable = GreedyUntil(Ref("DelimiterGrammar"))
-
-    parse_grammar: Matchable = OneOf(
+    match_grammar: Matchable = OneOf(
         Ref("SelectableGrammar"),
         Ref("MergeStatementSegment"),
         Ref("InsertStatementSegment"),
@@ -3973,6 +3944,7 @@ class StatementSegment(BaseSegment):
         Ref("DropSequenceStatementSegment"),
         Ref("CreateTriggerStatementSegment"),
         Ref("DropTriggerStatementSegment"),
+        terminators=[Ref("DelimiterGrammar")],
     )
 
     def get_table_references(self) -> Set[str]:
@@ -4188,11 +4160,11 @@ class CreateTriggerStatementSegment(BaseSegment):
                 "OF",
                 Delimited(
                     Ref("ColumnReferenceSegment"),
-                    terminator=OneOf("OR", "ON"),
+                    terminators=["OR", "ON"],
                 ),
             ),
             delimiter="OR",
-            terminator="ON",
+            terminators=["ON"],
         ),
         "ON",
         Ref("TableReferenceSegment"),

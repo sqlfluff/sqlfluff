@@ -9,7 +9,6 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
-    Anything,
     BaseSegment,
     Bracketed,
     CodeSegment,
@@ -22,12 +21,12 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
     SegmentGenerator,
     Sequence,
-    StartsWith,
     StringLexer,
     StringParser,
     SymbolSegment,
@@ -349,9 +348,15 @@ snowflake_dialect.add(
             # Can `GROUP BY coalesce(col, 1)`
             Ref("ExpressionSegment"),
         ),
-        terminator=OneOf(
-            "ORDER", "LIMIT", "FETCH", "OFFSET", "HAVING", "QUALIFY", "WINDOW"
-        ),
+        terminators=[
+            "ORDER",
+            "LIMIT",
+            "FETCH",
+            "OFFSET",
+            "HAVING",
+            "QUALIFY",
+            "WINDOW",
+        ],
     ),
     LimitLiteralGrammar=OneOf(
         Ref("NumericLiteralSegment"),
@@ -444,20 +449,6 @@ snowflake_dialect.add(
             Ref("PatternQuantifierGrammar", optional=True),
             allow_gaps=False,
         ),
-    ),
-    PatternGrammar=Sequence(
-        # https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html#pattern-specifying-the-pattern-to-match
-        Ref("CaretSegment", optional=True),
-        OneOf(
-            AnyNumberOf(
-                Ref("PatternOperatorGrammar"),
-            ),
-            Delimited(
-                Ref("PatternOperatorGrammar"),
-                delimiter=Ref("BitwiseOrSegment"),
-            ),
-        ),
-        Ref("DollarSegment", optional=True),
     ),
     ContextHeadersGrammar=OneOf(
         "CURRENT_ACCOUNT",
@@ -586,14 +577,13 @@ snowflake_dialect.replace(
         Sequence("ILIKE", Ref.keyword("ANY", optional=True)),
         "REGEXP",
     ),
-    SelectClauseElementTerminatorGrammar=OneOf(
+    SelectClauseTerminatorGrammar=OneOf(
         "FROM",
         "WHERE",
         Sequence("ORDER", "BY"),
         "LIMIT",
         "FETCH",
         "OFFSET",
-        Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
     ),
     FromClauseTerminatorGrammar=OneOf(
@@ -860,8 +850,8 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                     "DEFAULT",
                     "NULL",
                     Ref("ExpressionSegment"),
-                    ephemeral_name="ValuesClauseElements",
-                )
+                ),
+                parse_mode=ParseMode.GREEDY,
             ),
         ),
     )
@@ -956,8 +946,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
 class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
-    match_grammar = ansi.StatementSegment.match_grammar
-    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("AccessStatementSegment"),
             Ref("CreateStatementSegment"),
@@ -1067,16 +1056,13 @@ class WithinGroupClauseSegment(BaseSegment):
     """
 
     type = "withingroup_clause"
+
     match_grammar = Sequence(
         "WITHIN",
         "GROUP",
-        Bracketed(Anything(optional=True)),
-    )
-
-    parse_grammar = Sequence(
-        "WITHIN",
-        "GROUP",
-        Bracketed(Ref("OrderByClauseSegment", optional=True)),
+        Bracketed(
+            Ref("OrderByClauseSegment", optional=True), parse_mode=ParseMode.GREEDY
+        ),
     )
 
 
@@ -1102,6 +1088,29 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
         Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
         Ref("SamplingExpressionSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
+    )
+
+
+class PatternSegment(BaseSegment):
+    """A `PATTERN` expression.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html
+    """
+
+    type = "pattern_expression"
+    match_grammar = Sequence(
+        # https://docs.snowflake.com/en/sql-reference/constructs/match_recognize.html#pattern-specifying-the-pattern-to-match
+        Ref("CaretSegment", optional=True),
+        OneOf(
+            AnyNumberOf(
+                Ref("PatternOperatorGrammar"),
+            ),
+            Delimited(
+                Ref("PatternOperatorGrammar"),
+                delimiter=Ref("BitwiseOrSegment"),
+            ),
+        ),
+        Ref("DollarSegment", optional=True),
     )
 
 
@@ -1193,7 +1202,7 @@ class MatchRecognizeClauseSegment(BaseSegment):
             ),
             "PATTERN",
             Bracketed(
-                Ref("PatternGrammar"),
+                Ref("PatternSegment"),
             ),
             "DEFINE",
             Delimited(
@@ -1269,14 +1278,13 @@ class FromBeforeExpressionSegment(BaseSegment):
     """A BEFORE expression."""
 
     type = "from_before_expression"
-    match_grammar = Sequence("BEFORE", Bracketed(Anything()))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "BEFORE",
         Bracketed(
             OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
             Ref("ParameterAssignerSegment"),
             Ref("ExpressionSegment"),
+            parse_mode=ParseMode.GREEDY,
         ),
     )
 
@@ -1417,17 +1425,8 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     """
 
     type = "select_statement"
-    match_grammar = StartsWith(
-        # NB: In bigquery, the select clause may include an EXCEPT, which
-        # will also match the set operator, but by starting with the whole
-        # select clause rather than just the SELECT keyword, we normally
-        # mitigate that here. But this isn't BigQuery! So we can be more
-        # efficient and just use the keyword.
-        "SELECT",
-        terminator=Ref("SetOperatorSegment"),
-    )
 
-    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
     )
@@ -2205,9 +2204,8 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """
 
     type = "select_statement"
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
 
-    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OverlapsClauseSegment", optional=True),
     )
@@ -2374,7 +2372,7 @@ class AccessStatementSegment(BaseSegment):
                     Ref("FunctionNameSegment"),
                     Ref("FunctionParameterListGrammar", optional=True),
                 ),
-                terminator=OneOf("TO", "FROM"),
+                terminators=["TO", "FROM"],
             ),
         ),
     )
@@ -2387,7 +2385,7 @@ class AccessStatementSegment(BaseSegment):
                 Sequence(
                     Delimited(
                         OneOf(_global_permissions, _permissions),
-                        terminator="ON",
+                        terminators=["ON"],
                     ),
                     "ON",
                     _objects,
@@ -2429,7 +2427,7 @@ class AccessStatementSegment(BaseSegment):
                 Sequence(
                     Delimited(
                         OneOf(_global_permissions, _permissions),
-                        terminator="ON",
+                        terminators=["ON"],
                     ),
                     "ON",
                     _objects,
@@ -4607,6 +4605,9 @@ class CreateExternalTableSegment(BaseSegment):
                         Sequence(
                             Ref("ExpressionSegment"),
                             Ref("TableConstraintSegment", optional=True),
+                            Sequence(
+                                Ref.keyword("NOT", optional=True), "NULL", optional=True
+                            ),
                         )
                     ),
                 )
@@ -6259,8 +6260,8 @@ class CallStatementSegment(BaseSegment):
                     "FunctionContentsGrammar",
                     # The brackets might be empty for some functions...
                     optional=True,
-                    ephemeral_name="FunctionContentsGrammar",
                 ),
+                parse_mode=ParseMode.GREEDY,
             ),
         ),
     )
@@ -6321,11 +6322,9 @@ class LimitClauseSegment(ansi.LimitClauseSegment):
 class SelectClauseSegment(ansi.SelectClauseSegment):
     """A group of elements in a select target statement."""
 
-    match_grammar = ansi.SelectClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
+    match_grammar = ansi.SelectClauseSegment.match_grammar.copy(
+        terminators=[Ref.keyword("FETCH"), Ref.keyword("OFFSET")],
     )
-    parse_grammar = ansi.SelectClauseSegment.parse_grammar.copy()
 
 
 class OrderByClauseSegment(ansi.OrderByClauseSegment):
@@ -6350,7 +6349,7 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
                 OneOf("ASC", "DESC", optional=True),
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
             ),
-            terminator=OneOf("LIMIT", "FETCH", "OFFSET", Ref("FrameClauseUnitGrammar")),
+            terminators=["LIMIT", "FETCH", "OFFSET", Ref("FrameClauseUnitGrammar")],
         ),
         Dedent,
     )

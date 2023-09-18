@@ -7,20 +7,19 @@ Specifically:
 """
 
 import logging
+
 import pytest
 
 from sqlfluff.core import Linter
 from sqlfluff.core.parser.segments.base import BaseSegment
-
-from sqlfluff.utils.reflow.helpers import fixes_from_results
-from sqlfluff.utils.reflow.sequence import ReflowSequence
-from sqlfluff.utils.reflow.helpers import deduce_line_indent
+from sqlfluff.utils.reflow.helpers import deduce_line_indent, fixes_from_results
 from sqlfluff.utils.reflow.reindent import (
-    lint_indent_points,
     _crawl_indent_points,
-    _IndentPoint,
     _IndentLine,
+    _IndentPoint,
+    lint_indent_points,
 )
+from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
 def parse_ansi_string(sql, config):
@@ -641,9 +640,10 @@ def test_reflow__lint_indent_points(raw_sql_in, raw_sql_out, default_config, cap
     # the same place.
     print("Results:", results)
     anchor_info = BaseSegment.compute_anchor_edit_info(fixes_from_results(results))
-    fixed_tree, _, _ = root.apply_fixes(
+    fixed_tree, _, _, valid = root.apply_fixes(
         default_config.get("dialect_obj"), "TEST", anchor_info
     )
+    assert valid, f"Reparse check failed: {fixed_tree.raw!r}"
     assert fixed_tree.raw == raw_sql_out, "Element check passed - but fix check failed!"
 
 

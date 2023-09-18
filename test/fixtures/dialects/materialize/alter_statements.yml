@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e7697299c2d39a580ae55e20643bb8dc6b0d59571152394e3e5dfddb58f4a29c
+_hash: d6f422fe80eea3dd86ec1a8423db6483fc5a3d8c0e233926aa2448a9d868e11b
 file:
 - statement:
     alter_connection_rotate_keys:
@@ -13,6 +13,39 @@ file:
         naked_identifier: test
     - keyword: rotate
     - keyword: keys
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: mike
+    - keyword: GRANT
+    - keyword: SELECT
+    - keyword: 'ON'
+    - keyword: TABLES
+    - keyword: TO
+    - object_reference:
+        naked_identifier: joe
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: ALL
+    - keyword: ROLES
+    - keyword: GRANT
+    - keyword: SELECT
+    - keyword: 'ON'
+    - keyword: TABLES
+    - keyword: TO
+    - object_reference:
+        naked_identifier: managers
 - statement_terminator: ;
 - statement:
     alter_rename_statement:

@@ -2,6 +2,8 @@
 
 This inherits from the ansi dialect.
 """
+from typing import cast
+
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -13,7 +15,6 @@ from sqlfluff.core.parser import (
     CodeSegment,
     CommentSegment,
     Delimited,
-    GreedyUntil,
     Matchable,
     OneOf,
     OptionallyBracketed,
@@ -52,7 +53,7 @@ oracle_dialect.sets("reserved_keywords").update(
 )
 
 oracle_dialect.sets("unreserved_keywords").update(
-    ["EDITIONABLE", "EDITIONING", "NONEDITIONABLE"]
+    ["EDITIONABLE", "EDITIONING", "NONEDITIONABLE", "KEEP"]
 )
 
 oracle_dialect.sets("bare_functions").clear()
@@ -358,10 +359,7 @@ class StatementSegment(ansi.StatementSegment):
 
     type = "statement"
 
-    match_grammar = OneOf(
-        GreedyUntil(Ref("DelimiterGrammar")), exclude=Ref("ExecuteFileSegment")
-    )
-    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("CommentStatementSegment"),
         ],
@@ -458,7 +456,7 @@ class TableReferenceSegment(ObjectReferenceSegment):
             Sequence(Ref("DotSegment"), Ref("DotSegment")),
             Ref("AtSignSegment"),
         ),
-        terminator=OneOf(
+        terminators=[
             "ON",
             "AS",
             "USING",
@@ -471,7 +469,7 @@ class TableReferenceSegment(ObjectReferenceSegment):
             Ref("DelimiterGrammar"),
             Ref("JoinLikeClauseGrammar"),
             BracketedSegment,
-        ),
+        ],
         allow_gaps=False,
     )
 
@@ -696,29 +694,27 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     SelectStatementSegment.
     """
 
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[
-            Ref("HierarchicalQueryClauseSegment"),
-        ],
-    )
-    parse_grammar: Matchable = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[Ref("HierarchicalQueryClauseSegment", optional=True)],
         before=Ref("GroupByClauseSegment", optional=True),
+        terminators=[Ref("HierarchicalQueryClauseSegment")],
     )
 
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """A `SELECT` statement."""
 
-    match_grammar: Matchable = ansi.SelectStatementSegment.match_grammar.copy()
-    parse_grammar: Matchable = UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar: Matchable = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
             Ref("FetchClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
             Ref("NamedWindowSegment", optional=True),
-        ]
+        ],
+        replace_terminators=True,
+        terminators=cast(
+            Sequence, ansi.SelectStatementSegment.match_grammar
+        ).terminators,
     )
 
 

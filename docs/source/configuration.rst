@@ -42,15 +42,15 @@ supported cfg file types):
     sql_file_exts = .sql,.sql.j2,.dml,.ddl
 
     [sqlfluff:indentation]
-    indented_joins = false
-    indented_using_on = true
-    template_blocks_indent = false
+    indented_joins = False
+    indented_using_on = True
+    template_blocks_indent = False
 
     [sqlfluff:templater]
-    unwrap_wrapped_queries = true
+    unwrap_wrapped_queries = True
 
     [sqlfluff:templater:jinja]
-    apply_dbt_builtins = true
+    apply_dbt_builtins = True
 
 For the `pyproject.toml file`_, all valid sections start with
 :code:`tool.sqlfluff` and subsections are delimited by a dot. For example the
@@ -66,15 +66,15 @@ For example, a snippet from a :code:`pyproject.toml` file:
     sql_file_exts = ".sql,.sql.j2,.dml,.ddl"
 
     [tool.sqlfluff.indentation]
-    indented_joins = false
-    indented_using_on = true
-    template_blocks_indent = false
+    indented_joins = False
+    indented_using_on = True
+    template_blocks_indent = False
 
     [tool.sqlfluff.templater]
-    unwrap_wrapped_queries = true
+    unwrap_wrapped_queries = True
 
     [tool.sqlfluff.templater.jinja]
-    apply_dbt_builtins = true
+    apply_dbt_builtins = True
 
     # For rule specific configuration, use dots between the names exactly
     # as you would in .sqlfluff. In the background, SQLFluff will unpack the
@@ -167,7 +167,7 @@ A few common examples are shown below:
 .. code-block:: sql
 
     -- Set Indented Joins
-    -- sqlfluff:indentation:indented_joins:true
+    -- sqlfluff:indentation:indented_joins:True
 
     -- Set a smaller indent for this file
     -- sqlfluff:indentation:tab_space_size:2
@@ -493,7 +493,7 @@ options:
     templater = jinja
 
     [sqlfluff:templater:jinja]
-    apply_dbt_builtins = true
+    apply_dbt_builtins = True
     load_macros_from_path = my_macros
     library_path = sqlfluff_libs
 
@@ -881,9 +881,10 @@ These can be configured by setting `param_style` to the names above:
     param_style = colon
     my_name = 'john'
 
-then it is necessary to set sample values for each parameter, like `my_name`
+then you can set sample values for each parameter, like `my_name`
 above. Notice that the value needs to be escaped as it will be replaced as a
-string during parsing.
+string during parsing. When the sample values aren't provided, the templater
+will use parameter names themselves by default.
 
 When parameters are positional, like `question_mark`, then their name is
 simply the order in which they appear, starting with `1`.

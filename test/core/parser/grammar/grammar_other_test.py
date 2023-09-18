@@ -3,47 +3,14 @@
 NOTE: All of these tests depend somewhat on the KeywordSegment working as planned.
 """
 
-import pytest
 import logging
+
+import pytest
 
 from sqlfluff.core.parser import KeywordSegment, StringParser, SymbolSegment
 from sqlfluff.core.parser.context import ParseContext
+from sqlfluff.core.parser.grammar import Anything, Delimited, GreedyUntil, Nothing
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
-from sqlfluff.core.parser.grammar import (
-    GreedyUntil,
-    Delimited,
-    StartsWith,
-    Anything,
-    Nothing,
-)
-
-
-def test__parser__grammar_startswith_a():
-    """Test the StartsWith grammar fails when no terminator supplied."""
-    Keyword = StringParser("foo", KeywordSegment)
-    with pytest.raises(AssertionError):
-        StartsWith(Keyword)
-
-
-@pytest.mark.parametrize(
-    "include_terminator,match_length",
-    [
-        (False, 3),
-        # NB: In this case we still shouldn't match the trailing whitespace.
-        (True, 4),
-    ],
-)
-def test__parser__grammar_startswith_b(
-    include_terminator, match_length, seg_list, fresh_ansi_dialect, caplog
-):
-    """Test the StartsWith grammar with a terminator (included & excluded)."""
-    baar = StringParser("baar", KeywordSegment)
-    bar = StringParser("bar", KeywordSegment)
-    grammar = StartsWith(bar, terminator=baar, include_terminator=include_terminator)
-    ctx = ParseContext(dialect=fresh_ansi_dialect)
-    with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
-        m = grammar.match(seg_list, parse_context=ctx)
-        assert len(m) == match_length
 
 
 @pytest.mark.parametrize(
@@ -97,26 +64,22 @@ def test__parser__grammar_delimited(
 
 
 @pytest.mark.parametrize(
-    "keyword,enforce_ws,slice_len",
+    "keyword,slice_len",
     [
         # Basic testing
-        ("foo", False, 1),
+        ("foo", 1),
         # Greedy matching until the first item should return none
-        ("bar", False, 0),
-        # Greedy matching up to baar should return bar, foo...
-        ("baar", False, 3),
-        # ... except if whitespace is required to precede it
-        ("baar", True, 6),
+        ("bar", 0),
+        # NOTE: the greedy until "baar" won't match because baar is
+        # a keyword and therefore is required to have whitespace
+        # before it. In the test sequence "baar" does not.
+        # See `greedy_match()` for details.
+        ("baar", 6),
     ],
 )
-def test__parser__grammar_greedyuntil(
-    keyword, seg_list, enforce_ws, slice_len, fresh_ansi_dialect
-):
+def test__parser__grammar_greedyuntil(keyword, seg_list, slice_len, fresh_ansi_dialect):
     """Test the GreedyUntil grammar."""
-    grammar = GreedyUntil(
-        StringParser(keyword, KeywordSegment),
-        enforce_whitespace_preceding_terminator=enforce_ws,
-    )
+    grammar = GreedyUntil(StringParser(keyword, KeywordSegment))
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     assert (
         grammar.match(seg_list, parse_context=ctx).matched_segments
@@ -139,10 +102,25 @@ def test__parser__grammar_greedyuntil_bracketed(bracket_seg_list, fresh_ansi_dia
     assert len(match.unmatched_segments) == 2
 
 
-def test__parser__grammar_anything(seg_list, fresh_ansi_dialect):
+@pytest.mark.parametrize(
+    "terminators,match_length",
+    [
+        # No terminators, full match.
+        ([], 6),
+        # If terminate with foo - match length 1.
+        (["foo"], 1),
+        # If terminate with foof - unterminated. Match everything
+        (["foof"], 6),
+    ],
+)
+def test__parser__grammar_anything(
+    terminators, match_length, seg_list, fresh_ansi_dialect
+):
     """Test the Anything grammar."""
     ctx = ParseContext(dialect=fresh_ansi_dialect)
-    assert Anything().match(seg_list, parse_context=ctx)
+    terms = [StringParser(kw, KeywordSegment) for kw in terminators]
+    result = Anything(terminators=terms).match(seg_list, parse_context=ctx)
+    assert len(result) == match_length
 
 
 def test__parser__grammar_nothing(seg_list, fresh_ansi_dialect):

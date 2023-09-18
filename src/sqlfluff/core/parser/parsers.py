@@ -4,7 +4,7 @@ Matchable objects which return individual segments.
 """
 
 from abc import abstractmethod
-from typing import Collection, Optional, Tuple, Type, Union
+from typing import Collection, List, Optional, Tuple, Type, Union
 from uuid import uuid4
 
 import regex
@@ -123,6 +123,11 @@ class TypedParser(BaseParser):
         # NB: the template in this case is the _target_ type.
         # The type kwarg is the eventual type.
         self.template = template
+        # Pre-calculate the appropriate frozenset for matching later.
+        _target_types: List[str] = [template]
+        if type is not None and type != template:
+            _target_types.append(type)
+        self._target_types = frozenset(_target_types)
         super().__init__(
             raw_class=raw_class,
             # If no type specified we default to the template
@@ -131,19 +136,24 @@ class TypedParser(BaseParser):
             trim_chars=trim_chars,
         )
 
+    def __repr__(self) -> str:
+        return f"<TypedParser: {self.template!r}>"
+
     def simple(
-        cls, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
+        self, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
     ) -> SimpleHintType:
         """Does this matcher support a uppercase hash matching route?
 
         TypedParser segment doesn't support matching against raw strings,
-        but it does support it against types.
+        but it does support it against types. We'll match against the
+        both the template _and_ the resulting type too, so that we
+        also support re-matching.
         """
-        return frozenset(), frozenset((cls.template,))
+        return frozenset(), self._target_types
 
     def _is_first_match(self, segment: BaseSegment) -> bool:
         """Return true if the type matches the target type."""
-        return segment.is_type(self.template)
+        return segment.is_type(*self._target_types)
 
 
 class StringParser(BaseParser):
@@ -166,6 +176,9 @@ class StringParser(BaseParser):
             optional=optional,
             trim_chars=trim_chars,
         )
+
+    def __repr__(self) -> str:
+        return f"<StringParser: {self.template!r}>"
 
     def simple(
         self, parse_context: "ParseContext", crumbs: Optional[Tuple[str, ...]] = None
@@ -206,6 +219,9 @@ class MultiStringParser(BaseParser):
             optional=optional,
             trim_chars=trim_chars,
         )
+
+    def __repr__(self) -> str:
+        return f"<MultiStringParser: {self.templates!r}>"
 
     def simple(
         self, parse_context: "ParseContext", crumbs: Optional[Tuple[str, ...]] = None
@@ -250,6 +266,9 @@ class RegexParser(BaseParser):
             optional=optional,
             trim_chars=trim_chars,
         )
+
+    def __repr__(self) -> str:
+        return f"<RegexParser: {self.template!r}>"
 
     def simple(
         cls, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None

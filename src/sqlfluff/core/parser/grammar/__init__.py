@@ -9,7 +9,7 @@ from sqlfluff.core.parser.grammar.anyof import (
 from sqlfluff.core.parser.grammar.base import Anything, Nothing, Ref
 from sqlfluff.core.parser.grammar.conditional import Conditional
 from sqlfluff.core.parser.grammar.delimited import Delimited
-from sqlfluff.core.parser.grammar.greedy import GreedyUntil, StartsWith
+from sqlfluff.core.parser.grammar.greedy import GreedyUntil
 from sqlfluff.core.parser.grammar.sequence import Bracketed, Sequence
 
 __all__ = (
@@ -22,7 +22,6 @@ __all__ = (
     "OptionallyBracketed",
     "Delimited",
     "GreedyUntil",
-    "StartsWith",
     "Sequence",
     "Bracketed",
     "Conditional",
