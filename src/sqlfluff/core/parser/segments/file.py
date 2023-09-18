@@ -89,27 +89,29 @@ class BaseFileSegment(BaseSegment):
         unmatched = match.unmatched_segments
 
         if not match:
-            raise NotImplementedError(
-                f"No match for {fname}: {match} "
-                f"{segments[_start_idx:_end_idx]}, "
-                f"{_start_idx}:{_end_idx}"
+            content = (
+                UnparsableSegment(
+                    segments[_start_idx:_end_idx], expected=str(cls.match_grammar)
+                ),
             )
         elif unmatched:
             _idx = 0
             for _idx in range(len(unmatched)):
                 if unmatched[_idx].is_code:
                     break
-            unmatched = unmatched[:_idx] + (
-                UnparsableSegment(
-                    unmatched[_idx:], expected="Nothing else in FileSegment."
-                ),
+            content = (
+                match.matched_segments
+                + unmatched[:_idx]
+                + (
+                    UnparsableSegment(
+                        unmatched[_idx:], expected="Nothing else in FileSegment."
+                    ),
+                )
             )
+        else:
+            content = match.matched_segments + unmatched
 
-        assert match.matched_segments
         return cls(
-            segments[:_start_idx]
-            + match.matched_segments
-            + unmatched
-            + segments[_end_idx:],
+            segments[:_start_idx] + content + segments[_end_idx:],
             fname=fname,
         )
