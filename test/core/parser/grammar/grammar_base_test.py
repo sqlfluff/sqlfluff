@@ -15,7 +15,7 @@ from sqlfluff.core.parser.grammar.base import BaseGrammar
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 
 
-def make_result_tuple(result_slice, matcher_keywords, seg_list):
+def make_result_tuple(result_slice, matcher_keywords, test_segments):
     """Make a comparison tuple for test matching."""
     # No result slice means no match.
     if not result_slice:
@@ -25,7 +25,7 @@ def make_result_tuple(result_slice, matcher_keywords, seg_list):
         KeywordSegment(elem.raw, pos_marker=elem.pos_marker)
         if elem.raw in matcher_keywords
         else elem
-        for elem in seg_list[result_slice]
+        for elem in test_segments[result_slice]
     )
 
 
@@ -43,7 +43,7 @@ def make_result_tuple(result_slice, matcher_keywords, seg_list):
     ],
 )
 def test__parser__grammar__base__longest_trimmed_match__basic(
-    seg_list, seg_list_slice, matcher_keywords, trim_noncode, result_slice
+    test_segments, seg_list_slice, matcher_keywords, trim_noncode, result_slice
 ):
     """Test the _longest_trimmed_match method of the BaseGrammar."""
     # Make the matcher keywords
@@ -51,20 +51,20 @@ def test__parser__grammar__base__longest_trimmed_match__basic(
 
     ctx = ParseContext(dialect=None)
     m, _ = BaseGrammar._longest_trimmed_match(
-        seg_list[seg_list_slice], matchers, ctx, trim_noncode=trim_noncode
+        test_segments[seg_list_slice], matchers, ctx, trim_noncode=trim_noncode
     )
 
     # Make the check tuple
     expected_result = make_result_tuple(
         result_slice=result_slice,
         matcher_keywords=matcher_keywords,
-        seg_list=seg_list,
+        test_segments=test_segments,
     )
 
     assert m.matched_segments == expected_result
 
 
-def test__parser__grammar__base__longest_trimmed_match__adv(seg_list, caplog):
+def test__parser__grammar__base__longest_trimmed_match__adv(test_segments, caplog):
     """Test the _longest_trimmed_match method of the BaseGrammar."""
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
@@ -78,7 +78,9 @@ def test__parser__grammar__base__longest_trimmed_match__adv(seg_list, caplog):
     ctx = ParseContext(dialect=None)
     # Matching the first element of the list
     with caplog.at_level(logging.DEBUG, logger="sqluff.parser"):
-        match, matcher = BaseGrammar._longest_trimmed_match(seg_list, matchers, ctx)
+        match, matcher = BaseGrammar._longest_trimmed_match(
+            test_segments, matchers, ctx
+        )
     # Check we got a match
     assert match
     # Check we got the right one.

@@ -230,7 +230,7 @@ class BaseGrammar(Matchable):
         using the `parse_stats` object on the context.
 
         The things which determine the performance of this method are:
-        1. Pruning. This method uses `_prune_options()` to filter down which matchable
+        1. Pruning. This method uses `prune_options()` to filter down which matchable
            options proceed to the full matching step. Ideally only very few do and this
            can handle the majority of the filtering.
         2. Caching. This method uses the parse cache (`check_parse_cache` and

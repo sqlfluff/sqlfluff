@@ -15,12 +15,12 @@ class BasicSegment(BaseSegment):
     match_grammar = Anything()
 
 
-def test__parser__parse_match(seg_list):
+def test__parser__parse_match(test_segments):
     """Test match method on a real segment."""
     ctx = ParseContext(dialect=None)
     # This should match and have consumed everything, which should
     # now be part of a BasicSegment.
-    m = BasicSegment.match(seg_list[:1], parse_context=ctx)
+    m = BasicSegment.match(test_segments[:1], parse_context=ctx)
     assert m
     assert len(m.matched_segments) == 1
     assert isinstance(m.matched_segments[0], BasicSegment)

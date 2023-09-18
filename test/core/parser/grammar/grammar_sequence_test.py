@@ -14,7 +14,7 @@ from sqlfluff.core.parser.grammar import Conditional, Sequence
 from sqlfluff.core.parser.types import ParseMode
 
 
-def test__parser__grammar_sequence(seg_list, caplog):
+def test__parser__grammar_sequence(test_segments, caplog):
     """Test the Sequence grammar."""
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
@@ -27,20 +27,20 @@ def test__parser__grammar_sequence(seg_list, caplog):
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
         # Should be able to match the list using the normal matcher
         logging.info("#### TEST 1")
-        m = g.match(seg_list, parse_context=ctx)
+        m = g.match(test_segments, parse_context=ctx)
         assert m
         assert len(m) == 3
         assert m.matched_segments == (
-            KeywordSegment("bar", seg_list[0].pos_marker),
-            seg_list[1],  # This will be the whitespace segment
-            KeywordSegment("foo", seg_list[2].pos_marker),
+            KeywordSegment("bar", test_segments[0].pos_marker),
+            test_segments[1],  # This will be the whitespace segment
+            KeywordSegment("foo", test_segments[2].pos_marker),
         )
         # Shouldn't with the allow_gaps matcher
         logging.info("#### TEST 2")
-        assert not gc.match(seg_list, parse_context=ctx)
+        assert not gc.match(test_segments, parse_context=ctx)
         # Shouldn't match even on the normal one if we don't start at the beginning
         logging.info("#### TEST 2")
-        assert not g.match(seg_list[1:], parse_context=ctx)
+        assert not g.match(test_segments[1:], parse_context=ctx)
 
 
 def test__parser__grammar_sequence_repr():
@@ -54,7 +54,7 @@ def test__parser__grammar_sequence_repr():
     )
 
 
-def test__parser__grammar_sequence_nested(seg_list, caplog):
+def test__parser__grammar_sequence_nested(test_segments, caplog):
     """Test the Sequence grammar when nested."""
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
@@ -64,33 +64,33 @@ def test__parser__grammar_sequence_nested(seg_list, caplog):
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
         # Matching the start of the list shouldn't work
         logging.info("#### TEST 1")
-        assert not g.match(seg_list[:2], parse_context=ctx)
+        assert not g.match(test_segments[:2], parse_context=ctx)
         # Matching the whole list should, and the result should be flat
         logging.info("#### TEST 2")
-        assert g.match(seg_list, parse_context=ctx).matched_segments == (
-            KeywordSegment("bar", seg_list[0].pos_marker),
-            seg_list[1],  # This will be the whitespace segment
-            KeywordSegment("foo", seg_list[2].pos_marker),
-            KeywordSegment("baar", seg_list[3].pos_marker)
+        assert g.match(test_segments, parse_context=ctx).matched_segments == (
+            KeywordSegment("bar", test_segments[0].pos_marker),
+            test_segments[1],  # This will be the whitespace segment
+            KeywordSegment("foo", test_segments[2].pos_marker),
+            KeywordSegment("baar", test_segments[3].pos_marker)
             # NB: No whitespace at the end, this shouldn't be consumed.
         )
 
 
-def test__parser__grammar_sequence_indent(seg_list, caplog):
+def test__parser__grammar_sequence_indent(test_segments, caplog):
     """Test the Sequence grammar with indents."""
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
     g = Sequence(Indent, bs, fs)
     ctx = ParseContext(dialect=None)
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
-        m = g.match(seg_list, parse_context=ctx)
+        m = g.match(test_segments, parse_context=ctx)
         assert m
         # check we get an indent.
         assert isinstance(m.matched_segments[0], Indent)
         assert isinstance(m.matched_segments[1], KeywordSegment)
 
 
-def test__parser__grammar_sequence_indent_conditional(seg_list, caplog):
+def test__parser__grammar_sequence_indent_conditional(test_segments, caplog):
     """Test the Sequence grammar with indents."""
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
@@ -105,7 +105,7 @@ def test__parser__grammar_sequence_indent_conditional(seg_list, caplog):
     )
     ctx = ParseContext(dialect=None)
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
-        m = g.match(seg_list, parse_context=ctx)
+        m = g.match(test_segments, parse_context=ctx)
         assert m
         # Check we get an Indent.
         assert isinstance(m.matched_segments[0], Indent)
