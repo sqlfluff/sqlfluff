@@ -1190,12 +1190,10 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),
         Sequence(
-            OneOf(Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))),
+            Ref("ObjectReferenceDelimiterGrammar"),
             Delimited(
                 Ref("SingleIdentifierFullGrammar"),
-                delimiter=OneOf(
-                    Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
-                ),
+                delimiter=Ref("ObjectReferenceDelimiterGrammar"),
                 terminators=[
                     "ON",
                     "AS",
@@ -1281,9 +1279,7 @@ class TableReferenceSegment(ObjectReferenceSegment):
             ),
             allow_gaps=False,
         ),
-        delimiter=OneOf(
-            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
-        ),
+        delimiter=Ref("ObjectReferenceDelimiterGrammar"),
         terminators=[
             "ON",
             "AS",

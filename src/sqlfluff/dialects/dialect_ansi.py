@@ -682,6 +682,7 @@ ansi_dialect.add(
     DefaultValuesGrammar=Sequence("DEFAULT", "VALUES"),
     ObjectReferenceDelimiterGrammar=OneOf(
         Ref("DotSegment"),
+        # NOTE: The double dot syntax allows for default values.
         Sequence(Ref("DotSegment"), Ref("DotSegment")),
     ),
     ObjectReferenceTerminatorGrammar=OneOf(
@@ -1630,7 +1631,11 @@ class WildcardIdentifierSegment(ObjectReferenceSegment):
     match_grammar: Matchable = Sequence(
         # *, blah.*, blah.blah.*, etc.
         AnyNumberOf(
-            Sequence(Ref("SingleIdentifierGrammar"), Ref("DotSegment"), allow_gaps=True)
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("ObjectReferenceDelimiterGrammar"),
+                allow_gaps=True,
+            )
         ),
         Ref("StarSegment"),
         allow_gaps=False,
@@ -2189,7 +2194,9 @@ ansi_dialect.add(
             # For triggers, we allow "NEW.*" but not just "*" nor "a.b.*"
             # So can't use WildcardIdentifierSegment nor WildcardExpressionSegment
             Sequence(
-                Ref("SingleIdentifierGrammar"), Ref("DotSegment"), Ref("StarSegment")
+                Ref("SingleIdentifierGrammar"),
+                Ref("ObjectReferenceDelimiterGrammar"),
+                Ref("StarSegment"),
             ),
             Sequence(
                 Ref("StructTypeSegment"),
