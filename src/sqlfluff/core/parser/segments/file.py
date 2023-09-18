@@ -88,6 +88,7 @@ class BaseFileSegment(BaseSegment):
             )
         unmatched = match.unmatched_segments
 
+        content: Tuple[BaseSegment, ...]
         if not match:
             content = (
                 UnparsableSegment(
