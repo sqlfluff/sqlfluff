@@ -9,7 +9,7 @@ import pytest
 
 from sqlfluff.core.parser import KeywordSegment, StringParser, SymbolSegment
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.grammar import Anything, Delimited, GreedyUntil
+from sqlfluff.core.parser.grammar import Anything, Delimited, GreedyUntil, Nothing
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 
 
@@ -123,6 +123,12 @@ def test__parser__grammar_anything(
     terms = [StringParser(kw, KeywordSegment) for kw in terminators]
     result = Anything(terminators=terms).match(test_segments, parse_context=ctx)
     assert len(result) == match_length
+
+
+def test__parser__grammar_nothing(test_segments, fresh_ansi_dialect):
+    """Test the Nothing grammar."""
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    assert not Nothing().match(test_segments, parse_context=ctx)
 
 
 def test__parser__grammar_noncode(test_segments, fresh_ansi_dialect):
