@@ -48,7 +48,7 @@ def test__parser__grammar_delimited(
     fresh_ansi_dialect,
 ):
     """Test the Delimited grammar when not code_only."""
-    seg_list = generate_test_segments(token_list)
+    test_segments = generate_test_segments(token_list)
     g = Delimited(
         StringParser("bar", KeywordSegment),
         delimiter=StringParser(".", SymbolSegment),
@@ -59,7 +59,7 @@ def test__parser__grammar_delimited(
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
         # Matching with whitespace shouldn't match if we need at least one delimiter
-        m = g.match(seg_list, parse_context=ctx)
+        m = g.match(test_segments, parse_context=ctx)
         assert len(m) == match_len
 
 
@@ -77,23 +77,25 @@ def test__parser__grammar_delimited(
         ("baar", 6),
     ],
 )
-def test__parser__grammar_greedyuntil(keyword, seg_list, slice_len, fresh_ansi_dialect):
+def test__parser__grammar_greedyuntil(
+    keyword, test_segments, slice_len, fresh_ansi_dialect
+):
     """Test the GreedyUntil grammar."""
     grammar = GreedyUntil(StringParser(keyword, KeywordSegment))
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     assert (
-        grammar.match(seg_list, parse_context=ctx).matched_segments
-        == seg_list[:slice_len]
+        grammar.match(test_segments, parse_context=ctx).matched_segments
+        == test_segments[:slice_len]
     )
 
 
-def test__parser__grammar_greedyuntil_bracketed(bracket_seg_list, fresh_ansi_dialect):
+def test__parser__grammar_greedyuntil_bracketed(bracket_segments, fresh_ansi_dialect):
     """Test the GreedyUntil grammar with brackets."""
     fs = StringParser("foo", KeywordSegment)
     g = GreedyUntil(fs)
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     # Check that we can make it past the brackets
-    match = g.match(bracket_seg_list, parse_context=ctx)
+    match = g.match(bracket_segments, parse_context=ctx)
     assert len(match) == 4
     # Check we successfully constructed a bracketed segment
     assert match.matched_segments[2].is_type("bracketed")
@@ -114,25 +116,25 @@ def test__parser__grammar_greedyuntil_bracketed(bracket_seg_list, fresh_ansi_dia
     ],
 )
 def test__parser__grammar_anything(
-    terminators, match_length, seg_list, fresh_ansi_dialect
+    terminators, match_length, test_segments, fresh_ansi_dialect
 ):
     """Test the Anything grammar."""
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     terms = [StringParser(kw, KeywordSegment) for kw in terminators]
-    result = Anything(terminators=terms).match(seg_list, parse_context=ctx)
+    result = Anything(terminators=terms).match(test_segments, parse_context=ctx)
     assert len(result) == match_length
 
 
-def test__parser__grammar_nothing(seg_list, fresh_ansi_dialect):
+def test__parser__grammar_nothing(test_segments, fresh_ansi_dialect):
     """Test the Nothing grammar."""
     ctx = ParseContext(dialect=fresh_ansi_dialect)
-    assert not Nothing().match(seg_list, parse_context=ctx)
+    assert not Nothing().match(test_segments, parse_context=ctx)
 
 
-def test__parser__grammar_noncode(seg_list, fresh_ansi_dialect):
+def test__parser__grammar_noncode(test_segments, fresh_ansi_dialect):
     """Test the NonCodeMatcher."""
     ctx = ParseContext(dialect=fresh_ansi_dialect)
-    m = NonCodeMatcher().match(seg_list[1:], parse_context=ctx)
+    m = NonCodeMatcher().match(test_segments[1:], parse_context=ctx)
     # NonCode Matcher doesn't work with simple
     assert NonCodeMatcher().simple(ctx) is None
     # We should match one and only one segment

@@ -3494,9 +3494,7 @@ class FileSegment(BaseFileSegment):
     has no match_grammar.
     """
 
-    # NB: We don't need a match_grammar here because we're
-    # going straight into instantiating it directly usually.
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         AnyNumberOf(Ref("BatchDelimiterGrammar")),
         Delimited(
             Ref("BatchSegment"),

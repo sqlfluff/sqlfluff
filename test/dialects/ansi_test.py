@@ -103,7 +103,7 @@ def test__dialect__ansi__file_lex(raw, res, caplog):
         ("SelectClauseElementSegment", "a.b.*"),
         ("SelectClauseElementSegment", "a.b.c.*"),
         # Default Element Syntax
-        ("ObjectReferenceSegment", "a..c.*"),
+        ("SelectClauseElementSegment", "a..c.*"),
         # Negative Elements
         ("SelectClauseElementSegment", "-some_variable"),
         ("SelectClauseElementSegment", "- some_variable"),

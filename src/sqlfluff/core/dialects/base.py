@@ -217,29 +217,6 @@ class Dialect:
                             f"is missing these from base: {', '.join(missing)}"
                         )
 
-            if subclass:
-                # If the segment class we're replacing defines these fields, the
-                # replacement must override either:
-                # - NONE of them or
-                # - ALL of them
-                # Overriding a subset of them is not necessarily wrong, but it's
-                # error-prone, hence this policy.
-                grammars = {"match_grammar", "parse_grammar"}
-                # TRICKY: The explicit use of __dict__ on the classes is
-                # deliberate. We are concerned with whether a class itself does
-                # or does not define a thing, IGNORING INHERITED VALUES.
-                if grammars.intersection(set(self._library[n].__dict__)) == grammars:
-                    overrides = grammars.intersection(set(cls.__dict__))
-                    if overrides and overrides != grammars:
-                        for grammar in grammars:
-                            if (
-                                grammar in self._library[n].__dict__
-                                and grammar not in cls.__dict__
-                            ):
-                                raise ValueError(
-                                    f"Cannot replace {n!r} because it needs "
-                                    f"to define '{grammar}'"
-                                )
             self._library[n] = cls
 
     def add_update_segments(self, module_dct: Dict[str, Any]) -> None:

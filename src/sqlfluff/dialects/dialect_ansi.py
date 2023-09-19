@@ -682,6 +682,7 @@ ansi_dialect.add(
     DefaultValuesGrammar=Sequence("DEFAULT", "VALUES"),
     ObjectReferenceDelimiterGrammar=OneOf(
         Ref("DotSegment"),
+        # NOTE: The double dot syntax allows for default values.
         Sequence(Ref("DotSegment"), Ref("DotSegment")),
     ),
     ObjectReferenceTerminatorGrammar=OneOf(
@@ -735,9 +736,7 @@ class FileSegment(BaseFileSegment):
     has no match_grammar.
     """
 
-    # NB: We don't need a match_grammar here because we're
-    # going straight into instantiating it directly usually.
-    parse_grammar: Optional[Matchable] = Delimited(
+    match_grammar = Delimited(
         Ref("StatementSegment"),
         delimiter=AnyNumberOf(Ref("DelimiterGrammar"), min_times=1),
         allow_gaps=True,
@@ -1632,7 +1631,11 @@ class WildcardIdentifierSegment(ObjectReferenceSegment):
     match_grammar: Matchable = Sequence(
         # *, blah.*, blah.blah.*, etc.
         AnyNumberOf(
-            Sequence(Ref("SingleIdentifierGrammar"), Ref("DotSegment"), allow_gaps=True)
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("ObjectReferenceDelimiterGrammar"),
+                allow_gaps=True,
+            )
         ),
         Ref("StarSegment"),
         allow_gaps=False,
@@ -2191,7 +2194,9 @@ ansi_dialect.add(
             # For triggers, we allow "NEW.*" but not just "*" nor "a.b.*"
             # So can't use WildcardIdentifierSegment nor WildcardExpressionSegment
             Sequence(
-                Ref("SingleIdentifierGrammar"), Ref("DotSegment"), Ref("StarSegment")
+                Ref("SingleIdentifierGrammar"),
+                Ref("ObjectReferenceDelimiterGrammar"),
+                Ref("StarSegment"),
             ),
             Sequence(
                 Ref("StructTypeSegment"),

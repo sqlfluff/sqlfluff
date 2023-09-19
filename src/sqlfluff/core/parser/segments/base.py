@@ -34,10 +34,7 @@ from typing import (
 )
 from uuid import UUID, uuid4
 
-from tqdm import tqdm
-
 from sqlfluff.core.cached_property import cached_property
-from sqlfluff.core.config import progress_bar_configuration
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.markers import PositionMarker
@@ -47,7 +44,6 @@ from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments.fix import AnchorEditInfo, FixPatch, SourceFix
 from sqlfluff.core.parser.types import SimpleHintType
-from sqlfluff.core.string_helpers import curtail_string, frame_msg
 from sqlfluff.core.templaters.base import TemplatedFile
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -139,7 +135,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # `type` should be the *category* of this kind of segment
     type: ClassVar[str] = "base"
     _class_types: ClassVar[Set[str]]  # NOTE: Set by SegmentMetaclass
-    parse_grammar: Optional[Matchable] = None
     # We define the type here but no value. Subclasses must provide a value.
     match_grammar: Matchable
     comment_separate = False
@@ -178,10 +173,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     *(seg.pos_marker for seg in segments)
                 )
 
+        assert not hasattr(self, "parse_grammar"), "parse_grammar is deprecated."
+
         self.pos_marker = pos_marker
         self.segments: Tuple["BaseSegment", ...] = segments
-        # A cache variable for expandable
-        self._is_expandable: Optional[bool] = None
         # Tracker for matching when things start moving.
         self.uuid = uuid or uuid4()
 
@@ -261,30 +256,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return [seg for seg in self.segments if not seg.is_type("comment")]
 
     # ################ PUBLIC PROPERTIES
-
-    @property
-    def is_expandable(self) -> bool:
-        """Return true if it is meaningful to call `expand` on this segment.
-
-        We need to do this recursively because even if *this* segment doesn't
-        need expanding, maybe one of its children does.
-
-        Once a segment is *not* expandable, it can never become so, which is
-        why the variable is cached.
-        """
-        # NOTE: This whole method is soon to be removed so coverage is
-        # starting to get patchy.
-        if self._is_expandable is False:
-            return self._is_expandable  # pragma: no cover
-        elif self.parse_grammar:
-            return True
-        elif self.segments and any(s.is_expandable for s in self.segments):
-            return True  # pragma: no cover
-        else:
-            # Cache the variable
-            self._is_expandable = False
-            return False
-
     @cached_property
     def is_code(self) -> bool:
         """Return True if this segment contains any code."""
@@ -320,11 +291,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # (notably RawSegment) override this with something more
         # custom.
         return self._class_types
-
-    @property
-    def expected_form(self) -> str:
-        """What to return to the user when unparsable."""
-        return self.get_type()
 
     @cached_property
     def descendant_type_set(self) -> Set[str]:
@@ -431,47 +397,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         NB Override this for specific subclasses if we want extra output.
         """
         return ""
-
-    @classmethod
-    def expand(
-        cls, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
-    ) -> Tuple[BaseSegment, ...]:
-        """Expand the list of child segments using their `parse` methods."""
-        expanded_segments: Tuple[BaseSegment, ...] = ()
-
-        # Renders progress bar only for `BaseFileSegments`.
-        disable_progress_bar = (
-            not cls.class_is_type("file")
-            or progress_bar_configuration.disable_progress_bar
-        )
-
-        progressbar_segments = tqdm(
-            segments,
-            desc="parsing",
-            miniters=30,
-            leave=False,
-            disable=disable_progress_bar,
-        )
-
-        for stmt in progressbar_segments:
-            if not stmt.is_expandable:
-                parse_context.logger.info(
-                    "[PD:%s] Skipping expansion of %s...",
-                    parse_context.parse_depth,
-                    stmt,
-                )
-                expanded_segments += (stmt,)
-                continue
-
-            parse_depth_msg = "Parse Depth {}. Expanding: {}: {!r}".format(
-                parse_context.parse_depth,
-                stmt.__class__.__name__,
-                curtail_string(stmt.raw, length=40),
-            )
-            parse_context.logger.info(frame_msg(parse_depth_msg))
-            expanded_segments += stmt.parse(parse_context=parse_context)
-
-        return expanded_segments
 
     @classmethod
     def _position_segments(
@@ -1242,119 +1167,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # Not found.
         return []  # pragma: no cover
 
-    def parse(
-        self,
-        parse_context: ParseContext,
-        parse_grammar: Optional[Matchable] = None,
-    ) -> Tuple["BaseSegment", ...]:
-        """Use the parse grammar to find subsegments within this segment.
-
-        A large chunk of the logic around this can be found in the `expand` method.
-
-        Use the parse setting in the context for testing, mostly to check how deep to
-        go. True/False for yes or no, an integer allows a certain number of levels.
-
-        Optionally, this method allows a custom parse grammar to be
-        provided which will override any existing parse grammar
-        on the segment.
-        """
-        # the parse_depth and recurse kwargs control how deep we will recurse for
-        # testing.
-        if not self.segments:  # pragma: no cover
-            # This means we're a leaf segment, just return an unchanged self.
-            # NOTE: This is uncovered in tests, because typically, the `expand()`
-            # method of the parent will filter out any segments which aren't
-            # expandable.
-            return (self,)
-
-        # Check the Parse Grammar
-        parse_grammar = parse_grammar or self.parse_grammar
-        if parse_grammar is None:
-            # No parse grammar, go straight to expansion
-            parse_context.logger.debug(
-                "{}.parse: no grammar. Going straight to expansion".format(
-                    self.__class__.__name__
-                )
-            )
-        else:
-            # For debugging purposes. Ensure that we don't have non-code elements
-            # at the start or end of the segments. They should always in the middle,
-            # or in the parent expression.
-            self.validate_non_code_ends()
-            segments = self.segments
-            if self.can_start_end_non_code:
-                pre_nc, segments, post_nc = trim_non_code_segments(segments)
-            else:
-                pre_nc = ()
-                post_nc = ()
-
-            # NOTE: No match_depth kwarg, because this is the start of the matching.
-            with parse_context.deeper_match(name=self.__class__.__name__) as ctx:
-                m = parse_grammar.match(segments=segments, parse_context=ctx)
-
-            if m.has_match():
-                if m.is_complete():
-                    # Complete match, happy days!
-                    self.segments = pre_nc + m.matched_segments + post_nc
-                else:
-                    # Incomplete match.
-                    # For now this means the parsing has failed. Lets add the unmatched
-                    # bit at the end as something unparsable.
-                    # NOTE: Don't claim any additional whitespace in the failed match.
-                    _idx = 0
-                    for _idx in range(len(m.unmatched_segments)):
-                        if m.unmatched_segments[_idx].is_code:
-                            break
-                    self.segments = (
-                        pre_nc
-                        + m.matched_segments
-                        + m.unmatched_segments[:_idx]
-                        + (
-                            UnparsableSegment(
-                                segments=m.unmatched_segments[_idx:] + post_nc,
-                                expected=(
-                                    f"Nothing else within {self.__class__.__name__}"
-                                ),
-                            ),
-                        )
-                    )
-            elif self.allow_empty and not segments:
-                # Very edge case, but some segments are allowed to be empty other than
-                # non-code
-                self.segments = pre_nc + post_nc
-            else:
-                # If there's no match at this stage, then it's unparsable. That's
-                # a problem at this stage so wrap it in an unparsable segment and carry
-                # on.
-                self.segments = (
-                    pre_nc
-                    + (
-                        UnparsableSegment(
-                            segments=segments,
-                            expected=self.expected_form,
-                        ),  # NB: tuple
-                    )
-                    + post_nc
-                )
-
-        parse_depth_msg = (
-            "###\n#\n# Beginning Parse Depth {}: {}\n#\n###\nInitial Structure:\n"
-            "{}".format(
-                parse_context.parse_depth + 1, self.__class__.__name__, self.stringify()
-            )
-        )
-        parse_context.logger.debug(parse_depth_msg)
-        with parse_context.deeper_parse(name=self.__class__.__name__) as ctx:
-            self.segments = self.expand(
-                self.segments,
-                parse_context=ctx,
-            )
-        # Once parsed, populate any parent relationships.
-        for _seg in self.segments:
-            _seg.set_as_parent()
-
-        return (self,)
-
     @staticmethod
     def _is_code_or_meta(segment: "BaseSegment") -> bool:
         return segment.is_code or segment.is_meta
@@ -1559,12 +1371,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         # Only validate if there's a match_grammar. Otherwise we may get
         # strange results (for example with the BracketedSegment).
-        if requires_validate and (
-            hasattr(new_seg, "match_grammar")
-            # TODO: We temporarily allow parse_grammar here until the file segment
-            # has been migrated. Then we should remove this.
-            or new_seg.parse_grammar
-        ):
+        if requires_validate and hasattr(new_seg, "match_grammar"):
             validated = self._validate_segment_after_fixes(dialect, new_seg)
         else:
             validated = not requires_validate
@@ -1605,12 +1412,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         if not trimmed_content and self.can_start_end_non_code:
             # Edge case for empty segments which are allowed to be empty.
             return True
-        if segment.parse_grammar:
-            # TODO: We should remove this clause when the file segment
-            # is migrated.
-            rematch = segment.parse_grammar.match(trimmed_content, ctx)
-        else:
-            rematch = segment.match(trimmed_content, ctx)
+        rematch = segment.match(trimmed_content, ctx)
         if not rematch.is_complete():
             linter_logger.debug(
                 f"Validation Check Fail for {segment}.Incomplete Match. "
