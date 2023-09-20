@@ -935,7 +935,6 @@ def greedy_match2(
     idx: int,
     parse_context: ParseContext,
     matchers: List[MatchableType],
-    enforce_whitespace_preceding_terminator: bool,
     include_terminator: bool = False,
 ) -> MatchResult2:
     """Match anything up to some defined terminator."""
@@ -943,7 +942,7 @@ def greedy_match2(
 
     while True:
         with parse_context.deeper_match(name="GreedyUntil") as ctx:
-            match, _ = next_ex_bracket_match2(
+            match, matcher = next_ex_bracket_match2(
                 segments,
                 idx=working_idx,
                 matchers=matchers,
@@ -956,14 +955,35 @@ def greedy_match2(
             # Claim everything left.
             return MatchResult2(slice(idx, len(segments)))
 
-        stop_idx = match.matched_slice.stop
+        _start_idx = match.matched_slice.start
+        _stop_idx = match.matched_slice.stop
+        # NOTE: For some terminators we only count them if they're preceded
+        # by whitespace, and others we don't. In principle, we aim that for
+        # _keywords_ we require whitespace, and for symbols we don't.
+        # We do this by looking at the `simple` method of the returned
+        # matcher, and if it's entirely alphabetical (as defined by
+        # str.isalpha()) then we infer that it's a keyword, and therefore
+        # _does_ require whitespace before it.
+        assert matcher, f"Match without matcher: {match}"
+        _simple = matcher.simple(parse_context)
+        assert _simple, f"Terminators require a simple method: {matcher}"
+        _strings, _types = _simple
+        # NOTE: Typed matchers aren't common here, but we assume that they
+        # _don't_ require preceding whitespace.
         # Do we need to enforce whitespace preceding?
-        if enforce_whitespace_preceding_terminator:
+        if all(_s.isalpha() for _s in _strings) and not _types:
             allowable_match = False
-            for _idx in range(match.matched_slice.start - 1, working_idx - 1, -1):
-                if segments[_idx].is_meta:
+            # NOTE: Edge case - if we're matching the _first_ element (i.e. that
+            # there are no `pre` segments) then we _do_ allow it.
+            # TODO: Review whether this is as designed, but it is consistent
+            # with past behaviour.
+            if _start_idx == working_idx:
+                allowable_match = True
+            # Work backward through previous segments looking for whitespace.
+            for _idx in range(_start_idx, working_idx, -1):
+                if segments[_idx - 1].is_meta:
                     continue
-                elif segments[_idx].is_type("whitespace", "newline"):
+                elif segments[_idx - 1].is_type("whitespace", "newline"):
                     allowable_match = True
                     break
                 else:
