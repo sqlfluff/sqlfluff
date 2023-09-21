@@ -11,7 +11,12 @@ from sqlfluff.core.parser.grammar.base import (
 )
 from sqlfluff.core.parser.grammar.sequence import Bracketed, Sequence
 from sqlfluff.core.parser.helpers import trim_non_code_segments
-from sqlfluff.core.parser.match_algorithms import greedy_match, longest_match2
+from sqlfluff.core.parser.match_algorithms import (
+    greedy_match,
+    longest_match2,
+    skip_start_index_forward_to_code,
+    trim_to_terminator2,
+)
 from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.segments import BaseSegment, UnparsableSegment
@@ -54,6 +59,42 @@ def _parse_mode_match_result(
         matched_segments + unmatched_segments[:_trim_idx] + (unmatched_seg,),
         tail,
     )
+
+
+def _parse_mode_match_result2(
+    segments: SequenceType[BaseSegment],
+    current_match: MatchResult2,
+    max_idx: int,
+    parse_mode: ParseMode,
+) -> MatchResult2:
+    """A helper function for the return values of AnyNumberOf.
+
+    This method creates UnparsableSegments as appropriate
+    depending on the parse mode and return values.
+    """
+    # If we're being strict, just return.
+    if parse_mode == ParseMode.STRICT:
+        return current_match
+
+    # Nothing in unmatched anyway?
+    _stop_idx = current_match.matched_slice.stop
+    if _stop_idx == max_idx or all(not s.is_code for s in segments[_stop_idx:max_idx]):
+        return current_match
+
+    _trim_idx = skip_start_index_forward_to_code(segments, _stop_idx)
+
+    # Create an unmatched segment
+    _expected = "Nothing else"
+    if len(segments) > max_idx:
+        _expected += f" before {segments[max_idx].raw!r}"
+
+    unmatched_match = MatchResult2(
+        matched_slice=slice(_trim_idx, max_idx),
+        matched_class=UnparsableSegment,
+        segment_kwargs={"expected": _expected},
+    )
+
+    return current_match.append(unmatched_match)
 
 
 class AnyNumberOf(BaseGrammar):
@@ -276,39 +317,53 @@ class AnyNumberOf(BaseGrammar):
     ) -> MatchResult2:
         """Match against this matcher."""
         if self.exclude:
-            # Check for excludes
-            if self.exclude.match2(segments, idx, parse_context):
-                return MatchResult2.empty_at(idx)
+            with parse_context.deeper_match(
+                name=self.__class__.__name__ + "-Exclude"
+            ) as ctx:
+                if self.exclude.match2(segments, idx, ctx):
+                    return MatchResult2.empty_at(idx)
 
         n_matches = 0
         # Keep track of the number of times each option has been matched.
         option_counter = {elem.cache_key(): 0 for elem in self._elements}
         # Keep track of how far we've got.
         matched_idx = idx
+        # The working index is to cover non-code elements which aren't
+        # claimed yet, but we should conditionally claim if the next
+        # match is succesful.
+        working_idx = idx
         matched = MatchResult2.empty_at(idx)
+        max_idx = len(segments)  # What is the limit
+
+        if self.parse_mode == ParseMode.GREEDY:
+            max_idx = trim_to_terminator2(
+                segments,
+                idx,
+                terminators=[*self.terminators, *parse_context.terminators],
+                parse_context=parse_context,
+            )
 
         while True:
-            if self.max_times and n_matches >= self.max_times:
-                # We've matched as many times as we're allowed.
-                # NOTE: For OneOf, this is the matched return path.
-                return matched
+            if n_matches > self.min_times:
+                if (
+                    # Either nothing left to match...
+                    matched_idx >= max_idx
+                    # ...Or we've matched as many times as allowed.
+                    or (self.max_times and n_matches >= self.max_times)
+                ):
+                    # NOTE: For OneOf, this is the matched return path.
+                    return _parse_mode_match_result2(
+                        segments,
+                        matched,
+                        max_idx,
+                        self.parse_mode,
+                    )
 
-            # Is there anything left to match?
-            if matched_idx >= len(segments):
-                # No...
-                if n_matches >= self.min_times:
-                    return matched
-                else:  # pragma: no cover TODO?
-                    # We didn't meet the hurdle
-                    return MatchResult2.empty_at(idx)
-
-            # If we've already matched once...
-            _idx = matched_idx
-            if n_matches > 0 and self.allow_gaps:
-                # Skip forward through any non-code.
-                for _idx in range(matched_idx, len(segments)):
-                    if segments[_idx].is_code:
-                        break
+            # Is there nothing left to match?
+            if matched_idx >= max_idx:
+                # Return unsuccessful as we didn't meet the hurdle.
+                # The positive exhausted return is above.
+                return MatchResult2.empty_at(idx)
 
             with parse_context.deeper_match(
                 name=self.__class__.__name__,
@@ -316,42 +371,56 @@ class AnyNumberOf(BaseGrammar):
                 push_terminators=self.terminators,
             ) as ctx:
                 match, matched_option = longest_match2(
-                    segments,
+                    # TODO: Resolve re-slice limit hack
+                    segments[:max_idx],
                     self._elements,
-                    # Use a temp index for the non-code elements.
-                    # They aren't "matched" yet.
-                    _idx,
+                    working_idx,
                     ctx,
                 )
 
+            # Did we fail to match?
+            if not match:
+                # If we haven't already met the hurdle rate, act as though
+                # not match at all.
+                if n_matches < self.min_times:
+                    matched = MatchResult2.empty_at(idx)
+
+                return _parse_mode_match_result2(
+                    segments,
+                    matched,
+                    max_idx,
+                    self.parse_mode,
+                )
+
+            # Otherwise we have a new clean match.
+            assert match
+            assert matched_option
+
             # Update counts of each option in case we've hit limits.
-            if matched_option:
-                matched_key = matched_option.cache_key()
-                if matched_option.cache_key() in option_counter:
-                    option_counter[matched_key] += 1
-                    # Check if we have matched an option too many times.
-                    if (
-                        self.max_times_per_element
-                        and option_counter[matched_key] > self.max_times_per_element
-                    ):
-                        # Return the match so far, without the most recent match.
-                        return matched
+            matched_key = matched_option.cache_key()
+            if matched_option.cache_key() in option_counter:
+                option_counter[matched_key] += 1
+                # Check if we have matched an option too many times.
+                if (
+                    self.max_times_per_element
+                    and option_counter[matched_key] > self.max_times_per_element
+                ):
+                    # Return the match so far, without the most recent match.
+                    return _parse_mode_match_result2(
+                        segments,
+                        matched,
+                        max_idx,
+                        self.parse_mode,
+                    )
 
-            # Did we get a new clean match?
-            if match:
-                matched = matched.append(match)
-                matched_idx = matched.matched_slice.stop
-                parse_context.update_progress2(matched_idx)
-                n_matches += 1
-            else:
-                # If we get here, then we've not managed to match.
-
-                # If we've already met the hurdle rate, return what we've got
-                # without the most recent match.
-                if n_matches >= self.min_times:
-                    return matched
-
-                return matched.append(match)
+            # If we haven't hit limits then consume and move on.
+            matched = matched.append(match)
+            matched_idx = matched.matched_slice.stop
+            if self.allow_gaps:
+                working_idx = skip_start_index_forward_to_code(segments, matched_idx)
+            parse_context.update_progress2(matched_idx)
+            n_matches += 1
+            # Continue around the loop...
 
 
 class OneOf(AnyNumberOf):

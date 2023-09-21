@@ -176,7 +176,7 @@ def test__parser__grammar_anysetof(generate_test_segments):
 
 
 @pytest.mark.parametrize(
-    "mode,sequence,terminators,input_slice,kwargs,output_tuple",
+    "mode,options,terminators,input_slice,kwargs,output_tuple",
     [
         # #####
         # Strict matches
@@ -245,7 +245,7 @@ def test__parser__grammar_anysetof(generate_test_segments):
 )
 def test__parser__grammar_anyof_modes(
     mode,
-    sequence,
+    options,
     terminators,
     input_slice,
     kwargs,
@@ -262,18 +262,21 @@ def test__parser__grammar_anyof_modes(
     # Dialect is required here only to have access to bracket segments.
     ctx = ParseContext(dialect=fresh_ansi_dialect)
 
-    _seq = AnyNumberOf(
-        *(StringParser(e, KeywordSegment) for e in sequence),
+    _grammar = AnyNumberOf(
+        *(StringParser(e, KeywordSegment) for e in options),
         parse_mode=mode,
         terminators=[StringParser(e, KeywordSegment) for e in terminators],
         **kwargs,
     )
-    _match = _seq.match(segments[input_slice], ctx)
+
+    _start = input_slice.start or 0
+    _stop = input_slice.stop or len(segments)
+    _match = _grammar.match2(segments[:_stop], _start, ctx)
     # If we're expecting an output tuple, assert the match is truthy.
     if output_tuple:
         assert _match
     _result = tuple(
-        e.to_tuple(show_raw=True, code_only=False) for e in _match.matched_segments
+        e.to_tuple(show_raw=True, code_only=False) for e in _match.apply(segments)
     )
     assert _result == output_tuple
 

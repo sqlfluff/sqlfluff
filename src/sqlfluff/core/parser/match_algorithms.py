@@ -1030,3 +1030,64 @@ def greedy_match2(
         return MatchResult2(
             slice(idx, _stop_idx),
         )
+
+
+def trim_to_terminator2(
+    segments: Tuple[BaseSegment, ...],
+    idx: int,
+    terminators: Sequence[MatchableType],
+    parse_context: ParseContext,
+) -> int:
+    """Trim forward segments based on terminators.
+
+    Given a forward set of segments, trim elements from `segments` to
+    `tail` by using a `greedy_match()` to identify terminators.
+
+    If no terminators are found, no change is made.
+
+    NOTE: This method is designed replace a `max_idx`:
+
+    .. code-block:: python
+
+        max_idx = _trim_to_terminator2(segments[:max_idx], idx, ...)
+
+    """
+    # In the greedy mode, we first look ahead to find a terminator
+    # before matching any code.
+
+    # NOTE: If there is a terminator _immediately_, then greedy
+    # match will appear to not match (because there's "nothing" before
+    # the terminator). To resolve that case, we first match immediately
+    # on the terminators and handle that case explicitly if it occurs.
+    with parse_context.deeper_match(name="Trim-GreedyA-@0") as ctx:
+        pruned_terms = prune_options(
+            terminators, segments, start_idx=idx, parse_context=ctx
+        )
+        for term in pruned_terms:
+            if term.match2(segments, idx, ctx):
+                # One matched immediately. Claim everything to the tail.
+                return idx
+
+    # If the above case didn't match then we proceed as expected.
+    with parse_context.deeper_match(
+        name="Trim-GreedyB-@0", track_progress=False
+    ) as ctx:
+        term_match = greedy_match2(
+            segments,
+            idx,
+            parse_context=ctx,
+            matchers=terminators,
+        )
+
+    # NOTE: If there's no match, i.e. no terminator, then we continue
+    # to consider all the segments, and therefore take no different
+    # action at this stage.
+    if term_match:
+        # If we _do_ find a terminator, we separate off everything
+        # beyond that terminator (and any preceding non-code) so that
+        # it's not available to match against for the rest of this.
+        return skip_stop_index_backward_to_code(
+            segments, term_match.matched_slice.stop, idx
+        )
+
+    return len(segments)
