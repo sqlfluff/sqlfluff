@@ -543,7 +543,7 @@ tsql_dialect.replace(
             Ref("TypedArrayLiteralSegment"),
             Ref("ArrayLiteralSegment"),
         ),
-        Ref("Accessor_Grammar", optional=True),
+        Ref("AccessorGrammar", optional=True),
         allow_gaps=True,
     ),
     MergeIntoLiteralGrammar=Sequence(

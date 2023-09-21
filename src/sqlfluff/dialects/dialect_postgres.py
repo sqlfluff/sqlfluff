@@ -514,7 +514,7 @@ postgres_dialect.replace(
         Sequence("WITH", "DATA"),
         Ref("ForClauseSegment"),
     ),
-    Accessor_Grammar=AnyNumberOf(
+    AccessorGrammar=AnyNumberOf(
         Ref("ArrayAccessorSegment"),
         # Add in semi structured expressions
         Ref("SemiStructuredAccessorSegment"),

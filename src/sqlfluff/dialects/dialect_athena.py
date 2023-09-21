@@ -202,7 +202,7 @@ athena_dialect.replace(
             Ref("ParameterSegment"),
         ]
     ),
-    Accessor_Grammar=Sequence(
+    AccessorGrammar=Sequence(
         AnyNumberOf(
             Ref("ArrayAccessorSegment"),
             optional=True,
