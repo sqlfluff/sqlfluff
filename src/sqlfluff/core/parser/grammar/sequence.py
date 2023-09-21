@@ -882,13 +882,11 @@ class Bracketed(Sequence):
         parse_context: "ParseContext",
     ) -> MatchResult2:
         """Match against this matcher."""
-        # NOTE: THIS IS A GREAT PLACE FOR PARTIAL UNPARSABLES.
-        # TODO: Deal with unparsables.
-        # First deal with the negative case. No start, no match.
-
         # Rehydrate the bracket segments in question.
         # bracket_persists controls whether we make a BracketedSegment or not.
-        start_bracket, end_bracket, _ = self.get_bracket_from_dialect(parse_context)
+        start_bracket, end_bracket, bracket_persists = self.get_bracket_from_dialect(
+            parse_context
+        )
         # Allow optional override for special bracket-like things
         start_bracket = self.start_bracket or start_bracket
         end_bracket = self.end_bracket or end_bracket
@@ -968,13 +966,6 @@ class Bracketed(Sequence):
 
         # Regardless of whether the inner match was successful, append it.
         # We're going to pick out the rest as unparsable shortly.
-        # NOTE: If it's unparsable content, then wrap in an unparsable here.
-        # TODO: YESYESYES MORE TESTS
-        if len(content_match):
-            content_match = content_match.wrap(
-                UnparsableSegment,
-                segment_kwargs={"expected": f"Bracketed Sequence of: {self._elements}"},
-            )
         working_match = start_match.append(content_match)
 
         # What's between the final match and the content. Hopefully just gap?
@@ -995,26 +986,20 @@ class Bracketed(Sequence):
             )
             working_match = working_match.append(child_match)
 
-        # NOTE: For backward compatibility reasons (and not ones I'm sure
-        # I agree with), we only wrap if the brackets are _round_. Otherwise
-        # we just return flat.
-        # HACK: We should probably remove this, I think it just perpetuates an
-        # old existing inconsistency.
-        if segments[start_match.matched_slice.start].raw != "(":
-            return working_match.append(
-                final_match,
-                insert_segments=(
-                    (start_match.matched_slice.stop, Indent),
-                    (final_match.matched_slice.start, Dedent),
-                ),
-            )
+        inserts = (
+            (start_match.matched_slice.stop, Indent),
+            (final_match.matched_slice.start, Dedent),
+        )
+        working_match = working_match.append(
+            final_match,
+            insert_segments=inserts,
+        )
+        if not bracket_persists:
+            return working_match
 
-        return working_match.append(final_match).wrap(
+        # Only wrap if `bracket_persists` is true
+        return working_match.wrap(
             BracketedSegment,
-            insert_segments=(
-                (start_match.matched_slice.stop, Indent),
-                (final_match.matched_slice.start, Dedent),
-            ),
             segment_kwargs={
                 "start_bracket": (segments[start_match.matched_slice.start],),
                 "end_bracket": (segments[final_match.matched_slice.stop - 1],),
