@@ -1143,7 +1143,7 @@ class BaseRule(metaclass=RuleMetaclass):
             if root_segment
             else None
         )
-        assert path
+        assert path, f"No path found from {root_segment} to {segment}!"
         for seg in path[::-1]:
             # If the segment allows non code ends, then no problem.
             # We're done. This is usually the outer file segment.

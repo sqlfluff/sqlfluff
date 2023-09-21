@@ -1,17 +1,17 @@
 """Implementation of Rule CV11."""
 
-from typing import Optional, List, Iterable
-
-from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.utils.functional import sp, FunctionalContext, Segments
+from typing import Iterable, List, Optional
 
 from sqlfluff.core.parser import (
-    WhitespaceSegment,
-    SymbolSegment,
-    KeywordSegment,
     BaseSegment,
+    CodeSegment,
+    KeywordSegment,
+    SymbolSegment,
+    WhitespaceSegment,
 )
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.utils.functional import FunctionalContext, Segments, sp
 
 
 class Rule_CV11(BaseRule):
@@ -89,7 +89,7 @@ class Rule_CV11(BaseRule):
         # Add cast and opening parenthesis.
         edits = (
             [
-                KeywordSegment("cast"),
+                CodeSegment("cast", type="function_name_identifier"),
                 SymbolSegment("(", type="start_bracket"),
             ]
             + list(cast_arg_1)
@@ -104,7 +104,7 @@ class Rule_CV11(BaseRule):
 
         if later_types:
             pre_edits: List[BaseSegment] = [
-                KeywordSegment("cast"),
+                CodeSegment("cast", type="function_name_identifier"),
                 SymbolSegment("(", type="start_bracket"),
             ]
             in_edits: List[BaseSegment] = [
@@ -136,7 +136,7 @@ class Rule_CV11(BaseRule):
         """Generate list of fixes to convert CAST and ShorthandCast to CONVERT."""
         # Add convert and opening parenthesis.
         edits = [
-            KeywordSegment("convert"),
+            CodeSegment("convert", type="function_name_identifier"),
             SymbolSegment("(", type="start_bracket"),
             convert_arg_1,
             SymbolSegment(",", type="comma"),
@@ -147,7 +147,7 @@ class Rule_CV11(BaseRule):
 
         if later_types:
             pre_edits: List[BaseSegment] = [
-                KeywordSegment("convert"),
+                CodeSegment("convert", type="function_name_identifier"),
                 SymbolSegment("(", type="start_bracket"),
             ]
             in_edits: List[BaseSegment] = [

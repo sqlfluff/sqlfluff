@@ -110,4 +110,8 @@ class LintedDir:
             raise ValueError(
                 ".tree() cannot be called when a LintedDir contains more than one file."
             )
+        elif not self.files:  # pragma: no cover
+            raise ValueError(
+                "LintedDir has no parsed files. There is probably a parsing error."
+            )
         return self.files[0].tree

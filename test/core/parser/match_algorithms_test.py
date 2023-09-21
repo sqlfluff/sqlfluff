@@ -16,7 +16,7 @@ from sqlfluff.core.parser.match_algorithms import (
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 
 
-def make_result_tuple(result_slice, matcher_keywords, seg_list):
+def make_result_tuple(result_slice, matcher_keywords, test_segments):
     """Make a comparison tuple for test matching."""
     # No result slice means no match.
     if not result_slice:
@@ -26,12 +26,12 @@ def make_result_tuple(result_slice, matcher_keywords, seg_list):
         KeywordSegment(elem.raw, pos_marker=elem.pos_marker)
         if elem.raw in matcher_keywords
         else elem
-        for elem in seg_list[result_slice]
+        for elem in test_segments[result_slice]
     )
 
 
 @pytest.mark.parametrize(
-    "seg_list_slice,matcher_keywords,result_slice,winning_matcher,pre_match_slice",
+    "segment_slice,matcher_keywords,result_slice,winning_matcher,pre_match_slice",
     [
         # Basic version, we should find bar first
         (slice(None, None), ["bar", "foo"], slice(None, 1), "bar", None),
@@ -40,12 +40,12 @@ def make_result_tuple(result_slice, matcher_keywords, seg_list):
     ],
 )
 def test__parser__algorithms__look_ahead_match(
-    seg_list_slice,
+    segment_slice,
     matcher_keywords,
     result_slice,
     winning_matcher,
     pre_match_slice,
-    seg_list,
+    test_segments,
 ):
     """Test the look_ahead_match method of the BaseGrammar."""
     # Make the matcher keywords
@@ -55,7 +55,7 @@ def test__parser__algorithms__look_ahead_match(
 
     ctx = ParseContext(dialect=None)
     m = look_ahead_match(
-        seg_list[seg_list_slice],
+        test_segments[segment_slice],
         matchers,
         ctx,
     )
@@ -71,7 +71,7 @@ def test__parser__algorithms__look_ahead_match(
 
     # Make check tuple for the pre-match section
     if pre_match_slice:
-        pre_match_slice = seg_list[pre_match_slice]
+        pre_match_slice = test_segments[pre_match_slice]
     else:
         pre_match_slice = ()
     assert result_pre_match == pre_match_slice
@@ -80,13 +80,13 @@ def test__parser__algorithms__look_ahead_match(
     expected_result = make_result_tuple(
         result_slice=result_slice,
         matcher_keywords=matcher_keywords,
-        seg_list=seg_list,
+        test_segments=test_segments,
     )
     assert result_match.matched_segments == expected_result
 
 
 def test__parser__algorithms__bracket_sensitive_look_ahead_match(
-    bracket_seg_list, fresh_ansi_dialect
+    bracket_segments, fresh_ansi_dialect
 ):
     """Test the bracket_sensitive_look_ahead_match method of the BaseGrammar."""
     bs = StringParser("bar", KeywordSegment)
@@ -95,19 +95,19 @@ def test__parser__algorithms__bracket_sensitive_look_ahead_match(
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     # Basic version, we should find bar first
     pre_section, match, matcher = bracket_sensitive_look_ahead_match(
-        bracket_seg_list, [fs, bs], ctx
+        bracket_segments, [fs, bs], ctx
     )
     assert pre_section == ()
     assert matcher == bs
     # NB the middle element is a match object
     assert match.matched_segments == (
-        KeywordSegment("bar", bracket_seg_list[0].pos_marker),
+        KeywordSegment("bar", bracket_segments[0].pos_marker),
     )
 
     # Look ahead for foo, we should find the one AFTER the brackets, not the
     # on IN the brackets.
     pre_section, match, matcher = bracket_sensitive_look_ahead_match(
-        bracket_seg_list, [fs], ctx
+        bracket_segments, [fs], ctx
     )
     # NB: The bracket segments will have been mutated, so we can't directly compare.
     # Make sure we've got a bracketed section in there.
@@ -117,7 +117,7 @@ def test__parser__algorithms__bracket_sensitive_look_ahead_match(
     assert matcher == fs
     # We shouldn't match the whitespace with the keyword
     assert match.matched_segments == (
-        KeywordSegment("foo", bracket_seg_list[8].pos_marker),
+        KeywordSegment("foo", bracket_segments[8].pos_marker),
     )
     # Check that the unmatched segments are nothing.
     assert not match.unmatched_segments

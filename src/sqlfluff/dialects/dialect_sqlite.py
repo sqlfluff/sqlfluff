@@ -5,19 +5,20 @@ https://www.sqlite.org/
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
-    BaseSegment,
-    Bracketed,
-    Matchable,
-    OneOf,
-    OptionallyBracketed,
-    Ref,
-    Sequence,
-    Delimited,
-    TypedParser,
-    Nothing,
     AnyNumberOf,
     Anything,
+    BaseSegment,
+    Bracketed,
     Dedent,
+    Delimited,
+    Matchable,
+    Nothing,
+    OneOf,
+    OptionallyBracketed,
+    ParseMode,
+    Ref,
+    Sequence,
+    TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_sqlite_keywords import (
@@ -100,7 +101,7 @@ sqlite_dialect.replace(
     ),
     PostFunctionGrammar=Ref("FilterClauseGrammar"),
     IgnoreRespectNullsGrammar=Nothing(),
-    SelectClauseElementTerminatorGrammar=OneOf(
+    SelectClauseTerminatorGrammar=OneOf(
         "FROM",
         "WHERE",
         Sequence("ORDER", "BY"),
@@ -236,8 +237,8 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                     Delimited(
                         "DEFAULT",
                         Ref("ExpressionSegment"),
-                        ephemeral_name="ValuesClauseElements",
-                    )
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
         ),
@@ -464,21 +465,10 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
     )
 
 
-class SelectClauseSegment(BaseSegment):
-    """A group of elements in a select target statement.
-
-    Overriding ANSI to remove StartsWith logic which assumes statements have been
-    delimited
-    """
-
-    type = "select_clause"
-    match_grammar = Ref("SelectClauseSegmentGrammar")
-
-
 class UnorderedSelectStatementSegment(BaseSegment):
     """A `SELECT` statement without any ORDER clauses or later.
 
-    Replaces (without overriding) ANSI to remove Greedy Matcher
+    Replaces (without overriding) ANSI to remove Eager Matcher
     """
 
     type = "select_statement"
@@ -500,7 +490,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
 class SelectStatementSegment(BaseSegment):
     """A `SELECT` statement.
 
-    Replaces (without overriding) ANSI to remove Greedy Matcher
+    Replaces (without overriding) ANSI to remove Eager Matcher
     """
 
     type = "select_statement"
@@ -563,5 +553,3 @@ class StatementSegment(ansi.StatementSegment):
         Ref("UpdateStatementSegment"),
         Bracketed(Ref("StatementSegment")),
     )
-
-    parse_grammar = match_grammar

@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Optional, Sequence, Type
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser.context import ParseContext
+from sqlfluff.core.parser.helpers import check_still_complete
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.segments import BaseFileSegment, BaseSegment
@@ -33,15 +34,20 @@ class Parser:
             # be an end_of_file segment. It would probably only happen in
             # api use cases.
             return None
-        # Instantiate the root segment
-        root_segment = self.RootSegment(segments=tuple(segments), fname=fname)
-        # Call .parse() on that segment
 
         # NOTE: This is the only time we use the parse context not in the
         # context of a context manager. That's because it's the initial
         # instantiation.
         ctx = ParseContext.from_config(config=self.config)
-        parsed = root_segment.parse(parse_context=ctx)
+        # Kick off parsing with the root segment. The BaseFileSegment has
+        # a unique entry point to facilitate exaclty this. All other segments
+        # will use the standard .match()/.parse() route.
+        root = self.RootSegment.root_parse(
+            tuple(segments), fname=fname, parse_context=ctx
+        )
+
+        # Basic Validation, that we haven't dropped anything.
+        check_still_complete(tuple(segments), (root,), ())
 
         if parse_statistics:  # pragma: no cover
             # NOTE: We use ctx.logger.warning here to output the statistics.
@@ -65,9 +71,4 @@ class Parser:
                 ctx.logger.warning(f"{val}: {key!r}")
             ctx.logger.warning("==== End Parse Statistics ====")
 
-        if not parsed:  # pragma: no cover
-            return None
-        elif len(parsed) == 1:
-            return parsed[0]
-        else:  # pragma: no cover
-            raise ValueError(f"Unexpected longer root parse result [{len(parsed)}].")
+        return root

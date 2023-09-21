@@ -18,12 +18,12 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
     SegmentGenerator,
     Sequence,
-    StartsWith,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_postgres as postgres
@@ -2024,8 +2024,7 @@ class StatementSegment(postgres.StatementSegment):
 
     type = "statement"
 
-    match_grammar = postgres.StatementSegment.match_grammar
-    parse_grammar = postgres.StatementSegment.parse_grammar.copy(
+    match_grammar = postgres.StatementSegment.match_grammar.copy(
         insert=[
             Ref("CreateLibraryStatementSegment"),
             Ref("CreateGroupStatementSegment"),
@@ -2489,9 +2488,9 @@ class FunctionSegment(ansi.FunctionSegment):
                             "FunctionContentsGrammar",
                             # The brackets might be empty for some functions...
                             optional=True,
-                            ephemeral_name="FunctionContentsGrammar",
                         ),
-                    )
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
         ),
@@ -2523,8 +2522,8 @@ class FunctionSegment(ansi.FunctionSegment):
                         "FunctionContentsGrammar",
                         # The brackets might be empty for some functions...
                         optional=True,
-                        ephemeral_name="FunctionContentsGrammar",
-                    )
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
             Ref("PostFunctionGrammar", optional=True),
@@ -2656,19 +2655,11 @@ class SelectStatementSegment(postgres.SelectStatementSegment):
     """
 
     type = "select_statement"
-    match_grammar = StartsWith(
-        # NB: In bigquery, the select clause may include an EXCEPT, which
-        # will also match the set operator, but by starting with the whole
-        # select clause rather than just the SELECT keyword, we normally
-        # mitigate that here. But this isn't BigQuery! So we can be more
-        # efficient and just use the keyword.
-        "SELECT",
-        terminators=[Ref("SetOperatorSegment")],
-    )
 
-    parse_grammar = postgres.SelectStatementSegment.parse_grammar.copy(
+    match_grammar = postgres.SelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
+        terminators=[Ref("SetOperatorSegment")],
     )
 
 
@@ -2679,9 +2670,8 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """
 
     type = "select_statement"
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
 
-    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OverlapsClauseSegment", optional=True),
     )

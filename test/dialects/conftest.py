@@ -1,14 +1,10 @@
 """Sharing fixtures to test the dialects."""
-import pytest
-
 import logging
 
+import pytest
+
 from sqlfluff.core import FluffConfig, Linter
-from sqlfluff.core.parser import (
-    Lexer,
-    BaseSegment,
-    RawSegment,
-)
+from sqlfluff.core.parser import BaseSegment, Lexer
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
@@ -21,10 +17,10 @@ def lex(raw, config):
     # Lex the string for matching. For a good test, this would
     # arguably happen as a fixture, but it's easier to pass strings
     # as parameters than pre-lexed segment strings.
-    seg_list, vs = lex.lex(raw)
+    segments, vs = lex.lex(raw)
     assert not vs
-    print(seg_list)
-    return seg_list
+    print(segments)
+    return segments
 
 
 def validate_segment(segmentref, config):
@@ -51,36 +47,20 @@ def _dialect_specific_segment_parses(dialect, segmentref, raw, caplog):
     function of the parent will not be tested.
     """
     config = FluffConfig(overrides=dict(dialect=dialect))
-    seg_list = lex(raw, config=config)
+    segments = lex(raw, config=config)
     Seg = validate_segment(segmentref, config=config)
 
     # Most segments won't handle the end of file marker. We should strip it.
-    if seg_list[-1].is_type("end_of_file"):
-        seg_list = seg_list[:-1]
+    if segments[-1].is_type("end_of_file"):
+        segments = segments[:-1]
 
-    # This test is different if we're working with RawSegment
-    # derivatives or not.
-    if isinstance(Seg, Matchable) or issubclass(Seg, RawSegment):
-        print("Raw/Parser route...")
-        ctx = ParseContext.from_config(config)
-        with caplog.at_level(logging.DEBUG):
-            parsed = Seg.match(segments=seg_list, parse_context=ctx)
-        assert isinstance(parsed, MatchResult)
-        assert len(parsed.matched_segments) == 1
-        print(parsed)
-        parsed = parsed.matched_segments[0]
-        print(parsed)
-    else:
-        print("Base route...")
-        # Construct an unparsed segment
-        seg = Seg(seg_list, pos_marker=seg_list[0].pos_marker)
-        # Perform the match (THIS IS THE MEAT OF THE TEST)
-        ctx = ParseContext.from_config(config)
-        with caplog.at_level(logging.DEBUG):
-            result = seg.parse(parse_context=ctx)
-        print(result)
-        parsed = result[0]
-        assert isinstance(parsed, Seg)
+    ctx = ParseContext.from_config(config)
+    with caplog.at_level(logging.DEBUG):
+        parsed = Seg.match(segments=segments, parse_context=ctx)
+    assert isinstance(parsed, MatchResult)
+    assert len(parsed.matched_segments) == 1
+    print(parsed)
+    parsed = parsed.matched_segments[0]
 
     # Check we get a good response
     print(parsed)
@@ -100,12 +80,12 @@ def _dialect_specific_segment_not_match(dialect, segmentref, raw, caplog):
     This is the opposite to the above.
     """
     config = FluffConfig(overrides=dict(dialect=dialect))
-    seg_list = lex(raw, config=config)
+    segments = lex(raw, config=config)
     Seg = validate_segment(segmentref, config=config)
 
     ctx = ParseContext.from_config(config)
     with caplog.at_level(logging.DEBUG):
-        match = Seg.match(segments=seg_list, parse_context=ctx)
+        match = Seg.match(segments=segments, parse_context=ctx)
 
     assert not match
 
