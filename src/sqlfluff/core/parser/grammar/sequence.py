@@ -18,6 +18,7 @@ from sqlfluff.core.parser.helpers import check_still_complete, trim_non_code_seg
 from sqlfluff.core.parser.match_algorithms import (
     bracket_sensitive_look_ahead_match,
     greedy_match,
+    greedy_match2,
     next_ex_bracket_match2,
     prune_options,
     resolve_bracket2,
@@ -94,6 +95,67 @@ def _trim_to_terminator(
                 return segments[:_idx], segments[_idx:] + tail
 
     return segments, tail
+
+
+def _trim_to_terminator2(
+    segments: Tuple[BaseSegment, ...],
+    idx: int,
+    terminators: SequenceType[MatchableType],
+    parse_context: ParseContext,
+) -> int:
+    """Trim forward segments based on terminators.
+
+    Given a forward set of segments, trim elements from `segments` to
+    `tail` by using a `greedy_match()` to identify terminators.
+
+    If no terminators are found, no change is made.
+
+    NOTE: This method is designed replace a `max_idx`:
+
+    .. code-block:: python
+
+        max_idx = _trim_to_terminator2(segments[:max_idx], idx, ...)
+
+    """
+    # In the greedy mode, we first look ahead to find a terminator
+    # before matching any code.
+
+    # NOTE: If there is a terminator _immediately_, then greedy
+    # match will appear to not match (because there's "nothing" before
+    # the terminator). To resolve that case, we first match immediately
+    # on the terminators and handle that case explicitly if it occurs.
+    with parse_context.deeper_match(name="Sequence-GreedyA-@0") as ctx:
+        pruned_terms = prune_options(
+            terminators, segments, start_idx=idx, parse_context=ctx
+        )
+        for term in pruned_terms:
+            if term.match2(segments, idx, ctx):
+                # One matched immediately. Claim everything to the tail.
+                return idx
+
+    # If the above case didn't match then we proceed as expected.
+    with parse_context.deeper_match(
+        name="Sequence-GreedyB-@0", track_progress=False
+    ) as ctx:
+        term_match = greedy_match2(
+            segments,
+            idx,
+            parse_context=ctx,
+            matchers=terminators,
+        )
+
+    # NOTE: If there's no match, i.e. no terminator, then we continue
+    # to consider all the segments, and therefore take no different
+    # action at this stage.
+    if term_match:
+        # If we _do_ find a terminator, we separate off everything
+        # beyond that terminator (and any preceding non-code) so that
+        # it's not available to match against for the rest of this.
+        for _idx in range(term_match.matched_slice.stop, -1, -1):
+            if segments[_idx - 1].is_code:
+                return _idx
+
+    return len(segments)
 
 
 def _position_metas(
@@ -447,6 +509,16 @@ class Sequence(BaseGrammar):
         # https://github.com/sqlfluff/sqlfluff/issues/3836
         meta_buffer = []
 
+        if self.parse_mode == ParseMode.GREEDY:
+            # In the greedy mode, we first look ahead to find a terminator
+            # before matching any code.
+            max_idx = _trim_to_terminator2(
+                segments,
+                idx,
+                terminators=[*self.terminators, *parse_context.terminators],
+                parse_context=parse_context,
+            )
+
         # Iterate elements
         for elem in self._elements:
             # 1. Handle any metas or conditionals.
@@ -484,6 +556,8 @@ class Sequence(BaseGrammar):
                 for _idx in range(matched_idx, max_idx):
                     if segments[_idx].is_code:
                         break
+                else:
+                    _idx = max_idx
 
             # Have we prematurely run out of segments?
             if _idx >= max_idx:
@@ -494,16 +568,32 @@ class Sequence(BaseGrammar):
                 # any metas, optionals and conditionals.
                 # This is a failed match because we couldn't complete
                 # the sequence.
-                # To facilitate later logging of unparsable sections
-                # we still return a match object, but mark is as unclean
-                # so that it isn't prioritised.
-                # Flush any metas...
+
+                if (
+                    # In a strict mode, running out a segments to match
+                    # on means that we don't match anything.
+                    self.parse_mode == ParseMode.STRICT
+                    # If nothing has been matched _anyway_ then just bail out.
+                    or matched_idx == start_idx
+                ):
+                    return MatchResult2.empty_at(idx)
+
+                # On any of the other modes (GREEDY or GREEDY_ONCE_STARTED)
+                # we've effectively already claimed the segments, we've
+                # just failed to match. In which case it's unparsable.
                 insert_segments += tuple((matched_idx, meta) for meta in meta_buffer)
                 return MatchResult2(
                     matched_slice=slice(start_idx, matched_idx),
                     insert_segments=insert_segments,
                     child_matches=child_matches,
                     is_clean=False,
+                ).wrap(
+                    UnparsableSegment,
+                    segment_kwargs={
+                        "expected": (
+                            f"{elem} after {segments[matched_idx - 1]}. Found nothing."
+                        )
+                    },
                 )
 
             # TODO: Check for terminators here, but my first pass didn't help.
@@ -521,6 +611,19 @@ class Sequence(BaseGrammar):
                 if elem.is_optional():
                     # Pass this one and move onto the next element.
                     continue
+
+                if self.parse_mode == ParseMode.STRICT:
+                    # In a strict mode, failing to match an element means that
+                    # we don't match anything.
+                    return MatchResult2.empty_at(idx)
+
+                if (
+                    self.parse_mode == ParseMode.GREEDY_ONCE_STARTED
+                    and matched_idx != start_idx
+                ):
+                    # If it's only greedy once started, and we haven't matched
+                    # anything yet, then we also don't match anything.
+                    return MatchResult2.empty_at(idx)
 
                 # Otherwise we've failed to match the sequence. In this case
                 # we return a _partial_ match (i.e. an unclean one). We'll also

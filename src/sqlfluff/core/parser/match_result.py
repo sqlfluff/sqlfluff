@@ -6,14 +6,14 @@ This should be the default response from any `match` method.
 from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import (
+    TYPE_CHECKING,
     Any,
-    Dict,
     DefaultDict,
+    Dict,
     List,
     Optional,
     Tuple,
     Type,
-    TYPE_CHECKING,
     cast,
 )
 
@@ -279,9 +279,22 @@ class MatchResult2:
         and any inserts. If there are overlaps, then we have a problem, and we
         should abort.
         """
-        assert slice_length(
-            self.matched_slice
-        ), f"Tried to apply result of zero length: {self}"
+        if not slice_length(self.matched_slice):
+            # TODO: Review whether we should handle any of these
+            # scenarios ()
+            assert not self.matched_class, (
+                "Tried to apply zero length MatchResult2 with "
+                "`matched_class`. This MatchResult2 is invalid."
+            )
+            assert not self.child_matches, (
+                "Tried to apply zero length MatchResult2 with "
+                "`child_matches`. Is this allowed?!"
+            )
+            assert not self.insert_segments, (
+                "Tried to apply zero length MatchResult2 with "
+                "`insert_segments`. This situation isn't handled yet."
+            )
+            return ()
 
         assert len(segments) >= self.matched_slice.stop, (
             f"Matched slice ({self.matched_slice}) sits outside segment "

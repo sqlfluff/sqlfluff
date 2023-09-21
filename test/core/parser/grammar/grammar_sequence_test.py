@@ -341,7 +341,7 @@ def test__parser__grammar_sequence_indent_conditional(test_segments, caplog):
         ),
     ],
 )
-def test__parser__grammar_sequence_modes(
+def test__parser__grammar_sequence_modes2(
     mode,
     sequence,
     terminators,
@@ -364,12 +364,14 @@ def test__parser__grammar_sequence_modes(
         parse_mode=mode,
         terminators=[StringParser(e, KeywordSegment) for e in terminators]
     )
-    _match = _seq.match(segments[input_slice], ctx)
+    _start = input_slice.start or 0
+    _stop = input_slice.stop or len(segments)
+    _match = _seq.match2(segments[:_stop], _start, ctx)
     # If we're expecting an output tuple, assert the match is truthy.
     if output_tuple:
         assert _match
     _result = tuple(
-        e.to_tuple(show_raw=True, code_only=False) for e in _match.matched_segments
+        e.to_tuple(show_raw=True, code_only=False) for e in _match.apply(segments)
     )
     assert _result == output_tuple
 
