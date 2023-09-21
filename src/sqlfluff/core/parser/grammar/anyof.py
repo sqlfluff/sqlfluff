@@ -416,6 +416,7 @@ class AnyNumberOf(BaseGrammar):
             # If we haven't hit limits then consume and move on.
             matched = matched.append(match)
             matched_idx = matched.matched_slice.stop
+            working_idx = matched_idx
             if self.allow_gaps:
                 working_idx = skip_start_index_forward_to_code(segments, matched_idx)
             parse_context.update_progress2(matched_idx)
