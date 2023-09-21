@@ -929,12 +929,8 @@ class Bracketed(Sequence):
         _idx = start_match.matched_slice.stop
         _end_idx = bracket_match.matched_slice.stop - 1
         if self.allow_gaps:
-            for _idx in range(_idx, len(segments)):
-                if segments[_idx].is_code:
-                    break
-            for _end_idx in range(_end_idx, _idx, -1):
-                if segments[_end_idx - 1].is_code:
-                    break
+            _idx = skip_start_index_forward_to_code(segments, _idx)
+            _end_idx = skip_stop_index_backward_to_code(segments, _end_idx, _idx)
 
         # Try and match content, clearing and adding the closing bracket
         # to the terminators.
@@ -947,6 +943,10 @@ class Bracketed(Sequence):
             # TODO: MAKE THIS BETTER. GET RID OF THE HACK.
             content_match = super().match2(segments[:_end_idx], _idx, ctx)
 
+        # No complete match within the brackets? Stop here and return unmatched.
+        if not content_match.matched_slice.stop == _end_idx:
+            return MatchResult2.empty_at(idx)
+
         # Wherever we got to, work forward to find the closing bracket.
         # NOTE: We do this even if we didn't find a content match.
         with parse_context.deeper_match(name="Bracketed-End") as ctx:
@@ -958,7 +958,6 @@ class Bracketed(Sequence):
             )
 
         if not final_match:
-            # NOTE: THIS IS A GREAT PLACE FOR PARTIAL UNPARSABLES??????
             raise NotImplementedError(
                 "BRACKETED. WE'RE GOING TO NEED THIS? "
                 f"CASE 4\n{content_match}\n{final_match}\n{segments}"
