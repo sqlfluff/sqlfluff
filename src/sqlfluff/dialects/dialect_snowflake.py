@@ -6633,3 +6633,29 @@ class SetOperatorSegment(ansi.SetOperatorSegment):
         ),
         "MINUS",
     )
+
+
+class ShorthandCastSegment(ansi.BaseSegment):
+    """A casting operation using '::'."""
+
+    type = "cast_expression"
+    match_grammar: Matchable = Sequence(
+        OneOf(
+            Ref("Expression_D_Grammar"),
+            Ref("CaseExpressionSegment"),
+        ),
+        AnyNumberOf(
+            Sequence(
+                Ref("CastOperatorSegment"),
+                Ref("DatatypeSegment"),
+                OneOf(
+                    Ref("TimeZoneGrammar"),
+                    AnyNumberOf(
+                        Ref("ArrayAccessorSegment"),
+                    ),
+                    optional=True,
+                ),
+            ),
+            min_times=1,
+        ),
+    )
