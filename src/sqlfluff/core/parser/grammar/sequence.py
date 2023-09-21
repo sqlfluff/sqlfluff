@@ -530,7 +530,8 @@ class Sequence(BaseGrammar):
 
             # Match the current element against the current position.
             with parse_context.deeper_match(name=f"Sequence-@{idx}") as ctx:
-                elem_match = elem.match2(segments, _idx, ctx)
+                # HACK: Segment slicing hack to limit
+                elem_match = elem.match2(segments[:max_idx], _idx, ctx)
 
             # Did we fail to match? (totally or un-cleanly)
             if not elem_match:

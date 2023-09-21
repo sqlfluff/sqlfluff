@@ -53,8 +53,5 @@ class GreedyUntil(BaseGrammar):
             idx=idx,
             parse_context=parse_context,
             matchers=self._elements,
-            enforce_whitespace_preceding_terminator=(
-                self.enforce_whitespace_preceding_terminator
-            ),
             include_terminator=False,
         )
