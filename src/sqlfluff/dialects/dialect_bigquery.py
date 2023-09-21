@@ -235,7 +235,7 @@ bigquery_dialect.replace(
     ),
     NaturalJoinKeywordsGrammar=Nothing(),
     MergeIntoLiteralGrammar=Sequence("MERGE", Ref.keyword("INTO", optional=True)),
-    Accessor_Grammar=AnyNumberOf(
+    AccessorGrammar=AnyNumberOf(
         Ref("ArrayAccessorSegment"),
         # Add in semi structured expressions
         Ref("SemiStructuredAccessorSegment"),

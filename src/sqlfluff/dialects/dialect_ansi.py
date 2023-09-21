@@ -2219,10 +2219,10 @@ ansi_dialect.add(
             Ref("LocalAliasSegment"),
             terminators=[Ref("CommaSegment")],
         ),
-        Ref("Accessor_Grammar", optional=True),
+        Ref("AccessorGrammar", optional=True),
         allow_gaps=True,
     ),
-    Accessor_Grammar=AnyNumberOf(Ref("ArrayAccessorSegment")),
+    AccessorGrammar=AnyNumberOf(Ref("ArrayAccessorSegment")),
 )
 
 
