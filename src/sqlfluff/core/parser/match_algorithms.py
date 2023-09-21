@@ -1017,19 +1017,32 @@ def greedy_match2(
                 # Loop around, don't return yet
                 continue
 
-        if not include_terminator:
-            # Additionally, if it's preceded by any non-code, we can't claim that
-            # either. Work backwards so we don't include it.
-            _stop_idx = skip_stop_index_backward_to_code(
-                segments, match.matched_slice.start, idx
-            )
+        # Otherwise, it's allowable!
+        break
 
-        # NOTE: Return without any child matches or inserts. Greedy Matching
-        # shouldn't be used for mutation.
-        # TODO: Check that I mean this.
+    # NOTE: Return without any child matches or inserts. Greedy Matching
+    # shouldn't be used for mutation.
+    # TODO: Check that I mean this.
+    if include_terminator:
         return MatchResult2(
             slice(idx, _stop_idx),
         )
+
+    # Additionally, if it's preceded by any non-code, we can't claim that
+    # either. Work backwards so we don't include it.
+    _stop_idx = skip_stop_index_backward_to_code(
+        segments, match.matched_slice.start, idx
+    )
+
+    # If we went all the way back to `idx`, then ignore the _stop_idx.
+    # There isn't any code in the gap _anyway_ - so there's no point trimming.
+    if idx == _stop_idx:
+        # TODO: I don't really like this rule, it feels like a hack.
+        # Review whether it should be here.
+        return MatchResult2(slice(idx, match.matched_slice.start))
+
+    # Otherwise return the trimmed version.
+    return MatchResult2(slice(idx, _stop_idx))
 
 
 def trim_to_terminator2(
