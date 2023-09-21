@@ -142,9 +142,6 @@ class MatchResult2:
     )
     # Child segment matches (this is the recursive bit)
     child_matches: Tuple["MatchResult2", ...] = field(default_factory=tuple)
-    # Is it clean? i.e. free of unparsable sections?
-    # TODO: Rename it is_partial?
-    is_clean: bool = True
 
     def __len__(self) -> int:
         return slice_length(self.matched_slice)
@@ -152,23 +149,18 @@ class MatchResult2:
     def __bool__(self):
         """Evaluate this MatchResult2 for whether it counts as a clean match.
 
-        A MatchResult2 is truthy if:
-        - it's clean and it has:
-          - matched segments
-          - or has inserts.
+        A MatchResult2 is truthy if it has:
+        - matched segments
+        - or has inserts.
         """
-        return self.is_clean and (len(self) > 0 or bool(self.insert_segments))
+        return len(self) > 0 or bool(self.insert_segments)
 
     def stringify(self, indent=""):
         """Pretty print a match for debugging.
 
         TODO: Needs tests (and probably being used more).
         """
-        prefix = (
-            f"Match ({self.matched_class}"
-            + (" [UNCLEAN]" if not self.is_clean else "")
-            + f"): {self.matched_slice}"
-        )
+        prefix = f"Match ({self.matched_class}): {self.matched_slice}"
         buffer = prefix
         for key, value in self.segment_kwargs.items():
             buffer += f"\n  {indent}-{key}: {value!r}"
@@ -186,19 +178,16 @@ class MatchResult2:
 
         An empty match is by definition, unclean.
         """
-        return cls(slice(idx, idx), is_clean=False)
+        return cls(slice(idx, idx))
 
     def is_better_than(self, other: "MatchResult2") -> bool:
         """A match is better compared on length and cleanliness."""
-        if self.is_clean and not other.is_clean:
-            return True
         return len(self) > len(other)
 
     def append(
         self,
         other: "MatchResult2",
         insert_segments: Tuple[Tuple[int, Type["MetaSegment"]], ...] = (),
-        is_clean: bool = True,
     ) -> "MatchResult2":
         """Combine another subsequent match onto this one.
 
@@ -232,9 +221,6 @@ class MatchResult2:
             new_slice,
             insert_segments=insert_segments,
             child_matches=child_matches,
-            # Matches are clean if both input matches are.
-            # Optionally we can also override this with a kwarg to `.apply()`.
-            is_clean=other.is_clean and self.is_clean and is_clean,
         )
 
     def wrap(
@@ -266,7 +252,6 @@ class MatchResult2:
             segment_kwargs=segment_kwargs,
             insert_segments=insert_segments,
             child_matches=child_matches,
-            is_clean=self.is_clean,
         )
 
     def apply(self, segments: Tuple["BaseSegment", ...]) -> Tuple["BaseSegment", ...]:
@@ -288,7 +273,8 @@ class MatchResult2:
             )
             assert not self.child_matches, (
                 "Tried to apply zero length MatchResult2 with "
-                "`child_matches`. Is this allowed?!"
+                "`child_matches`. Is this allowed?! "
+                f"Result: {self}"
             )
             assert not self.insert_segments, (
                 "Tried to apply zero length MatchResult2 with "

@@ -636,30 +636,27 @@ def longest_match2(
             best_match = res_match
             best_matcher = matcher
 
-            # If it _is_ better AND it's clean, then see if we can finish
-            # early with a terminator.
-            if best_match.is_clean:
-                # If we've got a terminator next, it's an opportunity to
-                # end earlier, and claim an effectively "complete" match.
-                # NOTE: This means that by specifying terminators, we can
-                # significantly increase performance.
-                if matcher_idx == len(available_options) - 1:
-                    # If it's the last option - no need to check terminators.
-                    # We're going to end anyway, so we can skip that step.
-                    terminated = True
-                    break
-                elif terminators:
-                    _next_code_idx = best_match.matched_slice.stop
-                    for _next_code_idx in range(_next_code_idx, len(segments)):
-                        if segments[_next_code_idx].is_code:
-                            break
-                    for terminator in terminators:
-                        terminator_match: MatchResult2 = terminator.match2(
-                            segments, _next_code_idx, parse_context
-                        )
-                        if terminator_match:
-                            terminated = True
-                            break
+            # If we've got a terminator next, it's an opportunity to
+            # end earlier, and claim an effectively "complete" match.
+            # NOTE: This means that by specifying terminators, we can
+            # significantly increase performance.
+            if matcher_idx == len(available_options) - 1:
+                # If it's the last option - no need to check terminators.
+                # We're going to end anyway, so we can skip that step.
+                terminated = True
+                break
+            elif terminators:
+                _next_code_idx = best_match.matched_slice.stop
+                for _next_code_idx in range(_next_code_idx, len(segments)):
+                    if segments[_next_code_idx].is_code:
+                        break
+                for terminator in terminators:
+                    terminator_match: MatchResult2 = terminator.match2(
+                        segments, _next_code_idx, parse_context
+                    )
+                    if terminator_match:
+                        terminated = True
+                        break
 
         if terminated:
             break
