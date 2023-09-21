@@ -53,17 +53,6 @@ def test__parser__grammar__ref_repr():
     assert repr(Ref("bar", optional=True)) == "<Ref: 'bar' [opt]>"
 
 
-def test__parser__grammar_ref_exclude(generate_test_segments, fresh_ansi_dialect):
-    """Test the Ref grammar exclude option."""
-    ni = Ref("NakedIdentifierSegment", exclude=Ref.keyword("ABS"))
-    ts = generate_test_segments(["ABS", "ABSOLUTE"])
-    ctx = ParseContext(dialect=fresh_ansi_dialect)
-    # Assert ABS does not match, due to the exclude
-    assert not ni.match([ts[0]], parse_context=ctx)
-    # Assert ABSOLUTE does match
-    assert ni.match([ts[1]], parse_context=ctx)
-
-
 def test__parser__grammar_ref_match2(generate_test_segments, test_dialect):
     """Test the Ref grammar match2 method."""
     foo_ref = Ref("FooSegment")

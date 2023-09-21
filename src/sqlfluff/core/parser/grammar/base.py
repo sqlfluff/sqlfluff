@@ -17,7 +17,11 @@ from uuid import UUID, uuid4
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.helpers import trim_non_code_segments
-from sqlfluff.core.parser.match_algorithms import greedy_match, prune_options
+from sqlfluff.core.parser.match_algorithms import (
+    greedy_match,
+    greedy_match2,
+    prune_options,
+)
 from sqlfluff.core.parser.match_logging import parse_match_logging
 from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
 from sqlfluff.core.parser.match_wrapper import match_wrapper
@@ -691,8 +695,19 @@ class Anything(BaseGrammar):
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult2:
-        """Match everything."""
-        return MatchResult2(slice(idx, len(segments)))
+        """Matches... Anything.
+
+        Most useful in match grammars, where a later parse grammar
+        will work out what's inside.
+
+        NOTE: This grammar does still only match as far as any inherited
+        terminators if they exist.
+        """
+        terminators = [*self.terminators, *parse_context.terminators]
+        if not terminators:
+            return MatchResult2(slice(idx, len(segments)))
+
+        return greedy_match2(segments, idx, parse_context, terminators)
 
 
 class Nothing(BaseGrammar):

@@ -11,7 +11,6 @@ from sqlfluff.core.parser import (
     RawSegment,
     RegexParser,
     StringParser,
-    WhitespaceSegment,
 )
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar import OneOf, Sequence
@@ -62,18 +61,19 @@ def test__parser__grammar_oneof(test_segments, allow_gaps):
     g = OneOf(fs, bs, allow_gaps=allow_gaps)
     ctx = ParseContext(dialect=None)
     # Check directly
-    assert g.match(test_segments, parse_context=ctx).matched_segments == (
-        KeywordSegment("bar", test_segments[0].pos_marker),
+    assert g.match2(test_segments, 0, parse_context=ctx) == MatchResult2(
+        matched_slice=slice(0, 1),
+        matched_class=KeywordSegment,
+        segment_kwargs={"type": "keyword"},
     )
     # Check with a bit of whitespace
-    assert not g.match(test_segments[1:], parse_context=ctx)
+    assert not g.match2(test_segments, 1, parse_context=ctx)
 
 
 def test__parser__grammar_oneof_templated(test_segments):
     """Test the OneOf grammar.
 
     NB: Should behave the same regardless of code_only.
-
     """
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
@@ -81,7 +81,7 @@ def test__parser__grammar_oneof_templated(test_segments):
     ctx = ParseContext(dialect=None)
     # This shouldn't match, but it *ALSO* shouldn't raise an exception.
     # https://github.com/sqlfluff/sqlfluff/issues/780
-    assert not g.match(test_segments[5:], parse_context=ctx)
+    assert not g.match2(test_segments, 5, parse_context=ctx)
 
 
 def test__parser__grammar_oneof_exclude(test_segments):
@@ -91,9 +91,9 @@ def test__parser__grammar_oneof_exclude(test_segments):
     g = OneOf(bs, exclude=Sequence(bs, fs))
     ctx = ParseContext(dialect=None)
     # Just against the first alone
-    assert g.match(test_segments[:1], parse_context=ctx)
+    assert g.match2(test_segments[:1], 0, parse_context=ctx)
     # Now with the bit to exclude included
-    assert not g.match(test_segments, parse_context=ctx)
+    assert not g.match2(test_segments, 0, parse_context=ctx)
 
 
 def test__parser__grammar_oneof_take_longest_match(test_segments):
@@ -106,35 +106,15 @@ def test__parser__grammar_oneof_take_longest_match(test_segments):
         baar,
     )
 
+    ctx = ParseContext(dialect=None)
+    assert fooRegex.match2(test_segments, 2, parse_context=ctx).matched_slice == slice(
+        2, 3
+    )
     # Even if fooRegex comes first, fooBaar
     # is a longer match and should be taken
-    g = OneOf(fooRegex, fooBaar)
-    ctx = ParseContext(dialect=None)
-    assert fooRegex.match(test_segments[2:], parse_context=ctx).matched_segments == (
-        KeywordSegment("foo", test_segments[2].pos_marker),
-    )
-    assert g.match(test_segments[2:], parse_context=ctx).matched_segments == (
-        KeywordSegment("foo", test_segments[2].pos_marker),
-        KeywordSegment("baar", test_segments[3].pos_marker),
-    )
-
-
-def test__parser__grammar_oneof_take_first(test_segments):
-    """Test that the OneOf grammar takes first match in case they are of same length."""
-    fooRegex = RegexParser(r"fo{2}", KeywordSegment)
-    foo = StringParser("foo", KeywordSegment)
-
-    # Both segments would match "foo"
-    # so we test that order matters
-    g1 = OneOf(fooRegex, foo)
-    g2 = OneOf(foo, fooRegex)
-    ctx = ParseContext(dialect=None)
-    assert g1.match(test_segments[2:], parse_context=ctx).matched_segments == (
-        KeywordSegment("foo", test_segments[2].pos_marker),
-    )
-    assert g2.match(test_segments[2:], parse_context=ctx).matched_segments == (
-        KeywordSegment("foo", test_segments[2].pos_marker),
-    )
+    assert OneOf(fooRegex, fooBaar).match2(
+        test_segments, 2, parse_context=ctx
+    ).matched_slice == slice(2, 4)
 
 
 def test__parser__grammar_oneof_take_first2(test_segments):
@@ -154,25 +134,6 @@ def test__parser__grammar_oneof_take_first2(test_segments):
     result2 = g2.match2(test_segments, 2, ctx)  # 2 is the index of "foo"
     # in g2, the Example2Segment is first.
     assert result2.matched_class is Example2Segment
-
-
-def test__parser__grammar_anysetof(generate_test_segments):
-    """Test the AnySetOf grammar."""
-    token_list = ["bar", "  \t ", "foo", "  \t ", "bar"]
-    segments = generate_test_segments(token_list)
-
-    bar = StringParser("bar", KeywordSegment)
-    foo = StringParser("foo", KeywordSegment)
-    g = AnySetOf(foo, bar)
-    ctx = ParseContext(dialect=None)
-    # Check directly
-    assert g.match(segments, parse_context=ctx).matched_segments == (
-        KeywordSegment("bar", segments[0].pos_marker),
-        WhitespaceSegment("  \t ", segments[1].pos_marker),
-        KeywordSegment("foo", segments[2].pos_marker),
-    )
-    # Check with a bit of whitespace
-    assert not g.match(segments[1:], parse_context=ctx)
 
 
 @pytest.mark.parametrize(

@@ -1065,8 +1065,10 @@ def trim_to_terminator2(
         max_idx = _trim_to_terminator2(segments[:max_idx], idx, ...)
 
     """
-    # In the greedy mode, we first look ahead to find a terminator
-    # before matching any code.
+    # Is there anything left to match on.
+    if idx >= len(segments):
+        # Nope. No need to trim.
+        return len(segments)
 
     # NOTE: If there is a terminator _immediately_, then greedy
     # match will appear to not match (because there's "nothing" before

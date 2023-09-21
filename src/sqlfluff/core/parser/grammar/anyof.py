@@ -344,7 +344,7 @@ class AnyNumberOf(BaseGrammar):
             )
 
         while True:
-            if n_matches > self.min_times:
+            if n_matches >= self.min_times:
                 if (
                     # Either nothing left to match...
                     matched_idx >= max_idx

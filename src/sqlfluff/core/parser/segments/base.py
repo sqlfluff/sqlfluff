@@ -699,6 +699,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
         This raw function can be overridden, or a grammar defined
         on the underlying class.
         """
+        if idx >= len(segments):  # pragma: no cover
+            return MatchResult2.empty_at(idx)
+
         # Is this already the right kind of segment?
         if isinstance(segments[idx], cls):
             # Very simple "consume one" result.

@@ -7,7 +7,10 @@ from sqlfluff.core.parser.grammar import Ref
 from sqlfluff.core.parser.grammar.anyof import OneOf
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 from sqlfluff.core.parser.helpers import trim_non_code_segments
-from sqlfluff.core.parser.match_algorithms import longest_match2
+from sqlfluff.core.parser.match_algorithms import (
+    longest_match2,
+    skip_start_index_forward_to_code,
+)
 from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.segments import BaseSegment
@@ -234,18 +237,13 @@ class Delimited(OneOf):
             terminator_matchers.append(NonCodeMatcher())
 
         while True:
-            _idx = working_idx
             # If we're past the start and allowed gaps, work forward
             # through any gaps.
             if self.allow_gaps and working_idx > idx:
-                for _idx in range(working_idx, max_idx):
-                    if segments[_idx].is_code:
-                        break
-                else:
-                    _idx = max_idx
+                working_idx = skip_start_index_forward_to_code(segments, working_idx)
 
             # Do we have anything left to match on?
-            if _idx >= max_idx:  # TODO: Revisit this.
+            if working_idx >= max_idx:  # TODO: Revisit this.
                 break
 
             # Check whether there is a terminator before checking for content
@@ -253,7 +251,7 @@ class Delimited(OneOf):
                 match, _ = longest_match2(
                     segments=segments,
                     matchers=terminator_matchers,
-                    idx=_idx,
+                    idx=working_idx,
                     parse_context=ctx,
                 )
             if match:
@@ -271,7 +269,7 @@ class Delimited(OneOf):
                     matchers=delimiter_matchers
                     if seeking_delimiter
                     else self._elements,
-                    idx=_idx,
+                    idx=working_idx,
                     parse_context=ctx,
                 )
 

@@ -16,56 +16,6 @@ from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 @pytest.mark.parametrize(
     "token_list,min_delimiters,allow_gaps,allow_trailing,match_len",
     [
-        # Basic testing
-        (["bar", " \t ", ".", "    ", "bar"], None, True, False, 5),
-        (["bar", " \t ", ".", "    ", "bar", "    "], None, True, False, 6),
-        # Testing allow_trailing
-        (["bar", " \t ", ".", "   "], None, True, False, 0),
-        (["bar", " \t ", ".", "   "], None, True, True, 4),
-        # Testing the implications of allow_gaps
-        (["bar", " \t ", ".", "    ", "bar"], 0, True, False, 5),
-        (["bar", " \t ", ".", "    ", "bar"], 0, False, False, 1),
-        (["bar", " \t ", ".", "    ", "bar"], 1, True, False, 5),
-        (["bar", " \t ", ".", "    ", "bar"], 1, False, False, 0),
-        (["bar", ".", "bar"], None, True, False, 3),
-        (["bar", ".", "bar"], None, False, False, 3),
-        (["bar", ".", "bar"], 1, True, False, 3),
-        (["bar", ".", "bar"], 1, False, False, 3),
-        # Check we still succeed with something trailing right on the end.
-        (["bar", ".", "bar", "foo"], 1, False, False, 3),
-        # Check min_delimiters. There's a delimiter here, but not enough to match.
-        (["bar", ".", "bar", "foo"], 2, True, False, 0),
-    ],
-)
-def test__parser__grammar_delimited(
-    min_delimiters,
-    allow_gaps,
-    allow_trailing,
-    token_list,
-    match_len,
-    caplog,
-    generate_test_segments,
-    fresh_ansi_dialect,
-):
-    """Test the Delimited grammar when not code_only."""
-    test_segments = generate_test_segments(token_list)
-    g = Delimited(
-        StringParser("bar", KeywordSegment),
-        delimiter=StringParser(".", SymbolSegment),
-        allow_gaps=allow_gaps,
-        allow_trailing=allow_trailing,
-        min_delimiters=min_delimiters,
-    )
-    ctx = ParseContext(dialect=fresh_ansi_dialect)
-    with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
-        # Matching with whitespace shouldn't match if we need at least one delimiter
-        m = g.match(test_segments, parse_context=ctx)
-        assert len(m) == match_len
-
-
-@pytest.mark.parametrize(
-    "token_list,min_delimiters,allow_gaps,allow_trailing,match_len",
-    [
         # Basic testing (note diff to v1, no trailing whitespace.)
         (["bar", " \t ", ".", "    ", "bar"], 0, True, False, 5),
         (["bar", " \t ", ".", "    ", "bar", "    "], 0, True, False, 5),
@@ -166,46 +116,22 @@ def test__parser__grammar_greedyuntil_bracketed(bracket_segments, fresh_ansi_dia
         (["foof"], 6),
     ],
 )
-def test__parser__grammar_anything(
+def test__parser__grammar_anything_match2(
     terminators, match_length, test_segments, fresh_ansi_dialect
 ):
-    """Test the Anything grammar."""
-    ctx = ParseContext(dialect=fresh_ansi_dialect)
-    terms = [StringParser(kw, KeywordSegment) for kw in terminators]
-    result = Anything(terminators=terms).match(test_segments, parse_context=ctx)
-    assert len(result) == match_length
-
-
-def test__parser__grammar_anything_match2(test_segments, fresh_ansi_dialect):
     """Test the match2 method of the Anything grammar."""
     ctx = ParseContext(dialect=fresh_ansi_dialect)
-    segments_len = len(test_segments)
-    result = Anything().match2(test_segments, 0, parse_context=ctx)
+    terms = [StringParser(kw, KeywordSegment) for kw in terminators]
+    result = Anything(terminators=terms).match2(test_segments, 0, parse_context=ctx)
     assert result
-    assert result.matched_slice == slice(0, segments_len)  # i.e. all of them
+    assert result.matched_slice == slice(0, match_length)
     assert result.matched_class is None  # We shouldn't have set a class
-
-
-def test__parser__grammar_nothing(test_segments, fresh_ansi_dialect):
-    """Test the Nothing grammar."""
-    ctx = ParseContext(dialect=fresh_ansi_dialect)
-    assert not Nothing().match(test_segments, parse_context=ctx)
 
 
 def test__parser__grammar_nothing_match2(test_segments, fresh_ansi_dialect):
     """Test the Nothing grammar."""
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     assert not Nothing().match2(test_segments, 0, ctx)
-
-
-def test__parser__grammar_noncode(test_segments, fresh_ansi_dialect):
-    """Test the NonCodeMatcher."""
-    ctx = ParseContext(dialect=fresh_ansi_dialect)
-    m = NonCodeMatcher().match(test_segments[1:], parse_context=ctx)
-    # NonCode Matcher doesn't work with simple
-    assert NonCodeMatcher().simple(ctx) is None
-    # We should match one and only one segment
-    assert len(m) == 1
 
 
 def test__parser__grammar_noncode_match2(test_segments, fresh_ansi_dialect):
