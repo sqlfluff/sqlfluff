@@ -98,7 +98,7 @@ def generate_one_parse_fixture(
 
     try:
         tree = parse_example_file(dialect, sqlfile)
-    except SQLParseError as err:
+    except Exception as err:
         # Catch parsing errors, and wrap the file path only it.
         return example, SQLParseError(f"Fatal parsing error: {sql_path}: {err}")
 

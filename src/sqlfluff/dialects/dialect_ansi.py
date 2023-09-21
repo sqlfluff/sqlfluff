@@ -2776,6 +2776,7 @@ class WithCompoundStatementSegment(BaseSegment):
         Delimited(
             Ref("CTEDefinitionSegment"),
             terminators=["SELECT"],
+            allow_trailing=True,
         ),
         Conditional(Dedent, indented_ctes=True),
         OneOf(
