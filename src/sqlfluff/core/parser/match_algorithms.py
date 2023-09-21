@@ -990,21 +990,21 @@ def greedy_match2(
             # If this match isn't preceded by whitespace and that is
             # a requirement, then we can't use it. Carry on...
             if not allowable_match:
-                working_idx = stop_idx
+                working_idx = _stop_idx
                 # Loop around, don't return yet
                 continue
 
         if not include_terminator:
-            stop_idx = match.matched_slice.start
+            _stop_idx = match.matched_slice.start
             # Additionally, if it's preceded by any non-code, we can't claim that
             # either. Work backwards so we don't include it.
-            for stop_idx in range(stop_idx, idx, -1):
-                if segments[stop_idx - 1].is_code:
+            for _stop_idx in range(_stop_idx, idx, -1):
+                if segments[_stop_idx - 1].is_code:
                     break
 
         # NOTE: Return without any child matches or inserts. Greedy Matching
         # shouldn't be used for mutation.
         # TODO: Check that I mean this.
         return MatchResult2(
-            slice(idx, stop_idx),
+            slice(idx, _stop_idx),
         )

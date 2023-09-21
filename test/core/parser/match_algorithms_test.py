@@ -334,21 +334,19 @@ def test__parser__utils__next_ex_bracket_match2(
 
 
 @pytest.mark.parametrize(
-    "raw_segments,target_words,enf_ws,inc_term,result_slice",
+    "raw_segments,target_words,inc_term,result_slice",
     [
-        (["a", "b", "c", "d", "e"], ["e", "c"], False, False, slice(0, 2)),
-        (["a", "b", "c", "d", "e"], ["e", "c"], False, True, slice(0, 3)),
-        (["a", "b", " ", "b"], ["b"], False, True, slice(0, 2)),
-        (["a", "b", " ", "b"], ["b"], True, True, slice(0, 4)),
-        # NOTE: On these two, don't include the whitespace either.
-        (["a", "b", " ", "b"], ["b"], True, False, slice(0, 2)),
-        (["a", "b", "c", " ", "b"], ["b"], True, False, slice(0, 3)),
+        (["a", "b", " ", "c", "d", " ", "e"], ["e", "c"], False, slice(0, 2)),
+        (["a", "b", " ", "c", "d", " ", "e"], ["e", "c"], True, slice(0, 4)),
+        # NOTE: Because "b" is_alpha, it needs whitespace before it to match.
+        (["a", "b", " ", "b"], ["b"], True, slice(0, 4)),
+        (["a", "b", " ", "b"], ["b"], False, slice(0, 2)),
+        (["a", "b", "c", " ", "b"], ["b"], False, slice(0, 3)),
     ],
 )
 def test__parser__utils__greedy_match2(
     raw_segments,
     target_words,
-    enf_ws,
     inc_term,
     result_slice,
     generate_test_segments,
@@ -364,7 +362,6 @@ def test__parser__utils__greedy_match2(
         idx=0,
         parse_context=ctx,
         matchers=matchers,
-        enforce_whitespace_preceding_terminator=enf_ws,
         include_terminator=inc_term,
     )
 
