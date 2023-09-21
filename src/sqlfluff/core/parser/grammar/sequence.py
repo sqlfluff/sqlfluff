@@ -22,6 +22,8 @@ from sqlfluff.core.parser.match_algorithms import (
     next_ex_bracket_match2,
     prune_options,
     resolve_bracket2,
+    skip_start_index_forward_to_code,
+    skip_stop_index_backward_to_code,
 )
 from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
 from sqlfluff.core.parser.match_wrapper import match_wrapper
@@ -33,28 +35,6 @@ from sqlfluff.core.parser.segments import (
     UnparsableSegment,
 )
 from sqlfluff.core.parser.types import MatchableType, ParseMode, SimpleHintType
-
-
-def _skip_start_index_forward_to_code(
-    segments: SequenceType[BaseSegment], start_idx: int, max_idx
-) -> int:
-    for _idx in range(start_idx, max_idx):
-        if segments[_idx].is_code:
-            break
-    else:
-        _idx = max_idx
-    return _idx
-
-
-def _skip_stop_index_backward_to_code(
-    segments: SequenceType[BaseSegment], stop_idx: int, min_idx
-) -> int:
-    for _idx in range(stop_idx, min_idx, -1):
-        if segments[_idx - 1].is_code:
-            break
-    else:
-        _idx = min_idx
-    return _idx
 
 
 def _trim_to_terminator(
@@ -570,7 +550,7 @@ class Sequence(BaseGrammar):
                 # NOTE: This won't consume from the end of a sequence
                 # because this happens only in the run up to matching
                 # another element. This is as designed.
-                _idx = _skip_start_index_forward_to_code(segments, matched_idx, max_idx)
+                _idx = skip_start_index_forward_to_code(segments, matched_idx, max_idx)
 
             # Have we prematurely run out of segments?
             if _idx >= max_idx:
@@ -650,7 +630,7 @@ class Sequence(BaseGrammar):
                     )
 
                 # Then handle the case of a partial match.
-                _start_idx = _skip_start_index_forward_to_code(
+                _start_idx = skip_start_index_forward_to_code(
                     segments, matched_idx, max_idx
                 )
                 return MatchResult2(
@@ -715,8 +695,8 @@ class Sequence(BaseGrammar):
         # left as unclaimed, mark it as unparsable.
         if self.parse_mode in (ParseMode.GREEDY, ParseMode.GREEDY_ONCE_STARTED):
             if max_idx > matched_idx:
-                _idx = _skip_start_index_forward_to_code(segments, matched_idx, max_idx)
-                _stop_idx = _skip_stop_index_backward_to_code(segments, max_idx, _idx)
+                _idx = skip_start_index_forward_to_code(segments, matched_idx, max_idx)
+                _stop_idx = skip_stop_index_backward_to_code(segments, max_idx, _idx)
 
                 if _stop_idx > _idx:
                     child_matches += (

@@ -18,6 +18,30 @@ from sqlfluff.core.parser.segments.bracketed import BracketedSegment
 from sqlfluff.core.parser.types import MatchableType
 
 
+def skip_start_index_forward_to_code(
+    segments: Sequence[BaseSegment], start_idx: int, max_idx: Optional[int] = None
+) -> int:
+    if max_idx is None:
+        max_idx = len(segments)
+    for _idx in range(start_idx, max_idx):
+        if segments[_idx].is_code:
+            break
+    else:
+        _idx = max_idx
+    return _idx
+
+
+def skip_stop_index_backward_to_code(
+    segments: Sequence[BaseSegment], stop_idx: int, min_idx: int = 0
+) -> int:
+    for _idx in range(stop_idx, min_idx, -1):
+        if segments[_idx - 1].is_code:
+            break
+    else:
+        _idx = min_idx
+    return _idx
+
+
 def first_trimmed_raw(seg: BaseSegment) -> str:
     """Trim whitespace off a whole element raw.
 
@@ -646,10 +670,9 @@ def longest_match2(
                 terminated = True
                 break
             elif terminators:
-                _next_code_idx = best_match.matched_slice.stop
-                for _next_code_idx in range(_next_code_idx, len(segments)):
-                    if segments[_next_code_idx].is_code:
-                        break
+                _next_code_idx = skip_start_index_forward_to_code(
+                    segments, best_match.matched_slice.stop
+                )
                 for terminator in terminators:
                     terminator_match: MatchResult2 = terminator.match2(
                         segments, _next_code_idx, parse_context
@@ -995,12 +1018,11 @@ def greedy_match2(
                 continue
 
         if not include_terminator:
-            _stop_idx = match.matched_slice.start
             # Additionally, if it's preceded by any non-code, we can't claim that
             # either. Work backwards so we don't include it.
-            for _stop_idx in range(_stop_idx, idx, -1):
-                if segments[_stop_idx - 1].is_code:
-                    break
+            _stop_idx = skip_stop_index_backward_to_code(
+                segments, match.matched_slice.start, idx
+            )
 
         # NOTE: Return without any child matches or inserts. Greedy Matching
         # shouldn't be used for mutation.
