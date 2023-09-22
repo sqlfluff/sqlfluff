@@ -1388,7 +1388,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
             return False
         opening_unparsables = set(segment.recursive_crawl("unparsable"))
         closing_unparsables: Set[BaseSegment] = set()
-        for seg in rematch.matched_segments:
+        new_segments = rematch.apply(trimmed_content)
+        for seg in new_segments:
             closing_unparsables.update(seg.recursive_crawl("unparsable"))
         # Check we don't introduce any _additional_ unparsables.
         # Pre-existing unparsables are ok, and for some rules that's as
