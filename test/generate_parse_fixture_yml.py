@@ -202,7 +202,7 @@ def generate_parse_fixtures(
         print(f"PARSING FAILED: {err}")
         sys.exit(1)
     dt = time.monotonic() - t0
-    print(f"Fixture built: {len(parse_success_examples)} [in {dt:.2f}s]")
+    print(f"Built {len(parse_success_examples)} fixtures in {dt:.2f}s.")
 
 
 def main():
