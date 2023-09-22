@@ -299,8 +299,8 @@ class Delimited(OneOf):
 
             # Prep for going back around the loop...
             working_idx = match.matched_slice.stop
-            parse_context.update_progress2(working_idx)
             seeking_delimiter = not seeking_delimiter
+            parse_context.update_progress2(working_idx)
 
         if self.allow_trailing and delimiter_match and not seeking_delimiter:
             delimiters += 1
