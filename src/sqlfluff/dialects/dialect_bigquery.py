@@ -747,7 +747,12 @@ bigquery_dialect.replace(
     ),
     PostTableExpressionGrammar=Sequence(
         Sequence(
-            "FOR", "SYSTEM_TIME", "AS", "OF", Ref("ExpressionSegment"), optional=True
+            "FOR",
+            OneOf("SYSTEM_TIME", Sequence("SYSTEM", "TIME")),
+            "AS",
+            "OF",
+            Ref("ExpressionSegment"),
+            optional=True,
         ),
         Sequence(
             "WITH",

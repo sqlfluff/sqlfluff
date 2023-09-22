@@ -221,12 +221,36 @@ ansi_dialect.set_lexer_matchers(
         StringLexer("vertical_bar", "|", CodeSegment),
         StringLexer("caret", "^", CodeSegment),
         StringLexer("star", "*", CodeSegment),
-        StringLexer("bracket_open", "(", CodeSegment),
-        StringLexer("bracket_close", ")", CodeSegment),
-        StringLexer("sq_bracket_open", "[", CodeSegment),
-        StringLexer("sq_bracket_close", "]", CodeSegment),
-        StringLexer("crly_bracket_open", "{", CodeSegment),
-        StringLexer("crly_bracket_close", "}", CodeSegment),
+        StringLexer(
+            "start_bracket", "(", CodeSegment, segment_kwargs={"type": "start_bracket"}
+        ),
+        StringLexer(
+            "end_bracket", ")", CodeSegment, segment_kwargs={"type": "end_bracket"}
+        ),
+        StringLexer(
+            "start_square_bracket",
+            "[",
+            CodeSegment,
+            segment_kwargs={"type": "start_square_bracket"},
+        ),
+        StringLexer(
+            "end_square_bracket",
+            "]",
+            CodeSegment,
+            segment_kwargs={"type": "end_square_bracket"},
+        ),
+        StringLexer(
+            "start_curly_bracket",
+            "{",
+            CodeSegment,
+            segment_kwargs={"type": "start_curly_bracket"},
+        ),
+        StringLexer(
+            "end_curly_bracket",
+            "}",
+            CodeSegment,
+            segment_kwargs={"type": "end_curly_bracket"},
+        ),
         StringLexer("colon", ":", CodeSegment),
         StringLexer("semicolon", ";", CodeSegment),
         # This is the "fallback" lexer for anything else which looks like SQL.
