@@ -491,7 +491,7 @@ snowflake_dialect.replace(
             Ref("ReferencedVariableNameSegment"),
         ]
     ),
-    Accessor_Grammar=AnyNumberOf(
+    AccessorGrammar=AnyNumberOf(
         Ref("ArrayAccessorSegment"),
         # Add in semi structured expressions
         Ref("SemiStructuredAccessorSegment"),

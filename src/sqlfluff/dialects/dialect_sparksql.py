@@ -359,13 +359,11 @@ sparksql_dialect.replace(
         # Add arrow operators for lambdas (e.g. aggregate)
         Ref("RightArrowOperator"),
     ),
-    # Support for colon sign operator (Databricks SQL)
-    ObjectReferenceDelimiterGrammar=OneOf(
-        Ref("DotSegment"),
-        Sequence(Ref("DotSegment"), Ref("DotSegment")),
-        Ref("ColonSegment"),
+    AccessorGrammar=AnyNumberOf(
+        Ref("ArrayAccessorSegment"),
+        # Add in semi structured expressions
+        Ref("SemiStructuredAccessorSegment"),
     ),
-    # Support for colon sign operator (Databricks SQL)
     ObjectReferenceTerminatorGrammar=OneOf(
         "ON",
         "AS",
@@ -394,6 +392,16 @@ sparksql_dialect.add(
         ansi.IdentifierSegment,
         type="quoted_identifier",
         trim_chars=("`",),
+    ),
+    NakedSemiStructuredElementSegment=RegexParser(
+        r"[A-Z0-9_]*",
+        CodeSegment,
+        type="semi_structured_element",
+    ),
+    QuotedSemiStructuredElementSegment=TypedParser(
+        "single_quote",
+        CodeSegment,
+        type="semi_structured_element",
     ),
     RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
     BinaryfileKeywordSegment=StringParser(
@@ -857,6 +865,42 @@ class StructTypeSchemaSegment(hive.StructTypeSchemaSegment):
     """STRUCT type schema as per hive."""
 
     pass
+
+
+class SemiStructuredAccessorSegment(BaseSegment):
+    """A semi-structured data accessor segment.
+
+    https://docs.databricks.com/en/sql/language-manual/functions/colonsign.html
+    """
+
+    type = "semi_structured_expression"
+    match_grammar = Sequence(
+        Ref("ColonSegment"),
+        OneOf(
+            Ref("NakedSemiStructuredElementSegment"),
+            Bracketed(Ref("QuotedSemiStructuredElementSegment"), bracket_type="square"),
+        ),
+        Ref("ArrayAccessorSegment", optional=True),
+        AnyNumberOf(
+            Sequence(
+                OneOf(
+                    # Can be delimited by dots or colons
+                    Ref("DotSegment"),
+                    Ref("ColonSegment"),
+                ),
+                OneOf(
+                    Ref("NakedSemiStructuredElementSegment"),
+                    Bracketed(
+                        Ref("QuotedSemiStructuredElementSegment"), bracket_type="square"
+                    ),
+                ),
+                allow_gaps=True,
+            ),
+            Ref("ArrayAccessorSegment", optional=True),
+            allow_gaps=True,
+        ),
+        allow_gaps=True,
+    )
 
 
 class DatatypeSegment(BaseSegment):
