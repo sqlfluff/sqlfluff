@@ -6,7 +6,7 @@ import pytest
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.parser import BaseSegment, Lexer
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_result import MatchResult2
 from sqlfluff.core.parser.matchable import Matchable
 
 
@@ -56,11 +56,12 @@ def _dialect_specific_segment_parses(dialect, segmentref, raw, caplog):
 
     ctx = ParseContext.from_config(config)
     with caplog.at_level(logging.DEBUG):
-        parsed = Seg.match(segments=segments, parse_context=ctx)
-    assert isinstance(parsed, MatchResult)
-    assert len(parsed.matched_segments) == 1
+        result = Seg.match2(segments, 0, parse_context=ctx)
+    assert isinstance(result, MatchResult2)
+    parsed = result.apply(segments)
+    assert len(parsed) == 1
     print(parsed)
-    parsed = parsed.matched_segments[0]
+    parsed = parsed[0]
 
     # Check we get a good response
     print(parsed)
@@ -85,7 +86,7 @@ def _dialect_specific_segment_not_match(dialect, segmentref, raw, caplog):
 
     ctx = ParseContext.from_config(config)
     with caplog.at_level(logging.DEBUG):
-        match = Seg.match(segments=segments, parse_context=ctx)
+        match = Seg.match2(segments, 0, parse_context=ctx)
 
     assert not match
 

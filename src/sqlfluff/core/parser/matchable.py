@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, FrozenSet, Optional, Sequence, Tuple, Typ
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.context import ParseContext
-    from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
+    from sqlfluff.core.parser.match_result import MatchResult2
     from sqlfluff.core.parser.segments import BaseSegment
 
 
@@ -40,12 +40,6 @@ class Matchable(ABC):
         NOTE: the crumbs kwarg is designed to be used by Ref to
         detect recursion.
         """
-
-    @abstractmethod
-    def match(
-        self, segments: Tuple["BaseSegment", ...], parse_context: "ParseContext"
-    ) -> "MatchResult":
-        """Match against this matcher."""
 
     @abstractmethod
     def match2(

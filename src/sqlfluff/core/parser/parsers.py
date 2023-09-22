@@ -4,13 +4,13 @@ Matchable objects which return individual segments.
 """
 
 from abc import abstractmethod
-from typing import Collection, List, Sequence, Optional, Tuple, Type, Union
+from typing import Collection, List, Optional, Sequence, Tuple, Type, Union
 from uuid import uuid4
 
 import regex
 
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
+from sqlfluff.core.parser.match_result import MatchResult2
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import BaseSegment, RawSegment
 from sqlfluff.core.parser.types import SimpleHintType
@@ -50,10 +50,6 @@ class BaseParser(Matchable):
         """Return whether this element is optional."""
         return self.optional
 
-    @abstractmethod
-    def _is_first_match(self, segment: BaseSegment) -> bool:
-        """Does the segment provided match according to the current rules."""
-
     def _match2_at(self, idx: int) -> MatchResult2:
         """Construct a MatchResult2 at a given index.
 
@@ -69,60 +65,6 @@ class BaseParser(Matchable):
             matched_class=self.raw_class,
             segment_kwargs=segment_kwargs,
         )
-
-    def _make_match_from_segment(self, segment: BaseSegment) -> RawSegment:
-        """Make a MatchResult from the first segment in the given list.
-
-        This is a helper function for reuse by other parsers.
-        """
-        return self.raw_class(
-            raw=segment.raw,
-            pos_marker=segment.pos_marker,
-            type=self.type,
-            trim_chars=self._trim_chars,
-        )
-
-    def _match_single(self, segment: BaseSegment) -> Optional[RawSegment]:
-        """Match a single segment.
-
-        Used in the context of matching against the first in a sequence.
-
-        NOTE: We try and allow here for fairly efficient matching against
-        segments which have already been matched. In those cases we still
-        check in the same way, but if matched, we don't try and create a
-        new segment, we just return the existing segment unchanged.
-        """
-        # Does it match? If not, return None.
-        if not self._is_first_match(segment):
-            return None
-        # If it does, we might have already matched it. Is it the right type
-        # already? If so, just return it unchanged.
-        if isinstance(segment, self.raw_class) and segment.type == self.type:
-            return segment
-        # Otherwise create a new match segment
-        return self._make_match_from_segment(segment)
-
-    def match(
-        self,
-        segments: Union[BaseSegment, Tuple[BaseSegment, ...]],
-        parse_context: "ParseContext",
-    ) -> MatchResult:
-        """Compare input segments for a match, return a `MatchResult`.
-
-        Note: For matching here, we only consider the *first* element,
-        because we assume that a keyword can only span one raw segment.
-        """
-        # If we've been passed the singular, make it a tuple
-        if isinstance(segments, BaseSegment):
-            segments = (segments,)
-
-        # We're only going to match against the first element
-        if len(segments) >= 1:
-            seg = self._match_single(segments[0])
-            if seg:
-                return MatchResult((seg,), segments[1:])
-
-        return MatchResult.from_unmatched(segments)
 
 
 class TypedParser(BaseParser):
@@ -166,10 +108,6 @@ class TypedParser(BaseParser):
         also support re-matching.
         """
         return frozenset(), self._target_types
-
-    def _is_first_match(self, segment: BaseSegment) -> bool:
-        """Return true if the type matches the target type."""
-        return segment.is_type(*self._target_types)
 
     def match2(
         self,
@@ -216,14 +154,6 @@ class StringParser(BaseParser):
         just return the template here.
         """
         return self._simple, frozenset()
-
-    def _is_first_match(self, segment: BaseSegment) -> bool:
-        """Does the segment provided match according to the current rules."""
-        # Is the target a match and IS IT CODE.
-        # The latter stops us accidentally matching comments.
-        if self.template == segment.raw_upper and segment.is_code:
-            return True
-        return False
 
     def match2(
         self,
@@ -274,14 +204,6 @@ class MultiStringParser(BaseParser):
         just return the templates here.
         """
         return self._simple, frozenset()
-
-    def _is_first_match(self, segment: BaseSegment) -> bool:
-        """Does the segment provided match according to the current rules."""
-        # Is the target a match and IS IT CODE.
-        # The latter stops us accidentally matching comments.
-        if segment.is_code and segment.raw_upper in self.templates:
-            return True
-        return False
 
     def match2(
         self,
@@ -335,30 +257,6 @@ class RegexParser(BaseParser):
         Regex segment does NOT for now. We might need to later for efficiency.
         """
         return None
-
-    def _is_first_match(self, segment: BaseSegment) -> bool:
-        """Does the segment provided match according to the current rules.
-
-        RegexParser implements its own matching function where
-        we assume that ._template is a r"" string, and is formatted
-        for use directly as a regex. This only matches on a single segment.
-        """
-        if len(segment.raw) == 0:  # pragma: no cover TODO?
-            # If it's of zero length it's probably a meta segment.
-            # In any case, it won't match here.
-            return False
-        # Try the regex. Case sensitivity is not supported.
-        result = self._template.match(segment.raw_upper)
-        if result:
-            result_string = result.group(0)
-            # Check that we've fully matched
-            if result_string == segment.raw_upper:
-                # Check that the anti_template (if set) hasn't also matched
-                if self.anti_template and self._anti_template.match(segment.raw_upper):
-                    return False
-                else:
-                    return True
-        return False
 
     def match2(
         self,

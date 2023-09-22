@@ -1,11 +1,11 @@
 """The BracketedSegment."""
 
-from typing import TYPE_CHECKING, Optional, Set, Sequence, Tuple
+from typing import TYPE_CHECKING, Optional, Sequence, Set, Tuple
 from uuid import UUID
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
+from sqlfluff.core.parser.match_result import MatchResult2
 from sqlfluff.core.parser.segments.base import BaseSegment
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -62,15 +62,6 @@ class BracketedSegment(BaseSegment):
             # simple here.
             simple_raws.update(bracket_simple[0])
         return frozenset(simple_raws), frozenset()
-
-    @classmethod
-    def match(
-        cls, segments: Tuple["BaseSegment", ...], parse_context: ParseContext
-    ) -> MatchResult:
-        """Only useful as a terminator."""
-        if segments and isinstance(segments[0], cls):
-            return MatchResult((segments[0],), segments[1:])
-        return MatchResult.from_unmatched(segments)
 
     @classmethod
     def match2(

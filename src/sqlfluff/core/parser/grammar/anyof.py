@@ -10,55 +10,14 @@ from sqlfluff.core.parser.grammar.base import (
     cached_method_for_parse_context,
 )
 from sqlfluff.core.parser.grammar.sequence import Bracketed, Sequence
-from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.match_algorithms import (
-    greedy_match,
     longest_match2,
     skip_start_index_forward_to_code,
     trim_to_terminator2,
 )
-from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
-from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.match_result import MatchResult2
 from sqlfluff.core.parser.segments import BaseSegment, UnparsableSegment
 from sqlfluff.core.parser.types import MatchableType, ParseMode, SimpleHintType
-
-
-def _parse_mode_match_result(
-    matched_segments: Tuple[BaseSegment, ...],
-    unmatched_segments: Tuple[BaseSegment, ...],
-    tail: Tuple[BaseSegment, ...],
-    parse_mode: ParseMode,
-) -> MatchResult:
-    """A helper function for the return values of AnyNumberOf.
-
-    This method creates UnparsableSegments as appropriate
-    depending on the parse mode and return values.
-    """
-    # If we're being strict, just return.
-    if parse_mode == ParseMode.STRICT:
-        return MatchResult(matched_segments, unmatched_segments + tail)
-
-    # Nothing in unmatched anyway?
-    if not unmatched_segments or all(not s.is_code for s in unmatched_segments):
-        return MatchResult(matched_segments, unmatched_segments + tail)
-
-    _trim_idx = 0
-    for _trim_idx in range(len(unmatched_segments)):
-        if unmatched_segments[_trim_idx].is_code:
-            break
-
-    # Create an unmatched segment
-    _expected = "Nothing else"
-    if tail:
-        _expected += f" before {tail[0].raw!r}"
-
-    unmatched_seg = UnparsableSegment(
-        unmatched_segments[_trim_idx:], expected=_expected
-    )
-    return MatchResult(
-        matched_segments + unmatched_segments[:_trim_idx] + (unmatched_seg,),
-        tail,
-    )
 
 
 def _parse_mode_match_result2(
@@ -164,158 +123,17 @@ class AnyNumberOf(BaseGrammar):
         """
         return self.optional or self.min_times == 0
 
-    def _match_once(
-        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
-    ) -> Tuple[MatchResult, Optional["MatchableType"]]:
-        """Match the forward segments against the available elements once.
-
-        This serves as the main body of OneOf, but also a building block
-        for AnyNumberOf.
-        """
-        with parse_context.deeper_match(
-            name=self.__class__.__name__,
-            clear_terminators=self.reset_terminators,
-            push_terminators=self.terminators,
-        ) as ctx:
-            match, matched_option = self._longest_trimmed_match(
-                segments,
-                self._elements,
-                parse_context=ctx,
-                trim_noncode=False,
-            )
-
-        return match, matched_option
-
-    @match_wrapper()
-    def match(
-        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
-    ) -> MatchResult:
-        """Match against any of the elements a relevant number of times.
-
-        If it matches multiple, it returns the longest, and if any are the same
-        length it returns the first (unless we explicitly just match first).
-        """
-        # First if we have an *exclude* option, we should check that
-        # which would prevent the rest of this grammar from matching.
-        if self.exclude:
-            with parse_context.deeper_match(
-                name=self.__class__.__name__ + "-Exclude"
-            ) as ctx:
-                if self.exclude.match(segments, ctx):
-                    return MatchResult.from_unmatched(segments)
-
-        matched_segments: MatchResult = MatchResult.from_empty()
-        unmatched_segments: Tuple[BaseSegment, ...] = segments
-        tail: Tuple[BaseSegment, ...] = ()
-
-        # Secondly, if we're in a greedy mode, handle that first.
-        if self.parse_mode == ParseMode.GREEDY:
-            _terminators = [*self.terminators, *parse_context.terminators]
-            with parse_context.deeper_match(
-                name="AnyOf-Greedy-@0", track_progress=False
-            ) as ctx:
-                _term_match = greedy_match(
-                    segments,
-                    parse_context,
-                    matchers=_terminators,
-                )
-            if _term_match:
-                # If we found a terminator, trim off the tail of the available
-                # segments to match on.
-                unmatched_segments = _term_match.matched_segments
-                tail = _term_match.unmatched_segments
-
-        # Keep track of the number of times each option has been matched.
-        n_matches = 0
-        option_counter = {elem.cache_key(): 0 for elem in self._elements}
-
-        while True:
-            if self.max_times and n_matches >= self.max_times:
-                # We've matched as many times as we can
-                return _parse_mode_match_result(
-                    matched_segments.matched_segments,
-                    unmatched_segments,
-                    tail,
-                    self.parse_mode,
-                )
-
-            # Is there anything left to match?
-            if len(unmatched_segments) == 0:
-                # No...
-                if n_matches >= self.min_times:
-                    return _parse_mode_match_result(
-                        matched_segments.matched_segments,
-                        unmatched_segments,
-                        tail,
-                        self.parse_mode,
-                    )
-                else:  # pragma: no cover TODO?
-                    # We didn't meet the hurdle
-                    return MatchResult.from_unmatched(segments)
-
-            # If we've already matched once...
-            if n_matches > 0 and self.allow_gaps:
-                # Consume any non-code if there is any
-                pre_seg, mid_seg, post_seg = trim_non_code_segments(unmatched_segments)
-                unmatched_segments = mid_seg + post_seg
-            else:
-                pre_seg = ()  # empty tuple
-
-            match, matched_option = self._match_once(
-                unmatched_segments, parse_context=parse_context
-            )
-
-            # Increment counter for matched option.
-            if matched_option:
-                matched_key = matched_option.cache_key()
-                if matched_option.cache_key() in option_counter:
-                    option_counter[matched_key] += 1
-                    # Check if we have matched an option too many times.
-                    if (
-                        self.max_times_per_element
-                        and option_counter[matched_key] > self.max_times_per_element
-                    ):
-                        return _parse_mode_match_result(
-                            matched_segments.matched_segments,
-                            pre_seg + unmatched_segments,
-                            tail,
-                            self.parse_mode,
-                        )
-
-            if match:
-                matched_segments += pre_seg + match.matched_segments
-                unmatched_segments = match.unmatched_segments
-                parse_context.update_progress(matched_segments.matched_segments)
-                n_matches += 1
-            else:
-                # If we get here, then we've not managed to match. And the next
-                # unmatched segments are meaningful, i.e. they're not what we're
-                # looking for.
-                if n_matches >= self.min_times:
-                    return _parse_mode_match_result(
-                        matched_segments.matched_segments,
-                        pre_seg + unmatched_segments,
-                        tail,
-                        self.parse_mode,
-                    )
-                else:
-                    # We didn't meet the hurdle
-                    return _parse_mode_match_result(
-                        (),
-                        matched_segments.matched_segments
-                        + pre_seg
-                        + unmatched_segments,
-                        tail,
-                        self.parse_mode,
-                    )
-
     def match2(
         self,
         segments: SequenceType["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult2:
-        """Match against this matcher."""
+        """Match against any of the elements a relevant number of times.
+
+        If it matches multiple, it returns the longest, and if any are the same
+        length it returns the first (unless we explicitly just match first).
+        """
         if self.exclude:
             with parse_context.deeper_match(
                 name=self.__class__.__name__ + "-Exclude"

@@ -114,11 +114,11 @@ def test__parser__multistringparser__match(generate_test_segments):
     # Check directly
     segments = generate_test_segments(["foo", "fo"])
     # Matches when it should
-    assert parser.match(segments[:1], parse_context=ctx).matched_segments == (
+    assert parser.match2(segments, 0, parse_context=ctx).apply(segments) == (
         KeywordSegment("foo", segments[0].pos_marker),
     )
     # Doesn't match when it shouldn't
-    assert parser.match(segments[1:], parse_context=ctx).matched_segments == tuple()
+    assert parser.match2(segments, 1, parse_context=ctx).apply(segments) == tuple()
 
 
 def test__parser__multistringparser__match2(generate_test_segments):

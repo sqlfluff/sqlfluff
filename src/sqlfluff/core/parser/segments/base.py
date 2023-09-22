@@ -38,9 +38,7 @@ from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.parser.match_logging import parse_match_logging
-from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
-from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.match_result import MatchResult2
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments.fix import AnchorEditInfo, FixPatch, SourceFix
 from sqlfluff.core.parser.types import SimpleHintType
@@ -622,68 +620,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
             for k, v in record.items():
                 content_dict[k] = v
         return {key: content_dict}
-
-    @classmethod
-    @match_wrapper(v_level=4)
-    def match(
-        cls, segments: Tuple["BaseSegment", ...], parse_context: ParseContext
-    ) -> MatchResult:
-        """Match a list of segments against this segment.
-
-        Note: Match for segments is done in the ABSTRACT.
-        When dealing with concrete then we're always in parse.
-        Parse is what happens during expand.
-
-        Matching can be done from either the raw or the segments.
-        This raw function can be overridden, or a grammar defined
-        on the underlying class.
-        """
-        # Edge case, but it's possible that we have *already matched* on
-        # a previous cycle. Do should first check whether this is a case
-        # of that.
-        if len(segments) == 1 and isinstance(segments[0], cls):
-            # This has already matched. Winner.
-            parse_match_logging(
-                cls.__name__,
-                "_match",
-                "SELF",
-                parse_context=parse_context,
-                v_level=3,
-                symbol="+++",
-            )
-            return MatchResult.from_matched(segments)
-        elif len(segments) > 1 and isinstance(segments[0], cls):
-            parse_match_logging(
-                cls.__name__,
-                "_match",
-                "SELF",
-                parse_context=parse_context,
-                v_level=3,
-                symbol="+++",
-            )
-            # This has already matched, but only partially.
-            return MatchResult((segments[0],), segments[1:])
-
-        if cls.match_grammar:
-            # Call the private method
-            with parse_context.deeper_match(name=cls.__name__) as ctx:
-                m = cls.match_grammar.match(segments=segments, parse_context=ctx)
-
-            if m.has_match():
-                return MatchResult(
-                    # Return result of the match_grammar match, wrapped in a new
-                    # instance of this segment. The matched portion of the
-                    # MatchResult from the match_grammar, becomes the children
-                    # (i.e. the `segments`) of that new segment.
-                    (cls(segments=m.matched_segments),),
-                    m.unmatched_segments,
-                )
-            else:
-                return MatchResult.from_unmatched(segments)
-        else:  # pragma: no cover
-            raise NotImplementedError(
-                f"{cls.__name__} has no match function implemented"
-            )
 
     @classmethod
     def match2(
@@ -1442,12 +1378,12 @@ class BaseSegment(metaclass=SegmentMetaclass):
         if not trimmed_content and self.can_start_end_non_code:
             # Edge case for empty segments which are allowed to be empty.
             return True
-        rematch = segment.match(trimmed_content, ctx)
-        if not rematch.is_complete():
+        rematch = segment.match2(trimmed_content, 0, ctx)
+        if not rematch.matched_slice == slice(0, len(trimmed_content)):
             linter_logger.debug(
                 f"Validation Check Fail for {segment}.Incomplete Match. "
-                f"\nMatched: {rematch.matched_segments}. "
-                f"\nUnmatched: {rematch.unmatched_segments}."
+                f"\nMatched: {rematch.apply(trimmed_content)}. "
+                f"\nUnmatched: {trimmed_content[rematch.matched_slice.stop:]}."
             )
             return False
         opening_unparsables = set(segment.recursive_crawl("unparsable"))

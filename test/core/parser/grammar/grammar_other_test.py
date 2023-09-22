@@ -13,6 +13,14 @@ from sqlfluff.core.parser.grammar import Anything, Delimited, GreedyUntil, Nothi
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 
 
+@pytest.fixture(scope="function")
+def bracket_segments(generate_test_segments):
+    """Another preset list of segments for testing."""
+    return generate_test_segments(
+        ["bar", " \t ", "(", " ", "foo", "    ", ")", "baar", " \t ", "foo"]
+    )
+
+
 @pytest.mark.parametrize(
     "token_list,min_delimiters,allow_gaps,allow_trailing,match_len",
     [
@@ -85,24 +93,9 @@ def test__parser__grammar_greedyuntil(
     grammar = GreedyUntil(StringParser(keyword, KeywordSegment))
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     assert (
-        grammar.match(test_segments, parse_context=ctx).matched_segments
+        grammar.match2(test_segments, 0, parse_context=ctx).apply(test_segments)
         == test_segments[:slice_len]
     )
-
-
-def test__parser__grammar_greedyuntil_bracketed(bracket_segments, fresh_ansi_dialect):
-    """Test the GreedyUntil grammar with brackets."""
-    fs = StringParser("foo", KeywordSegment)
-    g = GreedyUntil(fs)
-    ctx = ParseContext(dialect=fresh_ansi_dialect)
-    # Check that we can make it past the brackets
-    match = g.match(bracket_segments, parse_context=ctx)
-    assert len(match) == 4
-    # Check we successfully constructed a bracketed segment
-    assert match.matched_segments[2].is_type("bracketed")
-    assert match.matched_segments[2].raw == "(foo    )"
-    # Check that the unmatched segments is foo AND the whitespace
-    assert len(match.unmatched_segments) == 2
 
 
 @pytest.mark.parametrize(

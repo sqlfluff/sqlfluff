@@ -4,8 +4,7 @@ from typing import Sequence, Tuple, Type, Union
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import BaseGrammar
-from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
-from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.match_result import MatchResult2
 from sqlfluff.core.parser.segments import BaseSegment, Indent
 
 
@@ -81,17 +80,6 @@ class Conditional(BaseGrammar):
             if val != bool(conf_val):
                 return False
         return True
-
-    @match_wrapper()
-    def match(
-        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
-    ) -> MatchResult:
-        """Evaluate conditionals and return content."""
-        if not self.is_enabled(parse_context):  # pragma: no cover TODO?
-            return MatchResult.from_unmatched(segments)
-
-        # Instantiate the new element and return
-        return MatchResult((self._meta(),), segments)
 
     def match2(
         self,

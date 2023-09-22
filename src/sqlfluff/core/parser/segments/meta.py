@@ -5,8 +5,7 @@ from uuid import UUID
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.parser.match_result import MatchResult, MatchResult2
-from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.match_result import MatchResult2
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import RawSegment, SourceFix
 from sqlfluff.core.templaters.base import TemplatedFile
@@ -56,18 +55,6 @@ class MetaSegment(RawSegment):
         Meta classes have not much to say here so just stay blank.
         """
         return ""
-
-    @classmethod
-    @match_wrapper()
-    def match(
-        cls, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
-    ) -> MatchResult:  # pragma: no cover
-        """This will never be called. If it is then we're using it wrong."""
-        raise NotImplementedError(
-            "{} has no match method, it should only be used in a Sequence!".format(
-                cls.__name__
-            )
-        )
 
     @classmethod
     def match2(
