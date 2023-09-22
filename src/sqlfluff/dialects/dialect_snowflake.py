@@ -1456,6 +1456,7 @@ class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
         insert=[
             # Optional Exclude or Rename clause
             Ref("ExcludeClauseSegment", optional=True),
+            Ref("ReplaceClauseSegment", optional=True),
             Ref("RenameClauseSegment", optional=True),
         ]
     )
@@ -1501,6 +1502,27 @@ class RenameClauseSegment(BaseSegment):
                     )
                 )
             ),
+        ),
+    )
+
+
+class ReplaceClauseSegment(BaseSegment):
+    """A snowflake SELECT REPLACE clause.
+
+    https://docs.snowflake.com/en/sql-reference/sql/select.html
+    """
+
+    type = "select_replace_clause"
+    match_grammar = Sequence(
+        "REPLACE",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ExpressionSegment"),
+                    "AS",
+                    Ref("SingleIdentifierGrammar"),
+                )
+            )
         ),
     )
 
