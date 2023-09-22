@@ -242,7 +242,11 @@ class Sequence(BaseGrammar):
                     # return value so that if any have already been
                     # matched, the user can see that. Those are not
                     # part of the unparsable section.
-                    matched_slice=slice(start_idx, matched_idx),
+                    # NOTE: The unparsable section is _included_ in the span
+                    # of the parent match.
+                    # TODO: Make tests to assert that child matches sit within
+                    # the parent!!!
+                    matched_slice=slice(start_idx, max_idx),
                     insert_segments=insert_segments,
                     child_matches=child_matches
                     + (

@@ -87,6 +87,7 @@ class BaseFileSegment(BaseSegment):
                 segments[:_end_idx], _start_idx, parse_context
             )
 
+        parse_context.logger.info("Root Match:\n%s", match.stringify())
         _matched = match.apply(segments)
         _unmatched = segments[match.matched_slice.stop : _end_idx]
 
