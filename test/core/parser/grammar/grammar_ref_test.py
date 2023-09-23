@@ -34,7 +34,7 @@ def test__parser__grammar_ref_exclude(generate_test_segments, fresh_ansi_dialect
     ni = Ref("NakedIdentifierSegment", exclude=Ref.keyword("ABS"))
     ts = generate_test_segments(["ABS", "ABSOLUTE"])
     ctx = ParseContext(dialect=fresh_ansi_dialect)
-    # Asset ABS does not match, due to the exclude
+    # Assert ABS does not match, due to the exclude
     assert not ni.match([ts[0]], parse_context=ctx)
-    # Asset ABSOLUTE does match
+    # Assert ABSOLUTE does match
     assert ni.match([ts[1]], parse_context=ctx)

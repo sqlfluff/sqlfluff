@@ -40,6 +40,11 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ inputs.python-version }}
+        cache: 'pip'
+        cache-dependency-path: |
+          setup.cfg
+          requirements.txt
+          requirements_dev.txt
 
     - name: Install dependencies
       run: pip install tox

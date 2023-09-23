@@ -8,11 +8,14 @@
 # (images, markdown files, )
 #
 name: CI
+
 on:
   workflow_dispatch:
   schedule:
     # 2am each night
     - cron: '00 2 * * *'
+  # Don't use pull_request_target here. See:
+  # https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
   pull_request:
   push:
     branches:
@@ -373,69 +376,24 @@ jobs:
         with:
           name: html-report
           path: htmlcov
-        if: ${{ failure() }}
+        if: failure() && github.event_name == 'pull_request'
 
-      - name: Update PR Comment.
-        uses: actions/github-script@v6
-        # Run even if the coverage step failed.
-        if: github.event_name == 'pull_request'
+      - name: Stash PR Number.
+        if: always() && github.event_name == 'pull_request'
+        # NOTE: We do this so we know what PR to comment on when we pick up the report.
+        run: |
+          echo ${{ github.event.number }} > ./pr-number.txt
+          echo ${{ steps.report_coverage.outcome }} > ./outcome.txt
+
+      - name: Upload TXT report always (to add as comment to PR).
+        # NOTE: We don't actually comment on the PR from here, we'll do that in
+        # a more secure way by triggering a more secure workflow.
+        # https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
+        uses: actions/upload-artifact@v3
         with:
-          script: |
-            // First list the existing comments
-
-            const trigger_str = 'Coverage Results';
-            console.log("Getting existing comments...");
-
-            const issue_number = context.issue.number;
-            console.log("Issue number: " + issue_number);
-
-            const comments = await github.paginate(
-              github.rest.issues.listComments,
-              {
-                owner: 'sqlfluff',
-                repo: 'sqlfluff',
-                issue_number: issue_number
-              }
-            );
-
-            let comment_id = null;
-            console.log("Got %d comments", comments.length);
-
-            comments.forEach(comment => {
-              if (comment.body.indexOf(trigger_str) >= 0) {
-                console.log("Found target comment ID: %d", comment.id);
-                comment_id = comment.id;
-              } else {
-                console.log("Comment ID %d not valid with body:\n%s.", comment.id, comment.body);
-              }
-            });
-
-            const previous_outcome = "${{ steps.report_coverage.outcome }}";
-            console.log("Previous coverage step outcome: %s", previous_outcome);
-            if (previous_outcome == "success") {
-              status_emoji = "✅";
-            } else {
-              status_emoji = "⚠️";
-            }
-
-            const { promises: fs } = require('fs');
-            const content = await fs.readFile('coverage-report.txt', 'utf8');
-            body = "# " + trigger_str + " " + status_emoji + "\n```\n" + content + "\n```\n";
-
-            if (comment_id > 0) {
-              console.log("Updating comment id: %d", comment_id);
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: comment_id,
-                body: body
-              });
-            } else {
-              console.log("No existing comment matched, creating a new one...");
-              await github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: body
-              });
-            }
+          name: txt-report
+          path: |
+            coverage-report.txt
+            pr-number.txt
+            outcome.txt
+        if: always() && github.event_name == 'pull_request'

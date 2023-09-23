@@ -4,6 +4,7 @@ import multiprocessing
 import os
 import re
 import sys
+import time
 from collections import defaultdict
 from typing import Callable, Dict, List, Optional, Tuple, TypeVar
 
@@ -98,7 +99,7 @@ def generate_one_parse_fixture(
 
     try:
         tree = parse_example_file(dialect, sqlfile)
-    except SQLParseError as err:
+    except Exception as err:
         # Catch parsing errors, and wrap the file path only it.
         return example, SQLParseError(f"Fatal parsing error: {sql_path}: {err}")
 
@@ -193,13 +194,15 @@ def generate_parse_fixtures(
     print(f"\tfilter={filter_str} dialect={dialect_str} new-only={new_only}")
     parse_success_examples = gather_file_list(dialect, filter, new_only)
     print(f"Found {len(parse_success_examples)} file(s) to generate")
+    t0 = time.monotonic()
     try:
         distribute_work(parse_success_examples, generate_one_parse_fixture)
     except SQLParseError as err:
         # If one fails, exit early and cleanly.
         print(f"PARSING FAILED: {err}")
         sys.exit(1)
-    print(f"Fixture built: {len(parse_success_examples)}")
+    dt = time.monotonic() - t0
+    print(f"Built {len(parse_success_examples)} fixtures in {dt:.2f}s.")
 
 
 def main():

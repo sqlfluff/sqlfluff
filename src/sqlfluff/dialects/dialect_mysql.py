@@ -20,11 +20,11 @@ from sqlfluff.core.parser import (
     Matchable,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
     Sequence,
-    StartsWith,
     StringLexer,
     StringParser,
     SymbolSegment,
@@ -241,6 +241,10 @@ mysql_dialect.replace(
             optional=True,
         ),
         ansi_dialect.get_grammar("Expression_C_Grammar"),
+    ),
+    ColumnConstraintDefaultGrammar=OneOf(
+        Bracketed(ansi_dialect.get_grammar("ColumnConstraintDefaultGrammar")),
+        ansi_dialect.get_grammar("ColumnConstraintDefaultGrammar"),
     ),
 )
 
@@ -1070,8 +1074,7 @@ class DeclareStatement(BaseSegment):
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    match_grammar = ansi.StatementSegment.match_grammar
-    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("DelimiterStatement"),
             Ref("CreateProcedureStatementSegment"),
@@ -1577,11 +1580,7 @@ class IntoClauseSegment(BaseSegment):
 
     type = "into_clause"
 
-    match_grammar = StartsWith(
-        "INTO", terminators=[Ref("SelectClauseElementTerminatorGrammar")]
-    )
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "INTO",
         OneOf(
             Delimited(
@@ -1632,6 +1631,8 @@ class IntoClauseSegment(BaseSegment):
                 ),
             ),
         ),
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
+        terminators=[Ref("SelectClauseTerminatorGrammar")],
     )
 
 
@@ -1644,18 +1645,9 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """
 
     type = "select_statement"
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
-        terminators=[
-            Ref("IntoClauseSegment"),
-            Ref("ForClauseSegment"),
-            Ref("IndexHintClauseSegment"),
-            Ref("SelectPartitionClauseSegment"),
-            Ref("UpsertClauseListSegment"),
-        ],
-    )
 
-    parse_grammar = (
-        ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar = (
+        ansi.UnorderedSelectStatementSegment.match_grammar.copy(
             insert=[Ref("IntoClauseSegment", optional=True)],
             before=Ref("FromClauseSegment", optional=True),
         )
@@ -1667,14 +1659,15 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
         .copy(
             insert=[Ref("SelectPartitionClauseSegment", optional=True)],
             before=Ref("WhereClauseSegment", optional=True),
+            terminators=[
+                Ref("IntoClauseSegment"),
+                Ref("ForClauseSegment"),
+                Ref("IndexHintClauseSegment"),
+                Ref("SelectPartitionClauseSegment"),
+                Ref("UpsertClauseListSegment"),
+            ],
         )
     )
-
-
-class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
-    """An element in the targets of a select statement."""
-
-    pass
 
 
 class SelectClauseSegment(ansi.SelectClauseSegment):
@@ -1683,7 +1676,6 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
     match_grammar = ansi.SelectClauseSegment.match_grammar.copy(
         terminators=[Ref("IntoKeywordSegment")],
     )
-    parse_grammar = ansi.SelectClauseSegment.parse_grammar
 
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
@@ -1692,21 +1684,22 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     https://dev.mysql.com/doc/refman/5.7/en/select.html
     """
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
-        terminators=[
-            Ref("UpsertClauseListSegment"),
-            Ref("WithCheckOptionSegment"),
-        ],
-    )
-
     # Inherit most of the parse grammar from the original.
-    parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
             Ref("NamedWindowSegment", optional=True),
             Ref("IntoClauseSegment", optional=True),
-        ]
+        ],
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("UpsertClauseListSegment"),
+            Ref("WithCheckOptionSegment"),
+        ],
+        # Overwrite the terminators, because we want to remove some from the
+        # expression above.
+        replace_terminators=True,
     )
 
 

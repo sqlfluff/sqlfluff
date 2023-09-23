@@ -5,7 +5,6 @@ import pickle
 import pytest
 
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
-from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.segments.base import PathStep
 from sqlfluff.core.rules.base import LintFix
 from sqlfluff.core.templaters import TemplatedFile
@@ -27,34 +26,34 @@ def test__parser__base_segments_class_types(DummySegment):
 
 
 def test__parser__base_segments_descendant_type_set(
-    raw_seg_list, DummySegment, DummyAuxSegment
+    raw_segments, DummySegment, DummyAuxSegment
 ):
     """Test the .descendant_type_set() method."""
-    test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
+    test_seg = DummySegment([DummyAuxSegment(raw_segments)])
     assert test_seg.descendant_type_set == {"raw", "base", "dummy_aux"}
 
 
 def test__parser__base_segments_direct_descendant_type_set(
-    raw_seg_list, DummySegment, DummyAuxSegment
+    raw_segments, DummySegment, DummyAuxSegment
 ):
     """Test the .direct_descendant_type_set() method."""
-    test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
+    test_seg = DummySegment([DummyAuxSegment(raw_segments)])
     assert test_seg.direct_descendant_type_set == {"base", "dummy_aux"}
 
 
-def test__parser__base_segments_to_tuple_a(raw_seg_list, DummySegment, DummyAuxSegment):
+def test__parser__base_segments_to_tuple_a(raw_segments, DummySegment, DummyAuxSegment):
     """Test the .to_tuple() method."""
-    test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
+    test_seg = DummySegment([DummyAuxSegment(raw_segments)])
     assert test_seg.to_tuple() == (
         "dummy",
         (("dummy_aux", (("raw", ()), ("raw", ()))),),
     )
 
 
-def test__parser__base_segments_to_tuple_b(raw_seg_list, DummySegment, DummyAuxSegment):
+def test__parser__base_segments_to_tuple_b(raw_segments, DummySegment, DummyAuxSegment):
     """Test the .to_tuple() method."""
     test_seg = DummySegment(
-        [DummyAuxSegment(raw_seg_list + (DummyAuxSegment(raw_seg_list[:1]),))]
+        [DummyAuxSegment(raw_segments + (DummyAuxSegment(raw_segments[:1]),))]
     )
     assert test_seg.to_tuple() == (
         "dummy",
@@ -62,10 +61,10 @@ def test__parser__base_segments_to_tuple_b(raw_seg_list, DummySegment, DummyAuxS
     )
 
 
-def test__parser__base_segments_to_tuple_c(raw_seg_list, DummySegment, DummyAuxSegment):
+def test__parser__base_segments_to_tuple_c(raw_segments, DummySegment, DummyAuxSegment):
     """Test the .to_tuple() method with show_raw=True."""
     test_seg = DummySegment(
-        [DummyAuxSegment(raw_seg_list + (DummyAuxSegment(raw_seg_list[:1]),))]
+        [DummyAuxSegment(raw_segments + (DummyAuxSegment(raw_segments[:1]),))]
     )
     assert test_seg.to_tuple(show_raw=True) == (
         "dummy",
@@ -83,21 +82,21 @@ def test__parser__base_segments_to_tuple_c(raw_seg_list, DummySegment, DummyAuxS
 
 
 def test__parser__base_segments_as_record_a(
-    raw_seg_list, DummySegment, DummyAuxSegment
+    raw_segments, DummySegment, DummyAuxSegment
 ):
     """Test the .as_record() method.
 
     NOTE: In this test, note that there are lists, as some segment types
     are duplicated within their parent segment.
     """
-    test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
+    test_seg = DummySegment([DummyAuxSegment(raw_segments)])
     assert test_seg.as_record() == {
         "dummy": {"dummy_aux": [{"raw": None}, {"raw": None}]}
     }
 
 
 def test__parser__base_segments_as_record_b(
-    raw_seg_list, DummySegment, DummyAuxSegment
+    raw_segments, DummySegment, DummyAuxSegment
 ):
     """Test the .as_record() method.
 
@@ -105,7 +104,7 @@ def test__parser__base_segments_as_record_b(
     is unique within it's parent segment, and so there is no need.
     """
     test_seg = DummySegment(
-        [DummyAuxSegment(raw_seg_list[:1] + (DummyAuxSegment(raw_seg_list[:1]),))]
+        [DummyAuxSegment(raw_segments[:1] + (DummyAuxSegment(raw_segments[:1]),))]
     )
     assert test_seg.as_record() == {
         "dummy": {"dummy_aux": {"raw": None, "dummy_aux": {"raw": None}}}
@@ -113,7 +112,7 @@ def test__parser__base_segments_as_record_b(
 
 
 def test__parser__base_segments_as_record_c(
-    raw_seg_list, DummySegment, DummyAuxSegment
+    raw_segments, DummySegment, DummyAuxSegment
 ):
     """Test the .as_record() method with show_raw=True.
 
@@ -121,7 +120,7 @@ def test__parser__base_segments_as_record_c(
     is unique within it's parent segment, and so there is no need.
     """
     test_seg = DummySegment(
-        [DummyAuxSegment(raw_seg_list[:1] + (DummyAuxSegment(raw_seg_list[:1]),))]
+        [DummyAuxSegment(raw_segments[:1] + (DummyAuxSegment(raw_segments[:1]),))]
     )
     assert test_seg.as_record(show_raw=True) == {
         "dummy": {"dummy_aux": {"raw": "foobar", "dummy_aux": {"raw": "foobar"}}}
@@ -129,10 +128,10 @@ def test__parser__base_segments_as_record_c(
 
 
 def test__parser__base_segments_count_segments(
-    raw_seg_list, DummySegment, DummyAuxSegment
+    raw_segments, DummySegment, DummyAuxSegment
 ):
     """Test the .count_segments() method."""
-    test_seg = DummySegment([DummyAuxSegment(raw_seg_list)])
+    test_seg = DummySegment([DummyAuxSegment(raw_segments)])
     assert test_seg.count_segments() == 4
     assert test_seg.count_segments(raw_only=True) == 2
 
@@ -140,56 +139,62 @@ def test__parser__base_segments_count_segments(
 @pytest.mark.parametrize(
     "list_in, result",
     [
-        (["foo"], None),
-        (["foo", " "], -1),
-        ([" ", "foo", " "], 0),
-        ([" ", "foo"], 0),
-        ([" "], 0),
-        ([], None),
+        (["foo"], False),
+        (["foo", " "], True),
+        ([" ", "foo", " "], True),
+        ([" ", "foo"], True),
+        ([" "], True),
+        (["foo", " ", "foo"], False),
     ],
 )
-def test__parser_base_segments_find_start_or_end_non_code(
-    generate_test_segments, list_in, result
+def test__parser_base_segments_validate_non_code_ends(
+    generate_test_segments, DummySegment, list_in, result
 ):
-    """Test BaseSegment._find_start_or_end_non_code()."""
-    assert (
-        BaseSegment._find_start_or_end_non_code(generate_test_segments(list_in))
-        == result
-    )
+    """Test BaseSegment.validate_non_code_ends()."""
+    if result:
+        # Assert that it _does_ raise an exception.
+        with pytest.raises(AssertionError):
+            # Validation happens on instantiation.
+            seg = DummySegment(segments=generate_test_segments(list_in))
+    else:
+        # Check that it _doesn't_ raise an exception...
+        seg = DummySegment(segments=generate_test_segments(list_in))
+        # ...even when explicitly validating.
+        seg.validate_non_code_ends()
 
 
-def test__parser_base_segments_compute_anchor_edit_info(raw_seg_list):
+def test__parser_base_segments_compute_anchor_edit_info(raw_segments):
     """Test BaseSegment.compute_anchor_edit_info()."""
     # Construct a fix buffer, intentionally with:
     # - one duplicate.
     # - two different incompatible fixes on the same segment.
     fixes = [
-        LintFix.replace(raw_seg_list[0], [raw_seg_list[0].edit(raw="a")]),
-        LintFix.replace(raw_seg_list[0], [raw_seg_list[0].edit(raw="a")]),
-        LintFix.replace(raw_seg_list[0], [raw_seg_list[0].edit(raw="b")]),
+        LintFix.replace(raw_segments[0], [raw_segments[0].edit(raw="a")]),
+        LintFix.replace(raw_segments[0], [raw_segments[0].edit(raw="a")]),
+        LintFix.replace(raw_segments[0], [raw_segments[0].edit(raw="b")]),
     ]
     anchor_info_dict = BaseSegment.compute_anchor_edit_info(fixes)
     # Check the target segment is the only key we have.
-    assert list(anchor_info_dict.keys()) == [raw_seg_list[0].uuid]
-    anchor_info = anchor_info_dict[raw_seg_list[0].uuid]
+    assert list(anchor_info_dict.keys()) == [raw_segments[0].uuid]
+    anchor_info = anchor_info_dict[raw_segments[0].uuid]
     # Check that the duplicate as been deduplicated.
     # i.e. this isn't 3.
     assert anchor_info.replace == 2
     # Check the fixes themselves.
     # NOTE: There's no duplicated first fix.
     assert anchor_info.fixes == [
-        LintFix.replace(raw_seg_list[0], [raw_seg_list[0].edit(raw="a")]),
-        LintFix.replace(raw_seg_list[0], [raw_seg_list[0].edit(raw="b")]),
+        LintFix.replace(raw_segments[0], [raw_segments[0].edit(raw="a")]),
+        LintFix.replace(raw_segments[0], [raw_segments[0].edit(raw="b")]),
     ]
     # Check the first replace
     assert anchor_info._first_replace == LintFix.replace(
-        raw_seg_list[0], [raw_seg_list[0].edit(raw="a")]
+        raw_segments[0], [raw_segments[0].edit(raw="a")]
     )
 
 
-def test__parser__base_segments_path_to(raw_seg_list, DummySegment, DummyAuxSegment):
+def test__parser__base_segments_path_to(raw_segments, DummySegment, DummyAuxSegment):
     """Test the .path_to() method."""
-    test_seg_a = DummyAuxSegment(raw_seg_list)
+    test_seg_a = DummyAuxSegment(raw_segments)
     test_seg_b = DummySegment([test_seg_a])
     # With a direct parent/child relationship we only get
     # one element of path.
@@ -197,11 +202,11 @@ def test__parser__base_segments_path_to(raw_seg_list, DummySegment, DummyAuxSegm
     # so that means the do appear in code_idxs.
     assert test_seg_b.path_to(test_seg_a) == [PathStep(test_seg_b, 0, 1, (0,))]
     # With a three segment chain - we get two path elements.
-    assert test_seg_b.path_to(raw_seg_list[0]) == [
+    assert test_seg_b.path_to(raw_segments[0]) == [
         PathStep(test_seg_b, 0, 1, (0,)),
         PathStep(test_seg_a, 0, 2, (0, 1)),
     ]
-    assert test_seg_b.path_to(raw_seg_list[1]) == [
+    assert test_seg_b.path_to(raw_segments[1]) == [
         PathStep(test_seg_b, 0, 1, (0,)),
         PathStep(test_seg_a, 1, 2, (0, 1)),
     ]
@@ -235,28 +240,25 @@ def test__parser__base_segments_raw(raw_seg):
     assert raw_seg.to_tuple(show_raw=True) == ("raw", "foobar")
 
 
-def test__parser__base_segments_base(raw_seg_list, fresh_ansi_dialect, DummySegment):
+def test__parser__base_segments_base(raw_segments, fresh_ansi_dialect, DummySegment):
     """Test base segments behave as expected."""
-    base_seg = DummySegment(raw_seg_list)
+    base_seg = DummySegment(raw_segments)
     # Check we assume the position correctly
     assert (
         base_seg.pos_marker.start_point_marker()
-        == raw_seg_list[0].pos_marker.start_point_marker()
+        == raw_segments[0].pos_marker.start_point_marker()
     )
     assert (
         base_seg.pos_marker.end_point_marker()
-        == raw_seg_list[-1].pos_marker.end_point_marker()
+        == raw_segments[-1].pos_marker.end_point_marker()
     )
 
-    ctx = ParseContext(dialect=fresh_ansi_dialect)
-    # Expand and given we don't have a grammar we should get the same thing
-    assert base_seg.parse(parse_context=ctx)[0] == base_seg
     # Check that we correctly reconstruct the raw
     assert base_seg.raw == "foobar.barfoo"
     # Check tuple
     assert base_seg.to_tuple() == (
         "dummy",
-        (raw_seg_list[0].to_tuple(), raw_seg_list[1].to_tuple()),
+        (raw_segments[0].to_tuple(), raw_segments[1].to_tuple()),
     )
     # Check Formatting and Stringification
     assert str(base_seg) == repr(base_seg) == "<DummySegment: ([L:  1, P:  1])>"
@@ -293,12 +295,62 @@ def test__parser__base_segments_base_compare(DummySegment, DummyAuxSegment):
     assert ds1 != dsa2
 
 
-def test__parser__base_segments_pickle_safe(raw_seg_list):
+def test__parser__base_segments_pickle_safe(raw_segments):
     """Test pickling and unpickling of BaseSegment."""
-    test_seg = BaseSegment([BaseSegment(raw_seg_list)])
+    test_seg = BaseSegment([BaseSegment(raw_segments)])
     test_seg.set_as_parent()
     pickled = pickle.dumps(test_seg)
     result_seg = pickle.loads(pickled)
     assert test_seg == result_seg
     # Check specifically the treatment of the parent position.
     assert result_seg.segments[0].get_parent() is result_seg
+
+
+def test__parser__base_segments_copy_isolation(DummySegment, raw_segments):
+    """Test copy isolation in BaseSegment.
+
+    First on one of the raws and then on the dummy segment.
+    """
+    # On a raw
+    a_seg = raw_segments[0]
+    a_copy = a_seg.copy()
+    assert a_seg is not a_copy
+    assert a_seg == a_copy
+    assert a_seg.pos_marker is a_copy.pos_marker
+    a_copy.pos_marker = None
+    assert a_copy.pos_marker is None
+    assert a_seg.pos_marker is not None
+
+    # On a base
+    b_seg = DummySegment(segments=raw_segments)
+    b_copy = b_seg.copy()
+    assert b_seg is not b_copy
+    assert b_seg == b_copy
+    assert b_seg.pos_marker is b_copy.pos_marker
+    b_copy.pos_marker = None
+    assert b_copy.pos_marker is None
+    assert b_seg.pos_marker is not None
+
+    # On addition to a lint Fix
+    fix = LintFix("replace", a_seg, [b_seg])
+    for s in fix.edit:
+        assert not s.pos_marker
+    assert b_seg.pos_marker
+
+
+def test__parser__base_segments_parent_ref(DummySegment, raw_segments):
+    """Test getting and setting parents on BaseSegment."""
+    # Check initially no parent (because not set)
+    assert not raw_segments[0].get_parent()
+    # Add it to a segment (which also sets the parent value)
+    seg = DummySegment(segments=raw_segments)
+    assert seg.segments[0].get_parent() is seg
+    assert seg.segments[1].get_parent() is seg
+    # Remove segment from parent, but don't unset.
+    # Should still check an return None.
+    seg_0 = seg.segments[0]
+    seg.segments = seg.segments[1:]
+    assert seg_0 not in seg.segments
+    assert not seg_0.get_parent()
+    # Check the other still works.
+    assert seg.segments[0].get_parent()

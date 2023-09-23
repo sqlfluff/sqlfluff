@@ -2,9 +2,6 @@
 
 from typing import Optional, Sequence, Tuple, Union
 
-from tqdm import tqdm
-
-from sqlfluff.core.config import progress_bar_configuration
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar import Ref
 from sqlfluff.core.parser.grammar.anyof import OneOf
@@ -12,7 +9,7 @@ from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
-from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
+from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.core.parser.types import MatchableType
 
 
@@ -44,7 +41,6 @@ class Delimited(OneOf):
         bracket_pairs_set: str = "bracket_pairs",
         allow_gaps: bool = True,
         optional: bool = False,
-        ephemeral_name: Optional[str] = None,
     ) -> None:
         if delimiter is None:  # pragma: no cover
             raise ValueError("Delimited grammars require a `delimiter`")
@@ -59,11 +55,9 @@ class Delimited(OneOf):
             reset_terminators=reset_terminators,
             allow_gaps=allow_gaps,
             optional=optional,
-            ephemeral_name=ephemeral_name,
         )
 
     @match_wrapper()
-    @allow_ephemeral
     def match(
         self,
         segments: Tuple[BaseSegment, ...],
@@ -75,7 +69,7 @@ class Delimited(OneOf):
         as different options of what can be delimited, rather than a sequence.
         """
         # Have we been passed an empty list?
-        if len(segments) == 0:
+        if len(segments) == 0:  # pragma: no cover
             return MatchResult.from_empty()
 
         # Make some buffers
@@ -87,24 +81,6 @@ class Delimited(OneOf):
 
         delimiters = 0
         matched_delimiter = False
-
-        # We want to render progress bar only for the main matching loop,
-        # so disable it when in deeper parsing.
-        disable_progress_bar = (
-            parse_context.parse_depth > 0
-            or progress_bar_configuration.disable_progress_bar
-        )
-
-        # We use amount of `NewLineSegment` to estimate how many steps could be in
-        # a big file. It's not perfect, but should do a job in most cases.
-        new_line_segments = [s for s in segments if s.is_type("newline")]
-        progressbar_matching = tqdm(
-            total=len(new_line_segments),
-            desc="matching",
-            miniters=30,
-            disable=disable_progress_bar,
-            leave=False,
-        )
 
         seeking_delimiter = False
         has_matched_segs = False
@@ -124,8 +100,6 @@ class Delimited(OneOf):
             terminator_matchers.append(NonCodeMatcher())
 
         while True:
-            progressbar_matching.update(n=1)
-
             if len(seg_buff) == 0:  # pragma: no cover
                 break
 
@@ -172,8 +146,9 @@ class Delimited(OneOf):
                 )
 
             if not match:
-                matched_segments += pre_non_code
-                unmatched_segments = match.unmatched_segments + post_non_code
+                unmatched_segments = (
+                    pre_non_code + match.unmatched_segments + post_non_code
+                )
                 break
 
             if seeking_delimiter:
@@ -198,6 +173,7 @@ class Delimited(OneOf):
 
             matched_segments += pre_non_code + match.matched_segments
             seeking_delimiter = not seeking_delimiter
+            parse_context.update_progress(matched_segments)
 
         if self.min_delimiters:
             if delimiters < self.min_delimiters:

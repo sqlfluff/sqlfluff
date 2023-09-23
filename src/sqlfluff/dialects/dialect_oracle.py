@@ -2,6 +2,8 @@
 
 This inherits from the ansi dialect.
 """
+from typing import cast
+
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -13,10 +15,10 @@ from sqlfluff.core.parser import (
     CodeSegment,
     CommentSegment,
     Delimited,
-    GreedyUntil,
     Matchable,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
@@ -203,8 +205,8 @@ oracle_dialect.replace(
                         Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
                         Ref("LocalAliasSegment"),  # WHERE (LOCAL.a, LOCAL.b) IN (...)
                     ),
-                    ephemeral_name="BracketedExpression",
                 ),
+                parse_mode=ParseMode.GREEDY,
             ),
             # Allow potential select statement without brackets
             Ref("SelectStatementSegment"),
@@ -216,7 +218,9 @@ oracle_dialect.replace(
             # For triggers, we allow "NEW.*" but not just "*" nor "a.b.*"
             # So can't use WildcardIdentifierSegment nor WildcardExpressionSegment
             Sequence(
-                Ref("SingleIdentifierGrammar"), Ref("DotSegment"), Ref("StarSegment")
+                Ref("SingleIdentifierGrammar"),
+                Ref("ObjectReferenceDelimiterGrammar"),
+                Ref("StarSegment"),
             ),
             Sequence(
                 Ref("StructTypeSegment"),
@@ -239,7 +243,7 @@ oracle_dialect.replace(
             Ref("LocalAliasSegment"),
             terminators=[Ref("CommaSegment")],
         ),
-        Ref("Accessor_Grammar", optional=True),
+        Ref("AccessorGrammar", optional=True),
         allow_gaps=True,
     ),
 )
@@ -432,10 +436,7 @@ class StatementSegment(ansi.StatementSegment):
 
     type = "statement"
 
-    match_grammar = OneOf(
-        GreedyUntil(Ref("DelimiterGrammar")), exclude=Ref("ExecuteFileSegment")
-    )
-    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("CommentStatementSegment"),
         ],
@@ -453,9 +454,7 @@ class FileSegment(BaseFileSegment):
     ending in DelimiterGrammar
     """
 
-    # NB: We don't need a match_grammar here because we're
-    # going straight into instantiating it directly usually.
-    parse_grammar = AnyNumberOf(
+    match_grammar = AnyNumberOf(
         Ref("ExecuteFileSegment"),
         Delimited(
             Ref("StatementSegment"),
@@ -771,25 +770,26 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """
 
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
-        terminators=[Ref("HierarchicalQueryClauseSegment")],
-    )
-    parse_grammar: Matchable = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[Ref("HierarchicalQueryClauseSegment", optional=True)],
         before=Ref("GroupByClauseSegment", optional=True),
+        terminators=[Ref("HierarchicalQueryClauseSegment")],
     )
 
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """A `SELECT` statement."""
 
-    match_grammar: Matchable = ansi.SelectStatementSegment.match_grammar.copy()
-    parse_grammar: Matchable = UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar: Matchable = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
             Ref("FetchClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
             Ref("NamedWindowSegment", optional=True),
-        ]
+        ],
+        replace_terminators=True,
+        terminators=cast(
+            Sequence, ansi.SelectStatementSegment.match_grammar
+        ).terminators,
     )
 
 

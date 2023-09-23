@@ -24,7 +24,6 @@ from sqlfluff.core.parser import (
     Ref,
     RegexLexer,
     Sequence,
-    StartsWith,
     StringParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -711,7 +710,7 @@ class StatementSegment(ansi.StatementSegment):
 
     type = "statement"
 
-    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("TdCollectStatisticsStatementSegment"),
             Ref("BteqStatementSegment"),
@@ -723,21 +722,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SetQueryBandStatementSegment"),
         ],
     )
-
-    match_grammar = ansi.StatementSegment.match_grammar.copy()
-
-
-teradata_dialect.replace(
-    SelectClauseSegmentGrammar=Sequence(
-        OneOf("SELECT", "SEL"),
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        Delimited(
-            Ref("SelectClauseElementSegment"),
-            allow_trailing=True,
-        ),
-    ),
-)
 
 
 class QualifyClauseSegment(BaseSegment):
@@ -758,8 +742,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     https://dev.mysql.com/doc/refman/5.7/en/select.html
     """
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar
-    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
     )
@@ -771,10 +754,31 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     https://dev.mysql.com/doc/refman/5.7/en/select.html
     """
 
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar
-    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OverlapsClauseSegment", optional=True),
+    )
+
+
+class SelectClauseSegment(ansi.SelectClauseSegment):
+    """A group of elements in a select target statement.
+
+    Remove OVERLAPS as a terminator as this can be part of SelectClauseModifierSegment
+    """
+
+    match_grammar = ansi.SelectClauseSegment.match_grammar.copy(
+        # Allow "SEL" as in place of just "SELECT"
+        insert=[OneOf("SELECT", "SEL")],
+        before=Ref.keyword("SELECT"),
+        remove=[Ref.keyword("SELECT")],
+        terminators=[
+            "FROM",
+            "WHERE",
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            Ref("SetOperatorSegment"),
+        ],
+        replace_terminators=True,
     )
 
 
@@ -834,27 +838,6 @@ class SelectClauseModifierSegment(BaseSegment):
             ),
         ),
     )
-
-
-class SelectClauseSegment(ansi.SelectClauseSegment):
-    """A group of elements in a select target statement.
-
-    Remove OVERLAPS as a terminator as this can be part of SelectClauseModifierSegment
-    """
-
-    match_grammar = StartsWith(
-        Sequence(
-            OneOf("SELECT", "SEL"), Ref("WildcardExpressionSegment", optional=True)
-        ),
-        terminators=[
-            "FROM",
-            "WHERE",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-        ],
-    )
-    parse_grammar = ansi.SelectClauseSegment.parse_grammar
 
 
 class DatabaseStatementSegment(BaseSegment):

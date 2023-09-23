@@ -16,12 +16,12 @@ from sqlfluff.core.parser import (
     NewlineSegment,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
     SegmentGenerator,
     Sequence,
-    StartsWith,
     StringParser,
     SymbolSegment,
     TypedParser,
@@ -297,6 +297,18 @@ postgres_dialect.add(
     DollarNumericLiteralSegment=TypedParser(
         "dollar_numeric_literal", ansi.LiteralSegment, type="dollar_numeric_literal"
     ),
+    ForeignDataWrapperGrammar=Sequence("FOREIGN", "DATA", "WRAPPER"),
+    OptionsListGrammar=Sequence(
+        Delimited(Ref("NakedIdentifierFullSegment"), Ref("QuotedLiteralSegment"))
+    ),
+    OptionsGrammar=Sequence(
+        "OPTIONS", Bracketed(AnyNumberOf(Ref("OptionsListGrammar")))
+    ),
+    CreateUserMappingGrammar=Sequence("CREATE", "USER", "MAPPING"),
+    SessionInformationUserFunctionsGrammar=OneOf(
+        "USER", "CURRENT_ROLE", "CURRENT_USER", "SESSION_USER"
+    ),
+    ImportForeignSchemaGrammar=Sequence("IMPORT", "FOREIGN", "SCHEMA"),
 )
 
 postgres_dialect.replace(
@@ -458,7 +470,7 @@ postgres_dialect.replace(
     IsNullGrammar=Ref.keyword("ISNULL"),
     NotNullGrammar=Ref.keyword("NOTNULL"),
     JoinKeywordsGrammar=Sequence("JOIN", Sequence("LATERAL", optional=True)),
-    SelectClauseElementTerminatorGrammar=OneOf(
+    SelectClauseTerminatorGrammar=OneOf(
         "INTO",
         "FROM",
         "WHERE",
@@ -466,20 +478,6 @@ postgres_dialect.replace(
         "LIMIT",
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
-    ),
-    SelectClauseSegmentGrammar=Sequence(
-        "SELECT",
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        Delimited(
-            Ref("SelectClauseElementSegment"),
-            # In Postgres you don't need an element so make it optional
-            optional=True,
-            allow_trailing=True,
-        ),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
@@ -516,7 +514,7 @@ postgres_dialect.replace(
         Sequence("WITH", "DATA"),
         Ref("ForClauseSegment"),
     ),
-    Accessor_Grammar=AnyNumberOf(
+    AccessorGrammar=AnyNumberOf(
         Ref("ArrayAccessorSegment"),
         # Add in semi structured expressions
         Ref("SemiStructuredAccessorSegment"),
@@ -707,6 +705,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                     OneOf(
                         Sequence(
                             OneOf(
+                                "BPCHAR",
                                 "CHAR",
                                 # CHAR VARYING is not documented, but it's
                                 # in the real grammar:
@@ -1389,35 +1388,24 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Overrides ANSI Statement, to allow for SELECT INTO statements."""
 
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("IntoClauseSegment", optional=True),
+        ],
+        before=Ref("FromClauseSegment", optional=True),
         terminators=[
             Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
             Sequence("ON", "CONFLICT"),
             Ref.keyword("RETURNING"),
             Ref("WithCheckOptionSegment"),
         ],
-    )
-
-    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
-        insert=[
-            Ref("IntoClauseSegment", optional=True),
-        ],
-        before=Ref("FromClauseSegment", optional=True),
     )
 
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Overrides ANSI as the parse grammar copy needs to be reapplied."""
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
-        terminators=[
-            Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
-            Sequence("ON", "CONFLICT"),
-            Ref.keyword("RETURNING"),
-            Ref("WithCheckOptionSegment"),
-        ],
-    )
-
-    parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
+    # Inherit most of the parse grammar from the unordered version.
+    match_grammar: Matchable = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
@@ -1426,14 +1414,35 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     ).copy(
         insert=[Ref("ForClauseSegment", optional=True)],
         before=Ref("LimitClauseSegment", optional=True),
+        # Overwrite the terminators, because we want to remove some.
+        replace_terminators=True,
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithDataClauseSegment"),
+            Sequence("ON", "CONFLICT"),
+            Ref.keyword("RETURNING"),
+            Ref("WithCheckOptionSegment"),
+        ],
     )
 
 
 class SelectClauseSegment(ansi.SelectClauseSegment):
     """Overrides ANSI to allow INTO as a terminator."""
 
-    match_grammar = StartsWith(
+    match_grammar = Sequence(
         "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        Delimited(
+            Ref("SelectClauseElementSegment"),
+            # In Postgres you don't need an element so make it optional
+            optional=True,
+            allow_trailing=True,
+        ),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
         terminators=[
             "INTO",
             "FROM",
@@ -1445,8 +1454,8 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
             Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
             Ref("WithCheckOptionSegment"),
         ],
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
-    parse_grammar = ansi.SelectClauseSegment.parse_grammar
 
 
 class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
@@ -3903,8 +3912,7 @@ class AnalyzeStatementSegment(BaseSegment):
 class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
-    match_grammar = ansi.StatementSegment.match_grammar
-    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("AlterDefaultPrivilegesStatementSegment"),
             Ref("DropOwnedStatementSegment"),
@@ -3956,6 +3964,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ClusterStatementSegment"),
             Ref("CreateCollationStatementSegment"),
             Ref("CallStoredProcedureSegment"),
+            Ref("CreateServerStatementSegment"),
+            Ref("CreateUserMappingStatementSegment"),
+            Ref("ImportForeignSchemaStatementSegment"),
         ],
     )
 
@@ -4733,8 +4744,8 @@ class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
         "AS",
         Sequence(Ref.keyword("NOT", optional=True), "MATERIALIZED", optional=True),
         Bracketed(
-            # Ephemeral here to subdivide the query.
-            Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
+            Ref("SelectableGrammar"),
+            parse_mode=ParseMode.GREEDY,
         ),
         OneOf(
             Sequence(
@@ -4774,8 +4785,8 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                     # DEFAULT keyword used in
                     # INSERT INTO statement.
                     "DEFAULT",
-                    ephemeral_name="ValuesClauseElements",
-                )
+                ),
+                parse_mode=ParseMode.GREEDY,
             ),
         ),
         Ref("AliasExpressionSegment", optional=True),
@@ -5252,4 +5263,79 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
         Bracketed(Ref("MergeStatementSegment")),
+    )
+
+
+class ServerReferenceSegment(ObjectReferenceSegment):
+    """A reference to a server."""
+
+    type = "server_reference"
+
+
+class CreateServerStatementSegment(BaseSegment):
+    """Create server statement.
+
+    https://www.postgresql.org/docs/15/sql-createserver.html
+    """
+
+    type = "create_server_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SERVER",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ServerReferenceSegment"),
+        Sequence("TYPE", Ref("QuotedLiteralSegment"), optional=True),
+        Sequence("VERSION", Ref("VersionIdentifierSegment"), optional=True),
+        Ref("ForeignDataWrapperGrammar"),
+        Ref("ObjectReferenceSegment"),
+        Ref("OptionsGrammar", optional=True),
+    )
+
+
+class CreateUserMappingStatementSegment(BaseSegment):
+    """Create user mapping statement.
+
+    https://www.postgresql.org/docs/15/sql-createusermapping.html
+    """
+
+    type = "create_user_mapping_statement"
+
+    match_grammar: Matchable = Sequence(
+        Ref("CreateUserMappingGrammar"),
+        Ref("IfNotExistsGrammar", optional=True),
+        "FOR",
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Ref("SessionInformationUserFunctionsGrammar"),
+            "PUBLIC",
+        ),
+        "SERVER",
+        Ref("ServerReferenceSegment"),
+        Ref("OptionsGrammar", optional=True),
+    )
+
+
+class ImportForeignSchemaStatementSegment(BaseSegment):
+    """Import foreign schema statement.
+
+    https://www.postgresql.org/docs/15/sql-importforeignschema.html
+    """
+
+    type = "import_foreign_schema_statement"
+
+    match_grammar: Matchable = Sequence(
+        Ref("ImportForeignSchemaGrammar"),
+        Ref("SchemaReferenceSegment"),
+        Sequence(
+            OneOf(Sequence("LIMIT", "TO"), "EXCEPT"),
+            Bracketed(Delimited(Ref("NakedIdentifierFullSegment"))),
+            optional=True,
+        ),
+        "FROM",
+        "SERVER",
+        Ref("ServerReferenceSegment"),
+        "INTO",
+        Ref("SchemaReferenceSegment"),
+        Ref("OptionsGrammar", optional=True),
     )

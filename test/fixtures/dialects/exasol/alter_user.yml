@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: faa22d59324432fe8ffce992f299c79436e9cf770ed6e801ff2498c5d0c6dcd1
+_hash: e7a2f2ea950caab25ed06f8ec8d3055d846e1b0639a6f55d0fa4789665b3a050
 file:
 - statement:
     alter_user_statement:
@@ -14,9 +14,9 @@ file:
     - keyword: IDENTIFIED
     - password_auth:
         keyword: BY
-        quoted_identifier: '"h22_xhz"'
+        password_literal: '"h22_xhz"'
     - keyword: REPLACE
-    - quoted_identifier: '"h12_xhz"'
+    - password_literal: '"h12_xhz"'
 - statement_terminator: ;
 - statement:
     alter_user_statement:
@@ -27,7 +27,7 @@ file:
     - keyword: IDENTIFIED
     - password_auth:
         keyword: BY
-        quoted_identifier: '"h12_xhz"'
+        password_literal: '"h12_xhz"'
 - statement_terminator: ;
 - statement:
     alter_user_statement:

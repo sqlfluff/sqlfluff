@@ -30,11 +30,11 @@ from sqlfluff.core.parser import (
     MultiStringParser,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
     Sequence,
-    StartsWith,
     StringLexer,
     StringParser,
     SymbolSegment,
@@ -284,26 +284,6 @@ sparksql_dialect.replace(
         "RLIKE",
         "REGEXP",
     ),
-    SelectClauseSegmentGrammar=Sequence(
-        "SELECT",
-        OneOf(
-            Ref("TransformClauseSegment"),
-            Sequence(
-                Ref(
-                    "SelectClauseModifierSegment",
-                    optional=True,
-                ),
-                Indent,
-                Delimited(
-                    Ref("SelectClauseElementSegment"),
-                    allow_trailing=True,
-                ),
-            ),
-        ),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
-    ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
@@ -379,13 +359,11 @@ sparksql_dialect.replace(
         # Add arrow operators for lambdas (e.g. aggregate)
         Ref("RightArrowOperator"),
     ),
-    # Support for colon sign operator (Databricks SQL)
-    ObjectReferenceDelimiterGrammar=OneOf(
-        Ref("DotSegment"),
-        Sequence(Ref("DotSegment"), Ref("DotSegment")),
-        Ref("ColonSegment"),
+    AccessorGrammar=AnyNumberOf(
+        Ref("ArrayAccessorSegment"),
+        # Add in semi structured expressions
+        Ref("SemiStructuredAccessorSegment"),
     ),
-    # Support for colon sign operator (Databricks SQL)
     ObjectReferenceTerminatorGrammar=OneOf(
         "ON",
         "AS",
@@ -414,6 +392,16 @@ sparksql_dialect.add(
         ansi.IdentifierSegment,
         type="quoted_identifier",
         trim_chars=("`",),
+    ),
+    NakedSemiStructuredElementSegment=RegexParser(
+        r"[A-Z0-9_]*",
+        CodeSegment,
+        type="semi_structured_element",
+    ),
+    QuotedSemiStructuredElementSegment=TypedParser(
+        "single_quote",
+        CodeSegment,
+        type="semi_structured_element",
     ),
     RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
     BinaryfileKeywordSegment=StringParser(
@@ -445,11 +433,6 @@ sparksql_dialect.add(
     ),
     NoscanKeywordSegment=StringParser("NOSCAN", KeywordSegment, type="keyword"),
     WhlKeywordSegment=StringParser("WHL", KeywordSegment, type="file_keyword"),
-    SQLConfPropertiesSegment=Sequence(
-        StringParser("-", SymbolSegment, type="dash"),
-        StringParser("v", SymbolSegment, type="sql_conf_option"),
-        allow_gaps=False,
-    ),
     # Add relevant Hive Grammar
     CommentGrammar=hive_dialect.get_grammar("CommentGrammar"),
     LocationGrammar=hive_dialect.get_grammar("LocationGrammar"),
@@ -788,6 +771,17 @@ sparksql_dialect.insert_lexer_matchers(
 )
 
 
+class SQLConfPropertiesSegment(BaseSegment):
+    """A SQL Config Option."""
+
+    type = "sql_conf_option"
+    match_grammar = Sequence(
+        StringParser("-", SymbolSegment, type="dash"),
+        StringParser("v", SymbolSegment, type="sql_conf_option"),
+        allow_gaps=False,
+    )
+
+
 class DivBinaryOperatorSegment(BaseSegment):
     """DIV type binary_operator."""
 
@@ -871,6 +865,42 @@ class StructTypeSchemaSegment(hive.StructTypeSchemaSegment):
     """STRUCT type schema as per hive."""
 
     pass
+
+
+class SemiStructuredAccessorSegment(BaseSegment):
+    """A semi-structured data accessor segment.
+
+    https://docs.databricks.com/en/sql/language-manual/functions/colonsign.html
+    """
+
+    type = "semi_structured_expression"
+    match_grammar = Sequence(
+        Ref("ColonSegment"),
+        OneOf(
+            Ref("NakedSemiStructuredElementSegment"),
+            Bracketed(Ref("QuotedSemiStructuredElementSegment"), bracket_type="square"),
+        ),
+        Ref("ArrayAccessorSegment", optional=True),
+        AnyNumberOf(
+            Sequence(
+                OneOf(
+                    # Can be delimited by dots or colons
+                    Ref("DotSegment"),
+                    Ref("ColonSegment"),
+                ),
+                OneOf(
+                    Ref("NakedSemiStructuredElementSegment"),
+                    Bracketed(
+                        Ref("QuotedSemiStructuredElementSegment"), bracket_type="square"
+                    ),
+                ),
+                allow_gaps=True,
+            ),
+            Ref("ArrayAccessorSegment", optional=True),
+            allow_gaps=True,
+        ),
+        allow_gaps=True,
+    )
 
 
 class DatatypeSegment(BaseSegment):
@@ -1761,8 +1791,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     SelectStatementSegment.
     """
 
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar
-    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         # Removing non-valid clauses that exist in ANSI dialect
         remove=[Ref("OverlapsClauseSegment", optional=True)],
@@ -1772,8 +1801,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Enhance `SELECT` statement for valid SparkSQL clauses."""
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar
-    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
         # TODO New Rule: Warn of mutual exclusion of following clauses
         #  DISTRIBUTE, SORT, CLUSTER and ORDER BY if multiple specified
         insert=[
@@ -1976,8 +2004,8 @@ class PivotClauseSegment(BaseSegment):
                             Bracketed(
                                 Delimited(
                                     Ref("ExpressionSegment"),
-                                    ephemeral_name="ValuesClauseElements",
-                                )
+                                ),
+                                parse_mode=ParseMode.GREEDY,
                             ),
                             Delimited(
                                 Ref("ExpressionSegment"),
@@ -2006,8 +2034,8 @@ class TransformClauseSegment(BaseSegment):
         Bracketed(
             Delimited(
                 Ref("SingleIdentifierGrammar"),
-                ephemeral_name="TransformClauseContents",
             ),
+            parse_mode=ParseMode.GREEDY,
         ),
         Indent,
         Ref("RowFormatClauseSegment", optional=True),
@@ -2515,8 +2543,7 @@ class UncacheTableSegment(BaseSegment):
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    match_grammar = ansi.StatementSegment.match_grammar
-    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         # Segments defined in Spark3 dialect
         insert=[
             # Data Definition Statements
@@ -2604,10 +2631,8 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
                         # ColumnReferenceSegment. This is a) so that we don't
                         # lint it as a reference and b) because the column will
                         # probably be returned anyway during parsing.
-                        Delimited(
-                            Ref("SingleIdentifierGrammar"),
-                            ephemeral_name="UsingClauseContents",
-                        )
+                        Delimited(Ref("SingleIdentifierGrammar")),
+                        parse_mode=ParseMode.GREEDY,
                     ),
                     Conditional(Dedent, indented_using_on=False),
                 ),
@@ -2695,8 +2720,8 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                         # INSERT INTO statement.
                         "NULL",
                         Ref("ExpressionSegment"),
-                        ephemeral_name="ValuesClauseElements",
-                    )
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
                 "NULL",
                 Ref("ExpressionSegment"),
@@ -3200,8 +3225,25 @@ class SelectClauseSegment(BaseSegment):
     """
 
     type = "select_clause"
-    match_grammar: Matchable = StartsWith(
+    match_grammar = Sequence(
         "SELECT",
+        OneOf(
+            Ref("TransformClauseSegment"),
+            Sequence(
+                Ref(
+                    "SelectClauseModifierSegment",
+                    optional=True,
+                ),
+                Indent,
+                Delimited(
+                    Ref("SelectClauseElementSegment"),
+                    allow_trailing=True,
+                ),
+            ),
+        ),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
         terminators=[
             "FROM",
             "WHERE",
@@ -3210,9 +3252,8 @@ class SelectClauseSegment(BaseSegment):
             "LIMIT",
             "OVERLAPS",
         ],
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
-
-    parse_grammar: Matchable = Ref("SelectClauseSegmentGrammar")
 
 
 class UsingClauseSegment(BaseSegment):
