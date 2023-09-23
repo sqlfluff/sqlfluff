@@ -52,7 +52,7 @@ oracle_dialect.sets("reserved_keywords").update(
 )
 
 oracle_dialect.sets("unreserved_keywords").update(
-    ["EDITIONABLE", "EDITIONING", "NONEDITIONABLE", "+"]
+    ["EDITIONABLE", "EDITIONING", "NONEDITIONABLE", "KEEP", "+"]
 )
 
 oracle_dialect.sets("bare_functions").clear()
