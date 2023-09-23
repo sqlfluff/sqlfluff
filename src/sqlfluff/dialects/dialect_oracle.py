@@ -52,7 +52,7 @@ oracle_dialect.sets("reserved_keywords").update(
 )
 
 oracle_dialect.sets("unreserved_keywords").update(
-    ["EDITIONABLE", "EDITIONING", "NONEDITIONABLE"]
+    ["EDITIONABLE", "EDITIONING", "NONEDITIONABLE", "+"]
 )
 
 oracle_dialect.sets("bare_functions").clear()
@@ -112,6 +112,20 @@ oracle_dialect.add(
         ),
     ),
     ConnectByRootGrammar=Sequence("CONNECT_BY_ROOT", Ref("NakedIdentifierSegment")),
+    PlusSignJoinGrammar=OneOf(
+        Sequence(
+            Ref("ColumnReferenceSegment"),
+            Ref("EqualsSegment"),
+            Ref("ColumnReferenceSegment"),
+            Bracketed("+"),
+        ),
+        Sequence(
+            Ref("ColumnReferenceSegment"),
+            Bracketed("+"),
+            Ref("EqualsSegment"),
+            Ref("ColumnReferenceSegment"),
+        ),
+    ),
 )
 
 oracle_dialect.replace(
@@ -167,6 +181,66 @@ oracle_dialect.replace(
         insert=[
             Ref("ConnectByRootGrammar"),
         ]
+    ),
+    Expression_D_Grammar=Sequence(
+        OneOf(
+            Ref("PlusSignJoinGrammar"),
+            Ref("BareFunctionSegment"),
+            Ref("FunctionSegment"),
+            Bracketed(
+                OneOf(
+                    # We're using the expression segment here rather than the grammar so
+                    # that in the parsed structure we get nested elements.
+                    Ref("ExpressionSegment"),
+                    Ref("SelectableGrammar"),
+                    Delimited(
+                        Ref(
+                            "ColumnReferenceSegment"
+                        ),  # WHERE (a,b,c) IN (select a,b,c FROM...)
+                        Ref(
+                            "FunctionSegment"
+                        ),  # WHERE (a, substr(b,1,3)) IN (select c,d FROM...)
+                        Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
+                        Ref("LocalAliasSegment"),  # WHERE (LOCAL.a, LOCAL.b) IN (...)
+                    ),
+                    ephemeral_name="BracketedExpression",
+                ),
+            ),
+            # Allow potential select statement without brackets
+            Ref("SelectStatementSegment"),
+            Ref("LiteralGrammar"),
+            Ref("IntervalExpressionSegment"),
+            Ref("TypedStructLiteralSegment"),
+            Ref("ArrayExpressionSegment"),
+            Ref("ColumnReferenceSegment"),
+            # For triggers, we allow "NEW.*" but not just "*" nor "a.b.*"
+            # So can't use WildcardIdentifierSegment nor WildcardExpressionSegment
+            Sequence(
+                Ref("SingleIdentifierGrammar"), Ref("DotSegment"), Ref("StarSegment")
+            ),
+            Sequence(
+                Ref("StructTypeSegment"),
+                Bracketed(Delimited(Ref("ExpressionSegment"))),
+            ),
+            Sequence(
+                Ref("DatatypeSegment"),
+                # Don't use the full LiteralGrammar here
+                # because only some of them are applicable.
+                # Notably we shouldn't use QualifiedNumericLiteralSegment
+                # here because it looks like an arithmetic operation.
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                    Ref("NullLiteralSegment"),
+                    Ref("DateTimeLiteralGrammar"),
+                ),
+            ),
+            Ref("LocalAliasSegment"),
+            terminators=[Ref("CommaSegment")],
+        ),
+        Ref("Accessor_Grammar", optional=True),
+        allow_gaps=True,
     ),
 )
 
