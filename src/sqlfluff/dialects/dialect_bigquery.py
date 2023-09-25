@@ -52,7 +52,7 @@ bigquery_dialect.insert_lexer_matchers(
             "at_sign_literal",
             r"@[a-zA-Z_][\w]*",
             ansi.LiteralSegment,
-            segment_kwargs={"type": "at_sign_literal", "trim_chars": ("@",)},
+            segment_kwargs={"trim_chars": ("@",)},
         ),
     ],
     before="equals",
@@ -71,7 +71,6 @@ bigquery_dialect.patch_lexer_matchers(
             r"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])"
             r"*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')",
             CodeSegment,
-            segment_kwargs={"type": "single_quote"},
         ),
         RegexLexer(
             "double_quote",
@@ -79,7 +78,6 @@ bigquery_dialect.patch_lexer_matchers(
             r'|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)'
             r'(\\{2})*")',
             CodeSegment,
-            segment_kwargs={"type": "double_quote"},
         ),
     ]
 )

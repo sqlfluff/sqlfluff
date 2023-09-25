@@ -45,7 +45,7 @@ mysql_dialect.patch_lexer_matchers(
             "inline_comment",
             r"(-- |#)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("-- ", "#"), "type": "inline_comment"},
+            segment_kwargs={"trim_start": ("-- ", "#")},
         ),
         # Pattern breakdown:
         # (?s)                     DOTALL (dot matches newline)
@@ -64,13 +64,11 @@ mysql_dialect.patch_lexer_matchers(
             "single_quote",
             r"(?s)('(?:\\'|''|\\\\|[^'])*'(?!'))",
             CodeSegment,
-            segment_kwargs={"type": "single_quote"},
         ),
         RegexLexer(
             "double_quote",
             r'(?s)("(?:\\"|""|\\\\|[^"])*"(?!"))',
             CodeSegment,
-            segment_kwargs={"type": "double_quote"},
         ),
     ]
 )

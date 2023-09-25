@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 81bf092bb3bcdcd8b8c2e0f4f7d8e784a58180f3fe0efab9bd89359dbcb21149
+_hash: 846690fdb6e7f0c22b39d29842f5a7a807917c05e45659857f6eb0fa9bd15624
 file:
 - statement:
     create_cluster_statement:
@@ -53,12 +53,12 @@ file:
     - object_reference:
         naked_identifier: c1
     - code: SIZE
-    - raw: '='
+    - equals: '='
     - single_quote: "'medium'"
     - comma: ','
     - code: REPLICATION
     - code: FACTOR
-    - raw: '='
+    - equals: '='
     - numeric_literal: '2'
 - statement_terminator: ;
 - statement:
@@ -68,12 +68,12 @@ file:
     - object_reference:
         naked_identifier: c
     - code: SIZE
-    - raw: '='
+    - equals: '='
     - single_quote: "'xsmall'"
     - comma: ','
     - code: INTROSPECTION
     - code: INTERVAL
-    - raw: '='
+    - equals: '='
     - numeric_literal: '0'
 - statement_terminator: ;
 - statement:
@@ -87,7 +87,7 @@ file:
     - comma: ','
     - code: REPLICATION
     - code: FACTOR
-    - raw: '='
+    - equals: '='
     - numeric_literal: '0'
 - statement_terminator: ;
 - statement:
@@ -97,7 +97,7 @@ file:
     - object_reference:
         naked_identifier: REPLICA
     - code: default
-    - raw: .
+    - dot: .
     - code: size_1
     - code: SIZE
     - single_quote: "'large'"
@@ -109,10 +109,10 @@ file:
     - object_reference:
         naked_identifier: REPLICA
     - code: c1
-    - raw: .
+    - dot: .
     - code: r1
     - code: SIZE
-    - raw: '='
+    - equals: '='
     - single_quote: "'medium'"
 - statement_terminator: ;
 - statement:
@@ -122,7 +122,7 @@ file:
     - object_reference:
         naked_identifier: REPLICA
     - code: default
-    - raw: .
+    - dot: .
     - code: replica
     - code: AVAILABILITY
     - code: ZONE

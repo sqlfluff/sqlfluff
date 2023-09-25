@@ -38,7 +38,6 @@ teradata_dialect.patch_lexer_matchers(
             "numeric_literal",
             r"([0-9]+(\.[0-9]*)?)",
             CodeSegment,
-            segment_kwargs={"type": "numeric_literal"},
         ),
     ]
 )

@@ -51,7 +51,7 @@ clickhouse_dialect.replace(
 
 clickhouse_dialect.insert_lexer_matchers(
     # https://clickhouse.com/docs/en/sql-reference/functions#higher-order-functions---operator-and-lambdaparams-expr-function
-    [StringLexer("lambda", r"->", SymbolSegment, segment_kwargs={"type": "lambda"})],
+    [StringLexer("lambda", r"->", SymbolSegment)],
     before="newline",
 )
 

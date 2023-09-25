@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4be57036ad8e690e8a4c9558ca524fb6b19854e6f04ea7c17a30896b5096745b
+_hash: cbe791b98b7048f27c2ffb188b251312eba6c3e0d9b2d77b4100fea5c7c85bdc
 file:
 - statement:
     create_materialized_view_statement:
@@ -50,7 +50,7 @@ file:
     - keyword: AS
     - code: SELECT
     - single_quote: "'{\"a\": 1}'"
-    - raw: '::'
+    - casting_operator: '::'
     - code: json
     - code: AS
     - double_quote: '"id"'
@@ -65,13 +65,13 @@ file:
     - keyword: AS
     - code: SELECT
     - code: geo
-    - raw: .
+    - dot: .
     - code: name
     - comma: ','
     - code: count
     - bracketed:
         start_bracket: (
-        raw: '*'
+        star: '*'
         end_bracket: )
     - code: FROM
     - code: geo_regions
@@ -81,16 +81,16 @@ file:
     - code: active_customers
     - code: 'ON'
     - code: active_customers
-    - raw: .
+    - dot: .
     - code: geo_id
-    - raw: '='
+    - equals: '='
     - code: geo
-    - raw: .
+    - dot: .
     - code: id
     - code: GROUP
     - code: BY
     - code: geo
-    - raw: .
+    - dot: .
     - code: name
 - statement_terminator: ;
 - statement:

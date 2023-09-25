@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5f3d1f3a9c4277dabd7d090163feecaad34554d319d420be8d2c11cbd671a1b6
+_hash: 21182bbd529a615e347334e5c18c1c141bf15a3f099bca967dbbbacc8f5540e9
 file:
 - statement:
     create_secret_statement:
@@ -68,22 +68,22 @@ file:
       - comma: ','
       - code: SSL
       - code: KEY
-      - raw: '='
+      - equals: '='
       - code: SECRET
       - code: csr_ssl_key
       - comma: ','
       - code: SSL
       - code: CERTIFICATE
-      - raw: '='
+      - equals: '='
       - code: SECRET
       - code: csr_ssl_crt
       - comma: ','
       - code: USERNAME
-      - raw: '='
+      - equals: '='
       - single_quote: "'foo'"
       - comma: ','
       - code: PASSWORD
-      - raw: '='
+      - equals: '='
       - code: SECRET
       - code: csr_password
       - end_bracket: )
@@ -148,13 +148,13 @@ file:
       - comma: ','
       - code: SSL
       - code: KEY
-      - raw: '='
+      - equals: '='
       - code: SECRET
       - code: kafka_ssl_key
       - comma: ','
       - code: SSL
       - code: CERTIFICATE
-      - raw: '='
+      - equals: '='
       - code: SECRET
       - code: kafka_ssl_crt
       - end_bracket: )

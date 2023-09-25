@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3f66a5c2f8b2d5c7cfec43dfc9dff187f330d01a9ec1809266e7e4b2d3f740d0
+_hash: 0a773cad7649ad3e073a55f4c2cc918559ba872d2e86131ebcb61e27696e73df
 file:
 - statement:
     create_source_kafka_statement:
@@ -33,7 +33,7 @@ file:
     - bracketed:
         start_bracket: (
         code: SIZE
-        raw: '='
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -144,7 +144,7 @@ file:
     - bracketed:
         start_bracket: (
         code: SIZE
-        raw: '='
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -172,7 +172,7 @@ file:
     - bracketed:
         start_bracket: (
         code: SIZE
-        raw: '='
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -212,7 +212,7 @@ file:
     - bracketed:
         start_bracket: (
         code: SIZE
-        raw: '='
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -233,7 +233,7 @@ file:
     - bracketed:
         start_bracket: (
         code: SIZE
-        raw: '='
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -260,7 +260,7 @@ file:
     - bracketed:
         start_bracket: (
         code: SIZE
-        raw: '='
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -305,7 +305,7 @@ file:
     - bracketed:
         start_bracket: (
         code: SIZE
-        raw: '='
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -323,7 +323,7 @@ file:
     - bracketed:
         start_bracket: (
         code: SIZE
-        raw: '='
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -350,7 +350,7 @@ file:
     - bracketed:
         start_bracket: (
         code: SIZE
-        raw: '='
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -408,7 +408,7 @@ file:
     - bracketed:
         start_bracket: (
         code: SIZE
-        raw: '='
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -433,7 +433,7 @@ file:
       - bracketed:
         - start_bracket: (
         - code: table
-        - raw: .
+        - dot: .
         - code: column_of_unsupported_type
         - end_bracket: )
       - end_bracket: )
@@ -444,7 +444,7 @@ file:
     - bracketed:
         start_bracket: (
         code: SIZE
-        raw: '='
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -468,7 +468,7 @@ file:
     - bracketed:
         start_bracket: (
         code: SIZE
-        raw: '='
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -537,7 +537,7 @@ file:
         - comma: ','
         - single_quote: "'base64'"
         - end_bracket: )
-      - raw: '='
+      - equals: '='
       - code: hmac
       - bracketed:
         - start_bracket: (
@@ -582,7 +582,7 @@ file:
       - code: headers
       - json_operator: ->
       - single_quote: "'authorization'"
-      - raw: '='
+      - equals: '='
       - code: BASIC_HOOK_AUTH
       - end_bracket: )
 - statement_terminator: ;
