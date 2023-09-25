@@ -63,21 +63,19 @@ db2_dialect.patch_lexer_matchers(
             "inline_comment",
             r"(--)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--"), "type": "inline_comment"},
+            segment_kwargs={"trim_start": ("--")},
         ),
         # In Db2, the only escape character is ' for single quote strings
         RegexLexer(
             "single_quote",
             r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))",
             CodeSegment,
-            segment_kwargs={"type": "single_quote"},
         ),
         # In Db2, there is no escape character for double quote strings
         RegexLexer(
             "double_quote",
             r'(?s)".+?"',
             CodeSegment,
-            segment_kwargs={"type": "double_quote"},
         ),
         # In Db2, a field could have a # pound/hash sign
         RegexLexer(

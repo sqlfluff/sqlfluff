@@ -27,13 +27,11 @@ soql_dialect.insert_lexer_matchers(
             "datetime_literal",
             r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(Z|(\+|\-)[0-9]{2}:[0-9]{2})",  # noqa E501
             CodeSegment,
-            segment_kwargs={"type": "datetime_literal"},
         ),
         RegexLexer(
             "date_literal",
             r"[0-9]{4}-[0-9]{2}-[0-9]{2}",
             CodeSegment,
-            segment_kwargs={"type": "date_literal"},
         ),
     ],
     before="numeric_literal",
