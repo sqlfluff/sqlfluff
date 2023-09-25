@@ -54,7 +54,7 @@ oracle_dialect.sets("reserved_keywords").update(
 )
 
 oracle_dialect.sets("unreserved_keywords").update(
-    ["EDITIONABLE", "EDITIONING", "NONEDITIONABLE", "KEEP", "+"]
+    ["EDITIONABLE", "EDITIONING", "NONEDITIONABLE", "KEEP"]
 )
 
 oracle_dialect.sets("bare_functions").clear()
@@ -114,16 +114,19 @@ oracle_dialect.add(
         ),
     ),
     ConnectByRootGrammar=Sequence("CONNECT_BY_ROOT", Ref("NakedIdentifierSegment")),
-    PlusSignJoinGrammar=OneOf(
+    PlusJoinSegment=Bracketed(
+        StringParser("+", SymbolSegment, type="plus_join_symbol")
+    ),
+    PlusJoinGrammar=OneOf(
         Sequence(
             Ref("ColumnReferenceSegment"),
             Ref("EqualsSegment"),
             Ref("ColumnReferenceSegment"),
-            Bracketed("+"),
+            Ref("PlusJoinSegment"),
         ),
         Sequence(
             Ref("ColumnReferenceSegment"),
-            Bracketed("+"),
+            Ref("PlusJoinSegment"),
             Ref("EqualsSegment"),
             Ref("ColumnReferenceSegment"),
         ),
@@ -186,7 +189,7 @@ oracle_dialect.replace(
     ),
     Expression_D_Grammar=Sequence(
         OneOf(
-            Ref("PlusSignJoinGrammar"),
+            Ref("PlusJoinGrammar"),
             Ref("BareFunctionSegment"),
             Ref("FunctionSegment"),
             Bracketed(
