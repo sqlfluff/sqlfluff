@@ -1,19 +1,16 @@
 """The Test file for The New Parser (Lexing steps)."""
 
-import pytest
 import logging
-from typing import Any, Dict, Tuple, NamedTuple, List, Union
+from typing import Any, Dict, List, NamedTuple, Tuple, Union
 
-from sqlfluff.core.parser import Lexer, CodeSegment, NewlineSegment
+import pytest
+
+from sqlfluff.core import FluffConfig, SQLLexError
+from sqlfluff.core.parser import CodeSegment, Lexer, NewlineSegment
+from sqlfluff.core.parser.lexer import LexMatch, RegexLexer, StringLexer
 from sqlfluff.core.parser.segments.meta import TemplateSegment
-from sqlfluff.core.templaters import JinjaTemplater, TemplatedFile, RawFileSlice
+from sqlfluff.core.templaters import JinjaTemplater, RawFileSlice, TemplatedFile
 from sqlfluff.core.templaters.base import TemplatedFileSlice
-from sqlfluff.core.parser.lexer import (
-    StringLexer,
-    LexMatch,
-    RegexLexer,
-)
-from sqlfluff.core import SQLLexError, FluffConfig
 
 
 def assert_matches(instring, matcher, matchstring):

@@ -132,7 +132,7 @@ ansi_dialect.set_lexer_matchers(
             "inline_comment",
             r"(--|#)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--", "#"), "type": "inline_comment"},
+            segment_kwargs={"trim_start": ("--", "#")},
         ),
         RegexLexer(
             "block_comment",
@@ -148,30 +148,12 @@ ansi_dialect.set_lexer_matchers(
                 r"[^\S\r\n]+",
                 WhitespaceSegment,
             ),
-            segment_kwargs={"type": "block_comment"},
         ),
-        RegexLexer(
-            "single_quote",
-            r"'([^'\\]|\\.|'')*'",
-            CodeSegment,
-            segment_kwargs={"type": "single_quote"},
-        ),
-        RegexLexer(
-            "double_quote",
-            r'"([^"\\]|\\.)*"',
-            CodeSegment,
-            segment_kwargs={"type": "double_quote"},
-        ),
-        RegexLexer(
-            "back_quote", r"`[^`]*`", CodeSegment, segment_kwargs={"type": "back_quote"}
-        ),
+        RegexLexer("single_quote", r"'([^'\\]|\\.|'')*'", CodeSegment),
+        RegexLexer("double_quote", r'"([^"\\]|\\.)*"', CodeSegment),
+        RegexLexer("back_quote", r"`[^`]*`", CodeSegment),
         # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
-        RegexLexer(
-            "dollar_quote",
-            r"\$(\w*)\$[^\1]*?\$\1\$",
-            CodeSegment,
-            segment_kwargs={"type": "dollar_quote"},
-        ),
+        RegexLexer("dollar_quote", r"\$(\w*)\$[^\1]*?\$\1\$", CodeSegment),
         # Numeric literal matches integers, decimals, and exponential formats,
         # Pattern breakdown:
         # (?>                      Atomic grouping
@@ -196,14 +178,8 @@ ansi_dialect.set_lexer_matchers(
             "numeric_literal",
             r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
             LiteralSegment,
-            segment_kwargs={"type": "numeric_literal"},
         ),
-        RegexLexer(
-            "like_operator",
-            r"!?~~?\*?",
-            ComparisonOperatorSegment,
-            segment_kwargs={"type": "like_operator"},
-        ),
+        RegexLexer("like_operator", r"!?~~?\*?", ComparisonOperatorSegment),
         RegexLexer("newline", r"\r\n|\n", NewlineSegment),
         StringLexer("casting_operator", "::", CodeSegment),
         StringLexer("equals", "=", CodeSegment),
@@ -211,7 +187,7 @@ ansi_dialect.set_lexer_matchers(
         StringLexer("less_than", "<", CodeSegment),
         StringLexer("not", "!", CodeSegment),
         StringLexer("dot", ".", CodeSegment),
-        StringLexer("comma", ",", CodeSegment, segment_kwargs={"type": "comma"}),
+        StringLexer("comma", ",", CodeSegment),
         StringLexer("plus", "+", CodeSegment),
         StringLexer("minus", "-", CodeSegment),
         StringLexer("divide", "/", CodeSegment),
@@ -221,41 +197,22 @@ ansi_dialect.set_lexer_matchers(
         StringLexer("vertical_bar", "|", CodeSegment),
         StringLexer("caret", "^", CodeSegment),
         StringLexer("star", "*", CodeSegment),
-        StringLexer(
-            "start_bracket", "(", CodeSegment, segment_kwargs={"type": "start_bracket"}
-        ),
-        StringLexer(
-            "end_bracket", ")", CodeSegment, segment_kwargs={"type": "end_bracket"}
-        ),
-        StringLexer(
-            "start_square_bracket",
-            "[",
-            CodeSegment,
-            segment_kwargs={"type": "start_square_bracket"},
-        ),
-        StringLexer(
-            "end_square_bracket",
-            "]",
-            CodeSegment,
-            segment_kwargs={"type": "end_square_bracket"},
-        ),
-        StringLexer(
-            "start_curly_bracket",
-            "{",
-            CodeSegment,
-            segment_kwargs={"type": "start_curly_bracket"},
-        ),
-        StringLexer(
-            "end_curly_bracket",
-            "}",
-            CodeSegment,
-            segment_kwargs={"type": "end_curly_bracket"},
-        ),
+        StringLexer("start_bracket", "(", CodeSegment),
+        StringLexer("end_bracket", ")", CodeSegment),
+        StringLexer("start_square_bracket", "[", CodeSegment),
+        StringLexer("end_square_bracket", "]", CodeSegment),
+        StringLexer("start_curly_bracket", "{", CodeSegment),
+        StringLexer("end_curly_bracket", "}", CodeSegment),
         StringLexer("colon", ":", CodeSegment),
         StringLexer("semicolon", ";", CodeSegment),
         # This is the "fallback" lexer for anything else which looks like SQL.
         RegexLexer(
-            "code", r"[0-9a-zA-Z_]+", CodeSegment, segment_kwargs={"type": "code"}
+            # NOTE: CodeSegment doesn't automatically add the `type` "code".
+            # This will be resolved soon, but until then we need to specify it here.
+            "code",
+            r"[0-9a-zA-Z_]+",
+            CodeSegment,
+            segment_kwargs={"type": "code"},
         ),
     ]
 )

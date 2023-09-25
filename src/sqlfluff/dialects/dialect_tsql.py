@@ -135,39 +135,33 @@ tsql_dialect.insert_lexer_matchers(
             "atsign",
             r"[@][a-zA-Z0-9_]+",
             CodeSegment,
-            segment_kwargs={"type": "atsign"},
         ),
         RegexLexer(
             "var_prefix",
             r"[$][a-zA-Z0-9_]+",
             CodeSegment,
-            segment_kwargs={"type": "var_prefix"},
         ),
         RegexLexer(
             "square_quote",
             r"\[([^\[\]]*)*\]",
             CodeSegment,
-            segment_kwargs={"type": "square_quote"},
         ),
         # T-SQL unicode strings
         RegexLexer(
             "single_quote_with_n",
             r"N'([^']|'')*'",
             CodeSegment,
-            segment_kwargs={"type": "single_quote_with_n"},
         ),
         RegexLexer(
             "hash_prefix",
             r"[#][#]?[a-zA-Z0-9_]+",
             CodeSegment,
-            segment_kwargs={"type": "hash_prefix"},
         ),
         RegexLexer(
             "unquoted_relative_sql_file_path",
             # currently there is no way to pass `regex.IGNORECASE` flag to `RegexLexer`
             r"[.\w\\/#-]+\.[sS][qQ][lL]",
             CodeSegment,
-            segment_kwargs={"type": "unquoted_relative_sql_file_path"},
         ),
     ],
     before="back_quote",
@@ -180,14 +174,13 @@ tsql_dialect.patch_lexer_matchers(
             "single_quote",
             r"'([^']|'')*'",
             CodeSegment,
-            segment_kwargs={"type": "single_quote"},
         ),
         # Patching comments to remove hash comments
         RegexLexer(
             "inline_comment",
             r"(--)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--"), "type": "inline_comment"},
+            segment_kwargs={"trim_start": ("--")},
         ),
         # Patching block comments to account for nested blocks.
         # N.B. this syntax is only possible via the non-standard-library
@@ -226,7 +219,6 @@ tsql_dialect.patch_lexer_matchers(
                 r"[^\S\r\n]+",
                 WhitespaceSegment,
             ),
-            segment_kwargs={"type": "block_comment"},
         ),
         RegexLexer(
             "code", r"[0-9a-zA-Z_#@]+", CodeSegment

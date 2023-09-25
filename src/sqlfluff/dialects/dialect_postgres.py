@@ -77,7 +77,6 @@ postgres_dialect.insert_lexer_matchers(
             r"(?s)U&(('')+?(?!')|('.*?(?<!')(?:'')*'(?!')))(\s*UESCAPE\s*'"
             r"[^0-9A-Fa-f'+\-\s)]')?",
             CodeSegment,
-            segment_kwargs={"type": "unicode_single_quote"},
         ),
         # This is similar to the Unicode regex, the key differences being:
         # - E - must start with E
@@ -93,20 +92,17 @@ postgres_dialect.insert_lexer_matchers(
             r"(?s)E(('')+?(?!')|'.*?((?<!\\)(?:\\\\)*(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\"
             r"(?<!')(?:'')*')'(?!'))",
             CodeSegment,
-            segment_kwargs={"type": "escaped_single_quote"},
         ),
         # Double quote Unicode string cannot be empty, and have no single quote escapes
         RegexLexer(
             "unicode_double_quote",
             r'(?s)U&".+?"(\s*UESCAPE\s*\'[^0-9A-Fa-f\'+\-\s)]\')?',
             CodeSegment,
-            segment_kwargs={"type": "unicode_double_quote"},
         ),
         RegexLexer(
             "json_operator",
             r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-",
             SymbolSegment,
-            segment_kwargs={"type": "json_operator"},
         ),
         StringLexer("at", "@", CodeSegment),
         # https://www.postgresql.org/docs/current/sql-syntax-lexical.html
@@ -115,7 +111,6 @@ postgres_dialect.insert_lexer_matchers(
             # binary (e.g. b'1001') or hex (e.g. X'1FF')
             r"[bBxX]'[0-9a-fA-F]*'",
             CodeSegment,
-            segment_kwargs={"type": "bit_string_literal"},
         ),
     ],
     before="like_operator",
@@ -154,7 +149,6 @@ postgres_dialect.insert_lexer_matchers(
             "dollar_numeric_literal",
             r"\$\d+",
             ansi.LiteralSegment,
-            segment_kwargs={"type": "dollar_numeric_literal"},
         ),
     ],
     before="code",  # Final thing to search for - as psql specific
@@ -167,21 +161,19 @@ postgres_dialect.patch_lexer_matchers(
             "inline_comment",
             r"(--)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--"), "type": "inline_comment"},
+            segment_kwargs={"trim_start": ("--")},
         ),
         # In Postgres, the only escape character is ' for single quote strings
         RegexLexer(
             "single_quote",
             r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))",
             CodeSegment,
-            segment_kwargs={"type": "single_quote"},
         ),
         # In Postgres, there is no escape character for double quote strings
         RegexLexer(
             "double_quote",
             r'(?s)".+?"',
             CodeSegment,
-            segment_kwargs={"type": "double_quote"},
         ),
         RegexLexer(
             "code",
