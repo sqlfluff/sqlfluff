@@ -12,6 +12,7 @@ from sqlfluff.core.parser import (
     Bracketed,
     Dedent,
     Delimited,
+    IdentifierSegment,
     Indent,
     Matchable,
     Nothing,
@@ -23,6 +24,7 @@ from sqlfluff.core.parser import (
     RegexParser,
     SegmentGenerator,
     Sequence,
+    WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_postgres as postgres
@@ -184,7 +186,7 @@ redshift_dialect.replace(
             # must only contain digits, letters, underscore, and $ but
             # can’t be all digits.
             r"#?([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
-            ansi.IdentifierSegment,
+            IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
@@ -197,18 +199,10 @@ redshift_dialect.patch_lexer_matchers(
         RegexLexer(
             "word",
             r"#?[0-9a-zA-Z_]+[0-9a-zA-Z_$]*",
-            ansi.WordSegment,
+            WordSegment,
         ),
     ]
 )
-
-
-# Inherit from the Postgres ObjectReferenceSegment this way so we can inherit
-# other segment types from it.
-class ObjectReferenceSegment(postgres.ObjectReferenceSegment):
-    """A reference to an object."""
-
-    pass
 
 
 redshift_dialect.add(

@@ -17,7 +17,9 @@ from sqlfluff.core.parser import (
     CodeSegment,
     Dedent,
     Delimited,
+    IdentifierSegment,
     Indent,
+    LiteralSegment,
     Matchable,
     MultiStringParser,
     Nothing,
@@ -51,7 +53,7 @@ bigquery_dialect.insert_lexer_matchers(
         RegexLexer(
             "at_sign_literal",
             r"@[a-zA-Z_][\w]*",
-            ansi.LiteralSegment,
+            LiteralSegment,
             segment_kwargs={"trim_chars": ("@",)},
         ),
     ],
@@ -85,13 +87,13 @@ bigquery_dialect.patch_lexer_matchers(
 bigquery_dialect.add(
     DoubleQuotedLiteralSegment=TypedParser(
         "double_quote",
-        ansi.LiteralSegment,
+        LiteralSegment,
         type="quoted_literal",
         trim_chars=('"',),
     ),
     SingleQuotedLiteralSegment=TypedParser(
         "single_quote",
-        ansi.LiteralSegment,
+        LiteralSegment,
         type="quoted_literal",
         trim_chars=("'",),
     ),
@@ -120,12 +122,12 @@ bigquery_dialect.add(
     QuestionMarkSegment=StringParser("?", SymbolSegment, type="question_mark"),
     AtSignLiteralSegment=TypedParser(
         "at_sign_literal",
-        ansi.LiteralSegment,
+        LiteralSegment,
     ),
     # Add a Full equivalent which also allow keywords
     NakedIdentifierFullSegment=RegexParser(
         r"[A-Z_][A-Z0-9_]*",
-        ansi.IdentifierSegment,
+        IdentifierSegment,
         type="naked_identifier_all",
     ),
     NakedIdentifierPart=RegexParser(
@@ -133,7 +135,7 @@ bigquery_dialect.add(
         # NOTE: This one can match an "all numbers" variant.
         # https://cloud.google.com/resource-manager/docs/creating-managing-projects
         r"[A-Z0-9_]+",
-        ansi.IdentifierSegment,
+        IdentifierSegment,
         type="naked_identifier",
     ),
     SingleIdentifierFullGrammar=OneOf(
@@ -196,7 +198,7 @@ bigquery_dialect.replace(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
             r"[A-Z_][A-Z0-9_]*",
-            ansi.IdentifierSegment,
+            IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
@@ -220,7 +222,7 @@ bigquery_dialect.replace(
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "DATETIME", "TIME", "TIMESTAMP"),
         TypedParser(
-            "single_quote", ansi.LiteralSegment, type="date_constructor_literal"
+            "single_quote", LiteralSegment, type="date_constructor_literal"
         ),
     ),
     JoinLikeClauseGrammar=Sequence(
@@ -724,13 +726,13 @@ class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
 bigquery_dialect.replace(
     QuotedIdentifierSegment=TypedParser(
         "back_quote",
-        ansi.IdentifierSegment,
+        IdentifierSegment,
         type="quoted_identifier",
         trim_chars=("`",),
     ),
     # Add ParameterizedSegment to the ansi NumericLiteralSegment
     NumericLiteralSegment=OneOf(
-        TypedParser("numeric_literal", ansi.LiteralSegment, type="numeric_literal"),
+        TypedParser("numeric_literal", LiteralSegment, type="numeric_literal"),
         Ref("ParameterizedSegment"),
     ),
     QuotedLiteralSegment=OneOf(
@@ -1147,14 +1149,6 @@ class NamedArgumentSegment(BaseSegment):
     )
 
 
-# Inherit from the ANSI ObjectReferenceSegment this way so we can inherit
-# other segment types from it.
-class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
-    """A reference to an object."""
-
-    pass
-
-
 class SemiStructuredAccessorSegment(BaseSegment):
     """A semi-structured data accessor segment."""
 
@@ -1177,7 +1171,7 @@ class SemiStructuredAccessorSegment(BaseSegment):
     )
 
 
-class ColumnReferenceSegment(ObjectReferenceSegment):
+class ColumnReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to column, field or alias.
 
     We override this for BigQuery to allow keywords in structures
@@ -1264,7 +1258,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
         return super().extract_possible_multipart_references(levels)
 
 
-class TableReferenceSegment(ObjectReferenceSegment):
+class TableReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to an object that may contain embedded hyphens."""
 
     type = "table_reference"

@@ -15,7 +15,10 @@ from sqlfluff.core.parser import (
     CommentSegment,
     Dedent,
     Delimited,
+    IdentifierSegment,
     Indent,
+    KeywordSegment,
+    LiteralSegment,
     Matchable,
     MultiStringParser,
     Nothing,
@@ -32,7 +35,6 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     TypedParser,
 )
-from sqlfluff.core.parser.segments.raw import KeywordSegment
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_snowflake_keywords import (
     snowflake_reserved_keywords,
@@ -175,7 +177,7 @@ snowflake_dialect.add(
     FunctionAssignerSegment=StringParser("->", SymbolSegment, type="function_assigner"),
     QuotedStarSegment=StringParser(
         "'*'",
-        ansi.IdentifierSegment,
+        IdentifierSegment,
         type="quoted_star",
         trim_chars=("'",),
     ),
@@ -191,7 +193,7 @@ snowflake_dialect.add(
     ),
     ColumnIndexIdentifierSegment=RegexParser(
         r"\$[0-9]+",
-        ansi.IdentifierSegment,
+        IdentifierSegment,
         type="column_index_identifier_segment",
     ),
     LocalVariableNameSegment=RegexParser(
@@ -245,7 +247,7 @@ snowflake_dialect.add(
     ),
     CopyOptionOnErrorSegment=RegexParser(
         r"'?CONTINUE'?|'?SKIP_FILE(?:_[0-9]+%?)?'?|'?ABORT_STATEMENT'?",
-        ansi.LiteralSegment,
+        LiteralSegment,
         type="copy_on_error_option",
     ),
     DoubleQuotedUDFBody=TypedParser(
@@ -268,7 +270,7 @@ snowflake_dialect.add(
     ),
     StagePath=RegexParser(
         r"(?:@[^\s;)]+|'@[^']+')",
-        ansi.IdentifierSegment,
+        IdentifierSegment,
         type="stage_path",
     ),
     S3Path=RegexParser(
@@ -329,7 +331,7 @@ snowflake_dialect.add(
     IntegerSegment=RegexParser(
         # An unquoted integer that can be passed as an argument to Snowflake functions.
         r"[0-9]+",
-        ansi.LiteralSegment,
+        LiteralSegment,
         type="integer_literal",
     ),
     SystemFunctionName=RegexParser(
@@ -478,7 +480,7 @@ snowflake_dialect.replace(
         lambda dialect: RegexParser(
             # See https://docs.snowflake.com/en/sql-reference/identifiers-syntax.html
             r"[a-zA-Z_][a-zA-Z0-9_$]*",
-            ansi.IdentifierSegment,
+            IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
@@ -558,12 +560,12 @@ snowflake_dialect.replace(
         # https://docs.snowflake.com/en/sql-reference/data-types-text.html#string-constants
         TypedParser(
             "single_quote",
-            ansi.LiteralSegment,
+            LiteralSegment,
             type="quoted_literal",
         ),
         TypedParser(
             "dollar_quote",
-            ansi.LiteralSegment,
+            LiteralSegment,
             type="quoted_literal",
         ),
     ),
@@ -3636,7 +3638,7 @@ class CreateStatementSegment(BaseSegment):
             Sequence(
                 "STORAGE_AWS_OBJECT_ACL",
                 Ref("EqualsSegment"),
-                StringParser("'bucket-owner-full-control'", ansi.LiteralSegment),
+                StringParser("'bucket-owner-full-control'", LiteralSegment),
             ),
             Sequence(
                 "STORAGE_ALLOWED_LOCATIONS",
@@ -6695,7 +6697,7 @@ class SetOperatorSegment(ansi.SetOperatorSegment):
     )
 
 
-class ShorthandCastSegment(ansi.BaseSegment):
+class ShorthandCastSegment(BaseSegment):
     """A casting operation using '::'."""
 
     type = "cast_expression"

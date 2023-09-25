@@ -11,7 +11,9 @@ from sqlfluff.core.parser import (
     CommentSegment,
     Dedent,
     Delimited,
+    IdentifierSegment,
     Indent,
+    LiteralSegment,
     Matchable,
     NewlineSegment,
     OneOf,
@@ -25,6 +27,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
+    WordSegment,
 )
 from sqlfluff.core.parser.grammar.anyof import AnySetOf
 from sqlfluff.core.parser.lexer import StringLexer
@@ -148,7 +151,7 @@ postgres_dialect.insert_lexer_matchers(
             # ref: https://www.postgresql.org/docs/current/pgstatstatements.html
             "dollar_numeric_literal",
             r"\$\d+",
-            ansi.LiteralSegment,
+            LiteralSegment,
         ),
     ],
     before="word",  # Final thing to search for - as psql specific
@@ -175,7 +178,7 @@ postgres_dialect.patch_lexer_matchers(
             r'(?s)".+?"',
             CodeSegment,
         ),
-        RegexLexer("word", r"[a-zA-Z_][0-9a-zA-Z_$]*", ansi.WordSegment),
+        RegexLexer("word", r"[a-zA-Z_][0-9a-zA-Z_$]*", WordSegment),
     ]
 )
 
@@ -245,7 +248,7 @@ postgres_dialect.add(
     # Add a Full equivalent which also allow keywords
     NakedIdentifierFullSegment=TypedParser(
         "word",
-        ansi.IdentifierSegment,
+        IdentifierSegment,
         type="naked_identifier_all",
     ),
     PropertiesNakedIdentifierSegment=TypedParser(  # allows reserved keywords
@@ -279,10 +282,10 @@ postgres_dialect.add(
     ),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
     OnKeywordAsIdentifierSegment=StringParser(
-        "ON", ansi.IdentifierSegment, type="naked_identifier"
+        "ON", IdentifierSegment, type="naked_identifier"
     ),
     DollarNumericLiteralSegment=TypedParser(
-        "dollar_numeric_literal", ansi.LiteralSegment, type="dollar_numeric_literal"
+        "dollar_numeric_literal", LiteralSegment, type="dollar_numeric_literal"
     ),
     ForeignDataWrapperGrammar=Sequence("FOREIGN", "DATA", "WRAPPER"),
     OptionsListGrammar=Sequence(
@@ -322,7 +325,7 @@ postgres_dialect.replace(
             # Can’t begin with $, must only contain digits, letters, underscore it $ but
             # can’t be all digits.
             r"([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
-            ansi.IdentifierSegment,
+            IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
@@ -348,14 +351,14 @@ postgres_dialect.replace(
         Sequence(
             TypedParser(
                 "single_quote",
-                ansi.LiteralSegment,
+                LiteralSegment,
                 type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 TypedParser(
                     "single_quote",
-                    ansi.LiteralSegment,
+                    LiteralSegment,
                     type="quoted_literal",
                 ),
             ),
@@ -363,14 +366,14 @@ postgres_dialect.replace(
         Sequence(
             TypedParser(
                 "bit_string_literal",
-                ansi.LiteralSegment,
+                LiteralSegment,
                 type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 TypedParser(
                     "bit_string_literal",
-                    ansi.LiteralSegment,
+                    LiteralSegment,
                     type="quoted_literal",
                 ),
             ),
@@ -378,14 +381,14 @@ postgres_dialect.replace(
         Delimited(
             TypedParser(
                 "unicode_single_quote",
-                ansi.LiteralSegment,
+                LiteralSegment,
                 type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 TypedParser(
                     "unicode_single_quote",
-                    ansi.LiteralSegment,
+                    LiteralSegment,
                     type="quoted_literal",
                 ),
             ),
@@ -393,14 +396,14 @@ postgres_dialect.replace(
         Delimited(
             TypedParser(
                 "escaped_single_quote",
-                ansi.LiteralSegment,
+                LiteralSegment,
                 type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 TypedParser(
                     "escaped_single_quote",
-                    ansi.LiteralSegment,
+                    LiteralSegment,
                     type="quoted_literal",
                 ),
             ),
@@ -408,22 +411,22 @@ postgres_dialect.replace(
         Delimited(
             TypedParser(
                 "dollar_quote",
-                ansi.LiteralSegment,
+                LiteralSegment,
                 type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 TypedParser(
                     "dollar_quote",
-                    ansi.LiteralSegment,
+                    LiteralSegment,
                     type="quoted_literal",
                 ),
             ),
         ),
     ),
     QuotedIdentifierSegment=OneOf(
-        TypedParser("double_quote", ansi.IdentifierSegment, type="quoted_identifier"),
-        TypedParser("unicode_double_quote", ansi.LiteralSegment, type="quoted_literal"),
+        TypedParser("double_quote", IdentifierSegment, type="quoted_identifier"),
+        TypedParser("unicode_double_quote", LiteralSegment, type="quoted_literal"),
     ),
     PostFunctionGrammar=AnyNumberOf(
         Ref("WithinGroupClauseSegment"),
@@ -519,14 +522,6 @@ postgres_dialect.replace(
     ),
     NonWithNonSelectableGrammar=OneOf(),
 )
-
-
-# Inherit from the ANSI ObjectReferenceSegment this way so we can inherit
-# other segment types from it.
-class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
-    """A reference to an object."""
-
-    pass
 
 
 class OverlapSegment(ansi.CompositeComparisonOperatorSegment):
@@ -770,7 +765,7 @@ class IndexAccessMethodSegment(BaseSegment):
     match_grammar = Ref("SingleIdentifierGrammar")
 
 
-class OperatorClassReferenceSegment(ObjectReferenceSegment):
+class OperatorClassReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to an operator class."""
 
     type = "operator_class_reference"
@@ -2225,7 +2220,7 @@ class DropExtensionStatementSegment(BaseSegment):
     )
 
 
-class PublicationReferenceSegment(ObjectReferenceSegment):
+class PublicationReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to a publication."""
 
     type = "publication_reference"
@@ -4117,7 +4112,7 @@ class AsAliasExpressionSegment(BaseSegment):
     )
 
 
-class OperationClassReferenceSegment(ObjectReferenceSegment):
+class OperationClassReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to an operation class."""
 
     type = "operation_class_reference"
@@ -5179,7 +5174,7 @@ class ClusterStatementSegment(BaseSegment):
     )
 
 
-class ColumnReferenceSegment(ObjectReferenceSegment):
+class ColumnReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to column, field or alias.
 
     We override this for Postgres to allow keywords in fully qualified column
@@ -5253,7 +5248,7 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
     )
 
 
-class ServerReferenceSegment(ObjectReferenceSegment):
+class ServerReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to a server."""
 
     type = "server_reference"

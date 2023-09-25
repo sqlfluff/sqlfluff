@@ -7,10 +7,12 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     CodeSegment,
     CommentSegment,
+    IdentifierSegment,
     ParseMode,
     RegexLexer,
     RegexParser,
     SegmentGenerator,
+    WordSegment,
 )
 from sqlfluff.core.parser.grammar.anyof import AnyNumberOf, OneOf
 from sqlfluff.core.parser.grammar.base import Ref
@@ -31,7 +33,7 @@ db2_dialect.replace(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
             r"[A-Z0-9_#]*[A-Z#][A-Z0-9_#]*",
-            ansi.IdentifierSegment,
+            IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
@@ -78,7 +80,7 @@ db2_dialect.patch_lexer_matchers(
             CodeSegment,
         ),
         # In Db2, a field could have a # pound/hash sign
-        RegexLexer("word", r"[0-9a-zA-Z_#]+", ansi.WordSegment),
+        RegexLexer("word", r"[0-9a-zA-Z_#]+", WordSegment),
     ]
 )
 

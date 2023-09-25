@@ -12,6 +12,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     Indent,
+    LiteralSegment,
     Matchable,
     OneOf,
     OptionallyBracketed,
@@ -38,12 +39,12 @@ clickhouse_dialect.replace(
     QuotedLiteralSegment=OneOf(
         TypedParser(
             "single_quote",
-            ansi.LiteralSegment,
+            LiteralSegment,
             type="quoted_literal",
         ),
         TypedParser(
             "dollar_quote",
-            ansi.LiteralSegment,
+            LiteralSegment,
             type="quoted_literal",
         ),
     ),

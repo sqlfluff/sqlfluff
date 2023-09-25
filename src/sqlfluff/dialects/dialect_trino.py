@@ -11,6 +11,7 @@ from sqlfluff.core.parser import (
     Bracketed,
     Dedent,
     Delimited,
+    LiteralSegment,
     Matchable,
     Nothing,
     OneOf,
@@ -48,7 +49,7 @@ trino_dialect.replace(
         Sequence(
             OneOf("DATE", "TIME", "TIMESTAMP"),
             TypedParser(
-                "single_quote", ansi.LiteralSegment, type="date_constructor_literal"
+                "single_quote", LiteralSegment, type="date_constructor_literal"
             ),
         ),
         Ref("IntervalExpressionSegment"),
