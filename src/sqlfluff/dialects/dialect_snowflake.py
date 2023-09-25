@@ -50,13 +50,12 @@ snowflake_dialect.patch_lexer_matchers(
             "single_quote",
             r"'([^'\\]|\\.|'')*'",
             CodeSegment,
-            segment_kwargs={"type": "single_quote"},
         ),
         RegexLexer(
             "inline_comment",
             r"(--|#|//)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--", "#", "//"), "type": "inline_comment"},
+            segment_kwargs={"trim_start": ("--", "#", "//")},
         ),
     ]
 )
@@ -74,7 +73,6 @@ snowflake_dialect.insert_lexer_matchers(
             "dollar_quote",
             r"\$\$.*\$\$",
             CodeSegment,
-            segment_kwargs={"type": "dollar_quote"},
         ),
         RegexLexer(
             "dollar_literal",
@@ -93,7 +91,6 @@ snowflake_dialect.insert_lexer_matchers(
             "unquoted_file_path",
             r"file://(?:[a-zA-Z]+:|/)+(?:[0-9a-zA-Z\\/_*?-]+)(?:\.[0-9a-zA-Z]+)?",
             CodeSegment,
-            segment_kwargs={"type": "unquoted_file_path"},
         ),
         StringLexer("question_mark", "?", CodeSegment),
         StringLexer("exclude_bracket_open", "{-", CodeSegment),

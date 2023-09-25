@@ -58,7 +58,7 @@ sparksql_dialect.patch_lexer_matchers(
             "inline_comment",
             r"(--)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": "--", "type": "inline_comment"},
+            segment_kwargs={"trim_start": "--"},
         ),
         # == and <=> are valid equal operations
         # <=> is a non-null equals in Spark SQL
@@ -73,7 +73,6 @@ sparksql_dialect.patch_lexer_matchers(
             "back_quote",
             r"`([^`]|``)*`",
             CodeSegment,
-            segment_kwargs={"type": "back_quote"},
         ),
         # Numeric literal matches integers, decimals, and exponential formats.
         # https://spark.apache.org/docs/latest/sql-ref-literals.html#numeric-literal
@@ -118,7 +117,6 @@ sparksql_dialect.patch_lexer_matchers(
                 r"((?<=\.)|(?=\b))"
             ),
             CodeSegment,
-            segment_kwargs={"type": "numeric_literal"},
         ),
     ]
 )
@@ -129,13 +127,11 @@ sparksql_dialect.insert_lexer_matchers(
             "bytes_single_quote",
             r"X'([^'\\]|\\.)*'",
             CodeSegment,
-            segment_kwargs={"type": "bytes_single_quote"},
         ),
         RegexLexer(
             "bytes_double_quote",
             r'X"([^"\\]|\\.)*"',
             CodeSegment,
-            segment_kwargs={"type": "bytes_double_quote"},
         ),
     ],
     before="single_quote",
@@ -147,7 +143,6 @@ sparksql_dialect.insert_lexer_matchers(
             "at_sign_literal",
             r"@\w*",
             CodeSegment,
-            segment_kwargs={"type": "at_sign_literal"},
         ),
     ],
     before="code",
@@ -162,7 +157,6 @@ sparksql_dialect.insert_lexer_matchers(
                 r"|([a-zA-Z0-9\-_\.]*\.[a-z]+))"
             ),
             CodeSegment,
-            segment_kwargs={"type": "file_literal"},
         ),
     ],
     before="newline",
