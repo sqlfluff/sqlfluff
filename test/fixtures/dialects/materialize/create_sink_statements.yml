@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 556463735c50b01809e2659d5f2c4968849a85a4bd110e2dfa789c9934d87ee8
+_hash: ae866ac9240a3cfb61bd501053a1eff141b0c9d82b78d66aad96fe0741fd8602
 file:
 - statement:
     create_sink_kafka_statement:
@@ -31,7 +31,7 @@ file:
     - bracketed:
         start_bracket: (
         code: SIZE
-        raw: '='
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -61,7 +61,7 @@ file:
     - bracketed:
         start_bracket: (
         code: SIZE
-        raw: '='
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;

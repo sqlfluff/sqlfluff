@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a1731e61d1110ed23395aab516655bdfc035804b79aa6e109dc032043c38700a
+_hash: c403a4c21d69fe82757b6582608ed3a6da124dfc3527415a58aad236277ec684
 file:
 - statement:
     create_udf_script:
@@ -43,17 +43,17 @@ file:
           end_bracket: )
       - code: if
       - code: ctx
-      - raw: .
+      - dot: .
       - code: a
-      - raw: '='
-      - raw: '='
+      - equals: '='
+      - equals: '='
       - code: nil
       - code: or
       - code: ctx
-      - raw: .
+      - dot: .
       - code: b
-      - raw: '='
-      - raw: '='
+      - equals: '='
+      - equals: '='
       - code: nil
       - code: then
       - code: return
@@ -63,14 +63,14 @@ file:
       - bracketed:
         - start_bracket: (
         - code: ctx
-        - raw: .
+        - dot: .
         - code: a
-        - raw: +
+        - plus: +
         - code: ctx
-        - raw: .
+        - dot: .
         - code: b
         - end_bracket: )
-      - raw: /
+      - divide: /
       - numeric_literal: '2'
       - code: end
 - function_script_terminator: /
@@ -112,39 +112,39 @@ file:
           end_bracket: )
       - code: if
       - code: ctx
-      - raw: .
+      - dot: .
       - code: a
-      - raw: '='
-      - raw: '='
+      - equals: '='
+      - equals: '='
       - code: nil
       - code: or
       - code: ctx
-      - raw: .
+      - dot: .
       - code: b
-      - raw: '='
-      - raw: '='
+      - equals: '='
+      - equals: '='
       - code: nil
       - code: then
       - code: return
       - code: 'NULL'
       - code: end
       - code: x
-      - raw: '='
+      - equals: '='
       - numeric_literal: '10'
-      - raw: /
+      - divide: /
       - numeric_literal: '2'
       - code: return
       - bracketed:
         - start_bracket: (
         - code: ctx
-        - raw: .
+        - dot: .
         - code: a
-        - raw: +
+        - plus: +
         - code: ctx
-        - raw: .
+        - dot: .
         - code: b
         - end_bracket: )
-      - raw: /
+      - divide: /
       - numeric_literal: '2'
       - code: end
 - function_script_terminator: /
