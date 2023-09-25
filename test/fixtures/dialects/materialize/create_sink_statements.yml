@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ae866ac9240a3cfb61bd501053a1eff141b0c9d82b78d66aad96fe0741fd8602
+_hash: fffc00dca6123acc63abc6ba2388540b602a3c2210442ca659b4bb8fae7dbda6
 file:
 - statement:
     create_sink_kafka_statement:
@@ -15,22 +15,22 @@ file:
     - object_reference:
         naked_identifier: quotes
     - keyword: INTO
-    - code: KAFKA
-    - code: CONNECTION
-    - code: kafka_connection
+    - word: KAFKA
+    - word: CONNECTION
+    - word: kafka_connection
     - bracketed:
         start_bracket: (
-        code: TOPIC
+        word: TOPIC
         single_quote: "'quotes-sink'"
         end_bracket: )
-    - code: FORMAT
-    - code: JSON
-    - code: ENVELOPE
-    - code: DEBEZIUM
-    - code: WITH
+    - word: FORMAT
+    - word: JSON
+    - word: ENVELOPE
+    - word: DEBEZIUM
+    - word: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
+        word: SIZE
         equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
@@ -45,22 +45,22 @@ file:
     - object_reference:
         naked_identifier: frank_quotes
     - keyword: INTO
-    - code: KAFKA
-    - code: CONNECTION
-    - code: kafka_connection
+    - word: KAFKA
+    - word: CONNECTION
+    - word: kafka_connection
     - bracketed:
         start_bracket: (
-        code: TOPIC
+        word: TOPIC
         single_quote: "'frank-quotes-sink'"
         end_bracket: )
-    - code: FORMAT
-    - code: JSON
-    - code: ENVELOPE
-    - code: DEBEZIUM
-    - code: WITH
+    - word: FORMAT
+    - word: JSON
+    - word: ENVELOPE
+    - word: DEBEZIUM
+    - word: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
+        word: SIZE
         equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
@@ -79,16 +79,16 @@ file:
     - object_reference:
         naked_identifier: frank_quotes
     - keyword: INTO
-    - code: KAFKA
-    - code: CONNECTION
-    - code: kafka_connection
+    - word: KAFKA
+    - word: CONNECTION
+    - word: kafka_connection
     - bracketed:
         start_bracket: (
-        code: TOPIC
+        word: TOPIC
         single_quote: "'frank-quotes-sink'"
         end_bracket: )
-    - code: FORMAT
-    - code: JSON
-    - code: ENVELOPE
-    - code: DEBEZIUM
+    - word: FORMAT
+    - word: JSON
+    - word: ENVELOPE
+    - word: DEBEZIUM
 - statement_terminator: ;

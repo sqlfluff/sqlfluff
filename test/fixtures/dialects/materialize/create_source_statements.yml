@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0a773cad7649ad3e073a55f4c2cc918559ba872d2e86131ebcb61e27696e73df
+_hash: 3422c43e1113bb4644db2e4623d2b31f6eaa9006485912b4f6b147adc11f820b
 file:
 - statement:
     create_source_kafka_statement:
@@ -18,21 +18,21 @@ file:
         naked_identifier: kafka_connection
     - bracketed:
         start_bracket: (
-        code: TOPIC
+        word: TOPIC
         single_quote: "'test_topic'"
         end_bracket: )
     - keyword: FORMAT
-    - code: AVRO
-    - code: USING
-    - code: CONFLUENT
-    - code: SCHEMA
-    - code: REGISTRY
-    - code: CONNECTION
-    - code: csr_connection
-    - code: WITH
+    - word: AVRO
+    - word: USING
+    - word: CONFLUENT
+    - word: SCHEMA
+    - word: REGISTRY
+    - word: CONNECTION
+    - word: csr_connection
+    - word: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
+        word: SIZE
         equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
@@ -129,21 +129,21 @@ file:
         naked_identifier: kafka_connection
     - bracketed:
         start_bracket: (
-        code: TOPIC
+        word: TOPIC
         single_quote: "'test_topic'"
         end_bracket: )
     - keyword: FORMAT
-    - code: PROTOBUF
-    - code: USING
-    - code: CONFLUENT
-    - code: SCHEMA
-    - code: REGISTRY
-    - code: CONNECTION
-    - code: csr_connection
-    - code: WITH
+    - word: PROTOBUF
+    - word: USING
+    - word: CONFLUENT
+    - word: SCHEMA
+    - word: REGISTRY
+    - word: CONNECTION
+    - word: csr_connection
+    - word: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
+        word: SIZE
         equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
@@ -161,17 +161,17 @@ file:
         naked_identifier: kafka_connection
     - bracketed:
         start_bracket: (
-        code: TOPIC
+        word: TOPIC
         single_quote: "'test_topic'"
         end_bracket: )
     - keyword: FORMAT
-    - code: TEXT
-    - code: ENVELOPE
-    - code: UPSERT
-    - code: WITH
+    - word: TEXT
+    - word: ENVELOPE
+    - word: UPSERT
+    - word: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
+        word: SIZE
         equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
@@ -200,18 +200,18 @@ file:
         naked_identifier: kafka_connection
     - bracketed:
         start_bracket: (
-        code: TOPIC
+        word: TOPIC
         single_quote: "'test_topic'"
         end_bracket: )
     - keyword: FORMAT
-    - code: CSV
-    - code: WITH
+    - word: CSV
+    - word: WITH
     - numeric_literal: '3'
-    - code: COLUMNS
-    - code: WITH
+    - word: COLUMNS
+    - word: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
+        word: SIZE
         equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
@@ -232,7 +232,7 @@ file:
     - keyword: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
+        word: SIZE
         equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
@@ -249,8 +249,8 @@ file:
     - keyword: MARKETING
     - bracketed:
       - start_bracket: (
-      - code: SCALE
-      - code: FACTOR
+      - word: SCALE
+      - word: FACTOR
       - numeric_literal: '1'
       - end_bracket: )
     - keyword: FOR
@@ -259,7 +259,7 @@ file:
     - keyword: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
+        word: SIZE
         equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
@@ -294,8 +294,8 @@ file:
     - keyword: TPCH
     - bracketed:
       - start_bracket: (
-      - code: SCALE
-      - code: FACTOR
+      - word: SCALE
+      - word: FACTOR
       - numeric_literal: '1'
       - end_bracket: )
     - keyword: FOR
@@ -304,7 +304,7 @@ file:
     - keyword: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
+        word: SIZE
         equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
@@ -322,7 +322,7 @@ file:
     - keyword: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
+        word: SIZE
         equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
@@ -340,7 +340,7 @@ file:
         naked_identifier: pg_connection
     - bracketed:
         start_bracket: (
-        code: PUBLICATION
+        word: PUBLICATION
         single_quote: "'mz_source'"
         end_bracket: )
     - keyword: FOR
@@ -349,7 +349,7 @@ file:
     - keyword: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
+        word: SIZE
         equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
@@ -371,7 +371,7 @@ file:
         naked_identifier: pg_connection
     - bracketed:
         start_bracket: (
-        code: PUBLICATION
+        word: PUBLICATION
         single_quote: "'mz_source'"
         end_bracket: )
     - keyword: FOR
@@ -391,23 +391,23 @@ file:
         naked_identifier: pg_connection
     - bracketed:
         start_bracket: (
-        code: PUBLICATION
+        word: PUBLICATION
         single_quote: "'mz_source'"
         end_bracket: )
     - keyword: FOR
     - keyword: TABLES
     - bracketed:
       - start_bracket: (
-      - code: table_1
+      - word: table_1
       - comma: ','
-      - code: table_2
-      - code: AS
-      - code: alias_table_2
+      - word: table_2
+      - word: AS
+      - word: alias_table_2
       - end_bracket: )
     - keyword: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
+        word: SIZE
         equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
@@ -425,16 +425,16 @@ file:
         naked_identifier: pg_connection
     - bracketed:
       - start_bracket: (
-      - code: PUBLICATION
+      - word: PUBLICATION
       - single_quote: "'mz_source'"
       - comma: ','
-      - code: TEXT
-      - code: COLUMNS
+      - word: TEXT
+      - word: COLUMNS
       - bracketed:
         - start_bracket: (
-        - code: table
+        - word: table
         - dot: .
-        - code: column_of_unsupported_type
+        - word: column_of_unsupported_type
         - end_bracket: )
       - end_bracket: )
     - keyword: FOR
@@ -443,7 +443,7 @@ file:
     - keyword: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
+        word: SIZE
         equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
@@ -461,13 +461,13 @@ file:
         naked_identifier: pg_connection
     - bracketed:
         start_bracket: (
-        code: PUBLICATION
+        word: PUBLICATION
         single_quote: "'mz_source'"
         end_bracket: )
     - keyword: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
+        word: SIZE
         equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
@@ -491,10 +491,10 @@ file:
     - keyword: HEADERS
     - bracketed:
       - start_bracket: (
-      - code: NOT
+      - word: NOT
       - single_quote: "'authorization'"
       - comma: ','
-      - code: NOT
+      - word: NOT
       - single_quote: "'x-api-key'"
       - end_bracket: )
 - statement_terminator: ;
@@ -513,37 +513,37 @@ file:
     - keyword: BODY
     - keyword: FORMAT
     - keyword: JSON
-    - code: CHECK
+    - word: CHECK
     - bracketed:
       - start_bracket: (
-      - code: WITH
+      - word: WITH
       - bracketed:
         - start_bracket: (
-        - code: HEADERS
+        - word: HEADERS
         - comma: ','
-        - code: BODY
-        - code: AS
-        - code: request_body
+        - word: BODY
+        - word: AS
+        - word: request_body
         - comma: ','
-        - code: SECRET
-        - code: my_webhook_shared_secret
+        - word: SECRET
+        - word: my_webhook_shared_secret
         - end_bracket: )
-      - code: decode
+      - word: decode
       - bracketed:
         - start_bracket: (
-        - code: headers
+        - word: headers
         - json_operator: ->
         - single_quote: "'x-signature'"
         - comma: ','
         - single_quote: "'base64'"
         - end_bracket: )
       - equals: '='
-      - code: hmac
+      - word: hmac
       - bracketed:
         - start_bracket: (
-        - code: request_body
+        - word: request_body
         - comma: ','
-        - code: my_webhook_shared_secret
+        - word: my_webhook_shared_secret
         - comma: ','
         - single_quote: "'sha256'"
         - end_bracket: )
@@ -564,26 +564,26 @@ file:
     - keyword: BODY
     - keyword: FORMAT
     - keyword: JSON
-    - code: CHECK
+    - word: CHECK
     - bracketed:
       - start_bracket: (
-      - code: WITH
+      - word: WITH
       - bracketed:
         - start_bracket: (
-        - code: HEADERS
+        - word: HEADERS
         - comma: ','
-        - code: BODY
-        - code: AS
-        - code: request_body
+        - word: BODY
+        - word: AS
+        - word: request_body
         - comma: ','
-        - code: SECRET
-        - code: BASIC_HOOK_AUTH
+        - word: SECRET
+        - word: BASIC_HOOK_AUTH
         - end_bracket: )
-      - code: headers
+      - word: headers
       - json_operator: ->
       - single_quote: "'authorization'"
       - equals: '='
-      - code: BASIC_HOOK_AUTH
+      - word: BASIC_HOOK_AUTH
       - end_bracket: )
 - statement_terminator: ;
 - statement:
