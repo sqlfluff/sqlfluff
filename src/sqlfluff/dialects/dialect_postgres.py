@@ -151,7 +151,7 @@ postgres_dialect.insert_lexer_matchers(
             ansi.LiteralSegment,
         ),
     ],
-    before="code",  # Final thing to search for - as psql specific
+    before="word",  # Final thing to search for - as psql specific
 )
 
 postgres_dialect.patch_lexer_matchers(
@@ -175,12 +175,7 @@ postgres_dialect.patch_lexer_matchers(
             r'(?s)".+?"',
             CodeSegment,
         ),
-        RegexLexer(
-            "code",
-            r"[a-zA-Z_][0-9a-zA-Z_$]*",
-            CodeSegment,
-            segment_kwargs={"type": "code"},
-        ),
+        RegexLexer("word", r"[a-zA-Z_][0-9a-zA-Z_$]*", ansi.WordSegment),
     ]
 )
 
@@ -249,12 +244,12 @@ postgres_dialect.add(
     ),
     # Add a Full equivalent which also allow keywords
     NakedIdentifierFullSegment=TypedParser(
-        "code",
+        "word",
         ansi.IdentifierSegment,
         type="naked_identifier_all",
     ),
     PropertiesNakedIdentifierSegment=TypedParser(  # allows reserved keywords
-        "code",
+        "word",
         CodeSegment,
         type="properties_naked_identifier",
     ),

@@ -935,7 +935,7 @@ mysql_dialect.insert_lexer_matchers(
             segment_kwargs={"type": "at_sign_literal", "trim_chars": ("@",)},
         ),
     ],
-    before="code",
+    before="word",
 )
 
 
