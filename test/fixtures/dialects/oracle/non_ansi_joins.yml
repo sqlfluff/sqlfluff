@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f5dd0e151e84f51b362cea03197869ee83af015625e0691dfba3d0b5d13490b5
+_hash: ea7542320d356283742fe18bf4295fdd966ba909c873e348b7abaa75ce04b50e
 file:
 - statement:
     select_statement:
@@ -48,7 +48,7 @@ file:
           - naked_identifier: supplier_id
         - bracketed:
             start_bracket: (
-            keyword: +
+            plus_join_symbol: +
             end_bracket: )
         - comparison_operator:
             raw_comparison_operator: '='
@@ -106,7 +106,7 @@ file:
           - naked_identifier: supplier_id
         - bracketed:
             start_bracket: (
-            keyword: +
+            plus_join_symbol: +
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -175,6 +175,6 @@ file:
           - naked_identifier: customer_id
         - bracketed:
             start_bracket: (
-            keyword: +
+            plus_join_symbol: +
             end_bracket: )
 - statement_terminator: ;
