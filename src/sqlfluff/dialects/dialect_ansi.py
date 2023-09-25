@@ -149,11 +149,11 @@ ansi_dialect.set_lexer_matchers(
                 WhitespaceSegment,
             ),
         ),
-        RegexLexer("single_quote",r"'([^'\\]|\\.|'')*'",CodeSegment),
-        RegexLexer("double_quote",r'"([^"\\]|\\.)*"',CodeSegment),
+        RegexLexer("single_quote", r"'([^'\\]|\\.|'')*'", CodeSegment),
+        RegexLexer("double_quote", r'"([^"\\]|\\.)*"', CodeSegment),
         RegexLexer("back_quote", r"`[^`]*`", CodeSegment),
         # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
-        RegexLexer("dollar_quote", r"\$(\w*)\$[^\1]*?\$\1\$",CodeSegment),
+        RegexLexer("dollar_quote", r"\$(\w*)\$[^\1]*?\$\1\$", CodeSegment),
         # Numeric literal matches integers, decimals, and exponential formats,
         # Pattern breakdown:
         # (?>                      Atomic grouping
@@ -179,7 +179,7 @@ ansi_dialect.set_lexer_matchers(
             r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
             LiteralSegment,
         ),
-        RegexLexer("like_operator",r"!?~~?\*?",ComparisonOperatorSegment),
+        RegexLexer("like_operator", r"!?~~?\*?", ComparisonOperatorSegment),
         RegexLexer("newline", r"\r\n|\n", NewlineSegment),
         StringLexer("casting_operator", "::", CodeSegment),
         StringLexer("equals", "=", CodeSegment),
@@ -199,10 +199,10 @@ ansi_dialect.set_lexer_matchers(
         StringLexer("star", "*", CodeSegment),
         StringLexer("start_bracket", "(", CodeSegment),
         StringLexer("end_bracket", ")", CodeSegment),
-        StringLexer("start_square_bracket","[",CodeSegment),
-        StringLexer("end_square_bracket","]",CodeSegment),
-        StringLexer("start_curly_bracket","{",CodeSegment),
-        StringLexer("end_curly_bracket","}",CodeSegment),
+        StringLexer("start_square_bracket", "[", CodeSegment),
+        StringLexer("end_square_bracket", "]", CodeSegment),
+        StringLexer("start_curly_bracket", "{", CodeSegment),
+        StringLexer("end_curly_bracket", "}", CodeSegment),
         StringLexer("colon", ":", CodeSegment),
         StringLexer("semicolon", ";", CodeSegment),
         # This is the "fallback" lexer for anything else which looks like SQL.
