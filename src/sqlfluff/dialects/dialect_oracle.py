@@ -73,12 +73,7 @@ oracle_dialect.sets("bare_functions").update(
 
 oracle_dialect.patch_lexer_matchers(
     [
-        RegexLexer(
-            "code",
-            r"[a-zA-Z][0-9a-zA-Z_$#]*",
-            CodeSegment,
-            segment_kwargs={"type": "code"},
-        ),
+        RegexLexer("word", r"[a-zA-Z][0-9a-zA-Z_$#]*", ansi.WordSegment),
     ]
 )
 
@@ -91,7 +86,7 @@ oracle_dialect.insert_lexer_matchers(
         ),
         StringLexer("at_sign", "@", CodeSegment),
     ],
-    before="code",
+    before="word",
 )
 
 oracle_dialect.insert_lexer_matchers(

@@ -78,9 +78,7 @@ db2_dialect.patch_lexer_matchers(
             CodeSegment,
         ),
         # In Db2, a field could have a # pound/hash sign
-        RegexLexer(
-            "code", r"[0-9a-zA-Z_#]+", CodeSegment, segment_kwargs={"type": "code"}
-        ),
+        RegexLexer("word", r"[0-9a-zA-Z_#]+", ansi.WordSegment),
     ]
 )
 

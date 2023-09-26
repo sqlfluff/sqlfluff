@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8bc00b8a0d0dc17a6591a0913a13b3815ddc6307b0b2e8102e87459f7d65f641
+_hash: d3954998d4806cba845c8ef75e0800508e4d47788ba7ef64ae82c03aebd82dc0
 file:
 - statement:
     create_type_statement:
@@ -49,9 +49,9 @@ file:
     - keyword: RANGE
     - bracketed:
       - start_bracket: (
-      - code: SUBTYPE
+      - word: SUBTYPE
       - equals: '='
-      - code: FLOAT
+      - word: FLOAT
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -63,13 +63,13 @@ file:
     - keyword: AS
     - bracketed:
       - start_bracket: (
-      - code: INPUT
+      - word: INPUT
       - equals: '='
-      - code: foo
+      - word: foo
       - comma: ','
-      - code: OUTPUT
+      - word: OUTPUT
       - equals: '='
-      - code: bar
+      - word: bar
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -81,9 +81,9 @@ file:
     - keyword: AS
     - bracketed:
       - start_bracket: (
-      - code: foo
-      - code: varchar
-      - code: collate
-      - code: utf8
+      - word: foo
+      - word: varchar
+      - word: collate
+      - word: utf8
       - end_bracket: )
 - statement_terminator: ;

@@ -145,7 +145,7 @@ sparksql_dialect.insert_lexer_matchers(
             CodeSegment,
         ),
     ],
-    before="code",
+    before="word",
 )
 sparksql_dialect.insert_lexer_matchers(
     [

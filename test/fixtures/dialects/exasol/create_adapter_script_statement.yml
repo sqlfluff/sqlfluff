@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 496e9cf4e434a8de13a99ec240efb7ca1cbd8d164e801d29daf413c51f5f05ba
+_hash: 075ae3b127ab6cfb870b46b0576a1edfd9d58a34702b1003f265a86cdd59f932
 file:
 - statement:
     create_adapter_script:
@@ -16,10 +16,10 @@ file:
     - keyword: AS
     - script_content:
       - percent: '%'
-      - code: jar
-      - code: hive_jdbc_adapter
+      - word: jar
+      - word: hive_jdbc_adapter
       - dot: .
-      - code: jar
+      - word: jar
       - semicolon: ;
 - function_script_terminator: /
 - statement:
@@ -36,14 +36,14 @@ file:
       - naked_identifier: adapter_dummy
     - keyword: AS
     - script_content:
-      - code: def
-      - code: adapter_call
+      - word: def
+      - word: adapter_call
       - bracketed:
           start_bracket: (
-          code: in_json
+          word: in_json
           end_bracket: )
       - colon: ':'
-      - code: return
+      - word: return
       - double_quote: '"BLABLA"'
 - function_script_terminator: /
 - statement:
@@ -60,13 +60,13 @@ file:
       - naked_identifier: adapter_dummy
     - keyword: AS
     - script_content:
-      - code: function
-      - code: adapter_call
+      - word: function
+      - word: adapter_call
       - bracketed:
           start_bracket: (
-          code: in_json
+          word: in_json
           end_bracket: )
       - colon: ':'
-      - code: return
+      - word: return
       - single_quote: "'BLABLA'"
 - function_script_terminator: /

@@ -120,6 +120,18 @@ class CompositeComparisonOperatorSegment(BaseSegment):
     type = "comparison_operator"
 
 
+class WordSegment(CodeSegment):
+    """A generic (likely letters only) segment.
+
+    Defined here for type inheritance.
+
+    This is the base segment for things like keywords and
+    naked identifiers.
+    """
+
+    type = "word"
+
+
 ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
 
 ansi_dialect.set_lexer_matchers(
@@ -206,14 +218,7 @@ ansi_dialect.set_lexer_matchers(
         StringLexer("colon", ":", CodeSegment),
         StringLexer("semicolon", ";", CodeSegment),
         # This is the "fallback" lexer for anything else which looks like SQL.
-        RegexLexer(
-            # NOTE: CodeSegment doesn't automatically add the `type` "code".
-            # This will be resolved soon, but until then we need to specify it here.
-            "code",
-            r"[0-9a-zA-Z_]+",
-            CodeSegment,
-            segment_kwargs={"type": "code"},
-        ),
+        RegexLexer("word", r"[0-9a-zA-Z_]+", WordSegment),
     ]
 )
 
@@ -339,7 +344,7 @@ ansi_dialect.add(
         r"\"?[A-Z][A-Z0-9_]*\"?", CodeSegment, type="parameter"
     ),
     FunctionNameIdentifierSegment=TypedParser(
-        "code", CodeSegment, type="function_name_identifier"
+        "word", WordSegment, type="function_name_identifier"
     ),
     # Maybe data types should be more restrictive?
     DatatypeIdentifierSegment=SegmentGenerator(
@@ -4244,7 +4249,7 @@ class PathSegment(BaseSegment):
         Sequence(
             Ref("SlashSegment"),
             Delimited(
-                TypedParser("code", CodeSegment, type="path_segment"),
+                TypedParser("word", WordSegment, type="path_segment"),
                 delimiter=Ref("SlashSegment"),
                 allow_gaps=False,
             ),

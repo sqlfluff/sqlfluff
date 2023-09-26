@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2da50dc4565213461a2707530ad570736f53beeab9a1211b66898277d7543ad1
+_hash: 2dd5ac7bc28181687913476d87e9f155da9a3f082c0386ef1341526f964a5d52
 file:
   statement:
     create_scripting_lua_script:
@@ -21,39 +21,39 @@ file:
       - end_bracket: )
     - keyword: AS
     - script_content:
-      - code: import
+      - word: import
       - bracketed:
           start_bracket: (
           single_quote: "'function_lib'"
           end_bracket: )
-      - code: lowest
+      - word: lowest
       - comma: ','
-      - code: highest
+      - word: highest
       - equals: '='
-      - code: function_lib
+      - word: function_lib
       - dot: .
-      - code: min_max
+      - word: min_max
       - bracketed:
         - start_bracket: (
-        - code: param1
+        - word: param1
         - comma: ','
-        - code: param2
+        - word: param2
         - comma: ','
-        - code: param3
+        - word: param3
         - end_bracket: )
-      - code: query
+      - word: query
       - bracketed:
         - start_bracket: (
         - lua_multiline_quotes: '[[INSERT INTO t VALUES (:x, :y)]]'
         - comma: ','
         - start_curly_bracket: '{'
-        - code: x
+        - word: x
         - equals: '='
-        - code: lowest
+        - word: lowest
         - comma: ','
-        - code: y
+        - word: y
         - equals: '='
-        - code: highest
+        - word: highest
         - end_curly_bracket: '}'
         - end_bracket: )
   function_script_terminator: /
