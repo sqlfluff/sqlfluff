@@ -3669,7 +3669,10 @@ class CreateStatementSegment(BaseSegment):
             Sequence(
                 "INTEGRATION",
                 Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("ObjectReferenceSegment"),
+                ),
                 optional=True,
             ),
             optional=True,
