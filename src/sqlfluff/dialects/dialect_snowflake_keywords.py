@@ -595,7 +595,4 @@ WRITE
 XML
 ZONE
 ZSTD
-'AZURE'
-'GCS'
-'S3'
 """

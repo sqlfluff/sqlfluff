@@ -3497,7 +3497,11 @@ class CreateStatementSegment(BaseSegment):
                 "NOTIFICATION_PROVIDER",
                 Ref("EqualsSegment"),
                 OneOf(
-                    "AWS_SNS", "AZURE_EVENT_GRID", "GCP_PUBSUB", "AZURE_STORAGE_QUEUE"
+                    "AWS_SNS",
+                    "AZURE_EVENT_GRID",
+                    "GCP_PUBSUB",
+                    "AZURE_STORAGE_QUEUE",
+                    Ref("QuotedLiteralSegment"),
                 ),
             ),
             # AWS specific params:
@@ -3587,7 +3591,7 @@ class CreateStatementSegment(BaseSegment):
             Sequence(
                 "STORAGE_PROVIDER",
                 Ref("EqualsSegment"),
-                OneOf("S3", "AZURE", "GCS", "'S3'", "'AZURE'", "'GCS'"),
+                OneOf("S3", "AZURE", "GCS", Ref("QuotedLiteralSegment")),
             ),
             # Azure specific params:
             Sequence(
