@@ -4,10 +4,10 @@ from typing import List, Optional, Tuple
 
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments.base import SourceFix
-from sqlfluff.core.parser.segments.common import CodeSegment
+from sqlfluff.core.parser.segments.common import WordSegment
 
 
-class KeywordSegment(CodeSegment):
+class KeywordSegment(WordSegment):
     """A segment used for matching single words.
 
     We rename the segment class here so that descendants of
