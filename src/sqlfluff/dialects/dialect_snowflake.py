@@ -951,6 +951,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateUserSegment"),
             Ref("CreateCloneStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
+            Ref("ScriptingBlockStatementSegment"),
+            Ref("ReturnStatementSegment"),
             Ref("ShowStatementSegment"),
             Ref("AlterUserStatementSegment"),
             Ref("AlterSessionStatementSegment"),
@@ -2591,10 +2593,38 @@ class CreateProcedureStatementSegment(BaseSegment):
         ),
         "AS",
         OneOf(
+            # Either a foreign programming language UDF...
             Ref("DoubleQuotedUDFBody"),
             Ref("SingleQuotedUDFBody"),
             Ref("DollarQuotedUDFBody"),
+            # ...or a SQL UDF
+            Ref("ScriptingBlockStatementSegment"),
         ),
+    )
+
+
+class ReturnStatementSegment(BaseSegment):
+    """A snowflake `RETURN` statement for SQL scripting.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/return
+    """
+
+    type = "return_statement"
+    match_grammar = Sequence(
+        "RETURN",
+        Ref("ExpressionSegment"),
+    )
+
+
+class ScriptingBlockStatementSegment(BaseSegment):
+    """A snowflake `BEGIN ... END` statement for SQL scripting.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/begin
+    """
+
+    type = "scripting_block_statement"
+    match_grammar = OneOf(
+        Sequence("BEGIN", Delimited(Ref("StatementSegment"))), Sequence("END")
     )
 
 
