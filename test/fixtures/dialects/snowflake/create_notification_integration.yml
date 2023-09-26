@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3c33cb37933f7f7c8f6d7e34ed3788b87248be615d88b29b6dcd5e297b8ccd6f
+_hash: f7b274e2ac94393f593c7e1f3db70fa7d46001636620255cd34b00d1a3fe98f6
 file:
 - statement:
     create_statement:
@@ -52,7 +52,7 @@ file:
     - keyword: notification_provider
     - comparison_operator:
         raw_comparison_operator: '='
-    - keyword: azure_event_grid
+    - keyword: azure_storage_queue
     - keyword: azure_storage_queue_primary_uri
     - comparison_operator:
         raw_comparison_operator: '='
