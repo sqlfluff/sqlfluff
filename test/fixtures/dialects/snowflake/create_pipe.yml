@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3ad1767ff0d5edc1534ef228aded4ff09917d0b84e146917a194a5e6628523c1
+_hash: c27bfb97b5ff0780411b77d50a4966bfcf7e0385ce5639ad4c0ae2c496b10f27
 file:
-  statement:
+- statement:
     create_statement:
     - keyword: create
     - keyword: or
@@ -51,4 +51,123 @@ file:
                 raw_comparison_operator: '='
               file_type: "'JSON'"
             end_bracket: )
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: pipe
+    - object_reference:
+        naked_identifier: test_pipe
+    - keyword: auto_ingest
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: integration
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: notification_integration
+    - keyword: as
+    - copy_into_table_statement:
+      - keyword: copy
+      - keyword: into
+      - table_reference:
+          naked_identifier: table_name
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: column1
+        - comma: ','
+        - column_reference:
+            naked_identifier: column2
+        - end_bracket: )
+      - keyword: from
+      - bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  column_index_identifier_segment: $1
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: current_timestamp
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+                alias_expression:
+                  keyword: as
+                  naked_identifier: column2
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      stage_path: '@stage_name/folder'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: pipe
+    - object_reference:
+        naked_identifier: test_pipe
+    - keyword: auto_ingest
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: integration
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'notification_integration'"
+    - keyword: as
+    - copy_into_table_statement:
+      - keyword: copy
+      - keyword: into
+      - table_reference:
+          naked_identifier: table_name
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: column1
+        - comma: ','
+        - column_reference:
+            naked_identifier: column2
+        - end_bracket: )
+      - keyword: from
+      - bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  column_index_identifier_segment: $1
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: current_timestamp
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+                alias_expression:
+                  keyword: as
+                  naked_identifier: column2
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      stage_path: '@stage_name/folder'
+          end_bracket: )
+- statement_terminator: ;
