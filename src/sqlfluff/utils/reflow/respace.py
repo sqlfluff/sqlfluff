@@ -215,20 +215,17 @@ def _determine_aligned_inline_spacing(
     # We've got a parent. Find some siblings.
     reflow_logger.debug("    Determining alignment within: %s", parent_segment)
     siblings = []
-    if align_scope:
-        for sibling in parent_segment.recursive_crawl(segment_type):
-            # Purge any siblings with a boundary between them
-            if not any(
-                ps.segment.is_type(align_scope)
-                for ps in parent_segment.path_to(sibling)
-            ):
-                siblings.append(sibling)
-            else:
-                reflow_logger.debug(
-                    "    Purging a sibling because they're blocked "
-                    "by a boundary: %s",
-                    sibling,
-                )
+    for sibling in parent_segment.recursive_crawl(segment_type):
+        # Purge any siblings with a boundary between them
+        if not align_scope or not any(
+            ps.segment.is_type(align_scope) for ps in parent_segment.path_to(sibling)
+        ):
+            siblings.append(sibling)
+        else:
+            reflow_logger.debug(
+                "    Purging a sibling because they're blocked " "by a boundary: %s",
+                sibling,
+            )
 
     # If there's only one sibling, we have nothing to compare to. Default to a single
     # space.
