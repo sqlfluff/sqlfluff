@@ -266,9 +266,7 @@ exasol_dialect.replace(
     ),
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIMESTAMP"),
-        TypedParser(
-            "single_quote", LiteralSegment, type="date_constructor_literal"
-        ),
+        TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
     ),
     CharCharacterSetGrammar=OneOf(
         "UTF8",

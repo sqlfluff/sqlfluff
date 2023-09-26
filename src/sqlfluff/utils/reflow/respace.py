@@ -5,8 +5,12 @@ import logging
 from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, cast
 
 from sqlfluff.core.errors import SQLFluffUserError
-from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
-from sqlfluff.core.parser.segments.raw import WhitespaceSegment
+from sqlfluff.core.parser import (
+    BaseSegment,
+    PositionMarker,
+    RawSegment,
+    WhitespaceSegment,
+)
 from sqlfluff.core.rules.base import LintFix, LintResult
 from sqlfluff.utils.reflow.helpers import pretty_segment_name
 

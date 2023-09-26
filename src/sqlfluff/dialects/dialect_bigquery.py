@@ -221,9 +221,7 @@ bigquery_dialect.replace(
     ),
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "DATETIME", "TIME", "TIMESTAMP"),
-        TypedParser(
-            "single_quote", LiteralSegment, type="date_constructor_literal"
-        ),
+        TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
     ),
     JoinLikeClauseGrammar=Sequence(
         AnyNumberOf(
