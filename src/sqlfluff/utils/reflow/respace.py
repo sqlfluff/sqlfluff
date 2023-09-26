@@ -2,7 +2,7 @@
 
 
 import logging
-from typing import TYPE_CHECKING, List, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, cast
 
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.parser import BaseSegment, PositionMarker, RawSegment
@@ -227,6 +227,30 @@ def _determine_aligned_inline_spacing(
                 sibling,
             )
 
+    # If the segment we're aligning, has position. Use that position.
+    # If it doesn't, then use the provided one. We can't do sibling analysis without it.
+    if next_seg.pos_marker:
+        next_pos = next_seg.pos_marker
+
+    # Purge any siblings which are either self, or on the same line but after it.
+    _earliest_siblings: Dict[int, int] = {}
+    for sibling in siblings[:]:
+        _pos = sibling.pos_marker
+        assert _pos
+        _best_seen = _earliest_siblings.get(_pos.working_line_no, None)
+        # If we've already seen an earlier sibling on this line, ignore the later one.
+        if _best_seen is not None and _pos.working_line_pos > _best_seen:
+            siblings.remove(sibling)
+            continue
+        # Update best seen
+        _earliest_siblings[_pos.working_line_no] = _pos.working_line_pos
+
+        # We should also purge the sibling which matches the target.
+        if _pos.working_line_no == next_pos.working_line_no:
+            # Is it in the same position?
+            if _pos.working_line_pos != next_pos.working_line_pos:
+                siblings.remove(sibling)
+
     # If there's only one sibling, we have nothing to compare to. Default to a single
     # space.
     if len(siblings) <= 1:
@@ -236,23 +260,6 @@ def _determine_aligned_inline_spacing(
             desired_space,
         )
         return desired_space
-
-    # If the segment we're aligning, has position. Use that position.
-    # If it doesn't, then use the provided one. We can't do sibling analysis without it.
-    if next_seg.pos_marker:
-        next_pos = next_seg.pos_marker
-
-    # Is the current indent the only one on the line?
-    if any(
-        sibling.pos_marker
-        # Same line
-        and sibling.pos_marker.working_line_no == next_pos.working_line_no
-        # And not same position (i.e. not self)
-        and sibling.pos_marker.working_line_pos != next_pos.working_line_pos
-        for sibling in siblings
-    ):
-        reflow_logger.debug("    Found sibling on same line. Treat as single")
-        return " "
 
     # Work out the current spacing before each.
     last_code = None

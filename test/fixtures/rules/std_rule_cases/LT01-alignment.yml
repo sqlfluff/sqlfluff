@@ -122,7 +122,7 @@ test_align_alias_inline_fail:
   fix_str: SELECT a AS b, c AS d FROM tbl
   configs: *align_alias
 
-test_align_multiple:
+test_align_multiple_a:
   # https://github.com/sqlfluff/sqlfluff/issues/4023
   fail_str: |
     CREATE TABLE tbl (
@@ -133,6 +133,31 @@ test_align_multiple:
     CREATE TABLE tbl (
         foo    VARCHAR(25) NOT NULL,
         barbar INT         NULL
+    )
+  configs:
+    layout:
+      type:
+        data_type:
+          spacing_before: align
+          align_within: create_table_statement
+        column_constraint_segment:
+          spacing_before: align
+          align_within: create_table_statement
+
+test_align_multiple_b:
+  # If there are multiple options on the same line, choose the first
+  # to align with (i.e. `not null` rather than `unique`).
+  # https://github.com/sqlfluff/sqlfluff/issues/4023
+  # https://github.com/sqlfluff/sqlfluff/pull/5238
+  fail_str: |
+    create table tab (
+        foo    varchar(25)  not null,
+        barbar int not null unique
+    )
+  fix_str: |
+    create table tab (
+        foo    varchar(25) not null,
+        barbar int         not null unique
     )
   configs:
     layout:
