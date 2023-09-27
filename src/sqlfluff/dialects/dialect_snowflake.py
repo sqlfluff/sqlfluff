@@ -1873,21 +1873,40 @@ class AlterTableConstraintActionSegment(BaseSegment):
         # Add Column
         Sequence(
             "ADD",
-            Sequence("CONSTRAINT", Ref("NakedIdentifierSegment"), optional=True),
+            Sequence(
+                "CONSTRAINT",
+                OneOf(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("QuotedIdentifierSegment"),
+                ),
+                optional=True,
+            ),
             OneOf(
                 Sequence(
                     Ref("PrimaryKeyGrammar"),
-                    Bracketed(Ref("ColumnReferenceSegment"), optional=True),
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                    ),
                 ),
                 Sequence(
                     Sequence(
                         Ref("ForeignKeyGrammar"),
-                        Bracketed(Ref("ColumnReferenceSegment"), optional=True),
-                        optional=True,
+                        Bracketed(
+                            Delimited(
+                                Ref("ColumnReferenceSegment"),
+                            )
+                        ),
                     ),
                     "REFERENCES",
                     Ref("TableReferenceSegment"),
-                    Bracketed(Ref("ColumnReferenceSegment")),
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                        optional=True,
+                    ),
                 ),
                 Sequence(
                     "UNIQUE", Bracketed(Ref("ColumnReferenceSegment"), optional=True)
