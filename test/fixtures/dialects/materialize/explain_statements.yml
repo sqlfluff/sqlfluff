@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c95b68f0e3ce20972e4b6086e90fb236dbc77e2eb7d718e4df5b4efa6158e63b
+_hash: b038606aef92dbf2699f3794a67c439727bbfc8cde01ece39a63d8c8f0d3b2df
 file:
 - statement:
     explain_statement:
@@ -72,9 +72,9 @@ file:
     - keyword: WITH
     - bracketed:
       - start_bracket: (
-      - code: arity
+      - word: arity
       - comma: ','
-      - code: join_impls
+      - word: join_impls
       - end_bracket: )
     - keyword: VIEW
     - object_reference:
@@ -88,7 +88,7 @@ file:
     - keyword: WITH
     - bracketed:
         start_bracket: (
-        code: arity
+        word: arity
         end_bracket: )
     - keyword: AS
     - keyword: TEXT

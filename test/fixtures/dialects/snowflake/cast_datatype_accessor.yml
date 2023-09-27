@@ -1,0 +1,95 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b4d0dd3efafa1a377726c160270be1d9204731518fd317a69985974fa30ac1b8
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: bar
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: array
+              array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '0'
+                end_square_bracket: ']'
+          alias_expression:
+            keyword: AS
+            naked_identifier: channel
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: foo
+              semi_structured_expression:
+                colon: ':'
+                semi_structured_element: bar
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: array
+              array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '2'
+                end_square_bracket: ']'
+          alias_expression:
+            keyword: AS
+            naked_identifier: channel2
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+            - column_reference:
+                naked_identifier: bar
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: array
+            - array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '0'
+                end_square_bracket: ']'
+            - array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '1'
+                end_square_bracket: ']'
+          alias_expression:
+            keyword: AS
+            naked_identifier: channel3
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+            - column_reference:
+                naked_identifier: raw
+            - semi_structured_expression:
+                colon: ':'
+                semi_structured_element: foo
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: array
+            - array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '0'
+                end_square_bracket: ']'
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: string
+          alias_expression:
+            keyword: AS
+            naked_identifier: channel4
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_table
+  statement_terminator: ;

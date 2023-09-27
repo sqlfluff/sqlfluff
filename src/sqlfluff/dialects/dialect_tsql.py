@@ -12,13 +12,17 @@ from sqlfluff.core.parser import (
     Bracketed,
     CodeSegment,
     CommentSegment,
+    CompositeComparisonOperatorSegment,
     Conditional,
     Dedent,
     Delimited,
+    IdentifierSegment,
     ImplicitIndent,
     Indent,
+    LiteralSegment,
     Matchable,
     MultiStringParser,
+    NewlineSegment,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -29,8 +33,9 @@ from sqlfluff.core.parser import (
     SegmentGenerator,
     Sequence,
     TypedParser,
+    WhitespaceSegment,
+    WordSegment,
 )
-from sqlfluff.core.parser.segments.raw import NewlineSegment, WhitespaceSegment
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_tsql_keywords import (
     RESERVED_KEYWORDS,
@@ -135,39 +140,33 @@ tsql_dialect.insert_lexer_matchers(
             "atsign",
             r"[@][a-zA-Z0-9_]+",
             CodeSegment,
-            segment_kwargs={"type": "atsign"},
         ),
         RegexLexer(
             "var_prefix",
             r"[$][a-zA-Z0-9_]+",
             CodeSegment,
-            segment_kwargs={"type": "var_prefix"},
         ),
         RegexLexer(
             "square_quote",
             r"\[([^\[\]]*)*\]",
             CodeSegment,
-            segment_kwargs={"type": "square_quote"},
         ),
         # T-SQL unicode strings
         RegexLexer(
             "single_quote_with_n",
             r"N'([^']|'')*'",
             CodeSegment,
-            segment_kwargs={"type": "single_quote_with_n"},
         ),
         RegexLexer(
             "hash_prefix",
             r"[#][#]?[a-zA-Z0-9_]+",
             CodeSegment,
-            segment_kwargs={"type": "hash_prefix"},
         ),
         RegexLexer(
             "unquoted_relative_sql_file_path",
             # currently there is no way to pass `regex.IGNORECASE` flag to `RegexLexer`
             r"[.\w\\/#-]+\.[sS][qQ][lL]",
             CodeSegment,
-            segment_kwargs={"type": "unquoted_relative_sql_file_path"},
         ),
     ],
     before="back_quote",
@@ -180,14 +179,13 @@ tsql_dialect.patch_lexer_matchers(
             "single_quote",
             r"'([^']|'')*'",
             CodeSegment,
-            segment_kwargs={"type": "single_quote"},
         ),
         # Patching comments to remove hash comments
         RegexLexer(
             "inline_comment",
             r"(--)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--"), "type": "inline_comment"},
+            segment_kwargs={"trim_start": ("--")},
         ),
         # Patching block comments to account for nested blocks.
         # N.B. this syntax is only possible via the non-standard-library
@@ -226,27 +224,26 @@ tsql_dialect.patch_lexer_matchers(
                 r"[^\S\r\n]+",
                 WhitespaceSegment,
             ),
-            segment_kwargs={"type": "block_comment"},
         ),
         RegexLexer(
-            "code", r"[0-9a-zA-Z_#@]+", CodeSegment
+            "word", r"[0-9a-zA-Z_#@]+", WordSegment
         ),  # overriding to allow hash mark and at-sign in code
     ]
 )
 
 tsql_dialect.add(
     BracketedIdentifierSegment=TypedParser(
-        "square_quote", ansi.IdentifierSegment, type="quoted_identifier"
+        "square_quote", IdentifierSegment, type="quoted_identifier"
     ),
     HashIdentifierSegment=TypedParser(
-        "hash_prefix", ansi.IdentifierSegment, type="hash_identifier"
+        "hash_prefix", IdentifierSegment, type="hash_identifier"
     ),
     VariableIdentifierSegment=TypedParser(
-        "var_prefix", ansi.IdentifierSegment, type="variable_identifier"
+        "var_prefix", IdentifierSegment, type="variable_identifier"
     ),
     BatchDelimiterGrammar=Ref("GoStatementSegment"),
     QuotedLiteralSegmentWithN=TypedParser(
-        "single_quote_with_n", ansi.LiteralSegment, type="quoted_literal"
+        "single_quote_with_n", LiteralSegment, type="quoted_literal"
     ),
     QuotedLiteralSegmentOptWithN=OneOf(
         Ref("QuotedLiteralSegment"),
@@ -341,7 +338,7 @@ tsql_dialect.replace(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
             r"[A-Z_][A-Z0-9_@$#]*",
-            ansi.IdentifierSegment,
+            IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
@@ -543,7 +540,7 @@ tsql_dialect.replace(
             Ref("TypedArrayLiteralSegment"),
             Ref("ArrayLiteralSegment"),
         ),
-        Ref("Accessor_Grammar", optional=True),
+        Ref("AccessorGrammar", optional=True),
         allow_gaps=True,
     ),
     MergeIntoLiteralGrammar=Sequence(
@@ -618,7 +615,7 @@ class StatementSegment(ansi.StatementSegment):
     )
 
 
-class GreaterThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class GreaterThanOrEqualToSegment(CompositeComparisonOperatorSegment):
     """Greater than or equal to operator.
 
     N.B. Patching to add !< and
@@ -637,7 +634,7 @@ class GreaterThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class LessThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class LessThanOrEqualToSegment(CompositeComparisonOperatorSegment):
     """Greater than or equal to operator.
 
     N.B. Patching to add !> and
@@ -656,7 +653,7 @@ class LessThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class NotEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class NotEqualToSegment(CompositeComparisonOperatorSegment):
     """Not equal to operator.
 
     N.B. Patching to allow spaces between operators.

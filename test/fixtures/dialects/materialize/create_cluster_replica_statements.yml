@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 81bf092bb3bcdcd8b8c2e0f4f7d8e784a58180f3fe0efab9bd89359dbcb21149
+_hash: 7e3e79b049fa84d6e57eb5f7b994e1718aa357e4f550141e6041a4185ad9145f
 file:
 - statement:
     create_cluster_statement:
@@ -14,10 +14,10 @@ file:
     - keyword: REPLICAS
     - bracketed:
         start_bracket: (
-        code: r1
+        word: r1
         bracketed:
           start_bracket: (
-          code: size
+          word: size
           single_quote: "'1'"
           end_bracket: )
         end_bracket: )
@@ -31,17 +31,17 @@ file:
     - keyword: REPLICAS
     - bracketed:
       - start_bracket: (
-      - code: r1
+      - word: r1
       - bracketed:
           start_bracket: (
-          code: size
+          word: size
           single_quote: "'1'"
           end_bracket: )
       - comma: ','
-      - code: r2
+      - word: r2
       - bracketed:
           start_bracket: (
-          code: size
+          word: size
           single_quote: "'1'"
           end_bracket: )
       - end_bracket: )
@@ -52,13 +52,13 @@ file:
     - keyword: CLUSTER
     - object_reference:
         naked_identifier: c1
-    - code: SIZE
-    - raw: '='
+    - word: SIZE
+    - equals: '='
     - single_quote: "'medium'"
     - comma: ','
-    - code: REPLICATION
-    - code: FACTOR
-    - raw: '='
+    - word: REPLICATION
+    - word: FACTOR
+    - equals: '='
     - numeric_literal: '2'
 - statement_terminator: ;
 - statement:
@@ -67,13 +67,13 @@ file:
     - keyword: CLUSTER
     - object_reference:
         naked_identifier: c
-    - code: SIZE
-    - raw: '='
+    - word: SIZE
+    - equals: '='
     - single_quote: "'xsmall'"
     - comma: ','
-    - code: INTROSPECTION
-    - code: INTERVAL
-    - raw: '='
+    - word: INTROSPECTION
+    - word: INTERVAL
+    - equals: '='
     - numeric_literal: '0'
 - statement_terminator: ;
 - statement:
@@ -82,12 +82,12 @@ file:
     - keyword: CLUSTER
     - object_reference:
         naked_identifier: c1
-    - code: SIZE
+    - word: SIZE
     - single_quote: "'xsmall'"
     - comma: ','
-    - code: REPLICATION
-    - code: FACTOR
-    - raw: '='
+    - word: REPLICATION
+    - word: FACTOR
+    - equals: '='
     - numeric_literal: '0'
 - statement_terminator: ;
 - statement:
@@ -96,10 +96,10 @@ file:
     - keyword: CLUSTER
     - object_reference:
         naked_identifier: REPLICA
-    - code: default
-    - raw: .
-    - code: size_1
-    - code: SIZE
+    - word: default
+    - dot: .
+    - word: size_1
+    - word: SIZE
     - single_quote: "'large'"
 - statement_terminator: ;
 - statement:
@@ -108,11 +108,11 @@ file:
     - keyword: CLUSTER
     - object_reference:
         naked_identifier: REPLICA
-    - code: c1
-    - raw: .
-    - code: r1
-    - code: SIZE
-    - raw: '='
+    - word: c1
+    - dot: .
+    - word: r1
+    - word: SIZE
+    - equals: '='
     - single_quote: "'medium'"
 - statement_terminator: ;
 - statement:
@@ -121,14 +121,14 @@ file:
     - keyword: CLUSTER
     - object_reference:
         naked_identifier: REPLICA
-    - code: default
-    - raw: .
-    - code: replica
-    - code: AVAILABILITY
-    - code: ZONE
+    - word: default
+    - dot: .
+    - word: replica
+    - word: AVAILABILITY
+    - word: ZONE
     - single_quote: "'a'"
     - comma: ','
-    - code: AVAILABILITY
-    - code: ZONE
+    - word: AVAILABILITY
+    - word: ZONE
     - single_quote: "'b'"
 - statement_terminator: ;

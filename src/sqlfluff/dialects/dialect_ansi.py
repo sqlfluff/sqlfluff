@@ -23,16 +23,23 @@ from sqlfluff.core.parser import (
     Anything,
     BaseFileSegment,
     BaseSegment,
+    BinaryOperatorSegment,
     Bracketed,
     BracketedSegment,
     CodeSegment,
     CommentSegment,
+    ComparisonOperatorSegment,
+    CompositeBinaryOperatorSegment,
+    CompositeComparisonOperatorSegment,
     Conditional,
     Dedent,
     Delimited,
+    IdentifierSegment,
     ImplicitIndent,
     Indent,
     KeywordSegment,
+    LiteralKeywordSegment,
+    LiteralSegment,
     Matchable,
     MultiStringParser,
     NewlineSegment,
@@ -50,75 +57,12 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     TypedParser,
     WhitespaceSegment,
+    WordSegment,
 )
 from sqlfluff.dialects.dialect_ansi_keywords import (
     ansi_reserved_keywords,
     ansi_unreserved_keywords,
 )
-
-
-class IdentifierSegment(CodeSegment):
-    """An identifier segment.
-
-    Defined here for type inheritance.
-    """
-
-    type = "identifier"
-
-
-class LiteralSegment(CodeSegment):
-    """A literal segment.
-
-    Defined here for type inheritance.
-    """
-
-    type = "literal"
-
-
-class LiteralKeywordSegment(KeywordSegment):
-    """A keyword style literal segment.
-
-    Defined here for type inheritance.
-    """
-
-    type = "literal"
-
-
-class BinaryOperatorSegment(CodeSegment):
-    """A binary operator segment.
-
-    Defined here for type inheritance.
-    """
-
-    type = "binary_operator"
-
-
-class CompositeBinaryOperatorSegment(BaseSegment):
-    """A composite binary operator segment.
-
-    Defined here for type inheritance.
-    """
-
-    type = "binary_operator"
-
-
-class ComparisonOperatorSegment(CodeSegment):
-    """A comparison operator segment.
-
-    Defined here for type inheritance.
-    """
-
-    type = "comparison_operator"
-
-
-class CompositeComparisonOperatorSegment(BaseSegment):
-    """A comparison operator segment.
-
-    Defined here for type inheritance.
-    """
-
-    type = "comparison_operator"
-
 
 ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
 
@@ -132,7 +76,7 @@ ansi_dialect.set_lexer_matchers(
             "inline_comment",
             r"(--|#)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--", "#"), "type": "inline_comment"},
+            segment_kwargs={"trim_start": ("--", "#")},
         ),
         RegexLexer(
             "block_comment",
@@ -148,30 +92,12 @@ ansi_dialect.set_lexer_matchers(
                 r"[^\S\r\n]+",
                 WhitespaceSegment,
             ),
-            segment_kwargs={"type": "block_comment"},
         ),
-        RegexLexer(
-            "single_quote",
-            r"'([^'\\]|\\.|'')*'",
-            CodeSegment,
-            segment_kwargs={"type": "single_quote"},
-        ),
-        RegexLexer(
-            "double_quote",
-            r'"([^"\\]|\\.)*"',
-            CodeSegment,
-            segment_kwargs={"type": "double_quote"},
-        ),
-        RegexLexer(
-            "back_quote", r"`[^`]*`", CodeSegment, segment_kwargs={"type": "back_quote"}
-        ),
+        RegexLexer("single_quote", r"'([^'\\]|\\.|'')*'", CodeSegment),
+        RegexLexer("double_quote", r'"([^"\\]|\\.)*"', CodeSegment),
+        RegexLexer("back_quote", r"`[^`]*`", CodeSegment),
         # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
-        RegexLexer(
-            "dollar_quote",
-            r"\$(\w*)\$[^\1]*?\$\1\$",
-            CodeSegment,
-            segment_kwargs={"type": "dollar_quote"},
-        ),
+        RegexLexer("dollar_quote", r"\$(\w*)\$[^\1]*?\$\1\$", CodeSegment),
         # Numeric literal matches integers, decimals, and exponential formats,
         # Pattern breakdown:
         # (?>                      Atomic grouping
@@ -196,14 +122,8 @@ ansi_dialect.set_lexer_matchers(
             "numeric_literal",
             r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
             LiteralSegment,
-            segment_kwargs={"type": "numeric_literal"},
         ),
-        RegexLexer(
-            "like_operator",
-            r"!?~~?\*?",
-            ComparisonOperatorSegment,
-            segment_kwargs={"type": "like_operator"},
-        ),
+        RegexLexer("like_operator", r"!?~~?\*?", ComparisonOperatorSegment),
         RegexLexer("newline", r"\r\n|\n", NewlineSegment),
         StringLexer("casting_operator", "::", CodeSegment),
         StringLexer("equals", "=", CodeSegment),
@@ -211,7 +131,7 @@ ansi_dialect.set_lexer_matchers(
         StringLexer("less_than", "<", CodeSegment),
         StringLexer("not", "!", CodeSegment),
         StringLexer("dot", ".", CodeSegment),
-        StringLexer("comma", ",", CodeSegment, segment_kwargs={"type": "comma"}),
+        StringLexer("comma", ",", CodeSegment),
         StringLexer("plus", "+", CodeSegment),
         StringLexer("minus", "-", CodeSegment),
         StringLexer("divide", "/", CodeSegment),
@@ -221,18 +141,16 @@ ansi_dialect.set_lexer_matchers(
         StringLexer("vertical_bar", "|", CodeSegment),
         StringLexer("caret", "^", CodeSegment),
         StringLexer("star", "*", CodeSegment),
-        StringLexer("bracket_open", "(", CodeSegment),
-        StringLexer("bracket_close", ")", CodeSegment),
-        StringLexer("sq_bracket_open", "[", CodeSegment),
-        StringLexer("sq_bracket_close", "]", CodeSegment),
-        StringLexer("crly_bracket_open", "{", CodeSegment),
-        StringLexer("crly_bracket_close", "}", CodeSegment),
+        StringLexer("start_bracket", "(", CodeSegment),
+        StringLexer("end_bracket", ")", CodeSegment),
+        StringLexer("start_square_bracket", "[", CodeSegment),
+        StringLexer("end_square_bracket", "]", CodeSegment),
+        StringLexer("start_curly_bracket", "{", CodeSegment),
+        StringLexer("end_curly_bracket", "}", CodeSegment),
         StringLexer("colon", ":", CodeSegment),
         StringLexer("semicolon", ";", CodeSegment),
         # This is the "fallback" lexer for anything else which looks like SQL.
-        RegexLexer(
-            "code", r"[0-9a-zA-Z_]+", CodeSegment, segment_kwargs={"type": "code"}
-        ),
+        RegexLexer("word", r"[0-9a-zA-Z_]+", WordSegment),
     ]
 )
 
@@ -358,7 +276,7 @@ ansi_dialect.add(
         r"\"?[A-Z][A-Z0-9_]*\"?", CodeSegment, type="parameter"
     ),
     FunctionNameIdentifierSegment=TypedParser(
-        "code", CodeSegment, type="function_name_identifier"
+        "word", WordSegment, type="function_name_identifier"
     ),
     # Maybe data types should be more restrictive?
     DatatypeIdentifierSegment=SegmentGenerator(
@@ -2219,10 +2137,10 @@ ansi_dialect.add(
             Ref("LocalAliasSegment"),
             terminators=[Ref("CommaSegment")],
         ),
-        Ref("Accessor_Grammar", optional=True),
+        Ref("AccessorGrammar", optional=True),
         allow_gaps=True,
     ),
-    Accessor_Grammar=AnyNumberOf(Ref("ArrayAccessorSegment")),
+    AccessorGrammar=AnyNumberOf(Ref("ArrayAccessorSegment")),
 )
 
 
@@ -2776,6 +2694,7 @@ class WithCompoundStatementSegment(BaseSegment):
         Delimited(
             Ref("CTEDefinitionSegment"),
             terminators=["SELECT"],
+            allow_trailing=True,
         ),
         Conditional(Dedent, indented_ctes=True),
         OneOf(
@@ -4262,7 +4181,7 @@ class PathSegment(BaseSegment):
         Sequence(
             Ref("SlashSegment"),
             Delimited(
-                TypedParser("code", CodeSegment, type="path_segment"),
+                TypedParser("word", WordSegment, type="path_segment"),
                 delimiter=Ref("SlashSegment"),
                 allow_gaps=False,
             ),

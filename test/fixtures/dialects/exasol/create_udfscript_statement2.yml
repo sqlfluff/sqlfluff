@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 817327c1c70904715f4d2304fc74a2cfc8a95e8e279203b30f08bc4e08337296
+_hash: 04bc713c05ce7ccbe9970017917dd1ee7b939d02e56b50a38eb6f06722952751
 file:
   statement:
     create_udf_script:
@@ -41,50 +41,50 @@ file:
           end_bracket: )
     - keyword: AS
     - script_content:
-      - code: function
-      - code: run
+      - word: function
+      - word: run
       - bracketed:
           start_bracket: (
-          code: ctx
+          word: ctx
           end_bracket: )
-      - code: local
-      - code: word
-      - raw: '='
-      - code: ctx
-      - raw: .
-      - code: w
-      - code: if
+      - word: local
+      - word: word
+      - equals: '='
+      - word: ctx
+      - dot: .
+      - word: w
+      - word: if
       - bracketed:
         - start_bracket: (
-        - code: word
+        - word: word
         - like_operator: '~'
-        - raw: '='
-        - code: 'null'
+        - equals: '='
+        - word: 'null'
         - end_bracket: )
-      - code: then
-      - code: for
-      - code: i
-      - code: in
-      - code: unicode
-      - raw: .
-      - code: utf8
-      - raw: .
-      - code: gmatch
+      - word: then
+      - word: for
+      - word: i
+      - word: in
+      - word: unicode
+      - dot: .
+      - word: utf8
+      - dot: .
+      - word: gmatch
       - bracketed:
           start_bracket: (
-          code: word
+          word: word
           comma: ','
           single_quote: "'([%w%p]+)'"
           end_bracket: )
-      - code: do
-      - code: ctx
-      - raw: .
-      - code: emit
+      - word: do
+      - word: ctx
+      - dot: .
+      - word: emit
       - bracketed:
           start_bracket: (
-          code: i
+          word: i
           end_bracket: )
-      - code: end
-      - code: end
-      - code: end
+      - word: end
+      - word: end
+      - word: end
   function_script_terminator: /

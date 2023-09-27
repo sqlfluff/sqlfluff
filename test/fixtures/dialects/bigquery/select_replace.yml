@@ -3,8 +3,53 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3131ec62077b2a908be8bbd4010a56bb1a57f6716580b6b8067d4c0cc4e122e0
+_hash: 578a679b675f9c46be4d68f0ebf95efbc9151169eae5eaa2ba32185a1dd45f77
 file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            select_replace_clause:
+              keyword: REPLACE
+              bracketed:
+                start_bracket: (
+                select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: CAST
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        numeric_literal: '1'
+                      keyword: AS
+                      data_type:
+                        data_type_identifier: BOOLEAN
+                      end_bracket: )
+                  alias_expression:
+                    keyword: AS
+                    naked_identifier: foo
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      numeric_literal: '1'
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: foo
+                end_bracket: )
+- statement_terminator: ;
 - statement:
     select_statement:
       select_clause:

@@ -11,6 +11,7 @@ from sqlfluff.core.parser import (
     Bracketed,
     Dedent,
     Delimited,
+    LiteralSegment,
     Matchable,
     Nothing,
     OneOf,
@@ -45,9 +46,7 @@ sqlite_dialect.replace(
     TemporaryTransientGrammar=Ref("TemporaryGrammar"),
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "DATETIME"),
-        TypedParser(
-            "single_quote", ansi.LiteralSegment, type="date_constructor_literal"
-        ),
+        TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
     ),
     BaseExpressionElementGrammar=OneOf(
         Ref("LiteralGrammar"),

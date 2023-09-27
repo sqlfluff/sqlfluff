@@ -12,6 +12,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     Indent,
+    LiteralSegment,
     Matchable,
     OneOf,
     OptionallyBracketed,
@@ -38,12 +39,12 @@ clickhouse_dialect.replace(
     QuotedLiteralSegment=OneOf(
         TypedParser(
             "single_quote",
-            ansi.LiteralSegment,
+            LiteralSegment,
             type="quoted_literal",
         ),
         TypedParser(
             "dollar_quote",
-            ansi.LiteralSegment,
+            LiteralSegment,
             type="quoted_literal",
         ),
     ),
@@ -51,7 +52,7 @@ clickhouse_dialect.replace(
 
 clickhouse_dialect.insert_lexer_matchers(
     # https://clickhouse.com/docs/en/sql-reference/functions#higher-order-functions---operator-and-lambdaparams-expr-function
-    [StringLexer("lambda", r"->", SymbolSegment, segment_kwargs={"type": "lambda"})],
+    [StringLexer("lambda", r"->", SymbolSegment)],
     before="newline",
 )
 

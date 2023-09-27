@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a1731e61d1110ed23395aab516655bdfc035804b79aa6e109dc032043c38700a
+_hash: 0035382ef47bde6ebf1104b4b6b199d904ed536514329a25e2355d4a48b84cfb
 file:
 - statement:
     create_udf_script:
@@ -35,44 +35,44 @@ file:
         keyword: DOUBLE
     - keyword: AS
     - script_content:
-      - code: function
-      - code: run
+      - word: function
+      - word: run
       - bracketed:
           start_bracket: (
-          code: ctx
+          word: ctx
           end_bracket: )
-      - code: if
-      - code: ctx
-      - raw: .
-      - code: a
-      - raw: '='
-      - raw: '='
-      - code: nil
-      - code: or
-      - code: ctx
-      - raw: .
-      - code: b
-      - raw: '='
-      - raw: '='
-      - code: nil
-      - code: then
-      - code: return
-      - code: 'NULL'
-      - code: end
-      - code: return
+      - word: if
+      - word: ctx
+      - dot: .
+      - word: a
+      - equals: '='
+      - equals: '='
+      - word: nil
+      - word: or
+      - word: ctx
+      - dot: .
+      - word: b
+      - equals: '='
+      - equals: '='
+      - word: nil
+      - word: then
+      - word: return
+      - word: 'NULL'
+      - word: end
+      - word: return
       - bracketed:
         - start_bracket: (
-        - code: ctx
-        - raw: .
-        - code: a
-        - raw: +
-        - code: ctx
-        - raw: .
-        - code: b
+        - word: ctx
+        - dot: .
+        - word: a
+        - plus: +
+        - word: ctx
+        - dot: .
+        - word: b
         - end_bracket: )
-      - raw: /
+      - divide: /
       - numeric_literal: '2'
-      - code: end
+      - word: end
 - function_script_terminator: /
 - statement:
     create_udf_script:
@@ -104,47 +104,47 @@ file:
         keyword: DOUBLE
     - keyword: AS
     - script_content:
-      - code: function
-      - code: run
+      - word: function
+      - word: run
       - bracketed:
           start_bracket: (
-          code: ctx
+          word: ctx
           end_bracket: )
-      - code: if
-      - code: ctx
-      - raw: .
-      - code: a
-      - raw: '='
-      - raw: '='
-      - code: nil
-      - code: or
-      - code: ctx
-      - raw: .
-      - code: b
-      - raw: '='
-      - raw: '='
-      - code: nil
-      - code: then
-      - code: return
-      - code: 'NULL'
-      - code: end
-      - code: x
-      - raw: '='
+      - word: if
+      - word: ctx
+      - dot: .
+      - word: a
+      - equals: '='
+      - equals: '='
+      - word: nil
+      - word: or
+      - word: ctx
+      - dot: .
+      - word: b
+      - equals: '='
+      - equals: '='
+      - word: nil
+      - word: then
+      - word: return
+      - word: 'NULL'
+      - word: end
+      - word: x
+      - equals: '='
       - numeric_literal: '10'
-      - raw: /
+      - divide: /
       - numeric_literal: '2'
-      - code: return
+      - word: return
       - bracketed:
         - start_bracket: (
-        - code: ctx
-        - raw: .
-        - code: a
-        - raw: +
-        - code: ctx
-        - raw: .
-        - code: b
+        - word: ctx
+        - dot: .
+        - word: a
+        - plus: +
+        - word: ctx
+        - dot: .
+        - word: b
         - end_bracket: )
-      - raw: /
+      - divide: /
       - numeric_literal: '2'
-      - code: end
+      - word: end
 - function_script_terminator: /

@@ -34,7 +34,7 @@ from sqlfluff.cli.commands import (
     rules,
     version,
 )
-from sqlfluff.core.parser.segments.raw import CommentSegment
+from sqlfluff.core.parser import CommentSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult
 from sqlfluff.utils.testing.cli import invoke_assert_code
 
