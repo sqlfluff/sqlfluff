@@ -5,7 +5,7 @@
 from os import getenv
 from typing import Optional
 from typing import Sequence as SequenceType
-from typing import Set, Tuple, Union
+from typing import Set, Tuple, Type, Union
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (
@@ -26,12 +26,15 @@ from sqlfluff.core.parser.segments import (
     BracketedSegment,
     Dedent,
     Indent,
+    MetaSegment,
     UnparsableSegment,
 )
 from sqlfluff.core.parser.types import MatchableType, ParseMode, SimpleHintType
 
 
-def _flush_metas(pre_nc_idx, post_nc_idx, meta_buffer):
+def _flush_metas(
+    pre_nc_idx: int, post_nc_idx: int, meta_buffer: SequenceType[Type["MetaSegment"]]
+) -> Tuple[Tuple[int, Type[MetaSegment]], ...]:
     # Flush any metas...
     if all(m.indent_val >= 0 for m in meta_buffer):
         meta_idx = pre_nc_idx
@@ -95,8 +98,8 @@ class Sequence(BaseGrammar):
         start_idx = idx  # Where did we start
         matched_idx = idx  # Where have we got to
         max_idx = len(segments)  # What is the limit
-        insert_segments = ()
-        child_matches = ()
+        insert_segments: Tuple[Tuple[int, Type[MetaSegment]], ...] = ()
+        child_matches: Tuple[MatchResult2, ...] = ()
         first_match = True
         # Metas with a negative indent value come AFTER
         # the whitespace. Positive or neutral come BEFORE.
@@ -229,7 +232,9 @@ class Sequence(BaseGrammar):
                         matched_slice=slice(start_idx, max_idx),
                         matched_class=UnparsableSegment,
                         segment_kwargs={
-                            "expected": f"{elem} to start sequence. Found {segments[_idx]}"
+                            "expected": (
+                                f"{elem} to start sequence. Found {segments[_idx]}"
+                            )
                         },
                     )
 

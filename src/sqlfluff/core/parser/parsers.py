@@ -4,7 +4,7 @@ Matchable objects which return individual segments.
 """
 
 from abc import abstractmethod
-from typing import Collection, List, Optional, Sequence, Tuple, Type, Union
+from typing import Any, Collection, Dict, List, Optional, Sequence, Tuple, Type
 from uuid import uuid4
 
 import regex
@@ -55,7 +55,7 @@ class BaseParser(Matchable):
 
         This is a helper function for reuse by other parsers.
         """
-        segment_kwargs = {}
+        segment_kwargs: Dict[str, Any] = {}
         if self.type:
             segment_kwargs["type"] = self.type
         if self._trim_chars:

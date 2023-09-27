@@ -1,6 +1,6 @@
 """Conditional Grammar."""
 
-from typing import Sequence, Tuple, Type, Union
+from typing import Sequence, Type, Union
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import BaseGrammar

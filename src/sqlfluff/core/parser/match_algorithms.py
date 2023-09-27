@@ -12,14 +12,13 @@ from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.match_result import MatchResult2
 from sqlfluff.core.parser.segments import BaseSegment, BracketedSegment
-from sqlfluff.core.parser.segments.base import BaseSegment
-from sqlfluff.core.parser.segments.bracketed import BracketedSegment
 from sqlfluff.core.parser.types import MatchableType
 
 
 def skip_start_index_forward_to_code(
     segments: Sequence[BaseSegment], start_idx: int, max_idx: Optional[int] = None
 ) -> int:
+    """Move an index forward through segments until segments[index] is code."""
     if max_idx is None:
         max_idx = len(segments)
     for _idx in range(start_idx, max_idx):
@@ -33,6 +32,7 @@ def skip_start_index_forward_to_code(
 def skip_stop_index_backward_to_code(
     segments: Sequence[BaseSegment], stop_idx: int, min_idx: int = 0
 ) -> int:
+    """Move an index backward through segments until segments[index - 1] is code."""
     for _idx in range(stop_idx, min_idx, -1):
         if segments[_idx - 1].is_code:
             break
@@ -65,7 +65,7 @@ def first_trimmed_raw(seg: BaseSegment) -> str:
 
 def first_non_whitespace(
     segments: Sequence[BaseSegment],
-    start_idx=0,
+    start_idx: int = 0,
 ) -> Optional[Tuple[str, Set[str]]]:
     """Return the upper first non-whitespace segment in the iterable."""
     for i in range(start_idx, len(segments)):
@@ -100,10 +100,10 @@ class BracketInfo:
 
 
 def prune_options(
-    options: List[MatchableType],
+    options: Sequence[MatchableType],
     segments: Sequence[BaseSegment],
     parse_context: ParseContext,
-    start_idx=0,
+    start_idx: int = 0,
 ) -> List[MatchableType]:
     """Use the simple matchers to prune which options to match on.
 
@@ -159,7 +159,7 @@ def prune_options(
 
 
 def longest_match2(
-    segments: Tuple[BaseSegment, ...],
+    segments: Sequence[BaseSegment],
     matchers: Sequence[MatchableType],
     idx: int,
     parse_context: ParseContext,
@@ -416,7 +416,7 @@ def resolve_bracket2(
     assert opening_matcher in start_brackets
     type_idx = start_brackets.index(opening_matcher)
     matched_idx = opening_match.matched_slice.stop
-    child_matches = ()
+    child_matches: Tuple[MatchResult2, ...] = ()
 
     while True:
         # Look for the next relevant bracket.
@@ -485,7 +485,7 @@ def resolve_bracket2(
 def next_ex_bracket_match2(
     segments: Sequence[BaseSegment],
     idx: int,
-    matchers: List[MatchableType],
+    matchers: Sequence[MatchableType],
     parse_context: ParseContext,
     start_bracket: Optional[MatchableType] = None,
     end_bracket: Optional[MatchableType] = None,
@@ -528,10 +528,11 @@ def next_ex_bracket_match2(
     if end_bracket:
         end_brackets += [end_bracket]
     bracket_matchers = start_brackets + end_brackets
+    _matchers = list(matchers) + bracket_matchers
 
     # Make some buffers
     matched_idx = idx
-    child_matches = ()
+    child_matches: Tuple[MatchResult2, ...] = ()
 
     # Iterate
     while True:  # ## TODO: Check whether it should be a for loop?
@@ -540,7 +541,7 @@ def next_ex_bracket_match2(
         match, matcher = next_match2(
             segments,
             matched_idx,
-            matchers + bracket_matchers,
+            _matchers,
             parse_context=parse_context,
         )
         # Did we match? If so, is it a target or a bracket?
@@ -558,6 +559,7 @@ def next_ex_bracket_match2(
         # Otherwise we found a opening bracket before finding a target.
         # We now call the recursive function because there might be more
         # brackets inside.
+        assert matcher, "If there's a match, there should be a matcher."
         # NOTE: This only returns on resolution of the opening bracket.
         # TODO: We go to quite a bit of work to construct the inner matches
         # here, but we're not really using them. Should we deal with that?
@@ -578,11 +580,14 @@ def greedy_match2(
     segments: Sequence[BaseSegment],
     idx: int,
     parse_context: ParseContext,
-    matchers: List[MatchableType],
+    matchers: Sequence[MatchableType],
     include_terminator: bool = False,
 ) -> MatchResult2:
     """Match anything up to some defined terminator."""
     working_idx = idx
+    # NOTE: _stop_idx is always reset below after matching before reference
+    # but mypy is unhappy unless we set a default value here.
+    _stop_idx = idx
 
     while True:
         with parse_context.deeper_match(name="GreedyUntil") as ctx:
@@ -670,7 +675,7 @@ def greedy_match2(
 
 
 def trim_to_terminator2(
-    segments: Tuple[BaseSegment, ...],
+    segments: Sequence[BaseSegment],
     idx: int,
     terminators: Sequence[MatchableType],
     parse_context: ParseContext,
