@@ -738,7 +738,7 @@ the following to the `__init__.py` of the library:
 
 .. code-block:: python
 
-     # https://github.com/apache/airflow/blob/main/airflow/templates.py#L50
+     # https://github.com/apache/airflow/blob/main/airflow/templates.py#L53
      def ds_filter(value: datetime.date | datetime.time | None) -> str | None:
         """Date filter."""
         if value is None:
