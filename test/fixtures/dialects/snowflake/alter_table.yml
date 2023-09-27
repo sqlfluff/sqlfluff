@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 96c77f38cd4ce5188fec6b5388e8ca16e107b239cbe11961100b236111046cdd
+_hash: a1f163734c1f7921014ea72eb0a17ffb2920056606e41b6337e1bae29722ab8e
 file:
 - statement:
     alter_table_statement:
@@ -110,6 +110,45 @@ file:
     - alter_table_constraint_action:
       - keyword: ADD
       - keyword: CONSTRAINT
+      - quoted_identifier: '"constraint1"'
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: col1
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_constraint_action:
+      - keyword: ADD
+      - keyword: CONSTRAINT
+      - quoted_identifier: '"constraint1"'
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_constraint_action:
+      - keyword: ADD
+      - keyword: CONSTRAINT
       - naked_identifier: constraint1
       - keyword: FOREIGN
       - keyword: KEY
@@ -126,6 +165,91 @@ file:
           column_reference:
             naked_identifier: col2
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_constraint_action:
+      - keyword: ADD
+      - keyword: CONSTRAINT
+      - quoted_identifier: '"constraint1"'
+      - keyword: FOREIGN
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: col1
+          end_bracket: )
+      - keyword: REFERENCES
+      - table_reference:
+          naked_identifier: table2
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: col2
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_constraint_action:
+      - keyword: ADD
+      - keyword: CONSTRAINT
+      - quoted_identifier: '"constraint1"'
+      - keyword: FOREIGN
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: col1
+          end_bracket: )
+      - keyword: REFERENCES
+      - table_reference:
+        - quoted_identifier: '"schema1"'
+        - dot: .
+        - quoted_identifier: '"table1"'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '"col2"'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_constraint_action:
+      - keyword: ADD
+      - keyword: CONSTRAINT
+      - quoted_identifier: '"constraint1"'
+      - keyword: FOREIGN
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: col1
+          end_bracket: )
+      - keyword: REFERENCES
+      - table_reference:
+        - quoted_identifier: '"schema1"'
+        - dot: .
+        - quoted_identifier: '"table1"'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -156,4 +280,34 @@ file:
       - naked_identifier: constraint1
       - keyword: TO
       - naked_identifier: constraint2
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '"ADW_TEMP"'
+      - dot: .
+      - quoted_identifier: '"FRUIT_PRICE_SAT"'
+    - alter_table_constraint_action:
+      - keyword: ADD
+      - keyword: CONSTRAINT
+      - quoted_identifier: '"FK_2"'
+      - keyword: FOREIGN
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '"SPECIAL_OFFER_ID"'
+          end_bracket: )
+      - keyword: REFERENCES
+      - table_reference:
+        - quoted_identifier: '"ADW_TEMP"'
+        - dot: .
+        - quoted_identifier: '"OFFER_SAT"'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '"SPECIAL_OFFER_ID"'
+          end_bracket: )
 - statement_terminator: ;

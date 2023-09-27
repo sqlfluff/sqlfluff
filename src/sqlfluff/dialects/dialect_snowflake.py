@@ -101,6 +101,16 @@ snowflake_dialect.insert_lexer_matchers(
     before="like_operator",
 )
 
+# Check for ":=" operator before the equals operator to correctly parse walrus operator
+# for Snowflake scripting block statements
+# https://docs.snowflake.com/en/developer-guide/snowflake-scripting/variables
+snowflake_dialect.insert_lexer_matchers(
+    [
+        StringLexer("walrus_operator", ":=", CodeSegment),
+    ],
+    before="equals",
+)
+
 snowflake_dialect.bracket_sets("bracket_pairs").add(
     ("exclude", "StartExcludeBracketSegment", "EndExcludeBracketSegment", True)
 )
@@ -175,6 +185,8 @@ snowflake_dialect.add(
         "=>", SymbolSegment, type="parameter_assigner"
     ),
     FunctionAssignerSegment=StringParser("->", SymbolSegment, type="function_assigner"),
+    # Walrus operator for Snowflake scripting block statements
+    WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
     QuotedStarSegment=StringParser(
         "'*'",
         IdentifierSegment,
@@ -954,6 +966,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateCloneStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
             Ref("ScriptingBlockStatementSegment"),
+            Ref("ScriptingLetStatementSegment"),
             Ref("ReturnStatementSegment"),
             Ref("ShowStatementSegment"),
             Ref("AlterUserStatementSegment"),
@@ -1862,21 +1875,40 @@ class AlterTableConstraintActionSegment(BaseSegment):
         # Add Column
         Sequence(
             "ADD",
-            Sequence("CONSTRAINT", Ref("NakedIdentifierSegment"), optional=True),
+            Sequence(
+                "CONSTRAINT",
+                OneOf(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("QuotedIdentifierSegment"),
+                ),
+                optional=True,
+            ),
             OneOf(
                 Sequence(
                     Ref("PrimaryKeyGrammar"),
-                    Bracketed(Ref("ColumnReferenceSegment"), optional=True),
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                    ),
                 ),
                 Sequence(
                     Sequence(
                         Ref("ForeignKeyGrammar"),
-                        Bracketed(Ref("ColumnReferenceSegment"), optional=True),
-                        optional=True,
+                        Bracketed(
+                            Delimited(
+                                Ref("ColumnReferenceSegment"),
+                            )
+                        ),
                     ),
                     "REFERENCES",
                     Ref("TableReferenceSegment"),
-                    Bracketed(Ref("ColumnReferenceSegment")),
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                        optional=True,
+                    ),
                 ),
                 Sequence(
                     "UNIQUE", Bracketed(Ref("ColumnReferenceSegment"), optional=True)
@@ -2626,7 +2658,70 @@ class ScriptingBlockStatementSegment(BaseSegment):
 
     type = "scripting_block_statement"
     match_grammar = OneOf(
-        Sequence("BEGIN", Delimited(Ref("StatementSegment"))), Sequence("END")
+        Sequence(
+            "BEGIN",
+            Delimited(
+                Ref("StatementSegment"),
+            ),
+        ),
+        Sequence("END"),
+    )
+
+
+class ScriptingLetStatementSegment(BaseSegment):
+    """A snowflake `LET` statement for SQL scripting.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/let
+    https://docs.snowflake.com/en/developer-guide/snowflake-scripting/variables
+    """
+
+    type = "scripting_let_statement"
+    match_grammar = OneOf(
+        # Initial declaration and assignment
+        Sequence(
+            "LET",
+            Ref("LocalVariableNameSegment"),
+            OneOf(
+                # Variable assigment
+                OneOf(
+                    Sequence(
+                        Ref("DatatypeSegment"),
+                        OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
+                        Ref("ExpressionSegment"),
+                    ),
+                    Sequence(
+                        OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+                # Cursor assignment
+                Sequence(
+                    "CURSOR",
+                    "FOR",
+                    OneOf(Ref("LocalVariableNameSegment"), Ref("SelectableGrammar")),
+                ),
+                # Resultset assignment
+                Sequence(
+                    "RESULTSET",
+                    Ref("WalrusOperatorSegment"),
+                    Bracketed(Ref("SelectableGrammar")),
+                ),
+            ),
+        ),
+        # Subsequent assignment, see
+        # https://docs.snowflake.com/en/developer-guide/snowflake-scripting/variables
+        Sequence(
+            Ref("LocalVariableNameSegment"),
+            Ref("WalrusOperatorSegment"),
+            OneOf(
+                # Variable reassigment
+                Ref("ExpressionSegment"),
+                # Cursors cannot be reassigned
+                # no code
+                # Resultset reassigment
+                Bracketed(Ref("SelectableGrammar")),
+            ),
+        ),
     )
 
 
@@ -2700,9 +2795,12 @@ class CreateFunctionStatementSegment(BaseSegment):
         Sequence(
             "AS",
             OneOf(
+                # Either a foreign programming language UDF...
                 Ref("DoubleQuotedUDFBody"),
                 Ref("SingleQuotedUDFBody"),
                 Ref("DollarQuotedUDFBody"),
+                # ...or a SQL UDF
+                Ref("ScriptingBlockStatementSegment"),
             ),
             optional=True,
         ),
