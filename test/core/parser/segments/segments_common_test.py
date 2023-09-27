@@ -37,4 +37,10 @@ def test__parser__core_keyword(raw_segments):
     assert FooKeyword.match(raw_segments[1:], parse_context=ctx)
     # Check that the types work right. Importantly that the "bar"
     # type makes it in.
-    assert m.matched_segments[0].class_types == {"base", "keyword", "raw", "bar"}
+    assert m.matched_segments[0].class_types == {
+        "base",
+        "word",
+        "keyword",
+        "raw",
+        "bar",
+    }

@@ -2,10 +2,10 @@
 
 from typing import Optional
 
-from sqlfluff.core.parser.segments.raw import SymbolSegment
-from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.core.parser import SymbolSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.utils.functional import sp, FunctionalContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.utils.functional import FunctionalContext, sp
 
 
 class Rule_CV01(BaseRule):

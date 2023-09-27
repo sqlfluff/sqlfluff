@@ -7,6 +7,7 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     BaseSegment,
     CodeSegment,
+    LiteralSegment,
     OneOf,
     Ref,
     RegexLexer,
@@ -108,12 +109,12 @@ soql_dialect.replace(
         ]
     ),
     DateTimeLiteralGrammar=OneOf(
-        TypedParser("date_literal", ansi.LiteralSegment, type="date_literal"),
-        TypedParser("datetime_literal", ansi.LiteralSegment, type="datetime_literal"),
+        TypedParser("date_literal", LiteralSegment, type="date_literal"),
+        TypedParser("datetime_literal", LiteralSegment, type="datetime_literal"),
         Sequence(
             OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"),
             TypedParser(
-                "single_quote", ansi.LiteralSegment, type="date_constructor_literal"
+                "single_quote", LiteralSegment, type="date_constructor_literal"
             ),
         ),
     ),

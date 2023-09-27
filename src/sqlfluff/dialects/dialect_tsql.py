@@ -12,13 +12,17 @@ from sqlfluff.core.parser import (
     Bracketed,
     CodeSegment,
     CommentSegment,
+    CompositeComparisonOperatorSegment,
     Conditional,
     Dedent,
     Delimited,
+    IdentifierSegment,
     ImplicitIndent,
     Indent,
+    LiteralSegment,
     Matchable,
     MultiStringParser,
+    NewlineSegment,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -29,8 +33,9 @@ from sqlfluff.core.parser import (
     SegmentGenerator,
     Sequence,
     TypedParser,
+    WhitespaceSegment,
+    WordSegment,
 )
-from sqlfluff.core.parser.segments.raw import NewlineSegment, WhitespaceSegment
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_tsql_keywords import (
     RESERVED_KEYWORDS,
@@ -221,24 +226,24 @@ tsql_dialect.patch_lexer_matchers(
             ),
         ),
         RegexLexer(
-            "word", r"[0-9a-zA-Z_#@]+", ansi.WordSegment
+            "word", r"[0-9a-zA-Z_#@]+", WordSegment
         ),  # overriding to allow hash mark and at-sign in code
     ]
 )
 
 tsql_dialect.add(
     BracketedIdentifierSegment=TypedParser(
-        "square_quote", ansi.IdentifierSegment, type="quoted_identifier"
+        "square_quote", IdentifierSegment, type="quoted_identifier"
     ),
     HashIdentifierSegment=TypedParser(
-        "hash_prefix", ansi.IdentifierSegment, type="hash_identifier"
+        "hash_prefix", IdentifierSegment, type="hash_identifier"
     ),
     VariableIdentifierSegment=TypedParser(
-        "var_prefix", ansi.IdentifierSegment, type="variable_identifier"
+        "var_prefix", IdentifierSegment, type="variable_identifier"
     ),
     BatchDelimiterGrammar=Ref("GoStatementSegment"),
     QuotedLiteralSegmentWithN=TypedParser(
-        "single_quote_with_n", ansi.LiteralSegment, type="quoted_literal"
+        "single_quote_with_n", LiteralSegment, type="quoted_literal"
     ),
     QuotedLiteralSegmentOptWithN=OneOf(
         Ref("QuotedLiteralSegment"),
@@ -333,7 +338,7 @@ tsql_dialect.replace(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
             r"[A-Z_][A-Z0-9_@$#]*",
-            ansi.IdentifierSegment,
+            IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
@@ -610,7 +615,7 @@ class StatementSegment(ansi.StatementSegment):
     )
 
 
-class GreaterThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class GreaterThanOrEqualToSegment(CompositeComparisonOperatorSegment):
     """Greater than or equal to operator.
 
     N.B. Patching to add !< and
@@ -629,7 +634,7 @@ class GreaterThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class LessThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class LessThanOrEqualToSegment(CompositeComparisonOperatorSegment):
     """Greater than or equal to operator.
 
     N.B. Patching to add !> and
@@ -648,7 +653,7 @@ class LessThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class NotEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class NotEqualToSegment(CompositeComparisonOperatorSegment):
     """Not equal to operator.
 
     N.B. Patching to allow spaces between operators.

@@ -9,12 +9,12 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     Delimited,
+    KeywordSegment,
     MultiStringParser,
     OneOf,
     Ref,
     Sequence,
 )
-from sqlfluff.core.parser.segments.raw import KeywordSegment
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_materialize_keywords import (
     materialize_reserved_keywords,

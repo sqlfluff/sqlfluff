@@ -16,6 +16,8 @@ from sqlfluff.core.parser import (
     Delimited,
     GreedyUntil,
     Indent,
+    LiteralKeywordSegment,
+    LiteralSegment,
     MultiStringParser,
     NewlineSegment,
     Nothing,
@@ -143,7 +145,7 @@ exasol_dialect.add(
     ),
     RangeOperator=TypedParser("range_operator", SymbolSegment),
     UnknownSegment=StringParser(
-        "unknown", ansi.LiteralKeywordSegment, type="boolean_literal"
+        "unknown", LiteralKeywordSegment, type="boolean_literal"
     ),
     ForeignKeyReferencesClauseGrammar=Sequence(
         "REFERENCES",
@@ -264,9 +266,7 @@ exasol_dialect.replace(
     ),
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIMESTAMP"),
-        TypedParser(
-            "single_quote", ansi.LiteralSegment, type="date_constructor_literal"
-        ),
+        TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
     ),
     CharCharacterSetGrammar=OneOf(
         "UTF8",

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, List, Optional, Type, cast
 
 import regex
 
-from sqlfluff.core.parser.segments.raw import CodeSegment
+from sqlfluff.core.parser import CodeSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import FunctionalContext, sp

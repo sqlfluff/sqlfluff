@@ -5,18 +5,21 @@ https://www.ibm.com/docs/en/i/7.4?topic=overview-db2-i
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
+    AnyNumberOf,
+    BaseSegment,
+    Bracketed,
     CodeSegment,
     CommentSegment,
+    IdentifierSegment,
+    OneOf,
     ParseMode,
+    Ref,
     RegexLexer,
     RegexParser,
     SegmentGenerator,
+    Sequence,
+    WordSegment,
 )
-from sqlfluff.core.parser.grammar.anyof import AnyNumberOf, OneOf
-from sqlfluff.core.parser.grammar.base import Ref
-from sqlfluff.core.parser.grammar.sequence import Bracketed, Sequence
-from sqlfluff.core.parser.segments.base import BaseSegment
-from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_db2_keywords import UNRESERVED_KEYWORDS
 
 ansi_dialect = load_raw_dialect("ansi")
@@ -31,7 +34,7 @@ db2_dialect.replace(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
             r"[A-Z0-9_#]*[A-Z#][A-Z0-9_#]*",
-            ansi.IdentifierSegment,
+            IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
@@ -78,7 +81,7 @@ db2_dialect.patch_lexer_matchers(
             CodeSegment,
         ),
         # In Db2, a field could have a # pound/hash sign
-        RegexLexer("word", r"[0-9a-zA-Z_#]+", ansi.WordSegment),
+        RegexLexer("word", r"[0-9a-zA-Z_#]+", WordSegment),
     ]
 )
 

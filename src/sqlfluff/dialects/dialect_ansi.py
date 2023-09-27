@@ -23,16 +23,23 @@ from sqlfluff.core.parser import (
     Anything,
     BaseFileSegment,
     BaseSegment,
+    BinaryOperatorSegment,
     Bracketed,
     BracketedSegment,
     CodeSegment,
     CommentSegment,
+    ComparisonOperatorSegment,
+    CompositeBinaryOperatorSegment,
+    CompositeComparisonOperatorSegment,
     Conditional,
     Dedent,
     Delimited,
+    IdentifierSegment,
     ImplicitIndent,
     Indent,
     KeywordSegment,
+    LiteralKeywordSegment,
+    LiteralSegment,
     Matchable,
     MultiStringParser,
     NewlineSegment,
@@ -50,87 +57,12 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     TypedParser,
     WhitespaceSegment,
+    WordSegment,
 )
 from sqlfluff.dialects.dialect_ansi_keywords import (
     ansi_reserved_keywords,
     ansi_unreserved_keywords,
 )
-
-
-class IdentifierSegment(CodeSegment):
-    """An identifier segment.
-
-    Defined here for type inheritance.
-    """
-
-    type = "identifier"
-
-
-class LiteralSegment(CodeSegment):
-    """A literal segment.
-
-    Defined here for type inheritance.
-    """
-
-    type = "literal"
-
-
-class LiteralKeywordSegment(KeywordSegment):
-    """A keyword style literal segment.
-
-    Defined here for type inheritance.
-    """
-
-    type = "literal"
-
-
-class BinaryOperatorSegment(CodeSegment):
-    """A binary operator segment.
-
-    Defined here for type inheritance.
-    """
-
-    type = "binary_operator"
-
-
-class CompositeBinaryOperatorSegment(BaseSegment):
-    """A composite binary operator segment.
-
-    Defined here for type inheritance.
-    """
-
-    type = "binary_operator"
-
-
-class ComparisonOperatorSegment(CodeSegment):
-    """A comparison operator segment.
-
-    Defined here for type inheritance.
-    """
-
-    type = "comparison_operator"
-
-
-class CompositeComparisonOperatorSegment(BaseSegment):
-    """A comparison operator segment.
-
-    Defined here for type inheritance.
-    """
-
-    type = "comparison_operator"
-
-
-class WordSegment(CodeSegment):
-    """A generic (likely letters only) segment.
-
-    Defined here for type inheritance.
-
-    This is the base segment for things like keywords and
-    naked identifiers.
-    """
-
-    type = "word"
-
 
 ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
 

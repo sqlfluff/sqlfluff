@@ -10,13 +10,16 @@ from sqlfluff.core.parser import (
     AnySetOf,
     Anything,
     BaseSegment,
+    BinaryOperatorSegment,
     Bracketed,
     CodeSegment,
     CommentSegment,
     Dedent,
     Delimited,
+    IdentifierSegment,
     Indent,
     KeywordSegment,
+    LiteralSegment,
     Matchable,
     OneOf,
     OptionallyBracketed,
@@ -78,13 +81,13 @@ mysql_dialect.insert_lexer_matchers(
         RegexLexer(
             "hexadecimal_literal",
             r"([xX]'([\da-fA-F][\da-fA-F])+'|0x[\da-fA-F]+)",
-            ansi.LiteralSegment,
+            LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),
         RegexLexer(
             "bit_value_literal",
             r"([bB]'[01]+'|0b[01]+)",
-            ansi.LiteralSegment,
+            LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),
     ],
@@ -137,7 +140,7 @@ mysql_dialect.sets("datetime_units").update(
 mysql_dialect.replace(
     QuotedIdentifierSegment=TypedParser(
         "back_quote",
-        ansi.IdentifierSegment,
+        IdentifierSegment,
         type="quoted_identifier",
         trim_chars=("`",),
     ),
@@ -187,7 +190,7 @@ mysql_dialect.replace(
         OneOf(
             TypedParser(
                 "single_quote",
-                ansi.LiteralSegment,
+                LiteralSegment,
                 type="date_constructor_literal",
             ),
             Ref("NumericLiteralSegment"),
@@ -199,7 +202,7 @@ mysql_dialect.replace(
         # we use grammar to handle this.
         TypedParser(
             "single_quote",
-            ansi.LiteralSegment,
+            LiteralSegment,
             type="quoted_literal",
         ),
         Ref("DoubleQuotedLiteralSegment"),
@@ -220,13 +223,13 @@ mysql_dialect.replace(
         insert=[Ref("SessionVariableNameSegment")]
     ),
     AndOperatorGrammar=OneOf(
-        StringParser("AND", ansi.BinaryOperatorSegment),
-        StringParser("&&", ansi.BinaryOperatorSegment),
+        StringParser("AND", BinaryOperatorSegment),
+        StringParser("&&", BinaryOperatorSegment),
     ),
     OrOperatorGrammar=OneOf(
-        StringParser("OR", ansi.BinaryOperatorSegment),
-        StringParser("||", ansi.BinaryOperatorSegment),
-        StringParser("XOR", ansi.BinaryOperatorSegment),
+        StringParser("OR", BinaryOperatorSegment),
+        StringParser("||", BinaryOperatorSegment),
+        StringParser("XOR", BinaryOperatorSegment),
     ),
     NotOperatorGrammar=OneOf(
         StringParser("NOT", KeywordSegment, type="keyword"),
@@ -249,13 +252,13 @@ mysql_dialect.replace(
 mysql_dialect.add(
     DoubleQuotedLiteralSegment=TypedParser(
         "double_quote",
-        ansi.LiteralSegment,
+        LiteralSegment,
         type="quoted_literal",
         trim_chars=('"',),
     ),
     AtSignLiteralSegment=TypedParser(
         "at_sign_literal",
-        ansi.LiteralSegment,
+        LiteralSegment,
     ),
     SystemVariableSegment=RegexParser(
         r"@@(session|global)\.[A-Za-z0-9_]+",

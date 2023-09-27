@@ -15,6 +15,7 @@ from sqlfluff.core.parser import (
     CodeSegment,
     CommentSegment,
     Delimited,
+    IdentifierSegment,
     Matchable,
     OneOf,
     OptionallyBracketed,
@@ -27,6 +28,7 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
+    WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 
@@ -73,7 +75,7 @@ oracle_dialect.sets("bare_functions").update(
 
 oracle_dialect.patch_lexer_matchers(
     [
-        RegexLexer("word", r"[a-zA-Z][0-9a-zA-Z_$#]*", ansi.WordSegment),
+        RegexLexer("word", r"[a-zA-Z][0-9a-zA-Z_$#]*", WordSegment),
     ]
 )
 
@@ -142,7 +144,7 @@ oracle_dialect.replace(
     NakedIdentifierSegment=SegmentGenerator(
         lambda dialect: RegexParser(
             r"[A-Z0-9_]*[A-Z][A-Z0-9_#$]*",
-            ansi.IdentifierSegment,
+            IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
@@ -504,18 +506,10 @@ class CommentStatementSegment(BaseSegment):
     )
 
 
-# Inherit from the ANSI ObjectReferenceSegment this way so we can inherit
-# other segment types from it.
-class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
-    """A reference to an object."""
-
-    pass
-
-
 # need to ignore type due to mypy rules on type variables
 # see https://mypy.readthedocs.io/en/stable/common_issues.html#variables-vs-type-aliases
 # for details
-class TableReferenceSegment(ObjectReferenceSegment):
+class TableReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to an table, CTE, subquery or alias.
 
     Extended from ANSI to allow Database Link syntax using AtSignSegment
