@@ -283,8 +283,18 @@ class StringLexer:
             return LexMatch(forward_string, [])
 
     def construct_segment(self, raw: str, pos_marker: PositionMarker) -> RawSegment:
-        """Construct a segment using the given class a properties."""
-        return self.segment_class(raw=raw, pos_marker=pos_marker, **self.segment_kwargs)
+        """Construct a segment using the given class a properties.
+
+        Unless an override `type` is provided in the `segment_kwargs`,
+        it is assumed that the `name` of the lexer is designated as the
+        intended `type` of the segment.
+        """
+        # NOTE: Using a private attribute here feels a bit wrong.
+        _segment_class_types = self.segment_class._class_types
+        _kwargs = self.segment_kwargs
+        if "type" not in _kwargs and self.name not in _segment_class_types:
+            _kwargs["type"] = self.name
+        return self.segment_class(raw=raw, pos_marker=pos_marker, **_kwargs)
 
 
 class RegexLexer(StringLexer):

@@ -15,7 +15,10 @@ from sqlfluff.core.parser import (
     CommentSegment,
     Dedent,
     Delimited,
+    IdentifierSegment,
     Indent,
+    KeywordSegment,
+    LiteralSegment,
     Matchable,
     MultiStringParser,
     Nothing,
@@ -32,7 +35,6 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     TypedParser,
 )
-from sqlfluff.core.parser.segments.raw import KeywordSegment
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_snowflake_keywords import (
     snowflake_reserved_keywords,
@@ -50,13 +52,12 @@ snowflake_dialect.patch_lexer_matchers(
             "single_quote",
             r"'([^'\\]|\\.|'')*'",
             CodeSegment,
-            segment_kwargs={"type": "single_quote"},
         ),
         RegexLexer(
             "inline_comment",
             r"(--|#|//)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--", "#", "//"), "type": "inline_comment"},
+            segment_kwargs={"trim_start": ("--", "#", "//")},
         ),
     ]
 )
@@ -74,7 +75,6 @@ snowflake_dialect.insert_lexer_matchers(
             "dollar_quote",
             r"\$\$.*\$\$",
             CodeSegment,
-            segment_kwargs={"type": "dollar_quote"},
         ),
         RegexLexer(
             "dollar_literal",
@@ -93,7 +93,6 @@ snowflake_dialect.insert_lexer_matchers(
             "unquoted_file_path",
             r"file://(?:[a-zA-Z]+:|/)+(?:[0-9a-zA-Z\\/_*?-]+)(?:\.[0-9a-zA-Z]+)?",
             CodeSegment,
-            segment_kwargs={"type": "unquoted_file_path"},
         ),
         StringLexer("question_mark", "?", CodeSegment),
         StringLexer("exclude_bracket_open", "{-", CodeSegment),
@@ -178,7 +177,7 @@ snowflake_dialect.add(
     FunctionAssignerSegment=StringParser("->", SymbolSegment, type="function_assigner"),
     QuotedStarSegment=StringParser(
         "'*'",
-        ansi.IdentifierSegment,
+        IdentifierSegment,
         type="quoted_star",
         trim_chars=("'",),
     ),
@@ -194,7 +193,7 @@ snowflake_dialect.add(
     ),
     ColumnIndexIdentifierSegment=RegexParser(
         r"\$[0-9]+",
-        ansi.IdentifierSegment,
+        IdentifierSegment,
         type="column_index_identifier_segment",
     ),
     LocalVariableNameSegment=RegexParser(
@@ -248,7 +247,7 @@ snowflake_dialect.add(
     ),
     CopyOptionOnErrorSegment=RegexParser(
         r"'?CONTINUE'?|'?SKIP_FILE(?:_[0-9]+%?)?'?|'?ABORT_STATEMENT'?",
-        ansi.LiteralSegment,
+        LiteralSegment,
         type="copy_on_error_option",
     ),
     DoubleQuotedUDFBody=TypedParser(
@@ -271,7 +270,7 @@ snowflake_dialect.add(
     ),
     StagePath=RegexParser(
         r"(?:@[^\s;)]+|'@[^']+')",
-        ansi.IdentifierSegment,
+        IdentifierSegment,
         type="stage_path",
     ),
     S3Path=RegexParser(
@@ -332,7 +331,7 @@ snowflake_dialect.add(
     IntegerSegment=RegexParser(
         # An unquoted integer that can be passed as an argument to Snowflake functions.
         r"[0-9]+",
-        ansi.LiteralSegment,
+        LiteralSegment,
         type="integer_literal",
     ),
     SystemFunctionName=RegexParser(
@@ -481,7 +480,7 @@ snowflake_dialect.replace(
         lambda dialect: RegexParser(
             # See https://docs.snowflake.com/en/sql-reference/identifiers-syntax.html
             r"[a-zA-Z_][a-zA-Z0-9_$]*",
-            ansi.IdentifierSegment,
+            IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
@@ -561,12 +560,12 @@ snowflake_dialect.replace(
         # https://docs.snowflake.com/en/sql-reference/data-types-text.html#string-constants
         TypedParser(
             "single_quote",
-            ansi.LiteralSegment,
+            LiteralSegment,
             type="quoted_literal",
         ),
         TypedParser(
             "dollar_quote",
-            ansi.LiteralSegment,
+            LiteralSegment,
             type="quoted_literal",
         ),
     ),
@@ -954,6 +953,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateUserSegment"),
             Ref("CreateCloneStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
+            Ref("ScriptingBlockStatementSegment"),
+            Ref("ReturnStatementSegment"),
             Ref("ShowStatementSegment"),
             Ref("AlterUserStatementSegment"),
             Ref("AlterSessionStatementSegment"),
@@ -2594,10 +2595,38 @@ class CreateProcedureStatementSegment(BaseSegment):
         ),
         "AS",
         OneOf(
+            # Either a foreign programming language UDF...
             Ref("DoubleQuotedUDFBody"),
             Ref("SingleQuotedUDFBody"),
             Ref("DollarQuotedUDFBody"),
+            # ...or a SQL UDF
+            Ref("ScriptingBlockStatementSegment"),
         ),
+    )
+
+
+class ReturnStatementSegment(BaseSegment):
+    """A snowflake `RETURN` statement for SQL scripting.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/return
+    """
+
+    type = "return_statement"
+    match_grammar = Sequence(
+        "RETURN",
+        Ref("ExpressionSegment"),
+    )
+
+
+class ScriptingBlockStatementSegment(BaseSegment):
+    """A snowflake `BEGIN ... END` statement for SQL scripting.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/begin
+    """
+
+    type = "scripting_block_statement"
+    match_grammar = OneOf(
+        Sequence("BEGIN", Delimited(Ref("StatementSegment"))), Sequence("END")
     )
 
 
@@ -3499,7 +3528,13 @@ class CreateStatementSegment(BaseSegment):
             Sequence(
                 "NOTIFICATION_PROVIDER",
                 Ref("EqualsSegment"),
-                OneOf("AWS_SNS", "AZURE_EVENT_GRID", "GCP_PUBSUB"),
+                OneOf(
+                    "AWS_SNS",
+                    "AZURE_EVENT_GRID",
+                    "GCP_PUBSUB",
+                    "AZURE_STORAGE_QUEUE",
+                    Ref("QuotedLiteralSegment"),
+                ),
             ),
             # AWS specific params:
             Sequence(
@@ -3586,7 +3621,9 @@ class CreateStatementSegment(BaseSegment):
             Sequence("TYPE", Ref("EqualsSegment"), "EXTERNAL_STAGE"),
             Sequence("ENABLED", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
             Sequence(
-                "STORAGE_PROVIDER", Ref("EqualsSegment"), OneOf("S3", "AZURE", "GCS")
+                "STORAGE_PROVIDER",
+                Ref("EqualsSegment"),
+                OneOf("S3", "AZURE", "GCS", Ref("QuotedLiteralSegment")),
             ),
             # Azure specific params:
             Sequence(
@@ -3601,7 +3638,7 @@ class CreateStatementSegment(BaseSegment):
             Sequence(
                 "STORAGE_AWS_OBJECT_ACL",
                 Ref("EqualsSegment"),
-                StringParser("'bucket-owner-full-control'", ansi.LiteralSegment),
+                StringParser("'bucket-owner-full-control'", LiteralSegment),
             ),
             Sequence(
                 "STORAGE_ALLOWED_LOCATIONS",
@@ -3664,7 +3701,10 @@ class CreateStatementSegment(BaseSegment):
             Sequence(
                 "INTEGRATION",
                 Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("ObjectReferenceSegment"),
+                ),
                 optional=True,
             ),
             optional=True,
@@ -6657,7 +6697,7 @@ class SetOperatorSegment(ansi.SetOperatorSegment):
     )
 
 
-class ShorthandCastSegment(ansi.BaseSegment):
+class ShorthandCastSegment(BaseSegment):
     """A casting operation using '::'."""
 
     type = "cast_expression"

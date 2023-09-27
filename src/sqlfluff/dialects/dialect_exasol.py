@@ -16,6 +16,8 @@ from sqlfluff.core.parser import (
     Delimited,
     GreedyUntil,
     Indent,
+    LiteralKeywordSegment,
+    LiteralSegment,
     MultiStringParser,
     NewlineSegment,
     Nothing,
@@ -79,19 +81,16 @@ exasol_dialect.insert_lexer_matchers(
             "escaped_identifier",
             r"\[\w+\]",
             CodeSegment,
-            segment_kwargs={"type": "escaped_identifier"},
         ),
         RegexLexer(
             "udf_param_dot_syntax",
             r"\.{3}",
             CodeSegment,
-            segment_kwargs={"type": "udf_param_dot_syntax"},
         ),
         RegexLexer(
             "range_operator",
             r"\.{2}",
             SymbolSegment,
-            segment_kwargs={"type": "range_operator"},
         ),
         StringLexer("hash", "#", CodeSegment),
         StringLexer("walrus_operator", ":=", CodeSegment),
@@ -99,7 +98,6 @@ exasol_dialect.insert_lexer_matchers(
             "function_script_terminator",
             r"\n/\n|\n/$",
             SymbolSegment,
-            segment_kwargs={"type": "function_script_terminator"},
             subdivider=RegexLexer(
                 "newline",
                 r"(\n|\r\n)+",
@@ -123,19 +121,17 @@ exasol_dialect.patch_lexer_matchers(
             "single_quote",
             r"'([^']|'')*'",
             CodeSegment,
-            segment_kwargs={"type": "single_quote"},
         ),
         RegexLexer(
             "double_quote",
             r'"([^"]|"")*"',
             CodeSegment,
-            segment_kwargs={"type": "double_quote"},
         ),
         RegexLexer(
             "inline_comment",
             r"--[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--"), "type": "inline_comment"},
+            segment_kwargs={"trim_start": ("--")},
         ),
     ]
 )
@@ -149,7 +145,7 @@ exasol_dialect.add(
     ),
     RangeOperator=TypedParser("range_operator", SymbolSegment),
     UnknownSegment=StringParser(
-        "unknown", ansi.LiteralKeywordSegment, type="boolean_literal"
+        "unknown", LiteralKeywordSegment, type="boolean_literal"
     ),
     ForeignKeyReferencesClauseGrammar=Sequence(
         "REFERENCES",
@@ -270,9 +266,7 @@ exasol_dialect.replace(
     ),
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIMESTAMP"),
-        TypedParser(
-            "single_quote", ansi.LiteralSegment, type="date_constructor_literal"
-        ),
+        TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
     ),
     CharCharacterSetGrammar=OneOf(
         "UTF8",

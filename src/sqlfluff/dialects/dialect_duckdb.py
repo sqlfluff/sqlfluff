@@ -4,9 +4,10 @@ https://duckdb.org/docs/
 """
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.core.parser import (
+    BinaryOperatorSegment,
     Bracketed,
+    CodeSegment,
     Dedent,
     Delimited,
     Indent,
@@ -17,6 +18,7 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 postgres_dialect = load_raw_dialect("postgres")
@@ -29,8 +31,8 @@ duckdb_dialect.replace(
         Ref("SingleQuotedIdentifierSegment"),
     ),
     DivideSegment=OneOf(
-        StringParser("//", ansi.BinaryOperatorSegment),
-        StringParser("/", ansi.BinaryOperatorSegment),
+        StringParser("//", BinaryOperatorSegment),
+        StringParser("/", BinaryOperatorSegment),
     ),
     UnionGrammar=ansi_dialect.get_grammar("UnionGrammar").copy(
         insert=[
@@ -41,7 +43,7 @@ duckdb_dialect.replace(
 
 duckdb_dialect.insert_lexer_matchers(
     [
-        StringLexer("double_divide", "//", ansi.CodeSegment),
+        StringLexer("double_divide", "//", CodeSegment),
     ],
     before="divide",
 )

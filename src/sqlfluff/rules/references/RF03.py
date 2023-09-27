@@ -3,20 +3,18 @@
 from typing import Iterator, List, Optional, Set
 
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
-from sqlfluff.core.parser.segments.base import BaseSegment
-from sqlfluff.core.parser.segments.raw import SymbolSegment
-from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
-from sqlfluff.utils.analysis.query import Query
+from sqlfluff.core.parser.segments import BaseSegment, SymbolSegment
 from sqlfluff.core.rules import (
     BaseRule,
+    EvalResultType,
     LintFix,
     LintResult,
-    EvalResultType,
     RuleContext,
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.dialects.dialect_ansi import IdentifierSegment, ObjectReferenceSegment
-
+from sqlfluff.utils.analysis.query import Query
+from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
 
 _START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
 

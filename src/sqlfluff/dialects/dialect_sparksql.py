@@ -21,11 +21,14 @@ from sqlfluff.core.parser import (
     BracketedSegment,
     CodeSegment,
     CommentSegment,
+    ComparisonOperatorSegment,
     Conditional,
     Dedent,
     Delimited,
+    IdentifierSegment,
     Indent,
     KeywordSegment,
+    LiteralSegment,
     Matchable,
     MultiStringParser,
     OneOf,
@@ -58,7 +61,7 @@ sparksql_dialect.patch_lexer_matchers(
             "inline_comment",
             r"(--)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": "--", "type": "inline_comment"},
+            segment_kwargs={"trim_start": "--"},
         ),
         # == and <=> are valid equal operations
         # <=> is a non-null equals in Spark SQL
@@ -73,7 +76,6 @@ sparksql_dialect.patch_lexer_matchers(
             "back_quote",
             r"`([^`]|``)*`",
             CodeSegment,
-            segment_kwargs={"type": "back_quote"},
         ),
         # Numeric literal matches integers, decimals, and exponential formats.
         # https://spark.apache.org/docs/latest/sql-ref-literals.html#numeric-literal
@@ -118,7 +120,6 @@ sparksql_dialect.patch_lexer_matchers(
                 r"((?<=\.)|(?=\b))"
             ),
             CodeSegment,
-            segment_kwargs={"type": "numeric_literal"},
         ),
     ]
 )
@@ -129,13 +130,11 @@ sparksql_dialect.insert_lexer_matchers(
             "bytes_single_quote",
             r"X'([^'\\]|\\.)*'",
             CodeSegment,
-            segment_kwargs={"type": "bytes_single_quote"},
         ),
         RegexLexer(
             "bytes_double_quote",
             r'X"([^"\\]|\\.)*"',
             CodeSegment,
-            segment_kwargs={"type": "bytes_double_quote"},
         ),
     ],
     before="single_quote",
@@ -147,10 +146,9 @@ sparksql_dialect.insert_lexer_matchers(
             "at_sign_literal",
             r"@\w*",
             CodeSegment,
-            segment_kwargs={"type": "at_sign_literal"},
         ),
     ],
-    before="code",
+    before="word",
 )
 sparksql_dialect.insert_lexer_matchers(
     [
@@ -162,7 +160,6 @@ sparksql_dialect.insert_lexer_matchers(
                 r"|([a-zA-Z0-9\-_\.]*\.[a-z]+))"
             ),
             CodeSegment,
-            segment_kwargs={"type": "file_literal"},
         ),
     ],
     before="newline",
@@ -256,8 +253,8 @@ sparksql_dialect.replace(
         OneOf("TEMP", "TEMPORARY"),
     ),
     QuotedLiteralSegment=OneOf(
-        TypedParser("single_quote", ansi.LiteralSegment, type="quoted_literal"),
-        TypedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
+        TypedParser("single_quote", LiteralSegment, type="quoted_literal"),
+        TypedParser("double_quote", LiteralSegment, type="quoted_literal"),
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
@@ -384,12 +381,10 @@ sparksql_dialect.replace(
 )
 
 sparksql_dialect.add(
-    FileLiteralSegment=TypedParser(
-        "file_literal", ansi.LiteralSegment, type="file_literal"
-    ),
+    FileLiteralSegment=TypedParser("file_literal", LiteralSegment, type="file_literal"),
     BackQuotedIdentifierSegment=TypedParser(
         "back_quote",
-        ansi.IdentifierSegment,
+        IdentifierSegment,
         type="quoted_identifier",
         trim_chars=("`",),
     ),
@@ -423,8 +418,8 @@ sparksql_dialect.add(
         "<", SymbolSegment, type="start_angle_bracket"
     ),
     EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
-    EqualsSegment_a=StringParser("==", ansi.ComparisonOperatorSegment),
-    EqualsSegment_b=StringParser("<=>", ansi.ComparisonOperatorSegment),
+    EqualsSegment_a=StringParser("==", ComparisonOperatorSegment),
+    EqualsSegment_b=StringParser("<=>", ComparisonOperatorSegment),
     FileKeywordSegment=MultiStringParser(
         ["FILE", "FILES"], KeywordSegment, type="file_keyword"
     ),
@@ -581,7 +576,7 @@ sparksql_dialect.add(
     # and runtime properties.
     PropertiesNakedIdentifierSegment=RegexParser(
         r"[A-Z0-9]*[A-Z][A-Z0-9]*",
-        ansi.IdentifierSegment,
+        IdentifierSegment,
         type="properties_naked_identifier",
     ),
     ResourceFileGrammar=OneOf(
@@ -619,12 +614,12 @@ sparksql_dialect.add(
     BytesQuotedLiteralSegment=OneOf(
         TypedParser(
             "bytes_single_quote",
-            ansi.LiteralSegment,
+            LiteralSegment,
             type="bytes_quoted_literal",
         ),
         TypedParser(
             "bytes_double_quote",
-            ansi.LiteralSegment,
+            LiteralSegment,
             type="bytes_quoted_literal",
         ),
     ),
@@ -650,7 +645,7 @@ sparksql_dialect.add(
     ),
     AtSignLiteralSegment=TypedParser(
         "at_sign_literal",
-        ansi.LiteralSegment,
+        LiteralSegment,
         type="at_sign_literal",
         trim_chars=("@",),
     ),
@@ -660,12 +655,12 @@ sparksql_dialect.add(
     SignedQuotedLiteralSegment=OneOf(
         TypedParser(
             "single_quote",
-            ansi.LiteralSegment,
+            LiteralSegment,
             type="signed_quoted_literal",
         ),
         TypedParser(
             "double_quote",
-            ansi.LiteralSegment,
+            LiteralSegment,
             type="signed_quoted_literal",
         ),
     ),

@@ -25,4 +25,10 @@ def test__parser__core_keyword(raw_segments):
     segments = m.apply(raw_segments)
     assert len(segments) == 1
     segment = segments[0]
-    assert segment.class_types == {"base", "keyword", "raw", "bar"}
+    assert segment.class_types == {
+        "base",
+        "word",
+        "keyword",
+        "raw",
+        "bar",
+    }

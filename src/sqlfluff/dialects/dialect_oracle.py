@@ -15,9 +15,11 @@ from sqlfluff.core.parser import (
     CodeSegment,
     CommentSegment,
     Delimited,
+    IdentifierSegment,
     Matchable,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
@@ -26,6 +28,7 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
+    WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 
@@ -72,12 +75,7 @@ oracle_dialect.sets("bare_functions").update(
 
 oracle_dialect.patch_lexer_matchers(
     [
-        RegexLexer(
-            "code",
-            r"[a-zA-Z][0-9a-zA-Z_$#]*",
-            CodeSegment,
-            segment_kwargs={"type": "code"},
-        ),
+        RegexLexer("word", r"[a-zA-Z][0-9a-zA-Z_$#]*", WordSegment),
     ]
 )
 
@@ -90,7 +88,7 @@ oracle_dialect.insert_lexer_matchers(
         ),
         StringLexer("at_sign", "@", CodeSegment),
     ],
-    before="code",
+    before="word",
 )
 
 oracle_dialect.insert_lexer_matchers(
@@ -113,6 +111,23 @@ oracle_dialect.add(
         ),
     ),
     ConnectByRootGrammar=Sequence("CONNECT_BY_ROOT", Ref("NakedIdentifierSegment")),
+    PlusJoinSegment=Bracketed(
+        StringParser("+", SymbolSegment, type="plus_join_symbol")
+    ),
+    PlusJoinGrammar=OneOf(
+        Sequence(
+            Ref("ColumnReferenceSegment"),
+            Ref("EqualsSegment"),
+            Ref("ColumnReferenceSegment"),
+            Ref("PlusJoinSegment"),
+        ),
+        Sequence(
+            Ref("ColumnReferenceSegment"),
+            Ref("PlusJoinSegment"),
+            Ref("EqualsSegment"),
+            Ref("ColumnReferenceSegment"),
+        ),
+    ),
 )
 
 oracle_dialect.replace(
@@ -129,7 +144,7 @@ oracle_dialect.replace(
     NakedIdentifierSegment=SegmentGenerator(
         lambda dialect: RegexParser(
             r"[A-Z0-9_]*[A-Z][A-Z0-9_#$]*",
-            ansi.IdentifierSegment,
+            IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
@@ -168,6 +183,68 @@ oracle_dialect.replace(
         insert=[
             Ref("ConnectByRootGrammar"),
         ]
+    ),
+    Expression_D_Grammar=Sequence(
+        OneOf(
+            Ref("PlusJoinGrammar"),
+            Ref("BareFunctionSegment"),
+            Ref("FunctionSegment"),
+            Bracketed(
+                OneOf(
+                    # We're using the expression segment here rather than the grammar so
+                    # that in the parsed structure we get nested elements.
+                    Ref("ExpressionSegment"),
+                    Ref("SelectableGrammar"),
+                    Delimited(
+                        Ref(
+                            "ColumnReferenceSegment"
+                        ),  # WHERE (a,b,c) IN (select a,b,c FROM...)
+                        Ref(
+                            "FunctionSegment"
+                        ),  # WHERE (a, substr(b,1,3)) IN (select c,d FROM...)
+                        Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
+                        Ref("LocalAliasSegment"),  # WHERE (LOCAL.a, LOCAL.b) IN (...)
+                    ),
+                ),
+                parse_mode=ParseMode.GREEDY,
+            ),
+            # Allow potential select statement without brackets
+            Ref("SelectStatementSegment"),
+            Ref("LiteralGrammar"),
+            Ref("IntervalExpressionSegment"),
+            Ref("TypedStructLiteralSegment"),
+            Ref("ArrayExpressionSegment"),
+            Ref("ColumnReferenceSegment"),
+            # For triggers, we allow "NEW.*" but not just "*" nor "a.b.*"
+            # So can't use WildcardIdentifierSegment nor WildcardExpressionSegment
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("ObjectReferenceDelimiterGrammar"),
+                Ref("StarSegment"),
+            ),
+            Sequence(
+                Ref("StructTypeSegment"),
+                Bracketed(Delimited(Ref("ExpressionSegment"))),
+            ),
+            Sequence(
+                Ref("DatatypeSegment"),
+                # Don't use the full LiteralGrammar here
+                # because only some of them are applicable.
+                # Notably we shouldn't use QualifiedNumericLiteralSegment
+                # here because it looks like an arithmetic operation.
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                    Ref("NullLiteralSegment"),
+                    Ref("DateTimeLiteralGrammar"),
+                ),
+            ),
+            Ref("LocalAliasSegment"),
+            terminators=[Ref("CommaSegment")],
+        ),
+        Ref("AccessorGrammar", optional=True),
+        allow_gaps=True,
     ),
 )
 
@@ -429,18 +506,10 @@ class CommentStatementSegment(BaseSegment):
     )
 
 
-# Inherit from the ANSI ObjectReferenceSegment this way so we can inherit
-# other segment types from it.
-class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
-    """A reference to an object."""
-
-    pass
-
-
 # need to ignore type due to mypy rules on type variables
 # see https://mypy.readthedocs.io/en/stable/common_issues.html#variables-vs-type-aliases
 # for details
-class TableReferenceSegment(ObjectReferenceSegment):
+class TableReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to an table, CTE, subquery or alias.
 
     Extended from ANSI to allow Database Link syntax using AtSignSegment
