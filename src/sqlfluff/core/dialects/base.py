@@ -9,7 +9,7 @@ from sqlfluff.core.parser import (
     SegmentGenerator,
     StringParser,
 )
-from sqlfluff.core.parser.grammar.base import BaseGrammar
+from sqlfluff.core.parser.grammar.base import BaseGrammar, Nothing
 from sqlfluff.core.parser.lexer import LexerType
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.types import BracketPairTuple, DialectElementType
@@ -192,7 +192,13 @@ class Dialect:
             # public methods and/or fields as it.
             # NOTE: Other replacements aren't validated.
             subclass = False
-            if isinstance(self._library[n], type):
+            if isinstance(self._library[n], type) and not isinstance(
+                # NOTE: The exception here is we _are_ allowed to replace a
+                # segment with a `Nothing()` grammar, which shows that a segment
+                # has been disabled.
+                replacement,
+                Nothing,
+            ):
                 assert isinstance(
                     replacement, type
                 ), f"Cannot replace {n!r} with {replacement}"
