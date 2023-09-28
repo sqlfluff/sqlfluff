@@ -1223,84 +1223,92 @@ class BaseSegment(metaclass=SegmentMetaclass):
         before = []
         after = []
         fixes_applied: List[LintFix] = []
-        todo_buffer = list(self.segments)
-        while True:
-            if len(todo_buffer) == 0:
-                break
-            else:
-                seg = todo_buffer.pop(0)
+        requires_validate = False
 
-                # Look for uuid match.
-                # This handles potential positioning ambiguity.
-                anchor_info: Optional[AnchorEditInfo] = fixes.pop(seg.uuid, None)
-                if anchor_info is not None:
-                    seg_fixes = anchor_info.fixes
-                    if (
-                        len(seg_fixes) == 2 and seg_fixes[0].edit_type == "create_after"
-                    ):  # pragma: no cover
-                        # Must be create_before & create_after. Swap so the
-                        # "before" comes first.
-                        seg_fixes.reverse()
+        for seg in self.segments:
+            # Look for uuid match.
+            # This handles potential positioning ambiguity.
+            anchor_info: Optional[AnchorEditInfo] = fixes.pop(seg.uuid, None)
 
-                    for f in anchor_info.fixes:
-                        assert f.anchor.uuid == seg.uuid
-                        fixes_applied.append(f)
-                        linter_logger.debug(
-                            "Matched fix for %s against segment: %s -> %s",
-                            rule_code,
-                            f,
-                            seg,
-                        )
-                        if f.edit_type == "delete":
-                            # We're just getting rid of this segment.
-                            pass
-                        elif f.edit_type in (
-                            "replace",
-                            "create_before",
-                            "create_after",
-                        ):
-                            if (
-                                f.edit_type == "create_after"
-                                and len(anchor_info.fixes) == 1
-                            ):
-                                # in the case of a creation after that is not part
-                                # of a create_before/create_after pair, also add
-                                # this segment before the edit.
-                                seg_buffer.append(seg)
+            if anchor_info is None:
+                # No fix matches here, just add the segment and move on.
+                seg_buffer.append(seg)
+                continue
 
-                            # We're doing a replacement (it could be a single
-                            # segment or an iterable)
-                            assert f.edit, f"Edit {f.edit_type!r} requires `edit`."
-                            consumed_pos = False
-                            for s in f.edit:
-                                seg_buffer.append(s)
-                                # If one of them has the same raw representation
-                                # then the first that matches gets to take the
-                                # original position marker.
-                                if (
-                                    f.edit_type == "replace"
-                                    and s.raw == seg.raw
-                                    and not consumed_pos
-                                ):
-                                    seg_buffer[-1].pos_marker = seg.pos_marker
-                                    consumed_pos = True
+            # Otherwise there is a fix match.
+            seg_fixes = anchor_info.fixes
+            if (
+                len(seg_fixes) == 2 and seg_fixes[0].edit_type == "create_after"
+            ):  # pragma: no cover
+                # Must be create_before & create_after. Swap so the
+                # "before" comes first.
+                seg_fixes.reverse()
 
-                            if f.edit_type == "create_before":
-                                # in the case of a creation before, also add this
-                                # segment on the end
-                                seg_buffer.append(seg)
+            for f in anchor_info.fixes:
+                assert f.anchor.uuid == seg.uuid
+                fixes_applied.append(f)
+                linter_logger.debug(
+                    "Matched fix for %s against segment: %s -> %s",
+                    rule_code,
+                    f,
+                    seg,
+                )
 
-                        else:  # pragma: no cover
-                            raise ValueError(
-                                "Unexpected edit_type: {!r} in {!r}".format(
-                                    f.edit_type, f
-                                )
-                            )
-                else:
+                # Deletes are easy.
+                if f.edit_type == "delete":
+                    # We're just getting rid of this segment.
+                    requires_validate = True
+                    # NOTE: We don't add the segment in this case.
+                    continue
+
+                # Otherwise it must be a replace or a create.
+                assert f.edit_type in (
+                    "replace",
+                    "create_before",
+                    "create_after",
+                ), f"Unexpected edit_type: {f.edit_type!r} in {f!r}"
+
+                if f.edit_type == "create_after" and len(anchor_info.fixes) == 1:
+                    # in the case of a creation after that is not part
+                    # of a create_before/create_after pair, also add
+                    # this segment before the edit.
                     seg_buffer.append(seg)
 
-            # Invalidate any caches
-            self.invalidate_caches()
+                # We're doing a replacement (it could be a single
+                # segment or an iterable)
+                assert f.edit, f"Edit {f.edit_type!r} requires `edit`."
+                consumed_pos = False
+                for s in f.edit:
+                    seg_buffer.append(s)
+                    # If one of them has the same raw representation
+                    # then the first that matches gets to take the
+                    # original position marker.
+                    if (
+                        f.edit_type == "replace"
+                        and s.raw == seg.raw
+                        and not consumed_pos
+                    ):
+                        seg_buffer[-1].pos_marker = seg.pos_marker
+                        consumed_pos = True
+
+                # If we're just editing a segment AND keeping the type the
+                # same then no need to validate. Otherwise we should
+                # trigger a validation (e.g. for creations or
+                # multi-replace).
+                if not (
+                    f.edit_type == "replace"
+                    and len(f.edit) == 1
+                    and f.edit[0].class_types == seg.class_types
+                ):
+                    requires_validate = True
+
+                if f.edit_type == "create_before":
+                    # in the case of a creation before, also add this
+                    # segment on the end
+                    seg_buffer.append(seg)
+
+        # Invalidate any caches
+        self.invalidate_caches()
 
         # If any fixes applied, do an intermediate reposition. When applying
         # fixes to children and then trying to reposition them, that recursion
@@ -1313,7 +1321,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
             )
 
         # Then recurse (i.e. deal with the children) (Requeueing)
-        requires_validate = bool(fixes_applied)
         seg_queue = seg_buffer
         seg_buffer = []
         for seg in seg_queue:
