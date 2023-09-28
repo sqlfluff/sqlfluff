@@ -95,8 +95,7 @@ class BaseGrammar(Matchable):
         if isinstance(elem, str):
             return Ref.keyword(elem)
         elif isinstance(elem, Matchable):
-            return elem
-        elif issubclass(elem, BaseSegment):
+            # NOTE: BaseSegment types are an instance of Matchable.
             return elem
 
         raise TypeError(
