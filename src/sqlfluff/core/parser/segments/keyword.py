@@ -21,7 +21,7 @@ class KeywordSegment(WordSegment):
         self,
         raw: Optional[str] = None,
         pos_marker: Optional[PositionMarker] = None,
-        type: Optional[str] = None,
+        instance_types: Tuple[str, ...] = (),
         source_fixes: Optional[List[SourceFix]] = None,
         trim_chars: Optional[Tuple[str, ...]] = None,
     ):
@@ -29,7 +29,7 @@ class KeywordSegment(WordSegment):
         super().__init__(
             raw=raw,
             pos_marker=pos_marker,
-            type=type,
+            instance_types=instance_types,
             source_fixes=source_fixes,
         )
 
@@ -49,7 +49,7 @@ class KeywordSegment(WordSegment):
         return self.__class__(
             raw=raw or self.raw,
             pos_marker=self.pos_marker,
-            type=self.instance_types,
+            instance_types=self.instance_types,
             source_fixes=source_fixes or self.source_fixes,
         )
 
