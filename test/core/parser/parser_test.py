@@ -72,3 +72,52 @@ def test__parser__multistringparser__simple():
     parser = MultiStringParser(["foo", "bar"], KeywordSegment)
     ctx = ParseContext(dialect=None)
     assert parser.simple(ctx) == (frozenset(["FOO", "BAR"]), frozenset())
+
+
+def test__parser__typedparser_rematch(generate_test_segments):
+    """Test that TypedParser allows rematching.
+
+    Because the TypedParser looks for types and then changes the
+    type as a result, there is a risk of preventing rematching.
+    This is a problem because we use it when checking that fix edits
+    haven't broken the parse tree.
+
+    In this example the TypedParser is looking for a "single_quote"
+    type segment, but is due to mutate to an Example segment, which
+    inherits directly from `RawSegment`. Unless the TypedParser
+    steps in, this would apparently present a rematching issue.
+    """
+    segments = generate_test_segments(["'foo'"])
+    # Check types pre-match
+    assert segments[0].class_types == {
+        "single_quote",
+        "raw",
+        "base",
+    }
+    parser = TypedParser("single_quote", ExampleSegment)
+    # Just check that our assumptions about inheritance are right.
+    assert not ExampleSegment.class_is_type("single_quote")
+    ctx = ParseContext(dialect=None)
+    match1 = parser.match(segments, ctx)
+    assert match1
+    # Check types post-match 1
+    assert match1.matched_segments[0].class_types == {
+        # Make sure we got the "example" class
+        "example",
+        # But we *also* get the "single_quote" class.
+        "single_quote",
+        "raw",
+        "base",
+    }
+    # Do a rematch to check it works.
+    match2 = parser.match(match1.matched_segments, ctx)
+    assert match2
+    # Check types post-match 2
+    assert match2.matched_segments[0].class_types == {
+        # Make sure we got the same classes on the *rematch*.
+        # This is the main crux of the test.
+        "example",
+        "single_quote",
+        "raw",
+        "base",
+    }
