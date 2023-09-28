@@ -2,10 +2,10 @@
 from typing import List, Optional, Tuple
 
 from sqlfluff.core.parser import (
-    CodeSegment,
     KeywordSegment,
     SymbolSegment,
     WhitespaceSegment,
+    WordSegment,
 )
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
@@ -91,7 +91,7 @@ class Rule_ST02(BaseRule):
         """Generate list of fixes to convert CASE statement to COALESCE function."""
         # Add coalesce and opening parenthesis.
         edits = [
-            CodeSegment("coalesce", type="function_name_identifier"),
+            WordSegment("coalesce", type="function_name_identifier"),
             SymbolSegment("(", type="start_bracket"),
             coalesce_arg_1,
             SymbolSegment(",", type="comma"),

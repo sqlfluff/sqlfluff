@@ -4,10 +4,10 @@ from typing import Iterable, List, Optional
 
 from sqlfluff.core.parser import (
     BaseSegment,
-    CodeSegment,
     KeywordSegment,
     SymbolSegment,
     WhitespaceSegment,
+    WordSegment,
 )
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
@@ -89,7 +89,7 @@ class Rule_CV11(BaseRule):
         # Add cast and opening parenthesis.
         edits = (
             [
-                CodeSegment("cast", type="function_name_identifier"),
+                WordSegment("cast", type="function_name_identifier"),
                 SymbolSegment("(", type="start_bracket"),
             ]
             + list(cast_arg_1)
@@ -104,7 +104,7 @@ class Rule_CV11(BaseRule):
 
         if later_types:
             pre_edits: List[BaseSegment] = [
-                CodeSegment("cast", type="function_name_identifier"),
+                WordSegment("cast", type="function_name_identifier"),
                 SymbolSegment("(", type="start_bracket"),
             ]
             in_edits: List[BaseSegment] = [
@@ -136,7 +136,7 @@ class Rule_CV11(BaseRule):
         """Generate list of fixes to convert CAST and ShorthandCast to CONVERT."""
         # Add convert and opening parenthesis.
         edits = [
-            CodeSegment("convert", type="function_name_identifier"),
+            WordSegment("convert", type="function_name_identifier"),
             SymbolSegment("(", type="start_bracket"),
             convert_arg_1,
             SymbolSegment(",", type="comma"),
@@ -147,7 +147,7 @@ class Rule_CV11(BaseRule):
 
         if later_types:
             pre_edits: List[BaseSegment] = [
-                CodeSegment("convert", type="function_name_identifier"),
+                WordSegment("convert", type="function_name_identifier"),
                 SymbolSegment("(", type="start_bracket"),
             ]
             in_edits: List[BaseSegment] = [
