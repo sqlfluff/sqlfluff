@@ -124,9 +124,11 @@ class TypedParser(BaseParser):
         # The type kwarg is the eventual type.
         self.template = template
         # Pre-calculate the appropriate frozenset for matching later.
-        _target_types: List[str] = [template]
+        _target_types: Tuple[str, ...] = (template,)
         if type is not None and type != template:
-            _target_types.append(type)
+            # Make sure to _prepend_ because the first item in the list
+            # takes precedence.
+            _target_types = (type,) + _target_types
         self._target_types = frozenset(_target_types)
         super().__init__(
             raw_class=raw_class,
@@ -134,7 +136,7 @@ class TypedParser(BaseParser):
             # that the original type is still preserved as one of the new types.
             # The new `type` becomes the "main" type, but the template will still
             # be part of the resulting `class_types`.
-            type=tuple(_target_types),
+            type=_target_types,
             optional=optional,
             trim_chars=trim_chars,
         )
