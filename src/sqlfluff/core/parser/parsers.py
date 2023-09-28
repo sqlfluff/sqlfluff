@@ -138,12 +138,13 @@ class TypedParser(BaseParser):
             trim_chars=trim_chars,
         )
         # NOTE: We override the instance types after initialising the base
-        # class. After matching it is important that the original type is
-        # still preserved as one of the new types.
-        # The new `type` becomes the "main" type, but the template will still
+        # class. We want to ensure that re-matching is possible by ensuring that
+        # the `type` pre-matching is still present post-match even if it's not
+        # part of the natural type hierarchy for the new `raw_class`.
+        # The new `type` becomes the "primary" type, but the template will still
         # be part of the resulting `class_types`.
-        # We do this here rather than in the base class to keep the dialect
-        # facing API the same.
+        # We do this here rather than in the base class to keep the dialect-facing
+        # API the same.
         self._instance_types: Tuple[str, ...] = ()
         # Primary type if set.
         if type is not None:
