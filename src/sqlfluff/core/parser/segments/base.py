@@ -1302,8 +1302,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     # segment on the end
                     seg_buffer.append(seg)
 
-            # Invalidate any caches
-            self.invalidate_caches()
+        # Invalidate any caches
+        self.invalidate_caches()
 
         # If any fixes applied, do an intermediate reposition. When applying
         # fixes to children and then trying to reposition them, that recursion
