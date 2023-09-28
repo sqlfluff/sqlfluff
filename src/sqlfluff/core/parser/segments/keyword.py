@@ -49,7 +49,7 @@ class KeywordSegment(WordSegment):
         return self.__class__(
             raw=raw or self.raw,
             pos_marker=self.pos_marker,
-            type=self._surrogate_type,
+            type=self.instance_types,
             source_fixes=source_fixes or self.source_fixes,
         )
 

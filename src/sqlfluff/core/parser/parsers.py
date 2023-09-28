@@ -130,8 +130,11 @@ class TypedParser(BaseParser):
         self._target_types = frozenset(_target_types)
         super().__init__(
             raw_class=raw_class,
-            # If no type specified we default to the template
-            type=type or template,
+            # NOTE: We pass the type as a tuple. After matching it is important
+            # that the original type is still preserved as one of the new types.
+            # The new `type` becomes the "main" type, but the template will still
+            # be part of the resulting `class_types`.
+            type=tuple(_target_types),
             optional=optional,
             trim_chars=trim_chars,
         )
