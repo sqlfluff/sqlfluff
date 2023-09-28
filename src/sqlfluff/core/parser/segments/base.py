@@ -1218,12 +1218,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
         before = []
         after = []
         fixes_applied: List[LintFix] = []
-        todo_buffer = list(self.segments)
         requires_validate = False
 
-        while todo_buffer:
-            seg = todo_buffer.pop(0)
-
+        for seg in self.segments:
             # Look for uuid match.
             # This handles potential positioning ambiguity.
             anchor_info: Optional[AnchorEditInfo] = fixes.pop(seg.uuid, None)
@@ -1314,6 +1311,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # of the fixes applied there first. This ensures those segments have
         # working positions to work with.
         if fixes_applied:
+            # TODO: REMOVE THIS TEMPORARY FLAG
+            requires_validate = True
             seg_buffer = list(
                 self._position_segments(tuple(seg_buffer), parent_pos=self.pos_marker)
             )
