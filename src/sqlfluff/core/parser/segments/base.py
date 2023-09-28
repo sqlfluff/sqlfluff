@@ -1184,12 +1184,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
         before = []
         after = []
         fixes_applied: List[LintFix] = []
-        todo_buffer = list(self.segments)
         requires_validate = False
 
-        while todo_buffer:
-            seg = todo_buffer.pop(0)
-
+        for seg in self.segments:
             # Look for uuid match.
             # This handles potential positioning ambiguity.
             anchor_info: Optional[AnchorEditInfo] = fixes.pop(seg.uuid, None)
@@ -1271,8 +1268,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     # segment on the end
                     seg_buffer.append(seg)
 
-            # Invalidate any caches
-            self.invalidate_caches()
+        # Invalidate any caches
+        self.invalidate_caches()
 
         # If any fixes applied, do an intermediate reposition. When applying
         # fixes to children and then trying to reposition them, that recursion
