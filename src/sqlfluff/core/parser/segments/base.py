@@ -1311,8 +1311,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # of the fixes applied there first. This ensures those segments have
         # working positions to work with.
         if fixes_applied:
-            # TODO: REMOVE THIS TEMPORARY FLAG
-            requires_validate = True
             seg_buffer = list(
                 self._position_segments(tuple(seg_buffer), parent_pos=self.pos_marker)
             )
