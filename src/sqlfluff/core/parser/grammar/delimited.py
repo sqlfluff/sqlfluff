@@ -11,8 +11,8 @@ from sqlfluff.core.parser.match_algorithms import (
     skip_start_index_forward_to_code,
 )
 from sqlfluff.core.parser.match_result import MatchResult2
+from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import BaseSegment
-from sqlfluff.core.parser.types import MatchableType
 
 
 class Delimited(OneOf):
@@ -34,10 +34,10 @@ class Delimited(OneOf):
 
     def __init__(
         self,
-        *args: Union[MatchableType, str],
-        delimiter: Union[MatchableType, str] = Ref("CommaSegment"),
+        *args: Union[Matchable, str],
+        delimiter: Union[Matchable, str] = Ref("CommaSegment"),
         allow_trailing: bool = False,
-        terminators: Sequence[Union[MatchableType, str]] = (),
+        terminators: Sequence[Union[Matchable, str]] = (),
         reset_terminators: bool = False,
         min_delimiters: int = 0,
         bracket_pairs_set: str = "bracket_pairs",

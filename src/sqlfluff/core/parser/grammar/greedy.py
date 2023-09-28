@@ -6,7 +6,7 @@ from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import BaseGrammar, BaseSegment
 from sqlfluff.core.parser.match_algorithms import greedy_match2
 from sqlfluff.core.parser.match_result import MatchResult2
-from sqlfluff.core.parser.types import MatchableType
+from sqlfluff.core.parser.matchable import Matchable
 
 
 class GreedyUntil(BaseGrammar):
@@ -14,9 +14,9 @@ class GreedyUntil(BaseGrammar):
 
     def __init__(
         self,
-        *args: Union[MatchableType, str],
+        *args: Union[Matchable, str],
         optional: bool = False,
-        terminators: Sequence[Union[MatchableType, str]] = (),
+        terminators: Sequence[Union[Matchable, str]] = (),
         reset_terminators: bool = False,
     ) -> None:
         # NOTE: This grammar does not support allow_gaps=False,

@@ -11,8 +11,8 @@ from typing import DefaultDict, List, Optional, Sequence, Set, Tuple, cast
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.match_result import MatchResult2
+from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import BaseSegment, BracketedSegment
-from sqlfluff.core.parser.types import MatchableType
 
 
 def skip_start_index_forward_to_code(
@@ -88,6 +88,7 @@ class BracketInfo:
 
     bracket: BaseSegment
     segments: Tuple[BaseSegment, ...]
+    bracket_type: str
 
     def to_segment(self, end_bracket: Tuple[BaseSegment, ...]) -> BracketedSegment:
         """Turn the contained segments into a bracketed segment."""
@@ -100,11 +101,11 @@ class BracketInfo:
 
 
 def prune_options(
-    options: Sequence[MatchableType],
+    options: Sequence[Matchable],
     segments: Sequence[BaseSegment],
     parse_context: ParseContext,
     start_idx: int = 0,
-) -> List[MatchableType]:
+) -> List[Matchable]:
     """Use the simple matchers to prune which options to match on.
 
     Works in the context of a grammar making choices between options
@@ -160,10 +161,10 @@ def prune_options(
 
 def longest_match2(
     segments: Sequence[BaseSegment],
-    matchers: Sequence[MatchableType],
+    matchers: Sequence[Matchable],
     idx: int,
     parse_context: ParseContext,
-) -> Tuple[MatchResult2, Optional[MatchableType]]:
+) -> Tuple[MatchResult2, Optional[Matchable]]:
     """Return longest match from a selection of matchers.
 
     Priority is:
@@ -251,7 +252,7 @@ def longest_match2(
     )
 
     best_match = MatchResult2.empty_at(idx)
-    best_matcher: Optional[MatchableType] = None
+    best_matcher: Optional[Matchable] = None
     # iterate at this position across all the matchers
     for matcher_idx, matcher in enumerate(available_options):
         # Check parse cache.
@@ -315,9 +316,9 @@ def longest_match2(
 def next_match2(
     segments: Sequence[BaseSegment],
     idx: int,
-    matchers: Sequence[MatchableType],
+    matchers: Sequence[Matchable],
     parse_context: ParseContext,
-) -> Tuple[MatchResult2, Optional[MatchableType]]:
+) -> Tuple[MatchResult2, Optional[Matchable]]:
     """Look ahead for matches beyond the first element of the segments list.
 
     NOTE: Returns *only clean* matches.
@@ -403,9 +404,9 @@ def next_match2(
 def resolve_bracket2(
     segments: Sequence[BaseSegment],
     opening_match: MatchResult2,
-    opening_matcher: MatchableType,
-    start_brackets: List[MatchableType],
-    end_brackets: List[MatchableType],
+    opening_matcher: Matchable,
+    start_brackets: List[Matchable],
+    end_brackets: List[Matchable],
     parse_context: ParseContext,
 ) -> MatchResult2:
     """Recursive match to resolve an opened bracket.
@@ -485,12 +486,12 @@ def resolve_bracket2(
 def next_ex_bracket_match2(
     segments: Sequence[BaseSegment],
     idx: int,
-    matchers: Sequence[MatchableType],
+    matchers: Sequence[Matchable],
     parse_context: ParseContext,
-    start_bracket: Optional[MatchableType] = None,
-    end_bracket: Optional[MatchableType] = None,
+    start_bracket: Optional[Matchable] = None,
+    end_bracket: Optional[Matchable] = None,
     bracket_pairs_set: str = "bracket_pairs",
-) -> Tuple[MatchResult2, Optional[MatchableType]]:
+) -> Tuple[MatchResult2, Optional[Matchable]]:
     """Same as `next_match2` but with bracket counting.
 
     NB: Given we depend on `next_match2` we can also utilise
@@ -512,9 +513,8 @@ def next_ex_bracket_match2(
 
     # Get hold of the bracket matchers from the dialect, and append them
     # to the list of matchers. We get them from the relevant set on the
-    # dialect. We use zip twice to "unzip" them. We ignore the first
-    # argument because that's just the name.
-    _, start_bracket_refs, end_bracket_refs, persists = zip(
+    # dialect.
+    bracket_types, start_bracket_refs, end_bracket_refs, persists = zip(
         *parse_context.dialect.bracket_sets(bracket_pairs_set)
     )
     # These are matchables, probably StringParsers.
@@ -580,7 +580,7 @@ def greedy_match2(
     segments: Sequence[BaseSegment],
     idx: int,
     parse_context: ParseContext,
-    matchers: Sequence[MatchableType],
+    matchers: Sequence[Matchable],
     include_terminator: bool = False,
 ) -> MatchResult2:
     """Match anything up to some defined terminator."""
@@ -677,7 +677,7 @@ def greedy_match2(
 def trim_to_terminator2(
     segments: Sequence[BaseSegment],
     idx: int,
-    terminators: Sequence[MatchableType],
+    terminators: Sequence[Matchable],
     parse_context: ParseContext,
 ) -> int:
     """Trim forward segments based on terminators.

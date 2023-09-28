@@ -292,8 +292,16 @@ class StringLexer:
         # NOTE: Using a private attribute here feels a bit wrong.
         _segment_class_types = self.segment_class._class_types
         _kwargs = self.segment_kwargs
-        if "type" not in _kwargs and self.name not in _segment_class_types:
-            _kwargs["type"] = self.name
+        assert not (
+            "type" in _kwargs and "instance_types" in _kwargs
+        ), f"Cannot set both `type` and `instance_types` in segment kwargs: {_kwargs}"
+        if "type" in _kwargs:
+            # TODO: At some point we should probably deprecate this API and only
+            # allow setting `instance_types`.
+            assert _kwargs["type"]
+            _kwargs["instance_types"] = (_kwargs.pop("type"),)
+        elif "instance_types" not in _kwargs and self.name not in _segment_class_types:
+            _kwargs["instance_types"] = (self.name,)
         return self.segment_class(raw=raw, pos_marker=pos_marker, **_kwargs)
 
 

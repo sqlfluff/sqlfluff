@@ -21,6 +21,7 @@ from sqlfluff.core.parser.match_algorithms import (
     trim_to_terminator2,
 )
 from sqlfluff.core.parser.match_result import MatchResult2
+from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import (
     BaseSegment,
     BracketedSegment,
@@ -29,7 +30,7 @@ from sqlfluff.core.parser.segments import (
     MetaSegment,
     UnparsableSegment,
 )
-from sqlfluff.core.parser.types import MatchableType, ParseMode, SimpleHintType
+from sqlfluff.core.parser.types import ParseMode, SimpleHintType
 
 
 def _flush_metas(
@@ -353,11 +354,11 @@ class Bracketed(Sequence):
 
     def __init__(
         self,
-        *args: Union[MatchableType, str],
+        *args: Union[Matchable, str],
         bracket_type: str = "round",
         bracket_pairs_set: str = "bracket_pairs",
-        start_bracket: Optional[MatchableType] = None,
-        end_bracket: Optional[MatchableType] = None,
+        start_bracket: Optional[Matchable] = None,
+        end_bracket: Optional[Matchable] = None,
         allow_gaps: bool = True,
         optional: bool = False,
         parse_mode: ParseMode = ParseMode.STRICT,
@@ -389,7 +390,7 @@ class Bracketed(Sequence):
 
     def get_bracket_from_dialect(
         self, parse_context: ParseContext
-    ) -> Tuple[MatchableType, MatchableType, bool]:
+    ) -> Tuple[Matchable, Matchable, bool]:
         """Rehydrate the bracket segments in question."""
         bracket_pairs = parse_context.dialect.bracket_sets(self.bracket_pairs_set)
         for bracket_type, start_ref, end_ref, persists in bracket_pairs:

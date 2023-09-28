@@ -1,18 +1,13 @@
 """Complex Type helpers."""
 from enum import Enum
-from typing import TYPE_CHECKING, FrozenSet, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, FrozenSet, Optional, Tuple, Union
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.matchable import Matchable
-    from sqlfluff.core.parser.segments.base import BaseSegment
     from sqlfluff.core.parser.segments.generator import SegmentGenerator
 
-# When defining elements of a dialect they can be matchables, segments or generators.
-DialectElementType = Union[Type["BaseSegment"], "Matchable", "SegmentGenerator"]
-
-# Either a Matchable (a grammar or parser) or a Segment CLASS
-# NOTE: Post expansion, no generators remain
-MatchableType = Union["Matchable", Type["BaseSegment"]]
+# When defining elements of a dialect they can be matchables or generators.
+DialectElementType = Union["Matchable", "SegmentGenerator"]
 
 # Simple hints has a set of strings first and a set of types second.
 SimpleHintType = Optional[Tuple[FrozenSet[str], FrozenSet[str]]]

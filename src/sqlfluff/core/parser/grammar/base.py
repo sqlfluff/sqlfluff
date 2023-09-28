@@ -20,7 +20,7 @@ from sqlfluff.core.parser.match_algorithms import greedy_match2
 from sqlfluff.core.parser.match_result import MatchResult2
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import BaseSegment
-from sqlfluff.core.parser.types import MatchableType, ParseMode, SimpleHintType
+from sqlfluff.core.parser.types import ParseMode, SimpleHintType
 from sqlfluff.core.string_helpers import curtail_string
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -87,13 +87,12 @@ class BaseGrammar(Matchable):
     supported_parse_modes: Set[ParseMode] = {ParseMode.STRICT}
 
     @staticmethod
-    def _resolve_ref(elem: Union[str, MatchableType]) -> MatchableType:
+    def _resolve_ref(elem: Union[str, Matchable]) -> Matchable:
         """Resolve potential string references to things we can match against."""
         if isinstance(elem, str):
             return Ref.keyword(elem)
         elif isinstance(elem, Matchable):
-            return elem
-        elif issubclass(elem, BaseSegment):
+            # NOTE: BaseSegment types are an instance of Matchable.
             return elem
 
         raise TypeError(
@@ -103,10 +102,10 @@ class BaseGrammar(Matchable):
 
     def __init__(
         self,
-        *args: Union[MatchableType, str],
+        *args: Union[Matchable, str],
         allow_gaps: bool = True,
         optional: bool = False,
-        terminators: Sequence[Union[MatchableType, str]] = (),
+        terminators: Sequence[Union[Matchable, str]] = (),
         reset_terminators: bool = False,
         parse_mode: ParseMode = ParseMode.STRICT,
     ) -> None:
@@ -147,7 +146,7 @@ class BaseGrammar(Matchable):
         # We provide a common interface for any grammar that allows positional elements.
         # If *any* for the elements are a string and not a grammar, then this is a
         # shortcut to the Ref.keyword grammar by default.
-        self._elements: List[MatchableType] = [self._resolve_ref(e) for e in args]
+        self._elements: List[Matchable] = [self._resolve_ref(e) for e in args]
 
         # Now we deal with the standard kwargs
         self.allow_gaps = allow_gaps
@@ -156,7 +155,7 @@ class BaseGrammar(Matchable):
         # The intent here is that if we match something, and then the _next_
         # item is one of these, we can safely conclude it's a "total" match.
         # In those cases, we return early without considering more options.
-        self.terminators: Sequence[MatchableType] = [
+        self.terminators: Sequence[Matchable] = [
             self._resolve_ref(t) for t in terminators
         ]
         self.reset_terminators = reset_terminators
@@ -216,11 +215,11 @@ class BaseGrammar(Matchable):
 
     def copy(
         self: T,
-        insert: Optional[List[MatchableType]] = None,
+        insert: Optional[List[Matchable]] = None,
         at: Optional[int] = None,
         before: Optional[Any] = None,
-        remove: Optional[List[MatchableType]] = None,
-        terminators: List[Union[str, MatchableType]] = [],
+        remove: Optional[List[Matchable]] = None,
+        terminators: List[Union[str, Matchable]] = [],
         replace_terminators: bool = False,
         # NOTE: Optionally allow other kwargs to be provided to this
         # method for type compatibility. Any provided won't be used.
@@ -319,8 +318,8 @@ class Ref(BaseGrammar):
     def __init__(
         self,
         *args: str,
-        exclude: Optional[MatchableType] = None,
-        terminators: Sequence[Union[MatchableType, str]] = (),
+        exclude: Optional[Matchable] = None,
+        terminators: Sequence[Union[Matchable, str]] = (),
         reset_terminators: bool = False,
         allow_gaps: bool = True,
         optional: bool = False,
@@ -361,7 +360,7 @@ class Ref(BaseGrammar):
             crumbs=(crumbs or ()) + (self._ref,),
         )
 
-    def _get_elem(self, dialect: "Dialect") -> MatchableType:
+    def _get_elem(self, dialect: "Dialect") -> Matchable:
         """Get the actual object we're referencing."""
         if dialect:
             # Use the dialect to retrieve the grammar it refers to.

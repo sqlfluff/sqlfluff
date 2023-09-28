@@ -33,7 +33,10 @@ class BaseParser(Matchable):
         trim_chars: Optional[Tuple[str, ...]] = None,
     ) -> None:
         self.raw_class = raw_class
-        self.type: str = type or raw_class.type
+        # Store instance_types rather than just type to allow
+        # for multiple possible types to be supported in derivative
+        # classes.
+        self._instance_types = (type or raw_class.type,)
         self.optional = optional
         self._trim_chars = trim_chars
         # Generate a cache key
@@ -56,8 +59,8 @@ class BaseParser(Matchable):
         This is a helper function for reuse by other parsers.
         """
         segment_kwargs: Dict[str, Any] = {}
-        if self.type:
-            segment_kwargs["type"] = self.type
+        if self._instance_types:
+            segment_kwargs["instance_types"] = self._instance_types
         if self._trim_chars:
             segment_kwargs["trim_chars"] = self._trim_chars
         return MatchResult2(
@@ -88,11 +91,17 @@ class TypedParser(BaseParser):
         self._target_types = frozenset(_target_types)
         super().__init__(
             raw_class=raw_class,
-            # If no type specified we default to the template
-            type=type or template,
             optional=optional,
             trim_chars=trim_chars,
         )
+        # NOTE: We override the instance types after initialising the base
+        # class. After matching it is important that the original type is
+        # still preserved as one of the new types.
+        # The new `type` becomes the "main" type, but the template will still
+        # be part of the resulting `class_types`.
+        # We do this here rather than in the base class to keep the dialect
+        # facing API the same.
+        self._instance_types = tuple(_target_types)
 
     def __repr__(self) -> str:
         return f"<TypedParser: {self.template!r}>"

@@ -26,7 +26,9 @@ class RawSegment(BaseSegment):
         self,
         raw: Optional[str] = None,
         pos_marker: Optional[PositionMarker] = None,
-        type: Optional[str] = None,
+        # Optionally, type can also be a tuple of types, where
+        # the first is the "main" type.
+        instance_types: Tuple[str, ...] = (),
         trim_start: Optional[Tuple[str, ...]] = None,
         trim_chars: Optional[Tuple[str, ...]] = None,
         source_fixes: Optional[List[SourceFix]] = None,
@@ -49,8 +51,8 @@ class RawSegment(BaseSegment):
         self.pos_marker: PositionMarker = pos_marker  # type: ignore
         # Set the segments attribute to be an empty tuple.
         self.segments = ()
-        # if a surrogate type is provided, store it for later.
-        self._surrogate_type = type
+        # if instance types are provided, store it for later.
+        self.instance_types = instance_types
         # What should we trim off the ends to get to content
         self.trim_start = trim_start
         self.trim_chars = trim_chars
@@ -115,9 +117,7 @@ class RawSegment(BaseSegment):
 
         Add the surrogate type for raw segments.
         """
-        return (
-            {self._surrogate_type} if self._surrogate_type else set()
-        ) | super().class_types
+        return set(self.instance_types) | super().class_types
 
     @property
     def source_fixes(self) -> List[SourceFix]:
@@ -132,11 +132,13 @@ class RawSegment(BaseSegment):
 
     def get_type(self) -> str:
         """Returns the type of this segment as a string."""
-        return self._surrogate_type or self.type
+        if self.instance_types:
+            return self.instance_types[0]
+        return super().get_type()
 
     def is_type(self, *seg_type: str) -> bool:
         """Extend the parent class method with the surrogate types."""
-        if self._surrogate_type and self._surrogate_type in seg_type:
+        if set(self.instance_types).intersection(seg_type):
             return True
         return self.class_is_type(*seg_type)
 
@@ -194,7 +196,7 @@ class RawSegment(BaseSegment):
         return self.__class__(
             raw=raw or self.raw,
             pos_marker=self.pos_marker,
-            type=self._surrogate_type,
+            instance_types=self.instance_types,
             trim_start=self.trim_start,
             trim_chars=self.trim_chars,
             source_fixes=source_fixes or self.source_fixes,
