@@ -4,7 +4,7 @@ Matchable objects which return individual segments.
 """
 
 from abc import abstractmethod
-from typing import Collection, List, Optional, Tuple, Type, Union
+from typing import Collection, Optional, Tuple, Type, Union
 from uuid import uuid4
 
 import regex
@@ -84,7 +84,11 @@ class BaseParser(Matchable):
             return None
         # If it does, we might have already matched it. Is it the right type
         # already? If so, just return it unchanged.
-        if isinstance(segment, self.raw_class) and segment.type in self._instance_types:
+        if (
+            isinstance(segment, self.raw_class)
+            # NOTE: The _primary_ type must match (i.e. the one in position 0)
+            and segment.type == self._instance_types[0]
+        ):
             return segment
         # Otherwise create a new match segment
         return self._make_match_from_segment(segment)
@@ -127,12 +131,7 @@ class TypedParser(BaseParser):
         # The type kwarg is the eventual type.
         self.template = template
         # Pre-calculate the appropriate frozenset for matching later.
-        _target_types: Tuple[str, ...] = (template,)
-        if type is not None and type != template:
-            # Make sure to _prepend_ because the first item in the list
-            # takes precedence.
-            _target_types = (type,) + _target_types
-        self._target_types = frozenset(_target_types)
+        self._target_types = frozenset((template,))
         super().__init__(
             raw_class=raw_class,
             optional=optional,
@@ -145,7 +144,16 @@ class TypedParser(BaseParser):
         # be part of the resulting `class_types`.
         # We do this here rather than in the base class to keep the dialect
         # facing API the same.
-        self._instance_types = _target_types
+        self._instance_types: Tuple[str, ...] = ()
+        # Primary type if set.
+        if type is not None:
+            self._instance_types += (type,)
+        # New root types
+        if type != raw_class.type:
+            self._instance_types += (raw_class.type,)
+        # Template type (if it's not in the subclasses of the raw_class).
+        if not raw_class.class_is_type(template):
+            self._instance_types += (template,)
 
     def __repr__(self) -> str:
         return f"<TypedParser: {self.template!r}>"

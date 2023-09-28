@@ -4,7 +4,7 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
-from typing import Any, List, Optional, Set, Tuple, Union
+from typing import Any, List, Optional, Set, Tuple
 from uuid import UUID, uuid4
 
 from sqlfluff.core.parser.markers import PositionMarker
