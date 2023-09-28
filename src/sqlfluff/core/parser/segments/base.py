@@ -77,11 +77,16 @@ class PathStep:
     code_idxs: Tuple[int, ...]
 
 
-class SegmentMetaclass(type):
+class SegmentMetaclass(type, Matchable):
     """The metaclass for segments.
 
     This metaclass provides pre-computed class attributes
     based on the defined attributes of specific classes.
+
+    Segments as a *type* should also implement the Matchable
+    interface too. Once instantiated they no longer need to
+    but we should be able to treat the BaseSegment class
+    as a Matchable interface.
     """
 
     def __new__(

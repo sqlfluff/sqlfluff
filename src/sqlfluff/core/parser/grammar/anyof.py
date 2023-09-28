@@ -14,8 +14,9 @@ from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.match_algorithms import greedy_match
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import BaseSegment, UnparsableSegment
-from sqlfluff.core.parser.types import MatchableType, ParseMode, SimpleHintType
+from sqlfluff.core.parser.types import ParseMode, SimpleHintType
 
 
 def _parse_mode_match_result(
@@ -66,12 +67,12 @@ class AnyNumberOf(BaseGrammar):
 
     def __init__(
         self,
-        *args: Union[MatchableType, str],
+        *args: Union[Matchable, str],
         max_times: Optional[int] = None,
         min_times: int = 0,
         max_times_per_element: Optional[int] = None,
-        exclude: Optional[MatchableType] = None,
-        terminators: SequenceType[Union[MatchableType, str]] = (),
+        exclude: Optional[Matchable] = None,
+        terminators: SequenceType[Union[Matchable, str]] = (),
         reset_terminators: bool = False,
         allow_gaps: bool = True,
         optional: bool = False,
@@ -125,7 +126,7 @@ class AnyNumberOf(BaseGrammar):
 
     def _match_once(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
-    ) -> Tuple[MatchResult, Optional["MatchableType"]]:
+    ) -> Tuple[MatchResult, Optional["Matchable"]]:
         """Match the forward segments against the available elements once.
 
         This serves as the main body of OneOf, but also a building block
@@ -278,9 +279,9 @@ class OneOf(AnyNumberOf):
 
     def __init__(
         self,
-        *args: Union[MatchableType, str],
-        exclude: Optional[MatchableType] = None,
-        terminators: SequenceType[Union[MatchableType, str]] = (),
+        *args: Union[Matchable, str],
+        exclude: Optional[Matchable] = None,
+        terminators: SequenceType[Union[Matchable, str]] = (),
         reset_terminators: bool = False,
         allow_gaps: bool = True,
         optional: bool = False,
@@ -308,9 +309,9 @@ class OptionallyBracketed(OneOf):
 
     def __init__(
         self,
-        *args: Union[MatchableType, str],
-        exclude: Optional[MatchableType] = None,
-        terminators: SequenceType[Union[MatchableType, str]] = (),
+        *args: Union[Matchable, str],
+        exclude: Optional[Matchable] = None,
+        terminators: SequenceType[Union[Matchable, str]] = (),
         reset_terminators: bool = False,
         optional: bool = False,
         parse_mode: ParseMode = ParseMode.STRICT,
@@ -332,11 +333,11 @@ class AnySetOf(AnyNumberOf):
 
     def __init__(
         self,
-        *args: Union[MatchableType, str],
+        *args: Union[Matchable, str],
         max_times: Optional[int] = None,
         min_times: int = 0,
-        exclude: Optional[MatchableType] = None,
-        terminators: SequenceType[Union[MatchableType, str]] = (),
+        exclude: Optional[Matchable] = None,
+        terminators: SequenceType[Union[Matchable, str]] = (),
         reset_terminators: bool = False,
         allow_gaps: bool = True,
         optional: bool = False,

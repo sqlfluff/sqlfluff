@@ -22,8 +22,8 @@ if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.config import FluffConfig
     from sqlfluff.core.dialects.base import Dialect
     from sqlfluff.core.parser.match_result import MatchResult
+    from sqlfluff.core.parser.matchable import Matchable
     from sqlfluff.core.parser.segments import BaseSegment
-    from sqlfluff.core.parser.types import MatchableType
 
 # Get the parser logger
 parser_logger = logging.getLogger("sqlfluff.parser")
@@ -88,7 +88,7 @@ class ParseContext:
         # a little more overhead than a list, but we manage this by only
         # copying it when necessary.
         # NOTE: Includes inherited parent terminators.
-        self.terminators: Tuple["MatchableType", ...] = ()
+        self.terminators: Tuple["Matchable", ...] = ()
         # Value for holding a reference to the progress bar.
         self._tqdm: Optional[tqdm] = None
         # Variable to store whether we're tracking progress. When looking
@@ -117,8 +117,8 @@ class ParseContext:
     def _set_terminators(
         self,
         clear_terminators: bool = False,
-        push_terminators: Optional[Sequence["MatchableType"]] = None,
-    ) -> Tuple[int, Tuple["MatchableType", ...]]:
+        push_terminators: Optional[Sequence["Matchable"]] = None,
+    ) -> Tuple[int, Tuple["Matchable", ...]]:
         _appended = 0
         # Retain a reference to the original terminators.
         _terminators = self.terminators
@@ -140,7 +140,7 @@ class ParseContext:
     def _reset_terminators(
         self,
         appended: int,
-        terminators: Tuple["MatchableType", ...],
+        terminators: Tuple["Matchable", ...],
         clear_terminators: bool = False,
     ) -> None:
         # If we totally reset them, just reinstate the old object.
@@ -159,7 +159,7 @@ class ParseContext:
         self,
         name: str,
         clear_terminators: bool = False,
-        push_terminators: Optional[Sequence["MatchableType"]] = None,
+        push_terminators: Optional[Sequence["Matchable"]] = None,
         track_progress: Optional[bool] = None,
     ) -> Iterator["ParseContext"]:
         """Increment match depth.
