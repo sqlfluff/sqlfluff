@@ -36,7 +36,7 @@ class BaseParser(Matchable):
         # Store instance_types rather than just type to allow
         # for multiple possible types to be supported in derivative
         # classes.
-        self._instance_types = (type or raw_class.type,)
+        self._instance_types: Tuple[str, ...] = (type or raw_class.type,)
         self.optional = optional
         self._trim_chars = trim_chars
         # Generate a cache key

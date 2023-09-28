@@ -53,6 +53,7 @@ class RawSegment(BaseSegment):
         self.pos_marker: PositionMarker = pos_marker  # type: ignore
         # Set the segments attribute to be an empty tuple.
         self.segments = ()
+        self.instance_types: Tuple[str, ...]
         if type:
             assert not instance_types, "Cannot set `type` and `instance_types`."
             self.instance_types = (type,)
