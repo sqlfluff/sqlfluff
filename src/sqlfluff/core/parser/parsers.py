@@ -33,7 +33,10 @@ class BaseParser(Matchable):
         trim_chars: Optional[Tuple[str, ...]] = None,
     ) -> None:
         self.raw_class = raw_class
-        self.type: str = type or raw_class.type
+        # Store instance_types rather than just type to allow
+        # for multiple possible types to be supported in derivative
+        # classes.
+        self._instance_types = (type or raw_class.type,)
         self.optional = optional
         self._trim_chars = trim_chars
         # Generate a cache key
@@ -62,7 +65,7 @@ class BaseParser(Matchable):
         return self.raw_class(
             raw=segment.raw,
             pos_marker=segment.pos_marker,
-            type=self.type,
+            instance_types=self._instance_types,
             trim_chars=self._trim_chars,
         )
 
@@ -81,7 +84,7 @@ class BaseParser(Matchable):
             return None
         # If it does, we might have already matched it. Is it the right type
         # already? If so, just return it unchanged.
-        if isinstance(segment, self.raw_class) and segment.type == self.type:
+        if isinstance(segment, self.raw_class) and segment.type in self._instance_types:
             return segment
         # Otherwise create a new match segment
         return self._make_match_from_segment(segment)
@@ -130,14 +133,17 @@ class TypedParser(BaseParser):
         self._target_types = frozenset(_target_types)
         super().__init__(
             raw_class=raw_class,
-            # NOTE: We pass the type as a tuple. After matching it is important
-            # that the original type is still preserved as one of the new types.
-            # The new `type` becomes the "main" type, but the template will still
-            # be part of the resulting `class_types`.
-            type=tuple(_target_types),
             optional=optional,
             trim_chars=trim_chars,
         )
+        # NOTE: We override the instance types after initialising the base
+        # class. After matching it is important that the original type is
+        # still preserved as one of the new types.
+        # The new `type` becomes the "main" type, but the template will still
+        # be part of the resulting `class_types`.
+        # We do this here rather than in the base class to keep the dialect
+        # facing API the same.
+        self._instance_types = tuple(_target_types)
 
     def __repr__(self) -> str:
         return f"<TypedParser: {self.template!r}>"

@@ -28,7 +28,7 @@ class RawSegment(BaseSegment):
         pos_marker: Optional[PositionMarker] = None,
         # Optionally, type can also be a tuple of types, where
         # the first is the "main" type.
-        type: Optional[Union[str, Tuple[str, ...]]] = None,
+        instance_types: Tuple[str, ...] = (),
         trim_start: Optional[Tuple[str, ...]] = None,
         trim_chars: Optional[Tuple[str, ...]] = None,
         source_fixes: Optional[List[SourceFix]] = None,
@@ -52,14 +52,7 @@ class RawSegment(BaseSegment):
         # Set the segments attribute to be an empty tuple.
         self.segments = ()
         # if instance types are provided, store it for later.
-        self.instance_types: Tuple[str, ...]
-        if type is None:
-            self.instance_types = ()
-        elif isinstance(type, str):
-            self.instance_types = (type,)
-        else:
-            assert isinstance(type, tuple)
-            self.instance_types = type
+        self.instance_types = instance_types
         # What should we trim off the ends to get to content
         self.trim_start = trim_start
         self.trim_chars = trim_chars
@@ -141,7 +134,7 @@ class RawSegment(BaseSegment):
         """Returns the type of this segment as a string."""
         if self.instance_types:
             return self.instance_types[0]
-        return self.type
+        return super().get_type()
 
     def is_type(self, *seg_type: str) -> bool:
         """Extend the parent class method with the surrogate types."""
@@ -203,7 +196,7 @@ class RawSegment(BaseSegment):
         return self.__class__(
             raw=raw or self.raw,
             pos_marker=self.pos_marker,
-            type=self.instance_types,
+            instance_types=self.instance_types,
             trim_start=self.trim_start,
             trim_chars=self.trim_chars,
             source_fixes=source_fixes or self.source_fixes,
