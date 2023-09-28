@@ -1,5 +1,7 @@
 """The Test file for Parsers (Matchable Classes)."""
 
+import pytest
+
 from sqlfluff.core.parser import (
     KeywordSegment,
     MultiStringParser,
@@ -148,7 +150,11 @@ def test__parser__multistringparser__simple():
     assert parser.simple(ctx) == (frozenset(["FOO", "BAR"]), frozenset())
 
 
-def test__parser__typedparser_rematch(generate_test_segments):
+@pytest.mark.parametrize(
+    "new_type",
+    [None, "bar"],
+)
+def test__parser__typedparser_rematch(new_type, generate_test_segments):
     """Test that TypedParser allows rematching.
 
     Because the TypedParser looks for types and then changes the
@@ -161,39 +167,49 @@ def test__parser__typedparser_rematch(generate_test_segments):
     inherits directly from `RawSegment`. Unless the TypedParser
     steps in, this would apparently present a rematching issue.
     """
-    segments = generate_test_segments(["'foo'"])
-    # Check types pre-match
-    assert segments[0].class_types == {
+    pre_match_types = {
         "single_quote",
         "raw",
         "base",
     }
-    parser = TypedParser("single_quote", ExampleSegment)
-    # Just check that our assumptions about inheritance are right.
-    assert not ExampleSegment.class_is_type("single_quote")
-    ctx = ParseContext(dialect=None)
-    match1 = parser.match2(segments, 0, ctx)
-    assert match1
-    # Check types post-match 1
-    segments1 = match1.apply(segments)
-    assert segments1[0].class_types == {
+    post_match_types = {
         # Make sure we got the "example" class
         "example",
         # But we *also* get the "single_quote" class.
+        # On the second pass this is the main crux of the test.
         "single_quote",
         "raw",
         "base",
     }
+    kwargs = {}
+    expected_type = "example"
+    if new_type:
+        post_match_types.add(new_type)
+        kwargs = {"type": new_type}
+        expected_type = new_type
+
+    segments = generate_test_segments(["'foo'"])
+    # Check types pre-match
+    assert segments[0].class_types == pre_match_types
+
+    parser = TypedParser("single_quote", ExampleSegment, **kwargs)
+    # Just check that our assumptions about inheritance are right.
+    assert not ExampleSegment.class_is_type("single_quote")
+    ctx = ParseContext(dialect=None)
+
+    match1 = parser.match2(segments, 0, ctx)
+    assert match1
+    segments1 = match1.apply(segments)
+    # Check types post-match 1
+    assert segments1[0].class_types == post_match_types
+    assert segments1[0].get_type() == expected_type
+    assert segments1[0].to_tuple(show_raw=True) == (expected_type, "'foo'")
+
     # Do a rematch to check it works.
     match2 = parser.match2(segments1, 0, ctx)
     assert match2
     # Check types post-match 2
     segments2 = match2.apply(segments1)
-    assert segments2[0].class_types == {
-        # Make sure we got the same classes on the *rematch*.
-        # This is the main crux of the test.
-        "example",
-        "single_quote",
-        "raw",
-        "base",
-    }
+    assert segments2[0].class_types == post_match_types
+    assert segments2[0].get_type() == expected_type
+    assert segments2[0].to_tuple(show_raw=True) == (expected_type, "'foo'")

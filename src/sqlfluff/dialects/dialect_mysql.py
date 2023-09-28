@@ -259,6 +259,7 @@ mysql_dialect.add(
     AtSignLiteralSegment=TypedParser(
         "at_sign_literal",
         LiteralSegment,
+        type="at_sign_literal",
     ),
     SystemVariableSegment=RegexParser(
         r"@@(session|global)\.[A-Za-z0-9_]+",

@@ -4,7 +4,7 @@ Matchable objects which return individual segments.
 """
 
 from abc import abstractmethod
-from typing import Any, Collection, Dict, List, Optional, Sequence, Tuple, Type
+from typing import Any, Collection, Dict, Optional, Sequence, Tuple, Type
 from uuid import uuid4
 
 import regex
@@ -36,7 +36,7 @@ class BaseParser(Matchable):
         # Store instance_types rather than just type to allow
         # for multiple possible types to be supported in derivative
         # classes.
-        self._instance_types = (type or raw_class.type,)
+        self._instance_types: Tuple[str, ...] = (type or raw_class.type,)
         self.optional = optional
         self._trim_chars = trim_chars
         # Generate a cache key
@@ -85,23 +85,30 @@ class TypedParser(BaseParser):
         # The type kwarg is the eventual type.
         self.template = template
         # Pre-calculate the appropriate frozenset for matching later.
-        _target_types: List[str] = [template]
-        if type is not None and type != template:
-            _target_types.append(type)
-        self._target_types = frozenset(_target_types)
+        self._target_types = frozenset((template,))
         super().__init__(
             raw_class=raw_class,
             optional=optional,
             trim_chars=trim_chars,
         )
         # NOTE: We override the instance types after initialising the base
-        # class. After matching it is important that the original type is
-        # still preserved as one of the new types.
-        # The new `type` becomes the "main" type, but the template will still
+        # class. We want to ensure that re-matching is possible by ensuring that
+        # the `type` pre-matching is still present post-match even if it's not
+        # part of the natural type hierarchy for the new `raw_class`.
+        # The new `type` becomes the "primary" type, but the template will still
         # be part of the resulting `class_types`.
-        # We do this here rather than in the base class to keep the dialect
-        # facing API the same.
-        self._instance_types = tuple(_target_types)
+        # We do this here rather than in the base class to keep the dialect-facing
+        # API the same.
+        self._instance_types: Tuple[str, ...] = ()
+        # Primary type if set.
+        if type is not None:
+            self._instance_types += (type,)
+        # New root types
+        if type != raw_class.type:
+            self._instance_types += (raw_class.type,)
+        # Template type (if it's not in the subclasses of the raw_class).
+        if not raw_class.class_is_type(template):
+            self._instance_types += (template,)
 
     def __repr__(self) -> str:
         return f"<TypedParser: {self.template!r}>"

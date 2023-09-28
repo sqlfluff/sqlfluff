@@ -26,8 +26,10 @@ class RawSegment(BaseSegment):
         self,
         raw: Optional[str] = None,
         pos_marker: Optional[PositionMarker] = None,
-        # Optionally, type can also be a tuple of types, where
-        # the first is the "main" type.
+        # For legacy and syntactic sugar we allow the simple
+        # `type` argument here, but for more precise inheritance
+        # we suggest using the `instance_types` option.
+        type: Optional[str] = None,
         instance_types: Tuple[str, ...] = (),
         trim_start: Optional[Tuple[str, ...]] = None,
         trim_chars: Optional[Tuple[str, ...]] = None,
@@ -51,8 +53,12 @@ class RawSegment(BaseSegment):
         self.pos_marker: PositionMarker = pos_marker  # type: ignore
         # Set the segments attribute to be an empty tuple.
         self.segments = ()
-        # if instance types are provided, store it for later.
-        self.instance_types = instance_types
+        self.instance_types: Tuple[str, ...]
+        if type:
+            assert not instance_types, "Cannot set `type` and `instance_types`."
+            self.instance_types = (type,)
+        else:
+            self.instance_types = instance_types
         # What should we trim off the ends to get to content
         self.trim_start = trim_start
         self.trim_chars = trim_chars
