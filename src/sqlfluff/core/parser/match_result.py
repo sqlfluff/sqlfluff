@@ -62,6 +62,26 @@ class MatchResult2:
     # Child segment matches (this is the recursive bit)
     child_matches: Tuple["MatchResult2", ...] = field(default_factory=tuple)
 
+    def __post_init__(self):
+        """Do some lightweight validation post instantiation."""
+        if not slice_length(self.matched_slice):
+            # TODO: Review whether we should handle any of these
+            # scenarios ()
+            assert not self.matched_class, (
+                "Tried to create zero length MatchResult2 with "
+                "`matched_class`. This MatchResult2 is invalid. "
+                f"{self.matched_class} @{self.matched_slice}"
+            )
+            assert not self.child_matches, (
+                "Tried to create zero length MatchResult2 with "
+                "`child_matches`. Is this allowed?! "
+                f"Result: {self}"
+            )
+            assert not self.insert_segments, (
+                "Tried to create zero length MatchResult2 with "
+                "`insert_segments`. This situation isn't handled yet."
+            )
+
     def __len__(self) -> int:
         return slice_length(self.matched_slice)
 
@@ -153,6 +173,12 @@ class MatchResult2:
         NOTE: Because MatchResult2 is frozen, this returns a new
         match.
         """
+        # If it's a failed (empty) match, then just pass straight
+        # through. It's not valid to add a matched class to an empty
+        # result.
+        if not slice_length(self.matched_slice):
+            assert not insert_segments, "Cannot wrap inserts onto an empty match."
+            return self
         child_matches: Tuple[MatchResult2, ...]
         if self.matched_class:
             # If the match already has a class, then make
@@ -189,7 +215,8 @@ class MatchResult2:
             # scenarios ()
             assert not self.matched_class, (
                 "Tried to apply zero length MatchResult2 with "
-                "`matched_class`. This MatchResult2 is invalid."
+                "`matched_class`. This MatchResult2 is invalid. "
+                f"{self.matched_class} @{self.matched_slice}"
             )
             assert not self.child_matches, (
                 "Tried to apply zero length MatchResult2 with "
