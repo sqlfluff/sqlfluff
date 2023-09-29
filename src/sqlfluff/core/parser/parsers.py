@@ -69,6 +69,7 @@ class BaseParser(Matchable):
             segment_kwargs=segment_kwargs,
         )
 
+
 class TypedParser(BaseParser):
     """An object which matches and returns raw segments based on types."""
 

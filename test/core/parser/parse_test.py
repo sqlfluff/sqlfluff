@@ -45,6 +45,6 @@ def test__parser__parse_error():
     assert (
         'Expected: "<Delimited: '
         "[<Ref: 'SelectClauseElementSegment'>]> "
-        "after <CodeSegment: ([L:  1, P:  1]) 'SELECT'>. "
+        "after <WordSegment: ([L:  1, P:  1]) 'SELECT'>. "
         "Found nothing."
     ) in parsed.tree.stringify()

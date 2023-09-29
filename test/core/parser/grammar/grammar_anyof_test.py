@@ -64,7 +64,7 @@ def test__parser__grammar_oneof(test_segments, allow_gaps):
     assert g.match2(test_segments, 0, parse_context=ctx) == MatchResult2(
         matched_slice=slice(0, 1),
         matched_class=KeywordSegment,
-        segment_kwargs={"type": "keyword"},
+        segment_kwargs={"instance_types": ("keyword",)},
     )
     # Check with a bit of whitespace
     assert not g.match2(test_segments, 1, parse_context=ctx)
@@ -261,10 +261,14 @@ def test__parser__grammar_anysetof2(generate_test_segments):
         matched_slice=slice(0, 3),
         child_matches=(
             MatchResult2(
-                slice(0, 1), KeywordSegment, segment_kwargs={"type": "keyword"}
+                slice(0, 1),
+                KeywordSegment,
+                segment_kwargs={"instance_types": ("keyword",)},
             ),
             MatchResult2(
-                slice(2, 3), KeywordSegment, segment_kwargs={"type": "keyword"}
+                slice(2, 3),
+                KeywordSegment,
+                segment_kwargs={"instance_types": ("keyword",)},
             ),
             # NOTE: The second "bar" isn't included because this
             # is any *set* of and we've already have "bar" once.

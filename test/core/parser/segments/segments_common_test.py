@@ -20,7 +20,7 @@ def test__parser__core_keyword(raw_segments):
     assert m == MatchResult2(
         matched_slice=slice(0, 1),
         matched_class=KeywordSegment,
-        segment_kwargs={"type": "bar"},
+        segment_kwargs={"instance_types": ("bar",)},
     )
     segments = m.apply(raw_segments)
     assert len(segments) == 1

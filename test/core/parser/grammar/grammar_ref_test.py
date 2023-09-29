@@ -64,7 +64,7 @@ def test__parser__grammar_ref_match2(generate_test_segments, test_dialect):
     assert match == MatchResult2(
         matched_slice=slice(1, 2),
         matched_class=CodeSegment,
-        segment_kwargs={"type": "foo"},
+        segment_kwargs={"instance_types": ("foo",)},
     )
 
 
