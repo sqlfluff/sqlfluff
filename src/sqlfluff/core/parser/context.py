@@ -261,7 +261,3 @@ class ParseContext:
     ) -> None:
         """Store a match in the cache for later retrieval."""
         self._parse_cache2[(loc_key, matcher_key)] = match
-
-    def increment(self, key: str, default: int = 0) -> None:
-        """Increment one of the parse stats by name."""
-        self.parse_stats[key] = self.parse_stats.get(key, 0) + 1
