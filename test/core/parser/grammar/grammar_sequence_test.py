@@ -10,7 +10,7 @@ import pytest
 from sqlfluff.core.parser import Dedent, Indent, KeywordSegment, StringParser
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar import Conditional, Sequence
-from sqlfluff.core.parser.match_result import MatchResult2
+from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.types import ParseMode
 
 
@@ -25,7 +25,7 @@ def test__parser__grammar_sequence_repr():
     )
 
 
-def test__parser__grammar_sequence_nested_match2(test_segments, caplog):
+def test__parser__grammar_sequence_nested_match(test_segments, caplog):
     """Test the Sequence grammar when nested."""
     bar = StringParser("bar", KeywordSegment)
     foo = StringParser("foo", KeywordSegment)
@@ -38,29 +38,29 @@ def test__parser__grammar_sequence_nested_match2(test_segments, caplog):
 
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
         # Matching just the start of the list shouldn't work.
-        result1 = g.match2(test_segments[:3], 0, ctx)
+        result1 = g.match(test_segments[:3], 0, ctx)
 
     assert not result1  # Check it returns falsy
 
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
         # Matching the whole list should.
-        result2 = g.match2(test_segments, 0, ctx)
+        result2 = g.match(test_segments, 0, ctx)
 
     assert result2  # Check it returns truthy
-    assert result2 == MatchResult2(
+    assert result2 == MatchResult(
         matched_slice=slice(0, 4),  # NOTE: One of these is space.
         child_matches=(
-            MatchResult2(
+            MatchResult(
                 matched_slice=slice(0, 1),
                 matched_class=KeywordSegment,
                 segment_kwargs={"instance_types": ("keyword",)},
             ),
-            MatchResult2(
+            MatchResult(
                 matched_slice=slice(2, 3),
                 matched_class=KeywordSegment,
                 segment_kwargs={"instance_types": ("keyword",)},
             ),
-            MatchResult2(
+            MatchResult(
                 matched_slice=slice(3, 4),
                 matched_class=KeywordSegment,
                 segment_kwargs={"instance_types": ("keyword",)},
@@ -220,7 +220,7 @@ def test__parser__grammar_sequence_nested_match2(test_segments, caplog):
         ),
     ],
 )
-def test__parser__grammar_sequence_modes2(
+def test__parser__grammar_sequence_modes(
     mode,
     sequence,
     terminators,
@@ -245,7 +245,7 @@ def test__parser__grammar_sequence_modes2(
     )
     _start = input_slice.start or 0
     _stop = input_slice.stop or len(segments)
-    _match = _seq.match2(segments[:_stop], _start, ctx)
+    _match = _seq.match(segments[:_stop], _start, ctx)
     # If we're expecting an output tuple, assert the match is truthy.
     if output_tuple:
         assert _match
@@ -255,7 +255,7 @@ def test__parser__grammar_sequence_modes2(
     assert _result == output_tuple
 
 
-def test__parser__grammar_sequence_indent_conditional_match2(test_segments, caplog):
+def test__parser__grammar_sequence_indent_conditional_match(test_segments, caplog):
     """Test the Sequence grammar with indents."""
     bar = StringParser("bar", KeywordSegment)
     foo = StringParser("foo", KeywordSegment)
@@ -272,18 +272,18 @@ def test__parser__grammar_sequence_indent_conditional_match2(test_segments, capl
     )
     ctx = ParseContext(dialect=None)
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
-        m = g.match2(test_segments, 0, parse_context=ctx)
+        m = g.match(test_segments, 0, parse_context=ctx)
 
-    assert m == MatchResult2(
+    assert m == MatchResult(
         matched_slice=slice(0, 3),  # NOTE: One of these is space.
         child_matches=(
             # The two child keywords
-            MatchResult2(
+            MatchResult(
                 matched_slice=slice(0, 1),
                 matched_class=KeywordSegment,
                 segment_kwargs={"instance_types": ("keyword",)},
             ),
-            MatchResult2(
+            MatchResult(
                 matched_slice=slice(2, 3),
                 matched_class=KeywordSegment,
                 segment_kwargs={"instance_types": ("keyword",)},

@@ -81,9 +81,9 @@ class BaseFileSegment(BaseSegment):
         assert _final_seg.pos_marker
         _closing_position = _final_seg.pos_marker.templated_slice.stop
         with parse_context.progress_bar(_closing_position):
-            # NOTE: Don't call .match2() on the segment class itself, but go
+            # NOTE: Don't call .match() on the segment class itself, but go
             # straight to the match grammar inside.
-            match = cls.match_grammar.match2(
+            match = cls.match_grammar.match(
                 segments[:_end_idx], _start_idx, parse_context
             )
 

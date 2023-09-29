@@ -4,7 +4,7 @@ from typing import Sequence, Type, Union
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import BaseGrammar
-from sqlfluff.core.parser.match_result import MatchResult2
+from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.segments import BaseSegment, Indent
 
 
@@ -81,17 +81,17 @@ class Conditional(BaseGrammar):
                 return False
         return True
 
-    def match2(
+    def match(
         self,
         segments: Sequence["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
-    ) -> MatchResult2:
+    ) -> MatchResult:
         """Match against this matcher."""
         if not self.is_enabled(parse_context):
-            return MatchResult2.empty_at(idx)
+            return MatchResult.empty_at(idx)
 
         # This looks weird, but yes it's just a raw insert.
-        return MatchResult2(
+        return MatchResult(
             matched_slice=slice(idx, idx), insert_segments=((idx, self._meta),)
         )

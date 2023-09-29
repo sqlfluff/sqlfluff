@@ -10,7 +10,7 @@ from sqlfluff.core.parser.match_algorithms import (
     longest_match2,
     skip_start_index_forward_to_code,
 )
-from sqlfluff.core.parser.match_result import MatchResult2
+from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import BaseSegment
 
@@ -59,12 +59,12 @@ class Delimited(OneOf):
             optional=optional,
         )
 
-    def match2(
+    def match(
         self,
         segments: Sequence["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
-    ) -> MatchResult2:
+    ) -> MatchResult:
         """Match against this matcher."""
         # NOTE: THIS IS A GREAT PLACE FOR PARTIAL UNPARSABLES.
         # TODO: WE SHOULD PORT THE PROGRESSBAR LOGIC (NOT DONE YET).
@@ -76,8 +76,8 @@ class Delimited(OneOf):
         seeking_delimiter = False
         max_idx = len(segments)
         working_idx = idx
-        working_match = MatchResult2.empty_at(idx)
-        delimiter_match: Optional[MatchResult2] = None
+        working_match = MatchResult.empty_at(idx)
+        delimiter_match: Optional[MatchResult] = None
 
         delimiter_matchers = [self.delimiter]
         # NOTE: If the configured delimiter is in parse_context.terminators then
@@ -104,7 +104,7 @@ class Delimited(OneOf):
 
             # Check whether there is a terminator before checking for content
             with parse_context.deeper_match(name="Delimited-Term") as ctx:
-                match, _ = longest_match2(
+                match, _ = longest_match(
                     segments=segments,
                     matchers=terminator_matchers,
                     idx=working_idx,
@@ -120,7 +120,7 @@ class Delimited(OneOf):
             with parse_context.deeper_match(
                 name="Delimited", push_terminators=_push_terminators
             ) as ctx:
-                match, _ = longest_match2(
+                match, _ = longest_match(
                     segments=segments,
                     matchers=delimiter_matchers
                     if seeking_delimiter
@@ -156,13 +156,13 @@ class Delimited(OneOf):
             # Prep for going back around the loop...
             working_idx = match.matched_slice.stop
             seeking_delimiter = not seeking_delimiter
-            parse_context.update_progress2(working_idx)
+            parse_context.update_progress(working_idx)
 
         if self.allow_trailing and delimiter_match and not seeking_delimiter:
             delimiters += 1
             working_match = working_match.append(delimiter_match)
 
         if delimiters < self.min_delimiters:
-            return MatchResult2.empty_at(idx)
+            return MatchResult.empty_at(idx)
 
         return working_match

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, FrozenSet, Optional, Sequence, Tuple, Typ
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.context import ParseContext
-    from sqlfluff.core.parser.match_result import MatchResult2
+    from sqlfluff.core.parser.match_result import MatchResult
     from sqlfluff.core.parser.segments import BaseSegment
 
 
@@ -40,12 +40,12 @@ class Matchable(ABC):
         """
 
     @abstractmethod
-    def match2(
+    def match(
         self,
         segments: Sequence["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
-    ) -> "MatchResult2":
+    ) -> "MatchResult":
         """Match against this matcher."""
 
     def copy(self: T, **kwargs: Any) -> T:  # pragma: no cover

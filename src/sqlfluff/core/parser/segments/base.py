@@ -38,7 +38,7 @@ from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.parser.match_result import MatchResult2
+from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments.fix import AnchorEditInfo, FixPatch, SourceFix
 from sqlfluff.core.parser.types import SimpleHintType
@@ -622,9 +622,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return {key: content_dict}
 
     @classmethod
-    def match2(
+    def match(
         cls, segments: Sequence["BaseSegment"], idx: int, parse_context: ParseContext
-    ) -> MatchResult2:
+    ) -> MatchResult:
         """Match a list of segments against this segment.
 
         Note: Match for segments is done in the ABSTRACT.
@@ -636,17 +636,17 @@ class BaseSegment(metaclass=SegmentMetaclass):
         on the underlying class.
         """
         if idx >= len(segments):  # pragma: no cover
-            return MatchResult2.empty_at(idx)
+            return MatchResult.empty_at(idx)
 
         # Is this already the right kind of segment?
         if isinstance(segments[idx], cls):
             # Very simple "consume one" result.
-            return MatchResult2(slice(idx, idx + 1))
+            return MatchResult(slice(idx, idx + 1))
 
         assert cls.match_grammar, f"{cls.__name__} has no match grammar."
 
         with parse_context.deeper_match(name=cls.__name__) as ctx:
-            match = cls.match_grammar.match2(segments, idx, ctx)
+            match = cls.match_grammar.match(segments, idx, ctx)
 
         # Wrap are return regardless of success.
         return match.wrap(cls)
@@ -1385,7 +1385,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         if not trimmed_content and self.can_start_end_non_code:
             # Edge case for empty segments which are allowed to be empty.
             return True
-        rematch = segment.match2(trimmed_content, 0, ctx)
+        rematch = segment.match(trimmed_content, 0, ctx)
         if not rematch.matched_slice == slice(0, len(trimmed_content)):
             linter_logger.debug(
                 f"Validation Check Fail for {segment}.Incomplete Match. "

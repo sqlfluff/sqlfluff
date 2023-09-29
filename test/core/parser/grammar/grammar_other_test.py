@@ -45,7 +45,7 @@ def bracket_segments(generate_test_segments):
         (["bar", ".", "bar", "foo"], 2, True, False, 0),
     ],
 )
-def test__parser__grammar_delimited2(
+def test__parser__grammar_delimited(
     min_delimiters,
     allow_gaps,
     allow_trailing,
@@ -67,7 +67,7 @@ def test__parser__grammar_delimited2(
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
         # Matching with whitespace shouldn't match if we need at least one delimiter
-        m = g.match2(test_segments, 0, ctx)
+        m = g.match(test_segments, 0, ctx)
 
     assert len(m) == match_len
 
@@ -93,7 +93,7 @@ def test__parser__grammar_greedyuntil(
     grammar = GreedyUntil(StringParser(keyword, KeywordSegment))
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     assert (
-        grammar.match2(test_segments, 0, parse_context=ctx).apply(test_segments)
+        grammar.match(test_segments, 0, parse_context=ctx).apply(test_segments)
         == test_segments[:slice_len]
     )
 
@@ -109,30 +109,30 @@ def test__parser__grammar_greedyuntil(
         (["foof"], 6),
     ],
 )
-def test__parser__grammar_anything_match2(
+def test__parser__grammar_anything_match(
     terminators, match_length, test_segments, fresh_ansi_dialect
 ):
     """Test the match2 method of the Anything grammar."""
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     terms = [StringParser(kw, KeywordSegment) for kw in terminators]
-    result = Anything(terminators=terms).match2(test_segments, 0, parse_context=ctx)
+    result = Anything(terminators=terms).match(test_segments, 0, parse_context=ctx)
     assert result
     assert result.matched_slice == slice(0, match_length)
     assert result.matched_class is None  # We shouldn't have set a class
 
 
-def test__parser__grammar_nothing_match2(test_segments, fresh_ansi_dialect):
+def test__parser__grammar_nothing_match(test_segments, fresh_ansi_dialect):
     """Test the Nothing grammar."""
     ctx = ParseContext(dialect=fresh_ansi_dialect)
-    assert not Nothing().match2(test_segments, 0, ctx)
+    assert not Nothing().match(test_segments, 0, ctx)
 
 
-def test__parser__grammar_noncode_match2(test_segments, fresh_ansi_dialect):
+def test__parser__grammar_noncode_match(test_segments, fresh_ansi_dialect):
     """Test the NonCodeMatcher."""
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     # NonCode Matcher doesn't work with simple
     assert NonCodeMatcher().simple(ctx) is None
     # We should match one and only one segment
-    match = NonCodeMatcher().match2(test_segments, 1, parse_context=ctx)
+    match = NonCodeMatcher().match(test_segments, 1, parse_context=ctx)
     assert match
     assert match.matched_slice == slice(1, 2)

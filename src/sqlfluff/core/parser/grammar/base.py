@@ -17,7 +17,7 @@ from uuid import UUID, uuid4
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.match_algorithms import greedy_match2
-from sqlfluff.core.parser.match_result import MatchResult2
+from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.core.parser.types import ParseMode, SimpleHintType
@@ -373,12 +373,12 @@ class Ref(BaseGrammar):
             repr(self._ref), " [opt]" if self.is_optional() else ""
         )
 
-    def match2(
+    def match(
         self,
         segments: Sequence["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
-    ) -> MatchResult2:
+    ) -> MatchResult:
         """Match against this reference."""
         elem = self._get_elem(dialect=parse_context.dialect)
 
@@ -390,8 +390,8 @@ class Ref(BaseGrammar):
                 clear_terminators=self.reset_terminators,
                 push_terminators=self.terminators,
             ) as ctx:
-                if self.exclude.match2(segments, idx, ctx):
-                    return MatchResult2.empty_at(idx)
+                if self.exclude.match(segments, idx, ctx):
+                    return MatchResult.empty_at(idx)
 
         # Match against that. NB We're not incrementing the match_depth here.
         # References shouldn't really count as a depth of match.
@@ -400,7 +400,7 @@ class Ref(BaseGrammar):
             clear_terminators=self.reset_terminators,
             push_terminators=self.terminators,
         ) as ctx:
-            return elem.match2(segments, idx, parse_context)
+            return elem.match(segments, idx, parse_context)
 
     @classmethod
     def keyword(cls, keyword: str, optional: bool = False) -> BaseGrammar:
@@ -419,12 +419,12 @@ class Ref(BaseGrammar):
 class Anything(BaseGrammar):
     """Matches anything."""
 
-    def match2(
+    def match(
         self,
         segments: Sequence["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
-    ) -> MatchResult2:
+    ) -> MatchResult:
         """Matches... Anything.
 
         Most useful in match grammars, where a later parse grammar
@@ -435,9 +435,9 @@ class Anything(BaseGrammar):
         """
         terminators = [*self.terminators, *parse_context.terminators]
         if not terminators:
-            return MatchResult2(slice(idx, len(segments)))
+            return MatchResult(slice(idx, len(segments)))
 
-        return greedy_match2(segments, idx, parse_context, terminators)
+        return greedy_match(segments, idx, parse_context, terminators)
 
 
 class Nothing(BaseGrammar):
@@ -447,11 +447,11 @@ class Nothing(BaseGrammar):
     dialects.
     """
 
-    def match2(
+    def match(
         self,
         segments: Sequence["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
-    ) -> MatchResult2:
+    ) -> MatchResult:
         """Match nothing."""
-        return MatchResult2.empty_at(idx)
+        return MatchResult.empty_at(idx)

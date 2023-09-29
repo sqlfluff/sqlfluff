@@ -74,13 +74,13 @@ def make_result_tuple(result_slice, matcher_keywords, test_segments):
         (["sadkjfhas", "asefaslf"], slice(0, 0), None),
     ],
 )
-def test__parser__utils__next_match2(
+def test__parser__utils__next_match(
     matcher_keywords,
     result_slice,
     winning_matcher,
     test_segments,
 ):
-    """Test the `next_match2()` method."""
+    """Test the `next_match()` method."""
     # Make the string parsers for testing.
     matchers = [StringParser(keyword, KeywordSegment) for keyword in matcher_keywords]
     # Fetch the matching keyword from above (because it will have the same position)
@@ -88,7 +88,7 @@ def test__parser__utils__next_match2(
         winning_matcher = matchers[matcher_keywords.index(winning_matcher)]
 
     ctx = ParseContext(dialect=None)
-    match, matcher = next_match2(
+    match, matcher = next_match(
         test_segments,
         0,
         matchers,
@@ -112,20 +112,20 @@ def test__parser__utils__next_match2(
         (["(", "a", "(", "b", ")", "(", "c", ")", "d", ")", "e"], slice(0, 10)),
     ],
 )
-def test__parser__utils__resolve_bracket2(
+def test__parser__utils__resolve_bracket(
     raw_segments, result_slice, generate_test_segments
 ):
-    """Test the `resolve_bracket2()` method."""
+    """Test the `resolve_bracket()` method."""
     test_segments = generate_test_segments(raw_segments)
     start_bracket = StringParser("(", SymbolSegment, type="start_bracket")
     end_bracket = StringParser(")", SymbolSegment, type="end_bracket")
     ctx = ParseContext(dialect=None)
 
     # For this test case we assert that the first segment is the initial match.
-    first_match = start_bracket.match2(test_segments, 0, ctx)
+    first_match = start_bracket.match(test_segments, 0, ctx)
     assert first_match
 
-    result = resolve_bracket2(
+    result = resolve_bracket(
         test_segments,
         opening_match=first_match,
         opening_matcher=start_bracket,
@@ -144,20 +144,20 @@ def test__parser__utils__resolve_bracket2(
         (["(", "foo", ")", " ", "foo"], "foo", slice(4, 5)),
     ],
 )
-def test__parser__utils__next_ex_bracket_match2(
+def test__parser__utils__next_ex_bracket_match(
     raw_segments, target_word, result_slice, generate_test_segments, test_dialect
 ):
-    """Test the `next_ex_bracket_match2()` method."""
+    """Test the `next_ex_bracket_match()` method."""
     test_segments = generate_test_segments(raw_segments)
     start_bracket = StringParser("(", SymbolSegment, type="start_bracket")
     target = StringParser(target_word, KeywordSegment)
     ctx = ParseContext(dialect=test_dialect)
 
     # For this test case we assert that the first segment is the initial match.
-    first_match = start_bracket.match2(test_segments, 0, ctx)
+    first_match = start_bracket.match(test_segments, 0, ctx)
     assert first_match
 
-    result, _ = next_ex_bracket_match2(
+    result, _ = next_ex_bracket_match(
         test_segments,
         0,
         matchers=[target],
@@ -179,7 +179,7 @@ def test__parser__utils__next_ex_bracket_match2(
         (["a", "b", "c", " ", "b"], ["b"], False, slice(0, 3)),
     ],
 )
-def test__parser__utils__greedy_match2(
+def test__parser__utils__greedy_match(
     raw_segments,
     target_words,
     inc_term,
@@ -187,12 +187,12 @@ def test__parser__utils__greedy_match2(
     generate_test_segments,
     test_dialect,
 ):
-    """Test the `greedy_match2()` method."""
+    """Test the `greedy_match()` method."""
     test_segments = generate_test_segments(raw_segments)
     matchers = [StringParser(word, KeywordSegment) for word in target_words]
     ctx = ParseContext(dialect=test_dialect)
 
-    match = greedy_match2(
+    match = greedy_match(
         segments=test_segments,
         idx=0,
         parse_context=ctx,

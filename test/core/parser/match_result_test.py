@@ -1,12 +1,12 @@
-"""Tests for the MatchResult2 class.
+"""Tests for the MatchResult class.
 
 NOTE: This is all experimental for now.
 """
 
 import pytest
 
-from sqlfluff.core.parser.segments import BaseSegment, Indent, Dedent
-from sqlfluff.core.parser.match_result import MatchResult2
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.segments import BaseSegment, Dedent, Indent
 
 
 class ExampleSegment(BaseSegment):
@@ -26,11 +26,11 @@ def _recursive_assert_pos(segment):
     [
         (
             ["a", "b", "c", "d", "e"],
-            MatchResult2(
+            MatchResult(
                 matched_slice=slice(1, 4),
                 insert_segments=((3, Indent),),
                 child_matches=(
-                    MatchResult2(
+                    MatchResult(
                         matched_slice=slice(2, 3),
                         matched_class=ExampleSegment,
                         insert_segments=((2, Indent),),
@@ -47,7 +47,7 @@ def _recursive_assert_pos(segment):
         ),
         (
             ["a", "b", "c", "d", "e"],
-            MatchResult2(
+            MatchResult(
                 matched_slice=slice(1, 4),
                 insert_segments=((2, Dedent),),
             ),
@@ -64,9 +64,9 @@ def _recursive_assert_pos(segment):
 def test__parser__matchresult2_apply(
     segment_seed, match_result, match_len, serialised_result, generate_test_segments
 ):
-    """Test MatchResult2.apply().
+    """Test MatchResult.apply().
 
-    This includes testing instantiating the MatchResult2 and
+    This includes testing instantiating the MatchResult and
     whether setting some attributes and not others works as
     expected.
     """

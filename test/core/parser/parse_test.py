@@ -20,7 +20,7 @@ def test__parser__parse_match(test_segments):
     ctx = ParseContext(dialect=None)
     # This should match and have consumed everything, which should
     # now be part of a BasicSegment.
-    match = BasicSegment.match2(test_segments, 0, parse_context=ctx)
+    match = BasicSegment.match(test_segments, 0, parse_context=ctx)
     assert match
     matched = match.apply(test_segments)
     assert len(matched) == 1

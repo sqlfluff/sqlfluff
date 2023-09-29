@@ -5,7 +5,7 @@ from typing import Sequence, Union
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import BaseGrammar, BaseSegment
 from sqlfluff.core.parser.match_algorithms import greedy_match2
-from sqlfluff.core.parser.match_result import MatchResult2
+from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
 
 
@@ -28,14 +28,14 @@ class GreedyUntil(BaseGrammar):
             reset_terminators=reset_terminators,
         )
 
-    def match2(
+    def match(
         self,
         segments: Sequence["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
-    ) -> MatchResult2:
+    ) -> MatchResult:
         """Match against this matcher."""
-        return greedy_match2(
+        return greedy_match(
             segments,
             idx=idx,
             parse_context=parse_context,

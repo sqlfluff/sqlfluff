@@ -21,7 +21,7 @@ from sqlfluff.core.config import progress_bar_configuration
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.config import FluffConfig
     from sqlfluff.core.dialects.base import Dialect
-    from sqlfluff.core.parser.match_result import MatchResult2
+    from sqlfluff.core.parser.match_result import MatchResult
     from sqlfluff.core.parser.matchable import Matchable
 
 # Get the parser logger
@@ -66,7 +66,7 @@ class ParseContext:
         self.uuid = uuid.uuid4()
         # A dict for parse caching. This is reset for each file,
         # but persists for the duration of an individual file parse.
-        self._parse_cache2: Dict[Tuple[Any, ...], "MatchResult2"] = {}
+        self._parse_cache2: Dict[Tuple[Any, ...], "MatchResult"] = {}
         # A dictionary for keeping track of some statistics on parsing
         # for performance optimisation.
         # Focused around BaseGrammar._longest_trimmed_match().
@@ -229,7 +229,7 @@ class ParseContext:
         finally:
             self._tqdm.close()
 
-    def update_progress2(self, char_idx: int) -> None:
+    def update_progress(self, char_idx: int) -> None:
         """Update the progress bar if configured.
 
         If progress isn't configured, we do nothing.
@@ -247,17 +247,17 @@ class ParseContext:
         """Return stacks as a tuples so that it can't be edited."""
         return tuple(self._parse_stack), tuple(self._match_stack)
 
-    def check_parse_cache2(
+    def check_parse_cache(
         self, loc_key: Tuple[Any, ...], matcher_key: str
-    ) -> Optional["MatchResult2"]:
+    ) -> Optional["MatchResult"]:
         """Check against the parse cache for a pre-existing match.
 
         If no match is found in the cache, this returns None.
         """
         return self._parse_cache2.get((loc_key, matcher_key))
 
-    def put_parse_cache2(
-        self, loc_key: Tuple[Any, ...], matcher_key: str, match: "MatchResult2"
+    def put_parse_cache(
+        self, loc_key: Tuple[Any, ...], matcher_key: str, match: "MatchResult"
     ) -> None:
         """Store a match in the cache for later retrieval."""
         self._parse_cache2[(loc_key, matcher_key)] = match

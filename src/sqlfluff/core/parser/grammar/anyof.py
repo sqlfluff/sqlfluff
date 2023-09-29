@@ -15,18 +15,18 @@ from sqlfluff.core.parser.match_algorithms import (
     skip_start_index_forward_to_code,
     trim_to_terminator2,
 )
-from sqlfluff.core.parser.match_result import MatchResult2
+from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import BaseSegment, UnparsableSegment
 from sqlfluff.core.parser.types import ParseMode, SimpleHintType
 
 
-def _parse_mode_match_result2(
+def _parse_mode_match_result(
     segments: SequenceType[BaseSegment],
-    current_match: MatchResult2,
+    current_match: MatchResult,
     max_idx: int,
     parse_mode: ParseMode,
-) -> MatchResult2:
+) -> MatchResult:
     """A helper function for the return values of AnyNumberOf.
 
     This method creates UnparsableSegments as appropriate
@@ -48,7 +48,7 @@ def _parse_mode_match_result2(
     if len(segments) > max_idx:
         _expected += f" before {segments[max_idx].raw!r}"
 
-    unmatched_match = MatchResult2(
+    unmatched_match = MatchResult(
         matched_slice=slice(_trim_idx, max_idx),
         matched_class=UnparsableSegment,
         segment_kwargs={"expected": _expected},
@@ -124,12 +124,12 @@ class AnyNumberOf(BaseGrammar):
         """
         return self.optional or self.min_times == 0
 
-    def match2(
+    def match(
         self,
         segments: SequenceType["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
-    ) -> MatchResult2:
+    ) -> MatchResult:
         """Match against any of the elements a relevant number of times.
 
         If it matches multiple, it returns the longest, and if any are the same
@@ -139,8 +139,8 @@ class AnyNumberOf(BaseGrammar):
             with parse_context.deeper_match(
                 name=self.__class__.__name__ + "-Exclude"
             ) as ctx:
-                if self.exclude.match2(segments, idx, ctx):
-                    return MatchResult2.empty_at(idx)
+                if self.exclude.match(segments, idx, ctx):
+                    return MatchResult.empty_at(idx)
 
         n_matches = 0
         # Keep track of the number of times each option has been matched.
@@ -151,11 +151,11 @@ class AnyNumberOf(BaseGrammar):
         # claimed yet, but we should conditionally claim if the next
         # match is succesful.
         working_idx = idx
-        matched = MatchResult2.empty_at(idx)
+        matched = MatchResult.empty_at(idx)
         max_idx = len(segments)  # What is the limit
 
         if self.parse_mode == ParseMode.GREEDY:
-            max_idx = trim_to_terminator2(
+            max_idx = trim_to_terminator(
                 segments,
                 idx,
                 terminators=[*self.terminators, *parse_context.terminators],
@@ -171,7 +171,7 @@ class AnyNumberOf(BaseGrammar):
                     or (self.max_times and n_matches >= self.max_times)
                 ):
                     # NOTE: For OneOf, this is the matched return path.
-                    return _parse_mode_match_result2(
+                    return _parse_mode_match_result(
                         segments,
                         matched,
                         max_idx,
@@ -182,14 +182,14 @@ class AnyNumberOf(BaseGrammar):
             if matched_idx >= max_idx:
                 # Return unsuccessful as we didn't meet the hurdle.
                 # The positive exhausted return is above.
-                return MatchResult2.empty_at(idx)
+                return MatchResult.empty_at(idx)
 
             with parse_context.deeper_match(
                 name=self.__class__.__name__,
                 clear_terminators=self.reset_terminators,
                 push_terminators=self.terminators,
             ) as ctx:
-                match, matched_option = longest_match2(
+                match, matched_option = longest_match(
                     # TODO: Resolve re-slice limit hack
                     segments[:max_idx],
                     self._elements,
@@ -202,9 +202,9 @@ class AnyNumberOf(BaseGrammar):
                 # If we haven't already met the hurdle rate, act as though
                 # not match at all.
                 if n_matches < self.min_times:
-                    matched = MatchResult2.empty_at(idx)
+                    matched = MatchResult.empty_at(idx)
 
-                return _parse_mode_match_result2(
+                return _parse_mode_match_result(
                     segments,
                     matched,
                     max_idx,
@@ -225,7 +225,7 @@ class AnyNumberOf(BaseGrammar):
                     and option_counter[matched_key] > self.max_times_per_element
                 ):
                     # Return the match so far, without the most recent match.
-                    return _parse_mode_match_result2(
+                    return _parse_mode_match_result(
                         segments,
                         matched,
                         max_idx,
@@ -238,7 +238,7 @@ class AnyNumberOf(BaseGrammar):
             working_idx = matched_idx
             if self.allow_gaps:
                 working_idx = skip_start_index_forward_to_code(segments, matched_idx)
-            parse_context.update_progress2(matched_idx)
+            parse_context.update_progress(matched_idx)
             n_matches += 1
             # Continue around the loop...
 

@@ -10,7 +10,7 @@ from typing import DefaultDict, List, Optional, Sequence, Set, Tuple, cast
 
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.match_result import MatchResult2
+from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import BaseSegment, BracketedSegment
 
@@ -159,12 +159,12 @@ def prune_options(
     return available_options
 
 
-def longest_match2(
+def longest_match(
     segments: Sequence[BaseSegment],
     matchers: Sequence[Matchable],
     idx: int,
     parse_context: ParseContext,
-) -> Tuple[MatchResult2, Optional[Matchable]]:
+) -> Tuple[MatchResult, Optional[Matchable]]:
     """Return longest match from a selection of matchers.
 
     Priority is:
@@ -207,7 +207,7 @@ def longest_match2(
 
     # No matchers or no segments? No match.
     if not matchers or idx == max_idx:
-        return MatchResult2.empty_at(idx), None
+        return MatchResult.empty_at(idx), None
 
     # Prune available options, based on their simple representation for efficiency.
     # TODO: Given we don't allow trimming here we should be able to remove
@@ -220,7 +220,7 @@ def longest_match2(
     # If no available options, return no match.
     # NOTE: No partials at this stage, because we're pruning the *starts*.
     if not available_options:
-        return MatchResult2.empty_at(idx), None
+        return MatchResult.empty_at(idx), None
 
     terminators = parse_context.terminators or ()
     terminated = False
@@ -251,22 +251,22 @@ def longest_match2(
         -max_idx,
     )
 
-    best_match = MatchResult2.empty_at(idx)
+    best_match = MatchResult.empty_at(idx)
     best_matcher: Optional[Matchable] = None
     # iterate at this position across all the matchers
     for matcher_idx, matcher in enumerate(available_options):
         # Check parse cache.
         matcher_key = matcher.cache_key()
-        res_match: Optional[MatchResult2] = parse_context.check_parse_cache2(
+        res_match: Optional[MatchResult] = parse_context.check_parse_cache(
             loc_key, matcher_key
         )
         # If cache miss, match fresh and repopulate.
         # NOTE: By comparing with None, we'll also still get "failed" matches.
         if res_match is None:
             # Match fresh if no cache hit
-            res_match = matcher.match2(segments, idx, parse_context)
+            res_match = matcher.match(segments, idx, parse_context)
             # Cache it for later to for performance.
-            parse_context.put_parse_cache2(loc_key, matcher_key, res_match)
+            parse_context.put_parse_cache(loc_key, matcher_key, res_match)
 
         # Have we matched all available segments?
         # TODO: Do we still want this clause in the new world? It seems unlikely
@@ -276,7 +276,7 @@ def longest_match2(
             return res_match, matcher
 
         # Is this the best match so far?
-        # NOTE: Using the inbuilt comparison functions of MatchResult2.
+        # NOTE: Using the inbuilt comparison functions of MatchResult.
         if res_match.is_better_than(best_match):
             best_match = res_match
             best_matcher = matcher
@@ -299,7 +299,7 @@ def longest_match2(
                     terminated = True
                     break
                 for terminator in terminators:
-                    terminator_match: MatchResult2 = terminator.match2(
+                    terminator_match: MatchResult = terminator.match(
                         segments, _next_code_idx, parse_context
                     )
                     if terminator_match:
@@ -313,12 +313,12 @@ def longest_match2(
     return best_match, best_matcher
 
 
-def next_match2(
+def next_match(
     segments: Sequence[BaseSegment],
     idx: int,
     matchers: Sequence[Matchable],
     parse_context: ParseContext,
-) -> Tuple[MatchResult2, Optional[Matchable]]:
+) -> Tuple[MatchResult, Optional[Matchable]]:
     """Look ahead for matches beyond the first element of the segments list.
 
     NOTE: Returns *only clean* matches.
@@ -338,7 +338,7 @@ def next_match2(
 
     # Have we got any segments to match on?
     if idx >= max_idx:  # No? Return empty.
-        return MatchResult2.empty_at(idx), None
+        return MatchResult.empty_at(idx), None
 
     # This next section populates a lookup of the simple matchers.
     # TODO: This should really be populated on instantiation of the
@@ -355,7 +355,7 @@ def next_match2(
             # `.simple()` must provide a result), it is still _possible_
             # to end up here.
             raise NotImplementedError(
-                "All matchers passed to `._next_match2()` are "
+                "All matchers passed to `._next_match()` are "
                 "assumed to have a functioning `.simple()` option. "
                 "In a future release it will be compulsory for _all_ "
                 "matchables to implement `.simple()`. Please report "
@@ -391,24 +391,24 @@ def next_match2(
         _matcher_idxs.sort()
         for _matcher_idx in _matcher_idxs:
             _matcher = matchers[_matcher_idx]
-            _match = _matcher.match2(segments, _idx, parse_context)
+            _match = _matcher.match(segments, _idx, parse_context)
             # NOTE: We're only going to consider clean matches from this method.
             if _match:
                 # This will do. Return.
                 return _match, _matcher
 
     # If we finish the loop, we didn't find a match. Return empty.
-    return MatchResult2.empty_at(idx), None
+    return MatchResult.empty_at(idx), None
 
 
-def resolve_bracket2(
+def resolve_bracket(
     segments: Sequence[BaseSegment],
-    opening_match: MatchResult2,
+    opening_match: MatchResult,
     opening_matcher: Matchable,
     start_brackets: List[Matchable],
     end_brackets: List[Matchable],
     parse_context: ParseContext,
-) -> MatchResult2:
+) -> MatchResult:
     """Recursive match to resolve an opened bracket.
 
     Returns when the opening bracket is resolved.
@@ -417,11 +417,11 @@ def resolve_bracket2(
     assert opening_matcher in start_brackets
     type_idx = start_brackets.index(opening_matcher)
     matched_idx = opening_match.matched_slice.stop
-    child_matches: Tuple[MatchResult2, ...] = ()
+    child_matches: Tuple[MatchResult, ...] = ()
 
     while True:
         # Look for the next relevant bracket.
-        match, matcher = next_match2(
+        match, matcher = next_match(
             segments,
             matched_idx,
             matchers=start_brackets + end_brackets,
@@ -443,7 +443,7 @@ def resolve_bracket2(
             if closing_idx == type_idx:
                 # We're closing the opening type.
                 # NOTE: This is how we exit the loop.
-                return MatchResult2(
+                return MatchResult(
                     # Slice should span from the first to the second.
                     slice(opening_match.matched_slice.start, match.matched_slice.stop),
                     matched_class=BracketedSegment,
@@ -466,7 +466,7 @@ def resolve_bracket2(
         # Otherwise we found a new opening bracket.
         assert matcher in start_brackets
         # Recurse into a new bracket matcher.
-        inner_match = resolve_bracket2(
+        inner_match = resolve_bracket(
             segments,
             opening_match=match,
             opening_matcher=matcher,
@@ -483,13 +483,13 @@ def resolve_bracket2(
         # Head back around the loop again to see if we can find the end...
 
 
-def next_ex_bracket_match2(
+def next_ex_bracket_match(
     segments: Sequence[BaseSegment],
     idx: int,
     matchers: Sequence[Matchable],
     parse_context: ParseContext,
     bracket_pairs_set: str = "bracket_pairs",
-) -> Tuple[MatchResult2, Optional[Matchable]]:
+) -> Tuple[MatchResult, Optional[Matchable]]:
     """Same as `next_match2` but with bracket counting.
 
     NB: Given we depend on `next_match2` we can also utilise
@@ -507,7 +507,7 @@ def next_ex_bracket_match2(
 
     # Have we got any segments to match on?
     if idx >= max_idx:  # No? Return empty.
-        return MatchResult2.empty_at(idx), None
+        return MatchResult.empty_at(idx), None
 
     # Get hold of the bracket matchers from the dialect, and append them
     # to the list of matchers. We get them from the relevant set on the
@@ -525,13 +525,13 @@ def next_ex_bracket_match2(
 
     # Make some buffers
     matched_idx = idx
-    child_matches: Tuple[MatchResult2, ...] = ()
+    child_matches: Tuple[MatchResult, ...] = ()
 
     # Iterate
     while True:  # ## TODO: Check whether it should be a for loop?
         # Look ahead for opening brackets or the thing(s)
         # that we're otherwise looking for.
-        match, matcher = next_match2(
+        match, matcher = next_match(
             segments,
             matched_idx,
             _matchers,
@@ -547,7 +547,7 @@ def next_ex_bracket_match2(
         if matcher in end_brackets:
             # Unexpected end bracket! Return no match.
             # TODO: Should we make an unclean match here to help with unparsables?
-            return MatchResult2.empty_at(idx), None
+            return MatchResult.empty_at(idx), None
 
         # Otherwise we found a opening bracket before finding a target.
         # We now call the recursive function because there might be more
@@ -556,7 +556,7 @@ def next_ex_bracket_match2(
         # NOTE: This only returns on resolution of the opening bracket.
         # TODO: We go to quite a bit of work to construct the inner matches
         # here, but we're not really using them. Should we deal with that?
-        bracket_match = resolve_bracket2(
+        bracket_match = resolve_bracket(
             segments,
             opening_match=match,
             opening_matcher=matcher,
@@ -569,13 +569,13 @@ def next_ex_bracket_match2(
         # Head back around the loop and keep looking.
 
 
-def greedy_match2(
+def greedy_match(
     segments: Sequence[BaseSegment],
     idx: int,
     parse_context: ParseContext,
     matchers: Sequence[Matchable],
     include_terminator: bool = False,
-) -> MatchResult2:
+) -> MatchResult:
     """Match anything up to some defined terminator."""
     working_idx = idx
     # NOTE: _stop_idx is always reset below after matching before reference
@@ -584,7 +584,7 @@ def greedy_match2(
 
     while True:
         with parse_context.deeper_match(name="GreedyUntil") as ctx:
-            match, matcher = next_ex_bracket_match2(
+            match, matcher = next_ex_bracket_match(
                 segments,
                 idx=working_idx,
                 matchers=matchers,
@@ -594,7 +594,7 @@ def greedy_match2(
         # No match? That means we've not found any terminators.
         if not match:
             # Claim everything left.
-            return MatchResult2(slice(idx, len(segments)))
+            return MatchResult(slice(idx, len(segments)))
 
         _start_idx = match.matched_slice.start
         _stop_idx = match.matched_slice.stop
@@ -645,7 +645,7 @@ def greedy_match2(
     # shouldn't be used for mutation.
     # TODO: Check that I mean this.
     if include_terminator:
-        return MatchResult2(
+        return MatchResult(
             slice(idx, _stop_idx),
         )
 
@@ -660,13 +660,13 @@ def greedy_match2(
     if idx == _stop_idx:
         # TODO: I don't really like this rule, it feels like a hack.
         # Review whether it should be here.
-        return MatchResult2(slice(idx, match.matched_slice.start))
+        return MatchResult(slice(idx, match.matched_slice.start))
 
     # Otherwise return the trimmed version.
-    return MatchResult2(slice(idx, _stop_idx))
+    return MatchResult(slice(idx, _stop_idx))
 
 
-def trim_to_terminator2(
+def trim_to_terminator(
     segments: Sequence[BaseSegment],
     idx: int,
     terminators: Sequence[Matchable],
@@ -683,7 +683,7 @@ def trim_to_terminator2(
 
     .. code-block:: python
 
-        max_idx = _trim_to_terminator2(segments[:max_idx], idx, ...)
+        max_idx = _trim_to_terminator(segments[:max_idx], idx, ...)
 
     """
     # Is there anything left to match on.
@@ -700,7 +700,7 @@ def trim_to_terminator2(
             terminators, segments, start_idx=idx, parse_context=ctx
         )
         for term in pruned_terms:
-            if term.match2(segments, idx, ctx):
+            if term.match(segments, idx, ctx):
                 # One matched immediately. Claim everything to the tail.
                 return idx
 
@@ -708,7 +708,7 @@ def trim_to_terminator2(
     with parse_context.deeper_match(
         name="Trim-GreedyB-@0", track_progress=False
     ) as ctx:
-        term_match = greedy_match2(
+        term_match = greedy_match(
             segments,
             idx,
             parse_context=ctx,

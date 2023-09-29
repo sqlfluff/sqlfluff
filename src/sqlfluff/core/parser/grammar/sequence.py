@@ -20,7 +20,7 @@ from sqlfluff.core.parser.match_algorithms import (
     skip_stop_index_backward_to_code,
     trim_to_terminator2,
 )
-from sqlfluff.core.parser.match_result import MatchResult2
+from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import (
     BaseSegment,
@@ -78,12 +78,12 @@ class Sequence(BaseGrammar):
         # If *all* elements are optional AND simple, I guess it's also simple.
         return frozenset(simple_raws), frozenset(simple_types)
 
-    def match2(
+    def match(
         self,
         segments: SequenceType["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
-    ) -> MatchResult2:
+    ) -> MatchResult:
         """Match a specific sequence of elements.
 
         When returning incomplete matches in one of the greedy parse
@@ -100,7 +100,7 @@ class Sequence(BaseGrammar):
         matched_idx = idx  # Where have we got to
         max_idx = len(segments)  # What is the limit
         insert_segments: Tuple[Tuple[int, Type[MetaSegment]], ...] = ()
-        child_matches: Tuple[MatchResult2, ...] = ()
+        child_matches: Tuple[MatchResult, ...] = ()
         first_match = True
         # Metas with a negative indent value come AFTER
         # the whitespace. Positive or neutral come BEFORE.
@@ -116,7 +116,7 @@ class Sequence(BaseGrammar):
         if self.parse_mode == ParseMode.GREEDY:
             # In the GREEDY mode, we first look ahead to find a terminator
             # before matching any code.
-            max_idx = trim_to_terminator2(
+            max_idx = trim_to_terminator(
                 segments,
                 idx,
                 terminators=[*self.terminators, *parse_context.terminators],
@@ -135,7 +135,7 @@ class Sequence(BaseGrammar):
                 # A conditional grammar will only ever return insertions.
                 # If it's not enabled it returns an empty match.
                 # NOTE: No deeper match here, it seemed unnecessary.
-                _match = elem.match2(segments, matched_idx, parse_context)
+                _match = elem.match(segments, matched_idx, parse_context)
                 # Rather than taking them as a match at this location, we
                 # requeue them for addition later.
                 for _, submatch in _match.insert_segments:
@@ -176,13 +176,13 @@ class Sequence(BaseGrammar):
                     # If nothing has been matched _anyway_ then just bail out.
                     or matched_idx == start_idx
                 ):
-                    return MatchResult2.empty_at(idx)
+                    return MatchResult.empty_at(idx)
 
                 # On any of the other modes (GREEDY or GREEDY_ONCE_STARTED)
                 # we've effectively already claimed the segments, we've
                 # just failed to match. In which case it's unparsable.
                 insert_segments += tuple((matched_idx, meta) for meta in meta_buffer)
-                return MatchResult2(
+                return MatchResult(
                     matched_slice=slice(start_idx, matched_idx),
                     insert_segments=insert_segments,
                     child_matches=child_matches,
@@ -198,7 +198,7 @@ class Sequence(BaseGrammar):
             # Match the current element against the current position.
             with parse_context.deeper_match(name=f"Sequence-@{idx}") as ctx:
                 # HACK: Segment slicing hack to limit
-                elem_match = elem.match2(segments[:max_idx], _idx, ctx)
+                elem_match = elem.match(segments[:max_idx], _idx, ctx)
 
             # Did we fail to match? (totally or un-cleanly)
             if not elem_match:
@@ -212,7 +212,7 @@ class Sequence(BaseGrammar):
                 if self.parse_mode == ParseMode.STRICT:
                     # In a strict mode, failing to match an element means that
                     # we don't match anything.
-                    return MatchResult2.empty_at(idx)
+                    return MatchResult.empty_at(idx)
 
                 if (
                     self.parse_mode == ParseMode.GREEDY_ONCE_STARTED
@@ -220,7 +220,7 @@ class Sequence(BaseGrammar):
                 ):
                     # If it's only greedy once started, and we haven't matched
                     # anything yet, then we also don't match anything.
-                    return MatchResult2.empty_at(idx)
+                    return MatchResult.empty_at(idx)
 
                 # On any of the other modes (GREEDY or GREEDY_ONCE_STARTED)
                 # we've effectively already claimed the segments, we've
@@ -229,7 +229,7 @@ class Sequence(BaseGrammar):
                 # Handle the simple case where we haven't even started the
                 # sequence yet first:
                 if matched_idx == start_idx:
-                    return MatchResult2(
+                    return MatchResult(
                         matched_slice=slice(start_idx, max_idx),
                         matched_class=UnparsableSegment,
                         segment_kwargs={
@@ -243,7 +243,7 @@ class Sequence(BaseGrammar):
                 _start_idx = skip_start_index_forward_to_code(
                     segments, matched_idx, max_idx
                 )
-                return MatchResult2(
+                return MatchResult(
                     # NOTE: We use the already matched segments in the
                     # return value so that if any have already been
                     # matched, the user can see that. Those are not
@@ -256,7 +256,7 @@ class Sequence(BaseGrammar):
                     insert_segments=insert_segments,
                     child_matches=child_matches
                     + (
-                        MatchResult2(
+                        MatchResult(
                             # The unparsable section is just the remaining
                             # segments we were unable to match from the
                             # sequence.
@@ -278,12 +278,12 @@ class Sequence(BaseGrammar):
 
             # Otherwise we _do_ have a match. Update the position.
             matched_idx = elem_match.matched_slice.stop
-            parse_context.update_progress2(matched_idx)
+            parse_context.update_progress(matched_idx)
 
             if first_match and self.parse_mode == ParseMode.GREEDY_ONCE_STARTED:
                 # In the GREEDY_ONCE_STARTED mode, we first look ahead to find a
                 # terminator after the first match (and only the first match).
-                max_idx = trim_to_terminator2(
+                max_idx = trim_to_terminator(
                     segments,
                     matched_idx,
                     terminators=[*self.terminators, *parse_context.terminators],
@@ -314,7 +314,7 @@ class Sequence(BaseGrammar):
 
                 if _stop_idx > _idx:
                     child_matches += (
-                        MatchResult2(
+                        MatchResult(
                             # The unparsable section is just the remaining
                             # segments we were unable to match from the
                             # sequence.
@@ -328,7 +328,7 @@ class Sequence(BaseGrammar):
                     # Match up to the end.
                     matched_idx = _stop_idx
 
-        return MatchResult2(
+        return MatchResult(
             matched_slice=slice(start_idx, matched_idx),
             insert_segments=insert_segments,
             child_matches=child_matches,
@@ -406,12 +406,12 @@ class Bracketed(Sequence):
             )
         return start_bracket, end_bracket, persists
 
-    def match2(
+    def match(
         self,
         segments: SequenceType["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
-    ) -> MatchResult2:
+    ) -> MatchResult:
         """Match against this matcher."""
         # Rehydrate the bracket segments in question.
         # bracket_persists controls whether we make a BracketedSegment or not.
@@ -425,17 +425,17 @@ class Bracketed(Sequence):
         # Otherwise try and match the segments directly.
         # Look for the first bracket
         with parse_context.deeper_match(name="Bracketed-Start") as ctx:
-            start_match = start_bracket.match2(segments, idx, ctx)
+            start_match = start_bracket.match(segments, idx, ctx)
 
         if not start_match:
             # Can't find the opening bracket. No Match.
-            return MatchResult2.empty_at(idx)
+            return MatchResult.empty_at(idx)
 
         # NOTE: Ideally we'd match on the _content_ next, providing we were sure
         # we wouldn't hit the end. But it appears the terminator logic isn't
         # robust enough for that yet. Until then, we _first_ look for the closing
         # bracket and _then_ match on the inner content.
-        bracket_match = resolve_bracket2(
+        bracket_match = resolve_bracket(
             segments,
             opening_match=start_match,
             opening_matcher=start_bracket,
@@ -466,16 +466,16 @@ class Bracketed(Sequence):
             # reliable way so far to make sure we don't "over match" when
             # presented with a potential terminating bracket.
             # TODO: MAKE THIS BETTER. GET RID OF THE HACK.
-            content_match = super().match2(segments[:_end_idx], _idx, ctx)
+            content_match = super().match(segments[:_end_idx], _idx, ctx)
 
         # No complete match within the brackets? Stop here and return unmatched.
         if not content_match.matched_slice.stop == _end_idx:
-            return MatchResult2.empty_at(idx)
+            return MatchResult.empty_at(idx)
 
         # Wherever we got to, work forward to find the closing bracket.
         # NOTE: We do this even if we didn't find a content match.
         with parse_context.deeper_match(name="Bracketed-End") as ctx:
-            final_match, _ = next_ex_bracket_match2(
+            final_match, _ = next_ex_bracket_match(
                 segments,
                 idx=content_match.matched_slice.stop,
                 matchers=[end_bracket],
@@ -503,7 +503,7 @@ class Bracketed(Sequence):
             else:
                 expected = str(self._elements)
             # Ok, there's something else in the gap. Add it as an UnparsableSegment.
-            child_match = MatchResult2(
+            child_match = MatchResult(
                 intermediate_slice,
                 UnparsableSegment,
                 segment_kwargs={"expected": expected},

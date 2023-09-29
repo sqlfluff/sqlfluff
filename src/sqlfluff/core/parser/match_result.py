@@ -1,4 +1,4 @@
-"""Source for the MatchResult2 class.
+"""Source for the MatchResult class.
 
 This should be the default response from any `match` method.
 """
@@ -40,7 +40,7 @@ def _get_point_pos_at_idx(
 
 
 @dataclass(frozen=True)
-class MatchResult2:
+class MatchResult:
     """This should be the NEW default response from any `match` method.
 
     All references and indices are in reference to a single root tuple
@@ -75,7 +75,7 @@ class MatchResult2:
         default_factory=tuple
     )
     # Child segment matches (this is the recursive bit)
-    child_matches: Tuple["MatchResult2", ...] = field(default_factory=tuple)
+    child_matches: Tuple["MatchResult", ...] = field(default_factory=tuple)
 
     def __post_init__(self) -> None:
         """Do some lightweight validation post instantiation."""
@@ -83,12 +83,12 @@ class MatchResult2:
             # Zero length matches with inserts are allowed, but not with
             # matched_class or child_matches.
             assert not self.matched_class, (
-                "Tried to create zero length MatchResult2 with "
-                "`matched_class`. This MatchResult2 is invalid. "
+                "Tried to create zero length MatchResult with "
+                "`matched_class`. This MatchResult is invalid. "
                 f"{self.matched_class} @{self.matched_slice}"
             )
             assert not self.child_matches, (
-                "Tried to create zero length MatchResult2 with "
+                "Tried to create zero length MatchResult with "
                 "`child_matches`. Is this allowed?! "
                 f"Result: {self}"
             )
@@ -97,9 +97,9 @@ class MatchResult2:
         return slice_length(self.matched_slice)
 
     def __bool__(self) -> bool:
-        """Evaluate this MatchResult2 for whether it counts as a clean match.
+        """Evaluate this MatchResult for whether it counts as a clean match.
 
-        A MatchResult2 is truthy if it has:
+        A MatchResult is truthy if it has:
         - matched segments
         - or has inserts.
         """
@@ -123,25 +123,25 @@ class MatchResult2:
         return buffer
 
     @classmethod
-    def empty_at(cls, idx: int) -> "MatchResult2":
+    def empty_at(cls, idx: int) -> "MatchResult":
         """Create an empty match at a particular index.
 
         An empty match is by definition, unclean.
         """
         return cls(slice(idx, idx))
 
-    def is_better_than(self, other: "MatchResult2") -> bool:
+    def is_better_than(self, other: "MatchResult") -> bool:
         """A match is better compared on length and cleanliness."""
         return len(self) > len(other)
 
     def append(
         self,
-        other: "MatchResult2",
+        other: "MatchResult",
         insert_segments: Tuple[Tuple[int, Type["MetaSegment"]], ...] = (),
-    ) -> "MatchResult2":
+    ) -> "MatchResult":
         """Combine another subsequent match onto this one.
 
-        NOTE: Because MatchResult2 is frozen, this returns a new
+        NOTE: Because MatchResult is frozen, this returns a new
         match.
         """
         # If the current match is empty, just return the other.
@@ -156,7 +156,7 @@ class MatchResult2:
         # match.
         assert self.matched_slice.stop <= other.matched_slice.start
         new_slice = slice(self.matched_slice.start, other.matched_slice.stop)
-        child_matches: Tuple[MatchResult2, ...] = ()
+        child_matches: Tuple[MatchResult, ...] = ()
         for match in (self, other):
             # If it's got a matched class, add it as a child.
             if match.matched_class:
@@ -167,7 +167,7 @@ class MatchResult2:
                 # provided in the kwargs.
                 insert_segments += match.insert_segments
                 child_matches += match.child_matches
-        return MatchResult2(
+        return MatchResult(
             new_slice,
             insert_segments=insert_segments,
             child_matches=child_matches,
@@ -178,10 +178,10 @@ class MatchResult2:
         outer_class: Type["BaseSegment"],
         insert_segments: Tuple[Tuple[int, Type["MetaSegment"]], ...] = (),
         segment_kwargs: Dict[str, Any] = {},
-    ) -> "MatchResult2":
+    ) -> "MatchResult":
         """Wrap this result with an outer class.
 
-        NOTE: Because MatchResult2 is frozen, this returns a new
+        NOTE: Because MatchResult is frozen, this returns a new
         match.
         """
         # If it's a failed (empty) match, then just pass straight
@@ -191,7 +191,7 @@ class MatchResult2:
             assert not insert_segments, "Cannot wrap inserts onto an empty match."
             return self
 
-        child_matches: Tuple[MatchResult2, ...]
+        child_matches: Tuple[MatchResult, ...]
         if self.matched_class:
             # If the match already has a class, then make
             # the current one and child match and clear the
@@ -204,7 +204,7 @@ class MatchResult2:
             child_matches = self.child_matches
 
         # Otherwise flatten the content
-        return MatchResult2(
+        return MatchResult(
             self.matched_slice,
             matched_class=outer_class,
             segment_kwargs=segment_kwargs,
@@ -227,12 +227,12 @@ class MatchResult2:
             # TODO: Review whether we should handle any of these
             # scenarios ()
             assert not self.matched_class, (
-                "Tried to apply zero length MatchResult2 with "
-                "`matched_class`. This MatchResult2 is invalid. "
+                "Tried to apply zero length MatchResult with "
+                "`matched_class`. This MatchResult is invalid. "
                 f"{self.matched_class} @{self.matched_slice}"
             )
             assert not self.child_matches, (
-                "Tried to apply zero length MatchResult2 with "
+                "Tried to apply zero length MatchResult with "
                 "`child_matches`. Is this allowed?! "
                 f"Result: {self}"
             )
@@ -254,7 +254,7 @@ class MatchResult2:
 
         # Which are the locations we need to care about?
         trigger_locs: DefaultDict[
-            int, List[Union[MatchResult2, Type["MetaSegment"]]]
+            int, List[Union[MatchResult, Type["MetaSegment"]]]
         ] = defaultdict(list)
         # Add the inserts first...
         for insert in self.insert_segments:
@@ -276,7 +276,7 @@ class MatchResult2:
             # Then work through each of the triggers.
             for trigger in trigger_locs[idx]:
                 # If it's a match, apply it.
-                if isinstance(trigger, MatchResult2):
+                if isinstance(trigger, MatchResult):
                     result_segments += trigger.apply(segments=segments)
                     # Update the end slice.
                     max_idx = trigger.matched_slice.stop

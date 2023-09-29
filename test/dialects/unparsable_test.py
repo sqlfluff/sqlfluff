@@ -151,7 +151,7 @@ def test_dialect_unparsable(
     ctx = ParseContext.from_config(config)
 
     # Match against the segment.
-    match = Seg.match2(segments, 0, ctx)
+    match = Seg.match(segments, 0, ctx)
     result = match.apply(segments)
 
     assert len(result) == 1

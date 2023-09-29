@@ -10,7 +10,7 @@ from uuid import uuid4
 import regex
 
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.match_result import MatchResult2
+from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import BaseSegment, RawSegment
 from sqlfluff.core.parser.types import SimpleHintType
@@ -53,8 +53,8 @@ class BaseParser(Matchable):
         """Return whether this element is optional."""
         return self.optional
 
-    def _match2_at(self, idx: int) -> MatchResult2:
-        """Construct a MatchResult2 at a given index.
+    def _match2_at(self, idx: int) -> MatchResult:
+        """Construct a MatchResult at a given index.
 
         This is a helper function for reuse by other parsers.
         """
@@ -63,7 +63,7 @@ class BaseParser(Matchable):
             segment_kwargs["instance_types"] = self._instance_types
         if self._trim_chars:
             segment_kwargs["trim_chars"] = self._trim_chars
-        return MatchResult2(
+        return MatchResult(
             matched_slice=slice(idx, idx + 1),
             matched_class=self.raw_class,
             segment_kwargs=segment_kwargs,
@@ -125,16 +125,16 @@ class TypedParser(BaseParser):
         """
         return frozenset(), self._target_types
 
-    def match2(
+    def match(
         self,
         segments: Sequence["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
-    ) -> MatchResult2:
+    ) -> MatchResult:
         """Match against this matcher."""
         if segments[idx].is_type(self.template):
             return self._match2_at(idx)
-        return MatchResult2.empty_at(idx)
+        return MatchResult.empty_at(idx)
 
 
 class StringParser(BaseParser):
@@ -171,12 +171,12 @@ class StringParser(BaseParser):
         """
         return self._simple, frozenset()
 
-    def match2(
+    def match(
         self,
         segments: Sequence["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
-    ) -> MatchResult2:
+    ) -> MatchResult:
         """Match against this matcher.
 
         NOTE: We check that the segment is also code to avoid matching
@@ -184,7 +184,7 @@ class StringParser(BaseParser):
         """
         if segments[idx].raw_upper == self.template and segments[idx].is_code:
             return self._match2_at(idx)
-        return MatchResult2.empty_at(idx)
+        return MatchResult.empty_at(idx)
 
 
 class MultiStringParser(BaseParser):
@@ -221,12 +221,12 @@ class MultiStringParser(BaseParser):
         """
         return self._simple, frozenset()
 
-    def match2(
+    def match(
         self,
         segments: Sequence["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
-    ) -> MatchResult2:
+    ) -> MatchResult:
         """Match against this matcher.
 
         NOTE: We check that the segment is also code to avoid matching
@@ -234,7 +234,7 @@ class MultiStringParser(BaseParser):
         """
         if segments[idx].is_code and segments[idx].raw_upper in self.templates:
             return self._match2_at(idx)
-        return MatchResult2.empty_at(idx)
+        return MatchResult.empty_at(idx)
 
 
 class RegexParser(BaseParser):
@@ -274,12 +274,12 @@ class RegexParser(BaseParser):
         """
         return None
 
-    def match2(
+    def match(
         self,
         segments: Sequence["BaseSegment"],
         idx: int,
         parse_context: "ParseContext",
-    ) -> MatchResult2:
+    ) -> MatchResult:
         """Match against this matcher.
 
         NOTE: This method uses .raw_upper and so case sensitivity is
@@ -294,4 +294,4 @@ class RegexParser(BaseParser):
                 # Check that the anti_template (if set) hasn't also matched
                 if not self.anti_template or not self._anti_template.match(_raw):
                     return self._match2_at(idx)
-        return MatchResult2.empty_at(idx)
+        return MatchResult.empty_at(idx)
