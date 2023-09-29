@@ -490,9 +490,9 @@ def next_ex_bracket_match(
     parse_context: ParseContext,
     bracket_pairs_set: str = "bracket_pairs",
 ) -> Tuple[MatchResult, Optional[Matchable]]:
-    """Same as `next_match2` but with bracket counting.
+    """Same as `next_match` but with bracket counting.
 
-    NB: Given we depend on `next_match2` we can also utilise
+    NB: Given we depend on `next_match` we can also utilise
     the same performance optimisations which are implemented there.
 
     bracket_pairs_set: Allows specific segments to override the available
@@ -540,7 +540,7 @@ def next_ex_bracket_match(
         # Did we match? If so, is it a target or a bracket?
         if not match or matcher in matchers:
             # If there's either no match, or we hit a target, just pass the result.
-            # NOTE: This method returns the same as `next_match2` in a "no match"
+            # NOTE: This method returns the same as `next_match` in a "no match"
             # scenario, which is why we can simplify like this.
             return match, matcher
         # If it's a _closing_ bracket, then we also return no match.

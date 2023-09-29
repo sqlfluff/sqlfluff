@@ -53,7 +53,7 @@ class BaseParser(Matchable):
         """Return whether this element is optional."""
         return self.optional
 
-    def _match2_at(self, idx: int) -> MatchResult:
+    def _match_at(self, idx: int) -> MatchResult:
         """Construct a MatchResult at a given index.
 
         This is a helper function for reuse by other parsers.
@@ -133,7 +133,7 @@ class TypedParser(BaseParser):
     ) -> MatchResult:
         """Match against this matcher."""
         if segments[idx].is_type(self.template):
-            return self._match2_at(idx)
+            return self._match_at(idx)
         return MatchResult.empty_at(idx)
 
 
@@ -183,7 +183,7 @@ class StringParser(BaseParser):
         unexpected comments.
         """
         if segments[idx].raw_upper == self.template and segments[idx].is_code:
-            return self._match2_at(idx)
+            return self._match_at(idx)
         return MatchResult.empty_at(idx)
 
 
@@ -233,7 +233,7 @@ class MultiStringParser(BaseParser):
         unexpected comments.
         """
         if segments[idx].is_code and segments[idx].raw_upper in self.templates:
-            return self._match2_at(idx)
+            return self._match_at(idx)
         return MatchResult.empty_at(idx)
 
 
@@ -293,5 +293,5 @@ class RegexParser(BaseParser):
             if result_string == _raw:
                 # Check that the anti_template (if set) hasn't also matched
                 if not self.anti_template or not self._anti_template.match(_raw):
-                    return self._match2_at(idx)
+                    return self._match_at(idx)
         return MatchResult.empty_at(idx)

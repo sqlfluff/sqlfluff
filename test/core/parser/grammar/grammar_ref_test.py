@@ -54,7 +54,7 @@ def test__parser__grammar__ref_repr():
 
 
 def test__parser__grammar_ref_match(generate_test_segments, test_dialect):
-    """Test the Ref grammar match2 method."""
+    """Test the Ref grammar match method."""
     foo_ref = Ref("FooSegment")
     test_segments = generate_test_segments(["bar", "foo", "bar"])
     ctx = ParseContext(dialect=test_dialect)
@@ -69,7 +69,7 @@ def test__parser__grammar_ref_match(generate_test_segments, test_dialect):
 
 
 def test__parser__grammar_ref_exclude(generate_test_segments, fresh_ansi_dialect):
-    """Test the Ref grammar exclude option with the match2 method."""
+    """Test the Ref grammar exclude option with the match method."""
     identifier = Ref("NakedIdentifierSegment", exclude=Ref.keyword("ABS"))
     test_segments = generate_test_segments(["ABS", "ABSOLUTE"])
     ctx = ParseContext(dialect=fresh_ansi_dialect)

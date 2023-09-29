@@ -16,10 +16,10 @@ from sqlfluff.core.parser import (
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.lexer import RegexLexer
 from sqlfluff.core.parser.match_algorithms import (
-    greedy_match2,
-    next_ex_bracket_match2,
-    next_match2,
-    resolve_bracket2,
+    greedy_match,
+    next_ex_bracket_match,
+    next_match,
+    resolve_bracket,
 )
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned

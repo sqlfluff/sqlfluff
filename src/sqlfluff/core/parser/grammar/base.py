@@ -16,7 +16,7 @@ from typing import (
 from uuid import UUID, uuid4
 
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.match_algorithms import greedy_match2
+from sqlfluff.core.parser.match_algorithms import greedy_match
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import BaseSegment

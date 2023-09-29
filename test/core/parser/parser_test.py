@@ -35,7 +35,7 @@ class ExampleSegment(RawSegment):
 
 
 def test__parser__typedparser__match(generate_test_segments):
-    """Test the match2 method of TypedParser."""
+    """Test the match method of TypedParser."""
     parser = TypedParser("single_quote", ExampleSegment)
     ctx = ParseContext(dialect=None)
     # NOTE: The second element of the sequence has single quotes
@@ -59,7 +59,7 @@ def test__parser__typedparser__simple():
 
 
 def test__parser__stringparser__match(generate_test_segments):
-    """Test the match2 method of StringParser."""
+    """Test the match method of StringParser."""
     parser = StringParser("foo", ExampleSegment, type="test")
     ctx = ParseContext(dialect=None)
     segments = generate_test_segments(["foo", "bar", "foo"])
@@ -88,7 +88,7 @@ def test__parser__stringparser__simple():
 
 
 def test__parser__regexparser__match(generate_test_segments):
-    """Test the match2 method of RegexParser."""
+    """Test the match method of RegexParser."""
     parser = RegexParser(r"b.r", ExampleSegment)
     ctx = ParseContext(dialect=None)
     segments = generate_test_segments(["foo", "bar", "boo"])
@@ -110,21 +110,7 @@ def test__parser__regexparser__simple():
 
 
 def test__parser__multistringparser__match(generate_test_segments):
-    """Test the MultiStringParser matchable."""
-    parser = MultiStringParser(["foo", "bar"], KeywordSegment)
-    ctx = ParseContext(dialect=None)
-    # Check directly
-    segments = generate_test_segments(["foo", "fo"])
-    # Matches when it should
-    assert parser.match(segments, 0, parse_context=ctx).apply(segments) == (
-        KeywordSegment("foo", segments[0].pos_marker),
-    )
-    # Doesn't match when it shouldn't
-    assert parser.match(segments, 1, parse_context=ctx).apply(segments) == tuple()
-
-
-def test__parser__multistringparser__match(generate_test_segments):
-    """Test the match2 method of MultiStringParser."""
+    """Test the match method of MultiStringParser."""
     parser = MultiStringParser(["foo", "bar"], ExampleSegment)
     ctx = ParseContext(dialect=None)
     segments = generate_test_segments(["foo", "fo", "bar", "boo"])
@@ -206,10 +192,10 @@ def test__parser__typedparser_rematch(new_type, generate_test_segments):
     assert segments1[0].to_tuple(show_raw=True) == (expected_type, "'foo'")
 
     # Do a rematch to check it works.
-    match2 = parser.match(segments1, 0, ctx)
-    assert match2
+    match = parser.match(segments1, 0, ctx)
+    assert match
     # Check types post-match 2
-    segments2 = match2.apply(segments1)
+    segments2 = match.apply(segments1)
     assert segments2[0].class_types == post_match_types
     assert segments2[0].get_type() == expected_type
     assert segments2[0].to_tuple(show_raw=True) == (expected_type, "'foo'")

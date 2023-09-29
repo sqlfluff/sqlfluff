@@ -7,7 +7,7 @@ from sqlfluff.core.parser.grammar import Ref
 from sqlfluff.core.parser.grammar.anyof import OneOf
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 from sqlfluff.core.parser.match_algorithms import (
-    longest_match2,
+    longest_match,
     skip_start_index_forward_to_code,
 )
 from sqlfluff.core.parser.match_result import MatchResult

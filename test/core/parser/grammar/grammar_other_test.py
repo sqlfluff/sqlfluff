@@ -112,7 +112,7 @@ def test__parser__grammar_greedyuntil(
 def test__parser__grammar_anything_match(
     terminators, match_length, test_segments, fresh_ansi_dialect
 ):
-    """Test the match2 method of the Anything grammar."""
+    """Test the match method of the Anything grammar."""
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     terms = [StringParser(kw, KeywordSegment) for kw in terminators]
     result = Anything(terminators=terms).match(test_segments, 0, parse_context=ctx)

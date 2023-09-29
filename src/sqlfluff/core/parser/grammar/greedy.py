@@ -4,7 +4,7 @@ from typing import Sequence, Union
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import BaseGrammar, BaseSegment
-from sqlfluff.core.parser.match_algorithms import greedy_match2
+from sqlfluff.core.parser.match_algorithms import greedy_match
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
 

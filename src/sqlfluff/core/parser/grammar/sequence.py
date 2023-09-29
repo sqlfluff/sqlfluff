@@ -14,11 +14,11 @@ from sqlfluff.core.parser.grammar.base import (
 )
 from sqlfluff.core.parser.grammar.conditional import Conditional
 from sqlfluff.core.parser.match_algorithms import (
-    next_ex_bracket_match2,
-    resolve_bracket2,
+    next_ex_bracket_match,
+    resolve_bracket,
     skip_start_index_forward_to_code,
     skip_stop_index_backward_to_code,
-    trim_to_terminator2,
+    trim_to_terminator,
 )
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable

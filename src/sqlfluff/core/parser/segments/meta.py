@@ -62,7 +62,7 @@ class MetaSegment(RawSegment):
     ) -> MatchResult:  # pragma: no cover
         """This will never be called. If it is then we're using it wrong."""
         raise NotImplementedError(
-            "{} has no match2 method, it should only be used in a Sequence!".format(
+            "{} has no match method, it should only be used in a Sequence!".format(
                 cls.__name__
             )
         )

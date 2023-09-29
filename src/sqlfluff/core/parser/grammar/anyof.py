@@ -11,9 +11,9 @@ from sqlfluff.core.parser.grammar.base import (
 )
 from sqlfluff.core.parser.grammar.sequence import Bracketed, Sequence
 from sqlfluff.core.parser.match_algorithms import (
-    longest_match2,
+    longest_match,
     skip_start_index_forward_to_code,
-    trim_to_terminator2,
+    trim_to_terminator,
 )
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
