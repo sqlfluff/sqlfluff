@@ -422,12 +422,6 @@ class Bracketed(Sequence):
         start_bracket = self.start_bracket or start_bracket
         end_bracket = self.end_bracket or end_bracket
 
-        # Are we dealing with a pre-existing BracketSegment?
-        if segments[idx].is_type("bracketed"):
-            # This feels a little risky to assume that the content is necessarily
-            # the same. TODO: Revisit whether this is too bullish.
-            return MatchResult2(matched_slice=slice(idx, idx + 1))
-
         # Otherwise try and match the segments directly.
         # Look for the first bracket
         with parse_context.deeper_match(name="Bracketed-Start") as ctx:

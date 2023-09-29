@@ -488,8 +488,6 @@ def next_ex_bracket_match2(
     idx: int,
     matchers: Sequence[Matchable],
     parse_context: ParseContext,
-    start_bracket: Optional[Matchable] = None,
-    end_bracket: Optional[Matchable] = None,
     bracket_pairs_set: str = "bracket_pairs",
 ) -> Tuple[MatchResult2, Optional[Matchable]]:
     """Same as `next_match2` but with bracket counting.
@@ -522,11 +520,6 @@ def next_ex_bracket_match2(
         parse_context.dialect.ref(seg_ref) for seg_ref in start_bracket_refs
     ]
     end_brackets = [parse_context.dialect.ref(seg_ref) for seg_ref in end_bracket_refs]
-    # Add any bracket-like things passed as arguments
-    if start_bracket:
-        start_brackets += [start_bracket]
-    if end_bracket:
-        end_brackets += [end_bracket]
     bracket_matchers = start_brackets + end_brackets
     _matchers = list(matchers) + bracket_matchers
 
@@ -596,7 +589,6 @@ def greedy_match2(
                 idx=working_idx,
                 matchers=matchers,
                 parse_context=ctx,
-                # TODO: No bracket sets override allowed here. Is that correct?
             )
 
         # No match? That means we've not found any terminators.

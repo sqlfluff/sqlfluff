@@ -23,7 +23,6 @@ if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.dialects.base import Dialect
     from sqlfluff.core.parser.match_result import MatchResult2
     from sqlfluff.core.parser.matchable import Matchable
-    from sqlfluff.core.parser.segments import BaseSegment
 
 # Get the parser logger
 parser_logger = logging.getLogger("sqlfluff.parser")
@@ -229,21 +228,6 @@ class ParseContext:
             yield self
         finally:
             self._tqdm.close()
-
-    def update_progress(self, matched_segments: Sequence["BaseSegment"]) -> None:
-        """Update the progress bar if configured.
-
-        If progress isn't configured, we do nothing.
-        If `track_progress` is false we do nothing.
-        """
-        for _idx in range(len(matched_segments) - 1, -1, -1):
-            _seg = matched_segments[_idx]
-            if _seg.pos_marker:
-                current_char = _seg.pos_marker.templated_slice.stop
-                break
-        else:  # pragma: no cover
-            raise ValueError("Could not find progress position!")
-        return self.update_progress2(current_char)
 
     def update_progress2(self, char_idx: int) -> None:
         """Update the progress bar if configured.

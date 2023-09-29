@@ -239,9 +239,10 @@ class MatchResult2:
             if self.insert_segments:
                 assert segments, "Cannot insert segments without reference position."
                 for idx, seg in self.insert_segments:
-                    assert (
-                        idx == self.matched_slice.start
-                    ), f"Tried to insert @{idx} outside of matched slice {self.matched_slice}"
+                    assert idx == self.matched_slice.start, (
+                        f"Tried to insert @{idx} outside of matched "
+                        f"slice {self.matched_slice}"
+                    )
                     _pos = _get_point_pos_at_idx(segments, idx)
                     result_segments += (seg(pos_marker=_pos),)
             return result_segments

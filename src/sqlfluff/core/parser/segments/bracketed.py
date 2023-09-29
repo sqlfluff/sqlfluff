@@ -71,6 +71,6 @@ class BracketedSegment(BaseSegment):
         parse_context: "ParseContext",
     ) -> MatchResult2:
         """Only useful as a terminator."""
-        if isinstance(segments[idx], cls):
+        if isinstance(segments[idx], cls):  # pragma: no cover
             return MatchResult2(slice(idx, idx + 1))
         return MatchResult2.empty_at(idx)
