@@ -41,7 +41,7 @@ def _get_point_pos_at_idx(
 
 @dataclass(frozen=True)
 class MatchResult:
-    """This should be the NEW default response from any `match` method.
+    """This should be the default response from any `match` method.
 
     All references and indices are in reference to a single root tuple
     of segments. This result contains enough information to actually
