@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fffc00dca6123acc63abc6ba2388540b602a3c2210442ca659b4bb8fae7dbda6
+_hash: 015f4df7da201f4d3dfd4e830f4da383dc42b1882b5dc835138b1fbda50b5344
 file:
 - statement:
     create_sink_kafka_statement:
@@ -18,22 +18,20 @@ file:
     - word: KAFKA
     - word: CONNECTION
     - word: kafka_connection
-    - bracketed:
-        start_bracket: (
-        word: TOPIC
-        single_quote: "'quotes-sink'"
-        end_bracket: )
+    - start_bracket: (
+    - word: TOPIC
+    - single_quote: "'quotes-sink'"
+    - end_bracket: )
     - word: FORMAT
     - word: JSON
     - word: ENVELOPE
     - word: DEBEZIUM
     - word: WITH
-    - bracketed:
-        start_bracket: (
-        word: SIZE
-        equals: '='
-        single_quote: "'3xsmall'"
-        end_bracket: )
+    - start_bracket: (
+    - word: SIZE
+    - equals: '='
+    - single_quote: "'3xsmall'"
+    - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_sink_kafka_statement:
@@ -48,22 +46,20 @@ file:
     - word: KAFKA
     - word: CONNECTION
     - word: kafka_connection
-    - bracketed:
-        start_bracket: (
-        word: TOPIC
-        single_quote: "'frank-quotes-sink'"
-        end_bracket: )
+    - start_bracket: (
+    - word: TOPIC
+    - single_quote: "'frank-quotes-sink'"
+    - end_bracket: )
     - word: FORMAT
     - word: JSON
     - word: ENVELOPE
     - word: DEBEZIUM
     - word: WITH
-    - bracketed:
-        start_bracket: (
-        word: SIZE
-        equals: '='
-        single_quote: "'3xsmall'"
-        end_bracket: )
+    - start_bracket: (
+    - word: SIZE
+    - equals: '='
+    - single_quote: "'3xsmall'"
+    - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_sink_kafka_statement:
@@ -82,11 +78,10 @@ file:
     - word: KAFKA
     - word: CONNECTION
     - word: kafka_connection
-    - bracketed:
-        start_bracket: (
-        word: TOPIC
-        single_quote: "'frank-quotes-sink'"
-        end_bracket: )
+    - start_bracket: (
+    - word: TOPIC
+    - single_quote: "'frank-quotes-sink'"
+    - end_bracket: )
     - word: FORMAT
     - word: JSON
     - word: ENVELOPE

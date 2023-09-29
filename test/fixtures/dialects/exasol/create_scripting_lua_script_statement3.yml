@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2dd5ac7bc28181687913476d87e9f155da9a3f082c0386ef1341526f964a5d52
+_hash: e161f4ac6a0aefbf5dd712d3b68e9055ed99296eece0dd724caef34c7d1788c4
 file:
   statement:
     create_scripting_lua_script:
@@ -22,10 +22,9 @@ file:
     - keyword: AS
     - script_content:
       - word: import
-      - bracketed:
-          start_bracket: (
-          single_quote: "'function_lib'"
-          end_bracket: )
+      - start_bracket: (
+      - single_quote: "'function_lib'"
+      - end_bracket: )
       - word: lowest
       - comma: ','
       - word: highest
@@ -33,27 +32,25 @@ file:
       - word: function_lib
       - dot: .
       - word: min_max
-      - bracketed:
-        - start_bracket: (
-        - word: param1
-        - comma: ','
-        - word: param2
-        - comma: ','
-        - word: param3
-        - end_bracket: )
+      - start_bracket: (
+      - word: param1
+      - comma: ','
+      - word: param2
+      - comma: ','
+      - word: param3
+      - end_bracket: )
       - word: query
-      - bracketed:
-        - start_bracket: (
-        - lua_multiline_quotes: '[[INSERT INTO t VALUES (:x, :y)]]'
-        - comma: ','
-        - start_curly_bracket: '{'
-        - word: x
-        - equals: '='
-        - word: lowest
-        - comma: ','
-        - word: y
-        - equals: '='
-        - word: highest
-        - end_curly_bracket: '}'
-        - end_bracket: )
+      - start_bracket: (
+      - lua_multiline_quotes: '[[INSERT INTO t VALUES (:x, :y)]]'
+      - comma: ','
+      - start_curly_bracket: '{'
+      - word: x
+      - equals: '='
+      - word: lowest
+      - comma: ','
+      - word: y
+      - equals: '='
+      - word: highest
+      - end_curly_bracket: '}'
+      - end_bracket: )
   function_script_terminator: /

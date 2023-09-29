@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1f2b3a5496bca43ee44807e85f3e26db32e94392d3c66f9a81351dd0176c6a9e
+_hash: 125d7c2454e3cbe5db6daad0c64baa05d9bbc4f4dd8bb21eee82323a6c8dd308
 file:
 - statement:
     create_materialized_view_statement:
@@ -69,10 +69,9 @@ file:
     - word: name
     - comma: ','
     - word: count
-    - bracketed:
-        start_bracket: (
-        star: '*'
-        end_bracket: )
+    - start_bracket: (
+    - star: '*'
+    - end_bracket: )
     - word: FROM
     - word: geo_regions
     - word: AS

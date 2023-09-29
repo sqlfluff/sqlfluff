@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0035382ef47bde6ebf1104b4b6b199d904ed536514329a25e2355d4a48b84cfb
+_hash: 4c7b2b70fe8366c821d841de1f6aae1ebacaf0a1dd94d0afbc2aaea2b9f982d0
 file:
 - statement:
     create_udf_script:
@@ -37,10 +37,9 @@ file:
     - script_content:
       - word: function
       - word: run
-      - bracketed:
-          start_bracket: (
-          word: ctx
-          end_bracket: )
+      - start_bracket: (
+      - word: ctx
+      - end_bracket: )
       - word: if
       - word: ctx
       - dot: .
@@ -60,16 +59,15 @@ file:
       - word: 'NULL'
       - word: end
       - word: return
-      - bracketed:
-        - start_bracket: (
-        - word: ctx
-        - dot: .
-        - word: a
-        - plus: +
-        - word: ctx
-        - dot: .
-        - word: b
-        - end_bracket: )
+      - start_bracket: (
+      - word: ctx
+      - dot: .
+      - word: a
+      - plus: +
+      - word: ctx
+      - dot: .
+      - word: b
+      - end_bracket: )
       - divide: /
       - numeric_literal: '2'
       - word: end
@@ -106,10 +104,9 @@ file:
     - script_content:
       - word: function
       - word: run
-      - bracketed:
-          start_bracket: (
-          word: ctx
-          end_bracket: )
+      - start_bracket: (
+      - word: ctx
+      - end_bracket: )
       - word: if
       - word: ctx
       - dot: .
@@ -134,16 +131,15 @@ file:
       - divide: /
       - numeric_literal: '2'
       - word: return
-      - bracketed:
-        - start_bracket: (
-        - word: ctx
-        - dot: .
-        - word: a
-        - plus: +
-        - word: ctx
-        - dot: .
-        - word: b
-        - end_bracket: )
+      - start_bracket: (
+      - word: ctx
+      - dot: .
+      - word: a
+      - plus: +
+      - word: ctx
+      - dot: .
+      - word: b
+      - end_bracket: )
       - divide: /
       - numeric_literal: '2'
       - word: end

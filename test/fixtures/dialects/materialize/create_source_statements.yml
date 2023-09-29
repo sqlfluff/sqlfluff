@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3422c43e1113bb4644db2e4623d2b31f6eaa9006485912b4f6b147adc11f820b
+_hash: a460a7273979d7d39896fead4c9c56764292ce0fa8a4e1e299f0bd971b1f0f63
 file:
 - statement:
     create_source_kafka_statement:
@@ -30,12 +30,11 @@ file:
     - word: CONNECTION
     - word: csr_connection
     - word: WITH
-    - bracketed:
-        start_bracket: (
-        word: SIZE
-        equals: '='
-        single_quote: "'3xsmall'"
-        end_bracket: )
+    - start_bracket: (
+    - word: SIZE
+    - equals: '='
+    - single_quote: "'3xsmall'"
+    - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_view_statement:
@@ -141,12 +140,11 @@ file:
     - word: CONNECTION
     - word: csr_connection
     - word: WITH
-    - bracketed:
-        start_bracket: (
-        word: SIZE
-        equals: '='
-        single_quote: "'3xsmall'"
-        end_bracket: )
+    - start_bracket: (
+    - word: SIZE
+    - equals: '='
+    - single_quote: "'3xsmall'"
+    - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_source_kafka_statement:
@@ -169,12 +167,11 @@ file:
     - word: ENVELOPE
     - word: UPSERT
     - word: WITH
-    - bracketed:
-        start_bracket: (
-        word: SIZE
-        equals: '='
-        single_quote: "'3xsmall'"
-        end_bracket: )
+    - start_bracket: (
+    - word: SIZE
+    - equals: '='
+    - single_quote: "'3xsmall'"
+    - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_source_kafka_statement:
@@ -209,12 +206,11 @@ file:
     - numeric_literal: '3'
     - word: COLUMNS
     - word: WITH
-    - bracketed:
-        start_bracket: (
-        word: SIZE
-        equals: '='
-        single_quote: "'3xsmall'"
-        end_bracket: )
+    - start_bracket: (
+    - word: SIZE
+    - equals: '='
+    - single_quote: "'3xsmall'"
+    - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_source_load_generator_statement:
@@ -430,12 +426,11 @@ file:
       - comma: ','
       - word: TEXT
       - word: COLUMNS
-      - bracketed:
-        - start_bracket: (
-        - word: table
-        - dot: .
-        - word: column_of_unsupported_type
-        - end_bracket: )
+      - start_bracket: (
+      - word: table
+      - dot: .
+      - word: column_of_unsupported_type
+      - end_bracket: )
       - end_bracket: )
     - keyword: FOR
     - keyword: ALL
@@ -514,40 +509,36 @@ file:
     - keyword: FORMAT
     - keyword: JSON
     - word: CHECK
-    - bracketed:
-      - start_bracket: (
-      - word: WITH
-      - bracketed:
-        - start_bracket: (
-        - word: HEADERS
-        - comma: ','
-        - word: BODY
-        - word: AS
-        - word: request_body
-        - comma: ','
-        - word: SECRET
-        - word: my_webhook_shared_secret
-        - end_bracket: )
-      - word: decode
-      - bracketed:
-        - start_bracket: (
-        - word: headers
-        - json_operator: ->
-        - single_quote: "'x-signature'"
-        - comma: ','
-        - single_quote: "'base64'"
-        - end_bracket: )
-      - equals: '='
-      - word: hmac
-      - bracketed:
-        - start_bracket: (
-        - word: request_body
-        - comma: ','
-        - word: my_webhook_shared_secret
-        - comma: ','
-        - single_quote: "'sha256'"
-        - end_bracket: )
-      - end_bracket: )
+    - start_bracket: (
+    - word: WITH
+    - start_bracket: (
+    - word: HEADERS
+    - comma: ','
+    - word: BODY
+    - word: AS
+    - word: request_body
+    - comma: ','
+    - word: SECRET
+    - word: my_webhook_shared_secret
+    - end_bracket: )
+    - word: decode
+    - start_bracket: (
+    - word: headers
+    - json_operator: ->
+    - single_quote: "'x-signature'"
+    - comma: ','
+    - single_quote: "'base64'"
+    - end_bracket: )
+    - equals: '='
+    - word: hmac
+    - start_bracket: (
+    - word: request_body
+    - comma: ','
+    - word: my_webhook_shared_secret
+    - comma: ','
+    - single_quote: "'sha256'"
+    - end_bracket: )
+    - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_source_load_generator_statement:
@@ -565,26 +556,24 @@ file:
     - keyword: FORMAT
     - keyword: JSON
     - word: CHECK
-    - bracketed:
-      - start_bracket: (
-      - word: WITH
-      - bracketed:
-        - start_bracket: (
-        - word: HEADERS
-        - comma: ','
-        - word: BODY
-        - word: AS
-        - word: request_body
-        - comma: ','
-        - word: SECRET
-        - word: BASIC_HOOK_AUTH
-        - end_bracket: )
-      - word: headers
-      - json_operator: ->
-      - single_quote: "'authorization'"
-      - equals: '='
-      - word: BASIC_HOOK_AUTH
-      - end_bracket: )
+    - start_bracket: (
+    - word: WITH
+    - start_bracket: (
+    - word: HEADERS
+    - comma: ','
+    - word: BODY
+    - word: AS
+    - word: request_body
+    - comma: ','
+    - word: SECRET
+    - word: BASIC_HOOK_AUTH
+    - end_bracket: )
+    - word: headers
+    - json_operator: ->
+    - single_quote: "'authorization'"
+    - equals: '='
+    - word: BASIC_HOOK_AUTH
+    - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_type_statement:

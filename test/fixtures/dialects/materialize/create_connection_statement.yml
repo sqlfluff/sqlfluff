@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8feb4d3ab52a9feac513436ec5190bdea7f8c3ad906dc692cd4a8f93bd8dcab1
+_hash: ab6d7755a7ba6e2e057df3d29c0537a7f7a0763a134e0bd5a6e638f0bd7fd79c
 file:
 - statement:
     create_secret_statement:
@@ -43,12 +43,11 @@ file:
       - comma: ','
       - word: AVAILABILITY
       - word: ZONES
-      - bracketed:
-        - start_bracket: (
-        - single_quote: "'use1-az1'"
-        - comma: ','
-        - single_quote: "'use1-az4'"
-        - end_bracket: )
+      - start_bracket: (
+      - single_quote: "'use1-az1'"
+      - comma: ','
+      - single_quote: "'use1-az4'"
+      - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -105,12 +104,11 @@ file:
       - comma: ','
       - word: AVAILABILITY
       - word: ZONES
-      - bracketed:
-        - start_bracket: (
-        - single_quote: "'use1-az1'"
-        - comma: ','
-        - single_quote: "'use1-az4'"
-        - end_bracket: )
+      - start_bracket: (
+      - single_quote: "'use1-az1'"
+      - comma: ','
+      - single_quote: "'use1-az4'"
+      - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -168,15 +166,14 @@ file:
     - keyword: TO
     - keyword: KAFKA
     - bracketed:
-        start_bracket: (
-        word: BROKERS
-        bracketed:
-        - start_bracket: (
-        - single_quote: "'broker1:9092'"
-        - comma: ','
-        - single_quote: "'broker2:9092'"
-        - end_bracket: )
-        end_bracket: )
+      - start_bracket: (
+      - word: BROKERS
+      - start_bracket: (
+      - single_quote: "'broker1:9092'"
+      - comma: ','
+      - single_quote: "'broker2:9092'"
+      - end_bracket: )
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_connection_statement:

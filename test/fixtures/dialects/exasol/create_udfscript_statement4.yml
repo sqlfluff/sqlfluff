@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3720cc2b0cd196b78b1b491299c5b6a662668b7ddb44461b09f7aaea7133957a
+_hash: b0bba8fb8935d1edb1d2c123309be45e39b68f2ad10f812258aba0a6286082d0
 file:
   statement:
     create_udf_script:
@@ -35,22 +35,19 @@ file:
       - word: exa
       - dot: .
       - word: import_script
-      - bracketed:
-          start_bracket: (
-          single_quote: "'LIB.MYLIB'"
-          end_bracket: )
+      - start_bracket: (
+      - single_quote: "'LIB.MYLIB'"
+      - end_bracket: )
       - word: def
       - word: run
-      - bracketed:
-          start_bracket: (
-          word: ctx
-          end_bracket: )
+      - start_bracket: (
+      - word: ctx
+      - end_bracket: )
       - colon: ':'
       - word: return
       - word: l
       - dot: .
       - word: helloWorld
-      - bracketed:
-          start_bracket: (
-          end_bracket: )
+      - start_bracket: (
+      - end_bracket: )
   function_script_terminator: /
