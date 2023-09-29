@@ -12,16 +12,31 @@ from typing import (
     Dict,
     List,
     Optional,
+    Sequence,
     Tuple,
     Type,
     Union,
     cast,
 )
 
+from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.slice_helpers import slice_length
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.segments import BaseSegment, MetaSegment, RawSegment
+
+
+def _get_point_pos_at_idx(
+    segments: Sequence["BaseSegment"], idx: int
+) -> PositionMarker:
+    if idx < len(segments):
+        _next_pos = segments[idx].pos_marker
+        assert _next_pos, "Segments passed to .apply() should all have position."
+        return _next_pos.start_point_marker()
+    else:
+        _prev_pos = segments[idx - 1].pos_marker
+        assert _prev_pos, "Segments passed to .apply() should all have position."
+        return _prev_pos.end_point_marker()
 
 
 @dataclass(frozen=True)
@@ -62,11 +77,11 @@ class MatchResult2:
     # Child segment matches (this is the recursive bit)
     child_matches: Tuple["MatchResult2", ...] = field(default_factory=tuple)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Do some lightweight validation post instantiation."""
         if not slice_length(self.matched_slice):
-            # TODO: Review whether we should handle any of these
-            # scenarios ()
+            # Zero length matches with inserts are allowed, but not with
+            # matched_class or child_matches.
             assert not self.matched_class, (
                 "Tried to create zero length MatchResult2 with "
                 "`matched_class`. This MatchResult2 is invalid. "
@@ -76,10 +91,6 @@ class MatchResult2:
                 "Tried to create zero length MatchResult2 with "
                 "`child_matches`. Is this allowed?! "
                 f"Result: {self}"
-            )
-            assert not self.insert_segments, (
-                "Tried to create zero length MatchResult2 with "
-                "`insert_segments`. This situation isn't handled yet."
             )
 
     def __len__(self) -> int:
@@ -176,9 +187,10 @@ class MatchResult2:
         # If it's a failed (empty) match, then just pass straight
         # through. It's not valid to add a matched class to an empty
         # result.
-        if not slice_length(self.matched_slice):
+        if not slice_length(self.matched_slice) and not self.insert_segments:
             assert not insert_segments, "Cannot wrap inserts onto an empty match."
             return self
+
         child_matches: Tuple[MatchResult2, ...]
         if self.matched_class:
             # If the match already has a class, then make
@@ -210,6 +222,7 @@ class MatchResult2:
         and any inserts. If there are overlaps, then we have a problem, and we
         should abort.
         """
+        result_segments: Tuple["BaseSegment", ...] = ()
         if not slice_length(self.matched_slice):
             # TODO: Review whether we should handle any of these
             # scenarios ()
@@ -223,11 +236,15 @@ class MatchResult2:
                 "`child_matches`. Is this allowed?! "
                 f"Result: {self}"
             )
-            assert not self.insert_segments, (
-                "Tried to apply zero length MatchResult2 with "
-                "`insert_segments`. This situation isn't handled yet."
-            )
-            return ()
+            if self.insert_segments:
+                assert segments, "Cannot insert segments without reference position."
+                for idx, seg in self.insert_segments:
+                    assert (
+                        idx == self.matched_slice.start
+                    ), f"Tried to insert @{idx} outside of matched slice {self.matched_slice}"
+                    _pos = _get_point_pos_at_idx(segments, idx)
+                    result_segments += (seg(pos_marker=_pos),)
+            return result_segments
 
         assert len(segments) >= self.matched_slice.stop, (
             f"Matched slice ({self.matched_slice}) sits outside segment "
@@ -246,7 +263,6 @@ class MatchResult2:
             trigger_locs[match.matched_slice.start].append(match)
 
         # Then work through creating any subsegments.
-        result_segments: Tuple[BaseSegment, ...] = ()
         max_idx = self.matched_slice.start
         for idx in sorted(trigger_locs.keys()):
             # Have we passed any untouched segments?
@@ -258,7 +274,7 @@ class MatchResult2:
                 raise ValueError("SKIP AHEAD ERROR")
             # Then work through each of the triggers.
             for trigger in trigger_locs[idx]:
-                # If it's a segment, instantiate it.
+                # If it's a match, apply it.
                 if isinstance(trigger, MatchResult2):
                     result_segments += trigger.apply(segments=segments)
                     # Update the end slice.
@@ -267,18 +283,7 @@ class MatchResult2:
 
                 # Otherwise it's a segment.
                 # Get the location from the next segment unless there isn't one.
-                if idx < len(segments):
-                    _next_pos = segments[idx].pos_marker
-                    assert (
-                        _next_pos
-                    ), "Segments passed to .apply() should all have position."
-                    _pos = _next_pos.start_point_marker()
-                else:
-                    _prev_pos = segments[idx - 1].pos_marker
-                    assert (
-                        _prev_pos
-                    ), "Segments passed to .apply() should all have position."
-                    _pos = _prev_pos.end_point_marker()
+                _pos = _get_point_pos_at_idx(segments, idx)
                 result_segments += (trigger(pos_marker=_pos),)
 
         # If we finish working through the triggers and there's
