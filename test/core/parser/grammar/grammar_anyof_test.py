@@ -214,7 +214,7 @@ def test__parser__grammar_anyof_modes(
     generate_test_segments,
     fresh_ansi_dialect,
 ):
-    """Test the Sequence grammar with various parse modes.
+    """Test the AnyNumberOf grammar with various parse modes.
 
     In particular here we're testing the treatment of unparsable
     sections.
@@ -240,6 +240,29 @@ def test__parser__grammar_anyof_modes(
         e.to_tuple(show_raw=True, code_only=False) for e in _match.apply(segments)
     )
     assert _result == output_tuple
+
+
+def test__parser__grammar_anyof_min_times(
+    generate_test_segments,
+    fresh_ansi_dialect,
+):
+    """Test the AnyNumberOf grammar not hitting min_times.
+
+    In particular here we're testing _running out of segments_
+    before hitting min_times.
+
+    This is tricky to otherwise get coverage for because it's a
+    fairly unusual occurance, but nonetheless a path in the logic
+    which needs coverage. It would normally only occur if a relatively
+    high value is set for min_times.
+    """
+    segments = generate_test_segments(["a", " ", "a"])
+    # Dialect is required here only to have access to bracket segments.
+    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    assert not AnyNumberOf(
+        StringParser("a", KeywordSegment),
+        min_times=3,
+    ).match(segments, 0, ctx)
 
 
 def test__parser__grammar_anysetof(generate_test_segments):
