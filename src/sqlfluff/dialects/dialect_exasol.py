@@ -143,7 +143,7 @@ exasol_dialect.add(
     UDFParameterDotSyntaxSegment=TypedParser(
         "udf_param_dot_syntax", SymbolSegment, type="identifier"
     ),
-    RangeOperator=TypedParser("range_operator", SymbolSegment),
+    RangeOperator=TypedParser("range_operator", SymbolSegment, type="range_operator"),
     UnknownSegment=StringParser(
         "unknown", LiteralKeywordSegment, type="boolean_literal"
     ),
@@ -203,6 +203,7 @@ exasol_dialect.add(
     FunctionScriptTerminatorSegment=TypedParser(
         "function_script_terminator",
         SymbolSegment,
+        type="function_script_terminator",
     ),
     WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
     VariableNameSegment=RegexParser(

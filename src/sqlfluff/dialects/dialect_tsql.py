@@ -307,6 +307,7 @@ tsql_dialect.add(
     SqlcmdFilePathSegment=TypedParser(
         "unquoted_relative_sql_file_path",
         CodeSegment,
+        type="unquoted_relative_sql_file_path",
     ),
     FileCompressionSegment=SegmentGenerator(
         lambda dialect: MultiStringParser(

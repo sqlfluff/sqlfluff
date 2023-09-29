@@ -307,6 +307,7 @@ snowflake_dialect.add(
     UnquotedFilePath=TypedParser(
         "unquoted_file_path",
         CodeSegment,
+        type="unquoted_file_path",
     ),
     SnowflakeEncryptionOption=MultiStringParser(
         ["'SNOWFLAKE_FULL'", "'SNOWFLAKE_SSE'"],
