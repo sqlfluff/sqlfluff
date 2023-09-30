@@ -91,9 +91,11 @@ lifting.
 #. If no match is found for a segment, the contents will be wrapped in an
    :code:`UnparsableSegment` which is picked up as a *parsing* error later.
    This is usually facilitated by the :code:`ParseMode` on some grammars
-   which can be set to **greedy**, allowing the grammar to *claim* additional
-   segments as unparsable. As an example, bracketed sections are often configured
-   to mark anything unexpected as unparsable rather than simply failing to match.
+   which can be set to :code:`GREEDY`, allowing the grammar to capture
+   additional segments as unparsable. As an example, bracketed sections
+   are often configured to capture anything unexpected as unparsable rather
+   than simply failing to match if there is more than expected (which would
+   be the default, :code:`STRICT`, behaviour).
 
 #. The result of the :code:`.match()` method is a :code:`MatchResult` which
    contains the instructions on how to turn the flat sequence of raw segments
