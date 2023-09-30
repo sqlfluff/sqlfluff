@@ -460,7 +460,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 elif start_point:
                     new_position = start_point
                 # Do we have an end?
-                elif end_point:
+                elif end_point:  # pragma: no cover
                     new_position = end_point
                 else:  # pragma: no cover
                     raise ValueError("Unable to position new segment")
