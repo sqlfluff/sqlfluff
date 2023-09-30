@@ -483,15 +483,15 @@ class Bracketed(Sequence):
             content_match.matched_slice.stop,
             bracketed_match.matched_slice.stop - 1,
         )
-        if (not self.allow_gaps and not is_zero_slice(intermediate_slice)) or any(
-            seg.is_code for seg in segments[intermediate_slice]
-        ):
-            # Work out what to say for what we _were_ expecting.
-            if len(content_match):
-                expected = "Nothing else in bracketed expression."
-            else:
-                expected = str(self._elements)
-            # Ok, there's something else in the gap. Add it as an UnparsableSegment.
+        if not self.allow_gaps and not is_zero_slice(intermediate_slice):
+            # NOTE: In this clause, content_match will never have matched. Either
+            # we're in STRICT mode, and would have exited in the `return` above,
+            # or we're in GREEDY mode and the `super().match()` will have already
+            # claimed the whole sequence with nothing left. This clause is
+            # effectively only accessible in a bracketed section which doesn't
+            # allow whitespace but nonetheless has some, which is fairly rare.
+            expected = str(self._elements)
+            # Whatever is in the gap should be marked as an UnparsableSegment.
             child_match = MatchResult(
                 intermediate_slice,
                 UnparsableSegment,
