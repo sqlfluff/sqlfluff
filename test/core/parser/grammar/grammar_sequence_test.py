@@ -319,6 +319,97 @@ def test__parser__grammar_sequence_modes(
                 ),
             ),
         ),
+        # Happy path content match.
+        (
+            ["(", "a", ")"],
+            ParseMode.STRICT,
+            ["a"],
+            {},
+            (
+                (
+                    "bracketed",
+                    (
+                        ("start_bracket", "("),
+                        ("keyword", "a"),
+                        ("end_bracket", ")"),
+                    ),
+                ),
+            ),
+        ),
+        # Content match fails
+        (
+            ["(", "a", ")"],
+            ParseMode.STRICT,
+            ["b"],
+            {},
+            (),
+        ),
+        (
+            ["(", "a", ")"],
+            ParseMode.GREEDY,
+            ["b"],
+            {},
+            (
+                (
+                    "bracketed",
+                    (
+                        ("start_bracket", "("),
+                        ("unparsable", (("raw", "a"),)),
+                        ("end_bracket", ")"),
+                    ),
+                ),
+            ),
+        ),
+        # Partial matches (not whole grammar matched)
+        (
+            ["(", "a", ")"],
+            ParseMode.STRICT,
+            ["a", "b"],
+            {},
+            (),
+        ),
+        (
+            ["(", "a", ")"],
+            ParseMode.GREEDY,
+            ["a", "b"],
+            {},
+            (
+                (
+                    "bracketed",
+                    (
+                        ("start_bracket", "("),
+                        ("unparsable", (("keyword", "a"),)),
+                        ("end_bracket", ")"),
+                    ),
+                ),
+            ),
+        ),
+        # Partial matches (not whole sequence matched)
+        (
+            ["(", "a", " ", "b", ")"],
+            ParseMode.STRICT,
+            ["a"],
+            {},
+            (),
+        ),
+        (
+            ["(", "a", " ", "b", ")"],
+            ParseMode.GREEDY,
+            ["a"],
+            {},
+            (
+                (
+                    "bracketed",
+                    (
+                        ("start_bracket", "("),
+                        ("keyword", "a"),
+                        ("whitespace", " "),
+                        ("unparsable", (("raw", "b"),)),
+                        ("end_bracket", ")"),
+                    ),
+                ),
+            ),
+        ),
     ],
 )
 def test__parser__grammar_bracketed_modes(
