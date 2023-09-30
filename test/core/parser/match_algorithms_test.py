@@ -6,6 +6,7 @@ NOTE: All of these tests depend somewhat on the KeywordSegment working as planne
 import pytest
 
 from sqlfluff.core.dialects.base import Dialect
+from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.parser import (
     CodeSegment,
     KeywordSegment,
@@ -107,36 +108,48 @@ def test__parser__algorithms__next_match(
 
 
 @pytest.mark.parametrize(
-    "raw_segments,result_slice",
+    "raw_segments,result_slice,error",
     [
-        (["(", "a", ")", " ", "foo"], slice(0, 3)),
-        (["(", "a", "(", "b", ")", "(", "c", ")", "d", ")", "e"], slice(0, 10)),
+        (["(", "a", ")", " ", "foo"], slice(0, 3), None),
+        (["(", "a", "(", "b", ")", "(", "c", ")", "d", ")", "e"], slice(0, 10), None),
+        # This should error because we try to close a square bracket
+        # inside a round one.
+        (["(", "a", "]", "b", ")", "e"], None, SQLParseError),
+        # This should error because we never find the end.
+        (["(", "a", " ", "b", " ", "e"], None, SQLParseError),
     ],
 )
 def test__parser__algorithms__resolve_bracket(
-    raw_segments, result_slice, generate_test_segments
+    raw_segments, result_slice, error, generate_test_segments
 ):
     """Test the `resolve_bracket()` method."""
     test_segments = generate_test_segments(raw_segments)
     start_bracket = StringParser("(", SymbolSegment, type="start_bracket")
     end_bracket = StringParser(")", SymbolSegment, type="end_bracket")
+    start_sq_bracket = StringParser("[", SymbolSegment, type="start_square_bracket")
+    end_sq_bracket = StringParser("]", SymbolSegment, type="end_square_bracket")
     ctx = ParseContext(dialect=None)
 
     # For this test case we assert that the first segment is the initial match.
     first_match = start_bracket.match(test_segments, 0, ctx)
     assert first_match
 
-    result = resolve_bracket(
-        test_segments,
+    args = (test_segments,)
+    kwargs = dict(
         opening_match=first_match,
         opening_matcher=start_bracket,
-        start_brackets=[start_bracket],
-        end_brackets=[end_bracket],
+        start_brackets=[start_bracket, start_sq_bracket],
+        end_brackets=[end_bracket, end_sq_bracket],
         parse_context=ctx,
     )
-
-    assert result
-    assert result.matched_slice == result_slice
+    # If an error is defined, check that it is raised.
+    if error:
+        with pytest.raises(error):
+            resolve_bracket(*args, **kwargs)
+    else:
+        result = resolve_bracket(*args, **kwargs)
+        assert result
+        assert result.matched_slice == result_slice
 
 
 @pytest.mark.parametrize(
