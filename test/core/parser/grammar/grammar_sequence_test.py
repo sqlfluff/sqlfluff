@@ -226,33 +226,23 @@ def test__parser__grammar_sequence_modes(
     terminators,
     input_slice,
     output_tuple,
-    generate_test_segments,
-    fresh_ansi_dialect,
+    structural_parse_mode_test,
 ):
     """Test the Sequence grammar with various parse modes.
 
     In particular here we're testing the treatment of unparsable
     sections.
     """
-    segments = generate_test_segments(["a", " ", "b", " ", "c", "d", " ", "d"])
-    # Dialect is required here only to have access to bracket segments.
-    ctx = ParseContext(dialect=fresh_ansi_dialect)
-
-    _seq = Sequence(
-        *(StringParser(e, KeywordSegment) for e in sequence),
-        parse_mode=mode,
-        terminators=[StringParser(e, KeywordSegment) for e in terminators]
+    structural_parse_mode_test(
+        ["a", " ", "b", " ", "c", "d", " ", "d"],
+        Sequence,
+        sequence,
+        terminators,
+        {},
+        mode,
+        input_slice,
+        output_tuple,
     )
-    _start = input_slice.start or 0
-    _stop = input_slice.stop or len(segments)
-    _match = _seq.match(segments[:_stop], _start, ctx)
-    # If we're expecting an output tuple, assert the match is truthy.
-    if output_tuple:
-        assert _match
-    _result = tuple(
-        e.to_tuple(show_raw=True, code_only=False) for e in _match.apply(segments)
-    )
-    assert _result == output_tuple
 
 
 def test__parser__grammar_sequence_indent_conditional_match(test_segments, caplog):

@@ -202,6 +202,19 @@ def test__parser__grammar_oneof_take_first(test_segments):
                 ("unparsable", (("raw", "b"),)),
             ),
         ),
+        # Test exhaustion before hitting min_times.
+        # This is tricky to otherwise get coverage for because it's a
+        # fairly unusual occurrence, but nonetheless a path in the logic
+        # which needs coverage. It would normally only occur if a relatively
+        # high value is set for min_times.
+        (
+            ParseMode.STRICT,
+            ["d"],
+            [],
+            slice(5, None),
+            {"min_times": 3},
+            (),
+        ),
     ],
 )
 def test__parser__grammar_anyof_modes(
@@ -211,58 +224,23 @@ def test__parser__grammar_anyof_modes(
     input_slice,
     kwargs,
     output_tuple,
-    generate_test_segments,
-    fresh_ansi_dialect,
+    structural_parse_mode_test,
 ):
     """Test the AnyNumberOf grammar with various parse modes.
 
     In particular here we're testing the treatment of unparsable
     sections.
     """
-    segments = generate_test_segments(["a", " ", "b", " ", "c", "d", " ", "d"])
-    # Dialect is required here only to have access to bracket segments.
-    ctx = ParseContext(dialect=fresh_ansi_dialect)
-
-    _grammar = AnyNumberOf(
-        *(StringParser(e, KeywordSegment) for e in options),
-        parse_mode=mode,
-        terminators=[StringParser(e, KeywordSegment) for e in terminators],
-        **kwargs,
+    structural_parse_mode_test(
+        ["a", " ", "b", " ", "c", "d", " ", "d"],
+        AnyNumberOf,
+        options,
+        terminators,
+        kwargs,
+        mode,
+        input_slice,
+        output_tuple,
     )
-
-    _start = input_slice.start or 0
-    _stop = input_slice.stop or len(segments)
-    _match = _grammar.match(segments[:_stop], _start, ctx)
-    # If we're expecting an output tuple, assert the match is truthy.
-    if output_tuple:
-        assert _match
-    _result = tuple(
-        e.to_tuple(show_raw=True, code_only=False) for e in _match.apply(segments)
-    )
-    assert _result == output_tuple
-
-
-def test__parser__grammar_anyof_min_times(
-    generate_test_segments,
-    fresh_ansi_dialect,
-):
-    """Test the AnyNumberOf grammar not hitting min_times.
-
-    In particular here we're testing _running out of segments_
-    before hitting min_times.
-
-    This is tricky to otherwise get coverage for because it's a
-    fairly unusual occurance, but nonetheless a path in the logic
-    which needs coverage. It would normally only occur if a relatively
-    high value is set for min_times.
-    """
-    segments = generate_test_segments(["a", " ", "a"])
-    # Dialect is required here only to have access to bracket segments.
-    ctx = ParseContext(dialect=fresh_ansi_dialect)
-    assert not AnyNumberOf(
-        StringParser("a", KeywordSegment),
-        min_times=3,
-    ).match(segments, 0, ctx)
 
 
 def test__parser__grammar_anysetof(generate_test_segments):
