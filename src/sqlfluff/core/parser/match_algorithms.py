@@ -695,15 +695,9 @@ def trim_to_terminator(
             matchers=terminators,
         )
 
-    # NOTE: If there's no match, i.e. no terminator, then we continue
-    # to consider all the segments, and therefore take no different
-    # action at this stage.
-    if term_match:
-        # If we _do_ find a terminator, we separate off everything
-        # beyond that terminator (and any preceding non-code) so that
-        # it's not available to match against for the rest of this.
-        return skip_stop_index_backward_to_code(
-            segments, term_match.matched_slice.stop, idx
-        )
-
-    return len(segments)
+    # Greedy match always returns.
+    # Skip backward from wherever it got to (either a terminator, or
+    # the end of the sequence).
+    return skip_stop_index_backward_to_code(
+        segments, term_match.matched_slice.stop, idx
+    )

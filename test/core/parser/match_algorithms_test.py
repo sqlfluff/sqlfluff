@@ -20,6 +20,7 @@ from sqlfluff.core.parser.match_algorithms import (
     next_ex_bracket_match,
     next_match,
     resolve_bracket,
+    trim_to_terminator,
 )
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
@@ -74,7 +75,7 @@ def make_result_tuple(result_slice, matcher_keywords, test_segments):
         (["sadkjfhas", "asefaslf"], slice(0, 0), None),
     ],
 )
-def test__parser__utils__next_match(
+def test__parser__algorithms__next_match(
     matcher_keywords,
     result_slice,
     winning_matcher,
@@ -112,7 +113,7 @@ def test__parser__utils__next_match(
         (["(", "a", "(", "b", ")", "(", "c", ")", "d", ")", "e"], slice(0, 10)),
     ],
 )
-def test__parser__utils__resolve_bracket(
+def test__parser__algorithms__resolve_bracket(
     raw_segments, result_slice, generate_test_segments
 ):
     """Test the `resolve_bracket()` method."""
@@ -144,7 +145,7 @@ def test__parser__utils__resolve_bracket(
         (["(", "foo", ")", " ", "foo"], "foo", slice(4, 5)),
     ],
 )
-def test__parser__utils__next_ex_bracket_match(
+def test__parser__algorithms__next_ex_bracket_match(
     raw_segments, target_word, result_slice, generate_test_segments, test_dialect
 ):
     """Test the `next_ex_bracket_match()` method."""
@@ -179,7 +180,7 @@ def test__parser__utils__next_ex_bracket_match(
         (["a", "b", "c", " ", "b"], ["b"], False, slice(0, 3)),
     ],
 )
-def test__parser__utils__greedy_match(
+def test__parser__algorithms__greedy_match(
     raw_segments,
     target_words,
     inc_term,
@@ -202,3 +203,39 @@ def test__parser__utils__greedy_match(
 
     assert match
     assert match.matched_slice == result_slice
+
+
+@pytest.mark.parametrize(
+    "raw_segments,target_words,expected_result",
+    [
+        # Terminators mid sequence.
+        (["a", "b", " ", "c", "d", " ", "e"], ["e", "c"], 2),
+        # Initial terminators.
+        (["a", "b", " ", "c", "d", " ", "e"], ["a", "e"], 0),
+        # No terminators.
+        (["a", "b", " ", "c", "d", " ", "e"], ["x", "y"], 7),
+        # No sequence.
+        ([], ["x", "y"], 0),
+    ],
+)
+def test__parser__algorithms__trim_to_terminator(
+    raw_segments,
+    target_words,
+    expected_result,
+    generate_test_segments,
+    test_dialect,
+):
+    """Test the `trim_to_terminator()` method."""
+    test_segments = generate_test_segments(raw_segments)
+    matchers = [StringParser(word, KeywordSegment) for word in target_words]
+    ctx = ParseContext(dialect=test_dialect)
+
+    assert (
+        trim_to_terminator(
+            segments=test_segments,
+            idx=0,
+            parse_context=ctx,
+            terminators=matchers,
+        )
+        == expected_result
+    )
