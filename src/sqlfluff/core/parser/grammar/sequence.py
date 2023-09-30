@@ -31,6 +31,7 @@ from sqlfluff.core.parser.segments import (
     UnparsableSegment,
 )
 from sqlfluff.core.parser.types import ParseMode, SimpleHintType
+from sqlfluff.core.slice_helpers import is_zero_slice
 
 
 def _flush_metas(
@@ -469,7 +470,10 @@ class Bracketed(Sequence):
             content_match = super().match(segments[:_end_idx], _idx, ctx)
 
         # No complete match within the brackets? Stop here and return unmatched.
-        if not content_match.matched_slice.stop == _end_idx:
+        if (
+            not content_match.matched_slice.stop == _end_idx
+            and self.parse_mode == ParseMode.STRICT
+        ):
             return MatchResult.empty_at(idx)
 
         # Wherever we got to, work forward to find the closing bracket.
@@ -496,7 +500,9 @@ class Bracketed(Sequence):
         intermediate_slice = slice(
             content_match.matched_slice.stop, final_match.matched_slice.start
         )
-        if any(seg.is_code for seg in segments[intermediate_slice]):
+        if (not self.allow_gaps and not is_zero_slice(intermediate_slice)) or any(
+            seg.is_code for seg in segments[intermediate_slice]
+        ):
             # Work out what to say for what we _were_ expecting.
             if len(content_match):
                 expected = "Nothing else in bracketed expression."
