@@ -447,6 +447,7 @@ class Bracketed(Sequence):
         # that means we can assert that brackets have been matched if there is no
         # error.
         assert bracketed_match
+        assert not bracketed_match.insert_segments
         # The bracketed_match will also already have been wrapped as a
         # BracketedSegment including the references to start and end brackets.
         # We only need to add content.
@@ -499,19 +500,16 @@ class Bracketed(Sequence):
             content_match = content_match.append(child_match)
 
         inserts = (
-            (intermediate_slice.start, Indent),
+            (start_match.matched_slice.stop, Indent),
             (intermediate_slice.stop, Dedent),
         )
 
         # We now have content and bracketed matches. Depending on whether the intent
         # is to wrap or not we should construct the response.
-        _insert_segments: Tuple[Tuple[int, Type[MetaSegment]], ...]
         _content_matches: Tuple[MatchResult, ...]
         if content_match.matched_class:
-            _insert_segments = inserts
             _content_matches = (content_match,)
         else:
-            _insert_segments = inserts + content_match.insert_segments
             _content_matches = content_match.child_matches
 
         if bracket_persists:
@@ -521,13 +519,15 @@ class Bracketed(Sequence):
                 matched_slice=bracketed_match.matched_slice,
                 matched_class=bracketed_match.matched_class,
                 segment_kwargs=bracketed_match.segment_kwargs,
-                insert_segments=bracketed_match.insert_segments + _insert_segments,
+                insert_segments=inserts,
                 child_matches=_content_matches,
             )
         else:
             # Otherwise unwrapped.
             return MatchResult(
                 matched_slice=bracketed_match.matched_slice,
-                insert_segments=bracketed_match.insert_segments + _insert_segments,
+                insert_segments=(
+                    (inserts[0],) + content_match.insert_segments + (inserts[1],)
+                ),
                 child_matches=_content_matches,
             )

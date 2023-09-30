@@ -194,6 +194,12 @@ def _generate_test_segments_func(elems):
         elif elem == ")":
             SegClass = SymbolSegment
             seg_kwargs = {"instance_types": ("end_bracket",)}
+        elif elem == "[":
+            SegClass = SymbolSegment
+            seg_kwargs = {"instance_types": ("start_square_bracket",)}
+        elif elem == "]":
+            SegClass = SymbolSegment
+            seg_kwargs = {"instance_types": ("end_square_bracket",)}
         elif elem.startswith("--"):
             SegClass = CommentSegment
             seg_kwargs = {"instance_types": ("inline_comment",)}

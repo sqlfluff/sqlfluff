@@ -259,14 +259,34 @@ def test__parser__grammar_sequence_modes(
             ParseMode.STRICT,
             [],
             {},
-            (("bracketed", (("start_bracket", "("), ("end_bracket", ")"))),),
+            (
+                (
+                    "bracketed",
+                    (
+                        ("start_bracket", "("),
+                        ("indent", ""),
+                        ("dedent", ""),
+                        ("end_bracket", ")"),
+                    ),
+                ),
+            ),
         ),
         (
             ["(", ")"],
             ParseMode.GREEDY,
             [],
             {},
-            (("bracketed", (("start_bracket", "("), ("end_bracket", ")"))),),
+            (
+                (
+                    "bracketed",
+                    (
+                        ("start_bracket", "("),
+                        ("indent", ""),
+                        ("dedent", ""),
+                        ("end_bracket", ")"),
+                    ),
+                ),
+            ),
         ),
         # Test potential empty brackets (with whitespace)
         (
@@ -277,7 +297,13 @@ def test__parser__grammar_sequence_modes(
             (
                 (
                     "bracketed",
-                    (("start_bracket", "("), ("whitespace", " "), ("end_bracket", ")")),
+                    (
+                        ("start_bracket", "("),
+                        ("indent", ""),
+                        ("whitespace", " "),
+                        ("dedent", ""),
+                        ("end_bracket", ")"),
+                    ),
                 ),
             ),
         ),
@@ -289,7 +315,13 @@ def test__parser__grammar_sequence_modes(
             (
                 (
                     "bracketed",
-                    (("start_bracket", "("), ("whitespace", " "), ("end_bracket", ")")),
+                    (
+                        ("start_bracket", "("),
+                        ("indent", ""),
+                        ("whitespace", " "),
+                        ("dedent", ""),
+                        ("end_bracket", ")"),
+                    ),
                 ),
             ),
         ),
@@ -313,7 +345,9 @@ def test__parser__grammar_sequence_modes(
                     "bracketed",
                     (
                         ("start_bracket", "("),
+                        ("indent", ""),
                         ("unparsable", (("whitespace", " "),)),
+                        ("dedent", ""),
                         ("end_bracket", ")"),
                     ),
                 ),
@@ -330,7 +364,9 @@ def test__parser__grammar_sequence_modes(
                     "bracketed",
                     (
                         ("start_bracket", "("),
+                        ("indent", ""),
                         ("keyword", "a"),
+                        ("dedent", ""),
                         ("end_bracket", ")"),
                     ),
                 ),
@@ -354,7 +390,9 @@ def test__parser__grammar_sequence_modes(
                     "bracketed",
                     (
                         ("start_bracket", "("),
+                        ("indent", ""),
                         ("unparsable", (("raw", "a"),)),
+                        ("dedent", ""),
                         ("end_bracket", ")"),
                     ),
                 ),
@@ -378,7 +416,9 @@ def test__parser__grammar_sequence_modes(
                     "bracketed",
                     (
                         ("start_bracket", "("),
+                        ("indent", ""),
                         ("unparsable", (("keyword", "a"),)),
+                        ("dedent", ""),
                         ("end_bracket", ")"),
                     ),
                 ),
@@ -402,12 +442,30 @@ def test__parser__grammar_sequence_modes(
                     "bracketed",
                     (
                         ("start_bracket", "("),
+                        ("indent", ""),
                         ("keyword", "a"),
                         ("whitespace", " "),
                         ("unparsable", (("raw", "b"),)),
+                        ("dedent", ""),
                         ("end_bracket", ")"),
                     ),
                 ),
+            ),
+        ),
+        # Test an unwrapped path (with square brackets)
+        (
+            ["[", "a", " ", "b", "]"],
+            ParseMode.GREEDY,
+            ["a"],
+            {"bracket_type": "square"},
+            (
+                ("start_square_bracket", "["),
+                ("indent", ""),
+                ("keyword", "a"),
+                ("whitespace", " "),
+                ("unparsable", (("raw", "b"),)),
+                ("dedent", ""),
+                ("end_square_bracket", "]"),
             ),
         ),
     ],

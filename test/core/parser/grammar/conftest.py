@@ -50,7 +50,8 @@ def structural_parse_mode_test(generate_test_segments, fresh_ansi_dialect):
         if output_tuple:
             assert _match
         _result = tuple(
-            e.to_tuple(show_raw=True, code_only=False) for e in _match.apply(segments)
+            e.to_tuple(show_raw=True, code_only=False, include_meta=True)
+            for e in _match.apply(segments)
         )
         assert _result == output_tuple
 
