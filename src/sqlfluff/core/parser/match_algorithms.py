@@ -78,28 +78,6 @@ def first_non_whitespace(
     return None
 
 
-@dataclass
-class BracketInfo:
-    """BracketInfo tuple for keeping track of brackets during matching.
-
-    This is used in BaseGrammar._bracket_sensitive_look_ahead_match but
-    defined here for type checking.
-    """
-
-    bracket: BaseSegment
-    segments: Tuple[BaseSegment, ...]
-    bracket_type: str
-
-    def to_segment(self, end_bracket: Tuple[BaseSegment, ...]) -> BracketedSegment:
-        """Turn the contained segments into a bracketed segment."""
-        assert len(end_bracket) == 1
-        return BracketedSegment(
-            segments=self.segments,
-            start_bracket=(self.bracket,),
-            end_bracket=cast(Tuple[BaseSegment], end_bracket),
-        )
-
-
 def prune_options(
     options: Sequence[Matchable],
     segments: Sequence[BaseSegment],
