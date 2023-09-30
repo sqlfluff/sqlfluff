@@ -526,8 +526,6 @@ class Bracketed(Sequence):
             # Otherwise unwrapped.
             return MatchResult(
                 matched_slice=bracketed_match.matched_slice,
-                insert_segments=(
-                    (inserts[0],) + content_match.insert_segments + (inserts[1],)
-                ),
+                insert_segments=content_match.insert_segments + inserts,
                 child_matches=_content_matches,
             )
