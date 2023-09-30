@@ -195,37 +195,25 @@ def longest_match(
     )
 
     # If no available options, return no match.
-    # NOTE: No partials at this stage, because we're pruning the *starts*.
     if not available_options:
         return MatchResult.empty_at(idx), None
 
     terminators = parse_context.terminators or ()
     terminated = False
-
-    # NOTE: No start and end trimming as before. Check that's not an issue,
-    # but I don't think it should happen here regardless.
-    # TODO: REMOVE THIS COMMENT ONCE CONFIRMED.
-
-    _s = segments[idx]
     # At parse time we should be able to count on there being a position marker.
-    assert _s.pos_marker
+    assert segments[idx].pos_marker
 
     # Characterise this location.
     # Initial segment raw, loc, type and length of segment series.
     loc_key = (
-        _s.raw,
-        _s.pos_marker.working_loc,
-        _s.get_type(),
-        # NOTE: I don't think this key makes sense in this context
-        # but I continue to include it for consistency.
-        # It's a negative number for now so we don't get collisions
-        # with the existing cache.
-        # We use our own cache on the context so there we can easily
-        # change.
-        # TODO: CHECK THIS.
-        # NOTE: WE DO NEED THIS FOR VARYING AVAILABLE SEGMENT LENGTHS!
-        # Otherwise we won't know when we trim ends.
-        -max_idx,
+        segments[idx].raw,
+        segments[idx].pos_marker.working_loc,
+        segments[idx].get_type(),
+        # The reason that the max_idx is part of the cache key is to
+        # account for scenarios where the end of the segment sequence
+        # has been trimmed and we don't want to assume we can match
+        # things which have now been trimmed off.
+        max_idx,
     )
 
     best_match = MatchResult.empty_at(idx)
@@ -238,7 +226,8 @@ def longest_match(
             loc_key, matcher_key
         )
         # If cache miss, match fresh and repopulate.
-        # NOTE: By comparing with None, we'll also still get "failed" matches.
+        # NOTE: By comparing with None, "failed" matches can still be used
+        # from cache. They a falsy, but not None.
         if res_match is None:
             # Match fresh if no cache hit
             res_match = matcher.match(segments, idx, parse_context)
@@ -246,14 +235,10 @@ def longest_match(
             parse_context.put_parse_cache(loc_key, matcher_key, res_match)
 
         # Have we matched all available segments?
-        # TODO: Do we still want this clause in the new world? It seems unlikely
-        # if we assume there are _always_ more segments.
         if res_match and res_match.matched_slice.stop == max_idx:
-            # TODO: Assess the issue of not handling trailing whitespace here.
             return res_match, matcher
 
         # Is this the best match so far?
-        # NOTE: Using the inbuilt comparison functions of MatchResult.
         if res_match.is_better_than(best_match):
             best_match = res_match
             best_matcher = matcher
@@ -345,11 +330,9 @@ def next_match(
         for simple_type in simple[1]:
             type_simple_map[simple_type].append(_idx)
 
-    # There's an optimisation we could do here where we don't iterate
+    # TODO: There's an optimisation we could do here where we don't iterate
     # through them one by one, but we use a lookup which we pre-calculate
     # at the start of the whole matching process.
-    # TODO: That's only worthwhile once we've got a bit closer to a single
-    # pass parsing process.
     for _idx in range(idx, max_idx):
         seg = segments[_idx]
         _matcher_idxs = []
@@ -529,8 +512,6 @@ def next_ex_bracket_match(
         # brackets inside.
         assert matcher, "If there's a match, there should be a matcher."
         # NOTE: This only returns on resolution of the opening bracket.
-        # TODO: We go to quite a bit of work to construct the inner matches
-        # here, but we're not really using them. Should we deal with that?
         bracket_match = resolve_bracket(
             segments,
             opening_match=match,
@@ -616,16 +597,16 @@ def greedy_match(
         # Otherwise, it's allowable!
         break
 
-    # NOTE: Return without any child matches or inserts. Greedy Matching
+    # Return without any child matches or inserts. Greedy Matching
     # shouldn't be used for mutation.
-    # TODO: Check that I mean this.
     if include_terminator:
         return MatchResult(
             slice(idx, _stop_idx),
         )
 
-    # Additionally, if it's preceded by any non-code, we can't claim that
-    # either. Work backwards so we don't include it.
+    # If we're _not_ including the terminator, we need to work back a little.
+    # If it's preceded by any non-code, we can't claim that.
+    # Work backwards so we don't include it.
     _stop_idx = skip_stop_index_backward_to_code(
         segments, match.matched_slice.start, idx
     )

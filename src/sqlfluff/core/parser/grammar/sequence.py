@@ -411,7 +411,25 @@ class Bracketed(Sequence):
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult:
-        """Match against this matcher."""
+        """Match if a bracketed sequence, with content that matches one of the elements.
+
+        Once we've confirmed the existence of the initial opening bracket,
+        this grammar delegates to `resolve_bracket()` to recursively close
+        any brackets we fund until the initial opening bracket has been
+        closed.
+
+        After the closing point of the bracket has been established, we then
+        match the content against the elements of this grammar (as options,
+        not as a sequence). How the grammar behaves on different content
+        depends on the `parse_mode`:
+
+        - If the parse mode is `GREEDY`, this always returns a match if
+          the opening and closing brackets are found. Anything unexpected
+          within the brackets is marked as `unparsable`.
+        - If the parse mode is `STRICT`, then this only returns a match if
+          the content of the brackets matches (and matches *completely*)
+          one of the elements of the grammar. Otherwise no match.
+        """
         # Rehydrate the bracket segments in question.
         # bracket_persists controls whether we make a BracketedSegment or not.
         start_bracket, end_bracket, bracket_persists = self.get_bracket_from_dialect(

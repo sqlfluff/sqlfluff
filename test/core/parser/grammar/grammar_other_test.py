@@ -13,14 +13,6 @@ from sqlfluff.core.parser.grammar import Anything, Delimited, GreedyUntil, Nothi
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 
 
-@pytest.fixture(scope="function")
-def bracket_segments(generate_test_segments):
-    """Another preset list of segments for testing."""
-    return generate_test_segments(
-        ["bar", " \t ", "(", " ", "foo", "    ", ")", "baar", " \t ", "foo"]
-    )
-
-
 @pytest.mark.parametrize(
     "token_list,min_delimiters,allow_gaps,allow_trailing,match_len",
     [

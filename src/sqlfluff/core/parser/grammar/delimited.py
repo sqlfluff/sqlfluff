@@ -65,13 +65,12 @@ class Delimited(OneOf):
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult:
-        """Match against this matcher."""
-        # NOTE: THIS IS A GREAT PLACE FOR PARTIAL UNPARSABLES.
-        # TODO: WE SHOULD PORT THE PROGRESSBAR LOGIC (NOT DONE YET).
-        # In theory it should be even better because in a "single match"
-        # regime, we can literally count the matched segments so far.
-        # SUPER GRANULAR.
+        """Match delimited sequences.
 
+        To achieve this we flip flop between looking for content
+        and looking for delimiters. Individual elements of this
+        grammar are treated as _options_ not as a _sequence_.
+        """
         delimiters = 0
         seeking_delimiter = False
         max_idx = len(segments)
@@ -80,7 +79,7 @@ class Delimited(OneOf):
         delimiter_match: Optional[MatchResult] = None
 
         delimiter_matchers = [self.delimiter]
-        # NOTE: If the configured delimiter is in parse_context.terminators then
+        # NOTE: If the configured delimiter is in `parse_context.terminators` then
         # treat is _only_ as a delimiter and not as a terminator. This happens
         # frequently during nested comma expressions.
         terminator_matchers = [
@@ -99,7 +98,7 @@ class Delimited(OneOf):
                 working_idx = skip_start_index_forward_to_code(segments, working_idx)
 
             # Do we have anything left to match on?
-            if working_idx >= max_idx:  # TODO: Revisit this.
+            if working_idx >= max_idx:
                 break
 
             # Check whether there is a terminator before checking for content
@@ -130,14 +129,7 @@ class Delimited(OneOf):
                 )
 
             if not match:
-                # Failed the find the next item in the sequence.
-                # TODO: Should we handle the partial better?
-                # Looking for the next delimiter or terminator if we can and then
-                # claiming an unparsable.
-                # WIP: Check whether just appending the partial match is the best
-                # approach? Seems better than nothing.
-                # YES SEEMS BETTER. NEEDS TESTS.
-                working_match = working_match.append(match)
+                # Failed to match next element, stop here.
                 break
 
             # Otherwise we _did_ match. Handle it.

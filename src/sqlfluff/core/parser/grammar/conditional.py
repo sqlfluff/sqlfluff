@@ -87,11 +87,10 @@ class Conditional(BaseGrammar):
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult:
-        """Match against this matcher."""
+        """If enabled, return a single insert of the new segment."""
         if not self.is_enabled(parse_context):
             return MatchResult.empty_at(idx)
 
-        # This looks weird, but yes it's just a raw insert.
         return MatchResult(
             matched_slice=slice(idx, idx), insert_segments=((idx, self._meta),)
         )

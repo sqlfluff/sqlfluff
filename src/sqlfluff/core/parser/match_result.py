@@ -97,19 +97,11 @@ class MatchResult:
         return slice_length(self.matched_slice)
 
     def __bool__(self) -> bool:
-        """Evaluate this MatchResult for whether it counts as a clean match.
-
-        A MatchResult is truthy if it has:
-        - matched segments
-        - or has inserts.
-        """
+        """A MatchResult is truthy if it has length or inserts."""
         return len(self) > 0 or bool(self.insert_segments)
 
     def stringify(self, indent: str = "") -> str:
-        """Pretty print a match for debugging.
-
-        TODO: Needs tests (and probably being used more).
-        """
+        """Pretty print a match for debugging."""
         prefix = f"Match ({self.matched_class}): {self.matched_slice}"
         buffer = prefix
         for key, value in self.segment_kwargs.items():
@@ -124,14 +116,11 @@ class MatchResult:
 
     @classmethod
     def empty_at(cls, idx: int) -> "MatchResult":
-        """Create an empty match at a particular index.
-
-        An empty match is by definition, unclean.
-        """
+        """Create an empty match at a particular index."""
         return cls(slice(idx, idx))
 
     def is_better_than(self, other: "MatchResult") -> bool:
-        """A match is better compared on length and cleanliness."""
+        """A match is better compared on length."""
         return len(self) > len(other)
 
     def append(

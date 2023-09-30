@@ -34,7 +34,7 @@ class GreedyUntil(BaseGrammar):
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult:
-        """Match against this matcher."""
+        """Matching for GreedyUntil works just how you'd expect."""
         return greedy_match(
             segments,
             idx=idx,

@@ -70,7 +70,12 @@ class BracketedSegment(BaseSegment):
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult:
-        """Only useful as a terminator."""
+        """Only useful as a terminator.
+
+        NOTE: Coverage of this method is poor, because in typical use
+        as a terminator - the `.simple()` method covers everything we
+        need.
+        """
         if isinstance(segments[idx], cls):  # pragma: no cover
             return MatchResult(slice(idx, idx + 1))
         return MatchResult.empty_at(idx)

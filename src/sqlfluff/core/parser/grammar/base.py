@@ -453,5 +453,5 @@ class Nothing(BaseGrammar):
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult:
-        """Match nothing."""
+        """Always return a failed (empty) match."""
         return MatchResult.empty_at(idx)
