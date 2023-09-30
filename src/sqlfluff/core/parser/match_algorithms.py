@@ -492,7 +492,7 @@ def next_ex_bracket_match(
     # Get hold of the bracket matchers from the dialect, and append them
     # to the list of matchers. We get them from the relevant set on the
     # dialect.
-    bracket_types, start_bracket_refs, end_bracket_refs, persists = zip(
+    _, start_bracket_refs, end_bracket_refs, _ = zip(
         *parse_context.dialect.bracket_sets(bracket_pairs_set)
     )
     # These are matchables, probably StringParsers.
@@ -507,10 +507,7 @@ def next_ex_bracket_match(
     matched_idx = idx
     child_matches: Tuple[MatchResult, ...] = ()
 
-    # Iterate
-    while True:  # ## TODO: Check whether it should be a for loop?
-        # Look ahead for opening brackets or the thing(s)
-        # that we're otherwise looking for.
+    while True:
         match, matcher = next_match(
             segments,
             matched_idx,
@@ -526,7 +523,6 @@ def next_ex_bracket_match(
         # If it's a _closing_ bracket, then we also return no match.
         if matcher in end_brackets:
             # Unexpected end bracket! Return no match.
-            # TODO: Should we make an unclean match here to help with unparsables?
             return MatchResult.empty_at(idx), None
 
         # Otherwise we found a opening bracket before finding a target.

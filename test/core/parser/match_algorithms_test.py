@@ -142,7 +142,14 @@ def test__parser__algorithms__resolve_bracket(
 @pytest.mark.parametrize(
     "raw_segments,target_word,result_slice",
     [
+        ([], "foo", slice(0, 0)),
         (["(", "foo", ")", " ", "foo"], "foo", slice(4, 5)),
+        (["a", " ", "foo", " ", "foo"], "foo", slice(2, 3)),
+        (["foo", " ", "foo", " ", "foo"], "foo", slice(0, 1)),
+        # Error case, unexpected closing bracket.
+        # NOTE: This should never normally happen, but we should
+        # be prepared in case it does so that we return appropriately.
+        (["a", " ", ")", " ", "foo"], "foo", slice(0, 0)),
     ],
 )
 def test__parser__algorithms__next_ex_bracket_match(
@@ -150,13 +157,8 @@ def test__parser__algorithms__next_ex_bracket_match(
 ):
     """Test the `next_ex_bracket_match()` method."""
     test_segments = generate_test_segments(raw_segments)
-    start_bracket = StringParser("(", SymbolSegment, type="start_bracket")
     target = StringParser(target_word, KeywordSegment)
     ctx = ParseContext(dialect=test_dialect)
-
-    # For this test case we assert that the first segment is the initial match.
-    first_match = start_bracket.match(test_segments, 0, ctx)
-    assert first_match
 
     result, _ = next_ex_bracket_match(
         test_segments,
@@ -165,7 +167,6 @@ def test__parser__algorithms__next_ex_bracket_match(
         parse_context=ctx,
     )
 
-    assert result
     assert result.matched_slice == result_slice
 
 
