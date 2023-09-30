@@ -508,9 +508,11 @@ class Bracketed(Sequence):
         # is to wrap or not we should construct the response.
         _content_matches: Tuple[MatchResult, ...]
         if content_match.matched_class:
-            _content_matches = (content_match,)
+            _content_matches = bracketed_match.child_matches + (content_match,)
         else:
-            _content_matches = content_match.child_matches
+            _content_matches = (
+                bracketed_match.child_matches + content_match.child_matches
+            )
 
         if bracket_persists:
             # If we're keeping the wrap, then we reform our content match into the

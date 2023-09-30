@@ -270,7 +270,11 @@ class MatchResult:
                 result_segments += segments[max_idx:idx]
                 max_idx = idx
             elif idx < max_idx:  # pragma: no cover
-                raise ValueError("SKIP AHEAD ERROR")
+                raise ValueError(
+                    "Segment skip ahead error. An outer match contains "
+                    "overlapping child matches. This MatchResult was "
+                    "wrongly constructed."
+                )
             # Then work through each of the triggers.
             for trigger in trigger_locs[idx]:
                 # If it's a match, apply it.

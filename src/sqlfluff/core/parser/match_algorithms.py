@@ -417,7 +417,7 @@ def resolve_bracket(
     assert opening_matcher in start_brackets
     type_idx = start_brackets.index(opening_matcher)
     matched_idx = opening_match.matched_slice.stop
-    child_matches: Tuple[MatchResult, ...] = ()
+    child_matches: Tuple[MatchResult, ...] = (opening_match,)
 
     while True:
         # Look for the next relevant bracket.
@@ -442,6 +442,8 @@ def resolve_bracket(
             closing_idx = end_brackets.index(matcher)
             if closing_idx == type_idx:
                 # We're closing the opening type.
+                # Add the closing bracket match to the result as a child.
+                child_matches += (match,)
                 # NOTE: This is how we exit the loop.
                 return MatchResult(
                     # Slice should span from the first to the second.
@@ -476,8 +478,8 @@ def resolve_bracket(
         )
         # This will either error, or only return once we're back out of the
         # bracket which started it. The return value will be a match result for
-        # the inner BracketedSegment. This becomes a child of our return.
-        child_matches += (inner_match,)
+        # the inner BracketedSegment. We ignore the inner and don't return it
+        # as we only want to mutate the outer brackets.
         matched_idx = inner_match.matched_slice.stop
 
         # Head back around the loop again to see if we can find the end...
