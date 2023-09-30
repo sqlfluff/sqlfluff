@@ -31,12 +31,16 @@ def structural_parse_mode_test(generate_test_segments, fresh_ansi_dialect):
         # Dialect is required here only to have access to bracket segments.
         ctx = ParseContext(dialect=fresh_ansi_dialect)
 
+        # NOTE: We pass terminators using kwargs rather than directly because some
+        # classes don't support it (e.g. Bracketed).
+        if grammar_terminator_seeds:
+            grammar_kwargs["terminators"] = [
+                StringParser(e, KeywordSegment) for e in grammar_terminator_seeds
+            ]
+
         _seq = grammar_class(
             *(StringParser(e, KeywordSegment) for e in grammar_argument_seeds),
             parse_mode=parse_mode,
-            terminators=[
-                StringParser(e, KeywordSegment) for e in grammar_terminator_seeds
-            ],
             **grammar_kwargs,
         )
         _start = input_slice.start or 0

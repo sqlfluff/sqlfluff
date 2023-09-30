@@ -7,9 +7,10 @@ import logging
 
 import pytest
 
+from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.parser import Dedent, Indent, KeywordSegment, StringParser
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.grammar import Conditional, Sequence
+from sqlfluff.core.parser.grammar import Bracketed, Conditional, Sequence
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.types import ParseMode
 
@@ -243,6 +244,130 @@ def test__parser__grammar_sequence_modes(
         input_slice,
         output_tuple,
     )
+
+
+@pytest.mark.parametrize(
+    "input_seed,mode,sequence,kwargs,output_tuple",
+    [
+        # A sequence that isn't bracketed shouldn't match.
+        # Regardless of mode.
+        (["a"], ParseMode.STRICT, ["a"], {}, ()),
+        (["a"], ParseMode.GREEDY, ["a"], {}, ()),
+        # Test potential empty brackets (no whitespace)
+        (
+            ["(", ")"],
+            ParseMode.STRICT,
+            [],
+            {},
+            (("bracketed", (("start_bracket", "("), ("end_bracket", ")"))),),
+        ),
+        (
+            ["(", ")"],
+            ParseMode.GREEDY,
+            [],
+            {},
+            (("bracketed", (("start_bracket", "("), ("end_bracket", ")"))),),
+        ),
+        # Test potential empty brackets (with whitespace)
+        (
+            ["(", " ", ")"],
+            ParseMode.STRICT,
+            [],
+            {},
+            (
+                (
+                    "bracketed",
+                    (("start_bracket", "("), ("whitespace", " "), ("end_bracket", ")")),
+                ),
+            ),
+        ),
+        (
+            ["(", " ", ")"],
+            ParseMode.GREEDY,
+            [],
+            {},
+            (
+                (
+                    "bracketed",
+                    (("start_bracket", "("), ("whitespace", " "), ("end_bracket", ")")),
+                ),
+            ),
+        ),
+        (
+            ["(", " ", ")"],
+            ParseMode.STRICT,
+            [],
+            # Strict matching, without allowing gaps, shouldn't match.
+            {"allow_gaps": False},
+            (),
+        ),
+        (
+            ["(", " ", ")"],
+            ParseMode.GREEDY,
+            [],
+            # Greedy matching, without allowing gaps, should return unparsable.
+            # NOTE: This functionality doesn't get used much.
+            {"allow_gaps": False},
+            (
+                (
+                    "bracketed",
+                    (
+                        ("start_bracket", "("),
+                        ("unparsable", (("whitespace", " "),)),
+                        ("end_bracket", ")"),
+                    ),
+                ),
+            ),
+        ),
+    ],
+)
+def test__parser__grammar_bracketed_modes(
+    input_seed,
+    mode,
+    sequence,
+    kwargs,
+    output_tuple,
+    structural_parse_mode_test,
+):
+    """Test the Bracketed grammar with various parse modes."""
+    structural_parse_mode_test(
+        input_seed,
+        Bracketed,
+        sequence,
+        [],
+        kwargs,
+        mode,
+        slice(None, None),
+        output_tuple,
+    )
+
+
+@pytest.mark.parametrize(
+    "input_seed,mode,sequence",
+    [
+        # Unclosed brackets always raise errors.
+        (["(", "a"], ParseMode.STRICT, ["a"]),
+        (["(", "a"], ParseMode.GREEDY, ["a"]),
+    ],
+)
+def test__parser__grammar_bracketed_error_modes(
+    input_seed,
+    mode,
+    sequence,
+    structural_parse_mode_test,
+):
+    """Test the Bracketed grammar with various parse modes."""
+    with pytest.raises(SQLParseError):
+        structural_parse_mode_test(
+            input_seed,
+            Bracketed,
+            sequence,
+            [],
+            {},
+            mode,
+            slice(None, None),
+            (),
+        )
 
 
 def test__parser__grammar_sequence_indent_conditional_match(test_segments, caplog):
