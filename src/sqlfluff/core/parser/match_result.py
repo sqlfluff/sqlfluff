@@ -138,7 +138,7 @@ class MatchResult:
             return other
         # If the same is true of the other, just return self.
         if not len(other) and not other.insert_segments:
-            return self
+            return self  # pragma: no cover
 
         # Otherwise the two must follow each other.
         # NOTE: A gap is allowed, but is assumed to be included in the

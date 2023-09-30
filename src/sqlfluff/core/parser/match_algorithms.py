@@ -201,13 +201,14 @@ def longest_match(
     terminators = parse_context.terminators or ()
     terminated = False
     # At parse time we should be able to count on there being a position marker.
-    assert segments[idx].pos_marker
+    _cache_position = segments[idx].pos_marker
+    assert _cache_position
 
     # Characterise this location.
     # Initial segment raw, loc, type and length of segment series.
     loc_key = (
         segments[idx].raw,
-        segments[idx].pos_marker.working_loc,
+        _cache_position.working_loc,
         segments[idx].get_type(),
         # The reason that the max_idx is part of the cache key is to
         # account for scenarios where the end of the segment sequence
