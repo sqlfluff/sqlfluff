@@ -224,8 +224,6 @@ class MatchResult:
         """
         result_segments: Tuple["BaseSegment", ...] = ()
         if not slice_length(self.matched_slice):
-            # TODO: Review whether we should handle any of these
-            # scenarios ()
             assert not self.matched_class, (
                 "Tried to apply zero length MatchResult with "
                 "`matched_class`. This MatchResult is invalid. "
@@ -233,7 +231,7 @@ class MatchResult:
             )
             assert not self.child_matches, (
                 "Tried to apply zero length MatchResult with "
-                "`child_matches`. Is this allowed?! "
+                "`child_matches`. This MatchResult is invalid. "
                 f"Result: {self}"
             )
             if self.insert_segments:

@@ -59,6 +59,16 @@ def _recursive_assert_pos(segment):
                 ("raw", "d"),
             ),
         ),
+        (
+            ["a"],
+            MatchResult(
+                # An example with only inserts.
+                matched_slice=slice(0, 0),
+                insert_segments=((0, Dedent),),
+            ),
+            0,
+            (("dedent", ""),),
+        ),
     ],
 )
 def test__parser__matchresult2_apply(
