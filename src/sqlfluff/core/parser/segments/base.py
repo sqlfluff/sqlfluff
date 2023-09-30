@@ -400,8 +400,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
     def _position_segments(
         cls,
         segments: Tuple["BaseSegment", ...],
-        parent_pos: Optional[PositionMarker] = None,
-        metas_only: bool = False,
+        parent_pos: PositionMarker,
     ) -> Tuple["BaseSegment", ...]:
         """Refresh positions of segments within a span.
 
@@ -414,51 +413,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
         and so therefore have a zero-length position in the
         source and templated file.
         """
-        # If there are no segments, there's no need to reposition.
-        if not segments:
-            return segments
-
-        # Work out our starting position for working through
-        if parent_pos:
-            line_no = parent_pos.working_line_no
-            line_pos = parent_pos.working_line_pos
-        # If we don't have it, infer it from the first position
-        # in this segment that does have a position.
-        else:
-            for fwd_seg in segments:
-                if fwd_seg.pos_marker:
-                    line_no = fwd_seg.pos_marker.working_line_no
-                    line_pos = fwd_seg.pos_marker.working_line_pos
-                    break
-            else:  # pragma: no cover
-                linter_logger.warning("SEG: %r, POS: %r", segments, parent_pos)
-                raise ValueError("Unable to find working position.")
+        assert segments, "_position_segments called on empty sequence."
+        line_no = parent_pos.working_line_no
+        line_pos = parent_pos.working_line_pos
 
         # Use the index so that we can look forward
         # and backward.
         segment_buffer: Tuple["BaseSegment", ...] = ()
         for idx, segment in enumerate(segments):
-            # NOTE: Repositioning can be very compute intensive to do
-            # completely (especially because of the copying required
-            # to do it safely), but during the parsing phase we may
-            # only need to reposition meta segments. Because they have
-            # no size in the templated file and also no children - they
-            # can be done safely without affecting the rest of the file.
-            if metas_only and not segment.is_meta:
-                # Assert that the segment already has position. Unless a
-                # fix has occured this should already be true.
-                assert segment.pos_marker, (
-                    "Non-meta segment found without position. Inappropriate "
-                    "use of `metas_only`."
-                )
-                # Add the original segment to the buffer.
-                segment_buffer += (segment,)
-                # Update working position
-                line_no, line_pos = segment.pos_marker.infer_next_position(
-                    segment.raw, line_no, line_pos
-                )
-                continue
-
             # Get hold of the current position.
             old_position = segment.pos_marker
             new_position = segment.pos_marker
@@ -517,6 +479,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             if segment.segments and old_position != new_position:
                 # Recurse to work out the child segments FIRST, before
                 # copying the parent so we don't double the work.
+                assert new_position
                 child_segments = cls._position_segments(
                     segment.segments, parent_pos=new_position
                 )
@@ -1277,6 +1240,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # of the fixes applied there first. This ensures those segments have
         # working positions to work with.
         if fixes_applied:
+            assert self.pos_marker
             seg_buffer = list(
                 self._position_segments(tuple(seg_buffer), parent_pos=self.pos_marker)
             )
@@ -1323,6 +1287,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             seg_buffer = seg_buffer[:_idx]
 
         # Reform into a new segment
+        assert self.pos_marker
         try:
             new_seg = self.__class__(
                 # Realign the segments within
