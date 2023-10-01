@@ -16,6 +16,7 @@ from sqlfluff.core.parser import (
     CommentSegment,
     Delimited,
     IdentifierSegment,
+    LiteralSegment,
     Matchable,
     OneOf,
     OptionallyBracketed,
@@ -28,6 +29,7 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
+    TypedParser,
     WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -128,6 +130,7 @@ oracle_dialect.add(
             Ref("ColumnReferenceSegment"),
         ),
     ),
+    IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
 )
 
 oracle_dialect.replace(
@@ -245,6 +248,14 @@ oracle_dialect.replace(
         ),
         Ref("AccessorGrammar", optional=True),
         allow_gaps=True,
+    ),
+    DateTimeLiteralGrammar=Sequence(
+        OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"),
+        TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
+        Sequence(
+            Ref("IntervalUnitsGrammar"),
+            Sequence("TO", Ref("IntervalUnitsGrammar"), optional=True),
+        ),
     ),
 )
 
