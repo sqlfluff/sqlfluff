@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f1bb6965c9638608e557a761468b94b91b4b2f20232b19ead91ba62de9e7e614
+_hash: 393bf2ca26581b07e3e04264f42c9a3ef70103757f8f08819f2f404469491ee0
 file:
 - statement:
     alter_warehouse_statement:
@@ -11,16 +11,19 @@ file:
     - keyword: warehouse
     - keyword: if
     - keyword: exists
-    - naked_identifier: wh1
+    - object_reference:
+        naked_identifier: wh1
     - keyword: rename
     - keyword: to
-    - naked_identifier: wh2
+    - object_reference:
+        naked_identifier: wh2
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: my_wh
+    - object_reference:
+        naked_identifier: my_wh
     - keyword: set
     - warehouse_object_properties:
         keyword: warehouse_size
@@ -32,7 +35,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: warehouse_size
@@ -44,7 +48,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: WAIT_FOR_COMPLETION
@@ -56,7 +61,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: MAX_CLUSTER_COUNT
@@ -68,7 +74,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: MIN_CLUSTER_COUNT
@@ -80,7 +87,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: SCALING_POLICY
@@ -92,7 +100,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: SCALING_POLICY
@@ -104,7 +113,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: SCALING_POLICY
@@ -116,7 +126,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: SCALING_POLICY
@@ -128,7 +139,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: AUTO_SUSPEND
@@ -140,7 +152,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: AUTO_RESUME
@@ -152,7 +165,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: RESOURCE_MONITOR
@@ -164,7 +178,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: set
     - comment_equals_clause:
         keyword: COMMENT
@@ -176,7 +191,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: MAX_CONCURRENCY_LEVEL
@@ -188,7 +204,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: STATEMENT_QUEUED_TIMEOUT_IN_SECONDS
@@ -200,7 +217,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: STATEMENT_TIMEOUT_IN_SECONDS
@@ -212,7 +230,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: set
     - tag_equals:
         keyword: TAG
@@ -226,7 +245,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: set
     - tag_equals:
       - keyword: TAG
@@ -246,7 +266,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: RESUME
     - keyword: IF
     - keyword: SUSPENDED
@@ -255,7 +276,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: ABORT
     - keyword: ALL
     - keyword: QUERIES
@@ -264,16 +286,19 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: RENAME
     - keyword: TO
-    - naked_identifier: LOAD_WH2
+    - object_reference:
+        naked_identifier: LOAD_WH2
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: SET
     - warehouse_object_properties:
         keyword: MAX_CONCURRENCY_LEVEL
@@ -285,7 +310,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: UNSET
     - naked_identifier: STATEMENT_QUEUED_TIMEOUT_IN_SECONDS
 - statement_terminator: ;
@@ -293,7 +319,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: UNSET
     - naked_identifier: WAREHOUSE_SIZE
 - statement_terminator: ;
@@ -301,7 +328,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: UNSET
     - naked_identifier: WAREHOUSE_SIZE
     - comma: ','
@@ -333,7 +361,8 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: WAREHOUSE_TYPE
@@ -345,11 +374,29 @@ file:
     alter_warehouse_statement:
     - keyword: alter
     - keyword: warehouse
-    - naked_identifier: LOAD_WH
+    - object_reference:
+        naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
         keyword: WAREHOUSE_TYPE
         comparison_operator:
           raw_comparison_operator: '='
         warehouse_size: "'SNOWPARK-OPTIMIZED'"
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - object_reference:
+        keyword: IDENTIFIER
+        bracketed:
+          start_bracket: (
+          variable: $var_wh
+          end_bracket: )
+    - keyword: SET
+    - warehouse_object_properties:
+        keyword: WAREHOUSE_TYPE
+        comparison_operator:
+          raw_comparison_operator: '='
+        warehouse_size: STANDARD
 - statement_terminator: ;

@@ -1999,7 +1999,7 @@ class AlterWarehouseStatementSegment(BaseSegment):
         Sequence("IF", "EXISTS", optional=True),
         OneOf(
             Sequence(
-                Ref("NakedIdentifierSegment", optional=True),
+                Ref("ObjectReferenceSegment", optional=True),
                 OneOf(
                     "SUSPEND",
                     Sequence(
@@ -2009,7 +2009,7 @@ class AlterWarehouseStatementSegment(BaseSegment):
                 ),
             ),
             Sequence(
-                Ref("NakedIdentifierSegment", optional=True),
+                Ref("ObjectReferenceSegment", optional=True),
                 Sequence(
                     "ABORT",
                     "ALL",
@@ -2017,13 +2017,13 @@ class AlterWarehouseStatementSegment(BaseSegment):
                 ),
             ),
             Sequence(
-                Ref("NakedIdentifierSegment"),
+                Ref("ObjectReferenceSegment"),
                 "RENAME",
                 "TO",
-                Ref("NakedIdentifierSegment"),
+                Ref("ObjectReferenceSegment"),
             ),
             Sequence(
-                Ref("NakedIdentifierSegment", optional=True),
+                Ref("ObjectReferenceSegment", optional=True),
                 "SET",
                 OneOf(
                     AnyNumberOf(
@@ -2035,7 +2035,7 @@ class AlterWarehouseStatementSegment(BaseSegment):
                 ),
             ),
             Sequence(
-                Ref("NakedIdentifierSegment"),
+                Ref("ObjectReferenceSegment"),
                 "UNSET",
                 OneOf(
                     Delimited(Ref("NakedIdentifierSegment")),

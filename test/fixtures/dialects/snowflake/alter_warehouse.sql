@@ -33,3 +33,6 @@ alter warehouse set warehouse_size=medium;
 
 alter warehouse LOAD_WH set WAREHOUSE_TYPE = STANDARD;
 alter warehouse LOAD_WH set WAREHOUSE_TYPE = 'SNOWPARK-OPTIMIZED';
+
+ALTER WAREHOUSE IDENTIFIER($var_wh) SET WAREHOUSE_TYPE = STANDARD;
+
