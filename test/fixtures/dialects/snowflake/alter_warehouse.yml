@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6aef694b439b392aca42cbf1d8e3d55dd6b90b9c6489ff07af83528e281a1fdc
+_hash: f1bb6965c9638608e557a761468b94b91b4b2f20232b19ead91ba62de9e7e614
 file:
 - statement:
     alter_warehouse_statement:
@@ -83,10 +83,46 @@ file:
     - naked_identifier: LOAD_WH
     - keyword: set
     - warehouse_object_properties:
-      - keyword: SCALING_POLICY
-      - comparison_operator:
+        keyword: SCALING_POLICY
+        comparison_operator:
           raw_comparison_operator: '='
-      - keyword: STANDARD
+        scaling_policy: STANDARD
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: SCALING_POLICY
+        comparison_operator:
+          raw_comparison_operator: '='
+        scaling_policy: "'STANDARD'"
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: SCALING_POLICY
+        comparison_operator:
+          raw_comparison_operator: '='
+        scaling_policy: ECONOMY
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: SCALING_POLICY
+        comparison_operator:
+          raw_comparison_operator: '='
+        scaling_policy: "'ECONOMY'"
 - statement_terminator: ;
 - statement:
     alter_warehouse_statement:
@@ -292,3 +328,28 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         warehouse_size: medium
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: WAREHOUSE_TYPE
+        comparison_operator:
+          raw_comparison_operator: '='
+        warehouse_size: STANDARD
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: WAREHOUSE_TYPE
+        comparison_operator:
+          raw_comparison_operator: '='
+        warehouse_size: "'SNOWPARK-OPTIMIZED'"
+- statement_terminator: ;
