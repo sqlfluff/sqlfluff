@@ -115,23 +115,54 @@ def test__parser__grammar_delimited(
                 ("raw", "d"),
             ),
         ),
+        # These next two tests check the handling of brackets in the
+        # Anything match. Unlike other greedy matches, this grammar
+        # assumes we're not going to re-parse these brackets and so
+        # _does_ infer their structure and creates bracketed elements
+        # for them.
         (
             ["(", "foo", "    ", ")", " ", "foo"],
             ["foo"],
-            # TODO: This is one that will need work as part of the
-            # bracketed changes. We are checking that bracketed
-            # segments _are_ instantiated within `Anything`.
             (
                 (
                     "bracketed",
                     (
                         ("start_bracket", "("),
+                        ("indent", ""),
                         ("raw", "foo"),
                         ("whitespace", "    "),
+                        ("dedent", ""),
                         ("end_bracket", ")"),
                     ),
                 ),
                 # No trailing whitespace.
+            ),
+        ),
+        (
+            ["(", " ", "foo", "(", "foo", ")", ")", " ", "foo"],
+            ["foo"],
+            (
+                (
+                    "bracketed",
+                    (
+                        ("start_bracket", "("),
+                        ("indent", ""),
+                        ("whitespace", " "),
+                        ("raw", "foo"),
+                        (
+                            "bracketed",
+                            (
+                                ("start_bracket", "("),
+                                ("indent", ""),
+                                ("raw", "foo"),
+                                ("dedent", ""),
+                                ("end_bracket", ")"),
+                            ),
+                        ),
+                        ("dedent", ""),
+                        ("end_bracket", ")"),
+                    ),
+                ),
             ),
         ),
     ],

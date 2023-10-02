@@ -140,6 +140,7 @@ def test__parser__algorithms__resolve_bracket(
         opening_matcher=start_bracket,
         start_brackets=[start_bracket, start_sq_bracket],
         end_brackets=[end_bracket, end_sq_bracket],
+        bracket_persists=[True, False],
         parse_context=ctx,
     )
     # If an error is defined, check that it is raised.
@@ -173,7 +174,7 @@ def test__parser__algorithms__next_ex_bracket_match(
     target = StringParser(target_word, KeywordSegment)
     ctx = ParseContext(dialect=test_dialect)
 
-    result, _ = next_ex_bracket_match(
+    result, _, _ = next_ex_bracket_match(
         test_segments,
         0,
         matchers=[target],

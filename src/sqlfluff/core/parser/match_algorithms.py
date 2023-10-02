@@ -5,13 +5,13 @@ or BaseGrammar to un-bloat those classes.
 """
 
 from collections import defaultdict
-from typing import DefaultDict, List, Optional, Sequence, Set, Tuple
+from typing import DefaultDict, List, Optional, Sequence, Set, Tuple, cast
 
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
-from sqlfluff.core.parser.segments import BaseSegment, BracketedSegment
+from sqlfluff.core.parser.segments import BaseSegment, BracketedSegment, Dedent, Indent
 
 
 def skip_start_index_forward_to_code(
@@ -368,9 +368,15 @@ def resolve_bracket(
     opening_matcher: Matchable,
     start_brackets: List[Matchable],
     end_brackets: List[Matchable],
+    bracket_persists: List[bool],
     parse_context: ParseContext,
+    nested_match: bool = False,
 ) -> MatchResult:
     """Recursive match to resolve an opened bracket.
+
+    If `nested_match` is True, then inner bracket matches are
+    also returned as child matches. Otherwise only the outer
+    match is returned.
 
     Returns when the opening bracket is resolved.
     """
@@ -402,21 +408,30 @@ def resolve_bracket(
         if matcher in end_brackets:
             closing_idx = end_brackets.index(matcher)
             if closing_idx == type_idx:
+                _persists = bracket_persists[type_idx]
                 # We're closing the opening type.
                 # Add the closing bracket match to the result as a child.
                 child_matches += (match,)
-                # NOTE: This is how we exit the loop.
-                return MatchResult(
+                _match = MatchResult(
                     # Slice should span from the first to the second.
                     slice(opening_match.matched_slice.start, match.matched_slice.stop),
-                    matched_class=BracketedSegment,
+                    child_matches=child_matches,
+                    insert_segments=(
+                        (opening_match.matched_slice.stop, Indent),
+                        (match.matched_slice.start, Dedent),
+                    ),
+                )
+                # NOTE: This is how we exit the loop.
+                if not _persists:
+                    return _match
+                return _match.wrap(
+                    BracketedSegment,
                     segment_kwargs={
                         # TODO: This feels a bit weird.
                         # Could we infer it on construction?
                         "start_bracket": (segments[opening_match.matched_slice.start],),
-                        "end_bracket": (segments[match.matched_slice.stop - 1],),
+                        "end_bracket": (segments[match.matched_slice.start],),
                     },
-                    child_matches=child_matches,
                 )
             # Otherwise we're closing an unexpected type. This is less good.
             raise SQLParseError(
@@ -435,6 +450,7 @@ def resolve_bracket(
             opening_matcher=matcher,
             start_brackets=start_brackets,
             end_brackets=end_brackets,
+            bracket_persists=bracket_persists,
             parse_context=parse_context,
         )
         # This will either error, or only return once we're back out of the
@@ -442,6 +458,8 @@ def resolve_bracket(
         # the inner BracketedSegment. We ignore the inner and don't return it
         # as we only want to mutate the outer brackets.
         matched_idx = inner_match.matched_slice.stop
+        if nested_match:
+            child_matches += (inner_match,)
 
         # Head back around the loop again to see if we can find the end...
 
@@ -452,7 +470,7 @@ def next_ex_bracket_match(
     matchers: Sequence[Matchable],
     parse_context: ParseContext,
     bracket_pairs_set: str = "bracket_pairs",
-) -> Tuple[MatchResult, Optional[Matchable]]:
+) -> Tuple[MatchResult, Optional[Matchable], Tuple[MatchResult, ...]]:
     """Same as `next_match` but with bracket counting.
 
     NB: Given we depend on `next_match` we can also utilise
@@ -463,19 +481,19 @@ def next_ex_bracket_match(
         BigQuery dialect for additional context on why this exists.
 
     Returns:
-        `tuple` of (match_object, matcher).
+        `tuple` of (match_object, matcher, `tuple` of inner bracketed matches).
 
     """
     max_idx = len(segments)
 
     # Have we got any segments to match on?
     if idx >= max_idx:  # No? Return empty.
-        return MatchResult.empty_at(idx), None
+        return MatchResult.empty_at(idx), None, ()
 
     # Get hold of the bracket matchers from the dialect, and append them
     # to the list of matchers. We get them from the relevant set on the
     # dialect.
-    _, start_bracket_refs, end_bracket_refs, _ = zip(
+    _, start_bracket_refs, end_bracket_refs, bracket_persists = zip(
         *parse_context.dialect.bracket_sets(bracket_pairs_set)
     )
     # These are matchables, probably StringParsers.
@@ -502,11 +520,11 @@ def next_ex_bracket_match(
             # If there's either no match, or we hit a target, just pass the result.
             # NOTE: This method returns the same as `next_match` in a "no match"
             # scenario, which is why we can simplify like this.
-            return match, matcher
+            return match, matcher, child_matches
         # If it's a _closing_ bracket, then we also return no match.
         if matcher in end_brackets:
             # Unexpected end bracket! Return no match.
-            return MatchResult.empty_at(idx), None
+            return MatchResult.empty_at(idx), None, ()
 
         # Otherwise we found a opening bracket before finding a target.
         # We now call the recursive function because there might be more
@@ -519,7 +537,11 @@ def next_ex_bracket_match(
             opening_matcher=matcher,
             start_brackets=start_brackets,
             end_brackets=end_brackets,
+            bracket_persists=cast(List[bool], bracket_persists),
             parse_context=parse_context,
+            # Do keep the nested brackets in case the calling method
+            # wants to use them.
+            nested_match=True,
         )
         matched_idx = bracket_match.matched_slice.stop
         child_matches += (bracket_match,)
@@ -532,26 +554,33 @@ def greedy_match(
     parse_context: ParseContext,
     matchers: Sequence[Matchable],
     include_terminator: bool = False,
+    nested_match: bool = False,
 ) -> MatchResult:
     """Match anything up to some defined terminator."""
     working_idx = idx
     # NOTE: _stop_idx is always reset below after matching before reference
     # but mypy is unhappy unless we set a default value here.
     _stop_idx = idx
+    # NOTE: child_matches is always tracked, but it will only ever have
+    # _content_ if `nested_match` is True. It otherwise remains an empty tuple.
+    child_matches: Tuple[MatchResult, ...] = ()
 
     while True:
         with parse_context.deeper_match(name="GreedyUntil") as ctx:
-            match, matcher = next_ex_bracket_match(
+            match, matcher, inner_matches = next_ex_bracket_match(
                 segments,
                 idx=working_idx,
                 matchers=matchers,
                 parse_context=ctx,
             )
 
+        if nested_match:
+            child_matches += inner_matches
+
         # No match? That means we've not found any terminators.
         if not match:
             # Claim everything left.
-            return MatchResult(slice(idx, len(segments)))
+            return MatchResult(slice(idx, len(segments)), child_matches=child_matches)
 
         _start_idx = match.matched_slice.start
         _stop_idx = match.matched_slice.stop
@@ -601,9 +630,7 @@ def greedy_match(
     # Return without any child matches or inserts. Greedy Matching
     # shouldn't be used for mutation.
     if include_terminator:
-        return MatchResult(
-            slice(idx, _stop_idx),
-        )
+        return MatchResult(slice(idx, _stop_idx), child_matches=child_matches)
 
     # If we're _not_ including the terminator, we need to work back a little.
     # If it's preceded by any non-code, we can't claim that.
@@ -617,10 +644,12 @@ def greedy_match(
     if idx == _stop_idx:
         # TODO: I don't really like this rule, it feels like a hack.
         # Review whether it should be here.
-        return MatchResult(slice(idx, match.matched_slice.start))
+        return MatchResult(
+            slice(idx, match.matched_slice.start), child_matches=child_matches
+        )
 
     # Otherwise return the trimmed version.
-    return MatchResult(slice(idx, _stop_idx))
+    return MatchResult(slice(idx, _stop_idx), child_matches=child_matches)
 
 
 def trim_to_terminator(

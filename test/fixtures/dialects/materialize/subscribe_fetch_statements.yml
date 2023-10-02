@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 674fc8a2538d556299eff502011db2b17c2d084a6862a4f023dde543eb1eea83
+_hash: a53a4cfb918341fb42dc92aae4012c91742007bed90308f7aa3972c94e9583b6
 file:
 - statement:
     fetch_statement:
@@ -44,10 +44,11 @@ file:
     - keyword: CURSOR
     - keyword: FOR
     - word: SUBSCRIBE
-    - start_bracket: (
-    - word: SELECT
-    - star: '*'
-    - word: FROM
-    - word: t1
-    - end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - word: SELECT
+      - star: '*'
+      - word: FROM
+      - word: t1
+      - end_bracket: )
 - statement_terminator: ;

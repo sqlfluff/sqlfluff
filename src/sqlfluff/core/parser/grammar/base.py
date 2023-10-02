@@ -440,7 +440,18 @@ class Anything(BaseGrammar):
         if not terminators:
             return MatchResult(slice(idx, len(segments)))
 
-        return greedy_match(segments, idx, parse_context, terminators)
+        return greedy_match(
+            segments,
+            idx,
+            parse_context,
+            terminators,
+            # Using the nested match option means that we can match
+            # any bracketed sections we find to persist the structure
+            # even if this grammar is permissive on the meaning.
+            # This preserves backward compatibility with older
+            # parsing behaviour.
+            nested_match=True,
+        )
 
 
 class Nothing(BaseGrammar):

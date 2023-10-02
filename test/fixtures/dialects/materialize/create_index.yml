@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ade1eaed748b0f256b2ea88760ccab37b406bffb27f5135173bfc7bd29dee822
+_hash: 0d5e8e3fb676ceada06a3127eb1fc1be40b9896c5b0f0dd82f01043d3ee2f6d3
 file:
 - statement:
     create_index_statement:
@@ -29,12 +29,13 @@ file:
     - object_reference:
         naked_identifier: active_customers
     - bracketed:
-      - start_bracket: (
-      - word: upper
-      - start_bracket: (
-      - word: guid
-      - end_bracket: )
-      - end_bracket: )
+        start_bracket: (
+        word: upper
+        bracketed:
+          start_bracket: (
+          word: guid
+          end_bracket: )
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_index_statement:

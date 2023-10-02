@@ -23,7 +23,6 @@ from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import (
     BaseSegment,
-    Dedent,
     Indent,
     MetaSegment,
     UnparsableSegment,
@@ -458,6 +457,7 @@ class Bracketed(Sequence):
             opening_matcher=start_bracket,
             start_brackets=[start_bracket],
             end_brackets=[end_bracket],
+            bracket_persists=[bracket_persists],
             parse_context=parse_context,
         )
 
@@ -465,7 +465,7 @@ class Bracketed(Sequence):
         # that means we can assert that brackets have been matched if there is no
         # error.
         assert bracketed_match
-        assert not bracketed_match.insert_segments
+
         # The bracketed_match will also already have been wrapped as a
         # BracketedSegment including the references to start and end brackets.
         # We only need to add content.
@@ -517,11 +517,6 @@ class Bracketed(Sequence):
             )
             content_match = content_match.append(child_match)
 
-        inserts = (
-            (start_match.matched_slice.stop, Indent),
-            (intermediate_slice.stop, Dedent),
-        )
-
         # We now have content and bracketed matches. Depending on whether the intent
         # is to wrap or not we should construct the response.
         _content_matches: Tuple[MatchResult, ...]
@@ -532,20 +527,12 @@ class Bracketed(Sequence):
                 bracketed_match.child_matches + content_match.child_matches
             )
 
-        if bracket_persists:
-            # If we're keeping the wrap, then we reform our content match into the
-            # existing bracketed match.
-            return MatchResult(
-                matched_slice=bracketed_match.matched_slice,
-                matched_class=bracketed_match.matched_class,
-                segment_kwargs=bracketed_match.segment_kwargs,
-                insert_segments=inserts,
-                child_matches=_content_matches,
-            )
-        else:
-            # Otherwise unwrapped.
-            return MatchResult(
-                matched_slice=bracketed_match.matched_slice,
-                insert_segments=content_match.insert_segments + inserts,
-                child_matches=_content_matches,
-            )
+        # NOTE: Whether a bracket is wrapped or unwrapped (i.e. the effect of
+        # `bracket_persists`, is controlled by `resolve_bracket`)
+        return MatchResult(
+            matched_slice=bracketed_match.matched_slice,
+            matched_class=bracketed_match.matched_class,
+            segment_kwargs=bracketed_match.segment_kwargs,
+            insert_segments=bracketed_match.insert_segments,
+            child_matches=_content_matches,
+        )
