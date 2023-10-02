@@ -9,7 +9,7 @@ import pytest
 
 from sqlfluff.core.parser import KeywordSegment, StringParser, SymbolSegment
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.grammar import Anything, Delimited, GreedyUntil, Nothing
+from sqlfluff.core.parser.grammar import Anything, Delimited, Nothing
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
 
 
@@ -64,30 +64,28 @@ def test__parser__grammar_delimited(
     assert len(m) == match_len
 
 
-@pytest.mark.parametrize(
-    "keyword,slice_len",
-    [
-        # Basic testing
-        ("foo", 1),
-        # Greedy matching until the first item should return none
-        ("bar", 0),
-        # NOTE: the greedy until "baar" won't match because baar is
-        # a keyword and therefore is required to have whitespace
-        # before it. In the test sequence "baar" does not.
-        # See `greedy_match()` for details.
-        ("baar", 6),
-    ],
-)
-def test__parser__grammar_greedyuntil(
-    keyword, test_segments, slice_len, fresh_ansi_dialect
+def test__parser__grammar_anything_bracketed(
+    generate_test_segments, fresh_ansi_dialect
 ):
-    """Test the GreedyUntil grammar."""
-    grammar = GreedyUntil(StringParser(keyword, KeywordSegment))
+    """Test the Anything grammar with brackets.
+
+    NOTE: For most greedy semantics we don't instantiate inner brackets, but
+    in the Anything grammar, the assumption is that we're not coming back to
+    these segments later so we take the time to instantiate any bracketed sections.
+    """
+    bracket_segments = generate_test_segments(["(", "foo", "    ", ")", " ", "foo"])
     ctx = ParseContext(dialect=fresh_ansi_dialect)
-    assert (
-        grammar.match(test_segments, 0, parse_context=ctx).apply(test_segments)
-        == test_segments[:slice_len]
+    # Check that we can make it past the brackets
+    match = Anything(terminators=[StringParser("foo", KeywordSegment)]).match(
+        bracket_segments, 0, parse_context=ctx
     )
+    assert len(match) == 4  # i.e. don't match the whitespace between ")" and "foo"
+    result = match.apply(bracket_segments)
+    # Check we successfully constructed a bracketed segment.
+    assert result[2].is_type("bracketed")
+    assert result[2].raw == "(foo    )"
+    # Check that the unmatched segments is foo AND the whitespace
+    assert len(result.unmatched_segments) == 2
 
 
 @pytest.mark.parametrize(
@@ -99,16 +97,26 @@ def test__parser__grammar_greedyuntil(
         (["foo"], 1),
         # If terminate with foof - unterminated. Match everything
         (["foof"], 6),
+        # Greedy matching until the first item should return none
+        (["bar"], 0),
+        # NOTE: the greedy until "baar" won't match because baar is
+        # a keyword and therefore is required to have whitespace
+        # before it. In the test sequence "baar" does not.
+        # See `greedy_match()` for details.
+        (["baar"], 6),
     ],
 )
 def test__parser__grammar_anything_match(
     terminators, match_length, test_segments, fresh_ansi_dialect
 ):
-    """Test the match method of the Anything grammar."""
+    """Test the Anything grammar.
+
+    NOTE: Anything combined with terminators implements the semantics
+    which used to be implemented by `GreedyUntil`.
+    """
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     terms = [StringParser(kw, KeywordSegment) for kw in terminators]
     result = Anything(terminators=terms).match(test_segments, 0, parse_context=ctx)
-    assert result
     assert result.matched_slice == slice(0, match_length)
     assert result.matched_class is None  # We shouldn't have set a class
 

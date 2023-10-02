@@ -669,7 +669,7 @@ class NotEqualToSegment(CompositeComparisonOperatorSegment):
 class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     """An element in the targets of a select statement.
 
-    Overriding ANSI to remove GreedyUntil logic which assumes statements have been
+    Overriding ANSI to remove greedy logic which assumes statements have been
     delimited
     """
 
