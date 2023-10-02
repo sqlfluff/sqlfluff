@@ -11,6 +11,7 @@ from sqlfluff.core.parser import KeywordSegment, StringParser, SymbolSegment
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar import Anything, Delimited, Nothing
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
+from sqlfluff.core.parser.types import ParseMode
 
 
 @pytest.mark.parametrize(
@@ -64,28 +65,98 @@ def test__parser__grammar_delimited(
     assert len(m) == match_len
 
 
-def test__parser__grammar_anything_bracketed(
-    generate_test_segments, fresh_ansi_dialect
+@pytest.mark.parametrize(
+    "input_tokens, terminators, output_tuple",
+    [
+        # No terminators (or non matching terminators), full match.
+        (
+            ["a", " ", "b"],
+            [],
+            (
+                ("raw", "a"),
+                ("whitespace", " "),
+                ("raw", "b"),
+            ),
+        ),
+        (
+            ["a", " ", "b"],
+            ["c"],
+            (
+                ("raw", "a"),
+                ("whitespace", " "),
+                ("raw", "b"),
+            ),
+        ),
+        # Terminate after some matched content.
+        (
+            ["a", " ", "b"],
+            ["b"],
+            (("raw", "a"),),
+        ),
+        # Terminate immediately.
+        (
+            ["a", " ", "b"],
+            ["a"],
+            (),
+        ),
+        # NOTE: the the  "c" terminator won't match because "c" is
+        # a keyword and therefore is required to have whitespace
+        # before it.
+        # See `greedy_match()` for details.
+        (
+            ["a", " ", "b", "c", " ", "d"],
+            ["c"],
+            (
+                ("raw", "a"),
+                ("whitespace", " "),
+                ("raw", "b"),
+                ("raw", "c"),
+                ("whitespace", " "),
+                ("raw", "d"),
+            ),
+        ),
+        (
+            ["(", "foo", "    ", ")", " ", "foo"],
+            ["foo"],
+            # TODO: This is one that will need work as part of the
+            # bracketed changes. We are checking that bracketed
+            # segments _are_ instantiated within `Anything`.
+            (
+                (
+                    "bracketed",
+                    (
+                        ("start_bracket", "("),
+                        ("raw", "foo"),
+                        ("whitespace", "    "),
+                        ("end_bracket", ")"),
+                    ),
+                ),
+                # No trailing whitespace.
+            ),
+        ),
+    ],
+)
+def test__parser__grammar_anything_structure(
+    input_tokens, terminators, output_tuple, structural_parse_mode_test
 ):
-    """Test the Anything grammar with brackets.
+    """Structure tests for the Anything grammar.
 
     NOTE: For most greedy semantics we don't instantiate inner brackets, but
     in the Anything grammar, the assumption is that we're not coming back to
-    these segments later so we take the time to instantiate any bracketed sections.
+    these segments later so we take the time to instantiate any bracketed
+    sections. This is to maintain some backward compatibility with previous
+    parsing behaviour.
     """
-    bracket_segments = generate_test_segments(["(", "foo", "    ", ")", " ", "foo"])
-    ctx = ParseContext(dialect=fresh_ansi_dialect)
-    # Check that we can make it past the brackets
-    match = Anything(terminators=[StringParser("foo", KeywordSegment)]).match(
-        bracket_segments, 0, parse_context=ctx
+    structural_parse_mode_test(
+        input_tokens,
+        Anything,
+        [],
+        terminators,
+        {},
+        ParseMode.STRICT,
+        slice(None, None),
+        output_tuple,
     )
-    assert len(match) == 4  # i.e. don't match the whitespace between ")" and "foo"
-    result = match.apply(bracket_segments)
-    # Check we successfully constructed a bracketed segment.
-    assert result[2].is_type("bracketed")
-    assert result[2].raw == "(foo    )"
-    # Check that the unmatched segments is foo AND the whitespace
-    assert len(result.unmatched_segments) == 2
 
 
 @pytest.mark.parametrize(
