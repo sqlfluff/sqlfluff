@@ -649,7 +649,10 @@ class Anything(BaseGrammar):
         NOTE: This grammar does still only match as far as any inherited
         terminators if they exist.
         """
-        terminators = [*self.terminators, *parse_context.terminators]
+        terminators = [*self.terminators]
+        if not self.reset_terminators:
+            # Only add context terminators if we're not resetting.
+            terminators.extend(parse_context.terminators)
         if not terminators:
             return MatchResult.from_matched(segments)
 

@@ -7,6 +7,7 @@ https://docs.exasol.com/sql_references/sqlstandardcompliance.htm
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    Anything,
     BaseFileSegment,
     BaseSegment,
     Bracketed,
@@ -14,7 +15,6 @@ from sqlfluff.core.parser import (
     CommentSegment,
     Dedent,
     Delimited,
-    GreedyUntil,
     Indent,
     LiteralKeywordSegment,
     LiteralSegment,
@@ -3215,8 +3215,11 @@ class ScriptContentSegment(BaseSegment):
     """
 
     type = "script_content"
-    match_grammar = GreedyUntil(
-        Ref("FunctionScriptTerminatorSegment"),
+    match_grammar = Anything(
+        terminators=[Ref("FunctionScriptTerminatorSegment")],
+        # Within the script we should _only_ look for the script
+        # terminator segment.
+        reset_terminators=True,
     )
 
 
