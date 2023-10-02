@@ -152,6 +152,14 @@ snowflake_dialect.sets("files_types").update(
     ["CSV", "JSON", "AVRO", "ORC" "PARQUET", "XML"],
 )
 
+snowflake_dialect.sets("warehouse_types").clear()
+snowflake_dialect.sets("warehouse_types").update(
+    [
+        "STANDARD",
+        "SNOWPARK-OPTIMIZED",
+    ],
+)
+
 snowflake_dialect.sets("warehouse_sizes").clear()
 snowflake_dialect.sets("warehouse_sizes").update(
     [
@@ -176,6 +184,15 @@ snowflake_dialect.sets("warehouse_sizes").update(
         "6X-LARGE",
     ],
 )
+
+snowflake_dialect.sets("warehouse_scaling_policies").clear()
+snowflake_dialect.sets("warehouse_scaling_policies").update(
+    [
+        "STANDARD",
+        "ECONOMY",
+    ],
+)
+
 
 snowflake_dialect.add(
     # In snowflake, these are case sensitive even though they're not quoted
@@ -221,6 +238,22 @@ snowflake_dialect.add(
     ),
     # We use a RegexParser instead of keywords as some (those with dashes) require
     # quotes:
+    WarehouseType=OneOf(
+        MultiStringParser(
+            [
+                type
+                for type in snowflake_dialect.sets("warehouse_types")
+                if "-" not in type
+            ],
+            CodeSegment,
+            type="warehouse_size",
+        ),
+        MultiStringParser(
+            [f"'{type}'" for type in snowflake_dialect.sets("warehouse_types")],
+            CodeSegment,
+            type="warehouse_size",
+        ),
+    ),
     WarehouseSize=OneOf(
         MultiStringParser(
             [
@@ -250,6 +283,23 @@ snowflake_dialect.add(
             ],
             KeywordSegment,
             type="compression_type",
+        ),
+    ),
+    ScalingPolicy=OneOf(
+        MultiStringParser(
+            snowflake_dialect.sets("warehouse_scaling_policies"),
+            KeywordSegment,
+            type="scaling_policy",
+        ),
+        MultiStringParser(
+            [
+                f"'{scaling_policy}'"
+                for scaling_policy in snowflake_dialect.sets(
+                    "warehouse_scaling_policies"
+                )
+            ],
+            KeywordSegment,
+            type="scaling_policy",
         ),
     ),
     ValidationModeOptionSegment=RegexParser(
@@ -1950,7 +2000,7 @@ class AlterWarehouseStatementSegment(BaseSegment):
         Sequence("IF", "EXISTS", optional=True),
         OneOf(
             Sequence(
-                Ref("NakedIdentifierSegment", optional=True),
+                Ref("ObjectReferenceSegment", optional=True),
                 OneOf(
                     "SUSPEND",
                     Sequence(
@@ -1960,7 +2010,7 @@ class AlterWarehouseStatementSegment(BaseSegment):
                 ),
             ),
             Sequence(
-                Ref("NakedIdentifierSegment", optional=True),
+                Ref("ObjectReferenceSegment", optional=True),
                 Sequence(
                     "ABORT",
                     "ALL",
@@ -1968,13 +2018,13 @@ class AlterWarehouseStatementSegment(BaseSegment):
                 ),
             ),
             Sequence(
-                Ref("NakedIdentifierSegment"),
+                Ref("ObjectReferenceSegment"),
                 "RENAME",
                 "TO",
-                Ref("NakedIdentifierSegment"),
+                Ref("ObjectReferenceSegment"),
             ),
             Sequence(
-                Ref("NakedIdentifierSegment", optional=True),
+                Ref("ObjectReferenceSegment", optional=True),
                 "SET",
                 OneOf(
                     AnyNumberOf(
@@ -1986,7 +2036,7 @@ class AlterWarehouseStatementSegment(BaseSegment):
                 ),
             ),
             Sequence(
-                Ref("NakedIdentifierSegment"),
+                Ref("ObjectReferenceSegment"),
                 "UNSET",
                 OneOf(
                     Delimited(Ref("NakedIdentifierSegment")),
@@ -2996,7 +3046,7 @@ class WarehouseObjectPropertiesSegment(BaseSegment):
         Sequence(
             "WAREHOUSE_TYPE",
             Ref("EqualsSegment"),
-            "STANDARD",
+            Ref("WarehouseType"),
         ),
         Sequence(
             "WAREHOUSE_SIZE",
@@ -3021,10 +3071,7 @@ class WarehouseObjectPropertiesSegment(BaseSegment):
         Sequence(
             "SCALING_POLICY",
             Ref("EqualsSegment"),
-            OneOf(
-                "STANDARD",
-                "ECONOMY",
-            ),
+            Ref("ScalingPolicy"),
         ),
         Sequence(
             "AUTO_SUSPEND",

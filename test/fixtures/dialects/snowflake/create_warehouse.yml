@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dd89532d265e4eb040d5a3d7556e1b6a400f53621522df236934489c30dd6db2
+_hash: 3194a56a124b29b4e8ccc62a397597b01bbcb39dd0523445316a2e3a89f7a4b8
 file:
 - statement:
     create_statement:
@@ -70,7 +70,7 @@ file:
       - keyword: warehouse_type
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: standard
+      - warehouse_size: standard
 - statement_terminator: ;
 - statement:
     create_statement:
@@ -79,10 +79,18 @@ file:
     - object_reference:
         naked_identifier: my_wh
     - warehouse_object_properties:
-        keyword: warehouse_size
-        comparison_operator:
+      - keyword: WAREHOUSE_TYPE
+      - comparison_operator:
           raw_comparison_operator: '='
-        warehouse_size: "'medium'"
+      - warehouse_size: "'SNOWPARK-OPTIMIZED'"
+      - keyword: warehouse_size
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - warehouse_size: "'medium'"
+      - keyword: SCALING_POLICY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - scaling_policy: ECONOMY
     - comment_equals_clause:
         keyword: comment
         comparison_operator:
