@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: efcfc1f343c64961c26a9508b9f40df95fff09b801120591eea419744e5799f8
+_hash: 13246d31af9480a27ad1c960ff9d706a7f4f220c84885c7a0d25f719765d6472
 file:
 - statement:
     create_statement:
@@ -87,14 +87,6 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - integer_literal: '100'
-    - keyword: start_timestamp
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - keyword: immediately
-    - keyword: end_timestamp
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - timestamp_literal: "'2038-01-19 03:14:07'"
     - keyword: NOTIFY_USERS
     - comparison_operator:
         raw_comparison_operator: '='
@@ -109,6 +101,14 @@ file:
       - object_reference:
           quoted_identifier: '"ashlee"'
       - end_bracket: )
+    - keyword: start_timestamp
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: immediately
+    - keyword: end_timestamp
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - timestamp_literal: "'2038-01-19 03:14:07'"
 - statement_terminator: ;
 - statement:
     create_resource_monitor_statement:

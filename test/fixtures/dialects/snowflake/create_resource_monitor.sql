@@ -9,9 +9,9 @@ create or replace resource monitor limiter with start_timestamp= '2038-01-19 03:
 
 create or replace resource monitor limiter with
 credit_quota = 100
+NOTIFY_USERS = (joe, "sara", "ashlee")
 start_timestamp = immediately
 end_timestamp = '2038-01-19 03:14:07'
-NOTIFY_USERS = (joe, "sara", "ashlee")
 ;
 
 create or replace resource monitor limiter with credit_quota=5000
