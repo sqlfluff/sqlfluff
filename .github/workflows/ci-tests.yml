@@ -200,7 +200,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -r requirements.txt -r requirements_dev.txt
-        python setup.py develop
+        pip install -e .
     - name: Generate the YAML files
       run: |
         python test/generate_parse_fixture_yml.py

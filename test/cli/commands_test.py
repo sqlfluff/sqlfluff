@@ -958,7 +958,7 @@ def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmpd
     assert len(sql) == len(fixed)
     tmp_path = pathlib.Path(str(tmpdir))
     for idx, this_sql in enumerate(sql):
-        filepath = tmp_path / f"testing{idx+1}.sql"
+        filepath = tmp_path / f"testing{idx + 1}.sql"
         filepath.write_text(textwrap.dedent(this_sql))
     with tmpdir.as_cwd():
         with pytest.raises(SystemExit) as e:
