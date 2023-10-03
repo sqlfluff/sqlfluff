@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d85f005dd28c417d93932e5279ff7ee2ce07c55271d36b8747fa0efecb8fc2f5
+_hash: a78aab88572e4946b8b3c63814c0754aa063e66d94dc1dffc3ea9dcdf7659559
 file:
   batch:
   - statement:
@@ -253,5 +253,48 @@ file:
             - numeric_literal: '1'
             - keyword: YEARS
             - end_bracket: )
+          - end_bracket: )
+      - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST]'
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            quoted_identifier: '[id]'
+            data_type:
+              data_type_identifier: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - on_partition_or_filegroup_statement:
+          filegroup_clause:
+            keyword: 'ON'
+            filegroup_name:
+              quoted_identifier: '[PRIMARY]'
+      - table_option_statement:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: SYSTEM_VERSIONING
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: 'ON'
+          - bracketed:
+              start_bracket: (
+              keyword: HISTORY_TABLE
+              comparison_operator:
+                raw_comparison_operator: '='
+              table_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[TEST_HISTORY]'
+              end_bracket: )
           - end_bracket: )
       - statement_terminator: ;
