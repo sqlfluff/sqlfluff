@@ -3347,7 +3347,7 @@ class AlterRoleStatementSegment(BaseSegment):
 
 
 class CreateSequenceStatementSegment(BaseSegment):
-    """An `CREATE SEQUENCE` statement.
+    """A `CREATE SEQUENCE` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/alter-sequence
     """
