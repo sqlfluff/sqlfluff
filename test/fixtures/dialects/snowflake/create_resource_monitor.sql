@@ -20,5 +20,3 @@ create or replace resource monitor limiter with credit_quota=5000
            on 100 percent do suspend
            on 110 percent do suspend_immediate
 ;
-
-
