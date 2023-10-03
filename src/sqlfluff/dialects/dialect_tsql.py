@@ -1403,7 +1403,7 @@ class TableOptionSegment(BaseSegment):
                                                 ),
                                                 optional=True,
                                             ),
-                                        )
+                                        ),
                                     ),
                                     Sequence(
                                         Ref("CommaSegment"),
