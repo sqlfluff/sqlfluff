@@ -396,6 +396,12 @@ snowflake_dialect.add(
         LiteralSegment,
         type="integer_literal",
     ),
+    TimestampSegment=RegexParser(
+        # A quoted integer that can be passed as an argument to Snowflake functions.
+        "'[0-9]{1,4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}'",
+        LiteralSegment,
+        type="timestamp_literal",
+    ),
     SystemFunctionName=RegexParser(
         r"SYSTEM\$([A-Za-z0-9_]*)",
         CodeSegment,
@@ -1062,6 +1068,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterRoleStatementSegment"),
             Ref("AlterStorageIntegrationSegment"),
             Ref("ExecuteTaskClauseSegment"),
+            Ref("CreateResourceMonitorStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -5777,6 +5784,70 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
             "COMMENT",
             Ref("EqualsSegment"),
             Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    )
+
+
+class CreateResourceMonitorStatementSegment(BaseSegment):
+    """A `CREATE RESOURCE MONITOR` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-resource-monitor
+    """
+
+    type = "create_resource_monitor_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence(
+            "OR",
+            "REPLACE",
+            optional=True,
+        ),
+        Sequence("RESOURCE", "MONITOR"),
+        Ref("ObjectReferenceSegment"),
+        "WITH",
+        Sequence(
+            "CREDIT_QUOTA", Ref("EqualsSegment"), Ref("IntegerSegment"), optional=True
+        ),
+        Sequence(
+            "FREQUENCY",
+            Ref("EqualsSegment"),
+            OneOf("MONTHLY", "DAILY", "WEEKLY", "YEARLY", "NEVER"),
+            optional=True,
+        ),
+        Sequence(
+            "START_TIMESTAMP",
+            Ref("EqualsSegment"),
+            OneOf(Ref("TimestampSegment"), "IMMEDIATELY"),
+            optional=True,
+        ),
+        Sequence(
+            "END_TIMESTAMP",
+            Ref("EqualsSegment"),
+            Ref("TimestampSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "NOTIFY_USERS",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "TRIGGERS",
+            AnyNumberOf(
+                Sequence(
+                    "ON",
+                    Ref("IntegerSegment"),
+                    "PERCENT",
+                    "DO",
+                    OneOf("SUSPEND", "SUSPEND_IMMEDIATE", "NOTIFY"),
+                ),
+            ),
             optional=True,
         ),
     )
