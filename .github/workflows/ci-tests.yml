@@ -39,21 +39,21 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
+        python-version: '3.12'
     - name: Install dependencies
       run: pip install tox
     - name: Run the tests
       run: tox -e ${{ matrix.jobs }}
 
-  # Test with coverage tracking on most recent python (py11).
+  # Test with coverage tracking on most recent python (py12).
   python-version-tests-cov:
-    name: Python 3.11 Tests
+    name: Python 3.12 Tests
     permissions:
       contents: read
       pull-requests: write
     uses: ./.github/workflows/ci-test-python.yml
     with:
-      python-version: "3.11"
+      python-version: "3.12"
       coverage: true
     secrets:
       gh_token: ${{ secrets.github_token }}
@@ -64,7 +64,7 @@ jobs:
     name: Python ${{ matrix.python-version }} Tests
     strategy:
       matrix:
-        python-version: [ '3.7', '3.8', '3.9', '3.10' ]
+        python-version: [ '3.7', '3.8', '3.9', '3.10', '3.11' ]
     permissions:
       contents: read
       pull-requests: write
@@ -114,13 +114,13 @@ jobs:
     name: Dialect parsing
     strategy:
       matrix:
-        python-version: [ '3.11' ]
+        python-version: [ '3.12' ]
     permissions:
       contents: read
       pull-requests: write
     uses: ./.github/workflows/ci-test-python.yml
     with:
-      python-version: "3.11"
+      python-version: "3.12"
       marks: "parse_suite"
       # We test coverage here for some parsing routines.
       coverage: true
@@ -137,13 +137,13 @@ jobs:
     name: Dialect fixing
     strategy:
       matrix:
-        python-version: [ '3.11' ]
+        python-version: [ '3.12' ]
     permissions:
       contents: read
       pull-requests: write
     uses: ./.github/workflows/ci-test-python.yml
     with:
-      python-version: "3.11"
+      python-version: "3.12"
       marks: "fix_suite"
     secrets:
       gh_token: ${{ secrets.github_token }}
@@ -157,13 +157,13 @@ jobs:
     name: Rule yaml test cases
     strategy:
       matrix:
-        python-version: [ '3.11' ]
+        python-version: [ '3.12' ]
     permissions:
       contents: read
       pull-requests: write
     uses: ./.github/workflows/ci-test-python.yml
     with:
-      python-version: "3.11"
+      python-version: "3.12"
       marks: "rules_suite"
       coverage: true
     secrets:
@@ -180,7 +180,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
+        python-version: '3.12'
     - name: Install dependencies
       run: pip install tox
     - name: Run the tests
@@ -193,10 +193,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python 3.11
+    - name: Set up Python 3.12
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
+        python-version: '3.12'
     - name: Install dependencies
       run: |
         pip install -r requirements.txt -r requirements_dev.txt
@@ -222,7 +222,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
+        python-version: '3.12'
     - name: Install dependencies
       run: |
         pip install -e .
@@ -311,7 +311,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
+        python-version: '3.12'
     - uses: actions/checkout@v3
     - name: Install dependencies
       run: |
@@ -351,7 +351,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: "3.12"
 
       - run: python -m pip install --upgrade coverage[toml]
 
