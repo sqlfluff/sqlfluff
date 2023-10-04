@@ -1394,7 +1394,10 @@ class TableOptionSegment(BaseSegment):
                                         OneOf(
                                             "INFINITE",
                                             Sequence(
-                                                Ref("NumericLiteralSegment", optional=True),
+                                                Ref(
+                                                    "NumericLiteralSegment",
+                                                    optional=True,
+                                                ),
                                                 OneOf(
                                                     "DAYS",
                                                     "WEEKS",
