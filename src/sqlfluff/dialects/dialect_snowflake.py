@@ -1061,6 +1061,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateDatabaseFromShareStatementSegment"),
             Ref("AlterRoleStatementSegment"),
             Ref("AlterStorageIntegrationSegment"),
+            Ref("ExecuteImmediateClauseSegment"),
             Ref("ExecuteTaskClauseSegment"),
         ],
         remove=[
@@ -5998,6 +5999,44 @@ class AlterTaskUnsetClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "UNSET",
         Delimited(Ref("ParameterNameSegment")),
+    )
+
+
+class ExecuteImmediateClauseSegment(BaseSegment):
+    """Snowflake's EXECUTE IMMEDIATE clause.
+
+    ```
+    EXECUTE IMMEDIATE '<string_literal>'
+        [ USING ( <bind_variable> [ , <bind_variable> ... ] ) ]
+
+    EXECUTE IMMEDIATE <variable>
+        [ USING ( <bind_variable> [ , <bind_variable> ... ] ) ]
+
+    EXECUTE IMMEDIATE $<session_variable>
+        [ USING ( <bind_variable> [ , <bind_variable> ... ] ) ]
+    ```
+
+    https://docs.snowflake.com/en/sql-reference/sql/execute-immediate
+    """
+
+    type = "execute_immediate_clause"
+
+    match_grammar = Sequence(
+        "EXECUTE",
+        "IMMEDIATE",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("ReferencedVariableNameSegment"),
+            Sequence(
+                Ref("ColonSegment"),
+                Ref("LocalVariableNameSegment"),
+            ),
+        ),
+        Sequence(
+            "USING",
+            Bracketed(Delimited(Ref("LocalVariableNameSegment"))),
+            optional=True,
+        ),
     )
 
 
