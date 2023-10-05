@@ -92,7 +92,7 @@ jobs:
     secrets:
       gh_token: ${{ secrets.github_token }}
 
-  dialects:
+  dialect-tests:
     name: Dialect ${{ matrix.marks }}
     strategy:
       matrix:
@@ -277,7 +277,7 @@ jobs:
 
   coveralls_finish:
     name: Finalise coveralls.
-    needs: [python-version-tests, dbt-tests, python-windows-tests, dialects_parse, rules]
+    needs: [python-version-tests, dbt-tests, python-windows-tests, dialect-tests, rules]
     runs-on: ubuntu-latest
     steps:
     - name: Coveralls Finished
@@ -289,7 +289,7 @@ jobs:
   coverage_check:
     name: Combine & check 100% coverage.
     runs-on: ubuntu-latest
-    needs: [python-version-tests, dbt-tests, python-windows-tests, dialects_parse, rules]
+    needs: [python-version-tests, dbt-tests, python-windows-tests, dialect-tests, rules]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
