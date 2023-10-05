@@ -51,10 +51,10 @@ jobs:
     strategy:
       matrix:
         python-version: [ "3.7", "3.8", "3.9", "3.10", "3.11", "3.12" ]
-        # Default to est without coverage tracking on older python versions.
-        # This saves time, as testing without coverage tracking is faster.
-        coverage: [ false ]
         include:
+          # Default to test without coverage tracking on older python versions.
+          # This saves time, as testing without coverage tracking is faster.
+          - coverage: false
           # Override coverage to be true for most recent python version.
           - python-version: "3.12"
             coverage: true
@@ -72,10 +72,10 @@ jobs:
     name: dbt Plugin Tests
     strategy:
       matrix:
-        # Default to python 3.11 for dbt tests. dbt doesn't support py 3.12 yet.
-        python-version: [ "3.11"]
         dbt-version: [ dbt110, dbt120, dbt130, dbt140, dbt150, dbt160 ]
         include:
+          # Default to python 3.11 for dbt tests. dbt doesn't support py 3.12 yet.
+          - python-version: "3.11"
           # For the two oldest dbt versions, override to python 3.9.
           - dbt-version: dbt110
             python-version: "3.9"
@@ -92,58 +92,42 @@ jobs:
     secrets:
       gh_token: ${{ secrets.github_token }}
 
-  # This runs the bulk of the dialect _parsing_ tests.
-  #
-  # It's run as a separate job as takes longer than the CI jobs and allows
-  # them to be rerun separately if GitHub Actions or Coverage is experiencing
-  # issues.
-  dialects_parse:
-    name: Dialect parsing
+  dialects:
+    name: Dialect ${{ matrix.marks }}
+    strategy:
+      matrix:
+        include:
+          # This runs the bulk of the dialect _parsing_ tests.
+          #
+          # It's run as a separate job as takes longer than the CI jobs and allows
+          # them to be rerun separately if GitHub Actions or Coverage is experiencing
+          # issues.
+          - marks: "parse_suite"
+            # We test coverage here for some parsing routines.
+            coverage: true
+          # This lints all our dialect fixtures to check rules can handle a variety
+          # of SQL and don't error out badly.
+          #
+          # It's run as a separate job as takes longer than the CI jobs and allows
+          # them to be rerun separately if GitHub Actions or Coverage is experiencing
+          # issues.
+          - marks: "fix_suite"
+            coverage: false
+          # This lints all our rules fixtures to check rules.
+          #
+          # It's run as a separate job as takes longer than the CI jobs and allows
+          # them to be rerun separately if GitHub Actions or Coverage is experiencing
+          # issues.
+          - marks: "rules_suite"
+            coverage: true
     permissions:
       contents: read
       pull-requests: write
     uses: ./.github/workflows/ci-test-python.yml
     with:
       python-version: "3.12"
-      marks: "parse_suite"
-      # We test coverage here for some parsing routines.
-      coverage: true
-    secrets:
-      gh_token: ${{ secrets.github_token }}
-
-  # This lints all our dialect fixtures to check rules can handle a variety
-  # of SQL and don't error out badly.
-  #
-  # It's run as a separate job as takes longer than the CI jobs and allows
-  # them to be rerun separately if GitHub Actions or Coverage is experiencing
-  # issues.
-  dialects_fix:
-    name: Dialect fixing
-    permissions:
-      contents: read
-      pull-requests: write
-    uses: ./.github/workflows/ci-test-python.yml
-    with:
-      python-version: "3.12"
-      marks: "fix_suite"
-    secrets:
-      gh_token: ${{ secrets.github_token }}
-
-  # This lints all our rules fixtures to check rules.
-  #
-  # It's run as a separate job as takes longer than the CI jobs and allows
-  # them to be rerun separately if GitHub Actions or Coverage is experiencing
-  # issues.
-  rules:
-    name: Rule yaml test cases
-    permissions:
-      contents: read
-      pull-requests: write
-    uses: ./.github/workflows/ci-test-python.yml
-    with:
-      python-version: "3.12"
-      marks: "rules_suite"
-      coverage: true
+      marks: ${{ matrix.marks }}
+      coverage: ${{ matrix.coverage }}
     secrets:
       gh_token: ${{ secrets.github_token }}
 
