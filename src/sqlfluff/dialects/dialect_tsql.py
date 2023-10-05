@@ -1381,20 +1381,42 @@ class TableOptionSegment(BaseSegment):
                         "SYSTEM_VERSIONING",
                         Ref("EqualsSegment"),
                         "ON",
-                        Sequence(
-                            Bracketed(
-                                "HISTORY_TABLE",
-                                Ref("EqualsSegment"),
-                                Ref("TableReferenceSegment"),
-                                Sequence(
-                                    Ref("CommaSegment"),
-                                    "DATA_CONSISTENCY_CHECK",
-                                    Ref("EqualsSegment"),
-                                    OneOf("ON", "OFF"),
-                                    optional=True,
+                        Bracketed(
+                            Delimited(
+                                AnyNumberOf(
+                                    Sequence(
+                                        "HISTORY_TABLE",
+                                        Ref("EqualsSegment"),
+                                        Ref("TableReferenceSegment"),
+                                    ),
+                                    Sequence(
+                                        "HISTORY_RETENTION_PERIOD",
+                                        Ref("EqualsSegment"),
+                                        OneOf(
+                                            "INFINITE",
+                                            Sequence(
+                                                Ref(
+                                                    "NumericLiteralSegment",
+                                                    optional=True,
+                                                ),
+                                                OneOf(
+                                                    "DAYS",
+                                                    "WEEKS",
+                                                    "MONTHS",
+                                                    "YEARS",
+                                                ),
+                                                optional=True,
+                                            ),
+                                        ),
+                                    ),
+                                    Sequence(
+                                        Ref("CommaSegment"),
+                                        "DATA_CONSISTENCY_CHECK",
+                                        Ref("EqualsSegment"),
+                                        OneOf("ON", "OFF"),
+                                    ),
                                 ),
                             ),
-                            optional=True,
                         ),
                     ),
                     Sequence(
