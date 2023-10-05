@@ -47,7 +47,7 @@ jobs:
 
   # Test with coverage tracking on most recent python (py12).
   python-version-tests-cov:
-    name: Python 3.12 Tests
+    name: Python Tests
     permissions:
       contents: read
       pull-requests: write
@@ -61,7 +61,7 @@ jobs:
   # Test without coverage tracking on older python versions.
   # This saves time, as testing without coverage tracking is faster.
   python-version-tests-nocov:
-    name: Python ${{ matrix.python-version }} Tests
+    name: Python Tests
     strategy:
       matrix:
         python-version: [ '3.7', '3.8', '3.9', '3.10', '3.11' ]
@@ -75,7 +75,7 @@ jobs:
       gh_token: ${{ secrets.github_token }}
 
   dbt-tests-cov:
-    name: dbt ${{ matrix.dbt-version }} Plugin Tests
+    name: dbt Plugin Tests
     strategy:
       matrix:
         dbt-version: [ "dbt110", "dbt130", "dbt140", "dbt150", "dbt160" ]
@@ -84,14 +84,14 @@ jobs:
       pull-requests: write
     uses: ./.github/workflows/ci-test-dbt.yml
     with:
-      python-version: "3.10"
+      python-version: "3.12"
       dbt-version: "${{ matrix.dbt-version }}"
       coverage: true
     secrets:
       gh_token: ${{ secrets.github_token }}
 
   dbt-tests-nocov:
-    name: dbt ${{ matrix.dbt-version }} Plugin Tests
+    name: dbt Plugin Tests
     strategy:
       matrix:
         dbt-version: [ "dbt120" ]
@@ -100,6 +100,7 @@ jobs:
       pull-requests: write
     uses: ./.github/workflows/ci-test-dbt.yml
     with:
+      # For dbt120, intentionally use 3.9 rather than the newer versions.
       python-version: "3.9"
       dbt-version: "${{ matrix.dbt-version }}"
     secrets:
@@ -112,9 +113,6 @@ jobs:
   # issues.
   dialects_parse:
     name: Dialect parsing
-    strategy:
-      matrix:
-        python-version: [ '3.12' ]
     permissions:
       contents: read
       pull-requests: write
@@ -135,9 +133,6 @@ jobs:
   # issues.
   dialects_fix:
     name: Dialect fixing
-    strategy:
-      matrix:
-        python-version: [ '3.12' ]
     permissions:
       contents: read
       pull-requests: write
@@ -155,9 +150,6 @@ jobs:
   # issues.
   rules:
     name: Rule yaml test cases
-    strategy:
-      matrix:
-        python-version: [ '3.12' ]
     permissions:
       contents: read
       pull-requests: write
@@ -193,7 +185,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python 3.12
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.12'
@@ -237,7 +229,7 @@ jobs:
 
   python-windows-tests:
     runs-on: windows-latest
-    name: Python 3.10 Windows tests
+    name: Python 3.12 Windows tests
     steps:
     - name: Set git to use LF
       run: |
@@ -247,7 +239,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: "3.12"
     - name: List Env
       shell: bash
       run: |
@@ -272,7 +264,7 @@ jobs:
 
   python-windows-dbt-tests:
     runs-on: windows-latest
-    name: DBT Plugin Python 3.10 Windows tests
+    name: dbt Plugin Python 3.12 Windows tests
     steps:
     - name: Start PostgreSQL on Windows
       run: |
@@ -290,7 +282,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: "3.12"
     - name: Install dependencies
       shell: bash
       run: pip install tox
@@ -311,7 +303,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.12'
+        python-version: "3.12"
     - uses: actions/checkout@v3
     - name: Install dependencies
       run: |
