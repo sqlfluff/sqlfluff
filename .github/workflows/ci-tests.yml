@@ -54,10 +54,10 @@ jobs:
         # Default to est without coverage tracking on older python versions.
         # This saves time, as testing without coverage tracking is faster.
         coverage: [ false ]
-      include:
-        # Override coverage to be true for most recent python version.
-        - python-version: "3.12"
-          coverage: true
+        include:
+          # Override coverage to be true for most recent python version.
+          - python-version: "3.12"
+            coverage: true
     permissions:
       contents: read
       pull-requests: write
@@ -75,12 +75,12 @@ jobs:
         # Default to python 3.11 for dbt tests. dbt doesn't support py 3.12 yet.
         python-version: [ "3.11 "]
         dbt-version: [ dbt110, dbt120, dbt130, dbt140, dbt150, dbt160 ]
-      include:
-        # For the two oldest dbt versions, override to python 3.9.
-        - dbt-version: dbt110
-          python-version: "3.9"
-        - dbt-version: dbt120
-          python-version: "3.9"
+        include:
+          # For the two oldest dbt versions, override to python 3.9.
+          - dbt-version: dbt110
+            python-version: "3.9"
+          - dbt-version: dbt120
+            python-version: "3.9"
     permissions:
       contents: read
       pull-requests: write
