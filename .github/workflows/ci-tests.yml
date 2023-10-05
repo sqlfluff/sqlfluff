@@ -63,7 +63,7 @@ jobs:
       pull-requests: write
     uses: ./.github/workflows/ci-test-python.yml
     with:
-      python-version: "3.12"
+      python-version: ${{ matrix.python-version }}
       coverage: ${{ matrix.coverage }}
     secrets:
       gh_token: ${{ secrets.github_token }}
@@ -73,7 +73,7 @@ jobs:
     strategy:
       matrix:
         # Default to python 3.11 for dbt tests. dbt doesn't support py 3.12 yet.
-        python-version: [ "3.11 "]
+        python-version: [ "3.11"]
         dbt-version: [ dbt110, dbt120, dbt130, dbt140, dbt150, dbt160 ]
         include:
           # For the two oldest dbt versions, override to python 3.9.
@@ -86,8 +86,8 @@ jobs:
       pull-requests: write
     uses: ./.github/workflows/ci-test-dbt.yml
     with:
-      python-version: "${{ matrix.python-version }}"
-      dbt-version: "${{ matrix.dbt-version }}"
+      python-version: ${{ matrix.python-version }}
+      dbt-version: ${{ matrix.dbt-version }}
       coverage: true
     secrets:
       gh_token: ${{ secrets.github_token }}
