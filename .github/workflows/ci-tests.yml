@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        jobs: [ 'linting', 'doclinting', 'docbuild', 'yamllint' ]
+        jobs: [ 'linting', 'doclinting', 'docbuild', 'yamllint', 'mypy', 'doctests' ]
     name: ${{ matrix.jobs }} tests
     steps:
     - uses: actions/checkout@v3
@@ -46,64 +46,49 @@ jobs:
       run: tox -e ${{ matrix.jobs }}
 
   # Test with coverage tracking on most recent python (py12).
-  python-version-tests-cov:
+  python-version-tests:
     name: Python Tests
+    strategy:
+      matrix:
+        python-version: [ "3.7", "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        # Default to est without coverage tracking on older python versions.
+        # This saves time, as testing without coverage tracking is faster.
+        coverage: [ false ]
+      include:
+        # Override coverage to be true for most recent python version.
+        - python-version: "3.12"
+          coverage: true
     permissions:
       contents: read
       pull-requests: write
     uses: ./.github/workflows/ci-test-python.yml
     with:
       python-version: "3.12"
-      coverage: true
+      coverage: ${{ matrix.coverage }}
     secrets:
       gh_token: ${{ secrets.github_token }}
 
-  # Test without coverage tracking on older python versions.
-  # This saves time, as testing without coverage tracking is faster.
-  python-version-tests-nocov:
-    name: Python Tests
-    strategy:
-      matrix:
-        python-version: [ '3.7', '3.8', '3.9', '3.10', '3.11' ]
-    permissions:
-      contents: read
-      pull-requests: write
-    uses: ./.github/workflows/ci-test-python.yml
-    with:
-      python-version: ${{ matrix.python-version }}
-    secrets:
-      gh_token: ${{ secrets.github_token }}
-
-  dbt-tests-cov:
+  dbt-tests:
     name: dbt Plugin Tests
     strategy:
       matrix:
-        dbt-version: [ "dbt110", "dbt130", "dbt140", "dbt150", "dbt160" ]
+        # Default to python 3.11 for dbt tests. dbt doesn't support py 3.12 yet.
+        python-version: [ "3.11 "]
+        dbt-version: [ dbt110, dbt120, dbt130, dbt140, dbt150, dbt160 ]
+      include:
+        # For the two oldest dbt versions, override to python 3.9.
+        - dbt-version: dbt110
+          python-version: "3.9"
+        - dbt-version: dbt120
+          python-version: "3.9"
     permissions:
       contents: read
       pull-requests: write
     uses: ./.github/workflows/ci-test-dbt.yml
     with:
-      # dbt doesn't support py 3.12 yet.
-      python-version: "3.11"
+      python-version: "${{ matrix.python-version }}"
       dbt-version: "${{ matrix.dbt-version }}"
       coverage: true
-    secrets:
-      gh_token: ${{ secrets.github_token }}
-
-  dbt-tests-nocov:
-    name: dbt Plugin Tests
-    strategy:
-      matrix:
-        dbt-version: [ "dbt120" ]
-    permissions:
-      contents: read
-      pull-requests: write
-    uses: ./.github/workflows/ci-test-dbt.yml
-    with:
-      # For dbt120, intentionally use 3.9 rather than the newer versions.
-      python-version: "3.9"
-      dbt-version: "${{ matrix.dbt-version }}"
     secrets:
       gh_token: ${{ secrets.github_token }}
 
@@ -161,26 +146,6 @@ jobs:
       coverage: true
     secrets:
       gh_token: ${{ secrets.github_token }}
-
-  other-tests:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        jobs: [ 'bench', 'mypy', 'doctests' ]
-    name: ${{ matrix.jobs }} tests
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.12'
-    - name: Install dependencies
-      run: pip install tox
-    - name: Run the tests
-      env:
-        SQLFLUFF_BENCHMARK_API_KEY: ${{ secrets.SQLFLUFF_BENCHMARK_API_KEY }}
-      run: |
-        tox -e ${{ matrix.jobs }}
 
   ymlchecks:
     runs-on: ubuntu-latest
@@ -328,7 +293,7 @@ jobs:
 
   coveralls_finish:
     name: Finalise coveralls.
-    needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests, dialects_parse, rules]
+    needs: [python-version-tests, dbt-tests, python-windows-tests, dialects_parse, rules]
     runs-on: ubuntu-latest
     steps:
     - name: Coveralls Finished
@@ -340,7 +305,7 @@ jobs:
   coverage_check:
     name: Combine & check 100% coverage.
     runs-on: ubuntu-latest
-    needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests, dialects_parse, rules]
+    needs: [python-version-tests, dbt-tests, python-windows-tests, dialects_parse, rules]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
