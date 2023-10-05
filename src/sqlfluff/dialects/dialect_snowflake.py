@@ -2028,6 +2028,7 @@ class AlterWarehouseStatementSegment(BaseSegment):
                 "SET",
                 OneOf(
                     AnyNumberOf(
+                        Ref("CommaSegment", optional=True),
                         Ref("WarehouseObjectPropertiesSegment"),
                         Ref("CommentEqualsClauseSegment"),
                         Ref("WarehouseObjectParamsSegment"),
