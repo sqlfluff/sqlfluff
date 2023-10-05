@@ -84,7 +84,8 @@ jobs:
       pull-requests: write
     uses: ./.github/workflows/ci-test-dbt.yml
     with:
-      python-version: "3.12"
+      # dbt doesn't support py 3.12 yet.
+      python-version: "3.11"
       dbt-version: "${{ matrix.dbt-version }}"
       coverage: true
     secrets:
@@ -264,7 +265,7 @@ jobs:
 
   python-windows-dbt-tests:
     runs-on: windows-latest
-    name: dbt Plugin Python 3.12 Windows tests
+    name: dbt Plugin Python 3.11 Windows tests
     steps:
     - name: Start PostgreSQL on Windows
       run: |
@@ -282,7 +283,8 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: "3.12"
+        # dbt doesn't support py 3.12 yet.
+        python-version: "3.11"
     - name: Install dependencies
       shell: bash
       run: pip install tox
