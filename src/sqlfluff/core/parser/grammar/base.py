@@ -404,9 +404,11 @@ class BaseGrammar(Matchable):
         return MatchResult.from_unmatched(segments), None
 
     def __str__(self) -> str:  # pragma: no cover TODO?
+        """Return a string representation of the object."""
         return repr(self)
 
     def __repr__(self) -> str:
+        """Return a string representation suitable for debugging."""
         return "<{}: [{}]>".format(
             self.__class__.__name__,
             curtail_string(
@@ -583,11 +585,13 @@ class Ref(BaseGrammar):
             raise ReferenceError("No Dialect has been provided to Ref grammar!")
 
     def __repr__(self) -> str:
+        """Return a string representation of the 'Ref' object."""
         return "<Ref: {}{}>".format(
             repr(self._ref), " [opt]" if self.is_optional() else ""
         )
 
     @match_wrapper(v_level=4)  # Log less for Ref
+
     def match(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
     ) -> "MatchResult":
@@ -596,6 +600,13 @@ class Ref(BaseGrammar):
         Matching can be done from either the raw or the segments.
         This raw function can be overridden, or a grammar defined
         on the underlying class.
+
+        Args:
+            segments (Tuple[BaseSegment, ...]): The list of segments to match against.
+            parse_context (ParseContext): The parse context.
+
+        Returns:
+            MatchResult: The result of the matching process.
         """
         elem = self._get_elem(dialect=parse_context.dialect)
 
@@ -630,6 +641,13 @@ class Ref(BaseGrammar):
 
         Ref.keyword('select') == Ref('SelectKeywordSegment')
 
+        Args:
+            keyword (str): The name of the keyword.
+            optional (bool, optional): Whether the keyword is optional or not. Defaults to
+                False.
+
+        Returns:
+            BaseGrammar: An instance of the BaseGrammar class.
         """
         name = keyword.capitalize() + "KeywordSegment"
         return cls(name, optional=optional)

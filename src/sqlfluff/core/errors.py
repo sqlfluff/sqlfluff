@@ -118,6 +118,13 @@ class SQLBaseError(ValueError):
 
         Designed for rule codes so works with L001, LL0X but also TMP or PRS
         for templating and parsing errors.
+
+        Args:
+            warning_iterable (List[str]): A list of strings representing the warning codes
+                to check.
+
+        Returns:
+            None
         """
         if self.rule_code() in warning_iterable:
             self.warning = True

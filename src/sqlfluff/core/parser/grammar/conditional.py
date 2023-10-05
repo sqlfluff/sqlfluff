@@ -47,6 +47,18 @@ class Conditional(BaseGrammar):
         config_type: str = "indentation",
         **rules: Union[str, bool]
     ):
+        """
+        Initialize a new instance of the class.
+
+        This method initializes an instance of the class with the provided
+        arguments.
+
+        Args:
+            meta (Type[Indent]): The meta argument.
+            config_type (str, optional): The config_type argument. Defaults to
+                "indentation".
+            **rules (Union[str, bool]): The rules argument.
+        """
         assert issubclass(
             meta, Indent
         ), "Conditional is only designed to work with Indent/Dedent segments."

@@ -127,6 +127,19 @@ class TypedParser(BaseParser):
         optional: bool = False,
         trim_chars: Optional[Tuple[str, ...]] = None,
     ) -> None:
+        """
+        Initialize a new instance of the class.
+
+        Args:
+            template (str): The template type.
+            raw_class (Type[RawSegment]): The raw segment class.
+            type (Optional[str]): The type of the instance.
+            optional (bool): Whether the instance is optional.
+            trim_chars (Optional[Tuple[str, ...]]): The characters to trim.
+
+        Returns:
+            None
+        """
         # NB: the template in this case is the _target_ type.
         # The type kwarg is the eventual type.
         self.template = template
@@ -157,22 +170,37 @@ class TypedParser(BaseParser):
             self._instance_types += (template,)
 
     def __repr__(self) -> str:
+        """Return a string representation of the TypedParser object."""
         return f"<TypedParser: {self.template!r}>"
 
     def simple(
         self, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
     ) -> SimpleHintType:
-        """Does this matcher support a uppercase hash matching route?
+        """Check if the matcher supports uppercase hash matching route.
 
-        TypedParser segment doesn't support matching against raw strings,
-        but it does support it against types. We'll match against the
-        both the template _and_ the resulting type too, so that we
-        also support re-matching.
+        The TypedParser segment does not support matching against raw strings,
+        but it does support matching against types. Matching is done against both the
+        template and the resulting type, to support re-matching.
+
+        Args:
+            parse_context (ParseContext): The parse context.
+            crumbs (Optional[Tuple[str, ...]], optional): The crumbs.
+            Defaults to None.
+
+        Returns:
+            SimpleHintType: A set of target types.
         """
         return frozenset(), self._target_types
 
     def _is_first_match(self, segment: BaseSegment) -> bool:
-        """Return true if the type matches the target type."""
+        """Check if the type matches the target type.
+
+        Args:
+            segment (BaseSegment): The segment.
+
+        Returns:
+            bool: True if the type matches the target type, False otherwise.
+        """
         return segment.is_type(*self._target_types)
 
 

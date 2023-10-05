@@ -153,7 +153,11 @@ class RawSegment(BaseSegment):
         return [self]
 
     def raw_trimmed(self) -> str:
-        """Return a trimmed version of the raw content."""
+        """Return a trimmed version of the raw content.
+
+        Returns:
+            str: The trimmed version of the raw content.
+        """
         raw_buff = self.raw
         if self.trim_start:
             for seq in self.trim_start:
@@ -175,7 +179,17 @@ class RawSegment(BaseSegment):
     def stringify(
         self, ident: int = 0, tabsize: int = 4, code_only: bool = False
     ) -> str:
-        """Use indentation to render this segment and its children as a string."""
+        """Use indentation to render this segment and its children as a string.
+
+        Args:
+            ident (int, optional): The indentation level. Defaults to 0.
+            tabsize (int, optional): The size of each tab. Defaults to 4.
+            code_only (bool, optional): Whether to render only the code.
+            Defaults to False.
+
+        Returns:
+            str: The rendered string.
+        """
         preface = self._preface(ident=ident, tabsize=tabsize)
         return preface + "\n"
 
@@ -183,6 +197,9 @@ class RawSegment(BaseSegment):
         """Return any extra output required at the end when logging.
 
         NB Override this for specific subclasses if we want extra output.
+
+        Returns:
+            str: The extra output.
         """
         return f"{self.raw!r}"
 
@@ -191,12 +208,18 @@ class RawSegment(BaseSegment):
     ) -> "RawSegment":
         """Create a new segment, with exactly the same position but different content.
 
+        Args:
+            raw (Optional[str]): The new content for the segment.
+            source_fixes (Optional[List[SourceFix]]): A list of fixes to be applied to the
+                segment.
+
         Returns:
-            A copy of this object with new contents.
+            RawSegment: A copy of this object with new contents.
 
         Used mostly by fixes.
 
-        NOTE: This *doesn't* copy the uuid. The edited segment is a new segment.
+        NOTE: This *doesn't* copy the uuid. The edited segment is a new
+        segment.
 
         """
         return self.__class__(

@@ -53,6 +53,15 @@ def _trim_to_terminator(
 
         segments, tail = _trim_to_terminator(segments, tail, ...)
 
+    Args:
+        segments (Tuple[BaseSegment, ...]): The forward segments.
+        tail (Tuple[BaseSegment, ...]): The remaining segments after trimming.
+        terminators (SequenceType[Matchable]): The terminators to match against.
+        parse_context (ParseContext): The parse context.
+
+    Returns:
+        Tuple[Tuple[BaseSegment, ...], Tuple[BaseSegment, ...]]: The
+        trimmed segments and the remaining tail.
     """
     # In the greedy mode, we first look ahead to find a terminator
     # before matching any code.
@@ -97,6 +106,24 @@ def _trim_to_terminator(
 def _position_metas(
     metas: SequenceType[Indent], non_code: SequenceType[BaseSegment]
 ) -> Tuple[BaseSegment, ...]:
+    """
+    Rearrange the elements in 'metas' and 'non_code' based on the
+    indent value of the elements.
+
+    If all elements in 'metas' have a non-negative indent value, the
+    function returns a tuple containing all elements in 'metas' followed by all
+    elements in 'non_code'. Otherwise, the function returns a tuple containing all
+    elements in 'non_code' followed by all elements in 'metas'.
+
+    Args:
+        metas (SequenceType[Indent]): A sequence of elements representing metas.
+        non_code (SequenceType[BaseSegment]): A sequence of elements representing
+            non-code segments.
+
+    Returns:
+        Tuple[BaseSegment, ...]: A tuple containing rearranged elements
+        from 'metas' and 'non_code'.
+    """
     # First flush any metas along with the gap.
     # Elements with a negative indent value come AFTER
     # the whitespace. Positive or neutral come BEFORE.
@@ -433,6 +460,24 @@ class Bracketed(Sequence):
         optional: bool = False,
         parse_mode: ParseMode = ParseMode.STRICT,
     ) -> None:
+        """Initialize the object.
+
+        Args:
+            *args (Union[Matchable, str]): Variable length arguments which
+                can be of type 'Matchable' or 'str'.
+            bracket_type (str, optional): The type of bracket used.
+                Defaults to 'round'.
+            bracket_pairs_set (str, optional): The set of bracket pairs.
+                Defaults to 'bracket_pairs'.
+            start_bracket (Optional[Matchable], optional): The start bracket. Defaults to
+                None.
+            end_bracket (Optional[Matchable], optional): The end bracket.
+                Defaults to None.
+            allow_gaps (bool, optional): Whether to allow gaps. Defaults to True.
+            optional (bool, optional): Whether optional. Defaults to False.
+            parse_mode (ParseMode, optional): The parse mode. Defaults to
+                ParseMode.STRICT.
+        """
         # Store the bracket type. NB: This is only
         # hydrated into segments at runtime.
         self.bracket_type = bracket_type
@@ -451,7 +496,7 @@ class Bracketed(Sequence):
     def simple(
         self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
     ) -> SimpleHintType:
-        """Does this matcher support a uppercase hash matching route?
+        """Check if the matcher supports an uppercase hash matching route.
 
         Bracketed does this easily, we just look for the bracket.
         """
@@ -480,18 +525,25 @@ class Bracketed(Sequence):
     def match(
         self, segments: Tuple["BaseSegment", ...], parse_context: ParseContext
     ) -> MatchResult:
-        """Match if a bracketed sequence, with content that matches one of the elements.
+        """Match if a bracketed sequence, with content that matches one of the
+    elements.
 
         1. work forwards to find the first bracket.
            If we find something other that whitespace, then fail out.
-        2. Once we have the first bracket, we need to bracket count forward to find its
-           partner.
-        3. Assuming we find its partner then we try and match what goes between them
-           using the match method of Sequence.
+        2. Once we have the first bracket, we need to bracket count forward
+           to find its partner.
+        3. Assuming we find its partner then we try and match what goes
+           between them using the match method of Sequence.
            If we match, great. If not, then we return an empty match.
            If we never find its partner then we return an empty match but should
            probably log a parsing warning, or error?
 
+        Args:
+            segments (Tuple["BaseSegment", ...]): A tuple of segments to be matched.
+            parse_context (ParseContext): The parse context.
+
+        Returns:
+            MatchResult: The match result.
         """
         # Trim ends if allowed.
         if self.allow_gaps:
