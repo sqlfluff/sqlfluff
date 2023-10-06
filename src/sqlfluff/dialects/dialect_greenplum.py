@@ -5,17 +5,17 @@ so we base this dialect on Postgres.
 """
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.dialects import dialect_postgres as postgres
 from sqlfluff.core.parser import (
-    BaseSegment,
     AnyNumberOf,
+    BaseSegment,
     Bracketed,
     Delimited,
     OneOf,
+    OptionallyBracketed,
     Ref,
     Sequence,
-    OptionallyBracketed,
 )
+from sqlfluff.dialects import dialect_postgres as postgres
 
 postgres_dialect = load_raw_dialect("postgres")
 
@@ -25,68 +25,8 @@ greenplum_dialect.sets("reserved_keywords").update(
     ["DISTRIBUTED", "RANDOMLY", "REPLICATED"]
 )
 
-greenplum_dialect.replace(
-    FromClauseTerminatorGrammar=OneOf(
-        "WHERE",
-        "LIMIT",
-        Sequence("GROUP", "BY"),
-        Sequence("ORDER", "BY"),
-        "HAVING",
-        "QUALIFY",
-        "WINDOW",
-        Ref("SetOperatorSegment"),
-        Ref("WithNoSchemaBindingClauseSegment"),
-        Ref("WithDataClauseSegment"),
-        "FETCH",
-        Ref("ForClauseSegment"),
-        Ref("DistributedBySegment"),
-    ),
-    WhereClauseTerminatorGrammar=OneOf(
-        "LIMIT",
-        Sequence("GROUP", "BY"),
-        Sequence("ORDER", "BY"),
-        "HAVING",
-        "QUALIFY",
-        "WINDOW",
-        "OVERLAPS",
-        "RETURNING",
-        Sequence("ON", "CONFLICT"),
-        Ref("ForClauseSegment"),
-        Ref("DistributedBySegment"),
-    ),
-    OrderByClauseTerminators=OneOf(
-        "LIMIT",
-        "HAVING",
-        "QUALIFY",
-        # For window functions
-        "WINDOW",
-        Ref("FrameClauseUnitGrammar"),
-        "SEPARATOR",
-        Sequence("WITH", "DATA"),
-        Ref("ForClauseSegment"),
-        Ref("DistributedBySegment"),
-    ),
-    GroupByClauseTerminatorGrammar=OneOf(
-        Sequence("ORDER", "BY"),
-        "LIMIT",
-        "HAVING",
-        "QUALIFY",
-        "WINDOW",
-        "FETCH",
-        Ref("DistributedBySegment"),
-    ),
-    HavingClauseTerminatorGrammar=OneOf(
-        Sequence("ORDER", "BY"),
-        "LIMIT",
-        "QUALIFY",
-        "WINDOW",
-        "FETCH",
-        Ref("DistributedBySegment"),
-    ),
-)
 
 class DistributedBySegment(BaseSegment):
-
     type = "distributed_by"
 
     match_grammar = Sequence(
@@ -94,11 +34,8 @@ class DistributedBySegment(BaseSegment):
         OneOf(
             "RANDOMLY",
             "REPLICATED",
-            Sequence(
-                "BY",
-                Bracketed(Delimited(Ref("ColumnReferenceSegment")))
-            )
-        )
+            Sequence("BY", Bracketed(Delimited(Ref("ColumnReferenceSegment")))),
+        ),
     )
 
 
@@ -248,7 +185,7 @@ class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
                 OneOf(Sequence("PRESERVE", "ROWS"), Sequence("DELETE", "ROWS"), "DROP"),
             ),
             Sequence("TABLESPACE", Ref("TablespaceReferenceSegment")),
-            Ref("DistributedBySegment")
+            Ref("DistributedBySegment"),
         ),
     )
 
@@ -275,10 +212,8 @@ class CreateTableAsStatementSegment(postgres.CreateTableAsStatementSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         AnyNumberOf(
-            Sequence(
-                Bracketed(
-                    Delimited(Ref("ColumnReferenceSegment")),
-                ),
+            Bracketed(
+                Delimited(Ref("ColumnReferenceSegment")),
                 optional=True,
             ),
             Sequence("USING", Ref("ParameterNameSegment"), optional=True),
@@ -320,5 +255,25 @@ class CreateTableAsStatementSegment(postgres.CreateTableAsStatementSegment):
             OptionallyBracketed(Sequence("EXECUTE", Ref("FunctionSegment"))),
         ),
         Ref("WithDataClauseSegment", optional=True),
-        Ref("DistributedBySegment"),
+        Ref("DistributedBySegment", optional=True),
+    )
+
+
+class UnorderedSelectStatementSegment(postgres.UnorderedSelectStatementSegment):
+    """Overrides Postgres Statement, adding DISTRIBUTED BY as a terminator."""
+
+    match_grammar = postgres.UnorderedSelectStatementSegment.match_grammar.copy(
+        terminators=[
+            Ref("DistributedBySegment"),
+        ],
+    )
+
+
+class SelectStatementSegment(postgres.SelectStatementSegment):
+    """Overrides Postgres Statement, adding DISTRIBUTED BY as a terminator."""
+
+    match_grammar = postgres.SelectStatementSegment.match_grammar.copy(
+        terminators=[
+            Ref("DistributedBySegment"),
+        ],
     )

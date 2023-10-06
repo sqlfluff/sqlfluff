@@ -10,3 +10,7 @@ create table new_table as
 select *
 from old_table
 distributed randomly;
+
+create table new_table as
+select *
+from old_table;

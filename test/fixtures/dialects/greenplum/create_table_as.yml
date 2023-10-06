@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 041310ef5e23653d9fba8a9d461faad7288d46748dd5bf374d0fe605033e2a39
+_hash: e4e1aa2cd8a3b99b85132351c464959bc680b1c2b1dbfecd808135ffe8fe54a1
 file:
-  statement:
+- statement:
     create_table_statement:
     - keyword: create
     - keyword: table
@@ -52,4 +52,51 @@ file:
         - column_reference:
             naked_identifier: column2
         - end_bracket: )
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: new_table
+    - keyword: as
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: old_table
+    - distributed_by:
+      - keyword: distributed
+      - keyword: randomly
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: new_table
+    - keyword: as
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: old_table
+- statement_terminator: ;
