@@ -42,8 +42,8 @@ COPY my_table FROM STDIN WITH CSV QUOTE '"';
 COPY my_table FROM STDIN WITH CSV QUOTE AS '"';
 COPY my_table FROM STDIN WITH CSV ESCAPE '\';
 COPY my_table FROM STDIN WITH CSV ESCAPE AS '\';
-COPY my_table FROM STDIN WITH CSV FORCE_NOT_NULL col1;
-COPY my_table FROM STDIN WITH CSV FORCE_NOT_NULL col1, col2;
+COPY my_table FROM STDIN WITH CSV FORCE NOT NULL col1;
+COPY my_table FROM STDIN WITH CSV FORCE NOT NULL col1, col2;
 
 COPY my_table FROM '/tmp/dump.csv' WITH BINARY;
 COPY my_table FROM '/tmp/dump.csv' WITH DELIMITER '#';
@@ -55,8 +55,6 @@ COPY my_table FROM '/tmp/dump.csv' WITH CSV QUOTE '"';
 COPY my_table FROM '/tmp/dump.csv' WITH CSV QUOTE AS '"';
 COPY my_table FROM '/tmp/dump.csv' WITH CSV ESCAPE '\';
 COPY my_table FROM '/tmp/dump.csv' WITH CSV ESCAPE AS '\';
-COPY my_table FROM '/tmp/dump.csv' WITH CSV FORCE_NOT_NULL col1;
-COPY my_table FROM '/tmp/dump.csv' WITH CSV FORCE_NOT_NULL col1, col2;
 
 COPY (SELECT * FROM country WHERE country_name LIKE 'A%') TO '/usr1/proj/bray/sql/a_list_countries.copy';
 COPY my_table(col1, col2) TO STDOUT;
@@ -68,14 +66,11 @@ COPY my_table(col1, col2) TO STDOUT WITH DELIMITER AS '#';
 COPY my_table TO STDOUT WITH NULL 'null';
 COPY my_table TO STDOUT WITH NULL AS 'null';
 
-
--- Couldn't parse CSV below for STDOUT postgres v9
-COPY my_table TO STDOUT WITH CSV;
+COPY my_table(col1) TO STDOUT WITH CSV;
 COPY my_table TO STDOUT WITH CSV HEADER;
 COPY my_table TO STDOUT WITH CSV QUOTE '"';
-COPY my_table TO STDOUT WITH CSV AS QUOTE '"';
+COPY my_table TO STDOUT WITH CSV QUOTE AS '"';
 COPY my_table TO STDOUT WITH CSV ESCAPE '\';
 COPY my_table(col1, col2) TO STDOUT WITH CSV ESCAPE AS '\';
-COPY my_table(col1, col2) TO STDOUT WITH CSV FORCE_QUOTE *;
-COPY my_table(col1, col2) TO STDOUT WITH CSV FORCE_NULL col1;
-COPY my_table(col1, col2) TO STDOUT WITH CSV FORCE_QUOTE col1, col2;
+COPY my_table(col1, col2) TO STDOUT WITH CSV FORCE QUOTE *;
+COPY my_table(col1, col2) TO STDOUT WITH CSV FORCE QUOTE (col1, col2);
