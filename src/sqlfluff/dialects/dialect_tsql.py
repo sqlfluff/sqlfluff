@@ -40,6 +40,7 @@ from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_tsql_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
+    FUTURE_RESERVED_KEYWORDS,
 )
 
 ansi_dialect = load_raw_dialect("ansi")
@@ -47,8 +48,10 @@ tsql_dialect = ansi_dialect.copy_as("tsql")
 
 tsql_dialect.sets("reserved_keywords").clear()
 tsql_dialect.sets("unreserved_keywords").clear()
+tsql_dialect.sets("futur_reserved_keywords").clear()
 tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 tsql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
+tsql_dialect.sets("futur_reserved_keywords").update(FUTURE_RESERVED_KEYWORDS)
 
 # Set the datetime units
 tsql_dialect.sets("datetime_units").clear()
@@ -365,7 +368,11 @@ tsql_dialect.replace(
             r"[A-Z_][A-Z0-9_@$#]*",
             IdentifierSegment,
             type="naked_identifier",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^("
+            + r"|".join(dialect.sets("reserved_keywords")).join(
+                dialect.sets("futur_reserved_keywords")
+            )
+            + r")$",
         )
     ),
     # Overring ANSI BaseExpressionElement to remove Interval Expression Segment
@@ -416,7 +423,11 @@ tsql_dialect.replace(
             r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
             CodeSegment,
             type="function_name_identifier",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^("
+            + r"|".join(dialect.sets("reserved_keywords")).join(
+                dialect.sets("futur_reserved_keywords")
+            )
+            + r")$",
         )
     ),
     # Override ANSI IsClauseGrammar to remove TSQL non-keyword NAN
@@ -433,7 +444,9 @@ tsql_dialect.replace(
                 type="data_type_identifier",
                 # anti_template=r"^(NOT)$",
                 anti_template=r"^("
-                + r"|".join(dialect.sets("reserved_keywords"))
+                + r"|".join(dialect.sets("reserved_keywords")).join(
+                    dialect.sets("futur_reserved_keywords")
+                )
                 + r")$",
                 # TODO - this is a stopgap until we implement explicit data types
             ),
@@ -2627,7 +2640,7 @@ class SetStatementSegment(BaseSegment):
                     OneOf(
                         Ref("ExpressionSegment"),
                         Ref("SelectableGrammar"),
-                    )
+                    ),
                 ),
             ),
         ),
@@ -2697,8 +2710,8 @@ class CreateProcedureStatementSegment(BaseSegment):
             AnySetOf(
                 "ENCRYPTION",
                 "RECOMPILE",
-                "NATIVE_COMPILATION", # natively compiled stored procedure
-                "SCHEMABINDING", # natively compiled stored procedure
+                "NATIVE_COMPILATION",  # natively compiled stored procedure
+                "SCHEMABINDING",  # natively compiled stored procedure
                 Ref("ExecuteAsClauseSegment", optional=True),
             ),
         ),
@@ -3625,8 +3638,9 @@ class BeginEndSegment(BaseSegment):
 
 
 class AtomicBeginEndSegment(BaseSegment):
-    """A special `BEGIN/END` block with atomic options for stored procedures
-    that are natively compiled.
+    """A special `BEGIN/END` block with atomic options.
+
+    This is only dedicated to natively compiled stored procedures.
 
     Encloses multiple statements into a single statement object.
     https://docs.microsoft.com/en-us/sql/t-sql/language-elements/begin-end-transact-sql?view=sql-server-ver15
