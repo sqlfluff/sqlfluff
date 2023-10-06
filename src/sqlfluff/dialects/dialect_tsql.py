@@ -607,6 +607,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateExternalTableStatementSegment"),
             Ref("DropExternalTableStatementSegment"),
             Ref("CopyIntoTableStatementSegment"),
+            Ref("CreateFullTextIndexStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -975,6 +976,108 @@ class CreateIndexStatementSegment(BaseSegment):
         Ref("FilestreamOnOptionSegment", optional=True),
         Ref("DelimiterGrammar", optional=True),
         Dedent,
+    )
+
+
+class CreateFullTextIndexStatementSegment(BaseSegment):
+    """A `CREATE FULLTEXT INDEX` statement.
+
+    https://learn.microsoft.com/fr-fr/sql/t-sql/statements/create-fulltext-index-transact-sql?view=sql-server-ver16
+    """
+
+    type = "create_fulltext_index_statement"
+
+    _catalog_filegroup_option = Sequence(
+        "ON",
+        Delimited(
+            AnySetOf(
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    "FILEGROUP",
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
+        ),
+        optional=True,
+    )
+
+    _with_option = Sequence(
+        "WITH",
+        Bracketed(
+            OneOf(
+                Sequence(
+                    "CHANGE_TRACKING",
+                    Ref("EqualsSegment", optional=True),
+                    OneOf(
+                        "MANUAL",
+                        "AUTO",
+                        Delimited(
+                            "OFF",
+                            Sequence(
+                                "NO",
+                                "POPULATION",
+                                optional=True,
+                            ),
+                        ),
+                    ),
+                ),
+                Sequence(
+                    "STOPLIST",
+                    Ref("EqualsSegment", optional=True),
+                    OneOf(
+                        "OFF",
+                        "SYSTEM",
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                ),
+                Sequence(
+                    "SEARCH",
+                    "PROPERTY",
+                    "LIST",
+                    Ref("EqualsSegment", optional=True),
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
+        ),
+        optional=True,
+    )
+
+    match_grammar = Sequence(
+        "CREATE",
+        "FULLTEXT",
+        "INDEX",
+        "ON",
+        Ref("TableReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    AnySetOf(
+                        Sequence(
+                            "TYPE",
+                            "COLUMN",
+                            Ref("DatatypeSegment"),
+                        ),
+                        Sequence(
+                            "LANGUAGE",
+                            OneOf(
+                                Ref("NumericLiteralSegment"),
+                                Ref("QuotedLiteralSegment"),
+                                optional=True,
+                            ),
+                        ),
+                        "STATISTICAL_SEMANTICS",
+                    ),
+                ),
+            ),
+        ),
+        Sequence(
+            "KEY",
+            "INDEX",
+            Ref("ObjectReferenceSegment"),
+            _catalog_filegroup_option,
+        ),
+        _with_option,
     )
 
 

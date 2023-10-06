@@ -1302,7 +1302,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # An AssertionError on creating a new segment is likely a whitespace
             # check fail. If possible add information about the fixes we tried to
             # apply, before re-raising.
-            # NOTE: only available in python 3.11.
+            # NOTE: only available in python 3.11+.
             if hasattr(err, "add_note"):
                 err.add_note(f" After applying fixes: {fixes_applied}.")
             raise err
