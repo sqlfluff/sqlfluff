@@ -997,6 +997,7 @@ class CreateFullTextIndexStatementSegment(BaseSegment):
                     Ref("ObjectReferenceSegment"),
                 ),
             ),
+            allow_trailing=True,
         ),
         optional=True,
     )
