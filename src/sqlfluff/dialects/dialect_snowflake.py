@@ -396,12 +396,6 @@ snowflake_dialect.add(
         LiteralSegment,
         type="integer_literal",
     ),
-    TimestampSegment=RegexParser(
-        # A quoted integer that can be passed as an argument to Snowflake functions.
-        "'[0-9]{1,4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}'",
-        LiteralSegment,
-        type="timestamp_literal",
-    ),
     SystemFunctionName=RegexParser(
         r"SYSTEM\$([A-Za-z0-9_]*)",
         CodeSegment,
@@ -5819,13 +5813,13 @@ class CreateResourceMonitorStatementSegment(BaseSegment):
             Sequence(
                 "START_TIMESTAMP",
                 Ref("EqualsSegment"),
-                OneOf(Ref("TimestampSegment"), "IMMEDIATELY"),
+                OneOf(Ref("QuotedLiteralSegment"), "IMMEDIATELY"),
                 optional=True,
             ),
             Sequence(
                 "END_TIMESTAMP",
                 Ref("EqualsSegment"),
-                Ref("TimestampSegment"),
+                Ref("QuotedLiteralSegment"),
                 optional=True,
             ),
             Sequence(
@@ -5884,13 +5878,13 @@ class AlterResourceMonitorStatementSegment(BaseSegment):
             Sequence(
                 "START_TIMESTAMP",
                 Ref("EqualsSegment"),
-                OneOf(Ref("TimestampSegment"), "IMMEDIATELY"),
+                OneOf(Ref("QuotedLiteralSegment"), "IMMEDIATELY"),
                 optional=True,
             ),
             Sequence(
                 "END_TIMESTAMP",
                 Ref("EqualsSegment"),
-                Ref("TimestampSegment"),
+                Ref("QuotedLiteralSegment"),
                 optional=True,
             ),
             Sequence(
