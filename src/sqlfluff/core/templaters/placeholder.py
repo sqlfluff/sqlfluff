@@ -1,19 +1,17 @@
 """Defines the placeholder template."""
 
 import logging
-import regex
 from typing import Dict, Optional, Tuple
 
+import regex
 
-from sqlfluff.core.errors import SQLTemplaterError
 from sqlfluff.core.slice_helpers import offset_slice
-
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
+    RawTemplater,
     TemplatedFile,
     TemplatedFileSlice,
     large_file_check,
-    RawTemplater,
 )
 
 # Instantiate the templater logger
@@ -153,14 +151,10 @@ class PlaceholderTemplater(RawTemplater):
             else:
                 param_name = found_param["param_name"]
             last_literal_length = span[0] - last_pos_raw
-            try:
+            if param_name in context:
                 replacement = str(context[param_name])
-            except KeyError as err:
-                # TODO: Add a url here so people can get more help.
-                raise SQLTemplaterError(
-                    "Failure in placeholder templating: {}. Have you configured your "
-                    "variables?".format(err)
-                )
+            else:
+                replacement = param_name
             # add the literal to the slices
             template_slices.append(
                 TemplatedFileSlice(

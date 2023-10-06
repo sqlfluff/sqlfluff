@@ -33,7 +33,10 @@ class BaseParser(Matchable):
         trim_chars: Optional[Tuple[str, ...]] = None,
     ) -> None:
         self.raw_class = raw_class
-        self.type: str = type or raw_class.type
+        # Store instance_types rather than just type to allow
+        # for multiple possible types to be supported in derivative
+        # classes.
+        self._instance_types: Tuple[str, ...] = (type or raw_class.type,)
         self.optional = optional
         self._trim_chars = trim_chars
         # Generate a cache key
@@ -62,7 +65,7 @@ class BaseParser(Matchable):
         return self.raw_class(
             raw=segment.raw,
             pos_marker=segment.pos_marker,
-            type=self.type,
+            instance_types=self._instance_types,
             trim_chars=self._trim_chars,
         )
 
@@ -81,7 +84,11 @@ class BaseParser(Matchable):
             return None
         # If it does, we might have already matched it. Is it the right type
         # already? If so, just return it unchanged.
-        if isinstance(segment, self.raw_class) and segment.type == self.type:
+        if (
+            isinstance(segment, self.raw_class)
+            # NOTE: The _primary_ type must match (i.e. the one in position 0)
+            and segment.type == self._instance_types[0]
+        ):
             return segment
         # Otherwise create a new match segment
         return self._make_match_from_segment(segment)
@@ -123,27 +130,50 @@ class TypedParser(BaseParser):
         # NB: the template in this case is the _target_ type.
         # The type kwarg is the eventual type.
         self.template = template
+        # Pre-calculate the appropriate frozenset for matching later.
+        self._target_types = frozenset((template,))
         super().__init__(
             raw_class=raw_class,
-            # If no type specified we default to the template
-            type=type or template,
             optional=optional,
             trim_chars=trim_chars,
         )
+        # NOTE: We override the instance types after initialising the base
+        # class. We want to ensure that re-matching is possible by ensuring that
+        # the `type` pre-matching is still present post-match even if it's not
+        # part of the natural type hierarchy for the new `raw_class`.
+        # The new `type` becomes the "primary" type, but the template will still
+        # be part of the resulting `class_types`.
+        # We do this here rather than in the base class to keep the dialect-facing
+        # API the same.
+        self._instance_types: Tuple[str, ...] = ()
+        # Primary type if set.
+        if type is not None:
+            self._instance_types += (type,)
+        # New root types
+        if type != raw_class.type:
+            self._instance_types += (raw_class.type,)
+        # Template type (if it's not in the subclasses of the raw_class).
+        if not raw_class.class_is_type(template):
+            self._instance_types += (template,)
+
+    def __repr__(self) -> str:
+        return f"<TypedParser: {self.template!r}>"
 
     def simple(
-        cls, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
+        self, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
     ) -> SimpleHintType:
         """Does this matcher support a uppercase hash matching route?
 
         TypedParser segment doesn't support matching against raw strings,
-        but it does support it against types.
+        but it does support it against types. We'll match against the
+        both the template _and_ the resulting type too, so that we
+        also support re-matching.
         """
-        return frozenset(), frozenset((cls.template,))
+        return frozenset(), self._target_types
 
     def _is_first_match(self, segment: BaseSegment) -> bool:
         """Return true if the type matches the target type."""
-        return segment.is_type(self.template)
+        return segment.is_type(*self._target_types)
 
 
 class StringParser(BaseParser):
@@ -166,6 +196,9 @@ class StringParser(BaseParser):
             optional=optional,
             trim_chars=trim_chars,
         )
+
+    def __repr__(self) -> str:
+        return f"<StringParser: {self.template!r}>"
 
     def simple(
         self, parse_context: "ParseContext", crumbs: Optional[Tuple[str, ...]] = None
@@ -206,6 +239,9 @@ class MultiStringParser(BaseParser):
             optional=optional,
             trim_chars=trim_chars,
         )
+
+    def __repr__(self) -> str:
+        return f"<MultiStringParser: {self.templates!r}>"
 
     def simple(
         self, parse_context: "ParseContext", crumbs: Optional[Tuple[str, ...]] = None
@@ -250,6 +286,9 @@ class RegexParser(BaseParser):
             optional=optional,
             trim_chars=trim_chars,
         )
+
+    def __repr__(self) -> str:
+        return f"<RegexParser: {self.template!r}>"
 
     def simple(
         cls, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None

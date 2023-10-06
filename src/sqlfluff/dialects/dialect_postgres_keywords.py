@@ -112,6 +112,7 @@ postgres_docs_keywords = [
     ("BOOL", "non-reserved-(cannot-be-function-or-type)"),
     ("BOTH", "reserved"),
     ("BOX", "non-reserved-(cannot-be-function-or-type)"),
+    ("BPCHAR", "non-reserved-(cannot-be-function-or-type)"),
     ("BREADTH", "not-keyword"),
     ("BY", "non-reserved"),
     ("BYTEA", "non-reserved-(cannot-be-function-or-type)"),

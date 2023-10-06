@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 08b1482a19515e0e55aaa7e583f133a972bc89ed1c69182d51b5ba62e9f3b3cb
+_hash: 564b6c84bb7c7f8eee7dbf8604db15036f6c94d6f6347d7d79f86d1974956aa4
 file:
 - statement:
     create_model_statement:
@@ -85,10 +85,10 @@ file:
     - keyword: EXCEPT
     - bracketed:
       - start_bracket: (
-      - code: NUM_ROUND
+      - word: NUM_ROUND
       - single_quote: "'100'"
       - comma: ','
-      - code: NUM_CLASS
+      - word: NUM_CLASS
       - single_quote: "'30'"
       - end_bracket: )
     - keyword: SETTINGS
@@ -192,7 +192,7 @@ file:
     - keyword: EXCEPT
     - bracketed:
         start_bracket: (
-        code: K
+        word: K
         single_quote: "'5'"
         end_bracket: )
     - keyword: SETTINGS

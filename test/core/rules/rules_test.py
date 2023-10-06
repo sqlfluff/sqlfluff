@@ -1,28 +1,27 @@
 """Tests for the standard set of rules."""
-import pytest
 import logging
-
-from sqlfluff.core import Linter
-from sqlfluff.core.linter import RuleTuple
-from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.errors import SQLFluffUserError
-from sqlfluff.core.rules import BaseRule, LintResult, LintFix
-from sqlfluff.core.rules import get_ruleset
-from sqlfluff.core.rules.doc_decorators import (
-    document_fix_compatible,
-    document_groups,
-    document_configuration,
-)
-from sqlfluff.core.rules.crawlers import RootOnlyCrawler, SegmentSeekerCrawler
-from sqlfluff.core.config import FluffConfig
-from sqlfluff.core.parser import WhitespaceSegment
-from sqlfluff.core.templaters.base import TemplatedFile
-from sqlfluff.utils.testing.rules import get_rule_from_set
-
 from test.fixtures.rules.custom.L000 import Rule_L000
 from test.fixtures.rules.custom.S000 import Rule_S000
+
+import pytest
+
+from sqlfluff.core import Linter
+from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.errors import SQLFluffUserError
+from sqlfluff.core.linter import RuleTuple
+from sqlfluff.core.parser import WhitespaceSegment
+from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, get_ruleset
+from sqlfluff.core.rules.crawlers import RootOnlyCrawler, SegmentSeekerCrawler
+from sqlfluff.core.rules.doc_decorators import (
+    document_configuration,
+    document_fix_compatible,
+    document_groups,
+)
 from sqlfluff.core.rules.loader import get_rules_from_path
+from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.utils.testing.logging import fluff_log_catcher
+from sqlfluff.utils.testing.rules import get_rule_from_set
 
 
 class Rule_T042(BaseRule):
@@ -76,6 +75,37 @@ class Rule_T002(BaseRule):
             if seg.is_code:
                 violations.append(LintResult(anchor=seg, description="TESTING"))
         return violations
+
+
+class Rule_T003(BaseRule):
+    """Another deliberately malicious rule.
+
+    **Anti-pattern**
+
+    Blah blah
+    """
+
+    groups = ("all",)
+    crawl_behaviour = SegmentSeekerCrawler({"numeric_literal"})
+    is_fix_compatible = True
+
+    def _eval(self, context):
+        """Triple any numeric literals."""
+        return LintResult(
+            anchor=context.segment,
+            fixes=[
+                LintFix.replace(
+                    context.segment,
+                    [
+                        context.segment,
+                        WhitespaceSegment(context.segment.raw + " "),
+                        context.segment,
+                        WhitespaceSegment(context.segment.raw + " "),
+                        context.segment,
+                    ],
+                )
+            ],
+        )
 
 
 def test__rules__user_rules():
@@ -166,7 +196,7 @@ def test__rules__rule_selection(rules, exclude_rules, resulting_codes):
     assert selected_codes == resulting_codes
 
 
-def test__rules__filter_uparsable():
+def test__rules__filter_unparsable():
     """Test that rules that handle their own crawling respect unparsable."""
     # Set up a linter with the user rule
     linter = Linter(user_rules=[Rule_T002], dialect="ansi", rules=["T002"])
@@ -178,6 +208,24 @@ def test__rules__filter_uparsable():
     # It's not parsable so we shouldn't get issues.
     res = linter.lint_string("asd asdf sdfg")
     assert not any(v.rule_code() == "T002" for v in res.violations)
+
+
+def test__rules__result_unparsable():
+    """Test that the linter won't allow rules which make the file unparsable."""
+    # Set up a linter with the user rule
+    linter = Linter(user_rules=[Rule_T003], dialect="ansi", rules=["T003"])
+    # Lint a simple parsable file and check we do get issues
+    # It's parsable, so we should get issues.
+    raw_sql = "SELECT 1 FROM a"
+    with fluff_log_catcher(logging.WARNING, "sqlfluff") as caplog:
+        res = linter.lint_string(raw_sql, fix=True)
+    # Check we got the warning.
+    assert "would result in an unparsable file" in caplog.text
+    # Check we get the violation.
+    assert any(v.rule_code() == "T003" for v in res.violations)
+    # The resulting file should be _the same_ because it would have resulted
+    # in an unparsable file if applied.
+    assert res.tree.raw == raw_sql
 
 
 def test__rules__runaway_fail_catch():

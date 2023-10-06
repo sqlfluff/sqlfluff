@@ -10,31 +10,34 @@ from sqlfluff.core.parser import (
     AnySetOf,
     Anything,
     BaseSegment,
+    BinaryOperatorSegment,
     Bracketed,
     CodeSegment,
     CommentSegment,
+    Dedent,
     Delimited,
+    IdentifierSegment,
+    Indent,
     KeywordSegment,
+    LiteralSegment,
     Matchable,
-    TypedParser,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
     Sequence,
-    StartsWith,
     StringLexer,
     StringParser,
     SymbolSegment,
-    Indent,
-    Dedent,
+    TypedParser,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_mysql_keywords import (
     mysql_reserved_keywords,
     mysql_unreserved_keywords,
 )
-from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 mysql_dialect = ansi_dialect.copy_as("mysql")
@@ -45,7 +48,7 @@ mysql_dialect.patch_lexer_matchers(
             "inline_comment",
             r"(-- |#)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("-- ", "#"), "type": "inline_comment"},
+            segment_kwargs={"trim_start": ("-- ", "#")},
         ),
         # Pattern breakdown:
         # (?s)                     DOTALL (dot matches newline)
@@ -64,13 +67,11 @@ mysql_dialect.patch_lexer_matchers(
             "single_quote",
             r"(?s)('(?:\\'|''|\\\\|[^'])*'(?!'))",
             CodeSegment,
-            segment_kwargs={"type": "single_quote"},
         ),
         RegexLexer(
             "double_quote",
             r'(?s)("(?:\\"|""|\\\\|[^"])*"(?!"))',
             CodeSegment,
-            segment_kwargs={"type": "double_quote"},
         ),
     ]
 )
@@ -80,13 +81,13 @@ mysql_dialect.insert_lexer_matchers(
         RegexLexer(
             "hexadecimal_literal",
             r"([xX]'([\da-fA-F][\da-fA-F])+'|0x[\da-fA-F]+)",
-            ansi.LiteralSegment,
+            LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),
         RegexLexer(
             "bit_value_literal",
             r"([bB]'[01]+'|0b[01]+)",
-            ansi.LiteralSegment,
+            LiteralSegment,
             segment_kwargs={"type": "numeric_literal"},
         ),
     ],
@@ -139,7 +140,7 @@ mysql_dialect.sets("datetime_units").update(
 mysql_dialect.replace(
     QuotedIdentifierSegment=TypedParser(
         "back_quote",
-        ansi.IdentifierSegment,
+        IdentifierSegment,
         type="quoted_identifier",
         trim_chars=("`",),
     ),
@@ -189,7 +190,7 @@ mysql_dialect.replace(
         OneOf(
             TypedParser(
                 "single_quote",
-                ansi.LiteralSegment,
+                LiteralSegment,
                 type="date_constructor_literal",
             ),
             Ref("NumericLiteralSegment"),
@@ -201,7 +202,7 @@ mysql_dialect.replace(
         # we use grammar to handle this.
         TypedParser(
             "single_quote",
-            ansi.LiteralSegment,
+            LiteralSegment,
             type="quoted_literal",
         ),
         Ref("DoubleQuotedLiteralSegment"),
@@ -222,13 +223,13 @@ mysql_dialect.replace(
         insert=[Ref("SessionVariableNameSegment")]
     ),
     AndOperatorGrammar=OneOf(
-        StringParser("AND", ansi.BinaryOperatorSegment),
-        StringParser("&&", ansi.BinaryOperatorSegment),
+        StringParser("AND", BinaryOperatorSegment),
+        StringParser("&&", BinaryOperatorSegment),
     ),
     OrOperatorGrammar=OneOf(
-        StringParser("OR", ansi.BinaryOperatorSegment),
-        StringParser("||", ansi.BinaryOperatorSegment),
-        StringParser("XOR", ansi.BinaryOperatorSegment),
+        StringParser("OR", BinaryOperatorSegment),
+        StringParser("||", BinaryOperatorSegment),
+        StringParser("XOR", BinaryOperatorSegment),
     ),
     NotOperatorGrammar=OneOf(
         StringParser("NOT", KeywordSegment, type="keyword"),
@@ -242,18 +243,23 @@ mysql_dialect.replace(
         ),
         ansi_dialect.get_grammar("Expression_C_Grammar"),
     ),
+    ColumnConstraintDefaultGrammar=OneOf(
+        Bracketed(ansi_dialect.get_grammar("ColumnConstraintDefaultGrammar")),
+        ansi_dialect.get_grammar("ColumnConstraintDefaultGrammar"),
+    ),
 )
 
 mysql_dialect.add(
     DoubleQuotedLiteralSegment=TypedParser(
         "double_quote",
-        ansi.LiteralSegment,
+        LiteralSegment,
         type="quoted_literal",
         trim_chars=('"',),
     ),
     AtSignLiteralSegment=TypedParser(
         "at_sign_literal",
-        ansi.LiteralSegment,
+        LiteralSegment,
+        type="at_sign_literal",
     ),
     SystemVariableSegment=RegexParser(
         r"@@(session|global)\.[A-Za-z0-9_]+",
@@ -637,14 +643,12 @@ class DeleteStatementSegment(BaseSegment):
         OneOf(
             Sequence(
                 "FROM",
-                Delimited(
-                    Ref("TableReferenceSegment"), terminator=Ref.keyword("USING")
-                ),
+                Delimited(Ref("TableReferenceSegment"), terminators=["USING"]),
                 Ref("DeleteUsingClauseSegment"),
                 Ref("WhereClauseSegment", optional=True),
             ),
             Sequence(
-                Delimited(Ref("TableReferenceSegment"), terminator=Ref.keyword("FROM")),
+                Delimited(Ref("TableReferenceSegment"), terminators=["FROM"]),
                 Ref("FromClauseSegment"),
                 Ref("WhereClauseSegment", optional=True),
             ),
@@ -935,7 +939,7 @@ mysql_dialect.insert_lexer_matchers(
             segment_kwargs={"type": "at_sign_literal", "trim_chars": ("@",)},
         ),
     ],
-    before="code",
+    before="word",
 )
 
 
@@ -1072,8 +1076,7 @@ class DeclareStatement(BaseSegment):
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    match_grammar = ansi.StatementSegment.match_grammar
-    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("DelimiterStatement"),
             Ref("CreateProcedureStatementSegment"),
@@ -1579,11 +1582,7 @@ class IntoClauseSegment(BaseSegment):
 
     type = "into_clause"
 
-    match_grammar = StartsWith(
-        "INTO", terminator=Ref("SelectClauseElementTerminatorGrammar")
-    )
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "INTO",
         OneOf(
             Delimited(
@@ -1634,6 +1633,8 @@ class IntoClauseSegment(BaseSegment):
                 ),
             ),
         ),
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
+        terminators=[Ref("SelectClauseTerminatorGrammar")],
     )
 
 
@@ -1646,20 +1647,9 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """
 
     type = "select_statement"
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
-    match_grammar.terminator = (  # type: ignore
-        match_grammar.terminator.copy(  # type: ignore
-            insert=[Ref("IntoClauseSegment")],
-            before=Ref("SetOperatorSegment"),
-        )
-        .copy(insert=[Ref("ForClauseSegment")])
-        .copy(insert=[Ref("IndexHintClauseSegment")])
-        .copy(insert=[Ref("SelectPartitionClauseSegment")])
-        .copy(insert=[Ref("UpsertClauseListSegment")])
-    )
 
-    parse_grammar = (
-        ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar = (
+        ansi.UnorderedSelectStatementSegment.match_grammar.copy(
             insert=[Ref("IntoClauseSegment", optional=True)],
             before=Ref("FromClauseSegment", optional=True),
         )
@@ -1671,24 +1661,23 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
         .copy(
             insert=[Ref("SelectPartitionClauseSegment", optional=True)],
             before=Ref("WhereClauseSegment", optional=True),
+            terminators=[
+                Ref("IntoClauseSegment"),
+                Ref("ForClauseSegment"),
+                Ref("IndexHintClauseSegment"),
+                Ref("SelectPartitionClauseSegment"),
+                Ref("UpsertClauseListSegment"),
+            ],
         )
     )
-
-
-class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
-    """An element in the targets of a select statement."""
-
-    pass
 
 
 class SelectClauseSegment(ansi.SelectClauseSegment):
     """A group of elements in a select target statement."""
 
-    match_grammar = ansi.SelectClauseSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[Ref("IntoKeywordSegment")]
+    match_grammar = ansi.SelectClauseSegment.match_grammar.copy(
+        terminators=[Ref("IntoKeywordSegment")],
     )
-    parse_grammar = ansi.SelectClauseSegment.parse_grammar
 
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
@@ -1697,19 +1686,22 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     https://dev.mysql.com/doc/refman/5.7/en/select.html
     """
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[OneOf(Ref("UpsertClauseListSegment"), Ref("WithCheckOptionSegment"))]
-    )
-
     # Inherit most of the parse grammar from the original.
-    parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
             Ref("NamedWindowSegment", optional=True),
             Ref("IntoClauseSegment", optional=True),
-        ]
+        ],
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("UpsertClauseListSegment"),
+            Ref("WithCheckOptionSegment"),
+        ],
+        # Overwrite the terminators, because we want to remove some from the
+        # expression above.
+        replace_terminators=True,
     )
 
 
@@ -2424,7 +2416,7 @@ class FlushStatementSegment(BaseSegment):
             Sequence(
                 "TABLES",
                 Sequence(
-                    Delimited(Ref("TableReferenceSegment"), terminator="WITH"),
+                    Delimited(Ref("TableReferenceSegment"), terminators=["WITH"]),
                     optional=True,
                 ),
                 Sequence("WITH", "READ", "LOCK", optional=True),
@@ -2432,7 +2424,7 @@ class FlushStatementSegment(BaseSegment):
             Sequence(
                 "TABLES",
                 Sequence(
-                    Delimited(Ref("TableReferenceSegment"), terminator="FOR"),
+                    Delimited(Ref("TableReferenceSegment"), terminators=["FOR"]),
                     optional=False,
                 ),
                 Sequence("FOR", "EXPORT", optional=True),

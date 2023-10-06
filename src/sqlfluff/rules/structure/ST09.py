@@ -1,7 +1,7 @@
 """Implementation of Rule ST09."""
 from typing import List, Optional, Tuple, cast
 
-from sqlfluff.core.parser.segments.raw import BaseSegment, SymbolSegment
+from sqlfluff.core.parser import BaseSegment, SymbolSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.dialects.dialect_ansi import (

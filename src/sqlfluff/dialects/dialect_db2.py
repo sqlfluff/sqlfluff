@@ -5,26 +5,22 @@ https://www.ibm.com/docs/en/i/7.4?topic=overview-db2-i
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
+    AnyNumberOf,
+    BaseSegment,
+    Bracketed,
     CodeSegment,
     CommentSegment,
+    IdentifierSegment,
+    OneOf,
+    ParseMode,
+    Ref,
     RegexLexer,
     RegexParser,
     SegmentGenerator,
+    Sequence,
+    WordSegment,
 )
-from sqlfluff.dialects import dialect_ansi as ansi
-
 from sqlfluff.dialects.dialect_db2_keywords import UNRESERVED_KEYWORDS
-
-from sqlfluff.core.parser.grammar.base import Ref
-from sqlfluff.core.parser.grammar.sequence import Sequence
-from sqlfluff.core.parser.segments.base import BaseSegment
-
-from sqlfluff.core.parser.grammar.base import Anything
-from sqlfluff.core.parser.grammar.sequence import Bracketed
-
-from sqlfluff.core.parser.grammar.anyof import OneOf
-
-from sqlfluff.core.parser.grammar.anyof import AnyNumberOf
 
 ansi_dialect = load_raw_dialect("ansi")
 
@@ -38,7 +34,7 @@ db2_dialect.replace(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
             r"[A-Z0-9_#]*[A-Z#][A-Z0-9_#]*",
-            ansi.IdentifierSegment,
+            IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
@@ -70,26 +66,22 @@ db2_dialect.patch_lexer_matchers(
             "inline_comment",
             r"(--)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--"), "type": "inline_comment"},
+            segment_kwargs={"trim_start": ("--")},
         ),
         # In Db2, the only escape character is ' for single quote strings
         RegexLexer(
             "single_quote",
             r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))",
             CodeSegment,
-            segment_kwargs={"type": "single_quote"},
         ),
         # In Db2, there is no escape character for double quote strings
         RegexLexer(
             "double_quote",
             r'(?s)".+?"',
             CodeSegment,
-            segment_kwargs={"type": "double_quote"},
         ),
         # In Db2, a field could have a # pound/hash sign
-        RegexLexer(
-            "code", r"[0-9a-zA-Z_#]+", CodeSegment, segment_kwargs={"type": "code"}
-        ),
+        RegexLexer("word", r"[0-9a-zA-Z_#]+", WordSegment),
     ]
 )
 
@@ -98,14 +90,11 @@ class WithinGroupClauseSegment(BaseSegment):
     """An WITHIN GROUP clause for window functions."""
 
     type = "withingroup_clause"
+
     match_grammar = Sequence(
         "WITHIN",
         "GROUP",
-        Bracketed(Anything(optional=True)),
-    )
-
-    parse_grammar = Sequence(
-        "WITHIN",
-        "GROUP",
-        Bracketed(Ref("OrderByClauseSegment", optional=True)),
+        Bracketed(
+            Ref("OrderByClauseSegment", optional=True), parse_mode=ParseMode.GREEDY
+        ),
     )

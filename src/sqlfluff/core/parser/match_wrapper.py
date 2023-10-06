@@ -1,14 +1,14 @@
 """Defined the `match_wrapper` which adds validation and logging to match methods."""
 
-from typing import Any, Callable, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable, Tuple
 
+from sqlfluff.core.parser.helpers import join_segments_raw_curtailed
 from sqlfluff.core.parser.match_logging import ParseMatchLogObject
 from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.helpers import join_segments_raw_curtailed
 
 if TYPE_CHECKING:  # pragma: no cover
-    from sqlfluff.core.parser.context import ParseContext
     from sqlfluff.core.parser import BaseSegment
+    from sqlfluff.core.parser.context import ParseContext
 
 
 MatchFuncType = Callable[[Any, Tuple["BaseSegment", ...], "ParseContext"], MatchResult]
@@ -66,7 +66,7 @@ def match_wrapper(v_level: int = 3) -> Callable[[MatchFuncType], MatchFuncType]:
             try:
                 m = func(self_cls, segments, parse_context)
             except Exception as err:  # pragma: no cover
-                # NOTE: only available in python 3.11.
+                # NOTE: only available in python 3.11+.
                 if hasattr(err, "add_note"):
                     err.add_note(f" Within {name!r}.")
                 raise err

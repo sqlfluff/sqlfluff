@@ -3,17 +3,18 @@
 https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql.htm
 """
 
-from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     BaseSegment,
+    CodeSegment,
+    LiteralSegment,
     OneOf,
     Ref,
-    Sequence,
     RegexLexer,
-    CodeSegment,
+    Sequence,
     TypedParser,
 )
-from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
 
@@ -27,13 +28,11 @@ soql_dialect.insert_lexer_matchers(
             "datetime_literal",
             r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(Z|(\+|\-)[0-9]{2}:[0-9]{2})",  # noqa E501
             CodeSegment,
-            segment_kwargs={"type": "datetime_literal"},
         ),
         RegexLexer(
             "date_literal",
             r"[0-9]{4}-[0-9]{2}-[0-9]{2}",
             CodeSegment,
-            segment_kwargs={"type": "date_literal"},
         ),
     ],
     before="numeric_literal",
@@ -110,12 +109,12 @@ soql_dialect.replace(
         ]
     ),
     DateTimeLiteralGrammar=OneOf(
-        TypedParser("date_literal", ansi.LiteralSegment, type="date_literal"),
-        TypedParser("datetime_literal", ansi.LiteralSegment, type="datetime_literal"),
+        TypedParser("date_literal", LiteralSegment, type="date_literal"),
+        TypedParser("datetime_literal", LiteralSegment, type="datetime_literal"),
         Sequence(
             OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"),
             TypedParser(
-                "single_quote", ansi.LiteralSegment, type="date_constructor_literal"
+                "single_quote", LiteralSegment, type="date_constructor_literal"
             ),
         ),
     ),
@@ -129,4 +128,3 @@ class StatementSegment(ansi.StatementSegment):
     """
 
     match_grammar = Ref("SelectableGrammar")
-    parse_grammar = Ref("SelectableGrammar")

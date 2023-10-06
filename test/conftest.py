@@ -2,7 +2,7 @@
 import hashlib
 import io
 import os
-from typing import NamedTuple
+from typing import List, NamedTuple, Tuple
 
 import pytest
 import yaml
@@ -10,17 +10,17 @@ import yaml
 from sqlfluff.cli.commands import quoted_presenter
 from sqlfluff.core import FluffConfig
 from sqlfluff.core.linter import Linter
-from sqlfluff.core.parser import Parser, Lexer
+from sqlfluff.core.parser import Lexer, Parser
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments import (
-    Indent,
+    BaseSegment,
+    CodeSegment,
+    CommentSegment,
     Dedent,
-    WhitespaceSegment,
+    Indent,
     NewlineSegment,
     SymbolSegment,
-    CommentSegment,
-    CodeSegment,
-    BaseSegment,
+    WhitespaceSegment,
 )
 from sqlfluff.core.rules import BaseRule
 from sqlfluff.core.templaters import TemplatedFile
@@ -36,7 +36,9 @@ class ParseExample(NamedTuple):
     sqlfile: str
 
 
-def get_parse_fixtures(fail_on_missing_yml=False):
+def get_parse_fixtures(
+    fail_on_missing_yml=False,
+) -> Tuple[List[ParseExample], List[Tuple[str, str, bool, str]]]:
     """Search for all parsing fixtures."""
     parse_success_examples = []
     parse_structure_examples = []
@@ -116,7 +118,7 @@ def parse_example_file(dialect: str, sqlfile: str):
     raw = load_file(dialect, sqlfile)
     # Lex and parse the file
     tokens, _ = Lexer(config=config).lex(raw)
-    tree = Parser(config=config).parse(tokens)
+    tree = Parser(config=config).parse(tokens, fname=dialect + "/" + sqlfile)
     return tree
 
 
@@ -201,19 +203,19 @@ def generate_test_segments():
                 SegClass = NewlineSegment
             elif elem == "(":
                 SegClass = SymbolSegment
-                seg_kwargs = {"type": "bracket_open"}
+                seg_kwargs = {"instance_types": ("start_bracket",)}
             elif elem == ")":
                 SegClass = SymbolSegment
-                seg_kwargs = {"type": "bracket_close"}
+                seg_kwargs = {"instance_types": ("end_bracket",)}
             elif elem.startswith("--"):
                 SegClass = CommentSegment
-                seg_kwargs = {"type": "inline_comment"}
+                seg_kwargs = {"instance_types": ("inline_comment",)}
             elif elem.startswith('"'):
                 SegClass = CodeSegment
-                seg_kwargs = {"type": "double_quote"}
+                seg_kwargs = {"instance_types": ("double_quote",)}
             elif elem.startswith("'"):
                 SegClass = CodeSegment
-                seg_kwargs = {"type": "single_quote"}
+                seg_kwargs = {"instance_types": ("single_quote",)}
             else:
                 SegClass = CodeSegment
 

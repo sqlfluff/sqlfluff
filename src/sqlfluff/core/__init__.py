@@ -5,22 +5,22 @@ import tblib.pickling_support
 # Config objects
 from sqlfluff.core.config import FluffConfig
 
-# Public classes
-from sqlfluff.core.linter import Linter
-from sqlfluff.core.parser import Lexer, Parser
-
 # Dialect introspection
-from sqlfluff.core.dialects import dialect_selector, dialect_readout
+from sqlfluff.core.dialects import dialect_readout, dialect_selector
 
 # All of the errors.
 from sqlfluff.core.errors import (
     SQLBaseError,
-    SQLTemplaterError,
-    SQLLexError,
-    SQLParseError,
-    SQLLintError,
     SQLFluffUserError,
+    SQLLexError,
+    SQLLintError,
+    SQLParseError,
+    SQLTemplaterError,
 )
+
+# Public classes
+from sqlfluff.core.linter import Linter
+from sqlfluff.core.parser import Lexer, Parser
 
 # Timing objects
 from sqlfluff.core.timing import TimingSummary

@@ -3,11 +3,6 @@
 from typing import Iterator
 
 
-def frame_msg(msg: str) -> str:
-    """Frame a message with hashes so that it covers five lines."""
-    return f"\n###\n#\n# {msg}\n#\n###"
-
-
 def curtail_string(s: str, length: int = 20) -> str:
     """Trim a string nicely to length."""
     if len(s) > length:

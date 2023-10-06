@@ -2,6 +2,8 @@
 
 This inherits from the ansi dialect.
 """
+from typing import cast
+
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -13,10 +15,12 @@ from sqlfluff.core.parser import (
     CodeSegment,
     CommentSegment,
     Delimited,
-    GreedyUntil,
+    IdentifierSegment,
+    LiteralSegment,
     Matchable,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
@@ -25,6 +29,8 @@ from sqlfluff.core.parser import (
     StringLexer,
     StringParser,
     SymbolSegment,
+    TypedParser,
+    WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 
@@ -52,7 +58,7 @@ oracle_dialect.sets("reserved_keywords").update(
 )
 
 oracle_dialect.sets("unreserved_keywords").update(
-    ["EDITIONABLE", "EDITIONING", "NONEDITIONABLE"]
+    ["EDITIONABLE", "EDITIONING", "NONEDITIONABLE", "KEEP"]
 )
 
 oracle_dialect.sets("bare_functions").clear()
@@ -71,12 +77,7 @@ oracle_dialect.sets("bare_functions").update(
 
 oracle_dialect.patch_lexer_matchers(
     [
-        RegexLexer(
-            "code",
-            r"[a-zA-Z][0-9a-zA-Z_$#]*",
-            CodeSegment,
-            segment_kwargs={"type": "code"},
-        ),
+        RegexLexer("word", r"[a-zA-Z][0-9a-zA-Z_$#]*", WordSegment),
     ]
 )
 
@@ -89,7 +90,7 @@ oracle_dialect.insert_lexer_matchers(
         ),
         StringLexer("at_sign", "@", CodeSegment),
     ],
-    before="code",
+    before="word",
 )
 
 oracle_dialect.insert_lexer_matchers(
@@ -112,6 +113,24 @@ oracle_dialect.add(
         ),
     ),
     ConnectByRootGrammar=Sequence("CONNECT_BY_ROOT", Ref("NakedIdentifierSegment")),
+    PlusJoinSegment=Bracketed(
+        StringParser("+", SymbolSegment, type="plus_join_symbol")
+    ),
+    PlusJoinGrammar=OneOf(
+        Sequence(
+            Ref("ColumnReferenceSegment"),
+            Ref("EqualsSegment"),
+            Ref("ColumnReferenceSegment"),
+            Ref("PlusJoinSegment"),
+        ),
+        Sequence(
+            Ref("ColumnReferenceSegment"),
+            Ref("PlusJoinSegment"),
+            Ref("EqualsSegment"),
+            Ref("ColumnReferenceSegment"),
+        ),
+    ),
+    IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
 )
 
 oracle_dialect.replace(
@@ -128,7 +147,7 @@ oracle_dialect.replace(
     NakedIdentifierSegment=SegmentGenerator(
         lambda dialect: RegexParser(
             r"[A-Z0-9_]*[A-Z][A-Z0-9_#$]*",
-            ansi.IdentifierSegment,
+            IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
@@ -167,6 +186,76 @@ oracle_dialect.replace(
         insert=[
             Ref("ConnectByRootGrammar"),
         ]
+    ),
+    Expression_D_Grammar=Sequence(
+        OneOf(
+            Ref("PlusJoinGrammar"),
+            Ref("BareFunctionSegment"),
+            Ref("FunctionSegment"),
+            Bracketed(
+                OneOf(
+                    # We're using the expression segment here rather than the grammar so
+                    # that in the parsed structure we get nested elements.
+                    Ref("ExpressionSegment"),
+                    Ref("SelectableGrammar"),
+                    Delimited(
+                        Ref(
+                            "ColumnReferenceSegment"
+                        ),  # WHERE (a,b,c) IN (select a,b,c FROM...)
+                        Ref(
+                            "FunctionSegment"
+                        ),  # WHERE (a, substr(b,1,3)) IN (select c,d FROM...)
+                        Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
+                        Ref("LocalAliasSegment"),  # WHERE (LOCAL.a, LOCAL.b) IN (...)
+                    ),
+                ),
+                parse_mode=ParseMode.GREEDY,
+            ),
+            # Allow potential select statement without brackets
+            Ref("SelectStatementSegment"),
+            Ref("LiteralGrammar"),
+            Ref("IntervalExpressionSegment"),
+            Ref("TypedStructLiteralSegment"),
+            Ref("ArrayExpressionSegment"),
+            Ref("ColumnReferenceSegment"),
+            # For triggers, we allow "NEW.*" but not just "*" nor "a.b.*"
+            # So can't use WildcardIdentifierSegment nor WildcardExpressionSegment
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("ObjectReferenceDelimiterGrammar"),
+                Ref("StarSegment"),
+            ),
+            Sequence(
+                Ref("StructTypeSegment"),
+                Bracketed(Delimited(Ref("ExpressionSegment"))),
+            ),
+            Sequence(
+                Ref("DatatypeSegment"),
+                # Don't use the full LiteralGrammar here
+                # because only some of them are applicable.
+                # Notably we shouldn't use QualifiedNumericLiteralSegment
+                # here because it looks like an arithmetic operation.
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                    Ref("NullLiteralSegment"),
+                    Ref("DateTimeLiteralGrammar"),
+                ),
+            ),
+            Ref("LocalAliasSegment"),
+            terminators=[Ref("CommaSegment")],
+        ),
+        Ref("AccessorGrammar", optional=True),
+        allow_gaps=True,
+    ),
+    DateTimeLiteralGrammar=Sequence(
+        OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"),
+        TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
+        Sequence(
+            Ref("IntervalUnitsGrammar"),
+            Sequence("TO", Ref("IntervalUnitsGrammar"), optional=True),
+        ),
     ),
 )
 
@@ -358,10 +447,7 @@ class StatementSegment(ansi.StatementSegment):
 
     type = "statement"
 
-    match_grammar = OneOf(
-        GreedyUntil(Ref("DelimiterGrammar")), exclude=Ref("ExecuteFileSegment")
-    )
-    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("CommentStatementSegment"),
         ],
@@ -379,9 +465,7 @@ class FileSegment(BaseFileSegment):
     ending in DelimiterGrammar
     """
 
-    # NB: We don't need a match_grammar here because we're
-    # going straight into instantiating it directly usually.
-    parse_grammar = AnyNumberOf(
+    match_grammar = AnyNumberOf(
         Ref("ExecuteFileSegment"),
         Delimited(
             Ref("StatementSegment"),
@@ -433,18 +517,10 @@ class CommentStatementSegment(BaseSegment):
     )
 
 
-# Inherit from the ANSI ObjectReferenceSegment this way so we can inherit
-# other segment types from it.
-class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
-    """A reference to an object."""
-
-    pass
-
-
 # need to ignore type due to mypy rules on type variables
 # see https://mypy.readthedocs.io/en/stable/common_issues.html#variables-vs-type-aliases
 # for details
-class TableReferenceSegment(ObjectReferenceSegment):
+class TableReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to an table, CTE, subquery or alias.
 
     Extended from ANSI to allow Database Link syntax using AtSignSegment
@@ -458,7 +534,7 @@ class TableReferenceSegment(ObjectReferenceSegment):
             Sequence(Ref("DotSegment"), Ref("DotSegment")),
             Ref("AtSignSegment"),
         ),
-        terminator=OneOf(
+        terminators=[
             "ON",
             "AS",
             "USING",
@@ -471,7 +547,7 @@ class TableReferenceSegment(ObjectReferenceSegment):
             Ref("DelimiterGrammar"),
             Ref("JoinLikeClauseGrammar"),
             BracketedSegment,
-        ),
+        ],
         allow_gaps=False,
     )
 
@@ -696,27 +772,64 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     SelectStatementSegment.
     """
 
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
-    match_grammar.terminator = match_grammar.terminator.copy(  # type: ignore
-        insert=[
-            Ref("HierarchicalQueryClauseSegment"),
-        ],
-    )
-    parse_grammar: Matchable = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[Ref("HierarchicalQueryClauseSegment", optional=True)],
         before=Ref("GroupByClauseSegment", optional=True),
+        terminators=[Ref("HierarchicalQueryClauseSegment")],
     )
 
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """A `SELECT` statement."""
 
-    match_grammar: Matchable = ansi.SelectStatementSegment.match_grammar.copy()
-    parse_grammar: Matchable = UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar: Matchable = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
             Ref("FetchClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
             Ref("NamedWindowSegment", optional=True),
-        ]
+        ],
+        replace_terminators=True,
+        terminators=cast(
+            Sequence, ansi.SelectStatementSegment.match_grammar
+        ).terminators,
+    )
+
+
+class GreaterThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+    """Allow spaces between operators."""
+
+    match_grammar = OneOf(
+        Sequence(
+            Ref("RawGreaterThanSegment"),
+            Ref("RawEqualsSegment"),
+        ),
+        Sequence(
+            Ref("RawNotSegment"),
+            Ref("RawLessThanSegment"),
+        ),
+    )
+
+
+class LessThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+    """Allow spaces between operators."""
+
+    match_grammar = OneOf(
+        Sequence(
+            Ref("RawLessThanSegment"),
+            Ref("RawEqualsSegment"),
+        ),
+        Sequence(
+            Ref("RawNotSegment"),
+            Ref("RawGreaterThanSegment"),
+        ),
+    )
+
+
+class NotEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+    """Allow spaces between operators."""
+
+    match_grammar = OneOf(
+        Sequence(Ref("RawNotSegment"), Ref("RawEqualsSegment")),
+        Sequence(Ref("RawLessThanSegment"), Ref("RawGreaterThanSegment")),
     )

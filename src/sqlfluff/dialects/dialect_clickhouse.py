@@ -12,19 +12,19 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     Indent,
+    LiteralSegment,
     Matchable,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     Sequence,
+    StringLexer,
     SymbolSegment,
     TypedParser,
-    StringLexer,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
-from sqlfluff.dialects.dialect_clickhouse_keywords import (
-    UNRESERVED_KEYWORDS,
-)
+from sqlfluff.dialects.dialect_clickhouse_keywords import UNRESERVED_KEYWORDS
 
 ansi_dialect = load_raw_dialect("ansi")
 
@@ -39,12 +39,12 @@ clickhouse_dialect.replace(
     QuotedLiteralSegment=OneOf(
         TypedParser(
             "single_quote",
-            ansi.LiteralSegment,
+            LiteralSegment,
             type="quoted_literal",
         ),
         TypedParser(
             "dollar_quote",
-            ansi.LiteralSegment,
+            LiteralSegment,
             type="quoted_literal",
         ),
     ),
@@ -52,7 +52,7 @@ clickhouse_dialect.replace(
 
 clickhouse_dialect.insert_lexer_matchers(
     # https://clickhouse.com/docs/en/sql-reference/functions#higher-order-functions---operator-and-lambdaparams-expr-function
-    [StringLexer("lambda", r"->", SymbolSegment, segment_kwargs={"type": "lambda"})],
+    [StringLexer("lambda", r"->", SymbolSegment)],
     before="newline",
 )
 
@@ -194,7 +194,7 @@ class JoinClauseSegment(ansi.JoinClauseSegment):
                         OneOf(
                             Bracketed(
                                 Delimited(Ref("SingleIdentifierGrammar")),
-                                ephemeral_name="UsingClauseContents",
+                                parse_mode=ParseMode.GREEDY,
                             ),
                             Delimited(Ref("SingleIdentifierGrammar")),
                         ),
@@ -244,7 +244,8 @@ class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
             "AS",
             Bracketed(
                 # Ephemeral here to subdivide the query.
-                Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
+                Ref("SelectableGrammar"),
+                parse_mode=ParseMode.GREEDY,
             ),
         ),
         Sequence(
@@ -330,10 +331,10 @@ class TableEngineFunctionSegment(BaseSegment):
                     "FunctionContentsGrammar",
                     # The brackets might be empty for some functions...
                     optional=True,
-                    ephemeral_name="FunctionContentsGrammar",
                 ),
                 # Engine functions may omit brackets.
                 optional=True,
+                parse_mode=ParseMode.GREEDY,
             ),
         ),
     )
@@ -426,10 +427,10 @@ class DatabaseEngineFunctionSegment(BaseSegment):
                     "FunctionContentsGrammar",
                     # The brackets might be empty for some functions...
                     optional=True,
-                    ephemeral_name="FunctionContentsGrammar",
                 ),
                 # Engine functions may omit brackets.
                 optional=True,
+                parse_mode=ParseMode.GREEDY,
             ),
         ),
     )
@@ -1227,8 +1228,7 @@ class SystemStatementSegment(BaseSegment):
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    match_grammar = ansi.StatementSegment.match_grammar
-    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("CreateMaterializedViewStatementSegment"),
             Ref("DropDictionaryStatementSegment"),

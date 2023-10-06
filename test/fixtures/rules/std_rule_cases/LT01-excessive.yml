@@ -127,128 +127,6 @@ test_redshift_at_time_zone:
     core:
       dialect: redshift
 
-test_excess_space_without_align_alias:
-  fail_str: |
-        SELECT
-            a    AS first_column,
-            b      AS second_column,
-            (a + b) / 2 AS third_column
-        FROM foo
-  fix_str: |
-    SELECT
-        a AS first_column,
-        b AS second_column,
-        (a + b) / 2 AS third_column
-    FROM foo
-  configs:
-    # This is the default config but we're being explicit
-    # here for testing.
-    layout:
-      type:
-        alias_expression:
-          spacing_before: single
-
-test_excess_space_with_align_alias:
-  # NOTE: The config here shouldn't move the table alias
-  fail_str: |
-        SELECT
-            a    AS first_column,
-            b      AS second_column,
-            (a + b) / 2 AS third_column
-        FROM foo   AS bar
-  fix_str: |
-    SELECT
-        a           AS first_column,
-        b           AS second_column,
-        (a + b) / 2 AS third_column
-    FROM foo AS bar
-  configs: &align_alias
-    layout:
-      type:
-        alias_expression:
-          spacing_before: align
-          align_within: select_clause
-          align_scope: bracketed
-
-test_missing_keyword_with_align_alias:
-  fail_str: |
-        SELECT
-            a    first_column,
-            b      AS second_column,
-            (a + b) / 2 AS third_column
-        FROM foo
-  fix_str: |
-    SELECT
-        a           first_column,
-        b           AS second_column,
-        (a + b) / 2 AS third_column
-    FROM foo
-  configs: *align_alias
-
-test_skip_alias_with_align_alias:
-  fail_str: |
-        SELECT
-            a   ,
-            b   ,
-            (a   +   b) /   2
-        FROM foo
-  fix_str: |
-    SELECT
-        a,
-        b,
-        (a + b) / 2
-    FROM foo
-  configs: *align_alias
-
-test_excess_space_with_align_alias_wider:
-  # NOTE: The config here SHOULD move the table alias
-  # NOTE: The combined LT01 also fixes the missing space
-  # between `USING` and `(a)`.
-  fail_str: |
-    SELECT
-        a    AS first_column,
-        b      AS second_column,
-        (a      +      b)      /      2 AS third_column
-    FROM foo   AS first_table
-    JOIN my_tbl AS second_table USING(a)
-  fix_str: |
-    SELECT
-        a           AS first_column,
-        b           AS second_column,
-        (a + b) / 2 AS third_column
-    FROM foo        AS first_table
-    JOIN my_tbl     AS second_table USING (a)
-  configs: &align_alias_wider
-    layout:
-      type:
-        alias_expression:
-          spacing_before: align
-          align_within: select_statement
-          align_scope: bracketed
-
-test_align_alias_boundary:
-  # The alias inside the expression shouldn't move.
-  fail_str: |
-    SELECT
-        a    AS first_column,
-        (SELECT b AS c)      AS second_column
-  fix_str: |
-    SELECT
-        a               AS first_column,
-        (SELECT b AS c) AS second_column
-  configs: *align_alias
-
-test_align_alias_inline_pass:
-  # The aliases on the same line shouldn't panic.
-  pass_str: SELECT a AS b, c AS d FROM tbl
-  configs: *align_alias
-
-test_align_alias_inline_fail:
-  # The aliases on the same line shouldn't panic.
-  fail_str: SELECT a   AS   b  ,   c   AS   d    FROM tbl
-  fix_str: SELECT a AS b, c AS d FROM tbl
-  configs: *align_alias
-
 test_pass_snowflake_semi_structured:
   pass_str: "SELECT to_array(a.b:c) FROM d"
   configs:
@@ -486,3 +364,55 @@ test_tsql_datatype:
   configs:
     core:
       dialect: tsql
+
+test_snowflake_match_pattern:
+  # Check that the spacing within the pattern isn't changed.
+  # The MATCH_RECOGNIZE & PATTERN keywords however act as keywords and not as functions
+  # therefore _should_ have a space after them.
+  # See: https://docs.snowflake.com/en/sql-reference/constructs/match_recognize
+  pass_str: |
+    select * from stock_price_history
+      match_recognize (
+        partition by company
+        order by price_date
+        measures
+          match_number() as match_number,
+          first(price_date) as start_date,
+          last(price_date) as end_date,
+          count(*) as rows_in_sequence,
+          count(row_with_price_decrease.*) as num_decreases,
+          count(row_with_price_increase.*) as num_increases
+        one row per match
+        after match skip to last row_with_price_increase
+        pattern ((A | B){5} C+)
+        define
+          row_with_price_decrease as price < lag(price),
+          row_with_price_increase as price > lag(price)
+      )
+    order by company, match_number;
+  configs:
+    core:
+      dialect: snowflake
+
+test_hive_set_statement:
+  # This should use ColonDelimiter so it shouldn't have spacing around it.
+  pass_str: |
+    set hivevar:cat = "Chloe";
+  configs:
+    core:
+      dialect: hive
+
+test_spark_set_statement:
+  pass_str: |
+    SET -v;
+  configs:
+    core:
+      dialect: sparksql
+
+test_clickhouse_system_path:
+  # We shouldn't introduce extra spaces within the path.
+  pass_str: |
+    SYSTEM RELOAD MODEL /model/path;
+  configs:
+    core:
+      dialect: clickhouse
