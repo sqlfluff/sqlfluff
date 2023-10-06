@@ -329,6 +329,13 @@ tsql_dialect.add(
             type="serde_method",
         )
     ),
+    ProcedureParameterGrammar=Sequence(
+        Ref("ParameterNameSegment", optional=True),
+        Sequence("AS", optional=True),
+        Ref("DatatypeSegment"),
+        AnySetOf("VARYING", "NULL"),
+        Sequence(Ref("EqualsSegment"), Ref("ExpressionSegment"), optional=True),
+    ),
 )
 
 tsql_dialect.replace(
@@ -381,6 +388,7 @@ tsql_dialect.replace(
         Ref("ParameterNameSegment", optional=True),
         Sequence("AS", optional=True),
         Ref("DatatypeSegment"),
+        Sequence("NULL", optional=True),
         Sequence(Ref("EqualsSegment"), Ref("ExpressionSegment"), optional=True),
     ),
     FunctionNameIdentifierSegment=SegmentGenerator(
@@ -2643,8 +2651,9 @@ class ProcedureParameterListGrammar(BaseSegment):
     match_grammar = OptionallyBracketed(
         Delimited(
             Sequence(
-                Ref("FunctionParameterGrammar"),
-                OneOf("OUT", "OUTPUT", "READONLY", optional=True),
+                Ref("ProcedureParameterGrammar"),
+                OneOf("OUT", "OUTPUT", optional=True),
+                Sequence("READONLY", optional=True),
             ),
             optional=True,
         ),
@@ -2664,9 +2673,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         OneOf("CREATE", "ALTER", Sequence("CREATE", "OR", "ALTER")),
         OneOf("PROCEDURE", "PROC"),
         Ref("ObjectReferenceSegment"),
-        Indent,
         Ref("ProcedureParameterListGrammar", optional=True),
-        Dedent,
         "AS",
         Ref("ProcedureDefinitionGrammar"),
     )
