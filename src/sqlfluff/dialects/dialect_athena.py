@@ -8,9 +8,13 @@ from sqlfluff.core.parser import (
     AnyNumberOf,
     BaseSegment,
     Bracketed,
+    CodeSegment,
     Dedent,
     Delimited,
+    IdentifierSegment,
     Indent,
+    KeywordSegment,
+    LiteralSegment,
     Matchable,
     Nothing,
     OneOf,
@@ -24,7 +28,6 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     TypedParser,
 )
-from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_athena_keywords import (
     athena_reserved_keywords,
@@ -190,7 +193,7 @@ athena_dialect.add(
     ),
     BackQuotedIdentifierSegment=TypedParser(
         "back_quote",
-        ansi.LiteralSegment,
+        LiteralSegment,
         type="quoted_identifier",
     ),
     DatetimeWithTZSegment=Sequence(OneOf("TIMESTAMP", "TIME"), "WITH", "TIME", "ZONE"),
@@ -202,7 +205,7 @@ athena_dialect.replace(
             Ref("ParameterSegment"),
         ]
     ),
-    Accessor_Grammar=Sequence(
+    AccessorGrammar=Sequence(
         AnyNumberOf(
             Ref("ArrayAccessorSegment"),
             optional=True,
@@ -216,16 +219,16 @@ athena_dialect.replace(
         ),
     ),
     QuotedLiteralSegment=OneOf(
-        TypedParser("single_quote", ansi.LiteralSegment, type="quoted_literal"),
-        TypedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
-        TypedParser("back_quote", ansi.LiteralSegment, type="quoted_literal"),
+        TypedParser("single_quote", LiteralSegment, type="quoted_literal"),
+        TypedParser("double_quote", LiteralSegment, type="quoted_literal"),
+        TypedParser("back_quote", LiteralSegment, type="quoted_literal"),
     ),
     TrimParametersGrammar=Nothing(),
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
             r"[A-Z0-9_]*[A-Z_][A-Z0-9_]*",
-            ansi.IdentifierSegment,
+            IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
@@ -396,7 +399,7 @@ class DatatypeSegment(BaseSegment):
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("MsckRepairTableStatementSegment"),
             Ref("UnloadStatementSegment"),
@@ -412,7 +415,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropModelStatementSegment"),
         ],
     )
-    match_grammar = ansi.StatementSegment.match_grammar
 
 
 class CreateTableStatementSegment(BaseSegment):
@@ -484,7 +486,7 @@ class CreateTableStatementSegment(BaseSegment):
                 OptionallyBracketed(
                     Ref("SelectableGrammar"),
                 ),
-                Sequence("WITH NO DATA", optional=True),
+                Sequence("WITH", "NO", "DATA", optional=True),
             ),
         ),
     )

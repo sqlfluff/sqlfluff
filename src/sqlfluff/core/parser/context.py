@@ -14,11 +14,16 @@ from collections import defaultdict
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Sequence, Tuple
 
+from tqdm import tqdm
+
+from sqlfluff.core.config import progress_bar_configuration
+
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.config import FluffConfig
     from sqlfluff.core.dialects.base import Dialect
     from sqlfluff.core.parser.match_result import MatchResult
-    from sqlfluff.core.parser.types import MatchableType
+    from sqlfluff.core.parser.matchable import Matchable
+    from sqlfluff.core.parser.segments import BaseSegment
 
 # Get the parser logger
 parser_logger = logging.getLogger("sqlfluff.parser")
@@ -83,7 +88,15 @@ class ParseContext:
         # a little more overhead than a list, but we manage this by only
         # copying it when necessary.
         # NOTE: Includes inherited parent terminators.
-        self.terminators: Tuple["MatchableType", ...] = ()
+        self.terminators: Tuple["Matchable", ...] = ()
+        # Value for holding a reference to the progress bar.
+        self._tqdm: Optional[tqdm] = None
+        # Variable to store whether we're tracking progress. When looking
+        # ahead to terminators or suchlike, we set this to False so as not
+        # to confuse the progress bar.
+        self.track_progress = True
+        # The current character, to store where the progress bar is at.
+        self._current_char = 0
 
     @classmethod
     def from_config(cls, config: "FluffConfig") -> "ParseContext":
@@ -104,8 +117,8 @@ class ParseContext:
     def _set_terminators(
         self,
         clear_terminators: bool = False,
-        push_terminators: Optional[Sequence["MatchableType"]] = None,
-    ) -> Tuple[int, Tuple["MatchableType", ...]]:
+        push_terminators: Optional[Sequence["Matchable"]] = None,
+    ) -> Tuple[int, Tuple["Matchable", ...]]:
         _appended = 0
         # Retain a reference to the original terminators.
         _terminators = self.terminators
@@ -127,7 +140,7 @@ class ParseContext:
     def _reset_terminators(
         self,
         appended: int,
-        terminators: Tuple["MatchableType", ...],
+        terminators: Tuple["Matchable", ...],
         clear_terminators: bool = False,
     ) -> None:
         # If we totally reset them, just reinstate the old object.
@@ -146,7 +159,8 @@ class ParseContext:
         self,
         name: str,
         clear_terminators: bool = False,
-        push_terminators: Optional[Sequence["MatchableType"]] = None,
+        push_terminators: Optional[Sequence["Matchable"]] = None,
+        track_progress: Optional[bool] = None,
     ) -> Iterator["ParseContext"]:
         """Increment match depth.
 
@@ -161,11 +175,21 @@ class ParseContext:
                 this context.
             push_terminators (:obj:`Sequence` of :obj:`Matchable`): Additional
                 terminators to add to the environment while in this context.
+            track_progress (:obj:`bool`, optional): Whether to pause progress
+                tracking for deeper matches. This avoids having the linting
+                progress bar jump forward when performing greedy matches on
+                terminators.
         """
         self._match_stack.append(self.match_segment)
         self.match_segment = name
         self.match_depth += 1
         _append, _terms = self._set_terminators(clear_terminators, push_terminators)
+        _track_progress = self.track_progress
+        if track_progress is False:
+            self.track_progress = False
+        elif track_progress is True:  # pragma: no cover
+            # We can't go from False to True. Raise an issue if not.
+            assert self.track_progress is True, "Cannot set tracking from False to True"
         try:
             yield self
         finally:
@@ -175,34 +199,57 @@ class ParseContext:
             self.match_depth -= 1
             # Reset back to old name
             self.match_segment = self._match_stack.pop()
+            # Reset back to old progress tracking.
+            self.track_progress = _track_progress
 
     @contextmanager
-    def deeper_parse(self, name: str) -> Iterator["ParseContext"]:
-        """Increment parse depth.
+    def progress_bar(self, last_char: int) -> Iterator["ParseContext"]:
+        """Set up the progress bar (if it's not already set up).
 
         Args:
-            name (:obj:`str`): Name of segment we are starting to parse.
-                NOTE: This value is entirely used for tracking and logging
-                purposes.
+            last_char (:obj:`int`): The templated character position of the
+                final segment in the sequence. This is usually populated
+                from the end of `templated_slice` on the final segment.
+                We require this on initialising the progress bar so that
+                we know how far there is to go as we track progress through
+                the file.
         """
-        _match_depth = self.match_depth
-        _match_stack = self._match_stack
-        self._parse_stack.append(self.match_segment)
-        self._match_stack = []  # Reset Parse Stack
-        self.match_segment = name
-        self.parse_depth += 1
-        self.match_depth = 0
-        _append, _terms = self._set_terminators(clear_terminators=True)
+        assert not self._tqdm, "Attempted to re-initialise progressbar."
+        self._tqdm = tqdm(
+            # Progress is character by character in the *templated* file.
+            total=last_char,
+            desc="parsing",
+            miniters=1,
+            mininterval=0.2,
+            disable=progress_bar_configuration.disable_progress_bar,
+            leave=False,
+        )
+        self._current_line = 0
         try:
             yield self
         finally:
-            self.parse_depth -= 1
-            self.match_depth = _match_depth
-            self._reset_terminators(_append, _terms, clear_terminators=True)
-            # Reset back to old name
-            self.match_segment = self._parse_stack.pop()
-            # And old stack
-            self._match_stack = _match_stack
+            self._tqdm.close()
+
+    def update_progress(self, matched_segments: Sequence["BaseSegment"]) -> None:
+        """Update the progress bar if configured.
+
+        If progress isn't configured, we do nothing.
+        If `track_progress` is false we do nothing.
+        """
+        if not self._tqdm or not self.track_progress:
+            return None
+        for _idx in range(len(matched_segments) - 1, -1, -1):
+            _seg = matched_segments[_idx]
+            if _seg.pos_marker:
+                current_char = _seg.pos_marker.templated_slice.stop
+                break
+        else:  # pragma: no cover
+            raise ValueError("Could not find progress position!")
+        if current_char <= self._current_char:
+            return None
+        self._tqdm.update(current_char - self._current_char)
+        self._current_char = current_char
+        return None
 
     def stack(self) -> Tuple[Tuple[str, ...], Tuple[str, ...]]:  # pragma: no cover
         """Return stacks as a tuples so that it can't be edited."""

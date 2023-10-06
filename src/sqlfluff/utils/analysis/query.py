@@ -1,4 +1,5 @@
 """Tools for more complex analysis of SELECT statements."""
+import logging
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import (
@@ -13,7 +14,6 @@ from typing import (
     Union,
     cast,
 )
-import logging
 
 from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.dialects.base import Dialect
@@ -121,7 +121,9 @@ class Selectable:
         buff: List[WildcardInfo] = []
         # Some select-like statements don't have select_info
         # (e.g. test_exasol_invalid_foreign_key_from)
-        if not self.select_info:
+        if not self.select_info:  # pragma: no cover
+            # TODO: Review whether to remove this.
+            # Restructure of Exasol dialect means it no longer applies.
             return buff
         for seg in self.select_info.select_targets:
             if seg.get_child("wildcard_expression"):

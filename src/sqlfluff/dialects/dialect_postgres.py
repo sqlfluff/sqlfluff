@@ -11,20 +11,23 @@ from sqlfluff.core.parser import (
     CommentSegment,
     Dedent,
     Delimited,
+    IdentifierSegment,
     Indent,
+    LiteralSegment,
     Matchable,
     NewlineSegment,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
     SegmentGenerator,
     Sequence,
-    StartsWith,
     StringParser,
     SymbolSegment,
     TypedParser,
+    WordSegment,
 )
 from sqlfluff.core.parser.grammar.anyof import AnySetOf
 from sqlfluff.core.parser.lexer import StringLexer
@@ -77,7 +80,6 @@ postgres_dialect.insert_lexer_matchers(
             r"(?s)U&(('')+?(?!')|('.*?(?<!')(?:'')*'(?!')))(\s*UESCAPE\s*'"
             r"[^0-9A-Fa-f'+\-\s)]')?",
             CodeSegment,
-            segment_kwargs={"type": "unicode_single_quote"},
         ),
         # This is similar to the Unicode regex, the key differences being:
         # - E - must start with E
@@ -93,20 +95,17 @@ postgres_dialect.insert_lexer_matchers(
             r"(?s)E(('')+?(?!')|'.*?((?<!\\)(?:\\\\)*(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\"
             r"(?<!')(?:'')*')'(?!'))",
             CodeSegment,
-            segment_kwargs={"type": "escaped_single_quote"},
         ),
         # Double quote Unicode string cannot be empty, and have no single quote escapes
         RegexLexer(
             "unicode_double_quote",
             r'(?s)U&".+?"(\s*UESCAPE\s*\'[^0-9A-Fa-f\'+\-\s)]\')?',
             CodeSegment,
-            segment_kwargs={"type": "unicode_double_quote"},
         ),
         RegexLexer(
             "json_operator",
             r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-",
             SymbolSegment,
-            segment_kwargs={"type": "json_operator"},
         ),
         StringLexer("at", "@", CodeSegment),
         # https://www.postgresql.org/docs/current/sql-syntax-lexical.html
@@ -115,7 +114,6 @@ postgres_dialect.insert_lexer_matchers(
             # binary (e.g. b'1001') or hex (e.g. X'1FF')
             r"[bBxX]'[0-9a-fA-F]*'",
             CodeSegment,
-            segment_kwargs={"type": "bit_string_literal"},
         ),
     ],
     before="like_operator",
@@ -153,11 +151,10 @@ postgres_dialect.insert_lexer_matchers(
             # ref: https://www.postgresql.org/docs/current/pgstatstatements.html
             "dollar_numeric_literal",
             r"\$\d+",
-            ansi.LiteralSegment,
-            segment_kwargs={"type": "dollar_numeric_literal"},
+            LiteralSegment,
         ),
     ],
-    before="code",  # Final thing to search for - as psql specific
+    before="word",  # Final thing to search for - as psql specific
 )
 
 postgres_dialect.patch_lexer_matchers(
@@ -167,28 +164,21 @@ postgres_dialect.patch_lexer_matchers(
             "inline_comment",
             r"(--)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--"), "type": "inline_comment"},
+            segment_kwargs={"trim_start": ("--")},
         ),
         # In Postgres, the only escape character is ' for single quote strings
         RegexLexer(
             "single_quote",
             r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))",
             CodeSegment,
-            segment_kwargs={"type": "single_quote"},
         ),
         # In Postgres, there is no escape character for double quote strings
         RegexLexer(
             "double_quote",
             r'(?s)".+?"',
             CodeSegment,
-            segment_kwargs={"type": "double_quote"},
         ),
-        RegexLexer(
-            "code",
-            r"[a-zA-Z_][0-9a-zA-Z_$]*",
-            CodeSegment,
-            segment_kwargs={"type": "code"},
-        ),
+        RegexLexer("word", r"[a-zA-Z_][0-9a-zA-Z_$]*", WordSegment),
     ]
 )
 
@@ -257,12 +247,12 @@ postgres_dialect.add(
     ),
     # Add a Full equivalent which also allow keywords
     NakedIdentifierFullSegment=TypedParser(
-        "code",
-        ansi.IdentifierSegment,
+        "word",
+        IdentifierSegment,
         type="naked_identifier_all",
     ),
     PropertiesNakedIdentifierSegment=TypedParser(  # allows reserved keywords
-        "code",
+        "word",
         CodeSegment,
         type="properties_naked_identifier",
     ),
@@ -292,11 +282,23 @@ postgres_dialect.add(
     ),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
     OnKeywordAsIdentifierSegment=StringParser(
-        "ON", ansi.IdentifierSegment, type="naked_identifier"
+        "ON", IdentifierSegment, type="naked_identifier"
     ),
     DollarNumericLiteralSegment=TypedParser(
-        "dollar_numeric_literal", ansi.LiteralSegment, type="dollar_numeric_literal"
+        "dollar_numeric_literal", LiteralSegment, type="dollar_numeric_literal"
     ),
+    ForeignDataWrapperGrammar=Sequence("FOREIGN", "DATA", "WRAPPER"),
+    OptionsListGrammar=Sequence(
+        Delimited(Ref("NakedIdentifierFullSegment"), Ref("QuotedLiteralSegment"))
+    ),
+    OptionsGrammar=Sequence(
+        "OPTIONS", Bracketed(AnyNumberOf(Ref("OptionsListGrammar")))
+    ),
+    CreateUserMappingGrammar=Sequence("CREATE", "USER", "MAPPING"),
+    SessionInformationUserFunctionsGrammar=OneOf(
+        "USER", "CURRENT_ROLE", "CURRENT_USER", "SESSION_USER"
+    ),
+    ImportForeignSchemaGrammar=Sequence("IMPORT", "FOREIGN", "SCHEMA"),
 )
 
 postgres_dialect.replace(
@@ -323,7 +325,7 @@ postgres_dialect.replace(
             # Can’t begin with $, must only contain digits, letters, underscore it $ but
             # can’t be all digits.
             r"([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
-            ansi.IdentifierSegment,
+            IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
@@ -349,14 +351,14 @@ postgres_dialect.replace(
         Sequence(
             TypedParser(
                 "single_quote",
-                ansi.LiteralSegment,
+                LiteralSegment,
                 type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 TypedParser(
                     "single_quote",
-                    ansi.LiteralSegment,
+                    LiteralSegment,
                     type="quoted_literal",
                 ),
             ),
@@ -364,14 +366,14 @@ postgres_dialect.replace(
         Sequence(
             TypedParser(
                 "bit_string_literal",
-                ansi.LiteralSegment,
+                LiteralSegment,
                 type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 TypedParser(
                     "bit_string_literal",
-                    ansi.LiteralSegment,
+                    LiteralSegment,
                     type="quoted_literal",
                 ),
             ),
@@ -379,14 +381,14 @@ postgres_dialect.replace(
         Delimited(
             TypedParser(
                 "unicode_single_quote",
-                ansi.LiteralSegment,
+                LiteralSegment,
                 type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 TypedParser(
                     "unicode_single_quote",
-                    ansi.LiteralSegment,
+                    LiteralSegment,
                     type="quoted_literal",
                 ),
             ),
@@ -394,14 +396,14 @@ postgres_dialect.replace(
         Delimited(
             TypedParser(
                 "escaped_single_quote",
-                ansi.LiteralSegment,
+                LiteralSegment,
                 type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 TypedParser(
                     "escaped_single_quote",
-                    ansi.LiteralSegment,
+                    LiteralSegment,
                     type="quoted_literal",
                 ),
             ),
@@ -409,22 +411,22 @@ postgres_dialect.replace(
         Delimited(
             TypedParser(
                 "dollar_quote",
-                ansi.LiteralSegment,
+                LiteralSegment,
                 type="quoted_literal",
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 TypedParser(
                     "dollar_quote",
-                    ansi.LiteralSegment,
+                    LiteralSegment,
                     type="quoted_literal",
                 ),
             ),
         ),
     ),
     QuotedIdentifierSegment=OneOf(
-        TypedParser("double_quote", ansi.IdentifierSegment, type="quoted_identifier"),
-        TypedParser("unicode_double_quote", ansi.LiteralSegment, type="quoted_literal"),
+        TypedParser("double_quote", IdentifierSegment, type="quoted_identifier"),
+        TypedParser("unicode_double_quote", LiteralSegment, type="quoted_literal"),
     ),
     PostFunctionGrammar=AnyNumberOf(
         Ref("WithinGroupClauseSegment"),
@@ -458,7 +460,7 @@ postgres_dialect.replace(
     IsNullGrammar=Ref.keyword("ISNULL"),
     NotNullGrammar=Ref.keyword("NOTNULL"),
     JoinKeywordsGrammar=Sequence("JOIN", Sequence("LATERAL", optional=True)),
-    SelectClauseElementTerminatorGrammar=OneOf(
+    SelectClauseTerminatorGrammar=OneOf(
         "INTO",
         "FROM",
         "WHERE",
@@ -466,20 +468,6 @@ postgres_dialect.replace(
         "LIMIT",
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
-    ),
-    SelectClauseSegmentGrammar=Sequence(
-        "SELECT",
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        Delimited(
-            Ref("SelectClauseElementSegment"),
-            # In Postgres you don't need an element so make it optional
-            optional=True,
-            allow_trailing=True,
-        ),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
@@ -516,7 +504,7 @@ postgres_dialect.replace(
         Sequence("WITH", "DATA"),
         Ref("ForClauseSegment"),
     ),
-    Accessor_Grammar=AnyNumberOf(
+    AccessorGrammar=AnyNumberOf(
         Ref("ArrayAccessorSegment"),
         # Add in semi structured expressions
         Ref("SemiStructuredAccessorSegment"),
@@ -534,14 +522,6 @@ postgres_dialect.replace(
     ),
     NonWithNonSelectableGrammar=OneOf(),
 )
-
-
-# Inherit from the ANSI ObjectReferenceSegment this way so we can inherit
-# other segment types from it.
-class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
-    """A reference to an object."""
-
-    pass
 
 
 class OverlapSegment(ansi.CompositeComparisonOperatorSegment):
@@ -707,6 +687,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                     OneOf(
                         Sequence(
                             OneOf(
+                                "BPCHAR",
                                 "CHAR",
                                 # CHAR VARYING is not documented, but it's
                                 # in the real grammar:
@@ -784,7 +765,7 @@ class IndexAccessMethodSegment(BaseSegment):
     match_grammar = Ref("SingleIdentifierGrammar")
 
 
-class OperatorClassReferenceSegment(ObjectReferenceSegment):
+class OperatorClassReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to an operator class."""
 
     type = "operator_class_reference"
@@ -1389,35 +1370,24 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """Overrides ANSI Statement, to allow for SELECT INTO statements."""
 
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("IntoClauseSegment", optional=True),
+        ],
+        before=Ref("FromClauseSegment", optional=True),
         terminators=[
             Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
             Sequence("ON", "CONFLICT"),
             Ref.keyword("RETURNING"),
             Ref("WithCheckOptionSegment"),
         ],
-    )
-
-    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
-        insert=[
-            Ref("IntoClauseSegment", optional=True),
-        ],
-        before=Ref("FromClauseSegment", optional=True),
     )
 
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Overrides ANSI as the parse grammar copy needs to be reapplied."""
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
-        terminators=[
-            Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
-            Sequence("ON", "CONFLICT"),
-            Ref.keyword("RETURNING"),
-            Ref("WithCheckOptionSegment"),
-        ],
-    )
-
-    parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
+    # Inherit most of the parse grammar from the unordered version.
+    match_grammar: Matchable = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
             Ref("LimitClauseSegment", optional=True),
@@ -1426,14 +1396,35 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     ).copy(
         insert=[Ref("ForClauseSegment", optional=True)],
         before=Ref("LimitClauseSegment", optional=True),
+        # Overwrite the terminators, because we want to remove some.
+        replace_terminators=True,
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithDataClauseSegment"),
+            Sequence("ON", "CONFLICT"),
+            Ref.keyword("RETURNING"),
+            Ref("WithCheckOptionSegment"),
+        ],
     )
 
 
 class SelectClauseSegment(ansi.SelectClauseSegment):
     """Overrides ANSI to allow INTO as a terminator."""
 
-    match_grammar = StartsWith(
+    match_grammar = Sequence(
         "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        Delimited(
+            Ref("SelectClauseElementSegment"),
+            # In Postgres you don't need an element so make it optional
+            optional=True,
+            allow_trailing=True,
+        ),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
         terminators=[
             "INTO",
             "FROM",
@@ -1445,8 +1436,8 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
             Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
             Ref("WithCheckOptionSegment"),
         ],
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
-    parse_grammar = ansi.SelectClauseSegment.parse_grammar
 
 
 class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
@@ -2229,7 +2220,7 @@ class DropExtensionStatementSegment(BaseSegment):
     )
 
 
-class PublicationReferenceSegment(ObjectReferenceSegment):
+class PublicationReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to a publication."""
 
     type = "publication_reference"
@@ -3903,8 +3894,7 @@ class AnalyzeStatementSegment(BaseSegment):
 class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
-    match_grammar = ansi.StatementSegment.match_grammar
-    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("AlterDefaultPrivilegesStatementSegment"),
             Ref("DropOwnedStatementSegment"),
@@ -3956,6 +3946,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ClusterStatementSegment"),
             Ref("CreateCollationStatementSegment"),
             Ref("CallStoredProcedureSegment"),
+            Ref("CreateServerStatementSegment"),
+            Ref("CreateUserMappingStatementSegment"),
+            Ref("ImportForeignSchemaStatementSegment"),
         ],
     )
 
@@ -4119,7 +4112,7 @@ class AsAliasExpressionSegment(BaseSegment):
     )
 
 
-class OperationClassReferenceSegment(ObjectReferenceSegment):
+class OperationClassReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to an operation class."""
 
     type = "operation_class_reference"
@@ -4833,8 +4826,8 @@ class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
         "AS",
         Sequence(Ref.keyword("NOT", optional=True), "MATERIALIZED", optional=True),
         Bracketed(
-            # Ephemeral here to subdivide the query.
-            Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
+            Ref("SelectableGrammar"),
+            parse_mode=ParseMode.GREEDY,
         ),
         OneOf(
             Sequence(
@@ -4874,8 +4867,8 @@ class ValuesClauseSegment(ansi.ValuesClauseSegment):
                     # DEFAULT keyword used in
                     # INSERT INTO statement.
                     "DEFAULT",
-                    ephemeral_name="ValuesClauseElements",
-                )
+                ),
+                parse_mode=ParseMode.GREEDY,
             ),
         ),
         Ref("AliasExpressionSegment", optional=True),
@@ -5281,7 +5274,7 @@ class ClusterStatementSegment(BaseSegment):
     )
 
 
-class ColumnReferenceSegment(ObjectReferenceSegment):
+class ColumnReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to column, field or alias.
 
     We override this for Postgres to allow keywords in fully qualified column
@@ -5352,4 +5345,79 @@ class TableExpressionSegment(ansi.TableExpressionSegment):
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
         Bracketed(Ref("MergeStatementSegment")),
+    )
+
+
+class ServerReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to a server."""
+
+    type = "server_reference"
+
+
+class CreateServerStatementSegment(BaseSegment):
+    """Create server statement.
+
+    https://www.postgresql.org/docs/15/sql-createserver.html
+    """
+
+    type = "create_server_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SERVER",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ServerReferenceSegment"),
+        Sequence("TYPE", Ref("QuotedLiteralSegment"), optional=True),
+        Sequence("VERSION", Ref("VersionIdentifierSegment"), optional=True),
+        Ref("ForeignDataWrapperGrammar"),
+        Ref("ObjectReferenceSegment"),
+        Ref("OptionsGrammar", optional=True),
+    )
+
+
+class CreateUserMappingStatementSegment(BaseSegment):
+    """Create user mapping statement.
+
+    https://www.postgresql.org/docs/15/sql-createusermapping.html
+    """
+
+    type = "create_user_mapping_statement"
+
+    match_grammar: Matchable = Sequence(
+        Ref("CreateUserMappingGrammar"),
+        Ref("IfNotExistsGrammar", optional=True),
+        "FOR",
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Ref("SessionInformationUserFunctionsGrammar"),
+            "PUBLIC",
+        ),
+        "SERVER",
+        Ref("ServerReferenceSegment"),
+        Ref("OptionsGrammar", optional=True),
+    )
+
+
+class ImportForeignSchemaStatementSegment(BaseSegment):
+    """Import foreign schema statement.
+
+    https://www.postgresql.org/docs/15/sql-importforeignschema.html
+    """
+
+    type = "import_foreign_schema_statement"
+
+    match_grammar: Matchable = Sequence(
+        Ref("ImportForeignSchemaGrammar"),
+        Ref("SchemaReferenceSegment"),
+        Sequence(
+            OneOf(Sequence("LIMIT", "TO"), "EXCEPT"),
+            Bracketed(Delimited(Ref("NakedIdentifierFullSegment"))),
+            optional=True,
+        ),
+        "FROM",
+        "SERVER",
+        Ref("ServerReferenceSegment"),
+        "INTO",
+        Ref("SchemaReferenceSegment"),
+        Ref("OptionsGrammar", optional=True),
     )

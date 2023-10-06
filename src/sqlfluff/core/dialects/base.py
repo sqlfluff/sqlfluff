@@ -9,14 +9,10 @@ from sqlfluff.core.parser import (
     SegmentGenerator,
     StringParser,
 )
-from sqlfluff.core.parser.grammar.base import BaseGrammar
+from sqlfluff.core.parser.grammar.base import BaseGrammar, Nothing
 from sqlfluff.core.parser.lexer import LexerType
 from sqlfluff.core.parser.matchable import Matchable
-from sqlfluff.core.parser.types import (
-    BracketPairTuple,
-    DialectElementType,
-    MatchableType,
-)
+from sqlfluff.core.parser.types import BracketPairTuple, DialectElementType
 
 
 class Dialect:
@@ -102,7 +98,7 @@ class Dialect:
         assert label not in (
             "bracket_pairs",
             "angle_bracket_pairs",
-        ), f"Use `bracket_sets` to retrieve { label } set."
+        ), f"Use `bracket_sets` to retrieve {label} set."
 
         if label not in self._sets:
             self._sets[label] = set()
@@ -180,12 +176,13 @@ class Dialect:
         for n in kwargs:
             if n not in self._library:  # pragma: no cover
                 raise ValueError(f"{n!r} is not already registered in {self!r}")
-            cls = kwargs[n]
-            if self._library[n] is cls:
+            replacement = kwargs[n]
+            # If trying to replace with same, just skip.
+            if self._library[n] is replacement:
                 continue
-            elif self._library[n] == cls:
-                # Check for replacement with a new but identical class.
-                # This would be a sign of redundant definitions in the dialect.
+            # Check for replacement with a new but identical class.
+            # This would be a sign of redundant definitions in the dialect.
+            elif self._library[n] == replacement:
                 raise ValueError(
                     f"Attempted unnecessary identical redefinition of {n!r} in {self!r}"
                 )  # pragma: no cover
@@ -193,21 +190,31 @@ class Dialect:
             # To replace a segment, the replacement must either be a
             # subclass of the original, *or* it must have the same
             # public methods and/or fields as it.
-            base_dir = set(dir(self._library[n]))
+            # NOTE: Other replacements aren't validated.
             subclass = False
-            if isinstance(self._library[n], type) and isinstance(cls, type):
-                seg = cast(Type["BaseSegment"], self._library[n])
-                assert issubclass(seg, BaseSegment)
-                assert issubclass(cls, BaseSegment)
-                subclass = issubclass(cls, seg)
+            if isinstance(self._library[n], type) and not isinstance(
+                # NOTE: The exception here is we _are_ allowed to replace a
+                # segment with a `Nothing()` grammar, which shows that a segment
+                # has been disabled.
+                replacement,
+                Nothing,
+            ):
+                assert isinstance(
+                    replacement, type
+                ), f"Cannot replace {n!r} with {replacement}"
+                old_seg = cast(Type["BaseSegment"], self._library[n])
+                new_seg = cast(Type["BaseSegment"], replacement)
+                assert issubclass(old_seg, BaseSegment)
+                assert issubclass(new_seg, BaseSegment)
+                subclass = issubclass(new_seg, old_seg)
                 if not subclass:
-                    if seg.type != cls.type:
+                    if old_seg.type != new_seg.type:
                         raise ValueError(  # pragma: no cover
                             f"Cannot replace {n!r} because 'type' property does not "
-                            f"match: {cls.type} != {seg.type}"
+                            f"match: {new_seg.type} != {old_seg.type}"
                         )
-
-                    cls_dir = set(dir(cls))
+                    base_dir = set(dir(self._library[n]))
+                    cls_dir = set(dir(new_seg))
                     missing = set(
                         n for n in base_dir.difference(cls_dir) if not n.startswith("_")
                     )
@@ -217,30 +224,7 @@ class Dialect:
                             f"is missing these from base: {', '.join(missing)}"
                         )
 
-            if subclass:
-                # If the segment class we're replacing defines these fields, the
-                # replacement must override either:
-                # - NONE of them or
-                # - ALL of them
-                # Overriding a subset of them is not necessarily wrong, but it's
-                # error-prone, hence this policy.
-                grammars = {"match_grammar", "parse_grammar"}
-                # TRICKY: The explicit use of __dict__ on the classes is
-                # deliberate. We are concerned with whether a class itself does
-                # or does not define a thing, IGNORING INHERITED VALUES.
-                if grammars.intersection(set(self._library[n].__dict__)) == grammars:
-                    overrides = grammars.intersection(set(cls.__dict__))
-                    if overrides and overrides != grammars:
-                        for grammar in grammars:
-                            if (
-                                grammar in self._library[n].__dict__
-                                and grammar not in cls.__dict__
-                            ):
-                                raise ValueError(
-                                    f"Cannot replace {n!r} because it needs "
-                                    f"to define '{grammar}'"
-                                )
-            self._library[n] = cls
+            self._library[n] = replacement
 
     def add_update_segments(self, module_dct: Dict[str, Any]) -> None:
         """Scans module dictionary, adding or replacing segment definitions."""
@@ -285,7 +269,7 @@ class Dialect:
                 f"with get_segment - type{type(segment)}"
             )
 
-    def ref(self, name: str) -> MatchableType:
+    def ref(self, name: str) -> Matchable:
         """Return an object which acts as a late binding reference to the element named.
 
         NB: This requires the dialect to be expanded, and only returns Matchables

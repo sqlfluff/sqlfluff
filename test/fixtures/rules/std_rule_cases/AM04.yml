@@ -551,10 +551,23 @@ test_pass_exasol_values_clause:
     core:
       dialect: exasol
 
-test_exasol_invalid_foreign_key_from:
-  pass_str: |
+test_fail_exasol_invalid_foreign_key_from:
+  # This query should fail (I think) because it
+  # returns more than just the foreign key and
+  # that could be an unknown number of columns.
+  fail_str: |
     SELECT *
     WITH INVALID FOREIGN KEY (nr)
+      FROM T1 REFERENCING T2 (id)
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_exasol_invalid_foreign_key_from:
+  # This query should pass because it will return
+  # just the foreign key.
+  pass_str: |
+    SELECT INVALID FOREIGN KEY (nr)
       FROM T1 REFERENCING T2 (id)
   configs:
     core:

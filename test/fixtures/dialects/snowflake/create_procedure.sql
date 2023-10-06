@@ -132,3 +132,17 @@ RETURN area_of_circle;
 END;
 $$
 ;
+
+CREATE OR REPLACE PROCEDURE MY_PROCEDURE(
+"Id" NUMBER(38,0)
+)
+RETURNS VARCHAR
+LANGUAGE SQL
+AS
+BEGIN
+select 1;
+select 2;
+select 3;
+select 4;
+return 5;
+END;

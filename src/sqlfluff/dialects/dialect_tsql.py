@@ -12,24 +12,30 @@ from sqlfluff.core.parser import (
     Bracketed,
     CodeSegment,
     CommentSegment,
+    CompositeComparisonOperatorSegment,
     Conditional,
     Dedent,
     Delimited,
+    IdentifierSegment,
     ImplicitIndent,
     Indent,
+    LiteralSegment,
     Matchable,
     MultiStringParser,
+    NewlineSegment,
     Nothing,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
     SegmentGenerator,
     Sequence,
     TypedParser,
+    WhitespaceSegment,
+    WordSegment,
 )
-from sqlfluff.core.parser.segments.raw import NewlineSegment, WhitespaceSegment
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_tsql_keywords import (
     RESERVED_KEYWORDS,
@@ -134,39 +140,33 @@ tsql_dialect.insert_lexer_matchers(
             "atsign",
             r"[@][a-zA-Z0-9_]+",
             CodeSegment,
-            segment_kwargs={"type": "atsign"},
         ),
         RegexLexer(
             "var_prefix",
             r"[$][a-zA-Z0-9_]+",
             CodeSegment,
-            segment_kwargs={"type": "var_prefix"},
         ),
         RegexLexer(
             "square_quote",
             r"\[([^\[\]]*)*\]",
             CodeSegment,
-            segment_kwargs={"type": "square_quote"},
         ),
         # T-SQL unicode strings
         RegexLexer(
             "single_quote_with_n",
             r"N'([^']|'')*'",
             CodeSegment,
-            segment_kwargs={"type": "single_quote_with_n"},
         ),
         RegexLexer(
             "hash_prefix",
             r"[#][#]?[a-zA-Z0-9_]+",
             CodeSegment,
-            segment_kwargs={"type": "hash_prefix"},
         ),
         RegexLexer(
             "unquoted_relative_sql_file_path",
             # currently there is no way to pass `regex.IGNORECASE` flag to `RegexLexer`
             r"[.\w\\/#-]+\.[sS][qQ][lL]",
             CodeSegment,
-            segment_kwargs={"type": "unquoted_relative_sql_file_path"},
         ),
     ],
     before="back_quote",
@@ -179,14 +179,13 @@ tsql_dialect.patch_lexer_matchers(
             "single_quote",
             r"'([^']|'')*'",
             CodeSegment,
-            segment_kwargs={"type": "single_quote"},
         ),
         # Patching comments to remove hash comments
         RegexLexer(
             "inline_comment",
             r"(--)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--"), "type": "inline_comment"},
+            segment_kwargs={"trim_start": ("--")},
         ),
         # Patching block comments to account for nested blocks.
         # N.B. this syntax is only possible via the non-standard-library
@@ -225,27 +224,26 @@ tsql_dialect.patch_lexer_matchers(
                 r"[^\S\r\n]+",
                 WhitespaceSegment,
             ),
-            segment_kwargs={"type": "block_comment"},
         ),
         RegexLexer(
-            "code", r"[0-9a-zA-Z_#@]+", CodeSegment
+            "word", r"[0-9a-zA-Z_#@]+", WordSegment
         ),  # overriding to allow hash mark and at-sign in code
     ]
 )
 
 tsql_dialect.add(
     BracketedIdentifierSegment=TypedParser(
-        "square_quote", ansi.IdentifierSegment, type="quoted_identifier"
+        "square_quote", IdentifierSegment, type="quoted_identifier"
     ),
     HashIdentifierSegment=TypedParser(
-        "hash_prefix", ansi.IdentifierSegment, type="hash_identifier"
+        "hash_prefix", IdentifierSegment, type="hash_identifier"
     ),
     VariableIdentifierSegment=TypedParser(
-        "var_prefix", ansi.IdentifierSegment, type="variable_identifier"
+        "var_prefix", IdentifierSegment, type="variable_identifier"
     ),
     BatchDelimiterGrammar=Ref("GoStatementSegment"),
     QuotedLiteralSegmentWithN=TypedParser(
-        "single_quote_with_n", ansi.LiteralSegment, type="quoted_literal"
+        "single_quote_with_n", LiteralSegment, type="quoted_literal"
     ),
     QuotedLiteralSegmentOptWithN=OneOf(
         Ref("QuotedLiteralSegment"),
@@ -340,7 +338,7 @@ tsql_dialect.replace(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
             r"[A-Z_][A-Z0-9_@$#]*",
-            ansi.IdentifierSegment,
+            IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
@@ -429,19 +427,6 @@ tsql_dialect.replace(
             "NONCLUSTERED",
             optional=True,
         ),
-    ),
-    # Overriding SelectClauseSegmentGrammar to remove Delimited logic which assumes
-    # statements have been delimited
-    SelectClauseSegmentGrammar=Sequence(
-        "SELECT",
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        Delimited(
-            Ref("SelectClauseElementSegment"),
-        ),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
     ),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
@@ -545,8 +530,8 @@ tsql_dialect.replace(
                         ),  # WHERE (a, substr(b,1,3)) IN (select c,d FROM...)
                         Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
                     ),
-                    ephemeral_name="BracketedExpression",
                 ),
+                parse_mode=ParseMode.GREEDY,
             ),
             # Allow potential select statement without brackets
             Ref("SelectStatementSegment"),
@@ -555,7 +540,7 @@ tsql_dialect.replace(
             Ref("TypedArrayLiteralSegment"),
             Ref("ArrayLiteralSegment"),
         ),
-        Ref("Accessor_Grammar", optional=True),
+        Ref("AccessorGrammar", optional=True),
         allow_gaps=True,
     ),
     MergeIntoLiteralGrammar=Sequence(
@@ -576,7 +561,7 @@ tsql_dialect.replace(
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    match_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("IfExpressionStatement"),
             Ref("DeclareStatementSegment"),
@@ -621,6 +606,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateExternalTableStatementSegment"),
             Ref("DropExternalTableStatementSegment"),
             Ref("CopyIntoTableStatementSegment"),
+            Ref("CreateFullTextIndexStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -629,10 +615,8 @@ class StatementSegment(ansi.StatementSegment):
         ],
     )
 
-    parse_grammar = match_grammar
 
-
-class GreaterThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class GreaterThanOrEqualToSegment(CompositeComparisonOperatorSegment):
     """Greater than or equal to operator.
 
     N.B. Patching to add !< and
@@ -651,7 +635,7 @@ class GreaterThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class LessThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class LessThanOrEqualToSegment(CompositeComparisonOperatorSegment):
     """Greater than or equal to operator.
 
     N.B. Patching to add !> and
@@ -670,7 +654,7 @@ class LessThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class NotEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class NotEqualToSegment(CompositeComparisonOperatorSegment):
     """Not equal to operator.
 
     N.B. Patching to allow spaces between operators.
@@ -685,7 +669,7 @@ class NotEqualToSegment(ansi.CompositeComparisonOperatorSegment):
 class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     """An element in the targets of a select statement.
 
-    Overriding ANSI to remove GreedyUntil logic which assumes statements have been
+    Overriding ANSI to remove greedy logic which assumes statements have been
     delimited
     """
 
@@ -702,8 +686,6 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
             Ref("AliasExpressionSegment", optional=True),
         ),
     )
-
-    parse_grammar = None
 
 
 class AltAliasExpressionSegment(BaseSegment):
@@ -739,12 +721,22 @@ class SelectClauseModifierSegment(BaseSegment):
 class SelectClauseSegment(BaseSegment):
     """A group of elements in a select target statement.
 
-    Overriding ANSI to remove StartsWith logic which assumes statements have been
+    Overriding ANSI to remove greedy logic which assumes statements have been
     delimited
     """
 
     type = "select_clause"
-    match_grammar = Ref("SelectClauseSegmentGrammar")
+    match_grammar: Matchable = Sequence(
+        "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        # NOTE: Don't allow trailing.
+        Delimited(Ref("SelectClauseElementSegment")),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
+        # NOTE: In TSQL - this grammar is NOT greedy.
+    )
 
 
 class UnorderedSelectStatementSegment(BaseSegment):
@@ -753,7 +745,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
     We need to change ANSI slightly to remove LimitClauseSegment
     and NamedWindowSegment which don't exist in T-SQL.
 
-    We also need to get away from ANSI's use of StartsWith.
+    We also need to get away from ANSI's use of terminators.
     There's not a clean list of terminators that can be used
     to identify the end of a TSQL select statement.  Semi-colon is optional.
     """
@@ -775,7 +767,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
 class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement.
 
-    Overriding ANSI definition to remove StartsWith logic that doesn't handle optional
+    Overriding ANSI definition to remove terminator logic that doesn't handle optional
     delimitation well.
     """
 
@@ -880,7 +872,7 @@ class WithCompoundStatementSegment(BaseSegment):
 
     `WITH tab (col1,col2) AS (SELECT a,b FROM x)`
 
-    Overriding ANSI to remove the greedy matching of StartsWith().
+    Overriding ANSI to remove the greedy use of terminators.
     """
 
     type = "with_compound_statement"
@@ -908,7 +900,7 @@ class SelectStatementSegment(BaseSegment):
     We need to change ANSI slightly to remove LimitClauseSegment
     and NamedWindowSegment which don't exist in T-SQL.
 
-    We also need to get away from ANSI's use of StartsWith.
+    We also need to get away from ANSI's use of terminators.
     There's not a clean list of terminators that can be used
     to identify the end of a TSQL select statement.  Semi-colon is optional.
     """
@@ -939,7 +931,7 @@ class WhereClauseSegment(BaseSegment):
     """A `WHERE` clause like in `SELECT` or `INSERT`.
 
     Overriding ANSI in order to get away from the use of
-    StartsWith. There's not a clean list of terminators that can be used
+    terminators. There's not a clean list of terminators that can be used
     to identify the end of a TSQL select statement.  Semi-colon is optional.
     """
 
@@ -983,6 +975,108 @@ class CreateIndexStatementSegment(BaseSegment):
         Ref("FilestreamOnOptionSegment", optional=True),
         Ref("DelimiterGrammar", optional=True),
         Dedent,
+    )
+
+
+class CreateFullTextIndexStatementSegment(BaseSegment):
+    """A `CREATE FULLTEXT INDEX` statement.
+
+    https://learn.microsoft.com/fr-fr/sql/t-sql/statements/create-fulltext-index-transact-sql?view=sql-server-ver16
+    """
+
+    type = "create_fulltext_index_statement"
+
+    _catalog_filegroup_option = Sequence(
+        "ON",
+        Delimited(
+            AnySetOf(
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    "FILEGROUP",
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
+        ),
+        optional=True,
+    )
+
+    _with_option = Sequence(
+        "WITH",
+        Bracketed(
+            OneOf(
+                Sequence(
+                    "CHANGE_TRACKING",
+                    Ref("EqualsSegment", optional=True),
+                    OneOf(
+                        "MANUAL",
+                        "AUTO",
+                        Delimited(
+                            "OFF",
+                            Sequence(
+                                "NO",
+                                "POPULATION",
+                                optional=True,
+                            ),
+                        ),
+                    ),
+                ),
+                Sequence(
+                    "STOPLIST",
+                    Ref("EqualsSegment", optional=True),
+                    OneOf(
+                        "OFF",
+                        "SYSTEM",
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                ),
+                Sequence(
+                    "SEARCH",
+                    "PROPERTY",
+                    "LIST",
+                    Ref("EqualsSegment", optional=True),
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
+        ),
+        optional=True,
+    )
+
+    match_grammar = Sequence(
+        "CREATE",
+        "FULLTEXT",
+        "INDEX",
+        "ON",
+        Ref("TableReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    AnySetOf(
+                        Sequence(
+                            "TYPE",
+                            "COLUMN",
+                            Ref("DatatypeSegment"),
+                        ),
+                        Sequence(
+                            "LANGUAGE",
+                            OneOf(
+                                Ref("NumericLiteralSegment"),
+                                Ref("QuotedLiteralSegment"),
+                                optional=True,
+                            ),
+                        ),
+                        "STATISTICAL_SEMANTICS",
+                    ),
+                ),
+            ),
+        ),
+        Sequence(
+            "KEY",
+            "INDEX",
+            Ref("ObjectReferenceSegment"),
+            _catalog_filegroup_option,
+        ),
+        _with_option,
     )
 
 
@@ -1389,20 +1483,42 @@ class TableOptionSegment(BaseSegment):
                         "SYSTEM_VERSIONING",
                         Ref("EqualsSegment"),
                         "ON",
-                        Sequence(
-                            Bracketed(
-                                "HISTORY_TABLE",
-                                Ref("EqualsSegment"),
-                                Ref("TableReferenceSegment"),
-                                Sequence(
-                                    Ref("CommaSegment"),
-                                    "DATA_CONSISTENCY_CHECK",
-                                    Ref("EqualsSegment"),
-                                    OneOf("ON", "OFF"),
-                                    optional=True,
+                        Bracketed(
+                            Delimited(
+                                AnyNumberOf(
+                                    Sequence(
+                                        "HISTORY_TABLE",
+                                        Ref("EqualsSegment"),
+                                        Ref("TableReferenceSegment"),
+                                    ),
+                                    Sequence(
+                                        "HISTORY_RETENTION_PERIOD",
+                                        Ref("EqualsSegment"),
+                                        OneOf(
+                                            "INFINITE",
+                                            Sequence(
+                                                Ref(
+                                                    "NumericLiteralSegment",
+                                                    optional=True,
+                                                ),
+                                                OneOf(
+                                                    "DAYS",
+                                                    "WEEKS",
+                                                    "MONTHS",
+                                                    "YEARS",
+                                                ),
+                                                optional=True,
+                                            ),
+                                        ),
+                                    ),
+                                    Sequence(
+                                        Ref("CommaSegment"),
+                                        "DATA_CONSISTENCY_CHECK",
+                                        Ref("EqualsSegment"),
+                                        OneOf("ON", "OFF"),
+                                    ),
                                 ),
                             ),
-                            optional=True,
                         ),
                     ),
                     Sequence(
@@ -2754,7 +2870,6 @@ class PartitionClauseSegment(ansi.PartitionClauseSegment):
             )
         ),
     )
-    parse_grammar = None
 
 
 class OnPartitionsSegment(BaseSegment):
@@ -2825,9 +2940,9 @@ class FunctionSegment(BaseSegment):
                         "FunctionContentsGrammar",
                         # The brackets might be empty for some functions...
                         optional=True,
-                        ephemeral_name="FunctionContentsGrammar",
                     ),
-                )
+                ),
+                parse_mode=ParseMode.GREEDY,
             ),
         ),
         Sequence(
@@ -2871,9 +2986,9 @@ class FunctionSegment(BaseSegment):
                         "FunctionContentsGrammar",
                         # The brackets might be empty for some functions...
                         optional=True,
-                        ephemeral_name="FunctionContentsGrammar",
                     ),
                 ),
+                parse_mode=ParseMode.GREEDY,
             ),
             Ref("WithinGroupClause", optional=True),
         ),
@@ -2898,8 +3013,8 @@ class FunctionSegment(BaseSegment):
                     "FunctionContentsGrammar",
                     # The brackets might be empty for some functions...
                     optional=True,
-                    ephemeral_name="FunctionContentsGrammar",
-                )
+                ),
+                parse_mode=ParseMode.GREEDY,
             ),
             Ref("PostFunctionGrammar", optional=True),
         ),
@@ -2948,8 +3063,6 @@ class CreateTableStatementSegment(BaseSegment):
         Ref("TableOptionSegment", optional=True),
         Ref("DelimiterGrammar", optional=True),
     )
-
-    parse_grammar = match_grammar
 
 
 class AlterTableStatementSegment(BaseSegment):
@@ -3503,9 +3616,7 @@ class FileSegment(BaseFileSegment):
     has no match_grammar.
     """
 
-    # NB: We don't need a match_grammar here because we're
-    # going straight into instantiating it directly usually.
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         AnyNumberOf(Ref("BatchDelimiterGrammar")),
         Delimited(
             Ref("BatchSegment"),
@@ -3636,7 +3747,7 @@ class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/statements/delete-transact-sql?view=sql-server-ver15
-    Overriding ANSI to remove StartsWith logic which assumes statements have been
+    Overriding ANSI to remove greedy logic which assumes statements have been
     delimited and to allow for Azure Synapse Analytics-specific DELETE statements
     """
 
@@ -3819,7 +3930,7 @@ class GroupByClauseSegment(BaseSegment):
 class HavingClauseSegment(BaseSegment):
     """A `HAVING` clause like in `SELECT`.
 
-    Overriding ANSI to remove StartsWith with greedy terminator
+    Overriding ANSI to remove greedy terminator
     """
 
     type = "having_clause"
@@ -3834,7 +3945,7 @@ class HavingClauseSegment(BaseSegment):
 class OrderByClauseSegment(BaseSegment):
     """A `ORDER BY` clause like in `SELECT`.
 
-    Overriding ANSI to remove StartsWith logic which assumes statements have been
+    Overriding ANSI to remove Greedy logic which assumes statements have been
     delimited
     """
 
@@ -4658,7 +4769,6 @@ class WindowSpecificationSegment(BaseSegment):
         Ref("OrderByClauseSegment", optional=True),
         Ref("FrameClauseSegment", optional=True),
         optional=True,
-        ephemeral_name="OverClauseContent",
     )
 
 
@@ -4670,6 +4780,20 @@ class GotoStatement(BaseSegment):
 
     type = "goto_statement"
     match_grammar = Sequence("GOTO", Ref("SingleIdentifierGrammar"))
+
+
+class ExecuteAsClause(BaseSegment):
+    """EXECUTE AS Clause.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/execute-as-clause-transact-sql?view=sql-server-ver16
+    """
+
+    type = "execute_as_clause"
+    match_grammar = Sequence(
+        "EXECUTE",
+        "AS",
+        Ref("SingleQuotedIdentifierSegment"),
+    )
 
 
 class CreateTriggerStatementSegment(BaseSegment):
@@ -4692,36 +4816,14 @@ class CreateTriggerStatementSegment(BaseSegment):
         ),
         Sequence(
             "WITH",
-            OneOf(
-                Sequence(
-                    Ref.keyword("ENCRYPTION", optional=True),
-                    Sequence(
-                        "EXECUTE",
-                        "AS",
-                        Ref("SingleQuotedIdentifierSegment"),
-                        optional=True,
-                    ),
-                ),
-                Sequence(
-                    Ref.keyword("NATIVE_COMPILATION", optional=True),
-                    Ref.keyword("SCHEMABINDING", optional=True),
-                    Sequence(
-                        "EXECUTE",
-                        "AS",
-                        Ref("SingleQuotedIdentifierSegment"),
-                        optional=True,
-                    ),
-                ),
-                Sequence(
-                    Ref.keyword("ENCRYPTION", optional=True),
-                    Sequence(
-                        "EXECUTE",
-                        "AS",
-                        Ref("SingleQuotedIdentifierSegment"),
-                        optional=True,
-                    ),
-                ),
+            AnySetOf(
+                # NOTE: Techincally, ENCRYPTION can't be combined with the other two,
+                # but this slightly more generous parsing is ok for SQLFluff.
+                Ref.keyword("ENCRYPTION"),
+                Ref.keyword("NATIVE_COMPILATION"),
+                Ref.keyword("SCHEMABINDING"),
             ),
+            Ref("ExecuteAsClause", optional=True),
             optional=True,
         ),
         OneOf(

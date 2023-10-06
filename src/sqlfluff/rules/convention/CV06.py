@@ -1,9 +1,7 @@
 """Implementation of Rule CV06."""
 from typing import List, NamedTuple, Optional, Sequence, cast
 
-from sqlfluff.core.parser import SymbolSegment
-from sqlfluff.core.parser.segments.base import BaseSegment
-from sqlfluff.core.parser.segments.raw import NewlineSegment, RawSegment
+from sqlfluff.core.parser import BaseSegment, NewlineSegment, RawSegment, SymbolSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
 from sqlfluff.utils.functional import Segments, sp

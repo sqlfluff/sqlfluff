@@ -6,15 +6,15 @@ from sqlfluff.core.parser import BaseSegment
 
 
 @pytest.fixture(scope="module")
-def raw_seg_list(generate_test_segments):
+def raw_segments(generate_test_segments):
     """Construct a list of raw segments as a fixture."""
     return generate_test_segments(["foobar", ".barfoo"])
 
 
 @pytest.fixture(scope="module")
-def raw_seg(raw_seg_list):
+def raw_seg(raw_segments):
     """Construct a raw segment as a fixture."""
-    return raw_seg_list[0]
+    return raw_segments[0]
 
 
 @pytest.fixture(scope="session")

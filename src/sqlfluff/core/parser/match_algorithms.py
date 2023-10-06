@@ -5,14 +5,14 @@ or BaseGrammar to un-bloat those classes.
 """
 
 from dataclasses import dataclass
-from typing import List, Optional, Sequence, Tuple, cast
+from typing import Iterable, List, Optional, Sequence, Set, Tuple, cast
 
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments import BaseSegment, BracketedSegment
-from sqlfluff.core.parser.types import MatchableType
 
 
 def first_trimmed_raw(seg: BaseSegment) -> str:
@@ -37,6 +37,19 @@ def first_trimmed_raw(seg: BaseSegment) -> str:
     return s[0] if s else ""
 
 
+def _first_non_whitespace(
+    segments: Iterable["BaseSegment"],
+) -> Optional[Tuple[str, Set[str]]]:
+    """Return the upper first non-whitespace segment in the iterable."""
+    for segment in segments:
+        if segment.first_non_whitespace_segment_raw_upper:
+            return (
+                segment.first_non_whitespace_segment_raw_upper,
+                segment.class_types,
+            )
+    return None
+
+
 @dataclass
 class BracketInfo:
     """BracketInfo tuple for keeping track of brackets during matching.
@@ -47,6 +60,7 @@ class BracketInfo:
 
     bracket: BaseSegment
     segments: Tuple[BaseSegment, ...]
+    bracket_type: str
 
     def to_segment(self, end_bracket: Tuple[BaseSegment, ...]) -> BracketedSegment:
         """Turn the contained segments into a bracketed segment."""
@@ -58,11 +72,69 @@ class BracketInfo:
         )
 
 
+def prune_options(
+    options: Iterable[Matchable],
+    segments: Tuple[BaseSegment, ...],
+    parse_context: ParseContext,
+) -> List[Matchable]:
+    """Use the simple matchers to prune which options to match on.
+
+    Works in the context of a grammar making choices between options
+    such as AnyOf or the content of Delimited.
+    """
+    available_options = []
+    prune_buff = []
+
+    # Find the first code element to match against.
+    first_segment = _first_non_whitespace(segments)
+    # If we don't have an appropriate option to match against,
+    # then we should just return immediately. Nothing will match.
+    if not first_segment:
+        return list(options)
+    first_raw, first_types = first_segment
+
+    for opt in options:
+        simple = opt.simple(parse_context=parse_context)
+        if simple is None:
+            # This element is not simple, we have to do a
+            # full match with it...
+            available_options.append(opt)
+            continue
+
+        # Otherwise we have a simple option, so let's use
+        # it for pruning.
+        simple_raws, simple_types = simple
+        matched = False
+
+        # We want to know if the first meaningful element of the str_buff
+        # matches the option, based on either simple _raw_ matching or
+        # simple _type_ matching.
+
+        # Match Raws
+        if simple_raws and first_raw in simple_raws:
+            # If we get here, it's matched the FIRST element of the string buffer.
+            available_options.append(opt)
+            matched = True
+
+        # Match Types
+        if simple_types and not matched and first_types.intersection(simple_types):
+            # If we get here, it's matched the FIRST element of the string buffer.
+            available_options.append(opt)
+            matched = True
+
+        if not matched:
+            # Ditch this option, the simple match has failed
+            prune_buff.append(opt)
+            continue
+
+    return available_options
+
+
 def look_ahead_match(
     segments: Tuple[BaseSegment, ...],
-    matchers: List[MatchableType],
+    matchers: List[Matchable],
     parse_context: ParseContext,
-) -> Tuple[Tuple[BaseSegment, ...], MatchResult, Optional[MatchableType]]:
+) -> Tuple[Tuple[BaseSegment, ...], MatchResult, Optional[Matchable]]:
     """Look ahead for matches beyond the first element of the segments list.
 
     This function also contains the performance improved hash-matching approach to
@@ -145,12 +217,12 @@ def look_ahead_match(
 
 def bracket_sensitive_look_ahead_match(
     segments: Tuple[BaseSegment, ...],
-    matchers: List[MatchableType],
+    matchers: List[Matchable],
     parse_context: ParseContext,
-    start_bracket: Optional[MatchableType] = None,
-    end_bracket: Optional[MatchableType] = None,
+    start_bracket: Optional[Matchable] = None,
+    end_bracket: Optional[Matchable] = None,
     bracket_pairs_set: str = "bracket_pairs",
-) -> Tuple[Tuple[BaseSegment, ...], MatchResult, Optional[MatchableType]]:
+) -> Tuple[Tuple[BaseSegment, ...], MatchResult, Optional[Matchable]]:
     """Same as `look_ahead_match` but with bracket counting.
 
     NB: Given we depend on `look_ahead_match` we can also utilise
@@ -170,9 +242,8 @@ def bracket_sensitive_look_ahead_match(
 
     # Get hold of the bracket matchers from the dialect, and append them
     # to the list of matchers. We get them from the relevant set on the
-    # dialect. We use zip twice to "unzip" them. We ignore the first
-    # argument because that's just the name.
-    _, start_bracket_refs, end_bracket_refs, persists = zip(
+    # dialect.
+    bracket_types, start_bracket_refs, end_bracket_refs, persists = zip(
         *parse_context.dialect.bracket_sets(bracket_pairs_set)
     )
     # These are matchables, probably StringParsers.
@@ -227,6 +298,9 @@ def bracket_sensitive_look_ahead_match(
                             BracketInfo(
                                 bracket=match.matched_segments[0],
                                 segments=match.matched_segments,
+                                bracket_type=bracket_types[
+                                    start_brackets.index(matcher)
+                                ],
                             )
                         )
                         seg_buff = match.unmatched_segments
@@ -235,16 +309,8 @@ def bracket_sensitive_look_ahead_match(
                         # Found an end bracket. Does its type match that of
                         # the innermost start bracket? E.g. ")" matches "(",
                         # "]" matches "[".
-                        # For the start bracket we don't have the matcher
-                        # but we can work out the type, so we use that for
-                        # the lookup.
-                        start_index = [
-                            bracket.type for bracket in start_brackets
-                        ].index(bracket_stack[-1].bracket.get_type())
-                        # For the end index, we can just look for the matcher
-                        end_index = end_brackets.index(matcher)
-                        bracket_types_match = start_index == end_index
-                        if bracket_types_match:
+                        end_type = bracket_types[end_brackets.index(matcher)]
+                        if bracket_stack[-1].bracket_type == end_type:
                             # Yes, the types match. So we've found a
                             # matching end bracket. Pop the stack, construct
                             # a bracketed segment and carry
@@ -275,10 +341,8 @@ def bracket_sensitive_look_ahead_match(
                         else:
                             # The types don't match. Error.
                             raise SQLParseError(
-                                f"Found unexpected end bracket!, "
-                                f"was expecting "
-                                f"{end_brackets[start_index]}, "
-                                f"but got {matcher}",
+                                "Found unexpected end bracket!, "
+                                f"was expecting {end_type}, but got {matcher}",
                                 segment=match.matched_segments[0],
                             )
 
@@ -315,6 +379,9 @@ def bracket_sensitive_look_ahead_match(
                             BracketInfo(
                                 bracket=match.matched_segments[0],
                                 segments=match.matched_segments,
+                                bracket_type=bracket_types[
+                                    start_brackets.index(matcher)
+                                ],
                             )
                         )
                         # The matched element has already been added to the bracket.
@@ -361,7 +428,7 @@ def bracket_sensitive_look_ahead_match(
 def greedy_match(
     segments: Tuple[BaseSegment, ...],
     parse_context: ParseContext,
-    matchers: Sequence[MatchableType],
+    matchers: Sequence[Matchable],
     include_terminator: bool = False,
 ) -> MatchResult:
     """Looks ahead to claim everything up to some future terminators."""
@@ -369,7 +436,7 @@ def greedy_match(
     seg_bank: Tuple[BaseSegment, ...] = ()  # Empty tuple
 
     while True:
-        with parse_context.deeper_match(name="GreedyUntil") as ctx:
+        with parse_context.deeper_match(name="Greedy") as ctx:
             pre, mat, matcher = bracket_sensitive_look_ahead_match(
                 seg_buff, list(matchers), parse_context=ctx
             )
@@ -421,7 +488,9 @@ def greedy_match(
                 continue
 
         # Return everything up to the match unless it's a gap matcher.
-        if include_terminator:
+        if include_terminator:  # pragma: no cover
+            # TODO: Review whether to remove this clause if it's no longer
+            # covered in any tests.
             return MatchResult(
                 seg_bank + pre + mat.matched_segments,
                 mat.unmatched_segments,

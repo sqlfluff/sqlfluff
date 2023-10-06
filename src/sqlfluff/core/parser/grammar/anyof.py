@@ -11,27 +11,72 @@ from sqlfluff.core.parser.grammar.base import (
 )
 from sqlfluff.core.parser.grammar.sequence import Bracketed, Sequence
 from sqlfluff.core.parser.helpers import trim_non_code_segments
+from sqlfluff.core.parser.match_algorithms import greedy_match
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
-from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
-from sqlfluff.core.parser.types import MatchableType, SimpleHintType
+from sqlfluff.core.parser.matchable import Matchable
+from sqlfluff.core.parser.segments import BaseSegment, UnparsableSegment
+from sqlfluff.core.parser.types import ParseMode, SimpleHintType
+
+
+def _parse_mode_match_result(
+    matched_segments: Tuple[BaseSegment, ...],
+    unmatched_segments: Tuple[BaseSegment, ...],
+    tail: Tuple[BaseSegment, ...],
+    parse_mode: ParseMode,
+) -> MatchResult:
+    """A helper function for the return values of AnyNumberOf.
+
+    This method creates UnparsableSegments as appropriate
+    depending on the parse mode and return values.
+    """
+    # If we're being strict, just return.
+    if parse_mode == ParseMode.STRICT:
+        return MatchResult(matched_segments, unmatched_segments + tail)
+
+    # Nothing in unmatched anyway?
+    if not unmatched_segments or all(not s.is_code for s in unmatched_segments):
+        return MatchResult(matched_segments, unmatched_segments + tail)
+
+    _trim_idx = 0
+    for _trim_idx in range(len(unmatched_segments)):
+        if unmatched_segments[_trim_idx].is_code:
+            break
+
+    # Create an unmatched segment
+    _expected = "Nothing else"
+    if tail:
+        _expected += f" before {tail[0].raw!r}"
+
+    unmatched_seg = UnparsableSegment(
+        unmatched_segments[_trim_idx:], expected=_expected
+    )
+    return MatchResult(
+        matched_segments + unmatched_segments[:_trim_idx] + (unmatched_seg,),
+        tail,
+    )
 
 
 class AnyNumberOf(BaseGrammar):
     """A more configurable version of OneOf."""
 
+    supported_parse_modes = {
+        ParseMode.STRICT,
+        ParseMode.GREEDY,
+    }
+
     def __init__(
         self,
-        *args: Union[MatchableType, str],
+        *args: Union[Matchable, str],
         max_times: Optional[int] = None,
         min_times: int = 0,
         max_times_per_element: Optional[int] = None,
-        exclude: Optional[MatchableType] = None,
-        terminators: SequenceType[Union[MatchableType, str]] = (),
+        exclude: Optional[Matchable] = None,
+        terminators: SequenceType[Union[Matchable, str]] = (),
         reset_terminators: bool = False,
         allow_gaps: bool = True,
         optional: bool = False,
-        ephemeral_name: Optional[str] = None,
+        parse_mode: ParseMode = ParseMode.STRICT,
     ) -> None:
         self.max_times = max_times
         self.min_times = min_times
@@ -42,9 +87,9 @@ class AnyNumberOf(BaseGrammar):
             *args,
             allow_gaps=allow_gaps,
             optional=optional,
-            ephemeral_name=ephemeral_name,
             terminators=terminators,
             reset_terminators=reset_terminators,
+            parse_mode=parse_mode,
         )
 
     @cached_method_for_parse_context
@@ -81,7 +126,7 @@ class AnyNumberOf(BaseGrammar):
 
     def _match_once(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
-    ) -> Tuple[MatchResult, Optional["MatchableType"]]:
+    ) -> Tuple[MatchResult, Optional["Matchable"]]:
         """Match the forward segments against the available elements once.
 
         This serves as the main body of OneOf, but also a building block
@@ -102,7 +147,6 @@ class AnyNumberOf(BaseGrammar):
         return match, matched_option
 
     @match_wrapper()
-    @allow_ephemeral
     def match(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
     ) -> MatchResult:
@@ -120,31 +164,54 @@ class AnyNumberOf(BaseGrammar):
                 if self.exclude.match(segments, ctx):
                     return MatchResult.from_unmatched(segments)
 
-        # Match on each of the options
         matched_segments: MatchResult = MatchResult.from_empty()
         unmatched_segments: Tuple[BaseSegment, ...] = segments
-        n_matches = 0
+        tail: Tuple[BaseSegment, ...] = ()
+
+        # Secondly, if we're in a greedy mode, handle that first.
+        if self.parse_mode == ParseMode.GREEDY:
+            _terminators = [*self.terminators, *parse_context.terminators]
+            with parse_context.deeper_match(
+                name="AnyOf-Greedy-@0", track_progress=False
+            ) as ctx:
+                _term_match = greedy_match(
+                    segments,
+                    parse_context,
+                    matchers=_terminators,
+                )
+            if _term_match:
+                # If we found a terminator, trim off the tail of the available
+                # segments to match on.
+                unmatched_segments = _term_match.matched_segments
+                tail = _term_match.unmatched_segments
 
         # Keep track of the number of times each option has been matched.
+        n_matches = 0
         option_counter = {elem.cache_key(): 0 for elem in self._elements}
 
         while True:
             if self.max_times and n_matches >= self.max_times:
                 # We've matched as many times as we can
-                return MatchResult(
-                    matched_segments.matched_segments, unmatched_segments
+                return _parse_mode_match_result(
+                    matched_segments.matched_segments,
+                    unmatched_segments,
+                    tail,
+                    self.parse_mode,
                 )
 
             # Is there anything left to match?
             if len(unmatched_segments) == 0:
                 # No...
                 if n_matches >= self.min_times:
-                    return MatchResult(
-                        matched_segments.matched_segments, unmatched_segments
+                    return _parse_mode_match_result(
+                        matched_segments.matched_segments,
+                        unmatched_segments,
+                        tail,
+                        self.parse_mode,
                     )
                 else:  # pragma: no cover TODO?
                     # We didn't meet the hurdle
-                    return MatchResult.from_unmatched(unmatched_segments)
+                    return MatchResult.from_unmatched(segments)
 
             # If we've already matched once...
             if n_matches > 0 and self.allow_gaps:
@@ -168,25 +235,39 @@ class AnyNumberOf(BaseGrammar):
                         self.max_times_per_element
                         and option_counter[matched_key] > self.max_times_per_element
                     ):
-                        return MatchResult(
-                            matched_segments.matched_segments, unmatched_segments
+                        return _parse_mode_match_result(
+                            matched_segments.matched_segments,
+                            pre_seg + unmatched_segments,
+                            tail,
+                            self.parse_mode,
                         )
 
             if match:
                 matched_segments += pre_seg + match.matched_segments
                 unmatched_segments = match.unmatched_segments
+                parse_context.update_progress(matched_segments.matched_segments)
                 n_matches += 1
             else:
                 # If we get here, then we've not managed to match. And the next
                 # unmatched segments are meaningful, i.e. they're not what we're
                 # looking for.
                 if n_matches >= self.min_times:
-                    return MatchResult(
-                        matched_segments.matched_segments, pre_seg + unmatched_segments
+                    return _parse_mode_match_result(
+                        matched_segments.matched_segments,
+                        pre_seg + unmatched_segments,
+                        tail,
+                        self.parse_mode,
                     )
                 else:
                     # We didn't meet the hurdle
-                    return MatchResult.from_unmatched(unmatched_segments)
+                    return _parse_mode_match_result(
+                        (),
+                        matched_segments.matched_segments
+                        + pre_seg
+                        + unmatched_segments,
+                        tail,
+                        self.parse_mode,
+                    )
 
 
 class OneOf(AnyNumberOf):
@@ -198,13 +279,13 @@ class OneOf(AnyNumberOf):
 
     def __init__(
         self,
-        *args: Union[MatchableType, str],
-        exclude: Optional[MatchableType] = None,
-        terminators: SequenceType[Union[MatchableType, str]] = (),
+        *args: Union[Matchable, str],
+        exclude: Optional[Matchable] = None,
+        terminators: SequenceType[Union[Matchable, str]] = (),
         reset_terminators: bool = False,
         allow_gaps: bool = True,
         optional: bool = False,
-        ephemeral_name: Optional[str] = None,
+        parse_mode: ParseMode = ParseMode.STRICT,
     ) -> None:
         super().__init__(
             *args,
@@ -215,7 +296,7 @@ class OneOf(AnyNumberOf):
             reset_terminators=reset_terminators,
             allow_gaps=allow_gaps,
             optional=optional,
-            ephemeral_name=ephemeral_name,
+            parse_mode=parse_mode,
         )
 
 
@@ -228,12 +309,12 @@ class OptionallyBracketed(OneOf):
 
     def __init__(
         self,
-        *args: Union[MatchableType, str],
-        exclude: Optional[MatchableType] = None,
-        terminators: SequenceType[Union[MatchableType, str]] = (),
+        *args: Union[Matchable, str],
+        exclude: Optional[Matchable] = None,
+        terminators: SequenceType[Union[Matchable, str]] = (),
         reset_terminators: bool = False,
         optional: bool = False,
-        ephemeral_name: Optional[str] = None,
+        parse_mode: ParseMode = ParseMode.STRICT,
     ) -> None:
         super().__init__(
             Bracketed(*args),
@@ -243,7 +324,7 @@ class OptionallyBracketed(OneOf):
             terminators=terminators,
             reset_terminators=reset_terminators,
             optional=optional,
-            ephemeral_name=ephemeral_name,
+            parse_mode=parse_mode,
         )
 
 
@@ -252,15 +333,15 @@ class AnySetOf(AnyNumberOf):
 
     def __init__(
         self,
-        *args: Union[MatchableType, str],
+        *args: Union[Matchable, str],
         max_times: Optional[int] = None,
         min_times: int = 0,
-        exclude: Optional[MatchableType] = None,
-        terminators: SequenceType[Union[MatchableType, str]] = (),
+        exclude: Optional[Matchable] = None,
+        terminators: SequenceType[Union[Matchable, str]] = (),
         reset_terminators: bool = False,
         allow_gaps: bool = True,
         optional: bool = False,
-        ephemeral_name: Optional[str] = None,
+        parse_mode: ParseMode = ParseMode.STRICT,
     ) -> None:
         super().__init__(
             *args,
@@ -272,5 +353,5 @@ class AnySetOf(AnyNumberOf):
             reset_terminators=reset_terminators,
             allow_gaps=allow_gaps,
             optional=optional,
-            ephemeral_name=ephemeral_name,
+            parse_mode=parse_mode,
         )

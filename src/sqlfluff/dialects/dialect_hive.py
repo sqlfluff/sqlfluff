@@ -5,13 +5,18 @@ from sqlfluff.core.parser import (
     AnyNumberOf,
     BaseSegment,
     Bracketed,
+    CodeSegment,
     Dedent,
     Delimited,
+    IdentifierSegment,
     Indent,
+    KeywordSegment,
+    LiteralSegment,
     Matchable,
     Nothing,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexParser,
     Sequence,
@@ -19,7 +24,6 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     TypedParser,
 )
-from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_hive_keywords import (
     RESERVED_KEYWORDS,
@@ -131,7 +135,7 @@ hive_dialect.add(
     ),
     BackQuotedIdentifierSegment=TypedParser(
         "back_quote",
-        ansi.IdentifierSegment,
+        IdentifierSegment,
         type="quoted_identifier",
     ),
 )
@@ -140,9 +144,9 @@ hive_dialect.add(
 hive_dialect.replace(
     JoinKeywordsGrammar=Sequence(Sequence("SEMI", optional=True), "JOIN"),
     QuotedLiteralSegment=OneOf(
-        TypedParser("single_quote", ansi.LiteralSegment, type="quoted_literal"),
-        TypedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
-        TypedParser("back_quote", ansi.LiteralSegment, type="quoted_literal"),
+        TypedParser("single_quote", LiteralSegment, type="quoted_literal"),
+        TypedParser("double_quote", LiteralSegment, type="quoted_literal"),
+        TypedParser("back_quote", LiteralSegment, type="quoted_literal"),
     ),
     TrimParametersGrammar=Nothing(),
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
@@ -150,8 +154,8 @@ hive_dialect.replace(
             Ref("BackQuotedIdentifierSegment"),
         ]
     ),
-    SelectClauseElementTerminatorGrammar=ansi_dialect.get_grammar(
-        "SelectClauseElementTerminatorGrammar"
+    SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "SelectClauseTerminatorGrammar"
     ).copy(
         insert=[
             Sequence("CLUSTER", "BY"),
@@ -639,7 +643,7 @@ class SetStatementSegment(BaseSegment):
             Sequence(
                 Delimited(
                     Ref("ParameterNameSegment"),
-                    delimiter=OneOf(Ref("DotSegment"), Ref("ColonSegment")),
+                    delimiter=OneOf(Ref("DotSegment"), Ref("ColonDelimiterSegment")),
                     allow_gaps=False,
                 ),
                 Ref("RawEqualsSegment"),
@@ -653,7 +657,7 @@ class SetStatementSegment(BaseSegment):
 class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("AlterDatabaseStatementSegment"),
             Ref("MsckRepairTableStatementSegment"),
@@ -668,7 +672,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropModelStatementSegment"),
         ],
     )
-    match_grammar = ansi.StatementSegment.match_grammar
 
 
 class InsertStatementSegment(BaseSegment):
@@ -829,9 +832,9 @@ class FunctionSegment(BaseSegment):
                             "FunctionContentsGrammar",
                             # The brackets might be empty for some functions...
                             optional=True,
-                            ephemeral_name="FunctionContentsGrammar",
                         ),
-                    )
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
         ),
@@ -871,8 +874,8 @@ class FunctionSegment(BaseSegment):
                         "FunctionContentsGrammar",
                         # The brackets might be empty for some functions...
                         optional=True,
-                        ephemeral_name="FunctionContentsGrammar",
-                    )
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
             Ref("PostFunctionGrammar", optional=True),
@@ -932,14 +935,11 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
         ],
     )
 
-    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy()
-
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Overriding SelectStatementSegment to allow for additional segment parsing."""
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar.copy()
-    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("ClusterByClauseSegment", optional=True),
             Ref("DistributeByClauseSegment", optional=True),
@@ -953,13 +953,13 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
     """Overriding SelectClauseSegment to allow for additional segment parsing."""
 
     match_grammar = ansi.SelectClauseSegment.match_grammar.copy(
+        # Add additional terminators
         terminators=[
             Sequence("CLUSTER", "BY"),
             Sequence("DISTRIBUTE", "BY"),
             Sequence("SORT", "BY"),
         ],
     )
-    parse_grammar = ansi.SelectClauseSegment.parse_grammar.copy()
 
 
 class SetExpressionSegment(ansi.SetExpressionSegment):

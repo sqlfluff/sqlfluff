@@ -103,10 +103,10 @@ from sqlfluff.core.parser.context import ParseContext
                                         (
                                             ("start_bracket", "("),
                                             ("expression", (("numeric_literal", "2"),)),
+                                            ("whitespace", " "),
                                             (
                                                 "unparsable",
                                                 (
-                                                    ("whitespace", " "),
                                                     ("numeric_literal", "2"),
                                                     ("whitespace", " "),
                                                     ("numeric_literal", "2"),
@@ -118,12 +118,6 @@ from sqlfluff.core.parser.context import ParseContext
                                 ),
                             ),
                         ),
-                    ),
-                    # This is a bit odd but it reflects current
-                    # behaviour. Ideally it should not be present.
-                    (
-                        "unparsable",
-                        (),
                     ),
                 ),
             ),
@@ -147,14 +141,19 @@ def test_dialect_unparsable(
 
     # Lex the raw string.
     lex = Lexer(config=config)
-    seg_list, vs = lex.lex(raw)
+    segments, vs = lex.lex(raw)
     assert not vs
+    # Strip the end of file token if it's there. It will
+    # confuse most segments.
+    if segmentref and segments[-1].is_type("end_of_file"):
+        segments = segments[:-1]
 
-    # Construct an unparsed segment
-    seg = Seg(seg_list, pos_marker=seg_list[0].pos_marker)
-    # Perform the match (THIS IS THE MEAT OF THE TEST)
     ctx = ParseContext.from_config(config)
-    result = seg.parse(parse_context=ctx)
+
+    # Match against the segment.
+    match = Seg.match(segments, ctx)
+    assert not match.unmatched_segments
+    result = match.matched_segments
 
     assert len(result) == 1
     parsed = result[0]

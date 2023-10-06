@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 21c681be1b651e921ff550b0fda29a63c79586371144328c69c414204140cd26
+_hash: 075ae3b127ab6cfb870b46b0576a1edfd9d58a34702b1003f265a86cdd59f932
 file:
 - statement:
     create_adapter_script:
@@ -15,12 +15,12 @@ file:
         naked_identifier: my_script
     - keyword: AS
     - script_content:
-      - raw: '%'
-      - code: jar
-      - code: hive_jdbc_adapter
-      - raw: .
-      - code: jar
-      - raw: ;
+      - percent: '%'
+      - word: jar
+      - word: hive_jdbc_adapter
+      - dot: .
+      - word: jar
+      - semicolon: ;
 - function_script_terminator: /
 - statement:
     create_adapter_script:
@@ -36,14 +36,14 @@ file:
       - naked_identifier: adapter_dummy
     - keyword: AS
     - script_content:
-      - code: def
-      - code: adapter_call
+      - word: def
+      - word: adapter_call
       - bracketed:
           start_bracket: (
-          code: in_json
+          word: in_json
           end_bracket: )
-      - raw: ':'
-      - code: return
+      - colon: ':'
+      - word: return
       - double_quote: '"BLABLA"'
 - function_script_terminator: /
 - statement:
@@ -60,13 +60,13 @@ file:
       - naked_identifier: adapter_dummy
     - keyword: AS
     - script_content:
-      - code: function
-      - code: adapter_call
+      - word: function
+      - word: adapter_call
       - bracketed:
           start_bracket: (
-          code: in_json
+          word: in_json
           end_bracket: )
-      - raw: ':'
-      - code: return
+      - colon: ':'
+      - word: return
       - single_quote: "'BLABLA'"
 - function_script_terminator: /

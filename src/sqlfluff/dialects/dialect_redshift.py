@@ -10,20 +10,21 @@ from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
     Bracketed,
-    CodeSegment,
     Dedent,
     Delimited,
+    IdentifierSegment,
     Indent,
     Matchable,
     Nothing,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
     SegmentGenerator,
     Sequence,
-    StartsWith,
+    WordSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_postgres as postgres
@@ -185,7 +186,7 @@ redshift_dialect.replace(
             # must only contain digits, letters, underscore, and $ but
             # can’t be all digits.
             r"#?([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
-            ansi.IdentifierSegment,
+            IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
@@ -194,23 +195,14 @@ redshift_dialect.replace(
 
 redshift_dialect.patch_lexer_matchers(
     [
-        # add optional leading # to code for temporary tables
+        # add optional leading # to word for temporary tables
         RegexLexer(
-            "code",
+            "word",
             r"#?[0-9a-zA-Z_]+[0-9a-zA-Z_$]*",
-            CodeSegment,
-            segment_kwargs={"type": "code"},
+            WordSegment,
         ),
     ]
 )
-
-
-# Inherit from the Postgres ObjectReferenceSegment this way so we can inherit
-# other segment types from it.
-class ObjectReferenceSegment(postgres.ObjectReferenceSegment):
-    """A reference to an object."""
-
-    pass
 
 
 redshift_dialect.add(
@@ -2024,8 +2016,7 @@ class StatementSegment(postgres.StatementSegment):
 
     type = "statement"
 
-    match_grammar = postgres.StatementSegment.match_grammar
-    parse_grammar = postgres.StatementSegment.parse_grammar.copy(
+    match_grammar = postgres.StatementSegment.match_grammar.copy(
         insert=[
             Ref("CreateLibraryStatementSegment"),
             Ref("CreateGroupStatementSegment"),
@@ -2489,9 +2480,9 @@ class FunctionSegment(ansi.FunctionSegment):
                             "FunctionContentsGrammar",
                             # The brackets might be empty for some functions...
                             optional=True,
-                            ephemeral_name="FunctionContentsGrammar",
                         ),
-                    )
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
         ),
@@ -2523,8 +2514,8 @@ class FunctionSegment(ansi.FunctionSegment):
                         "FunctionContentsGrammar",
                         # The brackets might be empty for some functions...
                         optional=True,
-                        ephemeral_name="FunctionContentsGrammar",
-                    )
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
             Ref("PostFunctionGrammar", optional=True),
@@ -2656,19 +2647,11 @@ class SelectStatementSegment(postgres.SelectStatementSegment):
     """
 
     type = "select_statement"
-    match_grammar = StartsWith(
-        # NB: In bigquery, the select clause may include an EXCEPT, which
-        # will also match the set operator, but by starting with the whole
-        # select clause rather than just the SELECT keyword, we normally
-        # mitigate that here. But this isn't BigQuery! So we can be more
-        # efficient and just use the keyword.
-        "SELECT",
-        terminators=[Ref("SetOperatorSegment")],
-    )
 
-    parse_grammar = postgres.SelectStatementSegment.parse_grammar.copy(
+    match_grammar = postgres.SelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
+        terminators=[Ref("SetOperatorSegment")],
     )
 
 
@@ -2679,9 +2662,8 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """
 
     type = "select_statement"
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy()
 
-    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OverlapsClauseSegment", optional=True),
     )

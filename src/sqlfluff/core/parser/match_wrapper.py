@@ -66,7 +66,7 @@ def match_wrapper(v_level: int = 3) -> Callable[[MatchFuncType], MatchFuncType]:
             try:
                 m = func(self_cls, segments, parse_context)
             except Exception as err:  # pragma: no cover
-                # NOTE: only available in python 3.11.
+                # NOTE: only available in python 3.11+.
                 if hasattr(err, "add_note"):
                     err.add_note(f" Within {name!r}.")
                 raise err

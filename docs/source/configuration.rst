@@ -738,7 +738,7 @@ the following to the `__init__.py` of the library:
 
 .. code-block:: python
 
-     # https://github.com/apache/airflow/blob/main/airflow/templates.py#L50
+     # https://github.com/apache/airflow/blob/main/airflow/templates.py#L53
      def ds_filter(value: datetime.date | datetime.time | None) -> str | None:
         """Date filter."""
         if value is None:
@@ -881,9 +881,10 @@ These can be configured by setting `param_style` to the names above:
     param_style = colon
     my_name = 'john'
 
-then it is necessary to set sample values for each parameter, like `my_name`
+then you can set sample values for each parameter, like `my_name`
 above. Notice that the value needs to be escaped as it will be replaced as a
-string during parsing.
+string during parsing. When the sample values aren't provided, the templater
+will use parameter names themselves by default.
 
 When parameters are positional, like `question_mark`, then their name is
 simply the order in which they appear, starting with `1`.
