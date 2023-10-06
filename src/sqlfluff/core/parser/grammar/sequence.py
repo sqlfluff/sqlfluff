@@ -262,7 +262,7 @@ class Sequence(BaseGrammar):
                             matched_class=UnparsableSegment,
                             segment_kwargs={
                                 "expected": (
-                                    f"{elem} after {segments[matched_idx-1]}. "
+                                    f"{elem} after {segments[matched_idx - 1]}. "
                                     f"Found {segments[_idx]}"
                                 )
                             },
