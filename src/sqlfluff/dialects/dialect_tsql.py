@@ -2728,9 +2728,11 @@ class CreateProcedureStatementSegment(BaseSegment):
             Ref("NumericLiteralSegment"),
             optional=True,
         ),
+        Indent,
         Ref("ProcedureParameterListGrammar", optional=True),
         _procedure_option,
         Sequence("FOR", "REPLICATION", optional=True),
+        Dedent,
         "AS",
         Ref("ProcedureDefinitionGrammar"),
     )
