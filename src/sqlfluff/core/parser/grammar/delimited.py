@@ -48,12 +48,12 @@ class Delimited(OneOf):
         Args:
             *args (Union[Matchable, str]): Variable number of positional arguments.
             delimiter (Union[Matchable, str], optional): Delimiter used for parsing.
-            Defaults to Ref("CommaSegment").
+                Defaults to Ref("CommaSegment").
             allow_trailing (bool, optional): Flag indicating whether trailing delimiters
                 are allowed. Defaults to False.
             terminators (Sequence[Union[Matchable, str]], optional):
                 Sequence of terminators used to match the end of a segment.
-            Defaults to ().
+                Defaults to ().
             reset_terminators (bool, optional): Flag indicating whether terminators should
                 be reset. Defaults to False.
             min_delimiters (Optional[int], optional): Minimum number of delimiters to
@@ -63,7 +63,7 @@ class Delimited(OneOf):
             allow_gaps (bool, optional): Flag indicating whether gaps between segments are
                 allowed. Defaults to True.
             optional (bool, optional): Flag indicating whether the segment is optional.
-            Defaults to False.
+                Defaults to False.
         """
         if delimiter is None:  # pragma: no cover
             raise ValueError("Delimited grammars require a `delimiter`")

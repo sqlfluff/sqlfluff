@@ -124,19 +124,18 @@ class TemplatedFile:
     ):
         """Initialise the TemplatedFile.
 
-        If no templated_str is provided then we assume that
-        the file is NOT templated and that the templated view is the same as the source
-        view.
+        If no templated_str is provided then we assume that the file is NOT templated and
+        that the templated view is the same as the source view.
 
         Args:
             source_str (str): The source string.
             fname (str): The file name.
             templated_str (Optional[str], optional): The templated string.
-            Defaults to None.
+                Defaults to None.
             sliced_file (Optional[List[TemplatedFileSlice]], optional): The sliced file.
-            Defaults to None.
+                Defaults to None.
             raw_sliced (Optional[List[RawFileSlice]], optional): The raw sliced file.
-            Defaults to None.
+                Defaults to None.
         """
         self.source_str = source_str
         # An empty string is still allowed as the templated string.

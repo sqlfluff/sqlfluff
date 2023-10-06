@@ -185,7 +185,7 @@ class RawSegment(BaseSegment):
             ident (int, optional): The indentation level. Defaults to 0.
             tabsize (int, optional): The size of each tab. Defaults to 4.
             code_only (bool, optional): Whether to render only the code.
-            Defaults to False.
+                Defaults to False.
 
         Returns:
             str: The rendered string.
