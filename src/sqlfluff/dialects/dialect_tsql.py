@@ -102,6 +102,17 @@ tsql_dialect.sets("date_part_function_name").update(
     ["DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME", "DATEPART"]
 )
 
+tsql_dialect.sets("date_format").clear()
+tsql_dialect.sets("date_format").update(
+    [
+        "mdy",
+        "dmy",
+        "ymd",
+        "myd",
+        "dym",
+    ]
+)
+
 tsql_dialect.sets("bare_functions").update(
     ["system_user", "session_user", "current_user"]
 )
@@ -333,8 +344,15 @@ tsql_dialect.add(
         Ref("ParameterNameSegment", optional=True),
         Sequence("AS", optional=True),
         Ref("DatatypeSegment"),
-        AnySetOf("VARYING", "NULL"),
+        AnySetOf("VARYING", Sequence("NOT", optional=True), "NULL"),
         Sequence(Ref("EqualsSegment"), Ref("ExpressionSegment"), optional=True),
+    ),
+    DateFormatSegment=SegmentGenerator(
+        lambda dialect: MultiStringParser(
+            dialect.sets("date_format"),
+            CodeSegment,
+            type="date_format",
+        )
     ),
 )
 
@@ -615,6 +633,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropExternalTableStatementSegment"),
             Ref("CopyIntoTableStatementSegment"),
             Ref("CreateFullTextIndexStatementSegment"),
+            Ref("AtomicBeginEndSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -2669,13 +2688,29 @@ class CreateProcedureStatementSegment(BaseSegment):
 
     type = "create_procedure_statement"
 
+    _procedure_option = Sequence(
+        "WITH",
+        Delimited(
+            AnySetOf(
+                "ENCRYPTION",
+                "RECOMPILE",
+                "NATIVE_COMPILATION", # natively compiled stored procedure
+                "SCHEMABINDING", # natively compiled stored procedure
+                Ref("ExecuteAsClauseSegment", optional=True),
+            ),
+        ),
+        optional=True,
+    )
+
     match_grammar = Sequence(
         OneOf("CREATE", "ALTER", Sequence("CREATE", "OR", "ALTER")),
         OneOf("PROCEDURE", "PROC"),
         Ref("ObjectReferenceSegment"),
         Ref("ProcedureParameterListGrammar", optional=True),
+        _procedure_option,
+        Sequence("FOR", "REPLICATION", optional=True),
         "AS",
-        Ref("ProcedureDefinitionGrammar"),
+        Ref("ProcedureDefinitionGrammar")
     )
 
 
@@ -2705,7 +2740,15 @@ class ProcedureDefinitionGrammar(BaseSegment):
     type = "procedure_statement"
     name = "procedure_statement"
 
-    match_grammar = Ref("OneOrMoreStatementsGrammar")
+    match_grammar = OneOf(
+        Ref("OneOrMoreStatementsGrammar"),
+        Ref("AtomicBeginEndSegment"),
+        Sequence(
+            "EXTERNAL",
+            "NAME",
+            Ref("ObjectReferenceSegment"),
+        ),
+    )
 
 
 class CreateViewStatementSegment(BaseSegment):
@@ -3569,6 +3612,67 @@ class BeginEndSegment(BaseSegment):
         Ref("OneOrMoreStatementsGrammar"),
         Dedent,
         "END",
+    )
+
+
+class AtomicBeginEndSegment(BaseSegment):
+    """A special `BEGIN/END` block with atomic options for stored procedures
+    that are natively compiled.
+
+    Encloses multiple statements into a single statement object.
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/begin-end-transact-sql?view=sql-server-ver15
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-procedure-transact-sql?view=sql-server-ver16#syntax
+    """
+
+    type = "atomic_begin_end_block"
+    match_grammar = Sequence(
+        "BEGIN",
+        Sequence(
+            "ATOMIC",
+            "WITH",
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        Sequence(
+                            "LANGUAGE",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegmentOptWithN"),
+                        ),
+                        Sequence(
+                            "TRANSACTION",
+                            "ISOLATION",
+                            "LEVEL",
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                "SNAPSHOT",
+                                Sequence("REPEATABLE", "READ"),
+                                "SERIALIZABLE",
+                            ),
+                        ),
+                        Sequence(
+                            "DATEFIRST",
+                            Ref("EqualsSegment"),
+                            Ref("NumericLiteralSegment"),
+                        ),
+                        Sequence(
+                            "DATEFORMAT",
+                            Ref("EqualsSegment"),
+                            Ref("DateFormatSegment"),
+                        ),
+                        Sequence(
+                            "DELAYED_DURABILITY",
+                            Ref("EqualsSegment"),
+                            OneOf("ON", "OFF"),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+        Ref("DelimiterGrammar", optional=True),
+        Indent,
+        Ref("OneOrMoreStatementsGrammar"),
+        Dedent,
+        Sequence("END", optional=True),
     )
 
 
