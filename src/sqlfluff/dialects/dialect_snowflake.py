@@ -5784,6 +5784,65 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
     )
 
 
+class ResourceMonitorOptionsSegment(BaseSegment):
+    """A `RESOURCE MONITOR` options statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-resource-monitor
+    https://docs.snowflake.com/en/sql-reference/sql/alter-resource-monitor
+    """
+
+    type = "resource_monitor_options"
+    match_grammar = AnySetOf(
+        Sequence(
+            "CREDIT_QUOTA",
+            Ref("EqualsSegment"),
+            Ref("IntegerSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "FREQUENCY",
+            Ref("EqualsSegment"),
+            OneOf("MONTHLY", "DAILY", "WEEKLY", "YEARLY", "NEVER"),
+            optional=True,
+        ),
+        Sequence(
+            "START_TIMESTAMP",
+            Ref("EqualsSegment"),
+            OneOf(Ref("QuotedLiteralSegment"), "IMMEDIATELY"),
+            optional=True,
+        ),
+        Sequence(
+            "END_TIMESTAMP",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "NOTIFY_USERS",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "TRIGGERS",
+            AnyNumberOf(
+                Sequence(
+                    "ON",
+                    Ref("IntegerSegment"),
+                    "PERCENT",
+                    "DO",
+                    OneOf("SUSPEND", "SUSPEND_IMMEDIATE", "NOTIFY"),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
 class CreateResourceMonitorStatementSegment(BaseSegment):
     """A `CREATE RESOURCE MONITOR` statement.
 
@@ -5797,55 +5856,7 @@ class CreateResourceMonitorStatementSegment(BaseSegment):
         Sequence("RESOURCE", "MONITOR"),
         Ref("ObjectReferenceSegment"),
         "WITH",
-        AnySetOf(
-            Sequence(
-                "CREDIT_QUOTA",
-                Ref("EqualsSegment"),
-                Ref("IntegerSegment"),
-                optional=True,
-            ),
-            Sequence(
-                "FREQUENCY",
-                Ref("EqualsSegment"),
-                OneOf("MONTHLY", "DAILY", "WEEKLY", "YEARLY", "NEVER"),
-                optional=True,
-            ),
-            Sequence(
-                "START_TIMESTAMP",
-                Ref("EqualsSegment"),
-                OneOf(Ref("QuotedLiteralSegment"), "IMMEDIATELY"),
-                optional=True,
-            ),
-            Sequence(
-                "END_TIMESTAMP",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-                optional=True,
-            ),
-            Sequence(
-                "NOTIFY_USERS",
-                Ref("EqualsSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("ObjectReferenceSegment"),
-                    ),
-                ),
-                optional=True,
-            ),
-            Sequence(
-                "TRIGGERS",
-                AnyNumberOf(
-                    Sequence(
-                        "ON",
-                        Ref("IntegerSegment"),
-                        "PERCENT",
-                        "DO",
-                        OneOf("SUSPEND", "SUSPEND_IMMEDIATE", "NOTIFY"),
-                    ),
-                ),
-                optional=True,
-            ),
-        ),
+        Ref("ResourceMonitorOptionsSegment"),
     )
 
 
@@ -5862,55 +5873,7 @@ class AlterResourceMonitorStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         "SET",
-        AnySetOf(
-            Sequence(
-                "CREDIT_QUOTA",
-                Ref("EqualsSegment"),
-                Ref("IntegerSegment"),
-                optional=True,
-            ),
-            Sequence(
-                "FREQUENCY",
-                Ref("EqualsSegment"),
-                OneOf("MONTHLY", "DAILY", "WEEKLY", "YEARLY", "NEVER"),
-                optional=True,
-            ),
-            Sequence(
-                "START_TIMESTAMP",
-                Ref("EqualsSegment"),
-                OneOf(Ref("QuotedLiteralSegment"), "IMMEDIATELY"),
-                optional=True,
-            ),
-            Sequence(
-                "END_TIMESTAMP",
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-                optional=True,
-            ),
-            Sequence(
-                "NOTIFY_USERS",
-                Ref("EqualsSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("ObjectReferenceSegment"),
-                    ),
-                ),
-                optional=True,
-            ),
-            Sequence(
-                "TRIGGERS",
-                AnyNumberOf(
-                    Sequence(
-                        "ON",
-                        Ref("IntegerSegment"),
-                        "PERCENT",
-                        "DO",
-                        OneOf("SUSPEND", "SUSPEND_IMMEDIATE", "NOTIFY"),
-                    ),
-                ),
-                optional=True,
-            ),
-        ),
+        Ref("ResourceMonitorOptionsSegment"),
     )
 
 
