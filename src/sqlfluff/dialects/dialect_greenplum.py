@@ -27,6 +27,8 @@ greenplum_dialect.sets("reserved_keywords").update(
 
 
 class DistributedBySegment(BaseSegment):
+    """A DISTRIBUTED BY clause."""
+
     type = "distributed_by"
 
     match_grammar = Sequence(
