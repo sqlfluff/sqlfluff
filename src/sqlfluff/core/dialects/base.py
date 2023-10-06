@@ -98,7 +98,7 @@ class Dialect:
         assert label not in (
             "bracket_pairs",
             "angle_bracket_pairs",
-        ), f"Use `bracket_sets` to retrieve { label } set."
+        ), f"Use `bracket_sets` to retrieve {label} set."
 
         if label not in self._sets:
             self._sets[label] = set()
