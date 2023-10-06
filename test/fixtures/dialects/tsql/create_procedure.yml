@@ -1,0 +1,74 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 74e376953299e4ebd200964be7ceafa134980ee28607c936149bb4ddd675254b
+file:
+  batch:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - object_reference:
+      - quoted_identifier: '[dbo]'
+      - dot: .
+      - quoted_identifier: '[TEST]'
+    - procedure_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: '@id'
+        - data_type:
+            data_type_identifier: INT
+        - comma: ','
+        - parameter: '@str'
+        - data_type:
+            data_type_identifier: NVARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '64'
+                end_bracket: )
+        - keyword: VARYING
+        - keyword: 'NULL'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - expression:
+            null_literal: 'NULL'
+        - keyword: OUT
+        - keyword: READONLY
+        - comma: ','
+        - parameter: '@foo'
+        - data_type:
+            data_type_identifier: NVARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '32'
+                end_bracket: )
+        - keyword: 'NULL'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - expression:
+            null_literal: 'NULL'
+        - keyword: OUTPUT
+        - end_bracket: )
+    - keyword: AS
+    - procedure_statement:
+        statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    numeric_literal: '1'
+                statement_terminator: ;
+          - keyword: END
+        statement_terminator: ;
+  go_statement:
+    keyword: GO
