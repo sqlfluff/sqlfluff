@@ -2,9 +2,9 @@
 
 from typing import Optional
 
-from sqlfluff.core.parser.segments.raw import CodeSegment
-from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.core.parser import WordSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 
 class Rule_CV02(BaseRule):
@@ -58,7 +58,7 @@ class Rule_CV02(BaseRule):
         fix = LintFix.replace(
             context.segment,
             [
-                CodeSegment(
+                WordSegment(
                     raw="COALESCE",
                     type="function_name_identifier",
                 )

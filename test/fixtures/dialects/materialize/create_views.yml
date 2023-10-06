@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4be57036ad8e690e8a4c9558ca524fb6b19854e6f04ea7c17a30896b5096745b
+_hash: 1f2b3a5496bca43ee44807e85f3e26db32e94392d3c66f9a81351dd0176c6a9e
 file:
 - statement:
     create_materialized_view_statement:
@@ -15,9 +15,9 @@ file:
       - dot: .
       - quoted_identifier: '"test"'
     - keyword: AS
-    - code: SELECT
+    - word: SELECT
     - numeric_literal: '1'
-    - code: AS
+    - word: AS
     - double_quote: '"id"'
 - statement_terminator: ;
 - statement:
@@ -48,11 +48,11 @@ file:
       - dot: .
       - quoted_identifier: '"test"'
     - keyword: AS
-    - code: SELECT
+    - word: SELECT
     - single_quote: "'{\"a\": 1}'"
-    - raw: '::'
-    - code: json
-    - code: AS
+    - casting_operator: '::'
+    - word: json
+    - word: AS
     - double_quote: '"id"'
 - statement_terminator: ;
 - statement:
@@ -63,35 +63,35 @@ file:
     - object_reference:
         naked_identifier: active_customer_per_geo
     - keyword: AS
-    - code: SELECT
-    - code: geo
-    - raw: .
-    - code: name
+    - word: SELECT
+    - word: geo
+    - dot: .
+    - word: name
     - comma: ','
-    - code: count
+    - word: count
     - bracketed:
         start_bracket: (
-        raw: '*'
+        star: '*'
         end_bracket: )
-    - code: FROM
-    - code: geo_regions
-    - code: AS
-    - code: geo
-    - code: JOIN
-    - code: active_customers
-    - code: 'ON'
-    - code: active_customers
-    - raw: .
-    - code: geo_id
-    - raw: '='
-    - code: geo
-    - raw: .
-    - code: id
-    - code: GROUP
-    - code: BY
-    - code: geo
-    - raw: .
-    - code: name
+    - word: FROM
+    - word: geo_regions
+    - word: AS
+    - word: geo
+    - word: JOIN
+    - word: active_customers
+    - word: 'ON'
+    - word: active_customers
+    - dot: .
+    - word: geo_id
+    - equals: '='
+    - word: geo
+    - dot: .
+    - word: id
+    - word: GROUP
+    - word: BY
+    - word: geo
+    - dot: .
+    - word: name
 - statement_terminator: ;
 - statement:
     create_materialized_view_statement:
@@ -101,17 +101,17 @@ file:
     - object_reference:
         naked_identifier: active_customers
     - keyword: AS
-    - code: SELECT
-    - code: guid
+    - word: SELECT
+    - word: guid
     - comma: ','
-    - code: geo_id
+    - word: geo_id
     - comma: ','
-    - code: last_active_on
-    - code: FROM
-    - code: customer_source
-    - code: GROUP
-    - code: BY
-    - code: geo_id
+    - word: last_active_on
+    - word: FROM
+    - word: customer_source
+    - word: GROUP
+    - word: BY
+    - word: geo_id
 - statement_terminator: ;
 - statement:
     create_view_statement:

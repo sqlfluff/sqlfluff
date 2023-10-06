@@ -2,12 +2,12 @@
 from typing import List, NamedTuple, Optional, cast
 
 from sqlfluff.core.dialects.base import Dialect
+from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
+from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.dialects.dialect_ansi import (
     ObjectReferenceSegment,
     SelectClauseElementSegment,
 )
-from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
-from sqlfluff.core.parser.segments.base import BaseSegment
 
 
 class SelectStatementColumnsAndTables(NamedTuple):
@@ -44,7 +44,9 @@ def get_select_statement_info(
     # potential others.
     sc = segment.get_child("select_clause")
     # Sometimes there is no select clause (e.g. "SELECT *" is a select_clause_element)
-    if not sc:
+    if not sc:  # pragma: no cover
+        # TODO: Review whether this clause should be removed. It might only
+        # have existed for an old way of structuring the Exasol dialect.
         return None
     # NOTE: In this first crawl, don't crawl inside any sub-selects, that's very
     # important for both isolation and performance reasons.

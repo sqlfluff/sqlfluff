@@ -1,21 +1,11 @@
 """Implementation of Rule ST05."""
 from functools import partial
-from typing import (
-    Iterator,
-    List,
-    NamedTuple,
-    Optional,
-    Set,
-    Tuple,
-    Type,
-    TypeVar,
-    cast,
-)
+from typing import Iterator, List, NamedTuple, Optional, Set, Tuple, Type, TypeVar, cast
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
-from sqlfluff.core.parser.segments.base import BaseSegment
-from sqlfluff.core.parser.segments.raw import (
+from sqlfluff.core.parser import (
+    BaseSegment,
     CodeSegment,
     KeywordSegment,
     NewlineSegment,
@@ -29,22 +19,21 @@ from sqlfluff.core.rules import (
     LintResult,
     RuleContext,
 )
-from sqlfluff.utils.analysis.select import get_select_statement_info
-from sqlfluff.utils.analysis.query import Query, Selectable
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional.segment_predicates import (
-    is_keyword,
-    is_type,
-    is_whitespace,
-)
-from sqlfluff.utils.functional import Segments, FunctionalContext
 from sqlfluff.dialects.dialect_ansi import (
     CTEDefinitionSegment,
     TableExpressionSegment,
     TableReferenceSegment,
     WithCompoundStatementSegment,
 )
-
+from sqlfluff.utils.analysis.query import Query, Selectable
+from sqlfluff.utils.analysis.select import get_select_statement_info
+from sqlfluff.utils.functional import FunctionalContext, Segments
+from sqlfluff.utils.functional.segment_predicates import (
+    is_keyword,
+    is_type,
+    is_whitespace,
+)
 
 _SELECT_TYPES = [
     "with_compound_statement",

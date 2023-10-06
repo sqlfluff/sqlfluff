@@ -4,7 +4,9 @@ import multiprocessing
 import os
 import re
 import sys
-from typing import Callable, Dict, List, Optional, TypeVar
+import time
+from collections import defaultdict
+from typing import Callable, Dict, List, Optional, Tuple, TypeVar
 
 import click
 import yaml
@@ -17,14 +19,52 @@ from conftest import (
 
 from sqlfluff.core.errors import SQLParseError
 
-S = TypeVar("S")
+S = TypeVar("S", bound="ParseExample")
 
 
 def distribute_work(work_items: List[S], work_fn: Callable[[S], None]) -> None:
-    """Distribute work and ignore results."""
+    """Distribute work keep track of progress."""
+    # Build up a dict of sets, where the key is the dialect and the set
+    # contains all the expected cases. As cases return we'll check them
+    # off.
+    success_map = {}
+
+    expected_cases = defaultdict(set)
+    for case in work_items:
+        expected_cases[case.dialect].add(case)
+
+    errors = []
+
     with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
-        for _ in pool.imap_unordered(work_fn, work_items):
-            pass
+        for example, result in pool.imap_unordered(work_fn, work_items):
+            if result is not None:
+                errors.append(result)
+                success_map[example] = False
+            else:
+                success_map[example] = True
+
+            expected_cases[example.dialect].remove(example)
+            # Check to see whether a dialect is complete
+            if not expected_cases[example.dialect]:
+                # It's done. Report success rate.
+                local_success_map = {
+                    k: v for k, v in success_map.items() if k.dialect == example.dialect
+                }
+                if all(local_success_map.values()):
+                    print(f"{example.dialect!r} complete.\t\tAll Success ✅")
+                else:
+                    fail_files = [
+                        k.sqlfile for k, v in local_success_map.items() if not v
+                    ]
+                    print(
+                        f"{example.dialect!r} complete.\t\t{len(fail_files)} fails. ⚠️"
+                    )
+                    for fname in fail_files:
+                        print(f"  - {fname!r}")
+
+    if errors:
+        print("FAILED TO GENERATE ALL CASES")
+        sys.exit(1)
 
 
 def _create_file_path(example: ParseExample, ext: str = ".yml") -> str:
@@ -50,26 +90,25 @@ def _is_matching_new_criteria(example: ParseExample):
     return os.path.getmtime(yaml_path) < os.path.getmtime(sql_path)
 
 
-def generate_one_parse_fixture(example: ParseExample) -> None:
+def generate_one_parse_fixture(
+    example: ParseExample,
+) -> Tuple[ParseExample, Optional[SQLParseError]]:
     """Parse example SQL file, write parse tree to YAML file."""
     dialect, sqlfile = example
     sql_path = _create_file_path(example, ".sql")
 
     try:
         tree = parse_example_file(dialect, sqlfile)
-    except SQLParseError as err:
+    except Exception as err:
         # Catch parsing errors, and wrap the file path only it.
-        raise SQLParseError(f"Fatal parsing error: {sql_path}: {err}")
+        return example, SQLParseError(f"Fatal parsing error: {sql_path}: {err}")
 
     # Check we don't have any base types or unparsable sections
     types = tree.type_set()
     if "base" in types:
-        raise SQLParseError(f"Unnamed base section when parsing: {sql_path}")
+        return example, SQLParseError(f"Unnamed base section when parsing: {sql_path}")
     if "unparsable" in types:
-        for unparsable in tree.iter_unparsables():
-            print("Found unparsable segment...")
-            print(unparsable.stringify())
-        raise SQLParseError(f"Could not parse: {sql_path}")
+        return example, SQLParseError(f"Could not parse: {sql_path}")
 
     _hash = compute_parse_tree_hash(tree)
     # Remove the .sql file extension
@@ -79,7 +118,7 @@ def generate_one_parse_fixture(example: ParseExample) -> None:
 
         if not tree:
             f.write("")
-            return
+            return example, None
 
         records = tree.as_record(code_only=True, show_raw=True)
         assert records, "TypeGuard"
@@ -97,7 +136,7 @@ def generate_one_parse_fixture(example: ParseExample) -> None:
             sep="\n",
         )
         yaml.dump(r, f, default_flow_style=False, sort_keys=False)
-        return
+        return example, None
 
 
 def gather_file_list(
@@ -155,13 +194,15 @@ def generate_parse_fixtures(
     print(f"\tfilter={filter_str} dialect={dialect_str} new-only={new_only}")
     parse_success_examples = gather_file_list(dialect, filter, new_only)
     print(f"Found {len(parse_success_examples)} file(s) to generate")
+    t0 = time.monotonic()
     try:
         distribute_work(parse_success_examples, generate_one_parse_fixture)
     except SQLParseError as err:
         # If one fails, exit early and cleanly.
         print(f"PARSING FAILED: {err}")
         sys.exit(1)
-    print(f"Fixture built: {len(parse_success_examples)}")
+    dt = time.monotonic() - t0
+    print(f"Built {len(parse_success_examples)} fixtures in {dt:.2f}s.")
 
 
 def main():

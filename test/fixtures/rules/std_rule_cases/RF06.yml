@@ -595,3 +595,31 @@ test_fail_prefer_quoted_keywords_athena:
         prefer_quoted_keywords: true
     core:
       dialect: athena
+
+test_pass_tsql_execute_as:
+  # 'login_test' should remain quoted.
+  pass_str: |
+    CREATE TRIGGER connection_limit_trigger
+    ON ALL SERVER WITH EXECUTE AS 'login_test'
+    FOR LOGON
+    AS
+        PRINT 'Database Created.'
+        SELECT 1
+    GO
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: false
+    core:
+      dialect: tsql
+
+test_pass_exasol_password_literals:
+  # password literals should remain quoted.
+  pass_str: |
+    ALTER USER user_1 IDENTIFIED BY "h22_xhz" REPLACE "h12_xhz";
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: false
+    core:
+      dialect: exasol

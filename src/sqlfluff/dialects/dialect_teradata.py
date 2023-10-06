@@ -15,6 +15,8 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     CodeSegment,
+    ComparisonOperatorSegment,
+    CompositeComparisonOperatorSegment,
     Dedent,
     Delimited,
     Indent,
@@ -24,7 +26,6 @@ from sqlfluff.core.parser import (
     Ref,
     RegexLexer,
     Sequence,
-    StartsWith,
     StringParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -39,7 +40,6 @@ teradata_dialect.patch_lexer_matchers(
             "numeric_literal",
             r"([0-9]+(\.[0-9]*)?)",
             CodeSegment,
-            segment_kwargs={"type": "numeric_literal"},
         ),
     ]
 )
@@ -127,14 +127,14 @@ teradata_dialect.replace(
 
 teradata_dialect.add(
     # Add Teradata comparison operator extensions
-    EqualsSegment_a=StringParser("EQ", ansi.ComparisonOperatorSegment),
-    GreaterThanSegment_a=StringParser("GT", ansi.ComparisonOperatorSegment),
-    LessThanSegment_a=StringParser("LT", ansi.ComparisonOperatorSegment),
-    GreaterThanOrEqualToSegment_a=StringParser("GE", ansi.ComparisonOperatorSegment),
-    LessThanOrEqualToSegment_a=StringParser("LE", ansi.ComparisonOperatorSegment),
-    NotEqualToSegment_a=StringParser("NE", ansi.ComparisonOperatorSegment),
-    NotEqualToSegment_b=StringParser("NOT=", ansi.ComparisonOperatorSegment),
-    NotEqualToSegment_c=StringParser("^=", ansi.ComparisonOperatorSegment),
+    EqualsSegment_a=StringParser("EQ", ComparisonOperatorSegment),
+    GreaterThanSegment_a=StringParser("GT", ComparisonOperatorSegment),
+    LessThanSegment_a=StringParser("LT", ComparisonOperatorSegment),
+    GreaterThanOrEqualToSegment_a=StringParser("GE", ComparisonOperatorSegment),
+    LessThanOrEqualToSegment_a=StringParser("LE", ComparisonOperatorSegment),
+    NotEqualToSegment_a=StringParser("NE", ComparisonOperatorSegment),
+    NotEqualToSegment_b=StringParser("NOT=", ComparisonOperatorSegment),
+    NotEqualToSegment_c=StringParser("^=", ComparisonOperatorSegment),
 )
 
 
@@ -711,7 +711,7 @@ class StatementSegment(ansi.StatementSegment):
 
     type = "statement"
 
-    parse_grammar = ansi.StatementSegment.parse_grammar.copy(
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("TdCollectStatisticsStatementSegment"),
             Ref("BteqStatementSegment"),
@@ -723,21 +723,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SetQueryBandStatementSegment"),
         ],
     )
-
-    match_grammar = ansi.StatementSegment.match_grammar.copy()
-
-
-teradata_dialect.replace(
-    SelectClauseSegmentGrammar=Sequence(
-        OneOf("SELECT", "SEL"),
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        Delimited(
-            Ref("SelectClauseElementSegment"),
-            allow_trailing=True,
-        ),
-    ),
-)
 
 
 class QualifyClauseSegment(BaseSegment):
@@ -758,8 +743,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     https://dev.mysql.com/doc/refman/5.7/en/select.html
     """
 
-    match_grammar = ansi.SelectStatementSegment.match_grammar
-    parse_grammar = ansi.SelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
     )
@@ -771,10 +755,31 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     https://dev.mysql.com/doc/refman/5.7/en/select.html
     """
 
-    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar
-    parse_grammar = ansi.UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OverlapsClauseSegment", optional=True),
+    )
+
+
+class SelectClauseSegment(ansi.SelectClauseSegment):
+    """A group of elements in a select target statement.
+
+    Remove OVERLAPS as a terminator as this can be part of SelectClauseModifierSegment
+    """
+
+    match_grammar = ansi.SelectClauseSegment.match_grammar.copy(
+        # Allow "SEL" as in place of just "SELECT"
+        insert=[OneOf("SELECT", "SEL")],
+        before=Ref.keyword("SELECT"),
+        remove=[Ref.keyword("SELECT")],
+        terminators=[
+            "FROM",
+            "WHERE",
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            Ref("SetOperatorSegment"),
+        ],
+        replace_terminators=True,
     )
 
 
@@ -836,27 +841,6 @@ class SelectClauseModifierSegment(BaseSegment):
     )
 
 
-class SelectClauseSegment(ansi.SelectClauseSegment):
-    """A group of elements in a select target statement.
-
-    Remove OVERLAPS as a terminator as this can be part of SelectClauseModifierSegment
-    """
-
-    match_grammar = StartsWith(
-        Sequence(
-            OneOf("SELECT", "SEL"), Ref("WildcardExpressionSegment", optional=True)
-        ),
-        terminators=[
-            "FROM",
-            "WHERE",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-        ],
-    )
-    parse_grammar = ansi.SelectClauseSegment.parse_grammar
-
-
 class DatabaseStatementSegment(BaseSegment):
     """A `DATABASE` statement.
 
@@ -909,7 +893,7 @@ class SetQueryBandStatementSegment(BaseSegment):
     )
 
 
-class NotEqualToSegment_b(ansi.CompositeComparisonOperatorSegment):
+class NotEqualToSegment_b(CompositeComparisonOperatorSegment):
     """The comparison operator extension NOT=.
 
     https://www.docs.teradata.com/r/Teradata-Database-SQL-Functions-Operators-Expressions-and-Predicates/March-2017/Comparison-Operators-and-Functions/Comparison-Operators/Supported-Comparison-Operators
@@ -920,7 +904,7 @@ class NotEqualToSegment_b(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class NotEqualToSegment_c(ansi.CompositeComparisonOperatorSegment):
+class NotEqualToSegment_c(CompositeComparisonOperatorSegment):
     """The comparison operator extension ^=.
 
     https://www.docs.teradata.com/r/Teradata-Database-SQL-Functions-Operators-Expressions-and-Predicates/March-2017/Comparison-Operators-and-Functions/Comparison-Operators/Supported-Comparison-Operators

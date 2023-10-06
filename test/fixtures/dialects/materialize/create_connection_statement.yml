@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5f3d1f3a9c4277dabd7d090163feecaad34554d319d420be8d2c11cbd671a1b6
+_hash: 8feb4d3ab52a9feac513436ec5190bdea7f8c3ad906dc692cd4a8f93bd8dcab1
 file:
 - statement:
     create_secret_statement:
@@ -15,7 +15,7 @@ file:
     - object_reference:
         naked_identifier: name
     - keyword: AS
-    - code: value
+    - word: value
 - statement_terminator: ;
 - statement:
     create_secret_statement:
@@ -24,7 +24,7 @@ file:
     - object_reference:
         naked_identifier: name
     - keyword: AS
-    - code: value
+    - word: value
 - statement_terminator: ;
 - statement:
     create_connection_statement:
@@ -37,12 +37,12 @@ file:
     - keyword: PRIVATELINK
     - bracketed:
       - start_bracket: (
-      - code: SERVICE
-      - code: NAME
+      - word: SERVICE
+      - word: NAME
       - single_quote: "'com.amazonaws.vpce.us-east-1.vpce-svc-0e123abc123198abc'"
       - comma: ','
-      - code: AVAILABILITY
-      - code: ZONES
+      - word: AVAILABILITY
+      - word: ZONES
       - bracketed:
         - start_bracket: (
         - single_quote: "'use1-az1'"
@@ -63,29 +63,29 @@ file:
     - keyword: REGISTRY
     - bracketed:
       - start_bracket: (
-      - code: URL
+      - word: URL
       - single_quote: "'https://rp-f00000bar.data.vectorized.cloud:30993'"
       - comma: ','
-      - code: SSL
-      - code: KEY
-      - raw: '='
-      - code: SECRET
-      - code: csr_ssl_key
+      - word: SSL
+      - word: KEY
+      - equals: '='
+      - word: SECRET
+      - word: csr_ssl_key
       - comma: ','
-      - code: SSL
-      - code: CERTIFICATE
-      - raw: '='
-      - code: SECRET
-      - code: csr_ssl_crt
+      - word: SSL
+      - word: CERTIFICATE
+      - equals: '='
+      - word: SECRET
+      - word: csr_ssl_crt
       - comma: ','
-      - code: USERNAME
-      - raw: '='
+      - word: USERNAME
+      - equals: '='
       - single_quote: "'foo'"
       - comma: ','
-      - code: PASSWORD
-      - raw: '='
-      - code: SECRET
-      - code: csr_password
+      - word: PASSWORD
+      - equals: '='
+      - word: SECRET
+      - word: csr_password
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -99,12 +99,12 @@ file:
     - keyword: PRIVATELINK
     - bracketed:
       - start_bracket: (
-      - code: SERVICE
-      - code: NAME
+      - word: SERVICE
+      - word: NAME
       - single_quote: "'com.amazonaws.vpce.us-east-1.vpce-svc-0e123abc123198abc'"
       - comma: ','
-      - code: AVAILABILITY
-      - code: ZONES
+      - word: AVAILABILITY
+      - word: ZONES
       - bracketed:
         - start_bracket: (
         - single_quote: "'use1-az1'"
@@ -125,12 +125,12 @@ file:
     - keyword: REGISTRY
     - bracketed:
       - start_bracket: (
-      - code: URL
+      - word: URL
       - single_quote: "'http://my-confluent-schema-registry:8081'"
       - comma: ','
-      - code: AWS
-      - code: PRIVATELINK
-      - code: privatelink_svc
+      - word: AWS
+      - word: PRIVATELINK
+      - word: privatelink_svc
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -143,20 +143,20 @@ file:
     - keyword: KAFKA
     - bracketed:
       - start_bracket: (
-      - code: BROKER
+      - word: BROKER
       - single_quote: "'rp-f00000bar.data.vectorized.cloud:30365'"
       - comma: ','
-      - code: SSL
-      - code: KEY
-      - raw: '='
-      - code: SECRET
-      - code: kafka_ssl_key
+      - word: SSL
+      - word: KEY
+      - equals: '='
+      - word: SECRET
+      - word: kafka_ssl_key
       - comma: ','
-      - code: SSL
-      - code: CERTIFICATE
-      - raw: '='
-      - code: SECRET
-      - code: kafka_ssl_crt
+      - word: SSL
+      - word: CERTIFICATE
+      - equals: '='
+      - word: SECRET
+      - word: kafka_ssl_crt
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -169,7 +169,7 @@ file:
     - keyword: KAFKA
     - bracketed:
         start_bracket: (
-        code: BROKERS
+        word: BROKERS
         bracketed:
         - start_bracket: (
         - single_quote: "'broker1:9092'"
@@ -188,24 +188,24 @@ file:
     - keyword: POSTGRES
     - bracketed:
       - start_bracket: (
-      - code: HOST
+      - word: HOST
       - single_quote: "'instance.foo000.us-west-1.rds.amazonaws.com'"
       - comma: ','
-      - code: PORT
+      - word: PORT
       - numeric_literal: '5432'
       - comma: ','
-      - code: USER
+      - word: USER
       - single_quote: "'postgres'"
       - comma: ','
-      - code: PASSWORD
-      - code: SECRET
-      - code: pgpass
+      - word: PASSWORD
+      - word: SECRET
+      - word: pgpass
       - comma: ','
-      - code: SSL
-      - code: MODE
+      - word: SSL
+      - word: MODE
       - single_quote: "'require'"
       - comma: ','
-      - code: DATABASE
+      - word: DATABASE
       - single_quote: "'postgres'"
       - end_bracket: )
 - statement_terminator: ;
@@ -220,13 +220,13 @@ file:
     - keyword: TUNNEL
     - bracketed:
       - start_bracket: (
-      - code: HOST
+      - word: HOST
       - single_quote: "'bastion-host'"
       - comma: ','
-      - code: PORT
+      - word: PORT
       - numeric_literal: '22'
       - comma: ','
-      - code: USER
+      - word: USER
       - single_quote: "'materialize'"
       - comma: ','
       - end_bracket: )
@@ -241,17 +241,17 @@ file:
     - keyword: POSTGRES
     - bracketed:
       - start_bracket: (
-      - code: HOST
+      - word: HOST
       - single_quote: "'instance.foo000.us-west-1.rds.amazonaws.com'"
       - comma: ','
-      - code: PORT
+      - word: PORT
       - numeric_literal: '5432'
       - comma: ','
-      - code: SSH
-      - code: TUNNEL
-      - code: tunnel
+      - word: SSH
+      - word: TUNNEL
+      - word: tunnel
       - comma: ','
-      - code: DATABASE
+      - word: DATABASE
       - single_quote: "'postgres'"
       - end_bracket: )
 - statement_terminator: ;
