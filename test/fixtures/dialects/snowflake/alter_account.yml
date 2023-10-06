@@ -1,0 +1,428 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: cdb172ead91b272fca1af54eca8ec80fd1dcfd4b19ec1c7e1ba4f48e84b4f442
+file:
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: SET
+    - alter_account_set_parameters:
+        keyword: TIMEZONE
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'UTC'"
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: SET
+    - alter_account_set_parameters:
+      - keyword: ALLOW_ID_TOKEN
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: CLIENT_ENCRYPTION_KEY_SIZE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - integer_literal: '128'
+      - comma: ','
+      - keyword: ENABLE_INTERNAL_STAGES_PRIVATELINK
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - comma: ','
+      - keyword: ENFORCE_NETWORK_RULES_FOR_INTERNAL_STAGES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: EXTERNAL_OAUTH_ADD_PRIVILEGED_ROLES_TO_BLOCKED_LIST
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: INITIAL_REPLICATION_SIZE_LIMIT_IN_TB
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '120'
+      - comma: ','
+      - keyword: NETWORK_POLICY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: mypolicy
+      - comma: ','
+      - keyword: PERIODIC_DATA_REKEYING
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - comma: ','
+      - keyword: PREVENT_UNLOAD_TO_INLINE_URL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: PREVENT_UNLOAD_TO_INTERNAL_STAGES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - comma: ','
+      - keyword: REQUIRE_STORAGE_INTEGRATION_FOR_STAGE_CREATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: REQUIRE_STORAGE_INTEGRATION_FOR_STAGE_OPERATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - comma: ','
+      - keyword: SAML_IDENTITY_PROVIDER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'{\n    \"certificate\": \"<CERTIFICATE GOES HERE>\",\n \
+          \   \"ssoUrl\": \"<SSO APPLICATION ENDPOINT URL GOES HERE>\",\n    \"type\"\
+          \  : \"Custom\",\n    \"label\" : \"PingSingleSignOn\"\n  }'"
+      - comma: ','
+      - keyword: SSO_LOGIN_PAGE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: DATA_RETENTION_TIME_IN_DAYS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '3'
+      - comma: ','
+      - keyword: ENABLE_UNREDACTED_QUERY_SYNTAX_ERROR
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: MAX_DATA_EXTENSION_TIME_IN_DAYS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '5'
+      - comma: ','
+      - keyword: DEFAULT_DDL_COLLATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'en-ci'"
+      - comma: ','
+      - keyword: MAX_CONCURRENCY_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '7'
+      - comma: ','
+      - keyword: NETWORK_POLICY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: mypolicy
+      - comma: ','
+      - keyword: PIPE_EXECUTION_PAUSED
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - comma: ','
+      - keyword: STATEMENT_QUEUED_TIMEOUT_IN_SECONDS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '120'
+      - comma: ','
+      - keyword: STATEMENT_TIMEOUT_IN_SECONDS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '240'
+      - comma: ','
+      - keyword: ABORT_DETACHED_QUERY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: AUTOCOMMIT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - comma: ','
+      - keyword: BINARY_INPUT_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'BASE64'"
+      - comma: ','
+      - keyword: BINARY_OUTPUT_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'HEX'"
+      - comma: ','
+      - keyword: DATE_INPUT_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'AUTO'"
+      - comma: ','
+      - keyword: DATE_OUTPUT_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'YYYY-MM-DD'"
+      - comma: ','
+      - keyword: ERROR_ON_NONDETERMINISTIC_MERGE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: ERROR_ON_NONDETERMINISTIC_UPDATE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - comma: ','
+      - keyword: JSON_INDENT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '4'
+      - comma: ','
+      - keyword: LOCK_TIMEOUT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '3600'
+      - comma: ','
+      - keyword: QUERY_TAG
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'queries_by_automation'"
+      - comma: ','
+      - keyword: ROWS_PER_RESULTSET
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '7000'
+      - comma: ','
+      - keyword: S3_STAGE_VPCE_DNS_NAME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'*.vpce-sd98fs0d9f8g.s3.us-west-2.vpce.amazonaws.com'"
+      - comma: ','
+      - keyword: SEARCH_PATH
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'$public'"
+      - comma: ','
+      - keyword: SIMULATED_DATA_SHARING_CONSUMER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'CONSUMER1'"
+      - comma: ','
+      - keyword: STATEMENT_TIMEOUT_IN_SECONDS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '240'
+      - comma: ','
+      - keyword: STRICT_JSON_OUTPUT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: TIMESTAMP_DAY_IS_ALWAYS_24H
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - comma: ','
+      - keyword: TIMESTAMP_INPUT_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'AUTO'"
+      - comma: ','
+      - keyword: TIMESTAMP_LTZ_OUTPUT_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'YYYY-MM-DD HH24:MI:SS.FF TZHTZM'"
+      - comma: ','
+      - keyword: TIMESTAMP_NTZ_OUTPUT_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'YYYY-MM-DD HH24:MI:SS.FF'"
+      - comma: ','
+      - keyword: TIMESTAMP_OUTPUT_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'YYYY-MM-DD HH24:MI:SS.FF3 TZHTZM'"
+      - comma: ','
+      - keyword: TIMESTAMP_TYPE_MAPPING
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'TIMESTAMP_LTZ'"
+      - comma: ','
+      - keyword: TIMESTAMP_TZ_OUTPUT_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'YYYY-MM-DD HH24:MI:SS.FF TZHTZM'"
+      - comma: ','
+      - keyword: TIMEZONE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'UTC'"
+      - comma: ','
+      - keyword: TIME_INPUT_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'AUTO'"
+      - comma: ','
+      - keyword: TIME_OUTPUT_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'HH:MI:SS'"
+      - comma: ','
+      - keyword: TRANSACTION_DEFAULT_ISOLATION_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'READ COMMITTED'"
+      - comma: ','
+      - keyword: TWO_DIGIT_CENTURY_START
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '2000'
+      - comma: ','
+      - keyword: UNSUPPORTED_DDL_ACTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'FAIL'"
+      - comma: ','
+      - keyword: USE_CACHED_RESULT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: WEEK_OF_YEAR_POLICY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - comma: ','
+      - keyword: WEEK_START
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: SET
+    - alter_account_set_parameters:
+      - keyword: TIMEZONE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'UTC'"
+      - comma: ','
+      - keyword: DATA_RETENTION_TIME_IN_DAYS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '4'
+      - comma: ','
+      - keyword: ALLOW_ID_TOKEN
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: UNSET
+    - naked_identifier: TIMEZONE
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: UNSET
+    - naked_identifier: DATA_RETENTION_TIME_IN_DAYS
+    - comma: ','
+    - naked_identifier: JSON_INDENT
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: SET
+    - keyword: RESOURCE_MONITOR
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: VERY_RESTRICTIVE_MONITOR
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: SET
+    - keyword: PASSWORD
+    - keyword: POLICY
+    - table_reference:
+      - naked_identifier: mydb
+      - dot: .
+      - naked_identifier: security
+      - dot: .
+      - naked_identifier: at_least_twelve_characters
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: POLICY
+    - table_reference:
+      - naked_identifier: mydb
+      - dot: .
+      - naked_identifier: policies
+      - dot: .
+      - naked_identifier: only_one_hour
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: UNSET
+    - keyword: PASSWORD
+    - keyword: POLICY
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: UNSET
+    - keyword: SESSION
+    - keyword: POLICY
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: SET
+    - tag_equals:
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: env
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'prod'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: domain
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'sales'"
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: env
+    - comma: ','
+    - tag_reference:
+        naked_identifier: domain
+- statement_terminator: ;

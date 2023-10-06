@@ -1018,6 +1018,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ScriptingLetStatementSegment"),
             Ref("ReturnStatementSegment"),
             Ref("ShowStatementSegment"),
+            Ref("AlterAccountStatementSegment"),
             Ref("AlterUserStatementSegment"),
             Ref("AlterSessionStatementSegment"),
             Ref("AlterTaskStatementSegment"),
@@ -5757,6 +5758,318 @@ class ShowStatementSegment(BaseSegment):
             Sequence("FROM", Ref("QuotedLiteralSegment"), optional=True),
             optional=True,
         ),
+    )
+
+
+class AlterAccountStatementSegment(BaseSegment):
+    """`ALTER ACCOUNT` statement.
+
+    ALTER ACCOUNT SET { [ accountParams ] [ objectParams ] [ sessionParams ] }
+
+    ALTER ACCOUNT UNSET <param_name> [ , ... ]
+
+    ALTER ACCOUNT SET RESOURCE_MONITOR = <monitor_name>
+
+    ALTER ACCOUNT SET { PASSWORD | SESSION } POLICY <policy_name>
+
+    ALTER ACCOUNT UNSET { PASSWORD | SESSION } POLICY
+
+    ALTER ACCOUNT SET TAG <tag_name> = '<tag_value>' [, <tag_name> = '<tag_value>' ...]
+
+    ALTER ACCOUNT UNSET TAG <tag_name> [ , <tag_name> ... ]
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-account
+
+    All the account parameters can be found here
+    https://docs.snowflake.com/en/sql-reference/parameters
+    """
+
+    type = "alter_account_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "ACCOUNT",
+        OneOf(
+            Sequence(
+                "SET",
+                "RESOURCE_MONITOR",
+                Ref("EqualsSegment"),
+                Ref("NakedIdentifierSegment"),
+            ),
+            Sequence(
+                "SET",
+                OneOf("PASSWORD", "SESSION"),
+                "POLICY",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                Ref("TagEqualsSegment"),
+            ),
+            Sequence(
+                "SET",
+                Ref("AlterAccountSetParameters"),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf("PASSWORD", "SESSION"),
+                "POLICY",
+            ),
+            Sequence(
+                "UNSET",
+                OneOf(
+                    Sequence("TAG", Delimited(Ref("TagReferenceSegment"))),
+                    Delimited(Ref("NakedIdentifierSegment")),
+                ),
+            ),
+        ),
+    )
+
+
+class AlterAccountSetParameters(BaseSegment):
+    """Parameters `ALTER ACCOUNT SET ...`.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-account
+    """
+
+    type = "alter_account_set_parameters"
+
+    match_grammar = Delimited(
+        AnySetOf(
+            # Account parameters
+            Sequence(
+                "ALLOW_ID_TOKEN", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+            ),
+            Sequence(
+                "CLIENT_ENCRYPTION_KEY_SIZE",
+                Ref("EqualsSegment"),
+                Ref("IntegerSegment"),
+            ),
+            Sequence(
+                "ENABLE_INTERNAL_STAGES_PRIVATELINK",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "ENFORCE_NETWORK_RULES_FOR_INTERNAL_STAGES",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "EXTERNAL_OAUTH_ADD_PRIVILEGED_ROLES_TO_BLOCKED_LIST",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "INITIAL_REPLICATION_SIZE_LIMIT_IN_TB",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "NETWORK_POLICY", Ref("EqualsSegment"), Ref("NakedIdentifierSegment")
+            ),
+            Sequence(
+                "PERIODIC_DATA_REKEYING",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "PREVENT_UNLOAD_TO_INLINE_URL",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "PREVENT_UNLOAD_TO_INTERNAL_STAGES",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "REQUIRE_STORAGE_INTEGRATION_FOR_STAGE_CREATION",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "REQUIRE_STORAGE_INTEGRATION_FOR_STAGE_OPERATION",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "SAML_IDENTITY_PROVIDER",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "SSO_LOGIN_PAGE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+            ),
+            # Object parameters
+            Sequence(
+                "DATA_RETENTION_TIME_IN_DAYS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "ENABLE_UNREDACTED_QUERY_SYNTAX_ERROR",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "DEFAULT_DDL_COLLATION",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "MAX_CONCURRENCY_LEVEL",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "NETWORK_POLICY", Ref("EqualsSegment"), Ref("NakedIdentifierSegment")
+            ),
+            Sequence(
+                "PIPE_EXECUTION_PAUSED",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "STATEMENT_QUEUED_TIMEOUT_IN_SECONDS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "STATEMENT_TIMEOUT_IN_SECONDS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            # Session parameters
+            Sequence(
+                "ABORT_DETACHED_QUERY",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence("AUTOCOMMIT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            Sequence(
+                "BINARY_INPUT_FORMAT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+            ),
+            Sequence(
+                "BINARY_OUTPUT_FORMAT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "DATE_INPUT_FORMAT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+            ),
+            Sequence(
+                "DATE_OUTPUT_FORMAT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+            ),
+            Sequence(
+                "ERROR_ON_NONDETERMINISTIC_MERGE",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "ERROR_ON_NONDETERMINISTIC_UPDATE",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence("JSON_INDENT", Ref("EqualsSegment"), Ref("NumericLiteralSegment")),
+            Sequence(
+                "LOCK_TIMEOUT", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
+            ),
+            Sequence("QUERY_TAG", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+            Sequence(
+                "ROWS_PER_RESULTSET", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
+            ),
+            Sequence(
+                "S3_STAGE_VPCE_DNS_NAME",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence("SEARCH_PATH", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+            Sequence(
+                "SIMULATED_DATA_SHARING_CONSUMER",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "STATEMENT_TIMEOUT_IN_SECONDS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "STRICT_JSON_OUTPUT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+            ),
+            Sequence(
+                "TIMESTAMP_DAY_IS_ALWAYS_24H",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "TIMESTAMP_INPUT_FORMAT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "TIMESTAMP_LTZ_OUTPUT_FORMAT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "TIMESTAMP_NTZ_OUTPUT_FORMAT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "TIMESTAMP_OUTPUT_FORMAT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "TIMESTAMP_TYPE_MAPPING",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "TIMESTAMP_TZ_OUTPUT_FORMAT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence("TIMEZONE", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+            Sequence(
+                "TIME_INPUT_FORMAT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+            ),
+            Sequence(
+                "TIME_OUTPUT_FORMAT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+            ),
+            Sequence(
+                "TRANSACTION_DEFAULT_ISOLATION_LEVEL",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "TWO_DIGIT_CENTURY_START",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "UNSUPPORTED_DDL_ACTION",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "USE_CACHED_RESULT", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+            ),
+            Sequence(
+                "WEEK_OF_YEAR_POLICY",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence("WEEK_START", Ref("EqualsSegment"), Ref("NumericLiteralSegment")),
+        )
     )
 
 
