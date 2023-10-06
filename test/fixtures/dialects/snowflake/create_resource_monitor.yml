@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 13246d31af9480a27ad1c960ff9d706a7f4f220c84885c7a0d25f719765d6472
+_hash: bf15810de6377ed14ef180cbb051a3f9449ec044d0f45b97932917f5388ae4eb
 file:
 - statement:
     create_statement:
@@ -23,10 +23,11 @@ file:
     - object_reference:
         naked_identifier: limiter
     - keyword: with
-    - keyword: credit_quota
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - integer_literal: '1'
+    - resource_monitor_options:
+        keyword: credit_quota
+        comparison_operator:
+          raw_comparison_operator: '='
+        integer_literal: '1'
 - statement_terminator: ;
 - statement:
     create_resource_monitor_statement:
@@ -38,10 +39,11 @@ file:
     - object_reference:
         naked_identifier: test
     - keyword: with
-    - keyword: frequency
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - keyword: monthly
+    - resource_monitor_options:
+      - keyword: frequency
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: monthly
 - statement_terminator: ;
 - statement:
     create_resource_monitor_statement:
@@ -53,10 +55,11 @@ file:
     - object_reference:
         naked_identifier: limiter
     - keyword: with
-    - keyword: start_timestamp
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - keyword: immediately
+    - resource_monitor_options:
+      - keyword: start_timestamp
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: immediately
 - statement_terminator: ;
 - statement:
     create_resource_monitor_statement:
@@ -68,10 +71,11 @@ file:
     - object_reference:
         naked_identifier: limiter
     - keyword: with
-    - keyword: start_timestamp
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - timestamp_literal: "'2038-01-19 03:14:07'"
+    - resource_monitor_options:
+        keyword: start_timestamp
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'2038-01-19 03:14:07'"
 - statement_terminator: ;
 - statement:
     create_resource_monitor_statement:
@@ -83,32 +87,33 @@ file:
     - object_reference:
         naked_identifier: limiter
     - keyword: with
-    - keyword: credit_quota
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - integer_literal: '100'
-    - keyword: NOTIFY_USERS
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - bracketed:
-      - start_bracket: (
-      - object_reference:
-          naked_identifier: joe
-      - comma: ','
-      - object_reference:
-          quoted_identifier: '"sara"'
-      - comma: ','
-      - object_reference:
-          quoted_identifier: '"ashlee"'
-      - end_bracket: )
-    - keyword: start_timestamp
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - keyword: immediately
-    - keyword: end_timestamp
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - timestamp_literal: "'2038-01-19 03:14:07'"
+    - resource_monitor_options:
+      - keyword: credit_quota
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - integer_literal: '100'
+      - keyword: NOTIFY_USERS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - object_reference:
+            naked_identifier: joe
+        - comma: ','
+        - object_reference:
+            quoted_identifier: '"sara"'
+        - comma: ','
+        - object_reference:
+            quoted_identifier: '"ashlee"'
+        - end_bracket: )
+      - keyword: start_timestamp
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: immediately
+      - keyword: end_timestamp
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'2038-01-19 03:14:07'"
 - statement_terminator: ;
 - statement:
     create_resource_monitor_statement:
@@ -120,38 +125,39 @@ file:
     - object_reference:
         naked_identifier: limiter
     - keyword: with
-    - keyword: credit_quota
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - integer_literal: '5000'
-    - keyword: notify_users
-    - comparison_operator:
-        raw_comparison_operator: '='
-    - bracketed:
-      - start_bracket: (
-      - object_reference:
-          naked_identifier: jdoe
-      - comma: ','
-      - object_reference:
-          quoted_identifier: '"jane smith"'
-      - comma: ','
-      - object_reference:
-          quoted_identifier: '"john doe"'
-      - end_bracket: )
-    - keyword: triggers
-    - keyword: 'on'
-    - integer_literal: '75'
-    - keyword: percent
-    - keyword: do
-    - keyword: notify
-    - keyword: 'on'
-    - integer_literal: '100'
-    - keyword: percent
-    - keyword: do
-    - keyword: suspend
-    - keyword: 'on'
-    - integer_literal: '110'
-    - keyword: percent
-    - keyword: do
-    - keyword: suspend_immediate
+    - resource_monitor_options:
+      - keyword: credit_quota
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - integer_literal: '5000'
+      - keyword: notify_users
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - object_reference:
+            naked_identifier: jdoe
+        - comma: ','
+        - object_reference:
+            quoted_identifier: '"jane smith"'
+        - comma: ','
+        - object_reference:
+            quoted_identifier: '"john doe"'
+        - end_bracket: )
+      - keyword: triggers
+      - keyword: 'on'
+      - integer_literal: '75'
+      - keyword: percent
+      - keyword: do
+      - keyword: notify
+      - keyword: 'on'
+      - integer_literal: '100'
+      - keyword: percent
+      - keyword: do
+      - keyword: suspend
+      - keyword: 'on'
+      - integer_literal: '110'
+      - keyword: percent
+      - keyword: do
+      - keyword: suspend_immediate
 - statement_terminator: ;
