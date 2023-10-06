@@ -2624,7 +2624,10 @@ class SetStatementSegment(BaseSegment):
                 Sequence(
                     Ref("ParameterNameSegment"),
                     Ref("AssignmentOperatorSegment"),
-                    Ref("ExpressionSegment"),
+                    OneOf(
+                        Ref("ExpressionSegment"),
+                        Ref("SelectableGrammar"),
+                    )
                 ),
             ),
         ),
@@ -2704,13 +2707,19 @@ class CreateProcedureStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         OneOf("CREATE", "ALTER", Sequence("CREATE", "OR", "ALTER")),
-        OneOf("PROCEDURE", "PROC"),
+        OneOf("PROC", "PROCEDURE"),
         Ref("ObjectReferenceSegment"),
+        # Not for natively compiled stored procedures
+        Sequence(
+            Ref("SemicolonSegment"),
+            Ref("NumericLiteralSegment"),
+            optional=True,
+        ),
         Ref("ProcedureParameterListGrammar", optional=True),
         _procedure_option,
         Sequence("FOR", "REPLICATION", optional=True),
         "AS",
-        Ref("ProcedureDefinitionGrammar")
+        Ref("ProcedureDefinitionGrammar"),
     )
 
 
@@ -3632,38 +3641,39 @@ class AtomicBeginEndSegment(BaseSegment):
             "WITH",
             Bracketed(
                 Delimited(
-                    OneOf(
-                        Sequence(
-                            "LANGUAGE",
-                            Ref("EqualsSegment"),
-                            Ref("QuotedLiteralSegmentOptWithN"),
+                    Sequence(
+                        "LANGUAGE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegmentOptWithN"),
+                    ),
+                    Sequence(
+                        "TRANSACTION",
+                        "ISOLATION",
+                        "LEVEL",
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            "SNAPSHOT",
+                            Sequence("REPEATABLE", "READ"),
+                            "SERIALIZABLE",
                         ),
-                        Sequence(
-                            "TRANSACTION",
-                            "ISOLATION",
-                            "LEVEL",
-                            Ref("EqualsSegment"),
-                            OneOf(
-                                "SNAPSHOT",
-                                Sequence("REPEATABLE", "READ"),
-                                "SERIALIZABLE",
-                            ),
-                        ),
-                        Sequence(
-                            "DATEFIRST",
-                            Ref("EqualsSegment"),
-                            Ref("NumericLiteralSegment"),
-                        ),
-                        Sequence(
-                            "DATEFORMAT",
-                            Ref("EqualsSegment"),
-                            Ref("DateFormatSegment"),
-                        ),
-                        Sequence(
-                            "DELAYED_DURABILITY",
-                            Ref("EqualsSegment"),
-                            OneOf("ON", "OFF"),
-                        ),
+                    ),
+                    Sequence(
+                        "DATEFIRST",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "DATEFORMAT",
+                        Ref("EqualsSegment"),
+                        Ref("DateFormatSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "DELAYED_DURABILITY",
+                        Ref("EqualsSegment"),
+                        OneOf("ON", "OFF"),
+                        optional=True,
                     ),
                 ),
             ),
