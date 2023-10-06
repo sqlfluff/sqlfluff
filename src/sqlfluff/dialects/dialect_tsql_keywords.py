@@ -1,6 +1,29 @@
 """A list of all SQL key words.
 
-https://docs.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql?view=sql-server-ver15
+https://docs.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql?view=sql-server-ver16
+
+Run the script in a browser console to extract all reserved keywords:
+
+```js
+(function () {
+    const xpathResult = document.evaluate(
+        '//div[@class=\'column\']/p[not(descendant::strong)]',
+        document,
+        null,
+        XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+        null
+    );
+    const list = new Set();
+
+    for (let index = 0; index < xpathResult.snapshotLength; ++index) {
+        const node = xpathResult.snapshotItem(index);
+        list.add(node.textContent.trim());
+    }
+    console.log([...list].sort().map(value => `    "${value}"`).join(',\n'));
+})();
+```
+
+Be careful, some keywords are present in `UNRESERVED_KEYWORDS`.
 """
 
 RESERVED_KEYWORDS = [
@@ -41,9 +64,15 @@ RESERVED_KEYWORDS = [
     "CREATE",
     "CROSS",
     "CURRENT",
+    "CURRENT_CATALOG", # *future*
     "CURRENT_DATE",
+    "CURRENT_DEFAULT_TRANSFORM_GROUP", # *future*
+    "CURRENT_PATH", # *future*
+    "CURRENT_ROLE", # *future*
+    "CURRENT_SCHEMA", # *future*
     "CURRENT_TIME",
     "CURRENT_TIMESTAMP",
+    "CURRENT_TRANSFORM_GROUP_FOR_TYPE", # *future*
     "CURRENT_USER",
     "CURSOR",
     "DATABASE",
@@ -132,6 +161,7 @@ RESERVED_KEYWORDS = [
     "ORDER",
     "OUTER",
     "OVER",
+	"OVERLAY", # *future*
     "PERCENT",
     "PIVOT",
     "PLAN",
@@ -207,13 +237,25 @@ RESERVED_KEYWORDS = [
     "WRITETEXT",
 ]
 
+# Future reserved keywords extracted from the documentation
+FUTURE_RESERVED_KEYWORDS = [
+	"ALIAS",
+	"ARRAY",
+	"CLASS",
+	"DESTROY",
+	"END-EXEC",
+	"EVERY",
+	"LIKE_REGEX",
+]
 
 UNRESERVED_KEYWORDS = [
-    "ABORT_AFTER_WAIT",
     "ABORT",
+    "ABORT_AFTER_WAIT",
     "ABSENT",
+    "ATOMIC",
     "AFTER",
     "ALGORITHM",
+    "ALLOWED",
     "ALLOW_PAGE_LOCKS",
     "ALLOW_ROW_LOCKS",
     "ALWAYS",
@@ -230,6 +272,7 @@ UNRESERVED_KEYWORDS = [
     "AT",
     "AUTO_CREATE_TABLE",
     "AUTO",
+    "BEFORE", # *future*
     "BERNOULLI",
     "BINARY",
     "BLOCKERS",
@@ -273,16 +316,18 @@ UNRESERVED_KEYWORDS = [
     "DAYS",
     "DEADLOCK_PRIORITY",
     "DELAY",
+    "DELAYED_DURABILITY",
     "DELIMITEDTEXT",
     "DELTA",
     "DENSE_RANK",
     "DETERMINISTIC",
     "DISABLE",
-    "DISK",  # listed as reserved but functionally unreserved
-    "DISTRIBUTION",  # Azure Synapse Analytics specific
+    "DISK", # listed as reserved but functionally unreserved
+    "DISTRIBUTION", # Azure Synapse Analytics specific
     "DROP_EXISTING",
-    "DUMP",  # listed as reserved but functionally unreserved
+    "DUMP", # listed as reserved but functionally unreserved
     "DURABILITY",
+	"ELEMENT", # *future*
     "ELEMENTS",
     "ENCODING",
     "ENCRYPTED",
@@ -292,7 +337,7 @@ UNRESERVED_KEYWORDS = [
     "ERRORFILE_DATA_SOURCE",
     "ERRORFILE",
     "EXPAND",
-    "EXPLAIN",  # Azure Synapse Analytics specific
+    "EXPLAIN", # Azure Synapse Analytics specific
     "EXPLICIT",
     "EXTERNALPUSHDOWN",
     "FAST",
@@ -320,8 +365,8 @@ UNRESERVED_KEYWORDS = [
     "FIRSTROW",
     "FMTONLY",
     "FOLLOWING",
-    "FOR",
     "FORCE",
+    "FORCED",
     "FORCEPLAN",
     "FORCESCAN",
     "FORCESEEK",
@@ -333,7 +378,7 @@ UNRESERVED_KEYWORDS = [
     "FULLTEXT",
     "GENERATED",
     "HASH",
-    "HEAP",  # Azure Synapse Analytics specific
+    "HEAP", # Azure Synapse Analytics specific
     "HIDDEN",
     "HIGH",
     "HINT",
@@ -362,14 +407,15 @@ UNRESERVED_KEYWORDS = [
     "KEEPIDENTITY",
     "KEEPNULLS",
     "KILOBYTES_PER_BATCH",
-    "LABEL",  # *reserved* keyword in Azure Synapse; but would break TSQL parsing
+    "LABEL", # *reserved* keyword in Azure Synapse; but would break TSQL parsing
     "LANGUAGE",
     "LAST",
     "LASTROW",
-    "LEDGER_VIEW",
     "LEDGER",
+    "LEDGER_VIEW",
+    "LEGACY_CARDINALITY_ESTIMATION",
     "LEVEL",
-    "LOAD",  # listed as reserved but functionally unreserved
+    "LOAD", # listed as reserved but functionally unreserved
     "LOB_COMPACTION",
     "LOCATION",
     "LOCK_TIMEOUT",
@@ -392,7 +438,9 @@ UNRESERVED_KEYWORDS = [
     "MIN_GRANT_PERCENT",
     "MINUTES",
     "MINVALUE",
+    "MONTH",
     "MONTHS",
+    "NAME",
     "NEXT",
     "NO_PERFORMANCE_SPOOL",
     "NO",
@@ -422,10 +470,12 @@ UNRESERVED_KEYWORDS = [
     "PAGE",
     "PAGLOCK",
     "PARAMETER",
+    "PARAMETERS", # *future*
     "PARAMETERIZATION",
     "PARQUET",
     "PARSEONLY",
     "PARSER_VERSION",
+    "PARTIAL", # *future*
     "PARTITION",
     "PARTITIONS",
     "PATH",
@@ -438,14 +488,14 @@ UNRESERVED_KEYWORDS = [
     "PERSISTED",
     "POPULATION",
     "PRECEDING",
-    "PRECISION",  # listed as reserved but functionally unreserved
+    "PRECISION", # listed as reserved but functionally unreserved
     "PRIOR",
     "PROFILE",
     "PUSHDOWN",
     "QUERY_GOVERNOR_COST_LIMIT",
     "QUERYTRACEON",
     "QUOTED_IDENTIFIER",
-    "R",  # sqlcmd command
+    "R", # sqlcmd command
     "RANDOMIZED",
     "RANGE",
     "RANK",
@@ -460,20 +510,29 @@ UNRESERVED_KEYWORDS = [
     "RECEIVE",
     "RECOMPILE",
     "RECURSIVE",
+    "REGR_AVGX", # *future*
+    "REGR_AVGY", # *future*
+    "REGR_COUNT", # *future*
+    "REGR_INTERCEPT", # *future*
+    "REGR_R2", # *future*
+    "REGR_SLOPE", # *future*
+    "REGR_SXX", # *future*
+    "REGR_SXY", # *future*
+    "REGR_SYY", # *future*
+    "REJECTED_ROW_LOCATION",
     "REJECT_SAMPLE_VALUE",
     "REJECT_TYPE",
     "REJECT_VALUE",
-    "REJECTED_ROW_LOCATION",
     "REMOTE_DATA_ARCHIVE",
     "REMOTE_PROC_TRANSACTIONS",
-    "RENAME",  # Azure Synapse Analytics specific
+    "RENAME", # Azure Synapse Analytics specific
     "REORGANIZE",
     "REPEATABLE",
     "REPEATABLEREAD",
     "REPLACE",
-    "REPLICATE",  # Azure Synapse Analytics
+    "REPLICATE", # Azure Synapse Analytics
     "RESPECT",
-    "RESULT_SET_CACHING",  # Azure Synapse Analytics specific
+    "RESULT_SET_CACHING", # Azure Synapse Analytics specific
     "RESUMABLE",
     "RESUME",
     "RETENTION_PERIOD",
@@ -481,7 +540,7 @@ UNRESERVED_KEYWORDS = [
     "ROBUST",
     "ROLE",
     "ROOT",
-    "ROUND_ROBIN",  # Azure Synapse Analytics specific
+    "ROUND_ROBIN", # Azure Synapse Analytics specific
     "ROW_NUMBER",
     "ROW",
     "ROWGUIDCOL",
@@ -497,7 +556,7 @@ UNRESERVED_KEYWORDS = [
     "SCOPED",
     "SEARCH",
     "SECRET",
-    "SECURITYAUDIT",  # listed as reserved but functionally unreserved
+    "SECURITYAUDIT", # listed as reserved but functionally unreserved
     "SELF",
     "SEQUENCE_NUMBER_COLUMN_NAME",
     "SEQUENCE_NUMBER",
@@ -506,7 +565,7 @@ UNRESERVED_KEYWORDS = [
     "SERIALIZABLE",
     "SERVER",
     "SETERROR",
-    "SETVAR",  # sqlcmd command
+    "SETVAR", # sqlcmd command
     "SHOWPLAN_ALL",
     "SHOWPLAN_TEXT",
     "SHOWPLAN_XML",
@@ -542,7 +601,7 @@ UNRESERVED_KEYWORDS = [
     "TIMESTAMP",
     "TRANSACTION_ID_COLUMN_NAME",
     "TRANSACTION_ID",
-    "TRUNCATE_TARGET",  # Azure Synapse Analytics specific
+    "TRUNCATE_TARGET", # Azure Synapse Analytics specific
     "TRY",
     "TYPE",
     "UNBOUNDED",
@@ -550,12 +609,13 @@ UNRESERVED_KEYWORDS = [
     "UNKNOWN",
     "UPDLOCK",
     "USE_TYPE_DEFAULT",
-    "USER_DB",  # Azure Synapse Analytics specific, deprecated
+    "USER_DB", # Azure Synapse Analytics specific, deprecated
     "USING",
     "VALUE",
     "VIEW_METADATA",
     "WAIT_AT_LOW_PRIORITY",
     "WAITFOR",
+    "WEEK",
     "WEEKS",
     "WHILE",
     "WITHIN",
@@ -563,11 +623,31 @@ UNRESERVED_KEYWORDS = [
     "WORK",
     "XACT_ABORT",
     "XLOCK",
-    "XML_COMPRESSION",
     "XML",
+    "XMLAGG", # *future*
+    "XMLATTRIBUTES", # *future*
+    "XMLBINARY", # *future*
+    "XMLCAST", # *future*
+    "XMLCOMMENT", # *future*
+    "XMLCONCAT", # *future*
     "XMLDATA",
+    "XMLDOCUMENT", # *future*
+    "XMLELEMENT", # *future*
+    "XMLEXISTS", # *future*
+    "XMLFOREST", # *future*
+    "XMLITERATE", # *future*
+    "XMLNAMESPACES", # *future*
+    "XMLPARSE", # *future*
+    "XMLPI", # *future*
+    "XMLQUERY", # *future*
     "XMLSCHEMA",
+    "XMLSERIALIZE", # *future*
+    "XMLTABLE", # *future*
+    "XMLTEXT", # *future*
+    "XMLVALIDATE", # *future*
+    "XML_COMPRESSION",
     "XSINIL",
+    "YEAR",
     "YEARS",
     "ZONE",
 ]
