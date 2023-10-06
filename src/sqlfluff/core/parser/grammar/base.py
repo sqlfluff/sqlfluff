@@ -602,7 +602,7 @@ class Ref(BaseGrammar):
         on the underlying class.
 
         Args:
-            segments (Tuple[BaseSegment, ...]): The list of segments to match against.
+            segments (Tuple[BaseSegment, ...]): The sequence of segments to match against.
             parse_context (ParseContext): The parse context.
 
         Returns:

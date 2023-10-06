@@ -46,7 +46,8 @@ class Delimited(OneOf):
         Initialize the class object with the provided arguments.
 
         Args:
-            *args (Union[Matchable, str]): Variable number of positional arguments.
+            *args (Union[Matchable, str]): Options for elements between delimiters. This
+                is treated as a set of options rather than a sequence.
             delimiter (Union[Matchable, str], optional): Delimiter used for parsing.
                 Defaults to Ref("CommaSegment").
             allow_trailing (bool, optional): Flag indicating whether trailing delimiters
