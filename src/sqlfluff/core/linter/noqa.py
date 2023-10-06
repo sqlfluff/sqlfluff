@@ -146,8 +146,10 @@ class IgnoreMask:
         reference_map: Dict[str, Set[str]],
     ):
         """Extract ignore mask entries from a comment segment."""
-        # Also trim any whitespace afterward
-        comment_content = comment.raw_trimmed().strip()
+        # Also trim any whitespace and block comment markers.
+        comment_content = (
+            comment.raw_trimmed().removeprefix("/*").removesuffix("*/").strip()
+        )
         comment_line, comment_pos = comment.pos_marker.source_position()
         result = cls._parse_noqa(
             comment_content, comment_line, comment_pos, reference_map
@@ -166,10 +168,7 @@ class IgnoreMask:
         ignore_buff: List[NoQaDirective] = []
         violations: List[SQLBaseError] = []
         for comment in tree.recursive_crawl("comment"):
-            if comment.is_type("block_comment"):
-                content = comment.raw.removeprefix("/*").removesuffix("*/").strip()
-                comment = comment.edit(raw=content)
-            if comment.is_type("inline_comment") or comment.is_type("block_comment"):
+            if comment.is_type("inline_comment", "block_comment"):
                 ignore_entry = cls._extract_ignore_from_comment(
                     cast(RawSegment, comment), reference_map
                 )
