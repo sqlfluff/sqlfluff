@@ -16,8 +16,6 @@ T = TypeVar("T", bound="Matchable")
 class Matchable(ABC):
     """A base object defining the matching interface."""
 
-    # Matchables are expected to have a type
-    type: str
     # Matchables are also not meta unless otherwise defined
     is_meta = False
 
