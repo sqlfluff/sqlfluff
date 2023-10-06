@@ -193,7 +193,6 @@ snowflake_dialect.sets("warehouse_scaling_policies").update(
     ],
 )
 
-
 snowflake_dialect.add(
     # In snowflake, these are case sensitive even though they're not quoted
     # so they need a different `name` and `type` so they're not picked up
@@ -1061,9 +1060,12 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateDatabaseFromShareStatementSegment"),
             Ref("AlterRoleStatementSegment"),
             Ref("AlterStorageIntegrationSegment"),
+            Ref("ExecuteImmediateClauseSegment"),
             Ref("ExecuteTaskClauseSegment"),
             Ref("CreateResourceMonitorStatementSegment"),
             Ref("AlterResourceMonitorStatementSegment"),
+            Ref("CreateSequenceStatementSegment"),
+            Ref("AlterSequenceStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -2029,6 +2031,7 @@ class AlterWarehouseStatementSegment(BaseSegment):
                 "SET",
                 OneOf(
                     AnyNumberOf(
+                        Ref("CommaSegment", optional=True),
                         Ref("WarehouseObjectPropertiesSegment"),
                         Ref("CommentEqualsClauseSegment"),
                         Ref("WarehouseObjectParamsSegment"),
@@ -3344,6 +3347,74 @@ class AlterRoleStatementSegment(BaseSegment):
                 ),
             ),
         ),
+    )
+
+
+class CreateSequenceStatementSegment(BaseSegment):
+    """A `CREATE SEQUENCE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-sequence
+    """
+
+    type = "create_sequence_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        "SEQUENCE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SequenceReferenceSegment"),
+        Sequence("WITH", optional=True),
+        Sequence(
+            "START",
+            Sequence("WITH", optional=True),
+            Ref("EqualsSegment", optional=True),
+            Ref("IntegerSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "INCREMENT",
+            Sequence("BY", optional=True),
+            Ref("EqualsSegment", optional=True),
+            Ref("IntegerSegment"),
+            optional=True,
+        ),
+        OneOf("ORDER", "NOORDER", optional=True),
+        Ref("CommentEqualsClauseSegment", optional=True),
+    )
+
+
+class AlterSequenceStatementSegment(BaseSegment):
+    """An `ALTER SEQUENCE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-sequence
+    """
+
+    type = "alter_sequence_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "SEQUENCE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SequenceReferenceSegment"),
+        Sequence(
+            Sequence("SET", optional=True),
+            AnySetOf(
+                Sequence(
+                    "INCREMENT",
+                    Sequence("BY", optional=True),
+                    Ref("EqualsSegment", optional=True),
+                    Ref("IntegerSegment"),
+                    optional=True,
+                ),
+                OneOf(
+                    "ORDER",
+                    "NOORDER",
+                ),
+                Ref("CommentEqualsClauseSegment"),
+            ),
+            optional=True,
+        ),
+        Sequence("UNSET", "COMMENT", optional=True),
+        Sequence("RENAME", "TO", Ref("SequenceReferenceSegment"), optional=True),
     )
 
 
@@ -6093,6 +6164,44 @@ class AlterTaskUnsetClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "UNSET",
         Delimited(Ref("ParameterNameSegment")),
+    )
+
+
+class ExecuteImmediateClauseSegment(BaseSegment):
+    """Snowflake's EXECUTE IMMEDIATE clause.
+
+    ```
+    EXECUTE IMMEDIATE '<string_literal>'
+        [ USING ( <bind_variable> [ , <bind_variable> ... ] ) ]
+
+    EXECUTE IMMEDIATE <variable>
+        [ USING ( <bind_variable> [ , <bind_variable> ... ] ) ]
+
+    EXECUTE IMMEDIATE $<session_variable>
+        [ USING ( <bind_variable> [ , <bind_variable> ... ] ) ]
+    ```
+
+    https://docs.snowflake.com/en/sql-reference/sql/execute-immediate
+    """
+
+    type = "execute_immediate_clause"
+
+    match_grammar = Sequence(
+        "EXECUTE",
+        "IMMEDIATE",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("ReferencedVariableNameSegment"),
+            Sequence(
+                Ref("ColonSegment"),
+                Ref("LocalVariableNameSegment"),
+            ),
+        ),
+        Sequence(
+            "USING",
+            Bracketed(Delimited(Ref("LocalVariableNameSegment"))),
+            optional=True,
+        ),
     )
 
 
