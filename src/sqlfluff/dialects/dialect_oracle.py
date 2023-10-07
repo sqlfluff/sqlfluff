@@ -54,6 +54,9 @@ oracle_dialect.sets("reserved_keywords").update(
         "SIBLINGS",
         "START",
         "CONNECT_BY_ROOT",
+        "PIVOT",
+        "FOR",
+        "UNPIVOT",
     ]
 )
 
@@ -131,6 +134,20 @@ oracle_dialect.add(
         ),
     ),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
+    PivotForInGrammar=Sequence(
+        "FOR",
+        OptionallyBracketed(Delimited(Ref("ColumnReferenceSegment"))),
+        "IN",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("Expression_D_Grammar"),
+                    Ref("AliasExpressionSegment", optional=True),
+                )
+            )
+        ),
+    ),
+    UnpivotNullsGrammar=Sequence(OneOf("INCLUDE", "EXCLUDE"), "NULLS"),
 )
 
 oracle_dialect.replace(
@@ -773,9 +790,17 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """
 
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
-        insert=[Ref("HierarchicalQueryClauseSegment", optional=True)],
+        insert=[
+            Ref("HierarchicalQueryClauseSegment", optional=True),
+            Ref("PivotSegment", optional=True),
+            Ref("UnpivotSegment", optional=True),
+        ],
         before=Ref("GroupByClauseSegment", optional=True),
-        terminators=[Ref("HierarchicalQueryClauseSegment")],
+        terminators=[
+            Ref("HierarchicalQueryClauseSegment"),
+            Ref("PivotSegment", optional=True),
+            Ref("UnpivotSegment", optional=True),
+        ],
     )
 
 
@@ -832,4 +857,42 @@ class NotEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     match_grammar = OneOf(
         Sequence(Ref("RawNotSegment"), Ref("RawEqualsSegment")),
         Sequence(Ref("RawLessThanSegment"), Ref("RawGreaterThanSegment")),
+    )
+
+
+class PivotSegment(BaseSegment):
+    """Pivot clause.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/SELECT.html
+    """
+
+    type = "pivot_clause"
+
+    match_grammar: Matchable = Sequence(
+        "PIVOT",
+        Ref.keyword("XML", optional=True),
+        Bracketed(
+            Delimited(
+                Ref("FunctionSegment"), Ref("AliasExpressionSegment", optional=True)
+            ),
+            Ref("PivotForInGrammar"),
+        ),
+    )
+
+
+class UnpivotSegment(BaseSegment):
+    """Unpivot clause.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/SELECT.html
+    """
+
+    type = "unpivot_clause"
+
+    match_grammar: Matchable = Sequence(
+        "UNPIVOT",
+        Ref("UnpivotNullsGrammar", optional=True),
+        Bracketed(
+            OptionallyBracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            Ref("PivotForInGrammar"),
+        ),
     )
