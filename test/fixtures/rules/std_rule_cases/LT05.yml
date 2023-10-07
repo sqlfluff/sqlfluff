@@ -602,6 +602,71 @@ test_fail_do_not_fix_noqa:
     FROM
         really_really_really_really_really_really_long_schema_name.TABLE1 -- noqa: L014
 
+test_block_comment_single_line_noqa:
+  # Ignore long line in block comment
+  pass_str: |
+    /* A very long single-line block comment which is ignored --noqa: LT05 */
+    /* Another single-line block comment which is also ignored. I'm too lazy to specify which rule to ignore though. -- noqa */
+    /*
+    A very long multi-line block comment which is ignored -- noqa: LT05
+    */
+    /* noqa: disable=all */
+    -- A noqa by itself in a block comment is followed
+    /* noqa: enable=all */
+    /* -- noqa: disable=all */
+    -- A noqa in a block comment preceded by a single line comment marker (--) is followed
+    /* noqa: enable=all */
+    /* Ignore warnings for a bit! -- noqa: disable=all */
+    -- If the noqa is accompanied by preceding text in a block comment it
+    -- must be preceded by a single-line comment marker, and it must be
+    -- the last part of the line.
+    /* noqa: enable=all */
+    select 1
+  configs:
+    core:
+      max_line_length: 30
+
+test_fail_block_comment_single_line_noqa:
+  # Don't ignore long line in single-line block comment
+  fail_str: |
+    /* A very long single-line block comment which is not ignored */
+  configs:
+    core:
+      max_line_length: 30
+
+test_fail_block_comment_multi_line_noqa:
+  # Don't ignore long line in multi-line block comment
+  fail_str: |
+    /*
+    A very long multi-line block comment which is not ignored
+    */
+  configs:
+    core:
+      max_line_length: 30
+
+test_fail_block_comment_noqa_following_preceding_text_noqa:
+  # Don't follow noqa if it follows preceding text and is not
+  # immediately preceded by a single line comment marker (--)
+  fail_str: |
+    /* This won't work: noqa: disable=all */
+    -- A noqa will NOT be followed if it follows preceding text, and is
+    -- not immediately preceded by a single-line comment marker (--).
+    /* noqa: enable=all */
+  configs:
+    core:
+      max_line_length: 30
+
+test_fail_block_comment_noqa_not_at_end_of_line_noqa:
+  # Don't follow noqa if it is not at the end of the line
+  fail_str: |
+    /* -- noqa: disable=all Invalid noqa declaration */
+    -- A noqa will NOT be followed if it is not the last part of the line.
+    /* noqa: enable=all */
+    select 1
+  configs:
+    core:
+      max_line_length: 55
+
 test_operator_precedence:
   fail_str: |
     SELECT *
