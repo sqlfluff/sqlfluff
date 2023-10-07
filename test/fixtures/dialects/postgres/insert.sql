@@ -64,3 +64,16 @@ INSERT INTO abc (foo, bar)
 SELECT foo, bar FROM baz
 RETURNING quux
 ;
+
+INSERT INTO tbl_a (
+   val1
+ , val2
+)
+SELECT val1
+     , val2
+FROM tbl_2
+ON CONFLICT (
+    val1
+  , COALESCE(val2, '')
+)
+DO NOTHING;
