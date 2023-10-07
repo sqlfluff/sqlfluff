@@ -602,6 +602,20 @@ test_fail_do_not_fix_noqa:
     FROM
         really_really_really_really_really_really_long_schema_name.TABLE1 -- noqa: L014
 
+test_block_comment_single_line_noqa:
+  # Ignore long line in block comment
+  pass_str: "/* A very long single-line block comment which is ignored --noqa: LT05 */\n"
+  configs:
+    core:
+      max_line_length: 30
+
+test_fail_block_comment_single_line_noqa:
+  # Don't ignore long line in block comment
+  fail_str: "/* A very long single-line block comment which is not ignored */\n"
+  configs:
+    core:
+      max_line_length: 30
+
 test_operator_precedence:
   fail_str: |
     SELECT *
