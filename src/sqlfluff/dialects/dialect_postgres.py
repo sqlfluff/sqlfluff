@@ -4175,6 +4175,7 @@ class ConflictTargetSegment(BaseSegment):
                         OneOf(
                             Ref("ColumnReferenceSegment"),
                             Bracketed(Ref("ExpressionSegment")),
+                            Ref("FunctionSegment"),
                         ),
                         Sequence(
                             "COLLATE",
