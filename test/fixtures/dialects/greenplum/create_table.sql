@@ -4,7 +4,7 @@ logdate date NOT NULL,
 peaktemp int,
 unitsales int
 ) WITH (appendoptimized=true, compresslevel=5)
-DISTRIBUTED BY (txn_id);
+DISTRIBUTED BY (txn_id, other_field);
 
 
 CREATE TABLE measurement (
@@ -16,7 +16,7 @@ unitsales int
 DISTRIBUTED BY (txn_id);
 
 
-CREATE TABLE test (
+CREATE TEMP TABLE test (
 test_id int NOT NULL,
 logdate date NOT NULL,
 test_text int
@@ -37,4 +37,3 @@ logdate date NOT NULL,
 test_text int
 )
 DISTRIBUTED REPLICATED;
-

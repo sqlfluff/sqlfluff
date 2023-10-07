@@ -1876,10 +1876,8 @@ class CreateTableAsStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         AnyNumberOf(
-            Sequence(
-                Bracketed(
-                    Delimited(Ref("ColumnReferenceSegment")),
-                ),
+            Bracketed(
+                Delimited(Ref("ColumnReferenceSegment")),
                 optional=True,
             ),
             Sequence("USING", Ref("ParameterNameSegment"), optional=True),
@@ -4177,6 +4175,7 @@ class ConflictTargetSegment(BaseSegment):
                         OneOf(
                             Ref("ColumnReferenceSegment"),
                             Bracketed(Ref("ExpressionSegment")),
+                            Ref("FunctionSegment"),
                         ),
                         Sequence(
                             "COLLATE",

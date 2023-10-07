@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6f33efbe942513e3bd2a5c1bfaa81ce77d9f64b1bc31ec2824ded241948b3913
+_hash: 19fd06450d8248e10751d35bf526338cfbc1e0a1160318a915c2acd111f7004c
 file:
 - statement:
     insert_statement:
@@ -796,4 +796,60 @@ file:
     - expression:
         column_reference:
           naked_identifier: quux
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: tbl_a
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: val1
+      - comma: ','
+      - column_reference:
+          naked_identifier: val2
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: val1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: val2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl_2
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_target:
+        bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: val1
+          comma: ','
+          function:
+            function_name:
+              function_name_identifier: COALESCE
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  naked_identifier: val2
+            - comma: ','
+            - expression:
+                quoted_literal: "''"
+            - end_bracket: )
+          end_bracket: )
+    - conflict_action:
+      - keyword: DO
+      - keyword: NOTHING
 - statement_terminator: ;
