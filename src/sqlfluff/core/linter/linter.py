@@ -411,7 +411,8 @@ class Linter:
                 # Additional newlines are to assist in scanning linting loops
                 # during debugging.
                 linter_logger.info(
-                    f"\n\nEntering linter phase {phase}, loop {loop+1}/{loop_limit}\n"
+                    f"\n\nEntering linter phase {phase}, "
+                    f"loop {loop + 1}/{loop_limit}\n"
                 )
                 changed = False
 
