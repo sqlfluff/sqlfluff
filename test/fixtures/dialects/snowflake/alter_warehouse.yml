@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 393bf2ca26581b07e3e04264f42c9a3ef70103757f8f08819f2f404469491ee0
+_hash: 4c934979dd5ee1b2407751137f6f8e93ca0c2e020a91674a8c4746ca4e2cb8fd
 file:
 - statement:
     alter_warehouse_statement:
@@ -399,4 +399,29 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         warehouse_size: STANDARD
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - object_reference:
+        naked_identifier: CI_TRANSFORMING
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'Warehouse for dbt development transformations in CI'"
+    - comma: ','
+    - warehouse_object_properties:
+        keyword: AUTO_RESUME
+        comparison_operator:
+          raw_comparison_operator: '='
+        boolean_literal: 'TRUE'
+    - comma: ','
+    - warehouse_object_properties:
+        keyword: AUTO_SUSPEND
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '30'
 - statement_terminator: ;
