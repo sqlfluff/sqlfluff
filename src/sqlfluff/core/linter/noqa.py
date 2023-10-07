@@ -146,10 +146,13 @@ class IgnoreMask:
         reference_map: Dict[str, Set[str]],
     ):
         """Extract ignore mask entries from a comment segment."""
-        # Also trim any whitespace and block comment markers.
-        comment_content = (
-            comment.raw_trimmed().removeprefix("/*").removesuffix("*/").strip()
-        )
+        # Also trim any whitespace
+        comment_content = comment.raw_trimmed().strip()
+        # If we have a trailing block comment marker, also strip that.
+        # NOTE: We don't need to strip them from the start because `_parse_noqa`
+        # will handle that for us by looking for `--` markers.
+        if comment_content.endswith("*/"):
+            comment_content = comment_content[:-2].rstrip()
         comment_line, comment_pos = comment.pos_marker.source_position()
         result = cls._parse_noqa(
             comment_content, comment_line, comment_pos, reference_map
