@@ -604,14 +604,19 @@ test_fail_do_not_fix_noqa:
 
 test_block_comment_single_line_noqa:
   # Ignore long line in block comment
-  pass_str: "/* A very long single-line block comment which is ignored --noqa: LT05 */\n"
+  pass_str: |
+    /* A very long single-line block comment which is ignored --noqa: LT05 */
+    /* Another single-line block comment which is also ignored. I'm too lazy to specify which rule to ignore though. -- noqa */
+    select 1
   configs:
     core:
       max_line_length: 30
 
 test_fail_block_comment_single_line_noqa:
   # Don't ignore long line in block comment
-  fail_str: "/* A very long single-line block comment which is not ignored */\n"
+  fail_str: |
+    /* A very long single-line block comment which is not ignored */
+    select 1
   configs:
     core:
       max_line_length: 30
