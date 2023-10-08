@@ -5,11 +5,7 @@ import pytest
 # Expose the public API.
 from sqlfluff.api import lint, fix, parse, list_rules, list_dialects
 
-# Import metadata (using importlib_metadata backport for python versions <3.8)
-if sys.version_info >= (3, 8):
-    from importlib import metadata
-else:  # pragma: no cover
-    import importlib_metadata as metadata
+from importlib import metadata
 
 __all__ = (
     "lint",
@@ -26,9 +22,9 @@ __version__ = metadata.version("sqlfluff")
 if sys.version_info[0] < 3:
     raise Exception("Sqlfluff does not support Python 2. Please upgrade to Python 3.")
 # Check minor python version
-elif sys.version_info[1] < 7:
+elif sys.version_info[1] < 8:
     raise Exception(
-        "Sqlfluff %s only supports Python 3.7 and beyond. "
+        "Sqlfluff %s only supports Python 3.8 and beyond. "
         "Use an earlier version of sqlfluff or a later version of Python" % __version__
     )
 

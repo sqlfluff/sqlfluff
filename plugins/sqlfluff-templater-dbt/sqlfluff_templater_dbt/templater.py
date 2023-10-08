@@ -32,7 +32,7 @@ from dataclasses import dataclass
 from jinja2 import Environment
 from jinja2_simple_tags import StandaloneTag
 
-from sqlfluff.core.cached_property import cached_property
+from functools import cached_property
 from sqlfluff.core.errors import SQLTemplaterError, SQLFluffSkipFile, SQLFluffUserError
 
 from sqlfluff.core.templaters.base import TemplatedFile, large_file_check

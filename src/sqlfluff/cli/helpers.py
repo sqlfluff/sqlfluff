@@ -6,7 +6,7 @@ from typing import Callable, List, Dict, Any
 from collections import abc
 
 from sqlfluff import __version__ as pkg_version
-from sqlfluff.core.cached_property import cached_property
+from functools import cached_property
 
 
 def get_python_version() -> str:

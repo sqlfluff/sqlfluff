@@ -15,7 +15,7 @@ from typing import (
     cast,
 )
 
-from sqlfluff.core.cached_property import cached_property
+from functools import cached_property
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser import BaseSegment

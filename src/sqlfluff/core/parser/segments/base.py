@@ -14,6 +14,7 @@ import logging
 import weakref
 from collections import defaultdict
 from dataclasses import dataclass
+from functools import cached_property
 from io import StringIO
 from itertools import chain
 from typing import (
@@ -34,7 +35,6 @@ from typing import (
 )
 from uuid import UUID, uuid4
 
-from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.markers import PositionMarker
