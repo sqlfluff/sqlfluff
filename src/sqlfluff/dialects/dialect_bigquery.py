@@ -123,6 +123,7 @@ bigquery_dialect.add(
     AtSignLiteralSegment=TypedParser(
         "at_sign_literal",
         LiteralSegment,
+        type="at_sign_literal",
     ),
     # Add a Full equivalent which also allow keywords
     NakedIdentifierFullSegment=RegexParser(
