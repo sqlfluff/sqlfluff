@@ -1066,6 +1066,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterResourceMonitorStatementSegment"),
             Ref("CreateSequenceStatementSegment"),
             Ref("AlterSequenceStatementSegment"),
+            Ref("AlterDatabaseSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -7068,5 +7069,54 @@ class ShorthandCastSegment(BaseSegment):
                 ),
             ),
             min_times=1,
+        ),
+    )
+
+
+class AlterDatabaseSegment(BaseSegment):
+    """An `ALTER DATABASE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-database
+    """
+
+    type = "alter_database_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "DATABASE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence("SWAP", "WITH", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "SET",
+                OneOf(
+                    Ref("TagEqualsSegment"),
+                    Delimited(
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                Ref("BooleanLiteralGrammar"),
+                                Ref("QuotedLiteralSegment"),
+                                Ref("NumericLiteralSegment"),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            Sequence(
+                "UNSET",
+                Delimited(
+                    AnySetOf(
+                        "DATA_RETENTION_TIME_IN_DAYS",
+                        "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+                        "DEFAULT_DDL_COLLATION",
+                        "COMMENT",
+                    ),
+                ),
+            ),
         ),
     )
