@@ -1,0 +1,4 @@
+extend-select = ["I"]
+
+[isort]
+combine-as-imports = true
