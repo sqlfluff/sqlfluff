@@ -2,6 +2,8 @@
 
 This is a newer slicing algorithm that handles cases heuristic.py does not.
 """
+# Import annotations for py 3.7 to allow `regex.Match[str]`
+from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
