@@ -344,6 +344,8 @@ def test__parser__base_segments_parent_ref(DummySegment, raw_segments):
     assert not raw_segments[0].get_parent()
     # Add it to a segment (which also sets the parent value)
     seg = DummySegment(segments=raw_segments)
+    # The DummySegment shouldn't have a parent.
+    assert seg.get_parent() is None
     assert seg.segments[0].get_parent() is seg
     assert seg.segments[1].get_parent() is seg
     # Remove segment from parent, but don't unset.

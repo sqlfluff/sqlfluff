@@ -307,6 +307,7 @@ tsql_dialect.add(
     SqlcmdFilePathSegment=TypedParser(
         "unquoted_relative_sql_file_path",
         CodeSegment,
+        type="unquoted_relative_sql_file_path",
     ),
     FileCompressionSegment=SegmentGenerator(
         lambda dialect: MultiStringParser(
@@ -996,6 +997,7 @@ class CreateFullTextIndexStatementSegment(BaseSegment):
                     Ref("ObjectReferenceSegment"),
                 ),
             ),
+            allow_trailing=True,
         ),
         optional=True,
     )

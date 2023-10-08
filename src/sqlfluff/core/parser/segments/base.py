@@ -38,9 +38,7 @@ from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.parser.match_logging import parse_match_logging
 from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.matchable import Matchable
 from sqlfluff.core.parser.segments.fix import AnchorEditInfo, FixPatch, SourceFix
 from sqlfluff.core.parser.types import SimpleHintType
@@ -327,11 +325,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return self.raw.upper()
 
     @cached_property
-    def matched_length(self) -> int:
-        """Return the length of the segment in characters."""
-        return sum(seg.matched_length for seg in self.segments)
-
-    @cached_property
     def raw_segments(self) -> List["RawSegment"]:
         """Returns a list of raw segments in this segment."""
         return self.get_raw_segments()
@@ -407,8 +400,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
     def _position_segments(
         cls,
         segments: Tuple["BaseSegment", ...],
-        parent_pos: Optional[PositionMarker] = None,
-        metas_only: bool = False,
+        parent_pos: PositionMarker,
     ) -> Tuple["BaseSegment", ...]:
         """Refresh positions of segments within a span.
 
@@ -421,51 +413,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
         and so therefore have a zero-length position in the
         source and templated file.
         """
-        # If there are no segments, there's no need to reposition.
-        if not segments:
-            return segments
-
-        # Work out our starting position for working through
-        if parent_pos:
-            line_no = parent_pos.working_line_no
-            line_pos = parent_pos.working_line_pos
-        # If we don't have it, infer it from the first position
-        # in this segment that does have a position.
-        else:
-            for fwd_seg in segments:
-                if fwd_seg.pos_marker:
-                    line_no = fwd_seg.pos_marker.working_line_no
-                    line_pos = fwd_seg.pos_marker.working_line_pos
-                    break
-            else:  # pragma: no cover
-                linter_logger.warning("SEG: %r, POS: %r", segments, parent_pos)
-                raise ValueError("Unable to find working position.")
+        assert segments, "_position_segments called on empty sequence."
+        line_no = parent_pos.working_line_no
+        line_pos = parent_pos.working_line_pos
 
         # Use the index so that we can look forward
         # and backward.
         segment_buffer: Tuple["BaseSegment", ...] = ()
         for idx, segment in enumerate(segments):
-            # NOTE: Repositioning can be very compute intensive to do
-            # completely (especially because of the copying required
-            # to do it safely), but during the parsing phase we may
-            # only need to reposition meta segments. Because they have
-            # no size in the templated file and also no children - they
-            # can be done safely without affecting the rest of the file.
-            if metas_only and not segment.is_meta:
-                # Assert that the segment already has position. Unless a
-                # fix has occured this should already be true.
-                assert segment.pos_marker, (
-                    "Non-meta segment found without position. Inappropriate "
-                    "use of `metas_only`."
-                )
-                # Add the original segment to the buffer.
-                segment_buffer += (segment,)
-                # Update working position
-                line_no, line_pos = segment.pos_marker.infer_next_position(
-                    segment.raw, line_no, line_pos
-                )
-                continue
-
             # Get hold of the current position.
             old_position = segment.pos_marker
             new_position = segment.pos_marker
@@ -505,7 +460,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 elif start_point:
                     new_position = start_point
                 # Do we have an end?
-                elif end_point:
+                elif end_point:  # pragma: no cover
                     new_position = end_point
                 else:  # pragma: no cover
                     raise ValueError("Unable to position new segment")
@@ -524,6 +479,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             if segment.segments and old_position != new_position:
                 # Recurse to work out the child segments FIRST, before
                 # copying the parent so we don't double the work.
+                assert new_position
                 child_segments = cls._position_segments(
                     segment.segments, parent_pos=new_position
                 )
@@ -629,9 +585,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return {key: content_dict}
 
     @classmethod
-    @match_wrapper(v_level=4)
     def match(
-        cls, segments: Tuple["BaseSegment", ...], parse_context: ParseContext
+        cls, segments: Sequence["BaseSegment"], idx: int, parse_context: ParseContext
     ) -> MatchResult:
         """Match a list of segments against this segment.
 
@@ -643,52 +598,21 @@ class BaseSegment(metaclass=SegmentMetaclass):
         This raw function can be overridden, or a grammar defined
         on the underlying class.
         """
-        # Edge case, but it's possible that we have *already matched* on
-        # a previous cycle. Do should first check whether this is a case
-        # of that.
-        if len(segments) == 1 and isinstance(segments[0], cls):
-            # This has already matched. Winner.
-            parse_match_logging(
-                cls.__name__,
-                "_match",
-                "SELF",
-                parse_context=parse_context,
-                v_level=3,
-                symbol="+++",
-            )
-            return MatchResult.from_matched(segments)
-        elif len(segments) > 1 and isinstance(segments[0], cls):
-            parse_match_logging(
-                cls.__name__,
-                "_match",
-                "SELF",
-                parse_context=parse_context,
-                v_level=3,
-                symbol="+++",
-            )
-            # This has already matched, but only partially.
-            return MatchResult((segments[0],), segments[1:])
+        if idx >= len(segments):  # pragma: no cover
+            return MatchResult.empty_at(idx)
 
-        if cls.match_grammar:
-            # Call the private method
-            with parse_context.deeper_match(name=cls.__name__) as ctx:
-                m = cls.match_grammar.match(segments=segments, parse_context=ctx)
+        # Is this already the right kind of segment?
+        if isinstance(segments[idx], cls):
+            # Very simple "consume one" result.
+            return MatchResult(slice(idx, idx + 1))
 
-            if m.has_match():
-                return MatchResult(
-                    # Return result of the match_grammar match, wrapped in a new
-                    # instance of this segment. The matched portion of the
-                    # MatchResult from the match_grammar, becomes the children
-                    # (i.e. the `segments`) of that new segment.
-                    (cls(segments=m.matched_segments),),
-                    m.unmatched_segments,
-                )
-            else:
-                return MatchResult.from_unmatched(segments)
-        else:  # pragma: no cover
-            raise NotImplementedError(
-                f"{cls.__name__} has no match function implemented"
-            )
+        assert cls.match_grammar, f"{cls.__name__} has no match grammar."
+
+        with parse_context.deeper_match(name=cls.__name__) as ctx:
+            match = cls.match_grammar.match(segments, idx, ctx)
+
+        # Wrap are return regardless of success.
+        return match.wrap(cls)
 
     # ################ PRIVATE INSTANCE METHODS
 
@@ -1316,6 +1240,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # of the fixes applied there first. This ensures those segments have
         # working positions to work with.
         if fixes_applied:
+            assert self.pos_marker
             seg_buffer = list(
                 self._position_segments(tuple(seg_buffer), parent_pos=self.pos_marker)
             )
@@ -1362,6 +1287,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             seg_buffer = seg_buffer[:_idx]
 
         # Reform into a new segment
+        assert self.pos_marker
         try:
             new_seg = self.__class__(
                 # Realign the segments within
@@ -1424,17 +1350,18 @@ class BaseSegment(metaclass=SegmentMetaclass):
         if not trimmed_content and self.can_start_end_non_code:
             # Edge case for empty segments which are allowed to be empty.
             return True
-        rematch = segment.match(trimmed_content, ctx)
-        if not rematch.is_complete():
+        rematch = segment.match(trimmed_content, 0, ctx)
+        if not rematch.matched_slice == slice(0, len(trimmed_content)):
             linter_logger.debug(
                 f"Validation Check Fail for {segment}.Incomplete Match. "
-                f"\nMatched: {rematch.matched_segments}. "
-                f"\nUnmatched: {rematch.unmatched_segments}."
+                f"\nMatched: {rematch.apply(trimmed_content)}. "
+                f"\nUnmatched: {trimmed_content[rematch.matched_slice.stop:]}."
             )
             return False
         opening_unparsables = set(segment.recursive_crawl("unparsable"))
         closing_unparsables: Set[BaseSegment] = set()
-        for seg in rematch.matched_segments:
+        new_segments = rematch.apply(trimmed_content)
+        for seg in new_segments:
             closing_unparsables.update(seg.recursive_crawl("unparsable"))
         # Check we don't introduce any _additional_ unparsables.
         # Pre-existing unparsables are ok, and for some rules that's as
