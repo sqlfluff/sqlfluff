@@ -3,10 +3,11 @@
 This uses the rules API supported from 0.4.0 onwards.
 """
 
+from typing import List, Type
+
+from sqlfluff.core.config import ConfigLoader
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules import BaseRule
-from typing import List, Type
-from sqlfluff.core.config import ConfigLoader
 
 # For backward compatibility we still support importing
 # rules within the body of the root plugin module. This is included

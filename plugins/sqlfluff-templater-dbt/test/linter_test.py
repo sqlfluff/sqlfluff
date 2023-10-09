@@ -7,8 +7,8 @@ import sys
 
 import pytest
 
-from sqlfluff.core import Linter, FluffConfig
 from sqlfluff.cli.commands import lint
+from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.utils.testing.cli import invoke_assert_code
 from test.fixtures.dbt.templater import DBT_FLUFF_CONFIG, project_dir  # noqa: F401
 

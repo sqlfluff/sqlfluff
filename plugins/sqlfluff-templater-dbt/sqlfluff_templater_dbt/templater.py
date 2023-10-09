@@ -9,40 +9,38 @@ such, all imports of the dbt libraries are contained within the
 DbtTemplater class and so are only imported when necessary.
 """
 
-from collections import deque
-from contextlib import contextmanager
+import logging
 import os
 import os.path
-import logging
+from collections import deque
+from contextlib import contextmanager
+from dataclasses import dataclass
 from typing import (
+    TYPE_CHECKING,
+    Any,
     Callable,
+    Deque,
+    Dict,
+    Iterator,
     List,
     Optional,
-    Iterator,
     Tuple,
-    Any,
-    Dict,
-    Deque,
     Union,
-    TYPE_CHECKING,
 )
-
-from dataclasses import dataclass
 
 from jinja2 import Environment
 from jinja2_simple_tags import StandaloneTag
 
 from sqlfluff.core.cached_property import cached_property
-from sqlfluff.core.errors import SQLTemplaterError, SQLFluffSkipFile, SQLFluffUserError
-
+from sqlfluff.core.errors import SQLFluffSkipFile, SQLFluffUserError, SQLTemplaterError
 from sqlfluff.core.templaters.base import TemplatedFile, large_file_check
-
 from sqlfluff.core.templaters.jinja import JinjaTemplater
 
 if TYPE_CHECKING:  # pragma: no cover
     from dbt.semver import VersionSpecifier
-    from sqlfluff.core import FluffConfig
+
     from sqlfluff.cli.formatters import OutputStreamFormatter
+    from sqlfluff.core import FluffConfig
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -146,9 +144,9 @@ class DbtTemplater(JinjaTemplater):
     def dbt_config(self):
         """Loads the dbt config."""
         from dbt import flags
+        from dbt.adapters.factory import register_adapter
         from dbt.config import read_user_config
         from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
-        from dbt.adapters.factory import register_adapter
 
         # Attempt to silence internal logging at this point.
         # https://github.com/sqlfluff/sqlfluff/issues/5054
@@ -253,6 +251,8 @@ class DbtTemplater(JinjaTemplater):
 
         from dbt.graph.selector_methods import (
             MethodManager as DbtSelectorMethodManager,
+        )
+        from dbt.graph.selector_methods import (
             MethodName as DbtMethodName,
         )
 
@@ -458,11 +458,15 @@ class DbtTemplater(JinjaTemplater):
         try:
             from dbt.exceptions import (
                 CompilationException as DbtCompilationException,
+            )
+            from dbt.exceptions import (
                 FailedToConnectException as DbtFailedToConnectException,
             )
         except ImportError:
             from dbt.exceptions import (
                 CompilationError as DbtCompilationException,
+            )
+            from dbt.exceptions import (
                 FailedToConnectError as DbtFailedToConnectException,
             )
 

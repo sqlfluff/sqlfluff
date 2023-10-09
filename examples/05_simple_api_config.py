@@ -1,7 +1,7 @@
 """An example to show a few ways of configuring the API."""
 
 import sqlfluff
-from sqlfluff.core import Linter, FluffConfig
+from sqlfluff.core import FluffConfig, Linter
 
 # #######################################
 # The simple API can be configured in three ways.

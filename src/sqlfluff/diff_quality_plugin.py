@@ -6,6 +6,7 @@ import os
 import pathlib
 import sys
 import tempfile
+from typing import List
 
 from diff_cover.command_runner import execute, run_command_for_code
 from diff_cover.hook import hookimpl as diff_cover_hookimpl
@@ -14,8 +15,6 @@ from diff_cover.violationsreporters.base import (
     QualityReporter,
     Violation,
 )
-from typing import List
-
 
 logger = logging.getLogger(__name__)
 

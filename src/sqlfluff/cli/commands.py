@@ -1,49 +1,47 @@
 """Contains the CLI."""
 
-from itertools import chain
-import os
-import sys
 import json
 import logging
+import os
+import sys
 import time
+from itertools import chain
 from logging import LogRecord
-from typing import Callable, Tuple, Optional
-
-import yaml
+from typing import Callable, Optional, Tuple
 
 import click
 
 # To enable colour cross platform
 import colorama
+import yaml
 from tqdm import tqdm
-from sqlfluff.cli.autocomplete import shell_completion_enabled, dialect_shell_complete
 
-from sqlfluff.cli import EXIT_SUCCESS, EXIT_ERROR, EXIT_FAIL
+from sqlfluff.cli import EXIT_ERROR, EXIT_FAIL, EXIT_SUCCESS
+from sqlfluff.cli.autocomplete import dialect_shell_complete, shell_completion_enabled
 from sqlfluff.cli.click_deprecated_option import (
     DeprecatedOption,
     DeprecatedOptionsCommand,
 )
 from sqlfluff.cli.formatters import (
-    format_linting_result_header,
     OutputStreamFormatter,
+    format_linting_result_header,
 )
-from sqlfluff.cli.helpers import get_package_version, LazySequence
-from sqlfluff.cli.outputstream import make_output_stream, OutputStream
+from sqlfluff.cli.helpers import LazySequence, get_package_version
+from sqlfluff.cli.outputstream import OutputStream, make_output_stream
 
 # Import from sqlfluff core.
 from sqlfluff.core import (
-    Linter,
     FluffConfig,
+    Linter,
+    SQLFluffUserError,
     SQLLintError,
     SQLTemplaterError,
-    SQLFluffUserError,
-    dialect_selector,
     dialect_readout,
+    dialect_selector,
 )
-from sqlfluff.core.linter import LintingResult
 from sqlfluff.core.config import progress_bar_configuration
-
-from sqlfluff.core.enums import FormatType, Color
+from sqlfluff.core.enums import Color, FormatType
+from sqlfluff.core.linter import LintingResult
 from sqlfluff.core.plugin.host import get_plugin_manager
 
 

@@ -3,7 +3,7 @@ from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import Segments, sp, FunctionalContext
+from sqlfluff.utils.functional import FunctionalContext, Segments, sp
 
 
 class Rule_AL03(BaseRule):

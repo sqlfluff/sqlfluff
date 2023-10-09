@@ -3,9 +3,10 @@
 NOTE: Yes the title of this bundle is ...ambiguous. 😁
 """
 
+from typing import List, Type
+
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules import BaseRule
-from typing import List, Type
 
 
 @hookimpl

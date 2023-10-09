@@ -1,8 +1,7 @@
 """AnyNumberOf, OneOf, OptionallyBracketed & AnySetOf."""
 
-from typing import FrozenSet, List, Optional
+from typing import FrozenSet, List, Optional, Tuple, Union, cast
 from typing import Sequence as SequenceType
-from typing import Tuple, Union, cast
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (

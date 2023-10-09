@@ -1,14 +1,15 @@
 """Tests covering the LintedFile class and it's methods."""
 
-import pytest
 import logging
+
+import pytest
 
 from sqlfluff.core.linter import LintedFile
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments import (
+    BaseSegment,
     FixPatch,
     RawSegment,
-    BaseSegment,
     TemplateSegment,
 )
 from sqlfluff.core.parser.segments.raw import SourceFix

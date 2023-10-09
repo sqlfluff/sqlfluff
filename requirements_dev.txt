@@ -6,7 +6,6 @@ pydocstyle!=6.2.0, !=6.2.1  # See: https://github.com/PyCQA/pydocstyle/issues/61
 black>=22.1.0
 flake8-black>=0.2.4
 ruff
-isort
 import-linter
 # documentation checks
 doc8

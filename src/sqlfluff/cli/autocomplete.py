@@ -1,7 +1,8 @@
 """autocompletion commands."""
 
-from sqlfluff import list_dialects
 from typing import List
+
+from sqlfluff import list_dialects
 
 # Older versions of click don't have shell completion
 # so handle for now, as version 8 still fairly recent
