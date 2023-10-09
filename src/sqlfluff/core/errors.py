@@ -280,6 +280,8 @@ class SQLLintError(SQLBaseError):
         )
         _source_fixes = []
         for fix in self.fixes:
+            if not fix.edit:
+                continue
             for edit in fix.edit:
                 for source_edit in edit.source_fixes:
                     # NOTE: It's important that we don't dedupe on the
