@@ -389,7 +389,8 @@ class Ref(BaseGrammar):
         on the underlying class.
 
         Args:
-            segments (Tuple[BaseSegment, ...]): The sequence of segments to match against.
+            segments (Tuple[BaseSegment, ...]): The sequence of segments
+                to match against.
             idx (int): Index of the element in the sequence.
             parse_context (ParseContext): The parse context.
 
@@ -429,8 +430,8 @@ class Ref(BaseGrammar):
 
         Args:
             keyword (str): The name of the keyword.
-            optional (bool, optional): Whether the keyword is optional or not. Defaults to
-                False.
+            optional (bool, optional): Whether the keyword is optional or
+                not. Defaults to False.
 
         Returns:
             BaseGrammar: An instance of the BaseGrammar class.
