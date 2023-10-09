@@ -285,6 +285,17 @@ class Rule_LT09(BaseRule):
             )
             return None
 
+        if select_targets_info.comment_after_select_idx != -1:
+            # The SELECT is followed by a comment on the same line. In order
+            # to autofix this, we'd need to move the select target between
+            # SELECT and the comment and potentially delete the entire line
+            # where the select target was (if it is now empty). This is
+            # *fairly tricky and complex*, in part because the newline on
+            # the select target's line is several levels higher in the
+            # parser tree. Hence, we currently don't autofix this. Could be
+            # autofixed in the future if/when we have the time.
+            return LintResult(anchor=select_clause.get())
+
         # Prepare the select clause which will be inserted
         insert_buff = [WhitespaceSegment(), target_seg]
         fixes = [
@@ -297,17 +308,14 @@ class Rule_LT09(BaseRule):
         # Do we have a modifier?
         modifier: Optional[Segments]
         modifier = select_children.first(sp.is_type("select_clause_modifier"))
-        # Check if the modifier is one we care about
-        if modifier:
-            # If it's already on the first line, ignore it.
-            if (
-                select_children.index(modifier.get())
-                < select_targets_info.first_new_line_idx
-            ):
-                modifier = None
 
-        # If we have a modifier to move:
-        if modifier:
+        if (
+            # Check if the modifier is one we care about
+            modifier
+            # We only care if it's not already on the first line.
+            and select_children.index(modifier.get())
+            >= select_targets_info.first_new_line_idx
+        ):
             # Prepend it to the insert buffer
             insert_buff = [WhitespaceSegment(), modifier[0]] + insert_buff
 
@@ -423,25 +431,14 @@ class Rule_LT09(BaseRule):
                         select_children=select_children,
                     )
 
-        if select_targets_info.comment_after_select_idx == -1:
-            fixes += [
-                # Insert the select_clause in place of the first newline in the
-                # Select statement
-                LintFix.replace(
-                    select_children[select_targets_info.first_new_line_idx],
-                    insert_buff,
-                ),
-            ]
-        else:
-            # The SELECT is followed by a comment on the same line. In order
-            # to autofix this, we'd need to move the select target between
-            # SELECT and the comment and potentially delete the entire line
-            # where the select target was (if it is now empty). This is
-            # *fairly tricky and complex*, in part because the newline on
-            # the select target's line is several levels higher in the
-            # parser tree. Hence, we currently don't autofix this. Could be
-            # autofixed in the future if/when we have the time.
-            fixes = []
+        fixes += [
+            # Insert the select_clause in place of the first newline in the
+            # Select statement
+            LintFix.replace(
+                select_children[select_targets_info.first_new_line_idx],
+                insert_buff,
+            ),
+        ]
         return LintResult(
             anchor=select_clause.get(),
             fixes=fixes,
