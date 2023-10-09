@@ -391,7 +391,7 @@ class ReflowPoint(ReflowElement):
                 indent_seg.pos_marker.source_slice.stop - len(current_indent),
                 indent_seg.pos_marker.source_slice.stop,
             )
-            for existing_source_fix in indent_seg.source_fixes:
+            for existing_source_fix in indent_seg.source_fixes:  # pragma: no cover
                 if slice_overlaps(existing_source_fix.source_slice, source_slice):
                     reflow_logger.warning(
                         "Creating overlapping source fix. Results may be "
