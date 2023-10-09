@@ -256,12 +256,10 @@ class Rule_LT09(BaseRule):
 
         # Prepare the select clause which will be inserted
         insert_buff = [WhitespaceSegment(), target_seg]
-        fixes = [
-            # Delete the first select target from its original location.
-            # We'll add it to the right section at the end, once we know
-            # what to add.
-            LintFix.delete(target_seg),
-        ]
+        # Delete the first select target from its original location.
+        # We'll add it to the right section at the end, once we know
+        # what to add.
+        initial_deletes = [target_seg]
 
         # Do we have a modifier?
         modifier: Optional[Segments]
@@ -283,18 +281,10 @@ class Rule_LT09(BaseRule):
                 len(select_children) > modifier_idx + 1
                 and select_children[modifier_idx + 2].is_whitespace
             ):
-                fixes += [
-                    LintFix.delete(
-                        select_children[modifier_idx + 2],
-                    ),
-                ]
+                initial_deletes.append(select_children[modifier_idx + 2])
 
             # Delete the modifier itself
-            fixes += [
-                LintFix.delete(
-                    modifier[0],
-                ),
-            ]
+            initial_deletes.append(modifier[0])
 
             # Set the position marker for removing the preceding
             # whitespace and newline, which we'll use below.
@@ -306,13 +296,15 @@ class Rule_LT09(BaseRule):
             start_idx = target_idx
             start_seg = select_children[select_targets_info.first_new_line_idx]
 
-        fixes += [
+        fixes = [
             # Insert the select_clause in place of the first newline in the
             # Select statement
             LintFix.replace(
                 select_children[select_targets_info.first_new_line_idx],
                 insert_buff,
             ),
+            # Materialise any deletes so far...
+            *(LintFix.delete(seg) for seg in initial_deletes),
         ]
 
         if parent_stack and parent_stack[-1].is_type("select_statement"):
