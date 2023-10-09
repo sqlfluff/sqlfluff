@@ -733,9 +733,7 @@ class SelectClauseSegment(BaseSegment):
         Indent,
         # NOTE: Don't allow trailing.
         Delimited(Ref("SelectClauseElementSegment")),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
+        Dedent,
         # NOTE: In TSQL - this grammar is NOT greedy.
     )
 
@@ -754,9 +752,6 @@ class UnorderedSelectStatementSegment(BaseSegment):
     type = "select_statement"
     match_grammar = Sequence(
         Ref("SelectClauseSegment"),
-        # Dedent for the indent in the select clause.
-        # It's here so that it can come AFTER any whitespace.
-        Dedent,
         Ref("IntoTableSegment", optional=True),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
