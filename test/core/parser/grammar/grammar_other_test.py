@@ -11,24 +11,25 @@ from sqlfluff.core.parser import KeywordSegment, StringParser, SymbolSegment
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar import Anything, Delimited, Nothing
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
+from sqlfluff.core.parser.types import ParseMode
 
 
 @pytest.mark.parametrize(
     "token_list,min_delimiters,allow_gaps,allow_trailing,match_len",
     [
-        # Basic testing
-        (["bar", " \t ", ".", "    ", "bar"], None, True, False, 5),
-        (["bar", " \t ", ".", "    ", "bar", "    "], None, True, False, 6),
+        # Basic testing (note diff to v1, no trailing whitespace.)
+        (["bar", " \t ", ".", "    ", "bar"], 0, True, False, 5),
+        (["bar", " \t ", ".", "    ", "bar", "    "], 0, True, False, 5),
         # Testing allow_trailing
-        (["bar", " \t ", ".", "   "], None, True, False, 0),
-        (["bar", " \t ", ".", "   "], None, True, True, 4),
+        (["bar", " \t ", ".", "   "], 0, True, False, 1),  # NOTE: Diff to v1
+        (["bar", " \t ", ".", "   "], 0, True, True, 3),  # NOTE: Diff to v1
         # Testing the implications of allow_gaps
         (["bar", " \t ", ".", "    ", "bar"], 0, True, False, 5),
         (["bar", " \t ", ".", "    ", "bar"], 0, False, False, 1),
         (["bar", " \t ", ".", "    ", "bar"], 1, True, False, 5),
         (["bar", " \t ", ".", "    ", "bar"], 1, False, False, 0),
-        (["bar", ".", "bar"], None, True, False, 3),
-        (["bar", ".", "bar"], None, False, False, 3),
+        (["bar", ".", "bar"], 0, True, False, 3),
+        (["bar", ".", "bar"], 0, False, False, 3),
         (["bar", ".", "bar"], 1, True, False, 3),
         (["bar", ".", "bar"], 1, False, False, 3),
         # Check we still succeed with something trailing right on the end.
@@ -59,23 +60,134 @@ def test__parser__grammar_delimited(
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
         # Matching with whitespace shouldn't match if we need at least one delimiter
-        m = g.match(test_segments, parse_context=ctx)
-        assert len(m) == match_len
+        m = g.match(test_segments, 0, ctx)
+
+    assert len(m) == match_len
 
 
-def test__parser__grammar_anything_bracketed(bracket_segments, fresh_ansi_dialect):
-    """Test the Anything grammar with brackets."""
-    ctx = ParseContext(dialect=fresh_ansi_dialect)
-    # Check that we can make it past the brackets
-    match = Anything(terminators=[StringParser("foo", KeywordSegment)]).match(
-        bracket_segments, parse_context=ctx
+@pytest.mark.parametrize(
+    "input_tokens, terminators, output_tuple",
+    [
+        # No terminators (or non matching terminators), full match.
+        (
+            ["a", " ", "b"],
+            [],
+            (
+                ("raw", "a"),
+                ("whitespace", " "),
+                ("raw", "b"),
+            ),
+        ),
+        (
+            ["a", " ", "b"],
+            ["c"],
+            (
+                ("raw", "a"),
+                ("whitespace", " "),
+                ("raw", "b"),
+            ),
+        ),
+        # Terminate after some matched content.
+        (
+            ["a", " ", "b"],
+            ["b"],
+            (("raw", "a"),),
+        ),
+        # Terminate immediately.
+        (
+            ["a", " ", "b"],
+            ["a"],
+            (),
+        ),
+        # NOTE: the the  "c" terminator won't match because "c" is
+        # a keyword and therefore is required to have whitespace
+        # before it.
+        # See `greedy_match()` for details.
+        (
+            ["a", " ", "b", "c", " ", "d"],
+            ["c"],
+            (
+                ("raw", "a"),
+                ("whitespace", " "),
+                ("raw", "b"),
+                ("raw", "c"),
+                ("whitespace", " "),
+                ("raw", "d"),
+            ),
+        ),
+        # These next two tests check the handling of brackets in the
+        # Anything match. Unlike other greedy matches, this grammar
+        # assumes we're not going to re-parse these brackets and so
+        # _does_ infer their structure and creates bracketed elements
+        # for them.
+        (
+            ["(", "foo", "    ", ")", " ", "foo"],
+            ["foo"],
+            (
+                (
+                    "bracketed",
+                    (
+                        ("start_bracket", "("),
+                        ("indent", ""),
+                        ("raw", "foo"),
+                        ("whitespace", "    "),
+                        ("dedent", ""),
+                        ("end_bracket", ")"),
+                    ),
+                ),
+                # No trailing whitespace.
+            ),
+        ),
+        (
+            ["(", " ", "foo", "(", "foo", ")", ")", " ", "foo"],
+            ["foo"],
+            (
+                (
+                    "bracketed",
+                    (
+                        ("start_bracket", "("),
+                        ("indent", ""),
+                        ("whitespace", " "),
+                        ("raw", "foo"),
+                        (
+                            "bracketed",
+                            (
+                                ("start_bracket", "("),
+                                ("indent", ""),
+                                ("raw", "foo"),
+                                ("dedent", ""),
+                                ("end_bracket", ")"),
+                            ),
+                        ),
+                        ("dedent", ""),
+                        ("end_bracket", ")"),
+                    ),
+                ),
+            ),
+        ),
+    ],
+)
+def test__parser__grammar_anything_structure(
+    input_tokens, terminators, output_tuple, structural_parse_mode_test
+):
+    """Structure tests for the Anything grammar.
+
+    NOTE: For most greedy semantics we don't instantiate inner brackets, but
+    in the Anything grammar, the assumption is that we're not coming back to
+    these segments later so we take the time to instantiate any bracketed
+    sections. This is to maintain some backward compatibility with previous
+    parsing behaviour.
+    """
+    structural_parse_mode_test(
+        input_tokens,
+        Anything,
+        [],
+        terminators,
+        {},
+        ParseMode.STRICT,
+        slice(None, None),
+        output_tuple,
     )
-    assert len(match) == 4
-    # Check we successfully constructed a bracketed segment
-    assert match.matched_segments[2].is_type("bracketed")
-    assert match.matched_segments[2].raw == "(foo    )"
-    # Check that the unmatched segments is foo AND the whitespace
-    assert len(match.unmatched_segments) == 2
 
 
 @pytest.mark.parametrize(
@@ -96,7 +208,7 @@ def test__parser__grammar_anything_bracketed(bracket_segments, fresh_ansi_dialec
         (["baar"], 6),
     ],
 )
-def test__parser__grammar_anything(
+def test__parser__grammar_anything_match(
     terminators, match_length, test_segments, fresh_ansi_dialect
 ):
     """Test the Anything grammar.
@@ -106,21 +218,23 @@ def test__parser__grammar_anything(
     """
     ctx = ParseContext(dialect=fresh_ansi_dialect)
     terms = [StringParser(kw, KeywordSegment) for kw in terminators]
-    result = Anything(terminators=terms).match(test_segments, parse_context=ctx)
-    assert len(result) == match_length
+    result = Anything(terminators=terms).match(test_segments, 0, parse_context=ctx)
+    assert result.matched_slice == slice(0, match_length)
+    assert result.matched_class is None  # We shouldn't have set a class
 
 
-def test__parser__grammar_nothing(test_segments, fresh_ansi_dialect):
+def test__parser__grammar_nothing_match(test_segments, fresh_ansi_dialect):
     """Test the Nothing grammar."""
     ctx = ParseContext(dialect=fresh_ansi_dialect)
-    assert not Nothing().match(test_segments, parse_context=ctx)
+    assert not Nothing().match(test_segments, 0, ctx)
 
 
-def test__parser__grammar_noncode(test_segments, fresh_ansi_dialect):
+def test__parser__grammar_noncode_match(test_segments, fresh_ansi_dialect):
     """Test the NonCodeMatcher."""
     ctx = ParseContext(dialect=fresh_ansi_dialect)
-    m = NonCodeMatcher().match(test_segments[1:], parse_context=ctx)
     # NonCode Matcher doesn't work with simple
     assert NonCodeMatcher().simple(ctx) is None
     # We should match one and only one segment
-    assert len(m) == 1
+    match = NonCodeMatcher().match(test_segments, 1, parse_context=ctx)
+    assert match
+    assert match.matched_slice == slice(1, 2)

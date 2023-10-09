@@ -246,7 +246,9 @@ ansi_dialect.add(
     AmpersandSegment=StringParser("&", SymbolSegment, type="ampersand"),
     PipeSegment=StringParser("|", SymbolSegment, type="pipe"),
     BitwiseXorSegment=StringParser("^", SymbolSegment, type="binary_operator"),
-    LikeOperatorSegment=TypedParser("like_operator", ComparisonOperatorSegment),
+    LikeOperatorSegment=TypedParser(
+        "like_operator", ComparisonOperatorSegment, type="like_operator"
+    ),
     RawNotSegment=StringParser("!", SymbolSegment, type="raw_comparison_operator"),
     RawEqualsSegment=StringParser("=", SymbolSegment, type="raw_comparison_operator"),
     RawGreaterThanSegment=StringParser(
