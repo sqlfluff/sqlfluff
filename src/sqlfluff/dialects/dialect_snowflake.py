@@ -1020,6 +1020,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ScriptingLetStatementSegment"),
             Ref("ReturnStatementSegment"),
             Ref("ShowStatementSegment"),
+            Ref("AlterAccountStatementSegment"),
             Ref("AlterUserStatementSegment"),
             Ref("AlterSessionStatementSegment"),
             Ref("AlterTaskStatementSegment"),
@@ -5787,6 +5788,82 @@ class ShowStatementSegment(BaseSegment):
             Ref("LimitClauseSegment"),
             Sequence("FROM", Ref("QuotedLiteralSegment"), optional=True),
             optional=True,
+        ),
+    )
+
+
+class AlterAccountStatementSegment(BaseSegment):
+    """`ALTER ACCOUNT` statement.
+
+    ALTER ACCOUNT SET { [ accountParams ] [ objectParams ] [ sessionParams ] }
+
+    ALTER ACCOUNT UNSET <param_name> [ , ... ]
+
+    ALTER ACCOUNT SET RESOURCE_MONITOR = <monitor_name>
+
+    ALTER ACCOUNT SET { PASSWORD | SESSION } POLICY <policy_name>
+
+    ALTER ACCOUNT UNSET { PASSWORD | SESSION } POLICY
+
+    ALTER ACCOUNT SET TAG <tag_name> = '<tag_value>' [, <tag_name> = '<tag_value>' ...]
+
+    ALTER ACCOUNT UNSET TAG <tag_name> [ , <tag_name> ... ]
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-account
+
+    All the account parameters can be found here
+    https://docs.snowflake.com/en/sql-reference/parameters
+    """
+
+    type = "alter_account_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "ACCOUNT",
+        OneOf(
+            Sequence(
+                "SET",
+                "RESOURCE_MONITOR",
+                Ref("EqualsSegment"),
+                Ref("NakedIdentifierSegment"),
+            ),
+            Sequence(
+                "SET",
+                OneOf("PASSWORD", "SESSION"),
+                "POLICY",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                Ref("TagEqualsSegment"),
+            ),
+            Sequence(
+                "SET",
+                Delimited(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            Ref("BooleanLiteralGrammar"),
+                            Ref("QuotedLiteralSegment"),
+                            Ref("NumericLiteralSegment"),
+                            Ref("NakedIdentifierSegment"),
+                        ),
+                    ),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf("PASSWORD", "SESSION"),
+                "POLICY",
+            ),
+            Sequence(
+                "UNSET",
+                OneOf(
+                    Sequence("TAG", Delimited(Ref("TagReferenceSegment"))),
+                    Delimited(Ref("NakedIdentifierSegment")),
+                ),
+            ),
         ),
     )
 
