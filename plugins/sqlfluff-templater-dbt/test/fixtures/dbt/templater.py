@@ -1,8 +1,8 @@
 """Fixtures for dbt templating tests."""
 
 import pytest
-from sqlfluff.core import FluffConfig
 
+from sqlfluff.core import FluffConfig
 
 DBT_FLUFF_CONFIG = {
     "core": {

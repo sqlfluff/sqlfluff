@@ -1,10 +1,11 @@
 """Plugin related tests."""
 import logging
-import pytest
 import sys
 
-from sqlfluff.core.plugin.host import get_plugin_manager, purge_plugin_manager
+import pytest
+
 from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.plugin.host import get_plugin_manager, purge_plugin_manager
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 
 

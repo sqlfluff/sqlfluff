@@ -1,6 +1,8 @@
 """Implementation of Rule RF02."""
-import regex
 from typing import List, Optional
+
+import regex
+
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import LintResult

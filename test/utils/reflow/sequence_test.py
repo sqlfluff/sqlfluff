@@ -1,13 +1,13 @@
 """Tests for the reflow module."""
 
 import logging
+
 import pytest
 
 from sqlfluff.core import Linter
 from sqlfluff.core.rules.base import LintFix
-
-from sqlfluff.utils.reflow.sequence import ReflowSequence
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint
+from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
 def parse_ansi_string(sql, config):
