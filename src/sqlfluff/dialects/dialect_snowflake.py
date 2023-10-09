@@ -1015,6 +1015,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateUserSegment"),
             Ref("CreateCloneStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
+            Ref("AlterProcedureStatementSegment"),
             Ref("ScriptingBlockStatementSegment"),
             Ref("ScriptingLetStatementSegment"),
             Ref("ReturnStatementSegment"),
@@ -2689,6 +2690,35 @@ class CreateProcedureStatementSegment(BaseSegment):
             Ref("DollarQuotedUDFBody"),
             # ...or a SQL UDF
             Ref("ScriptingBlockStatementSegment"),
+        ),
+    )
+
+
+class AlterProcedureStatementSegment(BaseSegment):
+    """A snowflake `ALTER ... PROCEDURE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-procedure.html
+    """
+
+    type = "alter_procedure_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "PROCEDURE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("FunctionNameSegment")),
+            Sequence("EXECUTE", "AS", OneOf("CALLER", "OWNER")),
+            Sequence(
+                "SET", OneOf(Ref("TagEqualsSegment"), Ref("CommentEqualsClauseSegment"))
+            ),
+            Sequence(
+                "UNSET",
+                OneOf(
+                    Sequence("TAG", Delimited(Ref("TagReferenceSegment"))), "COMMENT"
+                ),
+            ),
         ),
     )
 
