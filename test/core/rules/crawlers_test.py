@@ -1,8 +1,8 @@
 """Tests for crawlers."""
 
 import pytest
-from sqlfluff.core.config import FluffConfig
 
+from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.linter.linter import Linter
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import (

@@ -1,15 +1,15 @@
 """Tests for applying noqa directives and the IgnoreMask."""
 
 from typing import List
+
 import pytest
 
-from sqlfluff.core import Linter, FluffConfig
+from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import (
     SQLBaseError,
     SQLParseError,
 )
-from sqlfluff.core.linter import NoQaDirective, IgnoreMask
-
+from sqlfluff.core.linter import IgnoreMask, NoQaDirective
 
 # noqa tests require a rule_set, therefore we construct dummy rule set for glob matching.
 dummy_rule_map = Linter().get_rulepack().reference_map

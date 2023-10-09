@@ -1,28 +1,27 @@
 """Tests for the dbt templater."""
 
-from copy import deepcopy
-import json
 import glob
-import os
+import json
 import logging
+import os
 import shutil
+from copy import deepcopy
 from pathlib import Path
 from unittest import mock
 
 import pytest
 
+from sqlfluff.cli.commands import lint
 from sqlfluff.core import FluffConfig, Lexer, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile
-from sqlfluff.utils.testing.logging import fluff_log_catcher
 from sqlfluff.utils.testing.cli import invoke_assert_code
-from sqlfluff.cli.commands import lint
-
+from sqlfluff.utils.testing.logging import fluff_log_catcher
+from sqlfluff_templater_dbt.templater import DbtTemplater
 from test.fixtures.dbt.templater import (  # noqa: F401
     DBT_FLUFF_CONFIG,
     dbt_templater,
     project_dir,
 )
-from sqlfluff_templater_dbt.templater import DbtTemplater
 
 
 def test__templater_dbt_missing(dbt_templater, project_dir):  # noqa: F811

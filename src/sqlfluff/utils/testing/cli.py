@@ -1,6 +1,7 @@
 """Testing utils for working with the CLIs."""
+from typing import Any, Dict, List, Optional
+
 from click.testing import CliRunner, Result
-from typing import Optional, List, Dict, Any
 
 
 def invoke_assert_code(

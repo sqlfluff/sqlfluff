@@ -1,42 +1,40 @@
 """Methods for deducing and understanding indents."""
 
-from collections import defaultdict
-from itertools import chain
 import logging
+from collections import defaultdict
+from dataclasses import dataclass
+from itertools import chain
 from typing import (
+    DefaultDict,
+    Dict,
+    FrozenSet,
     Iterator,
     List,
     Optional,
     Set,
     Tuple,
     cast,
-    Dict,
-    DefaultDict,
-    FrozenSet,
 )
-from dataclasses import dataclass
+
 from sqlfluff.core.errors import SQLFluffUserError
-
-from sqlfluff.core.parser.segments import Indent, SourceFix
-
 from sqlfluff.core.parser import (
-    RawSegment,
     BaseSegment,
     NewlineSegment,
+    RawSegment,
     WhitespaceSegment,
 )
+from sqlfluff.core.parser.segments import Indent, SourceFix
 from sqlfluff.core.parser.segments.meta import MetaSegment, TemplateSegment
 from sqlfluff.core.rules.base import LintFix, LintResult
 from sqlfluff.core.slice_helpers import slice_length
 from sqlfluff.utils.reflow.elements import (
+    IndentStats,
     ReflowBlock,
     ReflowPoint,
     ReflowSequenceType,
-    IndentStats,
 )
 from sqlfluff.utils.reflow.helpers import fixes_from_results
-from sqlfluff.utils.reflow.rebreak import identify_rebreak_spans, _RebreakSpan
-
+from sqlfluff.utils.reflow.rebreak import _RebreakSpan, identify_rebreak_spans
 
 # We're in the utils module, but users will expect reflow
 # logs to appear in the context of rules. Hence it's a subset

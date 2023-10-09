@@ -5,10 +5,10 @@ Specifically:
 """
 
 import logging
+
 import pytest
 
 from sqlfluff.core import Linter
-
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
