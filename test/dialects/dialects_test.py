@@ -3,21 +3,21 @@
 Any files in the test/fixtures/dialects/ directory will be picked up
 and automatically tested against the appropriate dialect.
 """
-import logging
 from typing import Any, Dict, Optional
+
 import pytest
 
-from sqlfluff.core.templaters import TemplatedFile
-from sqlfluff.core.linter import RenderedFile, ParsedString
 from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.linter import ParsedString, RenderedFile
 from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.templaters import TemplatedFile
 
 from ..conftest import (
     compute_parse_tree_hash,
+    get_parse_fixtures,
     load_file,
     make_dialect_path,
     parse_example_file,
-    get_parse_fixtures,
 )
 
 parse_success_examples, parse_structure_examples = get_parse_fixtures(
@@ -92,6 +92,9 @@ def test__dialect__base_broad_fix(
     a wide range of test sql examples, and the full range of rules
     to find any potential critical errors raised by any interactions
     between different dialects and rules.
+
+    We also do not use DEBUG logging here because it gets _very_
+    noisy.
     """
     raw = load_file(dialect, file)
     config_overrides = dict(dialect=dialect)
@@ -107,12 +110,11 @@ def test__dialect__base_broad_fix(
     rule_pack = linter.get_rulepack()
     # Due to "raise_critical_errors_after_fix" fixture "fix",
     # will now throw.
-    with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules"):
-        linter.lint_parsed(
-            parsed,
-            rule_pack,
-            fix=True,
-        )
+    linter.lint_parsed(
+        parsed,
+        rule_pack,
+        fix=True,
+    )
 
 
 @pytest.mark.integration

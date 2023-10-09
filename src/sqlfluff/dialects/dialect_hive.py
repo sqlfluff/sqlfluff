@@ -5,9 +5,13 @@ from sqlfluff.core.parser import (
     AnyNumberOf,
     BaseSegment,
     Bracketed,
+    CodeSegment,
     Dedent,
     Delimited,
+    IdentifierSegment,
     Indent,
+    KeywordSegment,
+    LiteralSegment,
     Matchable,
     Nothing,
     OneOf,
@@ -20,7 +24,6 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     TypedParser,
 )
-from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_hive_keywords import (
     RESERVED_KEYWORDS,
@@ -132,7 +135,7 @@ hive_dialect.add(
     ),
     BackQuotedIdentifierSegment=TypedParser(
         "back_quote",
-        ansi.IdentifierSegment,
+        IdentifierSegment,
         type="quoted_identifier",
     ),
 )
@@ -141,9 +144,9 @@ hive_dialect.add(
 hive_dialect.replace(
     JoinKeywordsGrammar=Sequence(Sequence("SEMI", optional=True), "JOIN"),
     QuotedLiteralSegment=OneOf(
-        TypedParser("single_quote", ansi.LiteralSegment, type="quoted_literal"),
-        TypedParser("double_quote", ansi.LiteralSegment, type="quoted_literal"),
-        TypedParser("back_quote", ansi.LiteralSegment, type="quoted_literal"),
+        TypedParser("single_quote", LiteralSegment, type="quoted_literal"),
+        TypedParser("double_quote", LiteralSegment, type="quoted_literal"),
+        TypedParser("back_quote", LiteralSegment, type="quoted_literal"),
     ),
     TrimParametersGrammar=Nothing(),
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
@@ -640,7 +643,7 @@ class SetStatementSegment(BaseSegment):
             Sequence(
                 Delimited(
                     Ref("ParameterNameSegment"),
-                    delimiter=OneOf(Ref("DotSegment"), Ref("ColonSegment")),
+                    delimiter=OneOf(Ref("DotSegment"), Ref("ColonDelimiterSegment")),
                     allow_gaps=False,
                 ),
                 Ref("RawEqualsSegment"),

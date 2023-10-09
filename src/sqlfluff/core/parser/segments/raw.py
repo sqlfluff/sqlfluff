@@ -26,7 +26,11 @@ class RawSegment(BaseSegment):
         self,
         raw: Optional[str] = None,
         pos_marker: Optional[PositionMarker] = None,
+        # For legacy and syntactic sugar we allow the simple
+        # `type` argument here, but for more precise inheritance
+        # we suggest using the `instance_types` option.
         type: Optional[str] = None,
+        instance_types: Tuple[str, ...] = (),
         trim_start: Optional[Tuple[str, ...]] = None,
         trim_chars: Optional[Tuple[str, ...]] = None,
         source_fixes: Optional[List[SourceFix]] = None,
@@ -49,13 +53,15 @@ class RawSegment(BaseSegment):
         self.pos_marker: PositionMarker = pos_marker  # type: ignore
         # Set the segments attribute to be an empty tuple.
         self.segments = ()
-        # if a surrogate type is provided, store it for later.
-        self._surrogate_type = type
+        self.instance_types: Tuple[str, ...]
+        if type:
+            assert not instance_types, "Cannot set `type` and `instance_types`."
+            self.instance_types = (type,)
+        else:
+            self.instance_types = instance_types
         # What should we trim off the ends to get to content
         self.trim_start = trim_start
         self.trim_chars = trim_chars
-        # A cache variable for expandable
-        self._is_expandable = None
         # Keep track of any source fixes
         self._source_fixes = source_fixes
         # UUID for matching
@@ -75,16 +81,6 @@ class RawSegment(BaseSegment):
         super(BaseSegment, self).__setattr__(key, value)
 
     # ################ PUBLIC PROPERTIES
-
-    @property
-    def matched_length(self) -> int:
-        """Return the length of the segment in characters."""
-        return len(self._raw)
-
-    @property
-    def is_expandable(self) -> bool:
-        """Return true if it is meaningful to call `expand` on this segment."""
-        return False
 
     @property
     def is_code(self) -> bool:
@@ -122,9 +118,7 @@ class RawSegment(BaseSegment):
 
         Add the surrogate type for raw segments.
         """
-        return (
-            {self._surrogate_type} if self._surrogate_type else set()
-        ) | super().class_types
+        return set(self.instance_types) | super().class_types
 
     @property
     def source_fixes(self) -> List[SourceFix]:
@@ -139,11 +133,13 @@ class RawSegment(BaseSegment):
 
     def get_type(self) -> str:
         """Returns the type of this segment as a string."""
-        return self._surrogate_type or self.type
+        if self.instance_types:
+            return self.instance_types[0]
+        return super().get_type()
 
     def is_type(self, *seg_type: str) -> bool:
         """Extend the parent class method with the surrogate types."""
-        if self._surrogate_type and self._surrogate_type in seg_type:
+        if set(self.instance_types).intersection(seg_type):
             return True
         return self.class_is_type(*seg_type)
 
@@ -201,119 +197,8 @@ class RawSegment(BaseSegment):
         return self.__class__(
             raw=raw or self.raw,
             pos_marker=self.pos_marker,
-            type=self._surrogate_type,
+            instance_types=self.instance_types,
             trim_start=self.trim_start,
             trim_chars=self.trim_chars,
             source_fixes=source_fixes or self.source_fixes,
         )
-
-
-class CodeSegment(RawSegment):
-    """An alias for RawSegment.
-
-    This has a more explicit name for segment creation.
-    """
-
-    pass
-
-
-class UnlexableSegment(CodeSegment):
-    """A placeholder to unlexable sections.
-
-    This otherwise behaves exactly like a code section.
-    """
-
-    type = "unlexable"
-
-
-class CommentSegment(RawSegment):
-    """Segment containing a comment."""
-
-    type = "comment"
-    _is_code = False
-    _is_comment = True
-
-
-class WhitespaceSegment(RawSegment):
-    """Segment containing whitespace."""
-
-    type = "whitespace"
-    _is_whitespace = True
-    _is_code = False
-    _is_comment = False
-    _default_raw = " "
-
-
-class NewlineSegment(RawSegment):
-    """Segment containing a newline.
-
-    NOTE: NewlineSegment does not inherit from WhitespaceSegment.
-    Therefore NewlineSegment.is_type('whitespace') returns False.
-
-    This is intentional and convenient for rules. If users want
-    to match on both, call .is_type('whitespace', 'newline')
-    """
-
-    type = "newline"
-    _is_whitespace = True
-    _is_code = False
-    _is_comment = False
-    _default_raw = "\n"
-
-
-class KeywordSegment(CodeSegment):
-    """A segment used for matching single words.
-
-    We rename the segment class here so that descendants of
-    _ProtoKeywordSegment can use the same functionality
-    but don't end up being labelled as a `keyword` later.
-    """
-
-    type = "keyword"
-
-    def __init__(
-        self,
-        raw: Optional[str] = None,
-        pos_marker: Optional[PositionMarker] = None,
-        type: Optional[str] = None,
-        source_fixes: Optional[List[SourceFix]] = None,
-        trim_chars: Optional[Tuple[str, ...]] = None,
-    ):
-        """If no other name is provided we extrapolate it from the raw."""
-        super().__init__(
-            raw=raw,
-            pos_marker=pos_marker,
-            type=type,
-            source_fixes=source_fixes,
-        )
-
-    def edit(
-        self, raw: Optional[str] = None, source_fixes: Optional[List[SourceFix]] = None
-    ) -> "KeywordSegment":
-        """Create a new segment, with exactly the same position but different content.
-
-        Returns:
-            A copy of this object with new contents.
-
-        Used mostly by fixes.
-
-        NOTE: This *doesn't* copy the uuid. The edited segment is a new segment.
-
-        """
-        return self.__class__(
-            raw=raw or self.raw,
-            pos_marker=self.pos_marker,
-            type=self._surrogate_type,
-            source_fixes=source_fixes or self.source_fixes,
-        )
-
-
-class SymbolSegment(CodeSegment):
-    """A segment used for matching single entities which aren't keywords.
-
-    We rename the segment class here so that descendants of
-    _ProtoKeywordSegment can use the same functionality
-    but don't end up being labelled as a `keyword` later.
-    """
-
-    type = "symbol"

@@ -1,19 +1,16 @@
 """The Test file for The New Parser (Lexing steps)."""
 
-import pytest
 import logging
-from typing import Any, Dict, Tuple, NamedTuple, List, Union
+from typing import Any, Dict, List, NamedTuple, Tuple, Union
 
-from sqlfluff.core.parser import Lexer, CodeSegment, NewlineSegment
+import pytest
+
+from sqlfluff.core import FluffConfig, SQLLexError
+from sqlfluff.core.parser import CodeSegment, Lexer, NewlineSegment
+from sqlfluff.core.parser.lexer import LexMatch, RegexLexer, StringLexer
 from sqlfluff.core.parser.segments.meta import TemplateSegment
-from sqlfluff.core.templaters import JinjaTemplater, TemplatedFile, RawFileSlice
+from sqlfluff.core.templaters import JinjaTemplater, RawFileSlice, TemplatedFile
 from sqlfluff.core.templaters.base import TemplatedFileSlice
-from sqlfluff.core.parser.lexer import (
-    StringLexer,
-    LexMatch,
-    RegexLexer,
-)
-from sqlfluff.core import SQLLexError, FluffConfig
 
 
 def assert_matches(instring, matcher, matchstring):
@@ -226,7 +223,7 @@ def _load_result(*args, **kwargs):
                     "placeholder",
                 ),
                 ("\n", None, None, "newline"),
-                ("select", None, None, "raw"),
+                ("select", None, None, "word"),
                 (" ", None, None, "whitespace"),
                 ("2", None, None, "literal"),
                 ("\n", None, None, "newline"),
@@ -255,18 +252,18 @@ def _load_result(*args, **kwargs):
                 ("", None, None, "dedent"),
                 ("", "{% endmacro %}", "block_end", "placeholder"),
                 ("\n", None, None, "newline"),
-                ("SELECT", None, None, "raw"),
+                ("SELECT", None, None, "word"),
                 ("\n", None, None, "newline"),
                 ("    ", None, None, "whitespace"),
                 ("\n", None, None, "newline"),
                 ("  ", None, None, "whitespace"),
                 ("'Sir. foo'", None, None, "raw"),
                 (" ", None, None, "whitespace"),
-                ("as", None, None, "raw"),
+                ("as", None, None, "word"),
                 (" ", None, None, "whitespace"),
                 ("\n", None, None, "newline"),
                 ("        ", None, None, "whitespace"),
-                ("bar", None, None, "raw"),
+                ("bar", None, None, "word"),
                 ("\n", None, None, "newline"),
                 ("    ", None, None, "whitespace"),
                 ("\n", None, None, "newline"),
@@ -274,9 +271,9 @@ def _load_result(*args, **kwargs):
                 ("", None, None, "dedent"),
                 ("", "{% endcall %}", "block_end", "placeholder"),
                 ("\n", None, None, "newline"),
-                ("FROM", None, None, "raw"),
+                ("FROM", None, None, "word"),
                 (" ", None, None, "whitespace"),
-                ("baz", None, None, "raw"),
+                ("baz", None, None, "word"),
                 ("\n", None, None, "newline"),
                 ("", None, None, "end_of_file"),
             ],
@@ -355,7 +352,7 @@ class _LexerSlicingTemplateFileCase(NamedTuple):
                 ],
             ),
             expected_segments=[
-                ("SELECT", None, None, "raw"),
+                ("SELECT", None, None, "word"),
                 (" ", None, None, "whitespace"),
                 ("", "{# comment #}", "comment", "placeholder"),
                 ("1", None, None, "literal"),
@@ -383,7 +380,7 @@ class _LexerSlicingTemplateFileCase(NamedTuple):
                 ],
             ),
             expected_segments=[
-                ("SELECT", None, None, "raw"),
+                ("SELECT", None, None, "word"),
                 (" ", None, None, "whitespace"),
                 ("", "", "special_type", "placeholder"),
                 ("1", None, None, "literal"),

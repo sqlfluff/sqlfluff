@@ -32,175 +32,120 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        jobs: [ 'linting', 'doclinting', 'docbuild', 'yamllint' ]
+        jobs: [ 'linting', 'doclinting', 'docbuild', 'yamllint', 'mypy', 'doctests' ]
     name: ${{ matrix.jobs }} tests
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
+        python-version: '3.12'
     - name: Install dependencies
       run: pip install tox
     - name: Run the tests
       run: tox -e ${{ matrix.jobs }}
 
-  # Test with coverage tracking on most recent python (py11).
-  python-version-tests-cov:
-    name: Python 3.11 Tests
-    permissions:
-      contents: read
-      pull-requests: write
-    uses: ./.github/workflows/ci-test-python.yml
-    with:
-      python-version: "3.11"
-      coverage: true
-    secrets:
-      gh_token: ${{ secrets.github_token }}
-
-  # Test without coverage tracking on older python versions.
-  # This saves time, as testing without coverage tracking is faster.
-  python-version-tests-nocov:
-    name: Python ${{ matrix.python-version }} Tests
+  # Test with coverage tracking on most recent python (py12).
+  python-version-tests:
+    name: Python Tests
     strategy:
       matrix:
-        python-version: [ '3.7', '3.8', '3.9', '3.10' ]
+        python-version: [ "3.7", "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        include:
+          # Default to test without coverage tracking on older python versions.
+          # This saves time, as testing without coverage tracking is faster.
+          - coverage: false
+          # Override coverage to be true for most recent python version.
+          - python-version: "3.12"
+            coverage: true
     permissions:
       contents: read
       pull-requests: write
     uses: ./.github/workflows/ci-test-python.yml
     with:
       python-version: ${{ matrix.python-version }}
+      coverage: ${{ matrix.coverage }}
     secrets:
       gh_token: ${{ secrets.github_token }}
 
-  dbt-tests-cov:
-    name: dbt ${{ matrix.dbt-version }} Plugin Tests
+  dbt-tests:
+    name: dbt Plugin Tests
     strategy:
       matrix:
-        dbt-version: [ "dbt110", "dbt130", "dbt140", "dbt150", "dbt160" ]
+        dbt-version: [ dbt110, dbt120, dbt130, dbt140, dbt150, dbt160 ]
+        include:
+          # Default to python 3.11 for dbt tests. dbt doesn't support py 3.12 yet.
+          - python-version: "3.11"
+          # For the two oldest dbt versions, override to python 3.9.
+          - dbt-version: dbt110
+            python-version: "3.9"
+          - dbt-version: dbt120
+            python-version: "3.9"
+          # For dbt 1.3 override to python 3.10
+          - dbt-version: dbt130
+            python-version: "3.10"
     permissions:
       contents: read
       pull-requests: write
     uses: ./.github/workflows/ci-test-dbt.yml
     with:
-      python-version: "3.10"
-      dbt-version: "${{ matrix.dbt-version }}"
+      python-version: ${{ matrix.python-version }}
+      dbt-version: ${{ matrix.dbt-version }}
       coverage: true
     secrets:
       gh_token: ${{ secrets.github_token }}
 
-  dbt-tests-nocov:
-    name: dbt ${{ matrix.dbt-version }} Plugin Tests
+  dialect-tests:
+    name: Dialect ${{ matrix.marks }}
     strategy:
       matrix:
-        dbt-version: [ "dbt120" ]
-    permissions:
-      contents: read
-      pull-requests: write
-    uses: ./.github/workflows/ci-test-dbt.yml
-    with:
-      python-version: "3.9"
-      dbt-version: "${{ matrix.dbt-version }}"
-    secrets:
-      gh_token: ${{ secrets.github_token }}
-
-  # This runs the bulk of the dialect _parsing_ tests.
-  #
-  # It's run as a separate job as takes longer than the CI jobs and allows
-  # them to be rerun separately if GitHub Actions or Coverage is experiencing
-  # issues.
-  dialects_parse:
-    name: Dialect parsing
-    strategy:
-      matrix:
-        python-version: [ '3.11' ]
+        include:
+          # This runs the bulk of the dialect _parsing_ tests.
+          #
+          # It's run as a separate job as takes longer than the CI jobs and allows
+          # them to be rerun separately if GitHub Actions or Coverage is experiencing
+          # issues.
+          - marks: "parse_suite"
+            # We test coverage here for some parsing routines.
+            coverage: true
+          # This lints all our dialect fixtures to check rules can handle a variety
+          # of SQL and don't error out badly.
+          #
+          # It's run as a separate job as takes longer than the CI jobs and allows
+          # them to be rerun separately if GitHub Actions or Coverage is experiencing
+          # issues.
+          - marks: "fix_suite"
+            coverage: false
+          # This lints all our rules fixtures to check rules.
+          #
+          # It's run as a separate job as takes longer than the CI jobs and allows
+          # them to be rerun separately if GitHub Actions or Coverage is experiencing
+          # issues.
+          - marks: "rules_suite"
+            coverage: true
     permissions:
       contents: read
       pull-requests: write
     uses: ./.github/workflows/ci-test-python.yml
     with:
-      python-version: "3.11"
-      marks: "parse_suite"
-      # We test coverage here for some parsing routines.
-      coverage: true
+      python-version: "3.12"
+      marks: ${{ matrix.marks }}
+      coverage: ${{ matrix.coverage }}
     secrets:
       gh_token: ${{ secrets.github_token }}
-
-  # This lints all our dialect fixtures to check rules can handle a variety
-  # of SQL and don't error out badly.
-  #
-  # It's run as a separate job as takes longer than the CI jobs and allows
-  # them to be rerun separately if GitHub Actions or Coverage is experiencing
-  # issues.
-  dialects_fix:
-    name: Dialect fixing
-    strategy:
-      matrix:
-        python-version: [ '3.11' ]
-    permissions:
-      contents: read
-      pull-requests: write
-    uses: ./.github/workflows/ci-test-python.yml
-    with:
-      python-version: "3.11"
-      marks: "fix_suite"
-    secrets:
-      gh_token: ${{ secrets.github_token }}
-
-  # This lints all our rules fixtures to check rules.
-  #
-  # It's run as a separate job as takes longer than the CI jobs and allows
-  # them to be rerun separately if GitHub Actions or Coverage is experiencing
-  # issues.
-  rules:
-    name: Rule yaml test cases
-    strategy:
-      matrix:
-        python-version: [ '3.11' ]
-    permissions:
-      contents: read
-      pull-requests: write
-    uses: ./.github/workflows/ci-test-python.yml
-    with:
-      python-version: "3.11"
-      marks: "rules_suite"
-      coverage: true
-    secrets:
-      gh_token: ${{ secrets.github_token }}
-
-  other-tests:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        jobs: [ 'bench', 'mypy', 'doctests' ]
-    name: ${{ matrix.jobs }} tests
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    - name: Install dependencies
-      run: pip install tox
-    - name: Run the tests
-      env:
-        SQLFLUFF_BENCHMARK_API_KEY: ${{ secrets.SQLFLUFF_BENCHMARK_API_KEY }}
-      run: |
-        tox -e ${{ matrix.jobs }}
 
   ymlchecks:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python 3.11
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
+        python-version: '3.12'
     - name: Install dependencies
       run: |
         pip install -r requirements.txt -r requirements_dev.txt
-        python setup.py develop
+        pip install -e .
     - name: Generate the YAML files
       run: |
         python test/generate_parse_fixture_yml.py
@@ -222,7 +167,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
+        python-version: '3.12'
     - name: Install dependencies
       run: |
         pip install -e .
@@ -237,7 +182,7 @@ jobs:
 
   python-windows-tests:
     runs-on: windows-latest
-    name: Python 3.10 Windows tests
+    name: Python 3.12 Windows tests
     steps:
     - name: Set git to use LF
       run: |
@@ -247,7 +192,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: "3.12"
     - name: List Env
       shell: bash
       run: |
@@ -272,7 +217,7 @@ jobs:
 
   python-windows-dbt-tests:
     runs-on: windows-latest
-    name: DBT Plugin Python 3.10 Windows tests
+    name: dbt Plugin Python 3.11 Windows tests
     steps:
     - name: Start PostgreSQL on Windows
       run: |
@@ -290,7 +235,8 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        # dbt doesn't support py 3.12 yet.
+        python-version: "3.11"
     - name: Install dependencies
       shell: bash
       run: pip install tox
@@ -311,7 +257,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
+        python-version: "3.12"
     - uses: actions/checkout@v3
     - name: Install dependencies
       run: |
@@ -334,7 +280,7 @@ jobs:
 
   coveralls_finish:
     name: Finalise coveralls.
-    needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests, dialects_parse, rules]
+    needs: [python-version-tests, dbt-tests, python-windows-tests, dialect-tests]
     runs-on: ubuntu-latest
     steps:
     - name: Coveralls Finished
@@ -346,12 +292,12 @@ jobs:
   coverage_check:
     name: Combine & check 100% coverage.
     runs-on: ubuntu-latest
-    needs: [python-version-tests-cov, dbt-tests-cov, python-windows-tests, dialects_parse, rules]
+    needs: [python-version-tests, dbt-tests, python-windows-tests, dialect-tests]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: "3.12"
 
       - run: python -m pip install --upgrade coverage[toml]
 

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e4637e97ea11a573f43a5e1d0a19f101f3e569164fa4f0886387efd47fb8053a
+_hash: 3422c43e1113bb4644db2e4623d2b31f6eaa9006485912b4f6b147adc11f820b
 file:
 - statement:
     create_source_kafka_statement:
@@ -18,22 +18,22 @@ file:
         naked_identifier: kafka_connection
     - bracketed:
         start_bracket: (
-        code: TOPIC
+        word: TOPIC
         single_quote: "'test_topic'"
         end_bracket: )
     - keyword: FORMAT
-    - code: AVRO
-    - code: USING
-    - code: CONFLUENT
-    - code: SCHEMA
-    - code: REGISTRY
-    - code: CONNECTION
-    - code: csr_connection
-    - code: WITH
+    - word: AVRO
+    - word: USING
+    - word: CONFLUENT
+    - word: SCHEMA
+    - word: REGISTRY
+    - word: CONNECTION
+    - word: csr_connection
+    - word: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
-        raw: '='
+        word: SIZE
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -129,22 +129,22 @@ file:
         naked_identifier: kafka_connection
     - bracketed:
         start_bracket: (
-        code: TOPIC
+        word: TOPIC
         single_quote: "'test_topic'"
         end_bracket: )
     - keyword: FORMAT
-    - code: PROTOBUF
-    - code: USING
-    - code: CONFLUENT
-    - code: SCHEMA
-    - code: REGISTRY
-    - code: CONNECTION
-    - code: csr_connection
-    - code: WITH
+    - word: PROTOBUF
+    - word: USING
+    - word: CONFLUENT
+    - word: SCHEMA
+    - word: REGISTRY
+    - word: CONNECTION
+    - word: csr_connection
+    - word: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
-        raw: '='
+        word: SIZE
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -161,18 +161,18 @@ file:
         naked_identifier: kafka_connection
     - bracketed:
         start_bracket: (
-        code: TOPIC
+        word: TOPIC
         single_quote: "'test_topic'"
         end_bracket: )
     - keyword: FORMAT
-    - code: TEXT
-    - code: ENVELOPE
-    - code: UPSERT
-    - code: WITH
+    - word: TEXT
+    - word: ENVELOPE
+    - word: UPSERT
+    - word: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
-        raw: '='
+        word: SIZE
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -200,19 +200,19 @@ file:
         naked_identifier: kafka_connection
     - bracketed:
         start_bracket: (
-        code: TOPIC
+        word: TOPIC
         single_quote: "'test_topic'"
         end_bracket: )
     - keyword: FORMAT
-    - code: CSV
-    - code: WITH
+    - word: CSV
+    - word: WITH
     - numeric_literal: '3'
-    - code: COLUMNS
-    - code: WITH
+    - word: COLUMNS
+    - word: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
-        raw: '='
+        word: SIZE
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -232,10 +232,55 @@ file:
     - keyword: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
-        raw: '='
+        word: SIZE
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_load_generator_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: marketing
+    - keyword: FROM
+    - keyword: LOAD
+    - keyword: GENERATOR
+    - keyword: MARKETING
+    - bracketed:
+      - start_bracket: (
+      - word: SCALE
+      - word: FACTOR
+      - numeric_literal: '1'
+      - end_bracket: )
+    - keyword: FOR
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        word: SIZE
+        equals: '='
+        single_quote: "'3xsmall'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_load_generator_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: marketing
+    - keyword: IN
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: my_cluster
+    - keyword: FROM
+    - keyword: LOAD
+    - keyword: GENERATOR
+    - keyword: MARKETING
+    - keyword: FOR
+    - keyword: ALL
+    - keyword: TABLES
 - statement_terminator: ;
 - statement:
     create_source_load_generator_statement:
@@ -249,8 +294,8 @@ file:
     - keyword: TPCH
     - bracketed:
       - start_bracket: (
-      - code: SCALE
-      - code: FACTOR
+      - word: SCALE
+      - word: FACTOR
       - numeric_literal: '1'
       - end_bracket: )
     - keyword: FOR
@@ -259,8 +304,8 @@ file:
     - keyword: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
-        raw: '='
+        word: SIZE
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -277,8 +322,8 @@ file:
     - keyword: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
-        raw: '='
+        word: SIZE
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -295,7 +340,7 @@ file:
         naked_identifier: pg_connection
     - bracketed:
         start_bracket: (
-        code: PUBLICATION
+        word: PUBLICATION
         single_quote: "'mz_source'"
         end_bracket: )
     - keyword: FOR
@@ -304,10 +349,34 @@ file:
     - keyword: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
-        raw: '='
+        word: SIZE
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_postgres_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: mz_source
+    - keyword: IN
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: my_cluster
+    - keyword: FROM
+    - keyword: POSTGRES
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: pg_connection
+    - bracketed:
+        start_bracket: (
+        word: PUBLICATION
+        single_quote: "'mz_source'"
+        end_bracket: )
+    - keyword: FOR
+    - keyword: ALL
+    - keyword: TABLES
 - statement_terminator: ;
 - statement:
     create_source_postgres_statement:
@@ -322,24 +391,24 @@ file:
         naked_identifier: pg_connection
     - bracketed:
         start_bracket: (
-        code: PUBLICATION
+        word: PUBLICATION
         single_quote: "'mz_source'"
         end_bracket: )
     - keyword: FOR
     - keyword: TABLES
     - bracketed:
       - start_bracket: (
-      - code: table_1
+      - word: table_1
       - comma: ','
-      - code: table_2
-      - code: AS
-      - code: alias_table_2
+      - word: table_2
+      - word: AS
+      - word: alias_table_2
       - end_bracket: )
     - keyword: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
-        raw: '='
+        word: SIZE
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -356,16 +425,16 @@ file:
         naked_identifier: pg_connection
     - bracketed:
       - start_bracket: (
-      - code: PUBLICATION
+      - word: PUBLICATION
       - single_quote: "'mz_source'"
       - comma: ','
-      - code: TEXT
-      - code: COLUMNS
+      - word: TEXT
+      - word: COLUMNS
       - bracketed:
         - start_bracket: (
-        - code: table
-        - raw: .
-        - code: column_of_unsupported_type
+        - word: table
+        - dot: .
+        - word: column_of_unsupported_type
         - end_bracket: )
       - end_bracket: )
     - keyword: FOR
@@ -374,8 +443,8 @@ file:
     - keyword: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
-        raw: '='
+        word: SIZE
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
 - statement_terminator: ;
@@ -392,16 +461,130 @@ file:
         naked_identifier: pg_connection
     - bracketed:
         start_bracket: (
-        code: PUBLICATION
+        word: PUBLICATION
         single_quote: "'mz_source'"
         end_bracket: )
     - keyword: WITH
     - bracketed:
         start_bracket: (
-        code: SIZE
-        raw: '='
+        word: SIZE
+        equals: '='
         single_quote: "'3xsmall'"
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_load_generator_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: my_webhook_source
+    - keyword: IN
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: my_cluster
+    - keyword: FROM
+    - keyword: WEBHOOK
+    - keyword: BODY
+    - keyword: FORMAT
+    - keyword: JSON
+    - keyword: INCLUDE
+    - keyword: HEADERS
+    - bracketed:
+      - start_bracket: (
+      - word: NOT
+      - single_quote: "'authorization'"
+      - comma: ','
+      - word: NOT
+      - single_quote: "'x-api-key'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_load_generator_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: my_webhook_source
+    - keyword: IN
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: my_cluster
+    - keyword: FROM
+    - keyword: WEBHOOK
+    - keyword: BODY
+    - keyword: FORMAT
+    - keyword: JSON
+    - word: CHECK
+    - bracketed:
+      - start_bracket: (
+      - word: WITH
+      - bracketed:
+        - start_bracket: (
+        - word: HEADERS
+        - comma: ','
+        - word: BODY
+        - word: AS
+        - word: request_body
+        - comma: ','
+        - word: SECRET
+        - word: my_webhook_shared_secret
+        - end_bracket: )
+      - word: decode
+      - bracketed:
+        - start_bracket: (
+        - word: headers
+        - json_operator: ->
+        - single_quote: "'x-signature'"
+        - comma: ','
+        - single_quote: "'base64'"
+        - end_bracket: )
+      - equals: '='
+      - word: hmac
+      - bracketed:
+        - start_bracket: (
+        - word: request_body
+        - comma: ','
+        - word: my_webhook_shared_secret
+        - comma: ','
+        - single_quote: "'sha256'"
+        - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_source_load_generator_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: webhook_with_basic_auth
+    - keyword: IN
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: my_cluster
+    - keyword: FROM
+    - keyword: WEBHOOK
+    - keyword: BODY
+    - keyword: FORMAT
+    - keyword: JSON
+    - word: CHECK
+    - bracketed:
+      - start_bracket: (
+      - word: WITH
+      - bracketed:
+        - start_bracket: (
+        - word: HEADERS
+        - comma: ','
+        - word: BODY
+        - word: AS
+        - word: request_body
+        - comma: ','
+        - word: SECRET
+        - word: BASIC_HOOK_AUTH
+        - end_bracket: )
+      - word: headers
+      - json_operator: ->
+      - single_quote: "'authorization'"
+      - equals: '='
+      - word: BASIC_HOOK_AUTH
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_type_statement:

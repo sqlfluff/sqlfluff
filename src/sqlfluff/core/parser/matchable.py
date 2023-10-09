@@ -2,7 +2,7 @@
 
 import copy
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, FrozenSet, Optional, Tuple, TypeVar
+from typing import TYPE_CHECKING, Any, FrozenSet, Optional, Sequence, Tuple, TypeVar
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.context import ParseContext
@@ -16,8 +16,6 @@ T = TypeVar("T", bound="Matchable")
 class Matchable(ABC):
     """A base object defining the matching interface."""
 
-    # Matchables are expected to have a type
-    type: str
     # Matchables are also not meta unless otherwise defined
     is_meta = False
 
@@ -43,7 +41,10 @@ class Matchable(ABC):
 
     @abstractmethod
     def match(
-        self, segments: Tuple["BaseSegment", ...], parse_context: "ParseContext"
+        self,
+        segments: Sequence["BaseSegment"],
+        idx: int,
+        parse_context: "ParseContext",
     ) -> "MatchResult":
         """Match against this matcher."""
 

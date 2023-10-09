@@ -15,6 +15,8 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     CodeSegment,
+    ComparisonOperatorSegment,
+    CompositeComparisonOperatorSegment,
     Dedent,
     Delimited,
     Indent,
@@ -38,7 +40,6 @@ teradata_dialect.patch_lexer_matchers(
             "numeric_literal",
             r"([0-9]+(\.[0-9]*)?)",
             CodeSegment,
-            segment_kwargs={"type": "numeric_literal"},
         ),
     ]
 )
@@ -126,14 +127,14 @@ teradata_dialect.replace(
 
 teradata_dialect.add(
     # Add Teradata comparison operator extensions
-    EqualsSegment_a=StringParser("EQ", ansi.ComparisonOperatorSegment),
-    GreaterThanSegment_a=StringParser("GT", ansi.ComparisonOperatorSegment),
-    LessThanSegment_a=StringParser("LT", ansi.ComparisonOperatorSegment),
-    GreaterThanOrEqualToSegment_a=StringParser("GE", ansi.ComparisonOperatorSegment),
-    LessThanOrEqualToSegment_a=StringParser("LE", ansi.ComparisonOperatorSegment),
-    NotEqualToSegment_a=StringParser("NE", ansi.ComparisonOperatorSegment),
-    NotEqualToSegment_b=StringParser("NOT=", ansi.ComparisonOperatorSegment),
-    NotEqualToSegment_c=StringParser("^=", ansi.ComparisonOperatorSegment),
+    EqualsSegment_a=StringParser("EQ", ComparisonOperatorSegment),
+    GreaterThanSegment_a=StringParser("GT", ComparisonOperatorSegment),
+    LessThanSegment_a=StringParser("LT", ComparisonOperatorSegment),
+    GreaterThanOrEqualToSegment_a=StringParser("GE", ComparisonOperatorSegment),
+    LessThanOrEqualToSegment_a=StringParser("LE", ComparisonOperatorSegment),
+    NotEqualToSegment_a=StringParser("NE", ComparisonOperatorSegment),
+    NotEqualToSegment_b=StringParser("NOT=", ComparisonOperatorSegment),
+    NotEqualToSegment_c=StringParser("^=", ComparisonOperatorSegment),
 )
 
 
@@ -892,7 +893,7 @@ class SetQueryBandStatementSegment(BaseSegment):
     )
 
 
-class NotEqualToSegment_b(ansi.CompositeComparisonOperatorSegment):
+class NotEqualToSegment_b(CompositeComparisonOperatorSegment):
     """The comparison operator extension NOT=.
 
     https://www.docs.teradata.com/r/Teradata-Database-SQL-Functions-Operators-Expressions-and-Predicates/March-2017/Comparison-Operators-and-Functions/Comparison-Operators/Supported-Comparison-Operators
@@ -903,7 +904,7 @@ class NotEqualToSegment_b(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class NotEqualToSegment_c(ansi.CompositeComparisonOperatorSegment):
+class NotEqualToSegment_c(CompositeComparisonOperatorSegment):
     """The comparison operator extension ^=.
 
     https://www.docs.teradata.com/r/Teradata-Database-SQL-Functions-Operators-Expressions-and-Predicates/March-2017/Comparison-Operators-and-Functions/Comparison-Operators/Supported-Comparison-Operators

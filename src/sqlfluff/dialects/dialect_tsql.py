@@ -12,13 +12,17 @@ from sqlfluff.core.parser import (
     Bracketed,
     CodeSegment,
     CommentSegment,
+    CompositeComparisonOperatorSegment,
     Conditional,
     Dedent,
     Delimited,
+    IdentifierSegment,
     ImplicitIndent,
     Indent,
+    LiteralSegment,
     Matchable,
     MultiStringParser,
+    NewlineSegment,
     Nothing,
     OneOf,
     OptionallyBracketed,
@@ -29,8 +33,9 @@ from sqlfluff.core.parser import (
     SegmentGenerator,
     Sequence,
     TypedParser,
+    WhitespaceSegment,
+    WordSegment,
 )
-from sqlfluff.core.parser.segments.raw import NewlineSegment, WhitespaceSegment
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_tsql_keywords import (
     RESERVED_KEYWORDS,
@@ -135,39 +140,33 @@ tsql_dialect.insert_lexer_matchers(
             "atsign",
             r"[@][a-zA-Z0-9_]+",
             CodeSegment,
-            segment_kwargs={"type": "atsign"},
         ),
         RegexLexer(
             "var_prefix",
             r"[$][a-zA-Z0-9_]+",
             CodeSegment,
-            segment_kwargs={"type": "var_prefix"},
         ),
         RegexLexer(
             "square_quote",
             r"\[([^\[\]]*)*\]",
             CodeSegment,
-            segment_kwargs={"type": "square_quote"},
         ),
         # T-SQL unicode strings
         RegexLexer(
             "single_quote_with_n",
             r"N'([^']|'')*'",
             CodeSegment,
-            segment_kwargs={"type": "single_quote_with_n"},
         ),
         RegexLexer(
             "hash_prefix",
             r"[#][#]?[a-zA-Z0-9_]+",
             CodeSegment,
-            segment_kwargs={"type": "hash_prefix"},
         ),
         RegexLexer(
             "unquoted_relative_sql_file_path",
             # currently there is no way to pass `regex.IGNORECASE` flag to `RegexLexer`
             r"[.\w\\/#-]+\.[sS][qQ][lL]",
             CodeSegment,
-            segment_kwargs={"type": "unquoted_relative_sql_file_path"},
         ),
     ],
     before="back_quote",
@@ -180,14 +179,13 @@ tsql_dialect.patch_lexer_matchers(
             "single_quote",
             r"'([^']|'')*'",
             CodeSegment,
-            segment_kwargs={"type": "single_quote"},
         ),
         # Patching comments to remove hash comments
         RegexLexer(
             "inline_comment",
             r"(--)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("--"), "type": "inline_comment"},
+            segment_kwargs={"trim_start": ("--")},
         ),
         # Patching block comments to account for nested blocks.
         # N.B. this syntax is only possible via the non-standard-library
@@ -226,27 +224,26 @@ tsql_dialect.patch_lexer_matchers(
                 r"[^\S\r\n]+",
                 WhitespaceSegment,
             ),
-            segment_kwargs={"type": "block_comment"},
         ),
         RegexLexer(
-            "code", r"[0-9a-zA-Z_#@]+", CodeSegment
+            "word", r"[0-9a-zA-Z_#@]+", WordSegment
         ),  # overriding to allow hash mark and at-sign in code
     ]
 )
 
 tsql_dialect.add(
     BracketedIdentifierSegment=TypedParser(
-        "square_quote", ansi.IdentifierSegment, type="quoted_identifier"
+        "square_quote", IdentifierSegment, type="quoted_identifier"
     ),
     HashIdentifierSegment=TypedParser(
-        "hash_prefix", ansi.IdentifierSegment, type="hash_identifier"
+        "hash_prefix", IdentifierSegment, type="hash_identifier"
     ),
     VariableIdentifierSegment=TypedParser(
-        "var_prefix", ansi.IdentifierSegment, type="variable_identifier"
+        "var_prefix", IdentifierSegment, type="variable_identifier"
     ),
     BatchDelimiterGrammar=Ref("GoStatementSegment"),
     QuotedLiteralSegmentWithN=TypedParser(
-        "single_quote_with_n", ansi.LiteralSegment, type="quoted_literal"
+        "single_quote_with_n", LiteralSegment, type="quoted_literal"
     ),
     QuotedLiteralSegmentOptWithN=OneOf(
         Ref("QuotedLiteralSegment"),
@@ -310,6 +307,7 @@ tsql_dialect.add(
     SqlcmdFilePathSegment=TypedParser(
         "unquoted_relative_sql_file_path",
         CodeSegment,
+        type="unquoted_relative_sql_file_path",
     ),
     FileCompressionSegment=SegmentGenerator(
         lambda dialect: MultiStringParser(
@@ -341,7 +339,7 @@ tsql_dialect.replace(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
             r"[A-Z_][A-Z0-9_@$#]*",
-            ansi.IdentifierSegment,
+            IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
@@ -543,7 +541,7 @@ tsql_dialect.replace(
             Ref("TypedArrayLiteralSegment"),
             Ref("ArrayLiteralSegment"),
         ),
-        Ref("Accessor_Grammar", optional=True),
+        Ref("AccessorGrammar", optional=True),
         allow_gaps=True,
     ),
     MergeIntoLiteralGrammar=Sequence(
@@ -609,6 +607,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateExternalTableStatementSegment"),
             Ref("DropExternalTableStatementSegment"),
             Ref("CopyIntoTableStatementSegment"),
+            Ref("CreateFullTextIndexStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -618,7 +617,7 @@ class StatementSegment(ansi.StatementSegment):
     )
 
 
-class GreaterThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class GreaterThanOrEqualToSegment(CompositeComparisonOperatorSegment):
     """Greater than or equal to operator.
 
     N.B. Patching to add !< and
@@ -637,7 +636,7 @@ class GreaterThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class LessThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class LessThanOrEqualToSegment(CompositeComparisonOperatorSegment):
     """Greater than or equal to operator.
 
     N.B. Patching to add !> and
@@ -656,7 +655,7 @@ class LessThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class NotEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class NotEqualToSegment(CompositeComparisonOperatorSegment):
     """Not equal to operator.
 
     N.B. Patching to allow spaces between operators.
@@ -671,7 +670,7 @@ class NotEqualToSegment(ansi.CompositeComparisonOperatorSegment):
 class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     """An element in the targets of a select statement.
 
-    Overriding ANSI to remove GreedyUntil logic which assumes statements have been
+    Overriding ANSI to remove greedy logic which assumes statements have been
     delimited
     """
 
@@ -977,6 +976,109 @@ class CreateIndexStatementSegment(BaseSegment):
         Ref("FilestreamOnOptionSegment", optional=True),
         Ref("DelimiterGrammar", optional=True),
         Dedent,
+    )
+
+
+class CreateFullTextIndexStatementSegment(BaseSegment):
+    """A `CREATE FULLTEXT INDEX` statement.
+
+    https://learn.microsoft.com/fr-fr/sql/t-sql/statements/create-fulltext-index-transact-sql?view=sql-server-ver16
+    """
+
+    type = "create_fulltext_index_statement"
+
+    _catalog_filegroup_option = Sequence(
+        "ON",
+        Delimited(
+            AnySetOf(
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    "FILEGROUP",
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
+            allow_trailing=True,
+        ),
+        optional=True,
+    )
+
+    _with_option = Sequence(
+        "WITH",
+        Bracketed(
+            OneOf(
+                Sequence(
+                    "CHANGE_TRACKING",
+                    Ref("EqualsSegment", optional=True),
+                    OneOf(
+                        "MANUAL",
+                        "AUTO",
+                        Delimited(
+                            "OFF",
+                            Sequence(
+                                "NO",
+                                "POPULATION",
+                                optional=True,
+                            ),
+                        ),
+                    ),
+                ),
+                Sequence(
+                    "STOPLIST",
+                    Ref("EqualsSegment", optional=True),
+                    OneOf(
+                        "OFF",
+                        "SYSTEM",
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                ),
+                Sequence(
+                    "SEARCH",
+                    "PROPERTY",
+                    "LIST",
+                    Ref("EqualsSegment", optional=True),
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
+        ),
+        optional=True,
+    )
+
+    match_grammar = Sequence(
+        "CREATE",
+        "FULLTEXT",
+        "INDEX",
+        "ON",
+        Ref("TableReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    AnySetOf(
+                        Sequence(
+                            "TYPE",
+                            "COLUMN",
+                            Ref("DatatypeSegment"),
+                        ),
+                        Sequence(
+                            "LANGUAGE",
+                            OneOf(
+                                Ref("NumericLiteralSegment"),
+                                Ref("QuotedLiteralSegment"),
+                                optional=True,
+                            ),
+                        ),
+                        "STATISTICAL_SEMANTICS",
+                    ),
+                ),
+            ),
+        ),
+        Sequence(
+            "KEY",
+            "INDEX",
+            Ref("ObjectReferenceSegment"),
+            _catalog_filegroup_option,
+        ),
+        _with_option,
     )
 
 
@@ -1383,20 +1485,42 @@ class TableOptionSegment(BaseSegment):
                         "SYSTEM_VERSIONING",
                         Ref("EqualsSegment"),
                         "ON",
-                        Sequence(
-                            Bracketed(
-                                "HISTORY_TABLE",
-                                Ref("EqualsSegment"),
-                                Ref("TableReferenceSegment"),
-                                Sequence(
-                                    Ref("CommaSegment"),
-                                    "DATA_CONSISTENCY_CHECK",
-                                    Ref("EqualsSegment"),
-                                    OneOf("ON", "OFF"),
-                                    optional=True,
+                        Bracketed(
+                            Delimited(
+                                AnyNumberOf(
+                                    Sequence(
+                                        "HISTORY_TABLE",
+                                        Ref("EqualsSegment"),
+                                        Ref("TableReferenceSegment"),
+                                    ),
+                                    Sequence(
+                                        "HISTORY_RETENTION_PERIOD",
+                                        Ref("EqualsSegment"),
+                                        OneOf(
+                                            "INFINITE",
+                                            Sequence(
+                                                Ref(
+                                                    "NumericLiteralSegment",
+                                                    optional=True,
+                                                ),
+                                                OneOf(
+                                                    "DAYS",
+                                                    "WEEKS",
+                                                    "MONTHS",
+                                                    "YEARS",
+                                                ),
+                                                optional=True,
+                                            ),
+                                        ),
+                                    ),
+                                    Sequence(
+                                        Ref("CommaSegment"),
+                                        "DATA_CONSISTENCY_CHECK",
+                                        Ref("EqualsSegment"),
+                                        OneOf("ON", "OFF"),
+                                    ),
                                 ),
                             ),
-                            optional=True,
                         ),
                     ),
                     Sequence(
@@ -3494,9 +3618,7 @@ class FileSegment(BaseFileSegment):
     has no match_grammar.
     """
 
-    # NB: We don't need a match_grammar here because we're
-    # going straight into instantiating it directly usually.
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         AnyNumberOf(Ref("BatchDelimiterGrammar")),
         Delimited(
             Ref("BatchSegment"),
@@ -4662,6 +4784,20 @@ class GotoStatement(BaseSegment):
     match_grammar = Sequence("GOTO", Ref("SingleIdentifierGrammar"))
 
 
+class ExecuteAsClause(BaseSegment):
+    """EXECUTE AS Clause.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/execute-as-clause-transact-sql?view=sql-server-ver16
+    """
+
+    type = "execute_as_clause"
+    match_grammar = Sequence(
+        "EXECUTE",
+        "AS",
+        Ref("SingleQuotedIdentifierSegment"),
+    )
+
+
 class CreateTriggerStatementSegment(BaseSegment):
     """Create Trigger Statement.
 
@@ -4682,36 +4818,14 @@ class CreateTriggerStatementSegment(BaseSegment):
         ),
         Sequence(
             "WITH",
-            OneOf(
-                Sequence(
-                    Ref.keyword("ENCRYPTION", optional=True),
-                    Sequence(
-                        "EXECUTE",
-                        "AS",
-                        Ref("SingleQuotedIdentifierSegment"),
-                        optional=True,
-                    ),
-                ),
-                Sequence(
-                    Ref.keyword("NATIVE_COMPILATION", optional=True),
-                    Ref.keyword("SCHEMABINDING", optional=True),
-                    Sequence(
-                        "EXECUTE",
-                        "AS",
-                        Ref("SingleQuotedIdentifierSegment"),
-                        optional=True,
-                    ),
-                ),
-                Sequence(
-                    Ref.keyword("ENCRYPTION", optional=True),
-                    Sequence(
-                        "EXECUTE",
-                        "AS",
-                        Ref("SingleQuotedIdentifierSegment"),
-                        optional=True,
-                    ),
-                ),
+            AnySetOf(
+                # NOTE: Techincally, ENCRYPTION can't be combined with the other two,
+                # but this slightly more generous parsing is ok for SQLFluff.
+                Ref.keyword("ENCRYPTION"),
+                Ref.keyword("NATIVE_COMPILATION"),
+                Ref.keyword("SCHEMABINDING"),
             ),
+            Ref("ExecuteAsClause", optional=True),
             optional=True,
         ),
         OneOf(

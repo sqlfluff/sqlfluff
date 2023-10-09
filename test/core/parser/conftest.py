@@ -13,7 +13,7 @@ def fresh_ansi_dialect():
 
 
 @pytest.fixture(scope="function")
-def seg_list(generate_test_segments):
+def test_segments(generate_test_segments):
     """A preset list of segments for testing.
 
     Includes a templated segment for completeness.
@@ -25,11 +25,3 @@ def seg_list(generate_test_segments):
         block_type="comment",
     )
     return main_list + (ts,)
-
-
-@pytest.fixture(scope="function")
-def bracket_seg_list(generate_test_segments):
-    """Another preset list of segments for testing."""
-    return generate_test_segments(
-        ["bar", " \t ", "(", "foo", "    ", ")", "baar", " \t ", "foo"]
-    )

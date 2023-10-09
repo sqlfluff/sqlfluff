@@ -9,7 +9,6 @@ import pytest
 from sqlfluff.cli.formatters import OutputStreamFormatter
 from sqlfluff.cli.outputstream import make_output_stream
 from sqlfluff.core import FluffConfig, Linter
-from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.errors import (
     SQLBaseError,
     SQLFluffSkipFile,
@@ -19,7 +18,6 @@ from sqlfluff.core.errors import (
 )
 from sqlfluff.core.linter import LintingResult, runner
 from sqlfluff.core.linter.runner import get_runner
-from sqlfluff.core.parser import BaseSegment, GreedyUntil, Ref
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 
 
@@ -536,36 +534,3 @@ def test_normalise_newlines():
     in_str = "SELECT\r\n foo\n FROM \r \n\r bar;"
     out_str = "SELECT\n foo\n FROM \n \n\n bar;"
     assert out_str == Linter._normalise_newlines(in_str)
-
-
-def test_require_match_parse_grammar():
-    """Tests a segment validation check in Dialect.replace().
-
-    If a segment class defines both match_grammar and parse_grammar, replacing
-    it requires a segment that defines BOTH or NEITHER of them.
-    """
-    ansi_dialect = load_raw_dialect("ansi")
-
-    class FooSegment(BaseSegment):
-        match_grammar = GreedyUntil(Ref("DelimiterSegment"))
-        parse_grammar = GreedyUntil(Ref("DelimiterSegment"))
-
-    ansi_dialect.add(FooSegment=FooSegment)
-
-    # Try to register a segment that defines match_grammar but not
-    # parse_grammar.
-    class FooSegment1(FooSegment):
-        match_grammar = GreedyUntil(Ref("DelimiterSegment"))
-
-    with pytest.raises(ValueError) as e:
-        ansi_dialect.replace(FooSegment=FooSegment1)
-    assert "needs to define 'parse_grammar'" in str(e.value)
-
-    # Now try to register a segment that defines parse_grammar but not
-    # match_grammar.
-    class FooSegment2(FooSegment):
-        parse_grammar = GreedyUntil(Ref("DelimiterSegment"))
-
-    with pytest.raises(ValueError) as e:
-        ansi_dialect.replace(FooSegment=FooSegment2)
-    assert "needs to define 'match_grammar'" in str(e.value)

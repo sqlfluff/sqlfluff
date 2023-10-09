@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 70cadc1549c0161178ee90989a721583de3c3d84a038e36ab0c299c2fbb0a25a
+_hash: 7039839de22522353c84a619e578e24afe3df5546c65e7058a3f8fd4ee1affd9
 file:
   statement:
     create_udf_script:
@@ -67,34 +67,34 @@ file:
     - script_content:
       - double_quote: "\"\"\"\n/*====================================================================\n\
           \    e.g.:\n    SELECT MYSCHEMA.MYPYTHONSCRIPT(\n            '[{\""
-      - raw: '@lang'
+      - at_sign_literal: '@lang'
       - double_quote: '":"'
-      - code: de
-      - raw: '-'
-      - code: DE
+      - word: de
+      - minus: '-'
+      - word: DE
       - double_quote: '","'
-      - raw: $
+      - dollar_literal: $
       - double_quote: '":"'
-      - code: Krztxt
+      - word: Krztxt
       - double_quote: '"}, {"'
-      - raw: '@lang'
+      - at_sign_literal: '@lang'
       - double_quote: '":"'
-      - code: en
-      - raw: '-'
-      - code: GB
+      - word: en
+      - minus: '-'
+      - word: GB
       - double_quote: '","'
-      - raw: $
+      - dollar_literal: $
       - double_quote: '":"'
-      - code: Shrttxt
+      - word: Shrttxt
       - double_quote: "\"}]',\n            '@lang',\n            '$'\n        );\n\
           \ ====================================================================*/\n\
           \"\"\""
-      - code: def
-      - code: run
+      - word: def
+      - word: run
       - bracketed:
           start_bracket: (
-          code: ctx
+          word: ctx
           end_bracket: )
-      - raw: ':'
-      - code: pass
+      - colon: ':'
+      - word: pass
   function_script_terminator: /

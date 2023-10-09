@@ -1,6 +1,6 @@
 """The BracketedSegment."""
 
-from typing import TYPE_CHECKING, Optional, Set, Tuple
+from typing import TYPE_CHECKING, Optional, Sequence, Set, Tuple
 from uuid import UUID
 
 from sqlfluff.core.parser.context import ParseContext
@@ -65,9 +65,17 @@ class BracketedSegment(BaseSegment):
 
     @classmethod
     def match(
-        cls, segments: Tuple["BaseSegment", ...], parse_context: ParseContext
+        cls,
+        segments: Sequence["BaseSegment"],
+        idx: int,
+        parse_context: "ParseContext",
     ) -> MatchResult:
-        """Only useful as a terminator."""
-        if segments and isinstance(segments[0], cls):
-            return MatchResult((segments[0],), segments[1:])
-        return MatchResult.from_unmatched(segments)
+        """Only useful as a terminator.
+
+        NOTE: Coverage of this method is poor, because in typical use
+        as a terminator - the `.simple()` method covers everything we
+        need.
+        """
+        if isinstance(segments[idx], cls):  # pragma: no cover
+            return MatchResult(slice(idx, idx + 1))
+        return MatchResult.empty_at(idx)

@@ -1,0 +1,170 @@
+rule: LT01
+
+test_excess_space_without_align_alias:
+  fail_str: |
+        SELECT
+            a    AS first_column,
+            b      AS second_column,
+            (a + b) / 2 AS third_column
+        FROM foo
+  fix_str: |
+    SELECT
+        a AS first_column,
+        b AS second_column,
+        (a + b) / 2 AS third_column
+    FROM foo
+  configs:
+    # This is the default config but we're being explicit
+    # here for testing.
+    layout:
+      type:
+        alias_expression:
+          spacing_before: single
+
+test_excess_space_with_align_alias:
+  # NOTE: The config here shouldn't move the table alias
+  fail_str: |
+        SELECT
+            a    AS first_column,
+            b      AS second_column,
+            (a + b) / 2 AS third_column
+        FROM foo   AS bar
+  fix_str: |
+    SELECT
+        a           AS first_column,
+        b           AS second_column,
+        (a + b) / 2 AS third_column
+    FROM foo AS bar
+  configs: &align_alias
+    layout:
+      type:
+        alias_expression:
+          spacing_before: align
+          align_within: select_clause
+          align_scope: bracketed
+
+test_missing_keyword_with_align_alias:
+  fail_str: |
+        SELECT
+            a    first_column,
+            b      AS second_column,
+            (a + b) / 2 AS third_column
+        FROM foo
+  fix_str: |
+    SELECT
+        a           first_column,
+        b           AS second_column,
+        (a + b) / 2 AS third_column
+    FROM foo
+  configs: *align_alias
+
+test_skip_alias_with_align_alias:
+  fail_str: |
+        SELECT
+            a   ,
+            b   ,
+            (a   +   b) /   2
+        FROM foo
+  fix_str: |
+    SELECT
+        a,
+        b,
+        (a + b) / 2
+    FROM foo
+  configs: *align_alias
+
+test_excess_space_with_align_alias_wider:
+  # NOTE: The config here SHOULD move the table alias
+  # NOTE: The combined LT01 also fixes the missing space
+  # between `USING` and `(a)`.
+  fail_str: |
+    SELECT
+        a    AS first_column,
+        b      AS second_column,
+        (a      +      b)      /      2 AS third_column
+    FROM foo   AS first_table
+    JOIN my_tbl AS second_table USING(a)
+  fix_str: |
+    SELECT
+        a           AS first_column,
+        b           AS second_column,
+        (a + b) / 2 AS third_column
+    FROM foo        AS first_table
+    JOIN my_tbl     AS second_table USING (a)
+  configs: &align_alias_wider
+    layout:
+      type:
+        alias_expression:
+          spacing_before: align
+          align_within: select_statement
+          align_scope: bracketed
+
+test_align_alias_boundary:
+  # The alias inside the expression shouldn't move.
+  fail_str: |
+    SELECT
+        a    AS first_column,
+        (SELECT b AS c)      AS second_column
+  fix_str: |
+    SELECT
+        a               AS first_column,
+        (SELECT b AS c) AS second_column
+  configs: *align_alias
+
+test_align_alias_inline_pass:
+  # The aliases on the same line shouldn't panic.
+  pass_str: SELECT a AS b, c AS d FROM tbl
+  configs: *align_alias
+
+test_align_alias_inline_fail:
+  # The aliases on the same line shouldn't panic.
+  fail_str: SELECT a   AS   b  ,   c   AS   d    FROM tbl
+  fix_str: SELECT a AS b, c AS d FROM tbl
+  configs: *align_alias
+
+test_align_multiple_a:
+  # https://github.com/sqlfluff/sqlfluff/issues/4023
+  fail_str: |
+    CREATE TABLE tbl (
+        foo VARCHAR(25) NOT NULL,
+        barbar INT NULL
+    )
+  fix_str: |
+    CREATE TABLE tbl (
+        foo    VARCHAR(25) NOT NULL,
+        barbar INT         NULL
+    )
+  configs:
+    layout:
+      type:
+        data_type:
+          spacing_before: align
+          align_within: create_table_statement
+        column_constraint_segment:
+          spacing_before: align
+          align_within: create_table_statement
+
+test_align_multiple_b:
+  # If there are multiple options on the same line, choose the first
+  # to align with (i.e. `not null` rather than `unique`).
+  # https://github.com/sqlfluff/sqlfluff/issues/4023
+  # https://github.com/sqlfluff/sqlfluff/pull/5238
+  fail_str: |
+    create table tab (
+        foo    varchar(25)  not null,
+        barbar int not null unique
+    )
+  fix_str: |
+    create table tab (
+        foo    varchar(25) not null,
+        barbar int         not null unique
+    )
+  configs:
+    layout:
+      type:
+        data_type:
+          spacing_before: align
+          align_within: create_table_statement
+        column_constraint_segment:
+          spacing_before: align
+          align_within: create_table_statement

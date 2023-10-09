@@ -7,7 +7,7 @@ gcp_pubsub_subscription_name = 'projects/project-1234/subscriptions/sub2';
 create notification integration my_notification_int
 enabled = true
 type = queue
-notification_provider = azure_event_grid
+notification_provider = azure_storage_queue
 azure_storage_queue_primary_uri = 'https://myqueue.queue.core.windows.net/mystoragequeue'
 azure_tenant_id = 'a123bcde-1234-5678-abc1-9abc12345678';
 

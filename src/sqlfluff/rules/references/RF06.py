@@ -1,13 +1,13 @@
 """Implementation of Rule RF06."""
 
-from typing import TYPE_CHECKING, List, Optional, cast, Type
+from typing import TYPE_CHECKING, List, Optional, Type, cast
 
 import regex
 
-from sqlfluff.core.parser.segments.raw import CodeSegment
+from sqlfluff.core.parser import CodeSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import sp, FunctionalContext
+from sqlfluff.utils.functional import FunctionalContext, sp
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.parsers import RegexParser
@@ -91,7 +91,8 @@ class Rule_RF06(BaseRule):
 
     # Ignore "password_auth" type to allow quotes around passwords within
     # `CREATE USER` statements in Exasol dialect.
-    _ignore_types: List[str] = ["password_auth"]
+    # `EXECUTE AS` clauses in TSQL also require quotes.
+    _ignore_types: List[str] = ["password_auth", "execute_as_clause"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Unnecessary quoted identifier."""
