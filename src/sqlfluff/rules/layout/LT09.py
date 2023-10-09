@@ -381,25 +381,6 @@ class Rule_LT09(BaseRule):
                             select_children=select_children,
                             delete_segments=to_delete,
                         )
-                elif select_stmt.segments[after_select_clause_idx].is_type(
-                    "whitespace"
-                ):
-                    # The select_clause has stuff after (most likely a comment)
-                    # Delete the whitespace immediately after the select clause
-                    # so the other stuff aligns nicely based on where the select
-                    # clause started.
-                    fixes += [
-                        LintFix.delete(
-                            select_stmt.segments[after_select_clause_idx],
-                        ),
-                    ]
-                    add_fixes_for_move_after_select_clause(
-                        fixes,
-                        start_seg,
-                        target_seg,
-                        select_clause=select_clause,
-                        select_children=select_children,
-                    )
                 elif select_stmt.segments[after_select_clause_idx].is_type("dedent"):
                     # Again let's strip back the whitespace, but simpler
                     # as don't need to worry about new line so just break
@@ -422,6 +403,18 @@ class Rule_LT09(BaseRule):
                             ),
                         )
                 else:
+                    if select_stmt.segments[after_select_clause_idx].is_type(
+                        "whitespace"
+                    ):
+                        # The select_clause has stuff after (most likely a comment)
+                        # Delete the whitespace immediately after the select clause
+                        # so the other stuff aligns nicely based on where the select
+                        # clause started.
+                        fixes += [
+                            LintFix.delete(
+                                select_stmt.segments[after_select_clause_idx],
+                            ),
+                        ]
                     add_fixes_for_move_after_select_clause(
                         fixes,
                         start_seg,
