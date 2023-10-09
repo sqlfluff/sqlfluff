@@ -120,8 +120,8 @@ class SQLBaseError(ValueError):
         for templating and parsing errors.
 
         Args:
-            warning_iterable (List[str]): A list of strings representing the warning codes
-                to check.
+            warning_iterable (List[str]): A list of strings representing the warning
+                codes to check.
 
         Returns:
             None
