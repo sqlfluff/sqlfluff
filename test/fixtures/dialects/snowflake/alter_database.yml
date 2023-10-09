@@ -1,0 +1,128 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: abb0ec6bf44f97043de27770d22eeb216c42fccaad5e56f9dadbc9e7312d1dd0
+file:
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: mydb2
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: mydb2
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SWAP
+    - keyword: WITH
+    - object_reference:
+        naked_identifier: yourdb
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SWAP
+    - keyword: WITH
+    - object_reference:
+        naked_identifier: yourdb
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - parameter: DATA_RETENTION_TIME_IN_DAYS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '7'
+    - comma: ','
+    - parameter: MAX_DATA_EXTENSION_TIME_IN_DAYS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '14'
+    - comma: ','
+    - parameter: DEFAULT_DDL_COLLATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'en_ci'"
+    - comma: ','
+    - parameter: COMMENT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'My most excellent database'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: SET
+    - tag_equals:
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: environment
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'test'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: billed_to
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'sales'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: environment
+    - comma: ','
+    - tag_reference:
+        naked_identifier: billed_to
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mydb
+    - keyword: UNSET
+    - keyword: DATA_RETENTION_TIME_IN_DAYS
+    - comma: ','
+    - keyword: DEFAULT_DDL_COLLATION
+- statement_terminator: ;
