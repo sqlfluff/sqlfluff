@@ -2127,3 +2127,12 @@ test_pass_implicit_where:
   configs:
     indentation:
       allow_implicit_indents: true
+
+test_pass_templated_join:
+  # See: https://github.com/sqlfluff/sqlfluff/issues/5290
+  pass_str: |
+    select *
+    from a
+    {% if True %}
+        left join b using(x)
+    {% endif %}
