@@ -4,7 +4,7 @@ Matchable objects which return individual segments.
 """
 
 from abc import abstractmethod
-from typing import Collection, Optional, Tuple, Type, Union
+from typing import Any, Collection, Dict, Optional, Sequence, Tuple, Type
 from uuid import uuid4
 
 import regex
@@ -53,67 +53,21 @@ class BaseParser(Matchable):
         """Return whether this element is optional."""
         return self.optional
 
-    @abstractmethod
-    def _is_first_match(self, segment: BaseSegment) -> bool:
-        """Does the segment provided match according to the current rules."""
-
-    def _make_match_from_segment(self, segment: BaseSegment) -> RawSegment:
-        """Make a MatchResult from the first segment in the given list.
+    def _match_at(self, idx: int) -> MatchResult:
+        """Construct a MatchResult at a given index.
 
         This is a helper function for reuse by other parsers.
         """
-        return self.raw_class(
-            raw=segment.raw,
-            pos_marker=segment.pos_marker,
-            instance_types=self._instance_types,
-            trim_chars=self._trim_chars,
+        segment_kwargs: Dict[str, Any] = {}
+        if self._instance_types:
+            segment_kwargs["instance_types"] = self._instance_types
+        if self._trim_chars:
+            segment_kwargs["trim_chars"] = self._trim_chars
+        return MatchResult(
+            matched_slice=slice(idx, idx + 1),
+            matched_class=self.raw_class,
+            segment_kwargs=segment_kwargs,
         )
-
-    def _match_single(self, segment: BaseSegment) -> Optional[RawSegment]:
-        """Match a single segment.
-
-        Used in the context of matching against the first in a sequence.
-
-        NOTE: We try and allow here for fairly efficient matching against
-        segments which have already been matched. In those cases we still
-        check in the same way, but if matched, we don't try and create a
-        new segment, we just return the existing segment unchanged.
-        """
-        # Does it match? If not, return None.
-        if not self._is_first_match(segment):
-            return None
-        # If it does, we might have already matched it. Is it the right type
-        # already? If so, just return it unchanged.
-        if (
-            isinstance(segment, self.raw_class)
-            # NOTE: The _primary_ type must match (i.e. the one in position 0)
-            and segment.type == self._instance_types[0]
-        ):
-            return segment
-        # Otherwise create a new match segment
-        return self._make_match_from_segment(segment)
-
-    def match(
-        self,
-        segments: Union[BaseSegment, Tuple[BaseSegment, ...]],
-        parse_context: "ParseContext",
-    ) -> MatchResult:
-        """Compare input segments for a match, return a `MatchResult`.
-
-        Note: For matching here, we only consider the *first* element,
-        because we assume that a keyword can only span one raw segment.
-        """
-        # If we've been passed the singular, make it a tuple
-        if isinstance(segments, BaseSegment):
-            segments = (segments,)
-
-        # We're only going to match against the first element
-        if len(segments) >= 1:
-            seg = self._match_single(segments[0])
-            if seg:
-                return MatchResult((seg,), segments[1:])
-
-        return MatchResult.from_unmatched(segments)
 
 
 class TypedParser(BaseParser):
@@ -192,16 +146,16 @@ class TypedParser(BaseParser):
         """
         return frozenset(), self._target_types
 
-    def _is_first_match(self, segment: BaseSegment) -> bool:
-        """Check if the type matches the target type.
-
-        Args:
-            segment (BaseSegment): The segment.
-
-        Returns:
-            bool: True if the type matches the target type, False otherwise.
-        """
-        return segment.is_type(*self._target_types)
+    def match(
+        self,
+        segments: Sequence["BaseSegment"],
+        idx: int,
+        parse_context: "ParseContext",
+    ) -> MatchResult:
+        """Match against this matcher."""
+        if segments[idx].is_type(self.template):
+            return self._match_at(idx)
+        return MatchResult.empty_at(idx)
 
 
 class StringParser(BaseParser):
@@ -238,13 +192,20 @@ class StringParser(BaseParser):
         """
         return self._simple, frozenset()
 
-    def _is_first_match(self, segment: BaseSegment) -> bool:
-        """Does the segment provided match according to the current rules."""
-        # Is the target a match and IS IT CODE.
-        # The latter stops us accidentally matching comments.
-        if self.template == segment.raw_upper and segment.is_code:
-            return True
-        return False
+    def match(
+        self,
+        segments: Sequence["BaseSegment"],
+        idx: int,
+        parse_context: "ParseContext",
+    ) -> MatchResult:
+        """Match against this matcher.
+
+        NOTE: We check that the segment is also code to avoid matching
+        unexpected comments.
+        """
+        if segments[idx].raw_upper == self.template and segments[idx].is_code:
+            return self._match_at(idx)
+        return MatchResult.empty_at(idx)
 
 
 class MultiStringParser(BaseParser):
@@ -281,13 +242,20 @@ class MultiStringParser(BaseParser):
         """
         return self._simple, frozenset()
 
-    def _is_first_match(self, segment: BaseSegment) -> bool:
-        """Does the segment provided match according to the current rules."""
-        # Is the target a match and IS IT CODE.
-        # The latter stops us accidentally matching comments.
-        if segment.is_code and segment.raw_upper in self.templates:
-            return True
-        return False
+    def match(
+        self,
+        segments: Sequence["BaseSegment"],
+        idx: int,
+        parse_context: "ParseContext",
+    ) -> MatchResult:
+        """Match against this matcher.
+
+        NOTE: We check that the segment is also code to avoid matching
+        unexpected comments.
+        """
+        if segments[idx].is_code and segments[idx].raw_upper in self.templates:
+            return self._match_at(idx)
+        return MatchResult.empty_at(idx)
 
 
 class RegexParser(BaseParser):
@@ -327,26 +295,24 @@ class RegexParser(BaseParser):
         """
         return None
 
-    def _is_first_match(self, segment: BaseSegment) -> bool:
-        """Does the segment provided match according to the current rules.
+    def match(
+        self,
+        segments: Sequence["BaseSegment"],
+        idx: int,
+        parse_context: "ParseContext",
+    ) -> MatchResult:
+        """Match against this matcher.
 
-        RegexParser implements its own matching function where
-        we assume that ._template is a r"" string, and is formatted
-        for use directly as a regex. This only matches on a single segment.
+        NOTE: This method uses .raw_upper and so case sensitivity is
+        not supported.
         """
-        if len(segment.raw) == 0:  # pragma: no cover TODO?
-            # If it's of zero length it's probably a meta segment.
-            # In any case, it won't match here.
-            return False
-        # Try the regex. Case sensitivity is not supported.
-        result = self._template.match(segment.raw_upper)
+        _raw = segments[idx].raw_upper
+        result = self._template.match(_raw)
         if result:
             result_string = result.group(0)
             # Check that we've fully matched
-            if result_string == segment.raw_upper:
+            if result_string == _raw:
                 # Check that the anti_template (if set) hasn't also matched
-                if self.anti_template and self._anti_template.match(segment.raw_upper):
-                    return False
-                else:
-                    return True
-        return False
+                if not self.anti_template or not self._anti_template.match(_raw):
+                    return self._match_at(idx)
+        return MatchResult.empty_at(idx)

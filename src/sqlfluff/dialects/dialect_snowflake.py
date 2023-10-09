@@ -356,6 +356,7 @@ snowflake_dialect.add(
     UnquotedFilePath=TypedParser(
         "unquoted_file_path",
         CodeSegment,
+        type="unquoted_file_path",
     ),
     SnowflakeEncryptionOption=MultiStringParser(
         ["'SNOWFLAKE_FULL'", "'SNOWFLAKE_SSE'"],
@@ -1014,10 +1015,12 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateUserSegment"),
             Ref("CreateCloneStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
+            Ref("AlterProcedureStatementSegment"),
             Ref("ScriptingBlockStatementSegment"),
             Ref("ScriptingLetStatementSegment"),
             Ref("ReturnStatementSegment"),
             Ref("ShowStatementSegment"),
+            Ref("AlterAccountStatementSegment"),
             Ref("AlterUserStatementSegment"),
             Ref("AlterSessionStatementSegment"),
             Ref("AlterTaskStatementSegment"),
@@ -1066,6 +1069,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterResourceMonitorStatementSegment"),
             Ref("CreateSequenceStatementSegment"),
             Ref("AlterSequenceStatementSegment"),
+            Ref("AlterDatabaseSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -2688,6 +2692,35 @@ class CreateProcedureStatementSegment(BaseSegment):
             Ref("DollarQuotedUDFBody"),
             # ...or a SQL UDF
             Ref("ScriptingBlockStatementSegment"),
+        ),
+    )
+
+
+class AlterProcedureStatementSegment(BaseSegment):
+    """A snowflake `ALTER ... PROCEDURE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-procedure.html
+    """
+
+    type = "alter_procedure_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "PROCEDURE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("FunctionNameSegment")),
+            Sequence("EXECUTE", "AS", OneOf("CALLER", "OWNER")),
+            Sequence(
+                "SET", OneOf(Ref("TagEqualsSegment"), Ref("CommentEqualsClauseSegment"))
+            ),
+            Sequence(
+                "UNSET",
+                OneOf(
+                    Sequence("TAG", Delimited(Ref("TagReferenceSegment"))), "COMMENT"
+                ),
+            ),
         ),
     )
 
@@ -5760,6 +5793,82 @@ class ShowStatementSegment(BaseSegment):
     )
 
 
+class AlterAccountStatementSegment(BaseSegment):
+    """`ALTER ACCOUNT` statement.
+
+    ALTER ACCOUNT SET { [ accountParams ] [ objectParams ] [ sessionParams ] }
+
+    ALTER ACCOUNT UNSET <param_name> [ , ... ]
+
+    ALTER ACCOUNT SET RESOURCE_MONITOR = <monitor_name>
+
+    ALTER ACCOUNT SET { PASSWORD | SESSION } POLICY <policy_name>
+
+    ALTER ACCOUNT UNSET { PASSWORD | SESSION } POLICY
+
+    ALTER ACCOUNT SET TAG <tag_name> = '<tag_value>' [, <tag_name> = '<tag_value>' ...]
+
+    ALTER ACCOUNT UNSET TAG <tag_name> [ , <tag_name> ... ]
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-account
+
+    All the account parameters can be found here
+    https://docs.snowflake.com/en/sql-reference/parameters
+    """
+
+    type = "alter_account_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "ACCOUNT",
+        OneOf(
+            Sequence(
+                "SET",
+                "RESOURCE_MONITOR",
+                Ref("EqualsSegment"),
+                Ref("NakedIdentifierSegment"),
+            ),
+            Sequence(
+                "SET",
+                OneOf("PASSWORD", "SESSION"),
+                "POLICY",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                Ref("TagEqualsSegment"),
+            ),
+            Sequence(
+                "SET",
+                Delimited(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            Ref("BooleanLiteralGrammar"),
+                            Ref("QuotedLiteralSegment"),
+                            Ref("NumericLiteralSegment"),
+                            Ref("NakedIdentifierSegment"),
+                        ),
+                    ),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf("PASSWORD", "SESSION"),
+                "POLICY",
+            ),
+            Sequence(
+                "UNSET",
+                OneOf(
+                    Sequence("TAG", Delimited(Ref("TagReferenceSegment"))),
+                    Delimited(Ref("NakedIdentifierSegment")),
+                ),
+            ),
+        ),
+    )
+
+
 class AlterUserStatementSegment(BaseSegment):
     """`ALTER USER` statement.
 
@@ -7068,5 +7177,54 @@ class ShorthandCastSegment(BaseSegment):
                 ),
             ),
             min_times=1,
+        ),
+    )
+
+
+class AlterDatabaseSegment(BaseSegment):
+    """An `ALTER DATABASE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-database
+    """
+
+    type = "alter_database_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "DATABASE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence("SWAP", "WITH", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "SET",
+                OneOf(
+                    Ref("TagEqualsSegment"),
+                    Delimited(
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                Ref("BooleanLiteralGrammar"),
+                                Ref("QuotedLiteralSegment"),
+                                Ref("NumericLiteralSegment"),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            Sequence(
+                "UNSET",
+                Delimited(
+                    AnySetOf(
+                        "DATA_RETENTION_TIME_IN_DAYS",
+                        "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+                        "DEFAULT_DDL_COLLATION",
+                        "COMMENT",
+                    ),
+                ),
+            ),
         ),
     )

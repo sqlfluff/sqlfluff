@@ -4,43 +4,15 @@ NOTE: All of these tests depend somewhat on the KeywordSegment working as planne
 """
 
 import logging
-from os import getenv
 
 import pytest
 
-from sqlfluff.core.parser import Indent, KeywordSegment, StringParser, WhitespaceSegment
+from sqlfluff.core.errors import SQLParseError
+from sqlfluff.core.parser import Dedent, Indent, KeywordSegment, StringParser
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.grammar import Conditional, Sequence
+from sqlfluff.core.parser.grammar import Bracketed, Conditional, Sequence
+from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.types import ParseMode
-
-
-def test__parser__grammar_sequence(test_segments, caplog):
-    """Test the Sequence grammar."""
-    bs = StringParser("bar", KeywordSegment)
-    fs = StringParser("foo", KeywordSegment)
-    g = Sequence(bs, fs)
-    # If running in the test environment, assert that Sequence recognises this
-    if getenv("SQLFLUFF_TESTENV", ""):
-        assert g.test_env
-    gc = Sequence(bs, fs, allow_gaps=False)
-    ctx = ParseContext(dialect=None)
-    with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
-        # Should be able to match the list using the normal matcher
-        logging.info("#### TEST 1")
-        m = g.match(test_segments, parse_context=ctx)
-        assert m
-        assert len(m) == 3
-        assert m.matched_segments == (
-            KeywordSegment("bar", test_segments[0].pos_marker),
-            test_segments[1],  # This will be the whitespace segment
-            KeywordSegment("foo", test_segments[2].pos_marker),
-        )
-        # Shouldn't with the allow_gaps matcher
-        logging.info("#### TEST 2")
-        assert not gc.match(test_segments, parse_context=ctx)
-        # Shouldn't match even on the normal one if we don't start at the beginning
-        logging.info("#### TEST 2")
-        assert not g.match(test_segments[1:], parse_context=ctx)
 
 
 def test__parser__grammar_sequence_repr():
@@ -54,67 +26,48 @@ def test__parser__grammar_sequence_repr():
     )
 
 
-def test__parser__grammar_sequence_nested(test_segments, caplog):
+def test__parser__grammar_sequence_nested_match(test_segments, caplog):
     """Test the Sequence grammar when nested."""
-    bs = StringParser("bar", KeywordSegment)
-    fs = StringParser("foo", KeywordSegment)
-    bas = StringParser("baar", KeywordSegment)
-    g = Sequence(Sequence(bs, fs), bas)
+    bar = StringParser("bar", KeywordSegment)
+    foo = StringParser("foo", KeywordSegment)
+    baar = StringParser("baar", KeywordSegment)
+    g = Sequence(Sequence(bar, foo), baar)
+
     ctx = ParseContext(dialect=None)
+    # Confirm the structure of the test segments:
+    assert [s.raw for s in test_segments] == ["bar", " \t ", "foo", "baar", " \t ", ""]
+
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
-        # Matching the start of the list shouldn't work
-        logging.info("#### TEST 1")
-        assert not g.match(test_segments[:2], parse_context=ctx)
-        # Matching the whole list should, and the result should be flat
-        logging.info("#### TEST 2")
-        assert g.match(test_segments, parse_context=ctx).matched_segments == (
-            KeywordSegment("bar", test_segments[0].pos_marker),
-            test_segments[1],  # This will be the whitespace segment
-            KeywordSegment("foo", test_segments[2].pos_marker),
-            KeywordSegment("baar", test_segments[3].pos_marker)
-            # NB: No whitespace at the end, this shouldn't be consumed.
-        )
+        # Matching just the start of the list shouldn't work.
+        result1 = g.match(test_segments[:3], 0, ctx)
 
+    assert not result1  # Check it returns falsy
 
-def test__parser__grammar_sequence_indent(test_segments, caplog):
-    """Test the Sequence grammar with indents."""
-    bs = StringParser("bar", KeywordSegment)
-    fs = StringParser("foo", KeywordSegment)
-    g = Sequence(Indent, bs, fs)
-    ctx = ParseContext(dialect=None)
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
-        m = g.match(test_segments, parse_context=ctx)
-        assert m
-        # check we get an indent.
-        assert isinstance(m.matched_segments[0], Indent)
-        assert isinstance(m.matched_segments[1], KeywordSegment)
+        # Matching the whole list should.
+        result2 = g.match(test_segments, 0, ctx)
 
-
-def test__parser__grammar_sequence_indent_conditional(test_segments, caplog):
-    """Test the Sequence grammar with indents."""
-    bs = StringParser("bar", KeywordSegment)
-    fs = StringParser("foo", KeywordSegment)
-    # We will assume the default config has indented_joins = False.
-    # We're testing without explicitly setting the `config_type` because
-    # that's the assumed way of using the grammar in practice.
-    g = Sequence(
-        Conditional(Indent, indented_joins=False),
-        bs,
-        Conditional(Indent, indented_joins=True),
-        fs,
+    assert result2  # Check it returns truthy
+    assert result2 == MatchResult(
+        matched_slice=slice(0, 4),  # NOTE: One of these is space.
+        child_matches=(
+            MatchResult(
+                matched_slice=slice(0, 1),
+                matched_class=KeywordSegment,
+                segment_kwargs={"instance_types": ("keyword",)},
+            ),
+            MatchResult(
+                matched_slice=slice(2, 3),
+                matched_class=KeywordSegment,
+                segment_kwargs={"instance_types": ("keyword",)},
+            ),
+            MatchResult(
+                matched_slice=slice(3, 4),
+                matched_class=KeywordSegment,
+                segment_kwargs={"instance_types": ("keyword",)},
+            ),
+        ),
     )
-    ctx = ParseContext(dialect=None)
-    with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
-        m = g.match(test_segments, parse_context=ctx)
-        assert m
-        # Check we get an Indent.
-        assert isinstance(m.matched_segments[0], Indent)
-        assert isinstance(m.matched_segments[1], KeywordSegment)
-        # check the whitespace is still there
-        assert isinstance(m.matched_segments[2], WhitespaceSegment)
-        # Check the second Indent does not appear
-        assert not isinstance(m.matched_segments[3], Indent)
-        assert isinstance(m.matched_segments[3], KeywordSegment)
 
 
 @pytest.mark.parametrize(
@@ -274,28 +227,338 @@ def test__parser__grammar_sequence_modes(
     terminators,
     input_slice,
     output_tuple,
-    generate_test_segments,
-    fresh_ansi_dialect,
+    structural_parse_mode_test,
 ):
     """Test the Sequence grammar with various parse modes.
 
     In particular here we're testing the treatment of unparsable
     sections.
     """
-    segments = generate_test_segments(["a", " ", "b", " ", "c", "d", " ", "d"])
-    # Dialect is required here only to have access to bracket segments.
-    ctx = ParseContext(dialect=fresh_ansi_dialect)
+    structural_parse_mode_test(
+        ["a", " ", "b", " ", "c", "d", " ", "d"],
+        Sequence,
+        sequence,
+        terminators,
+        {},
+        mode,
+        input_slice,
+        output_tuple,
+    )
 
-    _seq = Sequence(
-        *(StringParser(e, KeywordSegment) for e in sequence),
-        parse_mode=mode,
-        terminators=[StringParser(e, KeywordSegment) for e in terminators]
+
+@pytest.mark.parametrize(
+    "input_seed,mode,sequence,kwargs,output_tuple",
+    [
+        # A sequence that isn't bracketed shouldn't match.
+        # Regardless of mode.
+        (["a"], ParseMode.STRICT, ["a"], {}, ()),
+        (["a"], ParseMode.GREEDY, ["a"], {}, ()),
+        # Test potential empty brackets (no whitespace)
+        (
+            ["(", ")"],
+            ParseMode.STRICT,
+            [],
+            {},
+            (
+                (
+                    "bracketed",
+                    (
+                        ("start_bracket", "("),
+                        ("indent", ""),
+                        ("dedent", ""),
+                        ("end_bracket", ")"),
+                    ),
+                ),
+            ),
+        ),
+        (
+            ["(", ")"],
+            ParseMode.GREEDY,
+            [],
+            {},
+            (
+                (
+                    "bracketed",
+                    (
+                        ("start_bracket", "("),
+                        ("indent", ""),
+                        ("dedent", ""),
+                        ("end_bracket", ")"),
+                    ),
+                ),
+            ),
+        ),
+        # Test potential empty brackets (with whitespace)
+        (
+            ["(", " ", ")"],
+            ParseMode.STRICT,
+            [],
+            {},
+            (
+                (
+                    "bracketed",
+                    (
+                        ("start_bracket", "("),
+                        ("indent", ""),
+                        ("whitespace", " "),
+                        ("dedent", ""),
+                        ("end_bracket", ")"),
+                    ),
+                ),
+            ),
+        ),
+        (
+            ["(", " ", ")"],
+            ParseMode.GREEDY,
+            [],
+            {},
+            (
+                (
+                    "bracketed",
+                    (
+                        ("start_bracket", "("),
+                        ("indent", ""),
+                        ("whitespace", " "),
+                        ("dedent", ""),
+                        ("end_bracket", ")"),
+                    ),
+                ),
+            ),
+        ),
+        (
+            ["(", " ", ")"],
+            ParseMode.STRICT,
+            [],
+            # Strict matching, without allowing gaps, shouldn't match.
+            {"allow_gaps": False},
+            (),
+        ),
+        (
+            ["(", " ", ")"],
+            ParseMode.GREEDY,
+            [],
+            # Greedy matching, without allowing gaps, should return unparsable.
+            # NOTE: This functionality doesn't get used much.
+            {"allow_gaps": False},
+            (
+                (
+                    "bracketed",
+                    (
+                        ("start_bracket", "("),
+                        ("indent", ""),
+                        ("unparsable", (("whitespace", " "),)),
+                        ("dedent", ""),
+                        ("end_bracket", ")"),
+                    ),
+                ),
+            ),
+        ),
+        # Happy path content match.
+        (
+            ["(", "a", ")"],
+            ParseMode.STRICT,
+            ["a"],
+            {},
+            (
+                (
+                    "bracketed",
+                    (
+                        ("start_bracket", "("),
+                        ("indent", ""),
+                        ("keyword", "a"),
+                        ("dedent", ""),
+                        ("end_bracket", ")"),
+                    ),
+                ),
+            ),
+        ),
+        # Content match fails
+        (
+            ["(", "a", ")"],
+            ParseMode.STRICT,
+            ["b"],
+            {},
+            (),
+        ),
+        (
+            ["(", "a", ")"],
+            ParseMode.GREEDY,
+            ["b"],
+            {},
+            (
+                (
+                    "bracketed",
+                    (
+                        ("start_bracket", "("),
+                        ("indent", ""),
+                        ("unparsable", (("raw", "a"),)),
+                        ("dedent", ""),
+                        ("end_bracket", ")"),
+                    ),
+                ),
+            ),
+        ),
+        # Partial matches (not whole grammar matched)
+        (
+            ["(", "a", ")"],
+            ParseMode.STRICT,
+            ["a", "b"],
+            {},
+            (),
+        ),
+        (
+            ["(", "a", ")"],
+            ParseMode.GREEDY,
+            ["a", "b"],
+            {},
+            (
+                (
+                    "bracketed",
+                    (
+                        ("start_bracket", "("),
+                        ("indent", ""),
+                        ("unparsable", (("keyword", "a"),)),
+                        ("dedent", ""),
+                        ("end_bracket", ")"),
+                    ),
+                ),
+            ),
+        ),
+        # Partial matches (not whole sequence matched)
+        (
+            ["(", "a", " ", "b", ")"],
+            ParseMode.STRICT,
+            ["a"],
+            {},
+            (),
+        ),
+        (
+            ["(", "a", " ", "b", ")"],
+            ParseMode.GREEDY,
+            ["a"],
+            {},
+            (
+                (
+                    "bracketed",
+                    (
+                        ("start_bracket", "("),
+                        ("indent", ""),
+                        ("keyword", "a"),
+                        ("whitespace", " "),
+                        ("unparsable", (("raw", "b"),)),
+                        ("dedent", ""),
+                        ("end_bracket", ")"),
+                    ),
+                ),
+            ),
+        ),
+        # Test an unwrapped path (with square brackets)
+        (
+            ["[", "a", " ", "b", "]"],
+            ParseMode.GREEDY,
+            ["a"],
+            {"bracket_type": "square"},
+            (
+                ("start_square_bracket", "["),
+                ("indent", ""),
+                ("keyword", "a"),
+                ("whitespace", " "),
+                ("unparsable", (("raw", "b"),)),
+                ("dedent", ""),
+                ("end_square_bracket", "]"),
+            ),
+        ),
+    ],
+)
+def test__parser__grammar_bracketed_modes(
+    input_seed,
+    mode,
+    sequence,
+    kwargs,
+    output_tuple,
+    structural_parse_mode_test,
+):
+    """Test the Bracketed grammar with various parse modes."""
+    structural_parse_mode_test(
+        input_seed,
+        Bracketed,
+        sequence,
+        [],
+        kwargs,
+        mode,
+        slice(None, None),
+        output_tuple,
     )
-    _match = _seq.match(segments[input_slice], ctx)
-    # If we're expecting an output tuple, assert the match is truthy.
-    if output_tuple:
-        assert _match
-    _result = tuple(
-        e.to_tuple(show_raw=True, code_only=False) for e in _match.matched_segments
+
+
+@pytest.mark.parametrize(
+    "input_seed,mode,sequence",
+    [
+        # Unclosed brackets always raise errors.
+        (["(", "a"], ParseMode.STRICT, ["a"]),
+        (["(", "a"], ParseMode.GREEDY, ["a"]),
+    ],
+)
+def test__parser__grammar_bracketed_error_modes(
+    input_seed,
+    mode,
+    sequence,
+    structural_parse_mode_test,
+):
+    """Test the Bracketed grammar with various parse modes."""
+    with pytest.raises(SQLParseError):
+        structural_parse_mode_test(
+            input_seed,
+            Bracketed,
+            sequence,
+            [],
+            {},
+            mode,
+            slice(None, None),
+            (),
+        )
+
+
+def test__parser__grammar_sequence_indent_conditional_match(test_segments, caplog):
+    """Test the Sequence grammar with indents."""
+    bar = StringParser("bar", KeywordSegment)
+    foo = StringParser("foo", KeywordSegment)
+    # We will assume the default config has indented_joins = False.
+    # We're testing without explicitly setting the `config_type` because
+    # that's the assumed way of using the grammar in practice.
+    g = Sequence(
+        Dedent,
+        Conditional(Indent, indented_joins=False),
+        bar,
+        Conditional(Indent, indented_joins=True),
+        foo,
+        Dedent,
     )
-    assert _result == output_tuple
+    ctx = ParseContext(dialect=None)
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
+        m = g.match(test_segments, 0, parse_context=ctx)
+
+    assert m == MatchResult(
+        matched_slice=slice(0, 3),  # NOTE: One of these is space.
+        child_matches=(
+            # The two child keywords
+            MatchResult(
+                matched_slice=slice(0, 1),
+                matched_class=KeywordSegment,
+                segment_kwargs={"instance_types": ("keyword",)},
+            ),
+            MatchResult(
+                matched_slice=slice(2, 3),
+                matched_class=KeywordSegment,
+                segment_kwargs={"instance_types": ("keyword",)},
+            ),
+        ),
+        insert_segments=(
+            (0, Dedent),  # The starting, unconditional dedent.
+            (0, Indent),  # The conditional (activated) Indent.
+            # NOTE: There *isn't* the other Indent.
+            (3, Dedent),  # The closing unconditional dedent.
+            # NOTE: This last one is still included even though it's
+            # after the last matched segment.
+        ),
+    )

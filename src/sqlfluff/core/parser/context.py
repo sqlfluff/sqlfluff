@@ -23,7 +23,6 @@ if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.dialects.base import Dialect
     from sqlfluff.core.parser.match_result import MatchResult
     from sqlfluff.core.parser.matchable import Matchable
-    from sqlfluff.core.parser.segments import BaseSegment
 
 # Get the parser logger
 parser_logger = logging.getLogger("sqlfluff.parser")
@@ -281,7 +280,7 @@ class ParseContext:
         finally:
             self._tqdm.close()
 
-    def update_progress(self, matched_segments: Sequence["BaseSegment"]) -> None:
+    def update_progress(self, char_idx: int) -> None:
         """Update the progress bar if configured.
 
         If progress isn't configured, we do nothing.
@@ -289,17 +288,10 @@ class ParseContext:
         """
         if not self._tqdm or not self.track_progress:
             return None
-        for _idx in range(len(matched_segments) - 1, -1, -1):
-            _seg = matched_segments[_idx]
-            if _seg.pos_marker:
-                current_char = _seg.pos_marker.templated_slice.stop
-                break
-        else:  # pragma: no cover
-            raise ValueError("Could not find progress position!")
-        if current_char <= self._current_char:
+        if char_idx <= self._current_char:
             return None
-        self._tqdm.update(current_char - self._current_char)
-        self._current_char = current_char
+        self._tqdm.update(char_idx - self._current_char)
+        self._current_char = char_idx
         return None
 
     def stack(self) -> Tuple[Tuple[str, ...], Tuple[str, ...]]:  # pragma: no cover
@@ -320,7 +312,3 @@ class ParseContext:
     ) -> None:
         """Store a match in the cache for later retrieval."""
         self._parse_cache[(loc_key, matcher_key)] = match
-
-    def increment(self, key: str, default: int = 0) -> None:
-        """Increment one of the parse stats by name."""
-        self.parse_stats[key] = self.parse_stats.get(key, 0) + 1

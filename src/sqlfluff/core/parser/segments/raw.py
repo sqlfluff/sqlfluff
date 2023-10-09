@@ -83,11 +83,6 @@ class RawSegment(BaseSegment):
     # ################ PUBLIC PROPERTIES
 
     @property
-    def matched_length(self) -> int:
-        """Return the length of the segment in characters."""
-        return len(self._raw)
-
-    @property
     def is_code(self) -> bool:
         """Return True if this segment is code."""
         return self._is_code

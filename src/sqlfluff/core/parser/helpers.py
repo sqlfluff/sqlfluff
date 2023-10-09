@@ -3,7 +3,6 @@
 from typing import TYPE_CHECKING, Tuple
 
 from sqlfluff.core.errors import SQLParseError
-from sqlfluff.core.string_helpers import curtail_string
 
 if TYPE_CHECKING:
     from sqlfluff.core.parser.segments import BaseSegment  # pragma: no cover
@@ -12,13 +11,6 @@ if TYPE_CHECKING:
 def join_segments_raw(segments: Tuple["BaseSegment", ...]) -> str:
     """Make a string from the joined `raw` attributes of an iterable of segments."""
     return "".join(s.raw for s in segments)
-
-
-def join_segments_raw_curtailed(
-    segments: Tuple["BaseSegment", ...], length: int = 20
-) -> str:
-    """Make a string up to a certain length from an iterable of segments."""
-    return curtail_string(join_segments_raw(segments), length=length)
 
 
 def check_still_complete(
