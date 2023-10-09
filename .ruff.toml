@@ -1,0 +1,10 @@
+extend-select = ["I"]
+
+[isort]
+# Mark sqlfluff, test and it's plugins as known first party
+known-first-party = [
+    "sqlfluff",
+    "sqlfluff_plugin_example",
+    "sqlfluff_templater_dbt",
+    "test",
+]

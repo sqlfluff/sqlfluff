@@ -1,9 +1,9 @@
 """Implementation of Rule AM06."""
-from typing import Optional, List, Tuple
+from typing import List, Optional, Tuple
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import sp, FunctionalContext
+from sqlfluff.utils.functional import FunctionalContext, sp
 
 
 class Rule_AM06(BaseRule):

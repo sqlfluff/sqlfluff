@@ -1,14 +1,14 @@
 """Tests pickling and unpickling of errors."""
 
-import pickle
-import pytest
 import copy
+import pickle
 
+import pytest
+
+from sqlfluff.core.errors import SQLBaseError, SQLLexError, SQLLintError, SQLParseError
 from sqlfluff.core.parser import PositionMarker, RawSegment
 from sqlfluff.core.rules import BaseRule
 from sqlfluff.core.templaters import TemplatedFile
-
-from sqlfluff.core.errors import SQLBaseError, SQLLintError, SQLParseError, SQLLexError
 
 
 class Rule_T078(BaseRule):

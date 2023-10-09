@@ -1,6 +1,6 @@
 """Tests for use cases of the public api classes."""
 
-from sqlfluff.core import Parser, Lexer, Linter
+from sqlfluff.core import Lexer, Linter, Parser
 
 test_query = "SELECt 1"
 

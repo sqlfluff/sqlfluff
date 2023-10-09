@@ -1,10 +1,10 @@
 """Tests for the segments module."""
 import pytest
 
+import sqlfluff.utils.functional.segment_predicates as sp
 from sqlfluff.core.linter.linter import Linter
 from sqlfluff.core.parser.segments.raw import RawSegment
 from sqlfluff.utils.functional import segments
-import sqlfluff.utils.functional.segment_predicates as sp
 
 seg1 = RawSegment("s1")
 seg2 = RawSegment("s2")

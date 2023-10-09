@@ -1,9 +1,10 @@
 """Sqlfluff is a SQL linter for humans."""
 import sys
+
 import pytest
 
 # Expose the public API.
-from sqlfluff.api import lint, fix, parse, list_rules, list_dialects
+from sqlfluff.api import fix, lint, list_dialects, list_rules, parse
 
 # Import metadata (using importlib_metadata backport for python versions <3.8)
 if sys.version_info >= (3, 8):

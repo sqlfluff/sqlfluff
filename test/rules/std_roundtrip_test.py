@@ -1,15 +1,15 @@
 """Round trip tests for rules with a fix method."""
 
-import tempfile
 import os
-import shutil
 import re
-import pytest
+import shutil
+import tempfile
 from io import StringIO
 
+import pytest
 from click.testing import CliRunner
 
-from sqlfluff.cli.commands import lint, fix
+from sqlfluff.cli.commands import fix, lint
 
 
 def generic_roundtrip_test(source_file, rulestring):

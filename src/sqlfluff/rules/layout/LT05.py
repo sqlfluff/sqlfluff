@@ -3,11 +3,9 @@
 from typing import List, cast
 
 from sqlfluff.core.parser.segments import TemplateSegment
-
 from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.core.rules.base import BaseRule
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
-
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 
