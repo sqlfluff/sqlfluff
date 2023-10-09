@@ -3,9 +3,8 @@
 # NOTE: We rename the typing.Sequence here so it doesn't collide
 # with the grammar class that we're defining.
 from os import getenv
-from typing import Optional
+from typing import Optional, Set, Tuple, Type, Union
 from typing import Sequence as SequenceType
-from typing import Set, Tuple, Type, Union
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (

@@ -6,19 +6,18 @@ sense to test in the context of a templater which supports
 loops and placeholders.
 """
 
-from collections import defaultdict
 import logging
+from collections import defaultdict
 from typing import List, NamedTuple
 
 import pytest
 from jinja2.exceptions import UndefinedError
 
+from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile, SQLTemplaterError
 from sqlfluff.core.templaters import JinjaTemplater
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 from sqlfluff.core.templaters.jinja import DummyUndefined, JinjaAnalyzer
-from sqlfluff.core import Linter, FluffConfig
-
 
 JINJA_STRING = (
     "SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, "

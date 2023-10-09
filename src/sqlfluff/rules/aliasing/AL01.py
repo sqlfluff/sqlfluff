@@ -1,12 +1,11 @@
 """Implementation of Rule AL01."""
-from typing import cast, Optional, Tuple
+from typing import Optional, Tuple, cast
 
 from sqlfluff.core.parser import (
-    KeywordSegment,
     BaseSegment,
+    KeywordSegment,
     RawSegment,
 )
-
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.reflow import ReflowSequence

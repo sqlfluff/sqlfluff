@@ -1,9 +1,11 @@
 """Implementation of Rule CP01."""
 
+from typing import List, Optional, Tuple
+
 import regex
-from typing import Tuple, List, Optional
+
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 

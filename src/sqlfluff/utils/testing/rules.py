@@ -1,13 +1,14 @@
 """Testing utils for rule plugins."""
-from sqlfluff.core import Linter
-from sqlfluff.core.errors import SQLParseError, SQLTemplaterError
-from sqlfluff.core.rules import BaseRule, get_ruleset
-from sqlfluff.core.config import FluffConfig
-from typing import Tuple, List, NamedTuple, Optional, Set
 from glob import glob
+from typing import List, NamedTuple, Optional, Set, Tuple
 
 import pytest
 import yaml
+
+from sqlfluff.core import Linter
+from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.errors import SQLParseError, SQLTemplaterError
+from sqlfluff.core.rules import BaseRule, get_ruleset
 
 
 class RuleTestCase(NamedTuple):
