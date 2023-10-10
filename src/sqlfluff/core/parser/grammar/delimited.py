@@ -56,14 +56,14 @@ class Delimited(OneOf):
             terminators (Sequence[Union[Matchable, str]], optional):
                 Sequence of terminators used to match the end of a segment.
                 Defaults to ().
-            reset_terminators (bool, optional): Flag indicating whether terminators should
-                be reset. Defaults to False.
+            reset_terminators (bool, optional): Flag indicating whether terminators
+                should be reset. Defaults to False.
             min_delimiters (Optional[int], optional): Minimum number of delimiters to
                 match. Defaults to None.
-            bracket_pairs_set (str, optional): Name of the bracket pairs set. Defaults to
-                "bracket_pairs".
-            allow_gaps (bool, optional): Flag indicating whether gaps between segments are
-                allowed. Defaults to True.
+            bracket_pairs_set (str, optional): Name of the bracket pairs set. Defaults
+                to "bracket_pairs".
+            allow_gaps (bool, optional): Flag indicating whether gaps between segments
+                are allowed. Defaults to True.
             optional (bool, optional): Flag indicating whether the segment is optional.
                 Defaults to False.
         """
