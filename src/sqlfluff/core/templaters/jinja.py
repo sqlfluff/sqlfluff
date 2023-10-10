@@ -367,9 +367,9 @@ class JinjaTemplater(PythonTemplater):
         object.
 
         This method searches for a config section specified by the
-        templater_selector, name, and 'apply_dbt_builtins' keys. If the section is found,
-        it returns the value associated with that section. If the section is not found, it
-        returns False.
+        templater_selector, name, and 'apply_dbt_builtins' keys. If the section
+        is found, it returns the value associated with that section. If the
+        section is not found, it returns False.
 
         Args:
             config (FluffConfig): The config object to search for the apply_dbt_builtins
