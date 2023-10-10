@@ -2187,4 +2187,3 @@ test_inconsistent_indent:
         FROM o
     )
     SELECT * FROM x
-
