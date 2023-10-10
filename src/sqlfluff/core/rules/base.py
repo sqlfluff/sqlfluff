@@ -223,7 +223,7 @@ class LintFix:
             assert self.edit
             assert all(len(seg.raw) == 0 for seg in self.edit)
         elif self.edit_type == "replace":
-            assert self.edit != self.anchor:
+            assert self.edit != self.anchor
 
     def is_just_source_edit(self) -> bool:
         """Return whether this a valid source only edit."""
