@@ -190,10 +190,10 @@ class PythonTemplater(RawTemplater):
         """Get the templating context from the config.
 
         This function retrieves the templating context from the config by
-        loading the config and updating the live_context dictionary with the loaded_context
-        and other predefined context dictionaries. It then goes through the loaded_context
-        dictionary and infers the types of the values before returning the live_context
-        dictionary.
+        loading the config and updating the live_context dictionary with the
+        loaded_context and other predefined context dictionaries. It then goes
+        through the loaded_context dictionary and infers the types of the values
+        before returning the live_context dictionary.
 
         Args:
             fname (str, optional): The file name.
