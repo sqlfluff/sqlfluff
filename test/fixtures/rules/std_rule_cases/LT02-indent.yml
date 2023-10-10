@@ -2136,3 +2136,28 @@ test_pass_templated_join:
     {% if True %}
         left join b using(x)
     {% endif %}
+
+test_whitespace_control_issue_5277:
+  # https://github.com/sqlfluff/sqlfluff/issues/5277
+  fail_str: |
+    WITH a AS (
+        SELECT *
+        FROM tbl
+        WHERE
+            TRUE
+            {% if True -%}
+                AND b > (SELECT 1 FROM {{ this }})
+        {%- endif %}
+    )
+    select * from a
+  fix_str: |
+    WITH a AS (
+        SELECT *
+        FROM tbl
+        WHERE
+            TRUE
+            {% if True -%}
+                AND b > (SELECT 1 FROM {{ this }})
+            {%- endif %}
+    )
+    select * from a

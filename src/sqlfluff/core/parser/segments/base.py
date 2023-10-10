@@ -214,10 +214,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # We only match that the *start* is the same. This means we can
             # still effectively construct searches look for segments.
             # This is important for .apply_fixes().
-            and (
-                self.pos_marker.start_point_marker()
-                == other.pos_marker.start_point_marker()
-            )
+            # NOTE: `.working_loc` is much more performant than creating
+            # a new start point marker for comparison.
+            and (self.pos_marker.working_loc == other.pos_marker.working_loc)
         )
 
     def __hash__(self) -> int:

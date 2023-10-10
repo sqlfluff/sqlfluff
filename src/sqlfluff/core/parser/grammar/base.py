@@ -257,6 +257,9 @@ class BaseGrammar(Matchable):
             replace_terminators (:obj:`bool`, default False): When `True`
                 we replace the existing terminators from the copied grammar,
                 otherwise we just append.
+            **kwargs: Optional additional values may be passed to this
+                method for inherited classes, but if unused they will raise
+                an `AssertionError`.
         """
         assert not kwargs, f"Unexpected kwargs to .copy(): {kwargs}"
         # Copy only the *grammar* elements. The rest comes through
