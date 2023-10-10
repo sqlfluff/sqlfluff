@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: af4657c34d959e21cd5ac7fa31e0be4aed673cb2baf503b2a9b1431c2270f063
+_hash: c558b7e99c57564a274aa6d3dde08cbc81b55855a124d4df7cc3531f991db2ed
 file:
 - statement:
     drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: sqrt
+    - object_reference:
+        naked_identifier: sqrt
     - function_parameter_list:
         bracketed:
           start_bracket: (
@@ -22,8 +22,8 @@ file:
     drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: sqrt
+    - object_reference:
+        naked_identifier: sqrt
     - function_parameter_list:
         bracketed:
           start_bracket: (
@@ -31,8 +31,8 @@ file:
             keyword: integer
           end_bracket: )
     - comma: ','
-    - function_name:
-        function_name_identifier: sqrt
+    - object_reference:
+        naked_identifier: sqrt
     - function_parameter_list:
         bracketed:
           start_bracket: (
@@ -44,15 +44,15 @@ file:
     drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: update_employee_salaries
+    - object_reference:
+        naked_identifier: update_employee_salaries
 - statement_terminator: ;
 - statement:
     drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: update_employee_salaries
+    - object_reference:
+        naked_identifier: update_employee_salaries
     - function_parameter_list:
         bracketed:
           start_bracket: (
@@ -64,8 +64,8 @@ file:
     - keyword: FUNCTION
     - keyword: IF
     - keyword: EXISTS
-    - function_name:
-        function_name_identifier: foo
+    - object_reference:
+        naked_identifier: foo
     - function_parameter_list:
         bracketed:
         - start_bracket: (
@@ -79,4 +79,14 @@ file:
         - data_type:
             keyword: text
         - end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: f_name
+    - keyword: CASCADE
 - statement_terminator: ;
