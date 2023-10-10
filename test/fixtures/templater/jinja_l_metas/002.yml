@@ -91,9 +91,9 @@ file:
       - dedent: ''
     - newline: "\n"
     - whitespace: '    '
+    - dedent: ''
     - placeholder: '{% endfor %}'
     - newline: "\n"
-    - dedent: ''
     - from_clause:
       - keyword: FROM
       - newline: "\n"
