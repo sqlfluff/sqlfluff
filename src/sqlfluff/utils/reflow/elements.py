@@ -16,6 +16,7 @@ from sqlfluff.core.parser.segments import (
     WhitespaceSegment,
 )
 from sqlfluff.core.rules.base import LintFix, LintResult
+from sqlfluff.core.slice_helpers import slice_overlaps
 from sqlfluff.utils.reflow.config import ReflowConfig
 from sqlfluff.utils.reflow.depthmap import DepthInfo
 
@@ -387,13 +388,21 @@ class ReflowPoint(ReflowElement):
             # makes slicing later easier.
             current_indent = indent_seg.source_str.split("\n")[-1]
             source_slice = slice(
-                # Minus _one more_ for to cover the newline too.
-                indent_seg.pos_marker.source_slice.stop - len(current_indent) - 1,
+                indent_seg.pos_marker.source_slice.stop - len(current_indent),
                 indent_seg.pos_marker.source_slice.stop,
             )
+            for existing_source_fix in indent_seg.source_fixes:  # pragma: no cover
+                if slice_overlaps(existing_source_fix.source_slice, source_slice):
+                    reflow_logger.warning(
+                        "Creating overlapping source fix. Results may be "
+                        "unpredictable and this might be a sign of a bug. "
+                        "Please report this along with your query.\n"
+                        f"({existing_source_fix.source_slice} overlaps "
+                        f"{source_slice})"
+                    )
 
             new_source_fix = SourceFix(
-                "\n" + desired_indent,
+                desired_indent,
                 source_slice,
                 # The templated slice is going to be a zero slice _anyway_.
                 indent_seg.pos_marker.templated_slice,
@@ -412,10 +421,16 @@ class ReflowPoint(ReflowElement):
                 fixes = []
                 new_segments = self.segments
             else:
+                if current_indent:
+                    new_source_str = (
+                        indent_seg.source_str[: -len(current_indent)] + desired_indent
+                    )
+                else:
+                    new_source_str = indent_seg.source_str + desired_indent
+                assert "\n" in new_source_str
                 new_placeholder = indent_seg.edit(
                     source_fixes=[new_source_fix],
-                    source_str=indent_seg.source_str[: -len(current_indent) + 1]
-                    + desired_indent,
+                    source_str=new_source_str,
                 )
                 fixes = [LintFix.replace(indent_seg, [new_placeholder])]
                 new_segments = tuple(

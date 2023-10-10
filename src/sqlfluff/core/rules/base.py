@@ -962,47 +962,40 @@ class BaseRule(metaclass=RuleMetaclass):
         if not self.template_safe_fixes:
             self.discard_unsafe_fixes(res, templated_file)
         lerr = res.to_linting_error(rule=self)
-        ignored = False
-        if lerr:
-            # Check whether this should be filtered out for being unparsable.
-            # To do that we check the parents of the anchors (of the violation
-            # and fixes) against the filter in the crawler.
-            # NOTE: We use `.passes_filter` here to do the test for unparsable
-            # to avoid duplicating code because that test is already implemented
-            # there.
-            anchors = [lerr.segment] + [fix.anchor for fix in lerr.fixes]
-            for anchor in anchors:
-                if not self.crawl_behaviour.passes_filter(anchor):  # pragma: no cover
-                    # NOTE: This clause is untested, because it's a hard to produce
-                    # edge case. The latter clause is much more likely.
-                    linter_logger.info(
-                        "Fix skipped due to anchor not passing filter: %s", anchor
-                    )
-                    lerr = None
-                    ignored = True
-                    break
-                parent_stack = root.path_to(anchor)
-                if not all(
-                    self.crawl_behaviour.passes_filter(ps.segment)
-                    for ps in parent_stack
-                ):
-                    linter_logger.info(
-                        "Fix skipped due to parent of anchor not passing filter: %s",
-                        [ps.segment for ps in parent_stack],
-                    )
-                    lerr = None
-                    ignored = True
-                    break
+        if not lerr:
+            return None
+        if ignore_mask:
+            if not ignore_mask.ignore_masked_violations([lerr]):
+                return None
 
-            if lerr and ignore_mask:
-                filtered = ignore_mask.ignore_masked_violations([lerr])
-                if not filtered:
-                    lerr = None
-                    ignored = True
-        if lerr:
-            new_lerrs.append(lerr)
-        if not ignored:
-            new_fixes.extend(res.fixes)
+        # Check whether this should be filtered out for being unparsable.
+        # To do that we check the parents of the anchors (of the violation
+        # and fixes) against the filter in the crawler.
+        # NOTE: We use `.passes_filter` here to do the test for unparsable
+        # to avoid duplicating code because that test is already implemented
+        # there.
+        anchors = [lerr.segment] + [fix.anchor for fix in lerr.fixes]
+        for anchor in anchors:
+            if not self.crawl_behaviour.passes_filter(anchor):  # pragma: no cover
+                # NOTE: This clause is untested, because it's a hard to produce
+                # edge case. The latter clause is much more likely.
+                linter_logger.info(
+                    "Fix skipped due to anchor not passing filter: %s", anchor
+                )
+                return None
+
+            parent_stack = root.path_to(anchor)
+            if not all(
+                self.crawl_behaviour.passes_filter(ps.segment) for ps in parent_stack
+            ):
+                linter_logger.info(
+                    "Fix skipped due to parent of anchor not passing filter: %s",
+                    [ps.segment for ps in parent_stack],
+                )
+                return None
+
+        new_lerrs.append(lerr)
+        new_fixes.extend(res.fixes)
 
     @staticmethod
     def filter_meta(
