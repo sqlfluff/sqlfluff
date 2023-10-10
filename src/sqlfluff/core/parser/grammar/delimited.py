@@ -44,8 +44,7 @@ class Delimited(OneOf):
         allow_gaps: bool = True,
         optional: bool = False,
     ) -> None:
-        """
-        Initialize the class object with the provided arguments.
+        """Initialize the class object with the provided arguments.
 
         Args:
             *args (Union[Matchable, str]): Options for elements between delimiters. This
