@@ -965,8 +965,7 @@ class BaseRule(metaclass=RuleMetaclass):
         if not lerr:
             return None
         if ignore_mask:
-            filtered = ignore_mask.ignore_masked_violations([lerr])
-            if not filtered:
+            if not ignore_mask.ignore_masked_violations([lerr]):
                 return None
 
         # Check whether this should be filtered out for being unparsable.
