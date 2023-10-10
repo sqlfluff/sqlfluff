@@ -491,8 +491,7 @@ class JinjaAnalyzer:
         m_close: regex.Match[str],
         tag_contents: List[str],
     ) -> RawSliceInfo:
-        """
-        Compute tracking info for Jinja templated region, e.g. {{ foo }}.
+        """Compute tracking info for Jinja templated region, e.g. {{ foo }}.
 
         Args:
             m_open (regex.Match): A regex match object representing the opening tag.
@@ -521,8 +520,7 @@ class JinjaAnalyzer:
         m_close: regex.Match[str],
         tag_contents: List[str],
     ) -> RawSliceInfo:
-        """
-        Set up tracking for "{% call ... %}".
+        """Set up tracking for "{% call ... %}".
 
         Args:
             m_open (regex.Match): A regex match object representing the opening tag.
@@ -618,8 +616,7 @@ class JinjaAnalyzer:
         return trimmed_parts
 
     def track_block_end(self, block_type: str, tag_name: str) -> None:
-        """
-        On ending a 'for' or 'if' block, set up tracking.
+        """On ending a 'for' or 'if' block, set up tracking.
 
         Args:
             block_type (str): The type of block ('for' or 'if').
