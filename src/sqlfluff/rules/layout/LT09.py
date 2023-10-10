@@ -21,48 +21,6 @@ class SelectTargetsInfo(NamedTuple):
     pre_from_whitespace: List[BaseSegment]
 
 
-def add_fixes_for_move_after_select_clause(
-    existing_fixes: List[LintFix],
-    start_seg: BaseSegment,
-    stop_seg: BaseSegment,
-    select_clause,
-    select_children,
-    delete_segments: Sequence[BaseSegment] = (),
-    add_newline: bool = True,
-) -> None:
-    """Cleans up by moving leftover select_clause segments.
-
-    Context: Some of the other fixes we make in
-    _eval_single_select_target_element() leave leftover
-    child segments that need to be moved to become
-    *siblings* of the select_clause.
-
-    NOTE: This method mutates `existing_fixes`. This is so
-    that we can check for duplicate fixes.
-    """
-    move_after_select_clause = select_children.select(
-        start_seg=start_seg,
-        stop_seg=stop_seg,
-    )
-    # :TRICKY: Below, we have a couple places where we
-    # filter to guard against deleting the same segment
-    # multiple times -- this is illegal.
-    all_deletes = set(fix.anchor for fix in existing_fixes if fix.edit_type == "delete")
-    for seg in (*delete_segments, *move_after_select_clause):
-        if seg not in all_deletes:
-            existing_fixes.append(LintFix.delete(seg))
-            all_deletes.add(seg)
-
-    if move_after_select_clause or add_newline:
-        existing_fixes.append(
-            LintFix.create_after(
-                select_clause[0],
-                ([NewlineSegment()] if add_newline else [])
-                + list(move_after_select_clause),
-            )
-        )
-
-
 class Rule_LT09(BaseRule):
     """Select targets should be on a new line unless there is only one select target.
 
