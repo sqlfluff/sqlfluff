@@ -205,8 +205,8 @@ class RawSegment(BaseSegment):
 
         Args:
             raw (Optional[str]): The new content for the segment.
-            source_fixes (Optional[List[SourceFix]]): A list of fixes to be applied to the
-                segment.
+            source_fixes (Optional[List[SourceFix]]): A list of fixes to be applied to
+                the segment.
 
         Returns:
             RawSegment: A copy of this object with new contents.
