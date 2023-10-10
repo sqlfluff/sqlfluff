@@ -124,9 +124,18 @@ class TemplatedFile:
     ):
         """Initialise the TemplatedFile.
 
-        If no templated_str is provided then we assume that
-        the file is NOT templated and that the templated view
-        is the same as the source view.
+        If no templated_str is provided then we assume that the file is NOT
+        templated and that the templated view is the same as the source view.
+
+        Args:
+            source_str (str): The source string.
+            fname (str): The file name.
+            templated_str (Optional[str], optional): The templated string.
+                Defaults to None.
+            sliced_file (Optional[List[TemplatedFileSlice]], optional): The sliced file.
+                Defaults to None.
+            raw_sliced (Optional[List[RawFileSlice]], optional): The raw sliced file.
+                Defaults to None.
         """
         self.source_str = source_str
         # An empty string is still allowed as the templated string.
@@ -209,6 +218,7 @@ class TemplatedFile:
         return cls(source_str=raw, fname="<string>")
 
     def __repr__(self) -> str:  # pragma: no cover TODO?
+        """Return a string representation of the 'TemplatedFile' object."""
         return "<TemplatedFile>"
 
     def __str__(self) -> str:
@@ -521,5 +531,11 @@ class RawTemplater:
         return isinstance(other, self.__class__)
 
     def config_pairs(self) -> List[Tuple[str, str]]:
-        """Returns info about the given templater for output by the cli."""
+        """Returns info about the given templater for output by the cli.
+
+        Returns:
+            List[Tuple[str, str]]: A list of tuples containing information
+                about the given templater. Each tuple contains two strings:
+                the string 'templater' and the name of the templater.
+        """
         return [("templater", self.name)]

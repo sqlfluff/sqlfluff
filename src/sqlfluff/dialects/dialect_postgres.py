@@ -956,7 +956,7 @@ class DropFunctionStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Delimited(
             Sequence(
-                Ref("FunctionNameSegment"),
+                Ref("ObjectReferenceSegment"),
                 Ref("FunctionParameterListGrammar", optional=True),
             )
         ),
