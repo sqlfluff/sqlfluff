@@ -499,10 +499,8 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
                     net_balance += ip.indent_impulse
 
         # Evaluate options.
-        # NOTE: We don't use the _last_ option, because it tends to be trailing
-        # and have strange effects.
         reflow_logger.debug("    Options: %s", options)
-        overlap = set.intersection(*options[:-1])
+        overlap = set.intersection(*options)
         reflow_logger.debug("    Simple Overlap: %s", overlap)
         # Remove any options above the limit option.
         # We minus one from the limit, because if it comes into effect
