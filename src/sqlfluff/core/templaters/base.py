@@ -124,8 +124,8 @@ class TemplatedFile:
     ):
         """Initialise the TemplatedFile.
 
-        If no templated_str is provided then we assume that the file is NOT templated and
-        that the templated view is the same as the source view.
+        If no templated_str is provided then we assume that the file is NOT
+        templated and that the templated view is the same as the source view.
 
         Args:
             source_str (str): The source string.
