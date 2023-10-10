@@ -48,10 +48,10 @@ tsql_dialect = ansi_dialect.copy_as("tsql")
 
 tsql_dialect.sets("reserved_keywords").clear()
 tsql_dialect.sets("unreserved_keywords").clear()
-tsql_dialect.sets("futur_reserved_keywords").clear()
+tsql_dialect.sets("future_reserved_keywords").clear()
 tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 tsql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
-tsql_dialect.sets("futur_reserved_keywords").update(FUTURE_RESERVED_KEYWORDS)
+tsql_dialect.sets("future_reserved_keywords").update(FUTURE_RESERVED_KEYWORDS)
 
 # Set the datetime units
 tsql_dialect.sets("datetime_units").clear()
@@ -371,7 +371,7 @@ tsql_dialect.replace(
             type="naked_identifier",
             anti_template=r"^("
             + r"|".join(dialect.sets("reserved_keywords")).join(
-                dialect.sets("futur_reserved_keywords")
+                dialect.sets("future_reserved_keywords")
             )
             + r")$",
         )
@@ -426,7 +426,7 @@ tsql_dialect.replace(
             type="function_name_identifier",
             anti_template=r"^("
             + r"|".join(dialect.sets("reserved_keywords")).join(
-                dialect.sets("futur_reserved_keywords")
+                dialect.sets("future_reserved_keywords")
             )
             + r")$",
         )
@@ -446,7 +446,7 @@ tsql_dialect.replace(
                 # anti_template=r"^(NOT)$",
                 anti_template=r"^("
                 + r"|".join(dialect.sets("reserved_keywords")).join(
-                    dialect.sets("futur_reserved_keywords")
+                    dialect.sets("future_reserved_keywords")
                 )
                 + r")$",
                 # TODO - this is a stopgap until we implement explicit data types
@@ -4796,6 +4796,7 @@ class OutputClauseSegment(BaseSegment):
                         Ref("AliasExpressionSegment", optional=True),
                     ),
                     Ref("SingleIdentifierGrammar"),
+                    terminators=[Ref.keyword("INTO")],
                 ),
             ),
             Dedent,
