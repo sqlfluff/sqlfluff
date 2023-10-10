@@ -370,8 +370,9 @@ tsql_dialect.replace(
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^("
-            + r"|".join(dialect.sets("reserved_keywords")).join(
-                dialect.sets("future_reserved_keywords")
+            + r"|".join(
+                dialect.sets("reserved_keywords")
+                | dialect.sets("future_reserved_keywords")
             )
             + r")$",
         )
@@ -425,8 +426,9 @@ tsql_dialect.replace(
             CodeSegment,
             type="function_name_identifier",
             anti_template=r"^("
-            + r"|".join(dialect.sets("reserved_keywords")).join(
-                dialect.sets("future_reserved_keywords")
+            + r"|".join(
+                dialect.sets("reserved_keywords")
+                | dialect.sets("future_reserved_keywords")
             )
             + r")$",
         )
@@ -445,8 +447,9 @@ tsql_dialect.replace(
                 type="data_type_identifier",
                 # anti_template=r"^(NOT)$",
                 anti_template=r"^("
-                + r"|".join(dialect.sets("reserved_keywords")).join(
-                    dialect.sets("future_reserved_keywords")
+                + r"|".join(
+                    dialect.sets("reserved_keywords")
+                    | dialect.sets("future_reserved_keywords")
                 )
                 + r")$",
                 # TODO - this is a stopgap until we implement explicit data types
