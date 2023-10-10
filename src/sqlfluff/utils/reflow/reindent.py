@@ -358,7 +358,9 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
                     "skipped_source",
                     "block_mid",
                 ):
-                    break
+                    # Recreating this condition is hard, but we shouldn't allow any
+                    # rendered content here.
+                    break  # pragma: no cover
 
             # Run forward through the post point.
             indent_balance = line.initial_indent_balance
