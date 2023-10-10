@@ -38,9 +38,9 @@ from sqlfluff.core.parser import (
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_tsql_keywords import (
+    FUTURE_RESERVED_KEYWORDS,
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
-    FUTURE_RESERVED_KEYWORDS,
 )
 
 ansi_dialect = load_raw_dialect("ansi")
