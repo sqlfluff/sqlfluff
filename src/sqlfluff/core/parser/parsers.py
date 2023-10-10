@@ -81,8 +81,7 @@ class TypedParser(BaseParser):
         optional: bool = False,
         trim_chars: Optional[Tuple[str, ...]] = None,
     ) -> None:
-        """
-        Initialize a new instance of the class.
+        """Initialize a new instance of the class.
 
         Args:
             template (str): The template type.
