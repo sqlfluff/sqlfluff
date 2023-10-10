@@ -360,6 +360,24 @@ class Bracketed(Sequence):
         optional: bool = False,
         parse_mode: ParseMode = ParseMode.STRICT,
     ) -> None:
+        """Initialize the object.
+
+        Args:
+            *args (Union[Matchable, str]): Variable length arguments which
+                can be of type 'Matchable' or 'str'.
+            bracket_type (str, optional): The type of bracket used.
+                Defaults to 'round'.
+            bracket_pairs_set (str, optional): The set of bracket pairs.
+                Defaults to 'bracket_pairs'.
+            start_bracket (Optional[Matchable], optional): The start bracket.
+                Defaults to None.
+            end_bracket (Optional[Matchable], optional): The end bracket.
+                Defaults to None.
+            allow_gaps (bool, optional): Whether to allow gaps. Defaults to True.
+            optional (bool, optional): Whether optional. Defaults to False.
+            parse_mode (ParseMode, optional): The parse mode. Defaults to
+                ParseMode.STRICT.
+        """
         # Store the bracket type. NB: This is only
         # hydrated into segments at runtime.
         self.bracket_type = bracket_type
@@ -378,7 +396,7 @@ class Bracketed(Sequence):
     def simple(
         self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
     ) -> SimpleHintType:
-        """Does this matcher support a uppercase hash matching route?
+        """Check if the matcher supports an uppercase hash matching route.
 
         Bracketed does this easily, we just look for the bracket.
         """
@@ -409,7 +427,7 @@ class Bracketed(Sequence):
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult:
-        """Match if a bracketed sequence, with content that matches one of the elements.
+        """Match a bracketed sequence of elements.
 
         Once we've confirmed the existence of the initial opening bracket,
         this grammar delegates to `resolve_bracket()` to recursively close

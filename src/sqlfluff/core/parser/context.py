@@ -55,6 +55,14 @@ class ParseContext:
         dialect: "Dialect",
         indentation_config: Optional[Dict[str, Any]] = None,
     ) -> None:
+        """Initialize a new instance of the class.
+
+        Args:
+            dialect (Dialect): The dialect used for parsing.
+            indentation_config (Optional[Dict[str, Any]], optional): The indentation
+                configuration used by Indent and Dedent to control the intended
+                indentation of certain features. Defaults to None.
+        """
         self.dialect = dialect
         # Indentation config is used by Indent and Dedent and used to control
         # the intended indentation of certain features. Specifically it is
@@ -99,7 +107,14 @@ class ParseContext:
 
     @classmethod
     def from_config(cls, config: "FluffConfig") -> "ParseContext":
-        """Construct a `ParseContext` from a `FluffConfig`."""
+        """Construct a `ParseContext` from a `FluffConfig`.
+
+        Args:
+            config (FluffConfig): The configuration object.
+
+        Returns:
+            ParseContext: The constructed ParseContext object.
+        """
         indentation_config = config.get_section("indentation") or {}
         try:
             indentation_config = {k: bool(v) for k, v in indentation_config.items()}
@@ -118,6 +133,25 @@ class ParseContext:
         clear_terminators: bool = False,
         push_terminators: Optional[Sequence["Matchable"]] = None,
     ) -> Tuple[int, Tuple["Matchable", ...]]:
+        """Set the terminators used in the class.
+
+        This private method sets the terminators used in the class. If
+        `clear_terminators` is True and the existing terminators are not
+        already cleared, the method clears the terminators. If `push_terminators` is
+        provided, the method appends them to the existing terminators if they are not
+        already present.
+
+        Args:
+            clear_terminators (bool, optional): A flag indicating whether to clear the
+                existing terminators. Defaults to False.
+            push_terminators (Optional[Sequence["Matchable"]], optional): A sequence of
+                `Matchable` objects to be added as terminators.
+            Defaults to None.
+
+        Returns:
+            Tuple[int, Tuple["Matchable", ...]]: A tuple containing the
+            number of terminators appended and the original terminators.
+        """
         _appended = 0
         # Retain a reference to the original terminators.
         _terminators = self.terminators
@@ -142,6 +176,20 @@ class ParseContext:
         terminators: Tuple["Matchable", ...],
         clear_terminators: bool = False,
     ) -> None:
+        """Reset the terminators attribute of the class.
+
+        This method is used to reset the terminators attribute of the
+        class. If the clear_terminators parameter is True, the terminators attribute
+        is set to the provided terminators. If the clear_terminators parameter is
+        False and the appended parameter is non-zero, the terminators attribute is
+        trimmed to its original length minus the value of the appended parameter.
+
+        Args:
+            appended (int): The number of terminators that were appended.
+            terminators (Tuple["Matchable", ...]): The original terminators.
+            clear_terminators (bool, optional): If True, clear the terminators attribute
+                completely. Defaults to False.
+        """
         # If we totally reset them, just reinstate the old object.
         if clear_terminators:
             self.terminators = terminators

@@ -187,7 +187,22 @@ class PythonTemplater(RawTemplater):
             return s
 
     def get_context(self, fname=None, config=None, **kw) -> Dict:
-        """Get the templating context from the config."""
+        """Get the templating context from the config.
+
+        This function retrieves the templating context from the config by
+        loading the config and updating the live_context dictionary with the
+        loaded_context and other predefined context dictionaries. It then goes
+        through the loaded_context dictionary and infers the types of the values
+        before returning the live_context dictionary.
+
+        Args:
+            fname (str, optional): The file name.
+            config (dict, optional): The config dictionary.
+            **kw: Additional keyword arguments.
+
+        Returns:
+            dict: The templating context.
+        """
         # TODO: The config loading should be done outside the templater code. Here
         # is a silly place.
         if config:
@@ -344,7 +359,8 @@ class PythonTemplater(RawTemplater):
     ) -> Tuple[List[TemplatedFileSlice], str]:
         """Identify a wrapped query (e.g. dbt test) and handle it.
 
-        If unwrap_wrapped is true, we trim the wrapping from the templated file.
+        If unwrap_wrapped is true, we trim the wrapping from the templated
+        file.
         If unwrap_wrapped is false, we add a slice at start and end.
         """
         if not slices:

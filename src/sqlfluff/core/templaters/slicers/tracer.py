@@ -176,7 +176,15 @@ class JinjaTracer:
         slice_idx: Optional[int] = None,
         slice_type: Optional[str] = None,
     ) -> None:
-        """Add the specified (default: current) location to the trace."""
+        """Add the specified (default: current) location to the trace.
+
+        Args:
+            target_slice_length (int): The length of the target slice.
+            slice_idx (Optional[int], optional): The index of the slice.
+            Defaults to None.
+            slice_type (Optional[str], optional): The type of the slice.
+            Defaults to None.
+        """
         if slice_idx is None:
             slice_idx = self.program_counter
         if slice_type is None:
@@ -483,7 +491,18 @@ class JinjaAnalyzer:
         m_close: regex.Match[str],
         tag_contents: List[str],
     ) -> RawSliceInfo:
-        """Compute tracking info for Jinja templated region, e.g. {{ foo }}."""
+        """Compute tracking info for Jinja templated region, e.g. {{ foo }}.
+
+        Args:
+            m_open (regex.Match): A regex match object representing the opening tag.
+            m_close (regex.Match): A regex match object representing the closing tag.
+            tag_contents (List[str]): A list of strings representing the contents of the
+                tag.
+
+        Returns:
+            RawSliceInfo: A RawSliceInfo object containing the computed
+            tracking info.
+        """
         unique_alternate_id = self.next_slice_id()
         open_ = m_open.group(1)
         close_ = m_close.group(1)
@@ -501,7 +520,18 @@ class JinjaAnalyzer:
         m_close: regex.Match[str],
         tag_contents: List[str],
     ) -> RawSliceInfo:
-        """Set up tracking for "{% call ... %}"."""
+        """Set up tracking for "{% call ... %}".
+
+        Args:
+            m_open (regex.Match): A regex match object representing the opening tag.
+            m_close (regex.Match): A regex match object representing the closing tag.
+            tag_contents (List[str]): A list of strings representing the contents of the
+                tag.
+
+        Returns:
+            RawSliceInfo: A RawSliceInfo object containing the computed
+            tracking info.
+        """
         unique_alternate_id = self.next_slice_id()
         open_ = m_open.group(1)
         close_ = m_close.group(1)
@@ -562,6 +592,15 @@ class JinjaAnalyzer:
         """Given Jinja tag info, return the stuff inside the braces.
 
         I.e. Trim off the brackets and the whitespace.
+
+        Args:
+            str_parts (List[str]): A list of string parts.
+            m_close (regex.Match[str]): The regex match for the closing tag.
+            m_open (regex.Match[str]): The regex match for the opening tag.
+            str_buff (str): The string buffer.
+
+        Returns:
+            List[str]: The trimmed parts inside the Jinja tag.
         """
         if len(str_parts) >= 3:
             # Handle a tag received as individual parts.
@@ -577,7 +616,12 @@ class JinjaAnalyzer:
         return trimmed_parts
 
     def track_block_end(self, block_type: str, tag_name: str) -> None:
-        """On ending a 'for' or 'if' block, set up tracking."""
+        """On ending a 'for' or 'if' block, set up tracking.
+
+        Args:
+            block_type (str): The type of block ('for' or 'if').
+            tag_name (str): The name of the tag.
+        """
         if block_type == "block_end" and tag_name in (
             "endfor",
             "endif",
