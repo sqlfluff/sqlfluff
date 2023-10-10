@@ -9,12 +9,18 @@ from sqlfluff import list_dialects
 # See: https://github.com/sqlfluff/sqlfluff/issues/2543
 shell_completion_enabled = True
 try:
-    from click import shell_completion as completion
+    from click.shell_completion import CompletionItem
 except ImportError:  # pragma: no cover
+    # In older versions don't enable completion.
+    # We don't force newer versions of click however.
+    # See: https://github.com/sqlfluff/sqlfluff/issues/2543
     shell_completion_enabled = False
 
 
-def dialect_shell_complete(ctx, param, incomplete) -> List[completion.CompletionItem]:
+# NOTE: Important that we refer to the "CompletionItem" type
+# as a string rather than a direct reference so that we don't
+# get import errors when running with older versions of click.
+def dialect_shell_complete(ctx, param, incomplete) -> List["CompletionItem"]:
     """Shell completion for possible dialect names.
 
     We use this over click.Choice as we want to internally
@@ -22,7 +28,5 @@ def dialect_shell_complete(ctx, param, incomplete) -> List[completion.Completion
     """
     dialect_names = [e.label for e in list_dialects()]
     return [
-        completion.CompletionItem(name)
-        for name in dialect_names
-        if name.startswith(incomplete)
+        CompletionItem(name) for name in dialect_names if name.startswith(incomplete)
     ]
