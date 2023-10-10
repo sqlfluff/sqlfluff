@@ -285,7 +285,7 @@ class SQLLintError(SQLBaseError):
         fix_raws = tuple(
             tuple(e.raw for e in f.edit) if f.edit else None for f in self.fixes
         )
-        _source_fixes = []
+        _source_fixes: List[Tuple[str, int, int]] = []
         for fix in self.fixes:
             if not fix.edit:
                 continue
