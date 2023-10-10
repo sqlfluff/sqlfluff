@@ -46,8 +46,7 @@ class Conditional(BaseGrammar):
         config_type: str = "indentation",
         **rules: Union[str, bool]
     ):
-        """
-        Initialize a new instance of the class.
+        """Initialize a new instance of the class.
 
         This method initializes an instance of the class with the provided
         arguments.
