@@ -369,8 +369,8 @@ class Bracketed(Sequence):
                 Defaults to 'round'.
             bracket_pairs_set (str, optional): The set of bracket pairs.
                 Defaults to 'bracket_pairs'.
-            start_bracket (Optional[Matchable], optional): The start bracket. Defaults to
-                None.
+            start_bracket (Optional[Matchable], optional): The start bracket.
+                Defaults to None.
             end_bracket (Optional[Matchable], optional): The end bracket.
                 Defaults to None.
             allow_gaps (bool, optional): Whether to allow gaps. Defaults to True.
@@ -427,8 +427,8 @@ class Bracketed(Sequence):
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult:
-        """Match if a bracketed sequence, with content that matches one of the
-    elements.
+        """Match if a bracketed sequence, with content that matches one of
+        the elements.
 
         Once we've confirmed the existence of the initial opening bracket,
         this grammar delegates to `resolve_bracket()` to recursively close
