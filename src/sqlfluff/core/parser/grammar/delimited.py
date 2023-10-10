@@ -53,8 +53,8 @@ class Delimited(OneOf):
                 Defaults to Ref("CommaSegment").
             allow_trailing (bool, optional): Flag indicating whether trailing delimiters
                 are allowed. Defaults to False.
-            terminators (Sequence[Union[Matchable, str]], optional):
-                Sequence of terminators used to match the end of a segment.
+            terminators (Sequence[Union[Matchable, str]], optional): Sequence of
+                terminators used to match the end of a segment.
                 Defaults to ().
             reset_terminators (bool, optional): Flag indicating whether terminators
                 should be reset. Defaults to False.

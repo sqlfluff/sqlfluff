@@ -427,8 +427,7 @@ class Bracketed(Sequence):
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult:
-        """Match if a bracketed sequence, with content that matches one of
-        the elements.
+        """Match a bracketed sequence of elements.
 
         Once we've confirmed the existence of the initial opening bracket,
         this grammar delegates to `resolve_bracket()` to recursively close

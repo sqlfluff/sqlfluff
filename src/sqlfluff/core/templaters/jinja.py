@@ -301,7 +301,6 @@ class JinjaTemplater(PythonTemplater):
         if ignore_templating:
 
             class SafeFileSystemLoader(FileSystemLoader):
-
                 def get_source(self, environment, name, *args, **kwargs):
                     try:
                         if not isinstance(name, DummyUndefined):
@@ -362,9 +361,7 @@ class JinjaTemplater(PythonTemplater):
         return None
 
     def _apply_dbt_builtins(self, config: FluffConfig) -> bool:
-        """
-        Check if dbt builtins should be applied from the provided config
-        object.
+        """Check if dbt builtins should be applied from the provided config object.
 
         This method searches for a config section specified by the
         templater_selector, name, and 'apply_dbt_builtins' keys. If the section
@@ -695,14 +692,13 @@ class DummyUndefined(jinja2.Undefined):
         return result
 
     def __getattr__(self, item):
-        """Return a dynamically created instance of the class with the
-        specified attribute.
+        """Intercept any calls to undefined attributes.
 
         Args:
             item (str): The name of the attribute.
 
         Returns:
-            object: A dynamically created instance of the class.
+            object: A dynamically created instance of this class.
         """
         return self.create(f"{self.name}.{item}")
 
