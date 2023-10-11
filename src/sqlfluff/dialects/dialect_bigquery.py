@@ -405,6 +405,7 @@ class MultiStatementSegment(BaseSegment):
         Ref("LoopStatementSegment"),
         Ref("IfStatementSegment"),
         Ref("CreateProcedureStatementSegment"),
+        Ref("BeginStatementSegment")
     )
 
 
@@ -1039,6 +1040,37 @@ class ExceptClauseSegment(BaseSegment):
         Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
     )
 
+class BeginStatementSegment(BaseSegment):
+    """A `BEGIN...EXCEPTION...END` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#beginexceptionend
+    """
+
+    type = "begin_statement"
+
+    match_grammar = Sequence(
+        "BEGIN",
+        Indent,
+        Sequence(
+            Ref("StatementSegment"),
+            Ref("DelimiterGrammar"),
+        ),
+        Dedent,
+        Sequence(
+            "EXCEPTION",
+            "WHEN",
+            "ERROR",
+            "THEN",
+            Indent,
+            Sequence(
+                Ref("StatementSegment"),
+                Ref("DelimiterGrammar"),
+            ),
+            Dedent,
+            optional=True
+        ),
+        "END",
+    )
 
 class ReplaceClauseSegment(BaseSegment):
     """SELECT REPLACE clause."""
