@@ -16,7 +16,7 @@ file:
           whitespace: ' '
           select_clause_element:
             numeric_literal: '2'
-        dedent: ''
+          dedent: ''
   - statement_terminator: ;
   - newline: "\n"
   - newline: "\n"

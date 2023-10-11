@@ -118,8 +118,6 @@ class LintResult:
         self.anchor = anchor
         # Fixes might be blank
         self.fixes = fixes or []
-        # When instantiating the result, we filter any fixes which are "trivial".
-        self.fixes = [f for f in self.fixes if not f.is_trivial()]
         # Memory is passed back in the linting result
         self.memory = memory
         # store a description_override for later
@@ -220,24 +218,17 @@ class LintFix:
             # can't guarantee with edits.
         self.source = [seg for seg in source if seg.pos_marker] if source else []
 
-    def is_trivial(self) -> bool:
-        """Return true if the fix is trivial.
-
-        Trivial edits are:
-        - Anything of zero length.
-        - Any edits which result in themselves.
-
-        Removing these makes the routines which process fixes much faster.
-        """
+        # On creation of the fix we'll also validate the edits are non-trivial.
         if self.edit_type in ("create_before", "create_after"):
-            if isinstance(self.edit, BaseSegment):
-                if len(self.edit.raw) == 0:  # pragma: no cover TODO?
-                    return True
-            elif self.edit and all(len(elem.raw) == 0 for elem in self.edit):
-                return True
-        elif self.edit_type == "replace" and self.edit == self.anchor:
-            return True  # pragma: no cover TODO?
-        return False
+            assert self.edit, "A create fix must have an edit."
+            # They should all have a non-zero raw.
+            assert all(
+                seg.raw for seg in self.edit
+            ), f"Invalid edit found: {self.edit}."
+        elif self.edit_type == "replace":
+            assert (
+                self.edit != self.anchor
+            ), "Fix created which replaces segment with itself."
 
     def is_just_source_edit(self) -> bool:
         """Return whether this a valid source only edit."""
