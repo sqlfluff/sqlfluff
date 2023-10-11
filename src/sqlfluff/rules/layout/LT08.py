@@ -1,8 +1,8 @@
 """Implementation of Rule LT08."""
 
-from typing import Optional, List
-from sqlfluff.core.parser import NewlineSegment
+from typing import List, Optional
 
+from sqlfluff.core.parser import NewlineSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 

@@ -4,6 +4,7 @@ These are mostly on the ReflowPoint class.
 """
 
 import logging
+
 import pytest
 
 from sqlfluff.core import Linter

@@ -9,6 +9,7 @@ from typing import (
     Union,
     overload,
 )
+
 from typing_extensions import SupportsIndex  # NOTE: Required for py37
 
 from sqlfluff.core.parser import BaseSegment

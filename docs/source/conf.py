@@ -5,9 +5,9 @@ list see the documentation:
 https://www.sphinx-doc.org/en/master/usage/configuration.html
 """
 
+import configparser
 import os
 import sys
-import configparser
 
 # -- Path setup --------------------------------------------------------------
 

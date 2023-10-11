@@ -1,10 +1,9 @@
 """Implementation of Rule RF01."""
 from dataclasses import dataclass, field
-from typing import cast, List, Optional, Tuple
+from typing import List, Optional, Tuple, cast
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
-from sqlfluff.utils.analysis.query import Query
 from sqlfluff.core.rules import (
     BaseRule,
     LintResult,
@@ -12,7 +11,7 @@ from sqlfluff.core.rules import (
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.core.rules.reference import object_ref_matches_table
-
+from sqlfluff.utils.analysis.query import Query
 
 _START_TYPES = [
     "delete_statement",
