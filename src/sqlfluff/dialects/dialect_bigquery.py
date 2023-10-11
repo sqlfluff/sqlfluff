@@ -56,6 +56,12 @@ bigquery_dialect.insert_lexer_matchers(
             LiteralSegment,
             segment_kwargs={"trim_chars": ("@",)},
         ),
+        RegexLexer(
+            "double_at_sign_literal",
+            r"@@[a-zA-Z_][\w]*",
+            LiteralSegment,
+            segment_kwargs={"trim_chars": ("@@",)},
+        ),
     ],
     before="equals",
 )
@@ -124,6 +130,11 @@ bigquery_dialect.add(
         "at_sign_literal",
         LiteralSegment,
         type="at_sign_literal",
+    ),
+    DoubleAtSignLiteralSegment=TypedParser(
+        "double_at_sign_literal",
+        LiteralSegment,
+        type="double_at_sign_literal",
     ),
     # Add a Full equivalent which also allow keywords
     NakedIdentifierFullSegment=RegexParser(
@@ -743,6 +754,7 @@ bigquery_dialect.replace(
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("ParameterizedSegment"),
+            Ref("SystemVariableSegment")
         ]
     ),
     PostTableExpressionGrammar=Sequence(
@@ -1371,6 +1383,18 @@ class TableReferenceSegment(ansi.ObjectReferenceSegment):
         if parts:
             yield flush()
 
+
+class SystemVariableSegment(BaseSegment):
+    """BigQuery supports usage of system-level variables, which are prefixed with @@.
+
+    These are also used in exception blocks in the @@error object.
+
+    https://cloud.google.com/bigquery/docs/reference/system-variables
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#beginexceptionend
+    """
+
+    type = "system_variable"
+    match_grammar = Ref("DoubleAtSignLiteralSegment")
 
 class DeclareStatementSegment(BaseSegment):
     """Declaration of a variable.
