@@ -416,7 +416,7 @@ class MultiStatementSegment(BaseSegment):
         Ref("LoopStatementSegment"),
         Ref("IfStatementSegment"),
         Ref("CreateProcedureStatementSegment"),
-        Ref("BeginStatementSegment")
+        Ref("BeginStatementSegment"),
     )
 
 
@@ -754,7 +754,7 @@ bigquery_dialect.replace(
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("ParameterizedSegment"),
-            Ref("SystemVariableSegment")
+            Ref("SystemVariableSegment"),
         ]
     ),
     PostTableExpressionGrammar=Sequence(
@@ -1052,6 +1052,7 @@ class ExceptClauseSegment(BaseSegment):
         Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
     )
 
+
 class BeginStatementSegment(BaseSegment):
     """A `BEGIN...EXCEPTION...END` statement.
 
@@ -1079,10 +1080,11 @@ class BeginStatementSegment(BaseSegment):
                 Ref("DelimiterGrammar"),
             ),
             Dedent,
-            optional=True
+            optional=True,
         ),
         "END",
     )
+
 
 class ReplaceClauseSegment(BaseSegment):
     """SELECT REPLACE clause."""
@@ -1395,6 +1397,7 @@ class SystemVariableSegment(BaseSegment):
 
     type = "system_variable"
     match_grammar = Ref("DoubleAtSignLiteralSegment")
+
 
 class DeclareStatementSegment(BaseSegment):
     """Declaration of a variable.
