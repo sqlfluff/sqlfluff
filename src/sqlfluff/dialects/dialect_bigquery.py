@@ -2078,7 +2078,7 @@ class ExportStatementSegment(BaseSegment):
 
 
 class ProcedureNameSegment(BaseSegment):
-    """Prcoedure name, including any prefix bits, e.g. project or schema."""
+    """Procedure name, including any prefix bits, e.g. project or schema."""
 
     type = "procedure_name"
     match_grammar: Matchable = Sequence(
