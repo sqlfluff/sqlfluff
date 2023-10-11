@@ -14,6 +14,35 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+There's a *lot* in this release. Most of it is under the covers and so shouldn't
+cause any breaking changes for most users. If your use case depends on some of the
+internals of SQLFluff, you may find some breaking changes. The bigger changes are:
+
+- Python 3.12 support is now official (although older releases may also work as
+  only a few changes were required for full 3.12 support).
+- We've done a significant re-write of the parsing engine to remove some unnecessary
+  segment manipulation and get us closer to "single pass" parsing. This changes the
+  internal API being used on any `.match()` methods, and also removes the
+  `parse_grammar` attribute on any dialect segments. We are not aware of any 3rd party
+  libraries which rely on these APIs however and so have not triggered a more major
+  release. These lead to significant performance improvements during parsing.
+- Standardisation of terminators in the parser, and the introduction of the `ParseMode`
+  option has enabled the removal of the `StartsWith`, `GreedyUntil` and
+  `EphemeralSegment` parser classes.
+- Several validation checks have been revised in this release, which should both
+  improve performance (by reducing duplication), but also be more effective in
+  preventing the application of any fixes which would result in unparsable files.
+
+Alongside the big things this also includes a host of bugfixes, dialect improvements
+and CI/testing improvements.
+
+This release also sees a bumper crop of new contributors, thanks to
+[@dehume](https://github.com/dehume), [@andychannery](https://github.com/andychannery),
+[@Kylea650](https://github.com/Kylea650), [@robin-alphasophia](https://github.com/robin-alphasophia),
+[@jtbg](https://github.com/jtbg), [@r-petit](https://github.com/r-petit),
+[@bpfaust](https://github.com/bpfaust) & [@freewaydev](https://github.com/freewaydev)
+who all made the first contibutions in this release! 🎉🎉🎉
+
 ## What’s Changed
 
 * Extend ruff checking to docstring rules [#5302](https://github.com/sqlfluff/sqlfluff/pull/5302) [@alanmcruickshank](https://github.com/alanmcruickshank)
