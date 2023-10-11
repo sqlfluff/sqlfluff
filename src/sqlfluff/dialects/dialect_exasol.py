@@ -304,9 +304,6 @@ class UnorderedSelectStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         Ref("SelectClauseSegment"),
-        #     # Dedent for the indent in the select clause.
-        #     # It's here so that it can come AFTER any whitespace.
-        Dedent,
         Ref("FromClauseSegment", optional=True),
         Ref("ReferencingClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
@@ -376,9 +373,7 @@ class SelectClauseSegment(BaseSegment):
         Ref("WithInvalidForeignKeySegment", optional=True),
         Ref("WithInvalidUniquePKSegment", optional=True),
         Ref("IntoTableSegment", optional=True),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
+        Dedent,
         terminators=[Ref("SelectClauseTerminatorGrammar")],
         parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )

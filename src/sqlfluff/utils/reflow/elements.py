@@ -531,15 +531,20 @@ class ReflowPoint(ReflowElement):
         else:
             # There isn't currently a newline.
             new_newline = NewlineSegment()
+            new_segs: List[RawSegment]
             # Check for whitespace
             ws_seg = None
             for seg in self.segments[::-1]:
                 if seg.is_type("whitespace"):
                     ws_seg = seg
             if not ws_seg:
+                # Work out the new segments. Always a newline, only whitespace if
+                # there's a non zero indent.
+                new_segs = [new_newline] + (
+                    [WhitespaceSegment(desired_indent)] if desired_indent else []
+                )
                 # There isn't a whitespace segment either. We need to insert one.
                 # Do we have an anchor?
-                new_indent = WhitespaceSegment(desired_indent)
                 if not before and not after:  # pragma: no cover
                     raise NotImplementedError(
                         "Not set up to handle empty points in this "
@@ -554,10 +559,7 @@ class ReflowPoint(ReflowElement):
                         if before.is_type("placeholder")
                         else before.raw
                     )
-                    fix = LintFix.create_before(
-                        before,
-                        [new_newline, new_indent],
-                    )
+                    fix = LintFix.create_before(before, new_segs)
                     description = description or (
                         "Expected line break and "
                         f"{_indent_description(desired_indent)} "
@@ -570,23 +572,19 @@ class ReflowPoint(ReflowElement):
                         if after.is_type("placeholder")
                         else after.raw
                     )
-                    fix = LintFix.create_after(
-                        after,
-                        [new_newline, new_indent],
-                    )
+                    fix = LintFix.create_after(after, new_segs)
                     description = description or (
                         "Expected line break and "
                         f"{_indent_description(desired_indent)} "
                         f"after {after_raw!r}."
                     )
-                new_point = ReflowPoint((new_newline, new_indent))
+                new_point = ReflowPoint(tuple(new_segs))
                 anchor = before
             else:
                 # There is whitespace. Coerce it to the right indent and add
                 # a newline _before_. In the edge case that we're coercing to
                 # _no indent_, edit existing indent to be the newline and leave
                 # it there.
-                new_segs: List[RawSegment]
                 if desired_indent == "":
                     new_segs = [new_newline]
                 else:

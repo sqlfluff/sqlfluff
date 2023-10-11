@@ -336,16 +336,32 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
                 # strangely.
                 continue
 
-            for seg in elements[first_point_idx].segments[::-1]:
-                if seg.is_type("indent"):
-                    # If it's the one straight away, after a block_end or
-                    # block_mid, skip it. We know this because it will have
-                    # block_uuid.
-                    if cast(Indent, seg).block_uuid:
-                        continue
-                    # Minus because we're going backward.
-                    indent_balance -= cast(Indent, seg).indent_val
-                    steps.add(indent_balance)
+            for i in range(first_point_idx, 0, -1):
+                if isinstance(elements[i], ReflowPoint):
+                    for seg in elements[i].segments[::-1]:
+                        if seg.is_type("indent"):
+                            # If it's the one straight away, after a block_end or
+                            # block_mid, skip it. We know this because it will have
+                            # block_uuid.
+                            if cast(Indent, seg).block_uuid:
+                                continue
+                            # Minus because we're going backward.
+                            indent_balance -= cast(Indent, seg).indent_val
+                            steps.add(indent_balance)
+                # if it's anything other than a blank placeholder, break.
+                # NOTE: We still need the forward version of this.
+                elif not elements[i].segments[0].is_type("placeholder"):
+                    break
+                elif cast(TemplateSegment, elements[i].segments[0]).block_type not in (
+                    "block_start",
+                    "block_end",
+                    "skipped_source",
+                    "block_mid",
+                ):
+                    # Recreating this condition is hard, but we shouldn't allow any
+                    # rendered content here.
+                    break  # pragma: no cover
+
             # Run forward through the post point.
             indent_balance = line.initial_indent_balance
             last_point_idx = line.indent_points[-1].idx
@@ -499,10 +515,8 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
                     net_balance += ip.indent_impulse
 
         # Evaluate options.
-        # NOTE: We don't use the _last_ option, because it tends to be trailing
-        # and have strange effects.
         reflow_logger.debug("    Options: %s", options)
-        overlap = set.intersection(*options[:-1])
+        overlap = set.intersection(*options)
         reflow_logger.debug("    Simple Overlap: %s", overlap)
         # Remove any options above the limit option.
         # We minus one from the limit, because if it comes into effect
@@ -1843,12 +1857,10 @@ def _fix_long_line_with_comment(
         prev_elems = []
         anchor = first_seg
     else:
-        new_point = ReflowPoint(
-            (
-                NewlineSegment(),
-                WhitespaceSegment(current_indent),
-            )
-        )
+        new_segments: Tuple[RawSegment, ...] = (NewlineSegment(),)
+        if current_indent:
+            new_segments += (WhitespaceSegment(current_indent),)
+        new_point = ReflowPoint(new_segments)
         prev_elems = elements[: last_indent_idx + 1]
         anchor = elements[last_indent_idx + 1].segments[0]
 

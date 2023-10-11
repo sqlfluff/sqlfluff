@@ -18,7 +18,7 @@ file:
           - binary_operator: +
           - whitespace: ' '
           - numeric_literal: '2'
-      dedent: ""
+        dedent: ""
   newline: "\n"
   whitespace: '  '
   dedent: ''
