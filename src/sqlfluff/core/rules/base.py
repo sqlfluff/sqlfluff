@@ -221,7 +221,8 @@ class LintFix:
         # On creation of the fix we'll also validate the edits are non-trivial.
         if self.edit_type in ("create_before", "create_after"):
             assert self.edit
-            assert all(len(seg.raw) == 0 for seg in self.edit)
+            # They should all have a non-zero raw.
+            assert all(seg.raw for seg in self.edit)
         elif self.edit_type == "replace":
             assert self.edit != self.anchor
 
