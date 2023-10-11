@@ -1857,12 +1857,10 @@ def _fix_long_line_with_comment(
         prev_elems = []
         anchor = first_seg
     else:
-        new_point = ReflowPoint(
-            (
-                NewlineSegment(),
-                WhitespaceSegment(current_indent),
-            )
-        )
+        new_segments: Tuple[RawSegment, ...] = (NewlineSegment(),)
+        if current_indent:
+            new_segments += (WhitespaceSegment(current_indent),)
+        new_point = ReflowPoint(new_segments)
         prev_elems = elements[: last_indent_idx + 1]
         anchor = elements[last_indent_idx + 1].segments[0]
 

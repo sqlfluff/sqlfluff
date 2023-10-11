@@ -220,11 +220,15 @@ class LintFix:
 
         # On creation of the fix we'll also validate the edits are non-trivial.
         if self.edit_type in ("create_before", "create_after"):
-            assert self.edit
+            assert self.edit, "A create fix must have an edit."
             # They should all have a non-zero raw.
-            assert all(seg.raw for seg in self.edit)
+            assert all(
+                seg.raw for seg in self.edit
+            ), f"Invalid edit found: {self.edit}."
         elif self.edit_type == "replace":
-            assert self.edit != self.anchor
+            assert (
+                self.edit != self.anchor
+            ), "Fix created which replaces segment with itself."
 
     def is_just_source_edit(self) -> bool:
         """Return whether this a valid source only edit."""
