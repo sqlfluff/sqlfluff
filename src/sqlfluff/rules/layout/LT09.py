@@ -343,20 +343,6 @@ class Rule_LT09(BaseRule):
                         if delete_last_newline:
                             fixes.append(LintFix.delete(next_segment))
 
-                elif next_segment.is_type("dedent"):
-                    # Again let's strip back the whitespace, but simpler
-                    # as don't need to worry about new line so just break
-                    # if see non-whitespace
-                    to_delete = select_children.reversed().select(
-                        loop_while=sp.is_type("whitespace"),
-                        start_seg=select_children[select_clause_idx - 1],
-                    )
-                    if to_delete:
-                        # If we deleted a newline, create a newline.
-                        add_newline = any(
-                            seg for seg in to_delete if seg.is_type("newline")
-                        )
-
                 elif next_segment.is_type("whitespace"):
                     # The select_clause has stuff after (most likely a comment)
                     # Delete the whitespace immediately after the select clause
