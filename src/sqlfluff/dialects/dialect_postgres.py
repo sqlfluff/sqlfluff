@@ -1309,6 +1309,14 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                     ),
                 ),
             ),
+            Sequence(
+                "BEGIN",
+                "ATOMIC",
+                Ref("SelectStatementSegment"),
+                Ref("SemicolonSegment"),
+                "END",
+                Ref("SemicolonSegment"),
+            ),
         ),
         Sequence(
             "WITH",
