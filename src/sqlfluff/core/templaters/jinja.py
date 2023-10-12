@@ -20,7 +20,7 @@ from jinja2.ext import Extension
 from jinja2.sandbox import SandboxedEnvironment
 
 from sqlfluff.core.config import FluffConfig
-from sqlfluff.core.errors import SQLBaseError, SQLTemplaterError
+from sqlfluff.core.errors import SQLBaseError, SQLFluffUserError, SQLTemplaterError
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
     TemplatedFile,
@@ -57,7 +57,13 @@ class JinjaTemplater(PythonTemplater):
 
         # Iterate through keys exported from the loaded template string
         context = {}
-        macro_template = env.from_string(template, globals=ctx)
+        try:
+            macro_template = env.from_string(template, globals=ctx)
+        except TemplateSyntaxError as err:
+            raise SQLFluffUserError(
+                f"Error loading user provided macro:\n`{template}`\n> {err}."
+            )
+
         # This is kind of low level and hacky but it works
         try:
             for k in macro_template.module.__dict__:
