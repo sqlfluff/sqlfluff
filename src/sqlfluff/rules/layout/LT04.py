@@ -11,6 +11,14 @@ from sqlfluff.utils.reflow import ReflowSequence
 class Rule_LT04(Rule_LT03):
     """Leading/Trailing comma enforcement.
 
+    The configuration for whether operators should be ``trailing`` or
+    ``leading`` is part of :ref:`layoutconfig`. The default configuration is:
+
+    .. code-block:: cfg
+
+        [sqlfluff:layout:type:comma]
+        line_position = trailing
+
     **Anti-pattern**
 
     There is a mixture of leading and trailing commas.
