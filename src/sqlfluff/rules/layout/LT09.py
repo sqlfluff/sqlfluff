@@ -162,6 +162,7 @@ class Rule_LT09(BaseRule):
         fixes = []
         previous_code = None
         for i, select_target in enumerate(select_targets_info.select_targets):
+            assert select_target.pos_marker
             target_start_line = select_target.pos_marker.working_line_no
             target_initial_code = (
                 Segments(select_target).raw_segments.first(sp.is_code()).get()
@@ -178,6 +179,7 @@ class Rule_LT09(BaseRule):
                 .get()
             )
             assert previous_code
+            assert previous_code.pos_marker
             previous_end_line = previous_code.pos_marker.working_line_no
 
             # Check whether this target *starts* on the same line that the
