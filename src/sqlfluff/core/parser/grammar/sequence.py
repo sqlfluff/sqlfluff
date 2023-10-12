@@ -3,7 +3,7 @@
 # NOTE: We rename the typing.Sequence here so it doesn't collide
 # with the grammar class that we're defining.
 from os import getenv
-from typing import Optional, Set, Tuple, Type, Union
+from typing import Optional, Set, Tuple, Type, Union, cast
 from typing import Sequence as SequenceType
 
 from sqlfluff.core.parser.context import ParseContext
@@ -24,6 +24,7 @@ from sqlfluff.core.parser.segments import (
     BaseSegment,
     Indent,
     MetaSegment,
+    TemplateSegment,
     UnparsableSegment,
 )
 from sqlfluff.core.parser.types import ParseMode, SimpleHintType
@@ -31,13 +32,49 @@ from sqlfluff.core.slice_helpers import is_zero_slice
 
 
 def _flush_metas(
-    pre_nc_idx: int, post_nc_idx: int, meta_buffer: SequenceType[Type["MetaSegment"]]
+    pre_nc_idx: int,
+    post_nc_idx: int,
+    meta_buffer: SequenceType[Type["MetaSegment"]],
+    segments: SequenceType[BaseSegment],
 ) -> Tuple[Tuple[int, Type[MetaSegment]], ...]:
-    # Flush any metas...
+    """Position any new meta segments relative to the non code section.
+
+    It's important that we position the new meta segments appropriately
+    around any templated sections and any whitespace so that indentation
+    behaviour works as expected.
+
+    There are four valid locations (which may overlap).
+    1. Before any non-code
+    2. Before the first block templated section (if it's a block opener).
+    3. After the last block templated section (if it's a block closer).
+    4. After any non code.
+
+    If all the metas have a positive indent value then they should go in
+    position 1 or 3, otherwise we're in position 2 or 4. Within each of
+    those scenarios it depends on whether an appropriate block end exists.
+    """
     if all(m.indent_val >= 0 for m in meta_buffer):
-        meta_idx = pre_nc_idx
+        for _idx in range(post_nc_idx, pre_nc_idx, -1):
+            if segments[_idx - 1].is_type("placeholder"):
+                _seg = cast(TemplateSegment, segments[_idx - 1])
+                if _seg.block_type == "block_end":
+                    meta_idx = _idx
+                else:
+                    meta_idx = pre_nc_idx
+                break
+        else:
+            meta_idx = pre_nc_idx
     else:
-        meta_idx = post_nc_idx
+        for _idx in range(pre_nc_idx, post_nc_idx):
+            if segments[_idx].is_type("placeholder"):
+                _seg = cast(TemplateSegment, segments[_idx])
+                if _seg.block_type == "block_start":
+                    meta_idx = _idx
+                else:
+                    meta_idx = post_nc_idx
+                break
+        else:
+            meta_idx = post_nc_idx
     return tuple((meta_idx, meta) for meta in meta_buffer)
 
 
@@ -270,7 +307,7 @@ class Sequence(BaseGrammar):
                 )
 
             # Flush any metas...
-            insert_segments += _flush_metas(matched_idx, _idx, meta_buffer)
+            insert_segments += _flush_metas(matched_idx, _idx, meta_buffer, segments)
             meta_buffer = []
 
             # Otherwise we _do_ have a match. Update the position.
@@ -360,6 +397,24 @@ class Bracketed(Sequence):
         optional: bool = False,
         parse_mode: ParseMode = ParseMode.STRICT,
     ) -> None:
+        """Initialize the object.
+
+        Args:
+            *args (Union[Matchable, str]): Variable length arguments which
+                can be of type 'Matchable' or 'str'.
+            bracket_type (str, optional): The type of bracket used.
+                Defaults to 'round'.
+            bracket_pairs_set (str, optional): The set of bracket pairs.
+                Defaults to 'bracket_pairs'.
+            start_bracket (Optional[Matchable], optional): The start bracket.
+                Defaults to None.
+            end_bracket (Optional[Matchable], optional): The end bracket.
+                Defaults to None.
+            allow_gaps (bool, optional): Whether to allow gaps. Defaults to True.
+            optional (bool, optional): Whether optional. Defaults to False.
+            parse_mode (ParseMode, optional): The parse mode. Defaults to
+                ParseMode.STRICT.
+        """
         # Store the bracket type. NB: This is only
         # hydrated into segments at runtime.
         self.bracket_type = bracket_type
@@ -378,7 +433,7 @@ class Bracketed(Sequence):
     def simple(
         self, parse_context: ParseContext, crumbs: Optional[Tuple[str]] = None
     ) -> SimpleHintType:
-        """Does this matcher support a uppercase hash matching route?
+        """Check if the matcher supports an uppercase hash matching route.
 
         Bracketed does this easily, we just look for the bracket.
         """
@@ -409,7 +464,7 @@ class Bracketed(Sequence):
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult:
-        """Match if a bracketed sequence, with content that matches one of the elements.
+        """Match a bracketed sequence of elements.
 
         Once we've confirmed the existence of the initial opening bracket,
         this grammar delegates to `resolve_bracket()` to recursively close

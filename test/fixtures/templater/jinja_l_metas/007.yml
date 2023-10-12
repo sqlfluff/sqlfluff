@@ -7,10 +7,10 @@ file:
         whitespace: ' '
         select_clause_element:
           numeric_literal: '1'
+        dedent: ""
     - whitespace: ' '
     - placeholder: '{{ " + 2" if false }}'
     - whitespace: ' '
-    - dedent: ""
     - from_clause:
       - keyword: FROM
       - whitespace: ' '

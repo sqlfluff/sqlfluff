@@ -118,8 +118,6 @@ class LintResult:
         self.anchor = anchor
         # Fixes might be blank
         self.fixes = fixes or []
-        # When instantiating the result, we filter any fixes which are "trivial".
-        self.fixes = [f for f in self.fixes if not f.is_trivial()]
         # Memory is passed back in the linting result
         self.memory = memory
         # store a description_override for later
@@ -220,24 +218,17 @@ class LintFix:
             # can't guarantee with edits.
         self.source = [seg for seg in source if seg.pos_marker] if source else []
 
-    def is_trivial(self) -> bool:
-        """Return true if the fix is trivial.
-
-        Trivial edits are:
-        - Anything of zero length.
-        - Any edits which result in themselves.
-
-        Removing these makes the routines which process fixes much faster.
-        """
+        # On creation of the fix we'll also validate the edits are non-trivial.
         if self.edit_type in ("create_before", "create_after"):
-            if isinstance(self.edit, BaseSegment):
-                if len(self.edit.raw) == 0:  # pragma: no cover TODO?
-                    return True
-            elif self.edit and all(len(elem.raw) == 0 for elem in self.edit):
-                return True
-        elif self.edit_type == "replace" and self.edit == self.anchor:
-            return True  # pragma: no cover TODO?
-        return False
+            assert self.edit, "A create fix must have an edit."
+            # They should all have a non-zero raw.
+            assert all(
+                seg.raw for seg in self.edit
+            ), f"Invalid edit found: {self.edit}."
+        elif self.edit_type == "replace":
+            assert (
+                self.edit != self.anchor
+            ), "Fix created which replaces segment with itself."
 
     def is_just_source_edit(self) -> bool:
         """Return whether this a valid source only edit."""
@@ -962,47 +953,40 @@ class BaseRule(metaclass=RuleMetaclass):
         if not self.template_safe_fixes:
             self.discard_unsafe_fixes(res, templated_file)
         lerr = res.to_linting_error(rule=self)
-        ignored = False
-        if lerr:
-            # Check whether this should be filtered out for being unparsable.
-            # To do that we check the parents of the anchors (of the violation
-            # and fixes) against the filter in the crawler.
-            # NOTE: We use `.passes_filter` here to do the test for unparsable
-            # to avoid duplicating code because that test is already implemented
-            # there.
-            anchors = [lerr.segment] + [fix.anchor for fix in lerr.fixes]
-            for anchor in anchors:
-                if not self.crawl_behaviour.passes_filter(anchor):  # pragma: no cover
-                    # NOTE: This clause is untested, because it's a hard to produce
-                    # edge case. The latter clause is much more likely.
-                    linter_logger.info(
-                        "Fix skipped due to anchor not passing filter: %s", anchor
-                    )
-                    lerr = None
-                    ignored = True
-                    break
-                parent_stack = root.path_to(anchor)
-                if not all(
-                    self.crawl_behaviour.passes_filter(ps.segment)
-                    for ps in parent_stack
-                ):
-                    linter_logger.info(
-                        "Fix skipped due to parent of anchor not passing filter: %s",
-                        [ps.segment for ps in parent_stack],
-                    )
-                    lerr = None
-                    ignored = True
-                    break
+        if not lerr:
+            return None
+        if ignore_mask:
+            if not ignore_mask.ignore_masked_violations([lerr]):
+                return None
 
-            if lerr and ignore_mask:
-                filtered = ignore_mask.ignore_masked_violations([lerr])
-                if not filtered:
-                    lerr = None
-                    ignored = True
-        if lerr:
-            new_lerrs.append(lerr)
-        if not ignored:
-            new_fixes.extend(res.fixes)
+        # Check whether this should be filtered out for being unparsable.
+        # To do that we check the parents of the anchors (of the violation
+        # and fixes) against the filter in the crawler.
+        # NOTE: We use `.passes_filter` here to do the test for unparsable
+        # to avoid duplicating code because that test is already implemented
+        # there.
+        anchors = [lerr.segment] + [fix.anchor for fix in lerr.fixes]
+        for anchor in anchors:
+            if not self.crawl_behaviour.passes_filter(anchor):  # pragma: no cover
+                # NOTE: This clause is untested, because it's a hard to produce
+                # edge case. The latter clause is much more likely.
+                linter_logger.info(
+                    "Fix skipped due to anchor not passing filter: %s", anchor
+                )
+                return None
+
+            parent_stack = root.path_to(anchor)
+            if not all(
+                self.crawl_behaviour.passes_filter(ps.segment) for ps in parent_stack
+            ):
+                linter_logger.info(
+                    "Fix skipped due to parent of anchor not passing filter: %s",
+                    [ps.segment for ps in parent_stack],
+                )
+                return None
+
+        new_lerrs.append(lerr)
+        new_fixes.extend(res.fixes)
 
     @staticmethod
     def filter_meta(

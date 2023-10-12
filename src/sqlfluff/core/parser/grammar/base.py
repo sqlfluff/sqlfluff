@@ -190,9 +190,11 @@ class BaseGrammar(Matchable):
         return None
 
     def __str__(self) -> str:  # pragma: no cover TODO?
+        """Return a string representation of the object."""
         return repr(self)
 
     def __repr__(self) -> str:
+        """Return a string representation suitable for debugging."""
         return "<{}: [{}]>".format(
             self.__class__.__name__,
             curtail_string(
@@ -255,6 +257,9 @@ class BaseGrammar(Matchable):
             replace_terminators (:obj:`bool`, default False): When `True`
                 we replace the existing terminators from the copied grammar,
                 otherwise we just append.
+            **kwargs: Optional additional values may be passed to this
+                method for inherited classes, but if unused they will raise
+                an `AssertionError`.
         """
         assert not kwargs, f"Unexpected kwargs to .copy(): {kwargs}"
         # Copy only the *grammar* elements. The rest comes through
@@ -369,6 +374,7 @@ class Ref(BaseGrammar):
             raise ReferenceError("No Dialect has been provided to Ref grammar!")
 
     def __repr__(self) -> str:
+        """Return a string representation of the 'Ref' object."""
         return "<Ref: {}{}>".format(
             repr(self._ref), " [opt]" if self.is_optional() else ""
         )
@@ -379,7 +385,21 @@ class Ref(BaseGrammar):
         idx: int,
         parse_context: "ParseContext",
     ) -> MatchResult:
-        """Match against this reference."""
+        """Match a list of segments against this segment.
+
+        Matching can be done from either the raw or the segments.
+        This raw function can be overridden, or a grammar defined
+        on the underlying class.
+
+        Args:
+            segments (Tuple[BaseSegment, ...]): The sequence of segments
+                to match against.
+            idx (int): Index of the element in the sequence.
+            parse_context (ParseContext): The parse context.
+
+        Returns:
+            MatchResult: The result of the matching process.
+        """
         elem = self._get_elem(dialect=parse_context.dialect)
 
         # First if we have an *exclude* option, we should check that
@@ -411,6 +431,13 @@ class Ref(BaseGrammar):
 
         Ref.keyword('select') == Ref('SelectKeywordSegment')
 
+        Args:
+            keyword (str): The name of the keyword.
+            optional (bool, optional): Whether the keyword is optional or
+                not. Defaults to False.
+
+        Returns:
+            BaseGrammar: An instance of the BaseGrammar class.
         """
         name = keyword.capitalize() + "KeywordSegment"
         return cls(name, optional=optional)

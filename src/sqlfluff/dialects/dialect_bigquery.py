@@ -56,6 +56,12 @@ bigquery_dialect.insert_lexer_matchers(
             LiteralSegment,
             segment_kwargs={"trim_chars": ("@",)},
         ),
+        RegexLexer(
+            "double_at_sign_literal",
+            r"@@[a-zA-Z_][\w]*",
+            LiteralSegment,
+            segment_kwargs={"trim_chars": ("@@",)},
+        ),
     ],
     before="equals",
 )
@@ -124,6 +130,11 @@ bigquery_dialect.add(
         "at_sign_literal",
         LiteralSegment,
         type="at_sign_literal",
+    ),
+    DoubleAtSignLiteralSegment=TypedParser(
+        "double_at_sign_literal",
+        LiteralSegment,
+        type="double_at_sign_literal",
     ),
     # Add a Full equivalent which also allow keywords
     NakedIdentifierFullSegment=RegexParser(
@@ -405,6 +416,7 @@ class MultiStatementSegment(BaseSegment):
         Ref("LoopStatementSegment"),
         Ref("IfStatementSegment"),
         Ref("CreateProcedureStatementSegment"),
+        Ref("BeginStatementSegment"),
     )
 
 
@@ -742,6 +754,7 @@ bigquery_dialect.replace(
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("ParameterizedSegment"),
+            Ref("SystemVariableSegment"),
         ]
     ),
     PostTableExpressionGrammar=Sequence(
@@ -1037,6 +1050,39 @@ class ExceptClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "EXCEPT",
         Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+    )
+
+
+class BeginStatementSegment(BaseSegment):
+    """A `BEGIN...EXCEPTION...END` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#beginexceptionend
+    """
+
+    type = "begin_statement"
+
+    match_grammar = Sequence(
+        "BEGIN",
+        Indent,
+        Sequence(
+            Ref("StatementSegment"),
+            Ref("DelimiterGrammar"),
+        ),
+        Dedent,
+        Sequence(
+            "EXCEPTION",
+            "WHEN",
+            "ERROR",
+            "THEN",
+            Indent,
+            Sequence(
+                Ref("StatementSegment"),
+                Ref("DelimiterGrammar"),
+            ),
+            Dedent,
+            optional=True,
+        ),
+        "END",
     )
 
 
@@ -1338,6 +1384,19 @@ class TableReferenceSegment(ansi.ObjectReferenceSegment):
         # Flush any leftovers.
         if parts:
             yield flush()
+
+
+class SystemVariableSegment(BaseSegment):
+    """BigQuery supports usage of system-level variables, which are prefixed with @@.
+
+    These are also used in exception blocks in the @@error object.
+
+    https://cloud.google.com/bigquery/docs/reference/system-variables
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#beginexceptionend
+    """
+
+    type = "system_variable"
+    match_grammar = Ref("DoubleAtSignLiteralSegment")
 
 
 class DeclareStatementSegment(BaseSegment):
@@ -2046,7 +2105,7 @@ class ExportStatementSegment(BaseSegment):
 
 
 class ProcedureNameSegment(BaseSegment):
-    """Prcoedure name, including any prefix bits, e.g. project or schema."""
+    """Procedure name, including any prefix bits, e.g. project or schema."""
 
     type = "procedure_name"
     match_grammar: Matchable = Sequence(

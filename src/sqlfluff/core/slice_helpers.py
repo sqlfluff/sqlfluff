@@ -29,3 +29,25 @@ def zero_slice(i: int) -> slice:
 def offset_slice(start: int, offset: int) -> slice:
     """Construct a slice from a start and offset."""
     return slice(start, start + offset)
+
+
+def slice_overlaps(s1: slice, s2: slice) -> bool:
+    """Check whether two slices overlap.
+
+    NOTE: This is designed only for use with *closed* and
+    *positive* slices.
+    """
+    assert s1.start is not None, f"{s1} is not closed"
+    assert s1.stop is not None, f"{s1} is not closed"
+    assert s2.start is not None, f"{s2} is not closed"
+    assert s2.stop is not None, f"{s2} is not closed"
+    assert s1.start <= s1.stop, f"{s1} is not positive"
+    assert s2.start <= s2.stop, f"{s2} is not positive"
+
+    if s2.start >= s1.stop:
+        return False
+
+    if s1.start >= s2.stop:
+        return False
+
+    return True

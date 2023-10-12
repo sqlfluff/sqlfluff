@@ -13,8 +13,8 @@ file:
               wildcard_expression:
                 wildcard_identifier:
                   star: '*'
+            dedent: ""
           newline: "\n"
-          dedent: ""
           from_clause:
             keyword: FROM
             whitespace: ' '
@@ -45,8 +45,8 @@ file:
               wildcard_expression:
                 wildcard_identifier:
                   star: '*'
+            dedent: ""
           newline: "\n"
-          dedent: ""
           from_clause:
             keyword: FROM
             whitespace: ' '
