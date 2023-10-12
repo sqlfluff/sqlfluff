@@ -121,7 +121,7 @@ oracle_dialect.add(
     ),
     PlusJoinGrammar=OneOf(
         Sequence(
-            Ref("ColumnReferenceSegment"),
+            OneOf(Ref("ColumnReferenceSegment"), Ref("FunctionSegment")),
             Ref("EqualsSegment"),
             Ref("ColumnReferenceSegment"),
             Ref("PlusJoinSegment"),
@@ -130,7 +130,7 @@ oracle_dialect.add(
             Ref("ColumnReferenceSegment"),
             Ref("PlusJoinSegment"),
             Ref("EqualsSegment"),
-            Ref("ColumnReferenceSegment"),
+            OneOf(Ref("ColumnReferenceSegment"), Ref("FunctionSegment")),
         ),
     ),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
