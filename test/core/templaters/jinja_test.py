@@ -14,7 +14,7 @@ import pytest
 from jinja2.exceptions import UndefinedError
 
 from sqlfluff.core import FluffConfig, Linter
-from sqlfluff.core.errors import SQLFluffSkipFile, SQLTemplaterError
+from sqlfluff.core.errors import SQLFluffSkipFile, SQLFluffUserError, SQLTemplaterError
 from sqlfluff.core.templaters import JinjaTemplater
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 from sqlfluff.core.templaters.jinja import DummyUndefined, JinjaAnalyzer
@@ -619,6 +619,23 @@ def test__templater_jinja_error_macro_path_does_not_exist():
             )
         )
     assert str(e.value).startswith("Path does not exist")
+
+
+def test__templater_jinja_error_macro_invalid():
+    """Tests that an error is raised if a macro is invalid."""
+    invalid_macro_config_string = (
+        "[sqlfluff]\n"
+        "templater = jinja\n"
+        "dialect = ansi\n"
+        "[sqlfluff:templater:jinja:macros]\n"
+        "a_macro_def = {% macro pkg.my_macro() %}pass{% endmacro %}\n"
+    )
+    config = FluffConfig.from_string(invalid_macro_config_string)
+    with pytest.raises(SQLFluffUserError) as e:
+        JinjaTemplater().construct_render_func(config=config)
+    error_string = str(e.value)
+    assert error_string.startswith("Error loading user provided macro")
+    assert "{% macro pkg.my_macro() %}pass{% endmacro %}" in error_string
 
 
 def test__templater_jinja_lint_empty():
