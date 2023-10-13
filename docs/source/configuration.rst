@@ -921,8 +921,9 @@ it may be useful to other people and simplify your configuration.
 Python templater
 ^^^^^^^^^^^^^^^^
 
-Uses native Python f-strings. As described in :ref:`generic_variable_templating`,
-an example usage would look be configured as follows:
+Uses native Python f-strings. As described in
+:ref:`generic_variable_templating`, an example usage would look be
+configured as follows:
 
 If passed the following *.sql* file:
 
@@ -936,7 +937,7 @@ If passed the following *.sql* file:
 
     [sqlfluff]
     templater = python
-    
+
     [sqlfluff:templater:python:context]
     tbl_name = my_table
 
