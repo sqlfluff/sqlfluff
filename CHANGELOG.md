@@ -47,7 +47,7 @@ who all made the first contibutions in this release! 🎉🎉🎉
 
 * Extend ruff checking to docstring rules [#5302](https://github.com/sqlfluff/sqlfluff/pull/5302) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Fix for strange TSQL bugs [#5306](https://github.com/sqlfluff/sqlfluff/pull/5306) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* Staging PR for #5282 [#5305](https://github.com/sqlfluff/sqlfluff/pull/5305) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Staging PR for [#5282](https://github.com/sqlfluff/sqlfluff/pull/5282) [#5305](https://github.com/sqlfluff/sqlfluff/pull/5305) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Resolve some strange whitespace indentation behaviour [#5292](https://github.com/sqlfluff/sqlfluff/pull/5292) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Simplify `_process_lint_result` [#5304](https://github.com/sqlfluff/sqlfluff/pull/5304) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Performance improvement on segment comparison [#5303](https://github.com/sqlfluff/sqlfluff/pull/5303) [@alanmcruickshank](https://github.com/alanmcruickshank)
