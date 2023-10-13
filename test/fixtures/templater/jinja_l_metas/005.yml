@@ -49,5 +49,5 @@ file:
       - whitespace: '  '
       - select_clause_element:
           numeric_literal: '4'
-      dedent: ""
+      - dedent: ""
   end_of_file: ""

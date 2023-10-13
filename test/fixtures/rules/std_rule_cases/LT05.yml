@@ -774,3 +774,9 @@ test_pass_window_function:
             order by d desc
         ) as rnk
     from foo
+
+test_fail_no_fix_long_templated:
+  # Test we fail but don't try and fix a long templated line
+  fail_str: |
+    select
+        '{{ "', '".join(["foo", "bar", "whatever", "whatever", "whatever", "whatever"]) }}'

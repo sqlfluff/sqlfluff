@@ -145,3 +145,11 @@ as $$
     return x;
   end;
 $$;
+
+CREATE OR REPLACE FUNCTION data_wrapper()
+RETURNS SETOF data
+STABLE PARALLEL SAFE LEAKPROOF
+BEGIN ATOMIC
+  SELECT *
+  FROM data;
+END;

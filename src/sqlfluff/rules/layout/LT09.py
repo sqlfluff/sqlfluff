@@ -159,16 +159,32 @@ class Rule_LT09(BaseRule):
         self, select_targets_info, segment
     ) -> Optional[LintResult]:
         """Multiple select targets. Ensure each is on a separate line."""
-        # Insert newline before every select target.
         fixes = []
+        previous_code = None
         for i, select_target in enumerate(select_targets_info.select_targets):
-            base_segment = (
-                segment if not i else select_targets_info.select_targets[i - 1]
+            assert select_target.pos_marker
+            target_start_line = select_target.pos_marker.working_line_no
+            target_initial_code = (
+                Segments(select_target).raw_segments.first(sp.is_code()).get()
             )
-            if (
-                base_segment.pos_marker.working_line_no
-                == select_target.pos_marker.working_line_no
-            ):
+            assert target_initial_code
+            select_clause_raws = Segments(segment).raw_segments
+            previous_code = (
+                select_clause_raws.select(
+                    select_if=sp.is_code(),
+                    start_seg=previous_code,
+                    stop_seg=target_initial_code,
+                )
+                .last()
+                .get()
+            )
+            assert previous_code
+            assert previous_code.pos_marker
+            previous_end_line = previous_code.pos_marker.working_line_no
+
+            # Check whether this target *starts* on the same line that the
+            # previous one *ends* on. If they are on the same line, insert a newline.
+            if target_start_line == previous_end_line:
                 # Find and delete any whitespace before the select target.
                 start_seg = select_targets_info.select_idx
                 # If any select modifier (e.g. distinct ) is present, start
@@ -260,6 +276,9 @@ class Rule_LT09(BaseRule):
         # We'll add it to the right section at the end, once we know
         # what to add.
         initial_deletes = [target_seg]
+        # If there's whitespace before it, delete that too.
+        if select_children[target_idx - 1].is_type("whitespace"):
+            initial_deletes.append(select_children[target_idx - 1])
 
         # Do we have a modifier?
         modifier: Optional[Segments]
@@ -339,20 +358,6 @@ class Rule_LT09(BaseRule):
                         # Delete the newline if we decided to.
                         if delete_last_newline:
                             fixes.append(LintFix.delete(next_segment))
-
-                elif next_segment.is_type("dedent"):
-                    # Again let's strip back the whitespace, but simpler
-                    # as don't need to worry about new line so just break
-                    # if see non-whitespace
-                    to_delete = select_children.reversed().select(
-                        loop_while=sp.is_type("whitespace"),
-                        start_seg=select_children[select_clause_idx - 1],
-                    )
-                    if to_delete:
-                        # If we deleted a newline, create a newline.
-                        add_newline = any(
-                            seg for seg in to_delete if seg.is_type("newline")
-                        )
 
                 elif next_segment.is_type("whitespace"):
                     # The select_clause has stuff after (most likely a comment)

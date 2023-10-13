@@ -8,7 +8,7 @@ file:
           whitespace: '  '
           select_clause_element:
             numeric_literal: '1'
-        dedent: ""
+          dedent: ""
   - newline: "\n"
   - whitespace: '  '
   - placeholder: '{% if false %}'

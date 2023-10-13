@@ -3236,9 +3236,7 @@ class SelectClauseSegment(BaseSegment):
                 ),
             ),
         ),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
+        Dedent,
         terminators=[
             "FROM",
             "WHERE",

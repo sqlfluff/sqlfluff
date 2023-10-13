@@ -121,11 +121,8 @@ class DepthMap:
     """
 
     def __init__(self, raws_with_stack: Sequence[Tuple[RawSegment, List[PathStep]]]):
-        # TODO: decide whether we need the raw segments?
-        # self.raw_segments = []
         self.depth_info = {}
         for raw, stack in raws_with_stack:
-            # self.raw_segments.append(raw)
             self.depth_info[raw.uuid] = DepthInfo.from_raw_and_stack(raw, stack)
 
     @classmethod
