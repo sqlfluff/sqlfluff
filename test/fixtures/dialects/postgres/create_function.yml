@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0e04601ac85356f746fa3fa8a2e4e49e61248ed314c58256f7f6b645cef1379a
+_hash: 5e159dd09576772d0f482616449f7291ae6875bd834947338133532762478aec
 file:
 - statement:
     create_function_statement:
@@ -749,3 +749,43 @@ file:
         keyword: as
         quoted_literal: "$$\n  begin\n    return x;\n  end;\n$$"
 - statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: data_wrapper
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: SETOF
+    - data_type:
+        data_type_identifier: data
+    - function_definition:
+      - keyword: STABLE
+      - keyword: PARALLEL
+      - keyword: SAFE
+      - keyword: LEAKPROOF
+      - keyword: BEGIN
+      - keyword: ATOMIC
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: data
+      - statement_terminator: ;
+      - keyword: END
+      - statement_terminator: ;
