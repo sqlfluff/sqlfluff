@@ -559,7 +559,7 @@ def test__cli__command_lint_parse(command):
                 lint,
                 ["test/fixtures/cli/unknown_jinja_tag/test.sql"],
             ),
-            2,
+            1,
         ),
         # Test overriding library path when it doesn't cause an issue
         (
