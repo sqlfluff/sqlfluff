@@ -896,3 +896,21 @@ class UnpivotSegment(BaseSegment):
             Ref("PivotForInGrammar"),
         ),
     )
+
+
+class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to an object."""
+
+    # Allow whitespace
+    match_grammar: Matchable = Delimited(
+        Ref("SingleIdentifierGrammar"),
+        delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+        terminators=[Ref("ObjectReferenceTerminatorGrammar")],
+        allow_gaps=True,
+    )
+
+
+class ColumnReferenceSegment(ObjectReferenceSegment):
+    """A reference to column, field or alias."""
+
+    type = "column_reference"
