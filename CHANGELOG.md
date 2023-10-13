@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [2.3.3] - 2023-10-11
+## [2.3.3] - 2023-10-13
 
 ## Highlights
 
@@ -45,9 +45,20 @@ who all made the first contibutions in this release! 🎉🎉🎉
 
 ## What’s Changed
 
+* Oracle space between alias and column reference [#5313](https://github.com/sqlfluff/sqlfluff/pull/5313) [@joaostorrer](https://github.com/joaostorrer)
+* Don't apply LT05 on templated rebreak locations #5096 [#5318](https://github.com/sqlfluff/sqlfluff/pull/5318) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Disable JJ01 unless jinja active [#5319](https://github.com/sqlfluff/sqlfluff/pull/5319) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Cache the `BaseSegment` hash in reflow [#5320](https://github.com/sqlfluff/sqlfluff/pull/5320) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Better error reporting for invalid macros [#5317](https://github.com/sqlfluff/sqlfluff/pull/5317) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add support for begin atomic functions in Postgres [#5316](https://github.com/sqlfluff/sqlfluff/pull/5316) [@joaostorrer](https://github.com/joaostorrer)
+* Fix parsing when statement uses plus_sign_join and function in Oracle [#5315](https://github.com/sqlfluff/sqlfluff/pull/5315) [@joaostorrer](https://github.com/joaostorrer)
+* Update rule docs with correct config [#5314](https://github.com/sqlfluff/sqlfluff/pull/5314) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Resolve #5258. More robust algorithm for multiline fix. [#5309](https://github.com/sqlfluff/sqlfluff/pull/5309) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* BigQuery: Add support for `BEGIN..EXCEPTION...END` block [#5307](https://github.com/sqlfluff/sqlfluff/pull/5307) [@abdel](https://github.com/abdel)
+* Refine placement of metas around templated blocks [#5294](https://github.com/sqlfluff/sqlfluff/pull/5294) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Extend ruff checking to docstring rules [#5302](https://github.com/sqlfluff/sqlfluff/pull/5302) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Fix for strange TSQL bugs [#5306](https://github.com/sqlfluff/sqlfluff/pull/5306) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* Staging PR for [#5282](https://github.com/sqlfluff/sqlfluff/pull/5282) [#5305](https://github.com/sqlfluff/sqlfluff/pull/5305) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Staging PR for #5282 [#5305](https://github.com/sqlfluff/sqlfluff/pull/5305) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Resolve some strange whitespace indentation behaviour [#5292](https://github.com/sqlfluff/sqlfluff/pull/5292) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Simplify `_process_lint_result` [#5304](https://github.com/sqlfluff/sqlfluff/pull/5304) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Performance improvement on segment comparison [#5303](https://github.com/sqlfluff/sqlfluff/pull/5303) [@alanmcruickshank](https://github.com/alanmcruickshank)
@@ -115,8 +126,8 @@ who all made the first contibutions in this release! 🎉🎉🎉
 * Parse modes for `AnyNumberOf` [#5187](https://github.com/sqlfluff/sqlfluff/pull/5187) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Introduce `parse_mode` and remove `StartsWith` & `EphemeralSegment`. [#5167](https://github.com/sqlfluff/sqlfluff/pull/5167) [@alanmcruickshank](https://github.com/alanmcruickshank)
 
-## New Contributors
 
+## New Contributors
 * [@dehume](https://github.com/dehume) made their first contribution in [#5210](https://github.com/sqlfluff/sqlfluff/pull/5210)
 * [@andychannery](https://github.com/andychannery) made their first contribution in [#5224](https://github.com/sqlfluff/sqlfluff/pull/5224)
 * [@Kylea650](https://github.com/Kylea650) made their first contribution in [#5236](https://github.com/sqlfluff/sqlfluff/pull/5236)
@@ -125,6 +136,7 @@ who all made the first contibutions in this release! 🎉🎉🎉
 * [@r-petit](https://github.com/r-petit) made their first contribution in [#5273](https://github.com/sqlfluff/sqlfluff/pull/5273)
 * [@bpfaust](https://github.com/bpfaust) made their first contribution in [#5173](https://github.com/sqlfluff/sqlfluff/pull/5173)
 * [@freewaydev](https://github.com/freewaydev) made their first contribution in [#5278](https://github.com/sqlfluff/sqlfluff/pull/5278)
+* [@abdel](https://github.com/abdel) made their first contribution in [#5307](https://github.com/sqlfluff/sqlfluff/pull/5307)
 
 ## [2.3.2] - 2023-09-10
 
