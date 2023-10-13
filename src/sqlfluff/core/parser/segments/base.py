@@ -219,14 +219,22 @@ class BaseSegment(metaclass=SegmentMetaclass):
             and (self.pos_marker.working_loc == other.pos_marker.working_loc)
         )
 
-    def __hash__(self) -> int:
+    @cached_property
+    def _hash(self) -> int:
+        """Cache the hash property to avoid recalculating it often."""
         return hash(
             (
                 self.__class__.__name__,
                 self.raw,
-                self.pos_marker.source_position() if self.pos_marker else None,
+                # NOTE: We use the start of the source slice because it's
+                # the lowest cost way of getting a reliable location in the source
+                # file for deduplication.
+                self.pos_marker.source_slice.start if self.pos_marker else None,
             )
         )
+
+    def __hash__(self) -> int:
+        return self._hash
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: ({self.pos_marker})>"
@@ -631,6 +639,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             "descendant_type_set",
             "direct_descendant_type_set",
             "_code_indices",
+            "_hash",
         ]:
             self.__dict__.pop(key, None)
 
