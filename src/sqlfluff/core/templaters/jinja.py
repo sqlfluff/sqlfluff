@@ -20,7 +20,7 @@ from jinja2.ext import Extension
 from jinja2.sandbox import SandboxedEnvironment
 
 from sqlfluff.core.config import FluffConfig
-from sqlfluff.core.errors import SQLBaseError, SQLTemplaterError
+from sqlfluff.core.errors import SQLBaseError, SQLFluffUserError, SQLTemplaterError
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
     TemplatedFile,
@@ -52,12 +52,20 @@ class JinjaTemplater(PythonTemplater):
         """Take a template string and extract any macros from it.
 
         Lovingly inspired by http://codyaray.com/2015/05/auto-load-jinja2-macros
+
+        Raises:
+            TemplateSyntaxError: If the macro we try to load has invalid
+                syntax. We assume that outer functions will catch this
+                exception and handle it appropriately.
         """
         from jinja2.runtime import Macro  # noqa
 
         # Iterate through keys exported from the loaded template string
         context = {}
+        # NOTE: `env.from_string()` will raise TemplateSyntaxError if `template`
+        # is invalid.
         macro_template = env.from_string(template, globals=ctx)
+
         # This is kind of low level and hacky but it works
         try:
             for k in macro_template.module.__dict__:
@@ -147,9 +155,14 @@ class JinjaTemplater(PythonTemplater):
         # Iterate to load macros
         macro_ctx = {}
         for value in loaded_context.values():
-            macro_ctx.update(
-                self._extract_macros_from_template(value, env=env, ctx=ctx)
-            )
+            try:
+                macro_ctx.update(
+                    self._extract_macros_from_template(value, env=env, ctx=ctx)
+                )
+            except TemplateSyntaxError as err:
+                raise SQLFluffUserError(
+                    f"Error loading user provided macro:\n`{value}`\n> {err}."
+                )
         return macro_ctx
 
     def _extract_libraries_from_config(self, config):
