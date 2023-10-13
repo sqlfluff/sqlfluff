@@ -408,6 +408,8 @@ Also, SQLFluff has an integration to use :code:`dbt` as a templater.
 
     This is functionality we hope to support in future.
 
+.. _generic_variable_templating:
+
 Generic Variable Templating
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -415,10 +417,10 @@ Variables are available in all the templaters.
 By default the templating engine will expect variables for templating to be
 available in the config, and the templater will be look in the section
 corresponding to the context for that templater. By convention, the config for
-the *jinja* templater is found in the *sqlfluff:templater:jinja:context
-section, the config for the *python* templater is found in the
-*sqlfluff:templater:python:context* section, the one for the *placeholder*
-templater is found in the *sqlfluff:templater:placeholder:context* section
+the ``jinja`` templater is found in the ``sqlfluff:templater:jinja:context``
+section, the config for the ``python`` templater is found in the
+``sqlfluff:templater:python:context`` section, the one for the ``placeholder``
+templater is found in the ``sqlfluff:templater:placeholder:context`` section.
 
 For example, if passed the following *.sql* file:
 
@@ -919,7 +921,31 @@ it may be useful to other people and simplify your configuration.
 Python templater
 ^^^^^^^^^^^^^^^^
 
-Uses native Python f-strings.
+Uses native Python f-strings. As described in :ref:`generic_variable_templating`,
+an example usage would look be configured as follows:
+
+If passed the following *.sql* file:
+
+.. code-block::
+
+    SELECT * FROM {tbl_name}
+
+...and the following configuration in *.sqlfluff* in the same directory:
+
+.. code-block:: cfg
+
+    [sqlfluff]
+    templater = python
+    
+    [sqlfluff:templater:python:context]
+    tbl_name = my_table
+
+...then before parsing, the sql will be transformed to:
+
+.. code-block:: sql
+
+    SELECT * FROM my_table
+
 
 :code:`dbt` templater
 ^^^^^^^^^^^^^^^^^^^^^
