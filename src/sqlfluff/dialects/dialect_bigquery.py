@@ -1064,9 +1064,12 @@ class BeginStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "BEGIN",
         Indent,
-        Sequence(
-            Ref("StatementSegment"),
-            Ref("DelimiterGrammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("StatementSegment"),
+                Ref("DelimiterGrammar"),
+            ),
+            min_times=1,
         ),
         Dedent,
         Sequence(
@@ -1075,9 +1078,12 @@ class BeginStatementSegment(BaseSegment):
             "ERROR",
             "THEN",
             Indent,
-            Sequence(
-                Ref("StatementSegment"),
-                Ref("DelimiterGrammar"),
+            AnyNumberOf(
+                Sequence(
+                    Ref("StatementSegment"),
+                    Ref("DelimiterGrammar"),
+                ),
+                min_times=1,
             ),
             Dedent,
             optional=True,
