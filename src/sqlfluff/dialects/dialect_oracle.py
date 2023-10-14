@@ -81,6 +81,11 @@ oracle_dialect.sets("bare_functions").update(
 oracle_dialect.patch_lexer_matchers(
     [
         RegexLexer("word", r"[a-zA-Z][0-9a-zA-Z_$#]*", WordSegment),
+        RegexLexer(
+            "single_quote",
+            r"'([^'\\]|\\|\\.|'')*'",
+            CodeSegment,
+        ),
     ]
 )
 
