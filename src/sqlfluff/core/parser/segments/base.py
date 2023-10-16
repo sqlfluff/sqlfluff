@@ -22,6 +22,7 @@ from typing import (
     Callable,
     ClassVar,
     Dict,
+    FrozenSet,
     Iterator,
     List,
     Optional,
@@ -75,6 +76,21 @@ class PathStep:
     code_idxs: Tuple[int, ...]
 
 
+def _iter_base_types(
+    new_type: Optional[str], bases: Tuple[Type["BaseSegment"]]
+) -> Iterator[str]:
+    """Iterate types for a new segment class.
+
+    This is a helper method used within in the construction of
+    SegmentMetaclass so that we can construct a frozenset directly
+    off the results.
+    """
+    if new_type is not None:
+        yield new_type
+    for base in bases:
+        yield from base._class_types
+
+
 class SegmentMetaclass(type, Matchable):
     """The metaclass for segments.
 
@@ -109,11 +125,7 @@ class SegmentMetaclass(type, Matchable):
 
         # Populate the `_class_types` property on creation.
         added_type = class_dict.get("type", None)
-        class_types = {added_type} if added_type else set()
-        for base in bases:
-            class_types.update(base._class_types)
-        class_dict["_class_types"] = class_types
-
+        class_dict["_class_types"] = frozenset(_iter_base_types(added_type, bases))
         return cast(Type["BaseSegment"], type.__new__(mcs, name, bases, class_dict))
 
 
@@ -137,7 +149,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     # `type` should be the *category* of this kind of segment
     type: ClassVar[str] = "base"
-    _class_types: ClassVar[Set[str]]  # NOTE: Set by SegmentMetaclass
+    _class_types: ClassVar[FrozenSet[str]]  # NOTE: Set by SegmentMetaclass
     # We define the type here but no value. Subclasses must provide a value.
     match_grammar: Matchable
     comment_separate = False
@@ -295,7 +307,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return "".join(seg.raw for seg in self.segments)
 
     @property
-    def class_types(self) -> Set[str]:
+    def class_types(self) -> FrozenSet[str]:
         """The set of types for this segment."""
         # NOTE: This version is simple, but some dependent classes
         # (notably RawSegment) override this with something more
@@ -303,14 +315,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
         return self._class_types
 
     @cached_property
-    def descendant_type_set(self) -> Set[str]:
+    def descendant_type_set(self) -> FrozenSet[str]:
         """The set of all contained types.
 
         This is used for rule crawling.
 
         NOTE: Does not include the types of the parent segment itself.
         """
-        return set(
+        return frozenset(
             chain.from_iterable(
                 seg.descendant_type_set | seg.class_types for seg in self.segments
             )

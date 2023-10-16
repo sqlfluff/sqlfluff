@@ -71,7 +71,7 @@ class DepthInfo:
             stack_depth=len(stack),
             stack_hashes=stack_hashes,
             stack_hash_set=frozenset(stack_hashes),
-            stack_class_types=tuple(frozenset(ps.segment.class_types) for ps in stack),
+            stack_class_types=tuple(ps.segment.class_types for ps in stack),
             stack_positions={
                 hash(ps.segment): StackPosition.from_path_step(ps) for ps in stack
             },
