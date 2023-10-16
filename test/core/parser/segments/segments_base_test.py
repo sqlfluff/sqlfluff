@@ -303,7 +303,7 @@ def test__parser__base_segments_pickle_safe(raw_segments):
     result_seg = pickle.loads(pickled)
     assert test_seg == result_seg
     # Check specifically the treatment of the parent position.
-    assert result_seg.segments[0].get_parent() is result_seg
+    assert result_seg.segments[0].get_parent()[0] is result_seg
 
 
 def test__parser__base_segments_copy_isolation(DummySegment, raw_segments):
@@ -346,8 +346,8 @@ def test__parser__base_segments_parent_ref(DummySegment, raw_segments):
     seg = DummySegment(segments=raw_segments)
     # The DummySegment shouldn't have a parent.
     assert seg.get_parent() is None
-    assert seg.segments[0].get_parent() is seg
-    assert seg.segments[1].get_parent() is seg
+    assert seg.segments[0].get_parent()[0] is seg
+    assert seg.segments[1].get_parent()[0] is seg
     # Remove segment from parent, but don't unset.
     # Should still check an return None.
     seg_0 = seg.segments[0]
@@ -355,4 +355,4 @@ def test__parser__base_segments_parent_ref(DummySegment, raw_segments):
     assert seg_0 not in seg.segments
     assert not seg_0.get_parent()
     # Check the other still works.
-    assert seg.segments[0].get_parent()
+    assert seg.segments[0].get_parent()[0]
