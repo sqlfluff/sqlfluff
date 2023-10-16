@@ -1070,6 +1070,8 @@ class BeginStatementSegment(BaseSegment):
                 Ref("DelimiterGrammar"),
             ),
             min_times=1,
+            terminators=["END", "EXCEPTION"],
+            parse_mode=ParseMode.GREEDY,
         ),
         Dedent,
         Sequence(
@@ -1084,6 +1086,8 @@ class BeginStatementSegment(BaseSegment):
                     Ref("DelimiterGrammar"),
                 ),
                 min_times=1,
+                terminators=["END"],
+                parse_mode=ParseMode.GREEDY,
             ),
             Dedent,
             optional=True,
