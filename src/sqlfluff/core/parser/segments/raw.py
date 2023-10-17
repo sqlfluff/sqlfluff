@@ -4,7 +4,7 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
-from typing import Any, List, Optional, Set, Tuple
+from typing import Any, FrozenSet, List, Optional, Tuple
 from uuid import uuid4
 
 from sqlfluff.core.parser.markers import PositionMarker
@@ -113,12 +113,12 @@ class RawSegment(BaseSegment):
         return [self]
 
     @property
-    def class_types(self) -> Set[str]:
+    def class_types(self) -> FrozenSet[str]:
         """The set of full types for this segment, including inherited.
 
         Add the surrogate type for raw segments.
         """
-        return set(self.instance_types) | super().class_types
+        return frozenset(self.instance_types) | super().class_types
 
     @property
     def source_fixes(self) -> List[SourceFix]:

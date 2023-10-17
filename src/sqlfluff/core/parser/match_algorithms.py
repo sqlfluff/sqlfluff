@@ -5,7 +5,7 @@ or BaseGrammar to un-bloat those classes.
 """
 
 from collections import defaultdict
-from typing import DefaultDict, List, Optional, Sequence, Set, Tuple, cast
+from typing import DefaultDict, FrozenSet, List, Optional, Sequence, Tuple, cast
 
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.parser.context import ParseContext
@@ -65,7 +65,7 @@ def first_trimmed_raw(seg: BaseSegment) -> str:
 def first_non_whitespace(
     segments: Sequence[BaseSegment],
     start_idx: int = 0,
-) -> Optional[Tuple[str, Set[str]]]:
+) -> Optional[Tuple[str, FrozenSet[str]]]:
     """Return the upper first non-whitespace segment in the iterable."""
     for i in range(start_idx, len(segments)):
         _segment = segments[i]
