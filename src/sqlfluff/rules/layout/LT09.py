@@ -183,7 +183,7 @@ class Rule_LT09(BaseRule):
             assert previous_code.pos_marker
             previous_end_line = previous_code.pos_marker.working_line_no
             self.logger.debug(
-                "- Evaulating %s [%s, %s]: Prev ends with: %s",
+                "- Evaluating %s [%s, %s]: Prev ends with: %s",
                 select_target,
                 previous_end_line,
                 target_start_line,
