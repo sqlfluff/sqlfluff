@@ -10,6 +10,34 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.3.4] - 2023-10-17
+
+## Highlights
+
+This is a fairly small bugfix release, mostly to resolve a bug introduced
+in 2.3.3 with commas and LT09. This also includes a couple of additional
+small performance improvements and some dialect improvements for Oracle,
+BigQuery and MySQL.
+
+Thanks in particular to [@bonnal-enzo](https://github.com/bonnal-enzo) who
+made their first contribution as part of this release 🎉🎉🏆🎉🎉.
+
+## What’s Changed
+
+* Commas fix in LT09 [#5335](https://github.com/sqlfluff/sqlfluff/pull/5335) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* UUID Comparisons [#5332](https://github.com/sqlfluff/sqlfluff/pull/5332) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Two depth map performance improvements [#5333](https://github.com/sqlfluff/sqlfluff/pull/5333) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Stash parent idx with parent reference [#5331](https://github.com/sqlfluff/sqlfluff/pull/5331) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* `Set` to `FrozenSet` in segment class_types [#5334](https://github.com/sqlfluff/sqlfluff/pull/5334) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add support for ANY_VALUE( _ HAVING MIN/MAX _ ) to BigQuery dialect [#5321](https://github.com/sqlfluff/sqlfluff/pull/5321) [@bonnal-enzo](https://github.com/bonnal-enzo)
+* Fix parsing error when using quoted slash in Oracle [#5323](https://github.com/sqlfluff/sqlfluff/pull/5323) [@joaostorrer](https://github.com/joaostorrer)
+* Add support for functions and procedures calls via database link in Oracle [#5326](https://github.com/sqlfluff/sqlfluff/pull/5326) [@joaostorrer](https://github.com/joaostorrer)
+* Fix parsing error with table name '_' in MySQL [#5324](https://github.com/sqlfluff/sqlfluff/pull/5324) [@joaostorrer](https://github.com/joaostorrer)
+
+## New Contributors
+
+* [@bonnal-enzo](https://github.com/bonnal-enzo) made their first contribution in [#5321](https://github.com/sqlfluff/sqlfluff/pull/5321)
+
 ## [2.3.3] - 2023-10-13
 
 ## Highlights
