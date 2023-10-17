@@ -33,7 +33,7 @@ from typing import (
     Union,
     cast,
 )
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.parser.context import ParseContext
@@ -174,7 +174,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         self,
         segments: Tuple["BaseSegment", ...],
         pos_marker: Optional[PositionMarker] = None,
-        uuid: Optional[UUID] = None,
+        uuid: Optional[int] = None,
     ) -> None:
         if len(segments) == 0:  # pragma: no cover
             raise RuntimeError(
@@ -194,7 +194,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
         self.pos_marker = pos_marker
         self.segments: Tuple["BaseSegment", ...] = segments
         # Tracker for matching when things start moving.
-        self.uuid = uuid or uuid4()
+        # NOTE: We're storing the .int attribute so that it's swifter
+        # for comparisons.
+        self.uuid = uuid or uuid4().int
 
         self.set_as_parent(recurse=False)
         self.validate_non_code_ends()
@@ -1160,7 +1162,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         )
 
     def apply_fixes(
-        self, dialect: "Dialect", rule_code: str, fixes: Dict[UUID, AnchorEditInfo]
+        self, dialect: "Dialect", rule_code: str, fixes: Dict[int, AnchorEditInfo]
     ) -> Tuple["BaseSegment", List["BaseSegment"], List["BaseSegment"], bool]:
         """Apply an iterable of fixes to this segment.
 
@@ -1357,7 +1359,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
     @classmethod
     def compute_anchor_edit_info(
         cls, fixes: List["LintFix"]
-    ) -> Dict[UUID, AnchorEditInfo]:
+    ) -> Dict[int, AnchorEditInfo]:
         """Group and count fixes by anchor, return dictionary."""
         anchor_info = defaultdict(AnchorEditInfo)  # type: ignore
         for fix in fixes:

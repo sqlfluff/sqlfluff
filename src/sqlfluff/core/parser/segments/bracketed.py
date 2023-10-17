@@ -1,7 +1,6 @@
 """The BracketedSegment."""
 
 from typing import TYPE_CHECKING, Optional, Sequence, Set, Tuple
-from uuid import UUID
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.markers import PositionMarker
@@ -28,7 +27,7 @@ class BracketedSegment(BaseSegment):
         start_bracket: Tuple[BaseSegment],
         end_bracket: Tuple[BaseSegment],
         pos_marker: Optional[PositionMarker] = None,
-        uuid: Optional[UUID] = None,
+        uuid: Optional[int] = None,
     ):
         """Stash the bracket segments for later."""
         if not start_bracket or not end_bracket:  # pragma: no cover
