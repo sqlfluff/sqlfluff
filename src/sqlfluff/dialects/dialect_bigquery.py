@@ -222,6 +222,7 @@ bigquery_dialect.replace(
             Ref("ExpressionSegment"),
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
         ),
+        Sequence(Ref("ExpressionSegment"), "HAVING", OneOf("MIN", "MAX")),
         Ref("NamedArgumentSegment"),
     ),
     TrimParametersGrammar=Nothing(),

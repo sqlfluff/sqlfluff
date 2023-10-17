@@ -81,6 +81,11 @@ oracle_dialect.sets("bare_functions").update(
 oracle_dialect.patch_lexer_matchers(
     [
         RegexLexer("word", r"[a-zA-Z][0-9a-zA-Z_$#]*", WordSegment),
+        RegexLexer(
+            "single_quote",
+            r"'([^'\\]|\\|\\.|'')*'",
+            CodeSegment,
+        ),
     ]
 )
 
@@ -914,3 +919,29 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
     """A reference to column, field or alias."""
 
     type = "column_reference"
+
+
+class FunctionNameSegment(BaseSegment):
+    """Function name, including any prefix bits, e.g. project or schema."""
+
+    type = "function_name"
+    match_grammar: Matchable = Sequence(
+        # Project name, schema identifier, etc.
+        AnyNumberOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DotSegment"),
+            ),
+            terminators=[Ref("BracketedSegment")],
+        ),
+        # Base function name
+        Delimited(
+            OneOf(
+                Ref("FunctionNameIdentifierSegment"),
+                Ref("QuotedIdentifierSegment"),
+                terminators=[Ref("BracketedSegment")],
+            ),
+            delimiter=Ref("AtSignSegment"),
+        ),
+        allow_gaps=False,
+    )
