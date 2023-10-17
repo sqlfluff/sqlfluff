@@ -373,3 +373,13 @@ test_multiline_expressions:
     COUNT(DISTINCT name) AS e2,
     COUNT(DISTINCT city) AS e3
     FROM some_table;
+
+test_pass_leading_commas:
+  # https://github.com/sqlfluff/sqlfluff/issues/5329
+  # NOTE: We shouldn't even need to configure the leading commas here.
+  # Commas shouldn't be accounted for in whether elements are on the same line.
+  pass_str: |
+    select
+        a
+        , b
+        , c
