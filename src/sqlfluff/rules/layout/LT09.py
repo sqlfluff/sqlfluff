@@ -161,6 +161,7 @@ class Rule_LT09(BaseRule):
         """Multiple select targets. Ensure each is on a separate line."""
         fixes = []
         previous_code = None
+        select_clause_raws = Segments(segment).raw_segments
         for i, select_target in enumerate(select_targets_info.select_targets):
             assert select_target.pos_marker
             target_start_line = select_target.pos_marker.working_line_no
@@ -168,10 +169,10 @@ class Rule_LT09(BaseRule):
                 Segments(select_target).raw_segments.first(sp.is_code()).get()
             )
             assert target_initial_code
-            select_clause_raws = Segments(segment).raw_segments
             previous_code = (
                 select_clause_raws.select(
-                    select_if=sp.is_code(),
+                    # Get the first code that isn't a comma.
+                    select_if=sp.and_(sp.is_code(), sp.not_(sp.raw_is(","))),
                     start_seg=previous_code,
                     stop_seg=target_initial_code,
                 )
@@ -181,6 +182,13 @@ class Rule_LT09(BaseRule):
             assert previous_code
             assert previous_code.pos_marker
             previous_end_line = previous_code.pos_marker.working_line_no
+            self.logger.debug(
+                "- Evaluating %s [%s, %s]: Prev ends with: %s",
+                select_target,
+                previous_end_line,
+                target_start_line,
+                previous_code,
+            )
 
             # Check whether this target *starts* on the same line that the
             # previous one *ends* on. If they are on the same line, insert a newline.
