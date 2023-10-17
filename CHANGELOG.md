@@ -14,6 +14,14 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This is a fairly small bugfix release, mostly to resolve a bug introduced
+in 2.3.3 with commas and LT09. This also includes a couple of additional
+small performance improvements and some dialect improvements for Oracle,
+BigQuery and MySQL.
+
+Thanks in particular to [@bonnal-enzo](https://github.com/bonnal-enzo) who
+made their first contribution as part of this release 🎉🎉🏆🎉🎉.
+
 ## What’s Changed
 
 * Commas fix in LT09 [#5335](https://github.com/sqlfluff/sqlfluff/pull/5335) [@alanmcruickshank](https://github.com/alanmcruickshank)
