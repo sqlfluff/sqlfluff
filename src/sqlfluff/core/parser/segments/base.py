@@ -33,7 +33,7 @@ from typing import (
     Union,
     cast,
 )
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.parser.context import ParseContext
@@ -168,12 +168,13 @@ class BaseSegment(metaclass=SegmentMetaclass):
     _preface_modifier: str = ""
     # Optional reference to the parent. Stored as a weakref.
     _parent: Optional[weakref.ReferenceType["BaseSegment"]] = None
+    _parent_idx: Optional[int] = None
 
     def __init__(
         self,
         segments: Tuple["BaseSegment", ...],
         pos_marker: Optional[PositionMarker] = None,
-        uuid: Optional[UUID] = None,
+        uuid: Optional[int] = None,
     ) -> None:
         if len(segments) == 0:  # pragma: no cover
             raise RuntimeError(
@@ -193,7 +194,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
         self.pos_marker = pos_marker
         self.segments: Tuple["BaseSegment", ...] = segments
         # Tracker for matching when things start moving.
-        self.uuid = uuid or uuid4()
+        # NOTE: We're storing the .int attribute so that it's swifter
+        # for comparisons.
+        self.uuid = uuid or uuid4().int
 
         self.set_as_parent(recurse=False)
         self.validate_non_code_ends()
@@ -674,28 +677,34 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
     def set_as_parent(self, recurse: bool = True) -> None:
         """Set this segment as parent for child all segments."""
-        for seg in self.segments:
-            seg.set_parent(self)
+        for idx, seg in enumerate(self.segments):
+            seg.set_parent(self, idx)
             # Recurse if not disabled
             if recurse:
                 seg.set_as_parent(recurse=recurse)
 
-    def set_parent(self, parent: "BaseSegment") -> None:
+    def set_parent(self, parent: "BaseSegment", idx: int) -> None:
         """Set the weak reference to the parent.
+
+        We keep a reference to the index within the parent too as that
+        is often used at the same point in the operation.
 
         NOTE: Don't validate on set, because we might not have fully
         initialised the parent yet (because we call this method during
         the instantiation of the parent).
         """
         self._parent = weakref.ref(parent)
+        self._parent_idx = idx
 
-    def get_parent(self) -> Optional["BaseSegment"]:
+    def get_parent(self) -> Optional[Tuple["BaseSegment", int]]:
         """Get the parent segment, with some validation.
 
         This is provided as a performance optimisation when searching
         through the syntax tree. Any methods which depend on this should
         have an alternative way of assessing position, and ideally also
-        set the parent of any segments found without them.
+        set the parent of any segments found without them. As a performance
+        optimisation, we also store the index of the segment within the
+        parent to avoid needing to recalculate that.
 
         NOTE: We only store a weak reference to the parent so it might
         not be present. We also validate here that it's _still_ the parent
@@ -706,7 +715,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
         _parent = self._parent()
         if not _parent or self not in _parent.segments:
             return None
-        return _parent
+        assert self._parent_idx is not None
+        return _parent, self._parent_idx
 
     def get_type(self) -> str:
         """Returns the type of this segment as a string."""
@@ -843,6 +853,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         self,
         segments: Optional[Tuple["BaseSegment", ...]] = None,
         parent: Optional["BaseSegment"] = None,
+        parent_idx: Optional[int] = None,
     ) -> "BaseSegment":
         """Copy the segment recursively, with appropriate copying of references.
 
@@ -865,7 +876,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         # Reset the parent if provided.
         if parent:
-            new_segment.set_parent(parent)
+            assert parent_idx is not None, "parent_idx must be provided it parent is."
+            new_segment.set_parent(parent, parent_idx)
 
         # If the segment doesn't have a segments property, we're done.
         # NOTE: This is a proxy way of understanding whether it's a RawSegment
@@ -885,7 +897,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # to ensure those line up properly.
         else:
             new_segment.segments = tuple(
-                seg.copy(parent=new_segment) for seg in self.segments
+                seg.copy(parent=new_segment, parent_idx=idx)
+                for idx, seg in enumerate(self.segments)
             )
 
         return new_segment
@@ -1062,21 +1075,22 @@ class BaseSegment(metaclass=SegmentMetaclass):
             # If we've run out of parents, stop for now.
             if not _higher:
                 break
+            _seg, _idx = _higher
             # If the higher doesn't have a position we'll run into problems.
             # Check that in advance.
-            assert _higher.pos_marker, (
-                f"`path_to()` found segment {_higher} without position. "
+            assert _seg.pos_marker, (
+                f"`path_to()` found segment {_seg} without position. "
                 "This shouldn't happen post-parse."
             )
             lower_path.append(
                 PathStep(
-                    _higher,
-                    _higher.segments.index(midpoint),
-                    len(_higher.segments),
-                    _higher._code_indices,
+                    _seg,
+                    _idx,
+                    len(_seg.segments),
+                    _seg._code_indices,
                 )
             )
-            midpoint = _higher
+            midpoint = _seg
             # If we're found the target segment we can also stop.
             if midpoint == self:
                 break
@@ -1101,7 +1115,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         # Check through each of the child segments
         for idx, seg in enumerate(self.segments):
             # Set the parent if it's not already set.
-            seg.set_parent(self)
+            seg.set_parent(self, idx)
             # Build the step.
             step = PathStep(self, idx, len(self.segments), self._code_indices)
             # Have we found the target?
@@ -1148,7 +1162,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         )
 
     def apply_fixes(
-        self, dialect: "Dialect", rule_code: str, fixes: Dict[UUID, AnchorEditInfo]
+        self, dialect: "Dialect", rule_code: str, fixes: Dict[int, AnchorEditInfo]
     ) -> Tuple["BaseSegment", List["BaseSegment"], List["BaseSegment"], bool]:
         """Apply an iterable of fixes to this segment.
 
@@ -1345,7 +1359,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
     @classmethod
     def compute_anchor_edit_info(
         cls, fixes: List["LintFix"]
-    ) -> Dict[UUID, AnchorEditInfo]:
+    ) -> Dict[int, AnchorEditInfo]:
         """Group and count fixes by anchor, return dictionary."""
         anchor_info = defaultdict(AnchorEditInfo)  # type: ignore
         for fix in fixes:
