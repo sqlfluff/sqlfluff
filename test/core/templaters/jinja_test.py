@@ -819,7 +819,7 @@ def test__templater_jinja_block_matching(caplog):
                 (" ", "literal", 22),
                 ("{{field}}", "templated", 23),
                 (" ", "literal", 32),
-                ("{% for i in [1, 3]%}", "block_start", 33, 0, "for"),
+                ("{% for i in [1, 3]%}", "block_start", 33, 1, "for"),
                 (", fld_", "literal", 53, 1),
                 ("{{i}}", "templated", 59, 1),
                 ("{% endfor %}", "block_end", 64, 1, "endfor"),
@@ -831,7 +831,7 @@ def test__templater_jinja_block_matching(caplog):
         (
             "{% set thing %}FOO{% endset %} BAR",
             [
-                ("{% set thing %}", "block_start", 0, 0, "set"),
+                ("{% set thing %}", "block_start", 0, 1, "set"),
                 ("FOO", "literal", 15, 1),
                 ("{% endset %}", "block_end", 18, 1, "endset"),
                 (" BAR", "literal", 30, 2),
@@ -846,7 +846,7 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
 {{ my_query }}
 """,
             [
-                ("{% set my_query %}", "block_start", 0, 0, "set"),
+                ("{% set my_query %}", "block_start", 0, 1, "set"),
                 ("\nselect 1 from foobarfoobarfoobarfoobar_", "literal", 18, 1),
                 ('{{ "dev" }}', "templated", 58, 1),
                 ("\n", "literal", 69, 1),
@@ -861,7 +861,7 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
             """SELECT 1 FROM {%+if true-%} {{ref('foo')}} {%-endif%}""",
             [
                 ("SELECT 1 FROM ", "literal", 0),
-                ("{%+if true-%}", "block_start", 14, 0, "if"),
+                ("{%+if true-%}", "block_start", 14, 1, "if"),
                 (" ", "literal", 27, 1),
                 ("{{ref('foo')}}", "templated", 28, 1),
                 (" ", "literal", 42, 1),
@@ -875,7 +875,7 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
 {{ "UNION ALL\n" if not loop.last }}
 {%- endfor %}""",
             [
-                ("{% for item in some_list -%}", "block_start", 0, 0, "for"),
+                ("{% for item in some_list -%}", "block_start", 0, 1, "for"),
                 # This gets consumed in the templated file, but it's still here.
                 ("\n    ", "literal", 28, 1),
                 ("SELECT *\n    FROM some_table\n", "literal", 33, 1),
@@ -887,7 +887,7 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
         (
             JINJA_MACRO_CALL_SQL,
             [
-                ("{% macro render_name(title) %}", "block_start", 0, 0, "macro"),
+                ("{% macro render_name(title) %}", "block_start", 0, 1, "macro"),
                 ("\n" "  '", "literal", 30, 1),
                 ("{{ title }}", "templated", 34, 1),
                 (". foo' as ", "literal", 45, 1),
@@ -895,7 +895,7 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
                 ("\n", "literal", 69, 1),
                 ("{% endmacro %}", "block_end", 70, 1, "endmacro"),
                 ("\n" "SELECT\n" "    ", "literal", 84, 2),
-                ("{% call render_name('Sir') %}", "block_start", 96, 2, "call"),
+                ("{% call render_name('Sir') %}", "block_start", 96, 3, "call"),
                 ("\n" "        bar\n" "    ", "literal", 125, 3),
                 ("{% endcall %}", "block_end", 142, 3, "endcall"),
                 ("\n" "FROM baz\n", "literal", 155, 4),

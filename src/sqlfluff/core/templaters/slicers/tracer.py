@@ -373,9 +373,6 @@ class JinjaAnalyzer:
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
         block_idx = 0
         for _, elem_type, raw in self.env.lex(self.raw_str):
-            if elem_type == "block_start":
-                block_idx += 1
-
             if elem_type == "data":
                 self.track_literal(raw, block_idx)
                 continue
@@ -423,6 +420,8 @@ class JinjaAnalyzer:
                 m_strip_right = regex.search(
                     r"\s+$", raw, regex.MULTILINE | regex.DOTALL
                 )
+                if block_type == "block_start":
+                    block_idx += 1
                 if elem_type.endswith("_end") and raw.startswith("-") and m_strip_right:
                     # Right whitespace was stripped after closing block. Split
                     # off the trailing whitespace into a separate slice. The
@@ -444,7 +443,7 @@ class JinjaAnalyzer:
                     self.raw_slice_info[self.raw_sliced[-1]] = raw_slice_info
                     slice_idx = len(self.raw_sliced) - 1
                     self.idx_raw += len(str_buff) - trailing_chars
-                    if elem_type == "block_end":
+                    if block_type == "block_end":
                         block_idx += 1
                     self.raw_sliced.append(
                         RawFileSlice(
@@ -471,7 +470,7 @@ class JinjaAnalyzer:
                     self.raw_slice_info[self.raw_sliced[-1]] = raw_slice_info
                     slice_idx = len(self.raw_sliced) - 1
                     self.idx_raw += len(str_buff)
-                    if elem_type == "block_end":
+                    if block_type == "block_end":
                         block_idx += 1
                 if block_type.startswith("block"):
                     self.track_block_end(block_type, tag_contents[0])
