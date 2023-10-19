@@ -373,11 +373,9 @@ class JinjaAnalyzer:
 
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
         block_idx = 0
-        last_elem_type = None
         for _, elem_type, raw in self.env.lex(self.raw_str):
-            if last_elem_type == "block_end" or elem_type == "block_start":
+            if elem_type == "block_start":
                 block_idx += 1
-            last_elem_type = elem_type
 
             if elem_type == "data":
                 self.track_literal(raw, block_idx)
@@ -447,6 +445,8 @@ class JinjaAnalyzer:
                     self.raw_slice_info[self.raw_sliced[-1]] = raw_slice_info
                     slice_idx = len(self.raw_sliced) - 1
                     self.idx_raw += len(str_buff) - trailing_chars
+                    if elem_type == "block_end":
+                        block_idx += 1
                     self.raw_sliced.append(
                         RawFileSlice(
                             str_buff[-trailing_chars:],
@@ -472,6 +472,8 @@ class JinjaAnalyzer:
                     self.raw_slice_info[self.raw_sliced[-1]] = raw_slice_info
                     slice_idx = len(self.raw_sliced) - 1
                     self.idx_raw += len(str_buff)
+                    if elem_type == "block_end":
+                        block_idx += 1
                 if block_type.startswith("block"):
                     self.track_block_end(block_type, tag_contents[0])
                     self.update_next_slice_indices(
