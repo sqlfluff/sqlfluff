@@ -63,7 +63,10 @@ class JinjaTracer:
         self.program_counter: int = 0
         self.source_idx: int = 0
 
-    def trace(self, append_to_templated: str = "") -> JinjaTrace:
+    def trace(
+        self,
+        append_to_templated: str = "",
+    ) -> JinjaTrace:
         """Executes raw_str. Returns template output and trace."""
         trace_template_str = "".join(
             cast(str, self.raw_slice_info[rs].alternate_code)
@@ -369,12 +372,7 @@ class JinjaAnalyzer:
 
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
         block_idx = 0
-        last_elem_type = None
         for _, elem_type, raw in self.env.lex(self.raw_str):
-            if last_elem_type == "block_end" or elem_type == "block_start":
-                block_idx += 1
-            last_elem_type = elem_type
-
             if elem_type == "data":
                 self.track_literal(raw, block_idx)
                 continue
@@ -393,7 +391,7 @@ class JinjaAnalyzer:
             m_close = None
             if elem_type.endswith("_end") or elem_type == "raw_begin":
                 block_type = self.block_types[elem_type]
-                block_subtype = None
+                block_tag = None
                 # Handle starts and ends of blocks
                 if block_type in ("block", "templated"):
                     m_open = self.re_open_tag.search(str_parts[0])
@@ -404,9 +402,8 @@ class JinjaAnalyzer:
                         )
 
                     if block_type == "block" and tag_contents:
-                        block_type, block_subtype = self.extract_block_type(
-                            tag_contents[0], block_subtype
-                        )
+                        block_type = self.extract_block_type(tag_contents[0])
+                        block_tag = tag_contents[0]
                     if block_type == "templated" and tag_contents:
                         assert m_open and m_close
                         raw_slice_info = self.track_templated(
@@ -423,6 +420,8 @@ class JinjaAnalyzer:
                 m_strip_right = regex.search(
                     r"\s+$", raw, regex.MULTILINE | regex.DOTALL
                 )
+                if block_type == "block_start":
+                    block_idx += 1
                 if elem_type.endswith("_end") and raw.startswith("-") and m_strip_right:
                     # Right whitespace was stripped after closing block. Split
                     # off the trailing whitespace into a separate slice. The
@@ -437,19 +436,20 @@ class JinjaAnalyzer:
                             str_buff[:-trailing_chars],
                             block_type,
                             self.idx_raw,
-                            block_subtype,
                             block_idx,
+                            block_tag,
                         )
                     )
                     self.raw_slice_info[self.raw_sliced[-1]] = raw_slice_info
                     slice_idx = len(self.raw_sliced) - 1
                     self.idx_raw += len(str_buff) - trailing_chars
+                    if block_type == "block_end":
+                        block_idx += 1
                     self.raw_sliced.append(
                         RawFileSlice(
                             str_buff[-trailing_chars:],
                             "literal",
                             self.idx_raw,
-                            None,
                             block_idx,
                         )
                     )
@@ -463,13 +463,15 @@ class JinjaAnalyzer:
                             str_buff,
                             block_type,
                             self.idx_raw,
-                            block_subtype,
                             block_idx,
+                            block_tag,
                         )
                     )
                     self.raw_slice_info[self.raw_sliced[-1]] = raw_slice_info
                     slice_idx = len(self.raw_sliced) - 1
                     self.idx_raw += len(str_buff)
+                    if block_type == "block_end":
+                        block_idx += 1
                 if block_type.startswith("block"):
                     self.track_block_end(block_type, tag_contents[0])
                     self.update_next_slice_indices(
@@ -550,7 +552,6 @@ class JinjaAnalyzer:
                 raw,
                 "literal",
                 self.idx_raw,
-                None,
                 block_idx,
             )
         )
@@ -561,9 +562,7 @@ class JinjaAnalyzer:
         self.idx_raw += len(raw)
 
     @staticmethod
-    def extract_block_type(
-        tag_name: str, block_subtype: Optional[str] = None
-    ) -> Tuple[str, Optional[str]]:
+    def extract_block_type(tag_name: str) -> str:
         """Determine block type."""
         # :TRICKY: Syntactically, the Jinja {% include %} directive looks like
         # a block, but its behavior is basically syntactic sugar for
@@ -578,9 +577,7 @@ class JinjaAnalyzer:
             block_type = "block_mid"
         else:
             block_type = "block_start"
-            if tag_name == "for":
-                block_subtype = "loop"
-        return block_type, block_subtype
+        return block_type
 
     @staticmethod
     def extract_tag_contents(
@@ -661,7 +658,8 @@ class JinjaAnalyzer:
                 self.raw_slice_info[
                     self.raw_sliced[self.stack[-1]]
                 ].next_slice_indices.append(slice_idx)
-                if self.raw_sliced[self.stack[-1]].slice_subtype == "loop":
+                _slice = self.raw_sliced[self.stack[-1]]
+                if _slice.slice_type == "block_start" and _slice.tag == "for":
                     # Record potential backward jump to the loop beginning.
                     self.raw_slice_info[
                         self.raw_sliced[slice_idx]
@@ -709,7 +707,7 @@ class JinjaAnalyzer:
             )
         # Treat the skipped whitespace as a literal.
         self.raw_sliced.append(
-            RawFileSlice(skipped_str, "literal", self.idx_raw, None, block_idx)
+            RawFileSlice(skipped_str, "literal", self.idx_raw, block_idx)
         )
         self.raw_slice_info[self.raw_sliced[-1]] = self.slice_info_for_literal(0)
         self.idx_raw += num_chars_skipped
