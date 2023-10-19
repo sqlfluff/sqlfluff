@@ -96,7 +96,6 @@ class TemplatedFileSlice(NamedTuple):
     slice_type: str
     source_slice: slice
     templated_slice: slice
-    slice_idx: Optional[int] = None
 
 
 class RawSliceBlockInfo(NamedTuple):
