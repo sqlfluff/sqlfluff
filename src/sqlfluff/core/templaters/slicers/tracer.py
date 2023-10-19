@@ -63,7 +63,10 @@ class JinjaTracer:
         self.program_counter: int = 0
         self.source_idx: int = 0
 
-    def trace(self, append_to_templated: str = "") -> JinjaTrace:
+    def trace(
+        self,
+        append_to_templated: str = "",
+    ) -> JinjaTrace:
         """Executes raw_str. Returns template output and trace."""
         trace_template_str = "".join(
             cast(str, self.raw_slice_info[rs].alternate_code)
@@ -199,6 +202,7 @@ class JinjaTracer:
                     else len(self.raw_str),
                 ),
                 slice(self.source_idx, self.source_idx + target_slice_length),
+                slice_idx,
             )
         )
         if target_slice_length:
@@ -465,6 +469,9 @@ class JinjaAnalyzer:
                             self.idx_raw,
                             block_subtype,
                             block_idx,
+                            tag_contents[0]
+                            if tag_contents and block_type.startswith("block")
+                            else None,
                         )
                     )
                     self.raw_slice_info[self.raw_sliced[-1]] = raw_slice_info

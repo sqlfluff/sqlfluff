@@ -62,16 +62,23 @@ class RawFileSlice(NamedTuple):
     raw: str  # Source string
     slice_type: str
     source_idx: int  # Offset from beginning of source string
+    # TODO: DO WE NEED THIS.
     slice_subtype: Optional[str] = None
-    # Block index, incremented on start or end block tags, e.g. "if", "for"
+    # Block index, incremented on start or end block tags, e.g. "if", "for".
+    # This is used in `BaseRule.discard_unsafe_fixes()` to reject any fixes
+    # which span multiple templated blocks.
     block_idx: int = 0
+    # The command of a templated tag, e.g. "if", "for"
+    # This is used in template tracing as a kind of cache to identify the kind
+    # of template element this is without having to re-extract it each time.
+    tag: Optional[str] = None
 
     def end_source_idx(self) -> int:
         """Return the closing index of this slice."""
         return self.source_idx + len(self.raw)
 
     def source_slice(self) -> slice:
-        """Return the a slice object for this slice."""
+        """Return a slice object for this slice."""
         return slice(self.source_idx, self.end_source_idx())
 
     def is_source_only_slice(self) -> bool:
@@ -91,6 +98,7 @@ class TemplatedFileSlice(NamedTuple):
     slice_type: str
     source_slice: slice
     templated_slice: slice
+    slice_idx: Optional[int] = None
 
 
 class RawSliceBlockInfo(NamedTuple):
@@ -501,7 +509,7 @@ class RawTemplater:
         fname: str,
         config: Optional[FluffConfig] = None,
         formatter=None,
-    ) -> Tuple[Optional[TemplatedFile], list]:
+    ) -> Tuple[Optional[TemplatedFile], List]:
         """Process a string and return a TemplatedFile.
 
         Note that the arguments are enforced as keywords
@@ -522,6 +530,18 @@ class RawTemplater:
 
         """
         return TemplatedFile(in_str, fname=fname), []
+
+    @large_file_check
+    def process_with_variants(
+        self,
+        *,
+        in_str: str,
+        fname: str,
+        config: Optional[FluffConfig] = None,
+        formatter=None,
+    ) -> Iterator[Tuple[Optional[TemplatedFile], List]]:
+        """Extended version of `process` which returns multiple variants."""
+        raise NotImplementedError  # pragma: no cover
 
     def __eq__(self, other: Any) -> bool:
         """Return true if `other` is of the same class as this one.

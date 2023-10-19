@@ -496,7 +496,12 @@ class JinjaTemplater(PythonTemplater):
 
     @large_file_check
     def process(
-        self, *, in_str: str, fname: str, config=None, formatter=None
+        self,
+        *,
+        in_str: str,
+        fname: str,
+        config: Optional[FluffConfig] = None,
+        formatter=None,
     ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return the new string.
 
