@@ -62,8 +62,6 @@ class RawFileSlice(NamedTuple):
     raw: str  # Source string
     slice_type: str
     source_idx: int  # Offset from beginning of source string
-    # TODO: DO WE NEED THIS.
-    slice_subtype: Optional[str] = None
     # Block index, incremented on start or end block tags, e.g. "if", "for".
     # This is used in `BaseRule.discard_unsafe_fixes()` to reject any fixes
     # which span multiple templated blocks.

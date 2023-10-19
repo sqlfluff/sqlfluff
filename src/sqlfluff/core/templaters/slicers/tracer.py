@@ -397,7 +397,6 @@ class JinjaAnalyzer:
             m_close = None
             if elem_type.endswith("_end") or elem_type == "raw_begin":
                 block_type = self.block_types[elem_type]
-                block_subtype = None
                 block_tag = None
                 # Handle starts and ends of blocks
                 if block_type in ("block", "templated"):
@@ -411,8 +410,6 @@ class JinjaAnalyzer:
                     if block_type == "block" and tag_contents:
                         block_type = self.extract_block_type(tag_contents[0])
                         block_tag = tag_contents[0]
-                        if block_type == "block_start" and tag_contents[0] == "for":
-                            block_subtype = "loop"
                     if block_type == "templated" and tag_contents:
                         assert m_open and m_close
                         raw_slice_info = self.track_templated(
@@ -443,7 +440,6 @@ class JinjaAnalyzer:
                             str_buff[:-trailing_chars],
                             block_type,
                             self.idx_raw,
-                            block_subtype,
                             block_idx,
                             block_tag,
                         )
@@ -456,7 +452,6 @@ class JinjaAnalyzer:
                             str_buff[-trailing_chars:],
                             "literal",
                             self.idx_raw,
-                            None,
                             block_idx,
                         )
                     )
@@ -470,7 +465,6 @@ class JinjaAnalyzer:
                             str_buff,
                             block_type,
                             self.idx_raw,
-                            block_subtype,
                             block_idx,
                             block_tag,
                         )
@@ -558,7 +552,6 @@ class JinjaAnalyzer:
                 raw,
                 "literal",
                 self.idx_raw,
-                None,
                 block_idx,
             )
         )
@@ -665,7 +658,8 @@ class JinjaAnalyzer:
                 self.raw_slice_info[
                     self.raw_sliced[self.stack[-1]]
                 ].next_slice_indices.append(slice_idx)
-                if self.raw_sliced[self.stack[-1]].slice_subtype == "loop":
+                _slice = self.raw_sliced[self.stack[-1]]
+                if _slice.slice_type == "block_start" and _slice.tag == "for":
                     # Record potential backward jump to the loop beginning.
                     self.raw_slice_info[
                         self.raw_sliced[slice_idx]
@@ -713,7 +707,7 @@ class JinjaAnalyzer:
             )
         # Treat the skipped whitespace as a literal.
         self.raw_sliced.append(
-            RawFileSlice(skipped_str, "literal", self.idx_raw, None, block_idx)
+            RawFileSlice(skipped_str, "literal", self.idx_raw, block_idx)
         )
         self.raw_slice_info[self.raw_sliced[-1]] = self.slice_info_for_literal(0)
         self.idx_raw += num_chars_skipped
