@@ -145,8 +145,13 @@ class JinjaTracer:
             )
         return raw_slices_search_result[0]
 
-    def move_to_slice(self, target_slice_idx: int, target_slice_length: int) -> None:
+    def move_to_slice(
+        self,
+        target_slice_idx: int,
+        target_slice_length: int,
+    ) -> Dict[int, List[int]]:
         """Given a template location, walk execution to that point."""
+        choices = {}
         while self.program_counter < len(self.raw_sliced):
             self.record_trace(
                 target_slice_length if self.program_counter == target_slice_idx else 0
@@ -171,7 +176,9 @@ class JinjaTracer:
                         candidates.append(next_slice_idx)
                 # Choose the candidate that takes us closest to the target.
                 candidates.sort(key=lambda c: abs(target_slice_idx - c))
+                choices[self.program_counter] = candidates
                 self.program_counter = candidates[0]
+        return choices
 
     def record_trace(
         self,
@@ -202,6 +209,7 @@ class JinjaTracer:
                     else len(self.raw_str),
                 ),
                 slice(self.source_idx, self.source_idx + target_slice_length),
+                slice_idx,
             )
         )
         if target_slice_length:

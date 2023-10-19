@@ -1,11 +1,12 @@
 """Defines the templaters."""
+import copy
 import importlib
 import logging
 import os.path
 import pkgutil
 import sys
 from functools import reduce
-from typing import Callable, Dict, Generator, List, Optional, Tuple
+from typing import Callable, Dict, Generator, Iterator, List, Optional, Set, Tuple, cast
 
 import jinja2.nodes
 from jinja2 import (
@@ -670,6 +671,158 @@ class JinjaTemplater(PythonTemplater):
         tracer = analyzer.analyze(render_func)
         trace = tracer.trace(append_to_templated=kwargs.pop("append_to_templated", ""))
         return trace.raw_sliced, trace.sliced_file, trace.templated_str
+
+    def _handle_unreached_code(
+        self,
+        in_str: str,
+        render_func: Callable[[str], str],
+        uncovered_slices: Set[int],
+        append_to_templated="",
+    ):
+        """Address uncovered slices by tweaking the template to hit them."""
+        analyzer = JinjaAnalyzer(in_str, self._get_jinja_env())
+        tracer_copy = analyzer.analyze(render_func)
+
+        max_variants_generated = 10
+        max_variants_returned = 5
+        variants = {}
+        for uncovered_slice in sorted(uncovered_slices)[:max_variants_generated]:
+            tracer_probe = copy.deepcopy(tracer_copy)
+            tracer_trace = copy.deepcopy(tracer_copy)
+            override_raw_slices = []
+            # Find a path that takes us to 'uncovered_slice'.
+            choices = tracer_probe.move_to_slice(uncovered_slice, 0)
+            for branch, options in choices.items():
+                tag = tracer_probe.raw_sliced[branch].tag
+                if tag in ("if", "elif"):
+                    # Replace the existing "if" of "elif" expression with a new,
+                    # hardcoded value that hits the target slice in the template
+                    # (here that is options[0]).
+                    new_value = "True" if options[0] == branch + 1 else "False"
+                    tracer_trace.raw_slice_info[
+                        tracer_probe.raw_sliced[branch]
+                    ].alternate_code = f"{{% {tag} {new_value} %}}"
+                    override_raw_slices.append(branch)
+            # Render and analyze the template with the overrides.
+            variant_key = tuple(
+                cast(str, tracer_trace.raw_slice_info[rs].alternate_code)
+                if idx in override_raw_slices
+                and tracer_trace.raw_slice_info[rs].alternate_code is not None
+                else rs.raw
+                for idx, rs in enumerate(tracer_trace.raw_sliced)
+            )
+            # In some cases (especially with nested if statements), we may
+            # generate a variant that duplicates an existing variant. Skip
+            # those.
+            if variant_key not in variants:
+                variant_raw_str = "".join(variant_key)
+                analyzer = JinjaAnalyzer(variant_raw_str, self._get_jinja_env())
+                tracer_trace = analyzer.analyze(render_func)
+                try:
+                    trace = tracer_trace.trace(
+                        append_to_templated=append_to_templated,
+                    )
+                except:  # noqa: E722
+                    # If we get an error tracing the variant, skip it. This may
+                    # happen for a variety of reasons. Basically there's no
+                    # guarantee that the variant will be valid Jinja.
+                    continue
+                else:
+                    # Compute a score for the variant based on the size of initially
+                    # uncovered literal slices it hits.
+                    covered_slices = set(tfs.slice_idx for tfs in trace.sliced_file)
+                    score = 0
+                    for newly_covered_slice_idx in covered_slices.intersection(
+                        uncovered_slices
+                    ):
+                        newly_covered_slice = trace.raw_sliced[newly_covered_slice_idx]
+                        score += (
+                            len(newly_covered_slice.raw)
+                            if newly_covered_slice.slice_type == "literal"
+                            else 0
+                        )
+                    variants[variant_raw_str] = (score, trace)
+
+        # Return the top-scoring variants.
+        sorted_variants = sorted(variants.values(), key=lambda v: v[0], reverse=True)
+        for _, trace in sorted_variants[:max_variants_returned]:
+            # :TRICKY: Yield variants that _look like_ they were rendered from
+            # the original template, but actually were rendered from a modified
+            # template. This should ensure that lint issues and fixes for the
+            # variants are handled correctly and can be combined with those from
+            # the original template.
+            yield (
+                tracer_copy.raw_sliced,
+                [
+                    tfs._replace(
+                        source_slice=slice(
+                            tracer_copy.raw_sliced[tfs.slice_idx].source_idx,
+                            tracer_copy.raw_sliced[tfs.slice_idx].source_idx
+                            + len(tracer_copy.raw_sliced[tfs.slice_idx].raw),
+                        )
+                    )
+                    for tfs in trace.sliced_file
+                ],
+                trace.templated_str,
+            )
+
+    @large_file_check
+    def process_with_variants(
+        self, *, in_str: str, fname: str, config=None, formatter=None
+    ) -> Iterator[Tuple[Optional[TemplatedFile], List]]:
+        """Process a string and return one or more variant renderings.
+
+        Note that the arguments are enforced as keywords
+        because Templaters can have differences in their
+        `process` method signature.
+        A Templater that only supports reading from a file
+        would need the following signature:
+            process(*, fname, in_str=None, config=None)
+        (arguments are swapped)
+
+        Args:
+            in_str (:obj:`str`): The input string.
+            fname (:obj:`str`, optional): The filename of this string. This is
+                mostly for loading config files at runtime.
+            config (:obj:`FluffConfig`): A specific config to use for this
+                templating operation. Only necessary for some templaters.
+            formatter (:obj:`CallbackFormatter`): Optional object for output.
+
+        """
+        templated_file, violations = self.process(
+            in_str=in_str, fname=fname, config=config, formatter=formatter
+        )
+        yield templated_file, violations
+
+        if not templated_file:
+            return  # pragma: no cover
+
+        # Find uncovered code (if any), tweak the template to hit that code.
+        literal_slices = {
+            idx
+            for idx, s in enumerate(templated_file.raw_sliced)
+            if s.slice_type == "literal"
+        }
+        covered_slices = set(tfs.slice_idx for tfs in templated_file.sliced_file)
+        uncovered_slices = literal_slices - covered_slices
+
+        # NOTE: No validation required as all validation done in the `.process()`
+        # call above.
+        _, _, render_func = self.construct_render_func(fname=fname, config=config)
+
+        for raw_sliced, sliced_file, templated_str in self._handle_unreached_code(
+            in_str, render_func, uncovered_slices
+        ):
+            yield (
+                TemplatedFile(
+                    source_str=in_str,
+                    templated_str=templated_str,
+                    fname=fname,
+                    sliced_file=sliced_file,
+                    raw_sliced=raw_sliced,
+                ),
+                violations,
+            )
 
 
 class DummyUndefined(jinja2.Undefined):
