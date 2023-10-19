@@ -398,6 +398,7 @@ class JinjaAnalyzer:
             if elem_type.endswith("_end") or elem_type == "raw_begin":
                 block_type = self.block_types[elem_type]
                 block_subtype = None
+                block_tag = None
                 # Handle starts and ends of blocks
                 if block_type in ("block", "templated"):
                     m_open = self.re_open_tag.search(str_parts[0])
@@ -408,9 +409,10 @@ class JinjaAnalyzer:
                         )
 
                     if block_type == "block" and tag_contents:
-                        block_type, block_subtype = self.extract_block_type(
-                            tag_contents[0], block_subtype
-                        )
+                        block_type = self.extract_block_type(tag_contents[0])
+                        block_tag = tag_contents[0]
+                        if block_type == "block_start" and tag_contents[0] == "for":
+                            block_subtype = "loop"
                     if block_type == "templated" and tag_contents:
                         assert m_open and m_close
                         raw_slice_info = self.track_templated(
@@ -443,6 +445,7 @@ class JinjaAnalyzer:
                             self.idx_raw,
                             block_subtype,
                             block_idx,
+                            block_tag,
                         )
                     )
                     self.raw_slice_info[self.raw_sliced[-1]] = raw_slice_info
@@ -469,9 +472,7 @@ class JinjaAnalyzer:
                             self.idx_raw,
                             block_subtype,
                             block_idx,
-                            tag_contents[0]
-                            if tag_contents and block_type.startswith("block")
-                            else None,
+                            block_tag,
                         )
                     )
                     self.raw_slice_info[self.raw_sliced[-1]] = raw_slice_info
@@ -568,9 +569,7 @@ class JinjaAnalyzer:
         self.idx_raw += len(raw)
 
     @staticmethod
-    def extract_block_type(
-        tag_name: str, block_subtype: Optional[str] = None
-    ) -> Tuple[str, Optional[str]]:
+    def extract_block_type(tag_name: str) -> str:
         """Determine block type."""
         # :TRICKY: Syntactically, the Jinja {% include %} directive looks like
         # a block, but its behavior is basically syntactic sugar for
@@ -585,9 +584,7 @@ class JinjaAnalyzer:
             block_type = "block_mid"
         else:
             block_type = "block_start"
-            if tag_name == "for":
-                block_subtype = "loop"
-        return block_type, block_subtype
+        return block_type
 
     @staticmethod
     def extract_tag_contents(

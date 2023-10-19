@@ -861,7 +861,7 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
             """SELECT 1 FROM {%+if true-%} {{ref('foo')}} {%-endif%}""",
             [
                 ("SELECT 1 FROM ", "literal", 0),
-                ("{%+if true-%}", "block_start", 14, None, 0),  # TODO: "if"
+                ("{%+if true-%}", "block_start", 14, None, 0, "if"),
                 (" ", "literal", 27),  #  TODO: Is this right?
                 ("{{ref('foo')}}", "templated", 28, None, 1),
                 (" ", "literal", 42, None, 1),
@@ -875,7 +875,7 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
 {{ "UNION ALL\n" if not loop.last }}
 {%- endfor %}""",
             [
-                ("{% for item in some_list -%}", "block_start", 0, "loop"),
+                ("{% for item in some_list -%}", "block_start", 0, "loop", 0, "for"),
                 # This gets consumed in the templated file, but it's still here.
                 ("\n    ", "literal", 28, None, 0),  # TODO: Is this right?
                 ("SELECT *\n    FROM some_table\n", "literal", 33, None, 1),
