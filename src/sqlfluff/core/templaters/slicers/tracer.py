@@ -145,8 +145,24 @@ class JinjaTracer:
             )
         return raw_slices_search_result[0]
 
-    def move_to_slice(self, target_slice_idx: int, target_slice_length: int) -> None:
-        """Given a template location, walk execution to that point."""
+    def move_to_slice(
+        self,
+        target_slice_idx: int,
+        target_slice_length: int,
+    ) -> Dict[int, List[int]]:
+        """Given a template location, walk execution to that point.
+
+        This updates the internal `program_counter` to the appropriate
+        location.
+
+        Returns:
+            :obj:`dict`: For each step in the template, a :obj:`list` of
+                which steps are accessible. In many cases each step will
+                only have one accessible next step (the following one),
+                however for branches in the program there may be more than
+                one.
+        """
+        step_candidates = {}
         while self.program_counter < len(self.raw_sliced):
             self.record_trace(
                 target_slice_length if self.program_counter == target_slice_idx else 0
@@ -156,22 +172,28 @@ class JinjaTracer:
                 # Reached the target slice. Go to next location and stop.
                 self.program_counter += 1
                 break
-            else:
-                # Choose the next step.
 
-                # We could simply go to the next slice (sequential execution).
-                candidates = [self.program_counter + 1]
-                # If we have other options, consider those.
-                for next_slice_idx in self.raw_slice_info[
-                    current_raw_slice
-                ].next_slice_indices:
-                    # It's a valid possibility if it does not take us past the
-                    # target.
-                    if next_slice_idx <= target_slice_idx:
-                        candidates.append(next_slice_idx)
-                # Choose the candidate that takes us closest to the target.
-                candidates.sort(key=lambda c: abs(target_slice_idx - c))
-                self.program_counter = candidates[0]
+            # Choose the next step.
+            # We could simply go to the next slice (sequential execution).
+            candidates = [self.program_counter + 1]
+            # If we have other options, consider those.
+            candidates.extend(
+                filter(
+                    # They're a valid possibility if
+                    # they don't take us past the target.
+                    lambda idx: idx <= target_slice_idx,
+                    self.raw_slice_info[current_raw_slice].next_slice_indices,
+                )
+            )
+            # Choose the candidate that takes us closest to the target.
+            candidates.sort(key=lambda c: abs(target_slice_idx - c))
+            # Save all the candidates for each step so we can return them later.
+            step_candidates[self.program_counter] = candidates
+            # Step forward to the best step found.
+            self.program_counter = candidates[0]
+
+        # Return the candidates at each step.
+        return step_candidates
 
     def record_trace(
         self,
@@ -642,11 +664,16 @@ class JinjaAnalyzer:
             "if",
         ):
             self.stack.append(slice_idx)
-        elif block_type == "block_mid":
+            return None
+        elif not self.stack:
+            return None
+
+        _idx = self.stack[-1]
+        _raw_slice = self.raw_sliced[_idx]
+        _slice_info = self.raw_slice_info[_raw_slice]
+        if block_type == "block_mid":
             # Record potential forward jump over this block.
-            self.raw_slice_info[
-                self.raw_sliced[self.stack[-1]]
-            ].next_slice_indices.append(slice_idx)
+            _slice_info.next_slice_indices.append(slice_idx)
             self.stack.pop()
             self.stack.append(slice_idx)
         elif block_type == "block_end" and tag_name in (
@@ -655,16 +682,13 @@ class JinjaAnalyzer:
         ):
             if not self.inside_set_macro_or_call:
                 # Record potential forward jump over this block.
-                self.raw_slice_info[
-                    self.raw_sliced[self.stack[-1]]
-                ].next_slice_indices.append(slice_idx)
-                _slice = self.raw_sliced[self.stack[-1]]
-                if _slice.slice_type == "block_start" and _slice.tag == "for":
+                _slice_info.next_slice_indices.append(slice_idx)
+                self.stack.pop()
+                if _raw_slice.slice_type == "block_start" and _raw_slice.tag == "for":
                     # Record potential backward jump to the loop beginning.
                     self.raw_slice_info[
                         self.raw_sliced[slice_idx]
-                    ].next_slice_indices.append(self.stack[-1] + 1)
-                self.stack.pop()
+                    ].next_slice_indices.append(_idx + 1)
 
     def handle_left_whitespace_stripping(self, token: str, block_idx: int) -> None:
         """If block open uses whitespace stripping, record it.
