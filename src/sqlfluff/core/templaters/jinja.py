@@ -698,7 +698,7 @@ class JinjaTemplater(PythonTemplater):
 
         max_variants_generated = 10
         max_variants_returned = 5
-        variants: Dict[str, Tuple(int, JinjaTrace)] = {}
+        variants: Dict[str, Tuple[int, JinjaTrace]] = {}
 
         # Create a mapping of the original source slices before modification so
         # we can adjust the positions post-modification.
