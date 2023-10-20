@@ -650,11 +650,16 @@ class JinjaAnalyzer:
             "if",
         ):
             self.stack.append(slice_idx)
-        elif block_type == "block_mid":
+            return None
+        elif not self.stack:
+            return None
+
+        _idx = self.stack[-1]
+        _raw_slice = self.raw_sliced[_idx]
+        _slice_info = self.raw_slice_info[_raw_slice]
+        if block_type == "block_mid":
             # Record potential forward jump over this block.
-            self.raw_slice_info[
-                self.raw_sliced[self.stack[-1]]
-            ].next_slice_indices.append(slice_idx)
+            _slice_info.next_slice_indices.append(slice_idx)
             self.stack.pop()
             self.stack.append(slice_idx)
         elif block_type == "block_end" and tag_name in (
@@ -663,16 +668,13 @@ class JinjaAnalyzer:
         ):
             if not self.inside_set_macro_or_call:
                 # Record potential forward jump over this block.
-                self.raw_slice_info[
-                    self.raw_sliced[self.stack[-1]]
-                ].next_slice_indices.append(slice_idx)
-                _slice = self.raw_sliced[self.stack[-1]]
-                if _slice.slice_type == "block_start" and _slice.tag == "for":
+                _slice_info.next_slice_indices.append(slice_idx)
+                self.stack.pop()
+                if _raw_slice.slice_type == "block_start" and _raw_slice.tag == "for":
                     # Record potential backward jump to the loop beginning.
                     self.raw_slice_info[
                         self.raw_sliced[slice_idx]
-                    ].next_slice_indices.append(self.stack[-1] + 1)
-                self.stack.pop()
+                    ].next_slice_indices.append(_idx + 1)
 
     def handle_left_whitespace_stripping(self, token: str, block_idx: int) -> None:
         """If block open uses whitespace stripping, record it.
