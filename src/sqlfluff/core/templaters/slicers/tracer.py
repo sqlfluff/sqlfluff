@@ -150,8 +150,19 @@ class JinjaTracer:
         target_slice_idx: int,
         target_slice_length: int,
     ) -> Dict[int, List[int]]:
-        """Given a template location, walk execution to that point."""
-        choices = {}
+        """Given a template location, walk execution to that point.
+
+        This updates the internal `program_counter` to the appropriate
+        location.
+
+        Returns:
+            :obj:`dict`: For each step in the template, a :obj:`list` of
+                which steps are accessible. In many cases each step will
+                only have one accessible next step (the following one),
+                however for branches in the program there may be more than
+                one.
+        """
+        step_candidates = {}
         while self.program_counter < len(self.raw_sliced):
             self.record_trace(
                 target_slice_length if self.program_counter == target_slice_idx else 0
@@ -161,24 +172,28 @@ class JinjaTracer:
                 # Reached the target slice. Go to next location and stop.
                 self.program_counter += 1
                 break
-            else:
-                # Choose the next step.
 
-                # We could simply go to the next slice (sequential execution).
-                candidates = [self.program_counter + 1]
-                # If we have other options, consider those.
-                for next_slice_idx in self.raw_slice_info[
-                    current_raw_slice
-                ].next_slice_indices:
-                    # It's a valid possibility if it does not take us past the
-                    # target.
-                    if next_slice_idx <= target_slice_idx:
-                        candidates.append(next_slice_idx)
-                # Choose the candidate that takes us closest to the target.
-                candidates.sort(key=lambda c: abs(target_slice_idx - c))
-                choices[self.program_counter] = candidates
-                self.program_counter = candidates[0]
-        return choices
+            # Choose the next step.
+            # We could simply go to the next slice (sequential execution).
+            candidates = [self.program_counter + 1]
+            # If we have other options, consider those.
+            candidates.extend(
+                filter(
+                    # They're a valid possibility if
+                    # they don't take us past the target.
+                    lambda idx: idx <= target_slice_idx,
+                    self.raw_slice_info[current_raw_slice].next_slice_indices,
+                )
+            )
+            # Choose the candidate that takes us closest to the target.
+            candidates.sort(key=lambda c: abs(target_slice_idx - c))
+            # Save all the candidates for each step so we can return them later.
+            step_candidates[self.program_counter] = candidates
+            # Step forward to the best step found.
+            self.program_counter = candidates[0]
+
+        # Return the candidates at each step.
+        return step_candidates
 
     def record_trace(
         self,
