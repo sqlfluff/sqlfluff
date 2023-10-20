@@ -22,6 +22,7 @@ from jinja2.sandbox import SandboxedEnvironment
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLBaseError, SQLFluffUserError, SQLTemplaterError
+from sqlfluff.core.slice_helpers import is_zero_slice, slice_length
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
     TemplatedFile,
@@ -29,7 +30,7 @@ from sqlfluff.core.templaters.base import (
     large_file_check,
 )
 from sqlfluff.core.templaters.python import PythonTemplater
-from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer
+from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer, JinjaTrace
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -679,13 +680,33 @@ class JinjaTemplater(PythonTemplater):
         uncovered_slices: Set[int],
         append_to_templated="",
     ):
-        """Address uncovered slices by tweaking the template to hit them."""
+        """Address uncovered slices by tweaking the template to hit them.
+
+        Args:
+            in_str (:obj:`str`): The raw source file.
+            render_func (:obj:`callable`): The render func for the templater.
+            uncovered_slices (:obj:`set` of :obj:`int`): Indices of slices in the raw
+                file which are not rendered in the original rendering. These are the
+                slices we'll attempt to hit by modifying the template. NOTE: These are
+                indices in the _sequence of slices_, not _character indices_ in the
+                raw source file.
+            append_to_templated (:obj:`str`, optional): Optional string to append
+                to the templated file.
+        """
         analyzer = JinjaAnalyzer(in_str, self._get_jinja_env())
         tracer_copy = analyzer.analyze(render_func)
 
         max_variants_generated = 10
         max_variants_returned = 5
-        variants = {}
+        variants: Dict[str, Tuple(int, JinjaTrace)] = {}
+
+        # Create a mapping of the original source slices before modification so
+        # we can adjust the positions post-modification.
+        original_source_slices = {
+            idx: raw_slice.source_slice()
+            for idx, raw_slice in enumerate(tracer_copy.raw_sliced)
+        }
+
         for uncovered_slice in sorted(uncovered_slices)[:max_variants_generated]:
             tracer_probe = copy.deepcopy(tracer_copy)
             tracer_trace = copy.deepcopy(tracer_copy)
@@ -730,39 +751,55 @@ class JinjaTemplater(PythonTemplater):
                 else:
                     # Compute a score for the variant based on the size of initially
                     # uncovered literal slices it hits.
-                    covered_slices = set(tfs.slice_idx for tfs in trace.sliced_file)
-                    score = 0
-                    for newly_covered_slice_idx in covered_slices.intersection(
-                        uncovered_slices
-                    ):
-                        newly_covered_slice = trace.raw_sliced[newly_covered_slice_idx]
-                        score += (
-                            len(newly_covered_slice.raw)
-                            if newly_covered_slice.slice_type == "literal"
-                            else 0
-                        )
+                    # NOTE: We need to map this back to the positions in the original
+                    # file, and only have the positions in the modified file here.
+                    # That means we go translate back via the slice index in raw file.
+
+                    # First, work out the literal positions in the modified file which
+                    # are now covered.
+                    _covered_source_positions = {
+                        tfs.source_slice.start
+                        for tfs in trace.sliced_file
+                        if tfs.slice_type == "literal"
+                        and not is_zero_slice(tfs.templated_slice)
+                    }
+                    # Second, convert these back into indices so we can use them to
+                    # refer to the unmodified source file.
+                    _covered_raw_slice_idxs = [
+                        idx
+                        for idx, raw_slice in enumerate(trace.raw_sliced)
+                        if raw_slice.source_idx in _covered_source_positions
+                    ]
+
+                    score = sum(
+                        slice_length(original_source_slices[idx])
+                        for idx in _covered_raw_slice_idxs
+                        if idx in uncovered_slices
+                    )
+
                     variants[variant_raw_str] = (score, trace)
 
         # Return the top-scoring variants.
-        sorted_variants = sorted(variants.values(), key=lambda v: v[0], reverse=True)
+        sorted_variants: List[Tuple[int, JinjaTrace]] = sorted(
+            variants.values(), key=lambda v: v[0], reverse=True
+        )
         for _, trace in sorted_variants[:max_variants_returned]:
             # :TRICKY: Yield variants that _look like_ they were rendered from
             # the original template, but actually were rendered from a modified
             # template. This should ensure that lint issues and fixes for the
             # variants are handled correctly and can be combined with those from
             # the original template.
+            # To do this we run through modified slices and adjust their source
+            # slices to correspond with the original version. We do this by referencing
+            # their slice position in the original file, because we know we haven't
+            # changed the number or ordering of slices, just their length/content.
+            adjusted_slices: List[TemplatedFileSlice] = [
+                tfs._replace(source_slice=original_source_slices[idx])
+                for idx, tfs in enumerate(trace.sliced_file)
+            ]
             yield (
                 tracer_copy.raw_sliced,
-                [
-                    tfs._replace(
-                        source_slice=slice(
-                            tracer_copy.raw_sliced[tfs.slice_idx].source_idx,
-                            tracer_copy.raw_sliced[tfs.slice_idx].source_idx
-                            + len(tracer_copy.raw_sliced[tfs.slice_idx].raw),
-                        )
-                    )
-                    for tfs in trace.sliced_file
-                ],
+                adjusted_slices,
                 trace.templated_str,
             )
 
@@ -798,20 +835,33 @@ class JinjaTemplater(PythonTemplater):
             return  # pragma: no cover
 
         # Find uncovered code (if any), tweak the template to hit that code.
-        literal_slices = {
-            idx
-            for idx, s in enumerate(templated_file.raw_sliced)
-            if s.slice_type == "literal"
+        # First, identify the literals which _are_ covered.
+        covered_literal_positions = {
+            tfs.source_slice.start
+            for tfs in templated_file.sliced_file
+            # It's covered if it's rendered
+            if not is_zero_slice(tfs.templated_slice)
         }
-        covered_slices = set(tfs.slice_idx for tfs in templated_file.sliced_file)
-        uncovered_slices = literal_slices - covered_slices
+        templater_logger.debug(
+            "Covered literal positions %s", covered_literal_positions
+        )
+
+        uncovered_literal_idxs = {
+            idx
+            for idx, raw_slice in enumerate(templated_file.raw_sliced)
+            if raw_slice.slice_type == "literal"
+            and raw_slice.source_idx not in covered_literal_positions
+        }
+        templater_logger.debug(
+            "Uncovered literals correspond to slices %s", uncovered_literal_idxs
+        )
 
         # NOTE: No validation required as all validation done in the `.process()`
         # call above.
         _, _, render_func = self.construct_render_func(fname=fname, config=config)
 
         for raw_sliced, sliced_file, templated_str in self._handle_unreached_code(
-            in_str, render_func, uncovered_slices
+            in_str, render_func, uncovered_literal_idxs
         ):
             yield (
                 TemplatedFile(

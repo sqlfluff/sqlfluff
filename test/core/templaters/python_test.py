@@ -407,7 +407,7 @@ def test__templater_python_split_uniques_coalesce_rest(
             "foo",
             "foo",
             True,
-            [("literal", slice(0, 3, None), slice(0, 3, None), None)],
+            [("literal", slice(0, 3, None), slice(0, 3, None))],
         ),
         (
             "SELECT {blah}, {foo:.2f} as foo, {bar}, '{{}}' as convertible from "
@@ -415,15 +415,15 @@ def test__templater_python_split_uniques_coalesce_rest(
             "SELECT nothing, 435.24 as foo, spam, '{}' as convertible from something",
             True,
             [
-                ("literal", slice(0, 7, None), slice(0, 7, None), None),
-                ("templated", slice(7, 13, None), slice(7, 14, None), None),
-                ("literal", slice(13, 15, None), slice(14, 16, None), None),
-                ("templated", slice(15, 24, None), slice(16, 22, None), None),
-                ("literal", slice(24, 33, None), slice(22, 31, None), None),
-                ("templated", slice(33, 38, None), slice(31, 35, None), None),
-                ("literal", slice(38, 41, None), slice(35, 38, None), None),
-                ("escaped", slice(41, 45, None), slice(38, 40, None), None),
-                ("literal", slice(45, 76, None), slice(40, 71, None), None),
+                ("literal", slice(0, 7, None), slice(0, 7, None)),
+                ("templated", slice(7, 13, None), slice(7, 14, None)),
+                ("literal", slice(13, 15, None), slice(14, 16, None)),
+                ("templated", slice(15, 24, None), slice(16, 22, None)),
+                ("literal", slice(24, 33, None), slice(22, 31, None)),
+                ("templated", slice(33, 38, None), slice(31, 35, None)),
+                ("literal", slice(38, 41, None), slice(35, 38, None)),
+                ("escaped", slice(41, 45, None), slice(38, 40, None)),
+                ("literal", slice(45, 76, None), slice(40, 71, None)),
             ],
         ),
         # Test a wrapped example. Given the default config is to unwrap any wrapped
@@ -434,9 +434,9 @@ def test__templater_python_split_uniques_coalesce_rest(
             True,
             # The sliced version should have trimmed the ends
             [
-                ("literal", slice(0, 7, None), slice(0, 7, None), None),
-                ("templated", slice(7, 13, None), slice(7, 14, None), None),
-                ("literal", slice(13, 28, None), slice(14, 29, None), None),
+                ("literal", slice(0, 7, None), slice(0, 7, None)),
+                ("templated", slice(7, 13, None), slice(7, 14, None)),
+                ("literal", slice(13, 28, None), slice(14, 29, None)),
             ],
         ),
         (
@@ -445,11 +445,11 @@ def test__templater_python_split_uniques_coalesce_rest(
             False,  # Test NOT unwrapping it.
             # The sliced version should NOT have trimmed the ends
             [
-                ("templated", slice(0, 0, None), slice(0, 14, None), None),
-                ("literal", slice(0, 7, None), slice(14, 21, None), None),
-                ("templated", slice(7, 13, None), slice(21, 28, None), None),
-                ("literal", slice(13, 28, None), slice(28, 43, None), None),
-                ("templated", slice(28, 28, None), slice(43, 63, None), None),
+                ("templated", slice(0, 0, None), slice(0, 14, None)),
+                ("literal", slice(0, 7, None), slice(14, 21, None)),
+                ("templated", slice(7, 13, None), slice(21, 28, None)),
+                ("literal", slice(13, 28, None), slice(28, 43, None)),
+                ("templated", slice(28, 28, None), slice(43, 63, None)),
             ],
         ),
     ],

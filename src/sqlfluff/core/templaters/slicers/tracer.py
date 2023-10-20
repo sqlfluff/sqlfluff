@@ -209,7 +209,6 @@ class JinjaTracer:
                     else len(self.raw_str),
                 ),
                 slice(self.source_idx, self.source_idx + target_slice_length),
-                slice_idx,
             )
         )
         if target_slice_length:
