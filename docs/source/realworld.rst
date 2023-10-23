@@ -88,8 +88,8 @@ so that the configuration values can be as streamlined as possible.
 
 .. _`infrastructure as code`: https://en.wikipedia.org/wiki/Infrastructure_as_code
 .. _`viewpoint section of the docs for the open-source tool dbt`: https://docs.getdbt.com/docs/viewpoint
-.. _`quality assurance`: https://docs.getdbt.com/docs/viewpoint#section-quality-assurance
-.. _`modularity`: https://docs.getdbt.com/docs/viewpoint#section-modularity
+.. _`quality assurance`: https://docs.getdbt.com/docs/viewpoint#quality-assurance
+.. _`modularity`: https://docs.getdbt.com/docs/viewpoint#modularity
 .. _`consistent style`: https://www.smashingmagazine.com/2012/10/why-coding-style-matters/
 .. _`linters`: https://en.wikipedia.org/wiki/Lint_(software)
 .. _`flake8`: http://flake8.pycqa.org/
