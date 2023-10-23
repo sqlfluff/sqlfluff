@@ -386,9 +386,18 @@ def test__templater_dbt_templating_absolute_path(
     [
         (
             "compiler_error.sql",
-            "dbt compilation error on file 'models/my_new_project/compiler_error.sql', "
-            "Unexpected end of template. "
-            "Jinja was looking for the following tags: 'endfor'",
+            "Compilation Error in model compiler_error "
+            "(models/my_new_project/compiler_error.sql)\n"
+            "  Unexpected end of template. Jinja was looking for the following "
+            "tags: 'endfor' or 'else'. The innermost block that needs to be closed "
+            "is 'for'.\n    line 5\n      {{ col }}",
+        ),
+        (
+            "issue_3849.sql",
+            # https://github.com/sqlfluff/sqlfluff/issues/3849
+            "Model 'model.my_new_project.issue_3849' "
+            "(models/my_new_project/issue_3849.sql) depends on a node named "
+            "'i_do_not_exist' which was not found",
         ),
     ],
 )
@@ -416,7 +425,7 @@ def test__templater_dbt_handle_exceptions(
         get_adapter(dbt_templater.dbt_config).connections.release()
     assert violations
     # NB: Replace slashes to deal with different platform paths being returned.
-    assert violations[0].desc().replace("\\", "/").startswith(exception_msg)
+    assert exception_msg in violations[0].desc().replace("\\", "/")
 
 
 @mock.patch("dbt.adapters.postgres.impl.PostgresAdapter.set_relations_cache")

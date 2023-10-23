@@ -614,7 +614,19 @@ class DbtTemplater(JinjaTemplater):
         except ImportError:
             cv_project_root = None
 
-        node = self._find_node(fname, config)
+        try:
+            from dbt.exceptions import DbtRuntimeError
+        except ImportError:
+            from dbt.exceptions import RuntimeException as DbtRuntimeError
+
+        try:
+            node = self._find_node(fname, config)
+        except DbtRuntimeError as err:
+            # DbtRuntimeError includes database errors and compilation errors
+            # such as when a relation doesn't exist.
+            # https://github.com/sqlfluff/sqlfluff/issues/3849
+            raise SQLTemplaterError(f"Fatal dbt compilation error for {fname}: {err!s}")
+
         templater_logger.debug(
             "_find_node for path %r returned object of type %s.", fname, type(node)
         )
