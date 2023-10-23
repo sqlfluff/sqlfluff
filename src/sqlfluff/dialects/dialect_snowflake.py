@@ -3208,18 +3208,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
         Sequence("COLLATE", Ref("CollationReferenceSegment")),
         Sequence(
             "DEFAULT",
-            OneOf(
-                Ref("QuotedLiteralSegment"),
-                # https://docs.snowflake.com/en/sql-reference/functions/current_timestamp.html
-                Sequence(
-                    "CURRENT_TIMESTAMP",
-                    Bracketed(
-                        Ref("NumericLiteralSegment", optional=True), optional=True
-                    ),
-                ),
-                # https://docs.snowflake.com/en/sql-reference/functions/sysdate.html
-                Sequence("SYSDATE", Bracketed()),
-            ),
+            Ref("ExpressionSegment"),
         ),
         Sequence(
             OneOf("AUTOINCREMENT", "IDENTITY"),
