@@ -1070,6 +1070,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateSequenceStatementSegment"),
             Ref("AlterSequenceStatementSegment"),
             Ref("AlterDatabaseSegment"),
+            Ref("AlterMaskingPolicySegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -7215,5 +7216,37 @@ class AlterDatabaseSegment(BaseSegment):
                     ),
                 ),
             ),
+        ),
+    )
+
+
+class AlterMaskingPolicySegment(BaseSegment):
+    """An `ALTER MASKING POLICY` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-masking-policy
+    """
+
+    type = "alter_masking_policy"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "MASKING",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "SET",
+                "BODY",
+                Ref("FunctionAssignerSegment"),
+                Ref("ExpressionSegment"),
+            ),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            Sequence(
+                "SET", "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+            ),
+            Sequence("UNSET", "COMMENT"),
         ),
     )
