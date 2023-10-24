@@ -1074,7 +1074,7 @@ class FluffConfig:
         will take precedence over any earlier values.
         """
         loader = ConfigLoader.get_global()
-        config_state = {}
+        config_state: Dict[str, Any] = {}
         for config_string in config_strings:
             config_state = loader.load_config_string(
                 config_string, configs=config_state
