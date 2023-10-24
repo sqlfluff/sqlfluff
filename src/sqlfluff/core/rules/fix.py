@@ -667,7 +667,7 @@ def apply_fixes(
     # Only validate if there's a match_grammar. Otherwise we may get
     # strange results (for example with the BracketedSegment).
     if requires_validate and hasattr(new_seg, "match_grammar"):
-        validated = segment._validate_segment_after_fixes(dialect, new_seg)
+        validated = new_seg.validate_segment_with_reparse(dialect)
     else:
         validated = not requires_validate
     # Return the new segment and any non-code that needs to bubble up

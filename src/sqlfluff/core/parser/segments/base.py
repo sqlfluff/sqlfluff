@@ -1176,30 +1176,29 @@ class BaseSegment(metaclass=SegmentMetaclass):
             f"{self.segments[-1].raw!r}.\n{self.segments!r}"
         )
 
-    def _validate_segment_after_fixes(
+    def validate_segment_with_reparse(
         self,
         dialect: "Dialect",
-        segment: BaseSegment,
     ) -> bool:
         """Checks correctness of new segment by re-parsing it."""
         ctx = ParseContext(dialect=dialect)
         # We're going to check the rematch without any metas because the
         # matching routines will assume they haven't already been added.
         # We also strip any non-code from the ends which might have moved.
-        raw_content = tuple(s for s in segment.raw_segments if not s.is_meta)
+        raw_content = tuple(s for s in self.raw_segments if not s.is_meta)
         _, trimmed_content, _ = trim_non_code_segments(raw_content)
         if not trimmed_content and self.can_start_end_non_code:
             # Edge case for empty segments which are allowed to be empty.
             return True
-        rematch = segment.match(trimmed_content, 0, ctx)
+        rematch = self.match(trimmed_content, 0, ctx)
         if not rematch.matched_slice == slice(0, len(trimmed_content)):
             linter_logger.debug(
-                f"Validation Check Fail for {segment}.Incomplete Match. "
+                f"Validation Check Fail for {self}.Incomplete Match. "
                 f"\nMatched: {rematch.apply(trimmed_content)}. "
                 f"\nUnmatched: {trimmed_content[rematch.matched_slice.stop:]}."
             )
             return False
-        opening_unparsables = set(segment.recursive_crawl("unparsable"))
+        opening_unparsables = set(self.recursive_crawl("unparsable"))
         closing_unparsables: Set[BaseSegment] = set()
         new_segments = rematch.apply(trimmed_content)
         for seg in new_segments:
@@ -1211,7 +1210,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             return True
 
         linter_logger.debug(
-            f"Validation Check Fail for {segment}.\nFound additional Unparsables: "
+            f"Validation Check Fail for {self}.\nFound additional Unparsables: "
             f"{closing_unparsables - opening_unparsables}"
         )
         return False
