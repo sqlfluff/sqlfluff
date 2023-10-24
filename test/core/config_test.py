@@ -9,12 +9,10 @@ from unittest.mock import call, patch
 import appdirs
 import pytest
 
-from sqlfluff.core import FluffConfig, Linter, config
+from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.config import (
     REMOVED_CONFIGS,
     ConfigLoader,
-    dict_diff,
-    nested_combine,
 )
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.templaters import (
@@ -55,28 +53,6 @@ config_c = {
 def mock_xdg_home(monkeypatch):
     """Sets the XDG_CONFIG_HOME variable."""
     monkeypatch.setenv("XDG_CONFIG_HOME", "~/.config/my/special/path")
-
-
-def test__config__nested_combine():
-    """Test combination of two config dicts."""
-    a = {"a": {"b": {"c": 123, "d": 456}}}
-    b = {"b": {"b": {"c": 123, "d": 456}}}
-    c = {"a": {"b": {"c": 234, "e": 456}}}
-    r = nested_combine(a, b, c)
-    assert r == {
-        "a": {"b": {"c": 234, "e": 456, "d": 456}},
-        "b": {"b": {"c": 123, "d": 456}},
-    }
-
-
-def test__config__dict_diff():
-    """Test diffs between two config dicts."""
-    a = {"a": {"b": {"c": 123, "d": 456, "f": 6}}}
-    b = {"b": {"b": {"c": 123, "d": 456}}}
-    c = {"a": {"b": {"c": 234, "e": 456, "f": 6}}}
-    assert dict_diff(a, b) == a
-    assert dict_diff(a, c) == {"a": {"b": {"c": 123, "d": 456}}}
-    assert dict_diff(c, a) == {"a": {"b": {"c": 234, "e": 456}}}
 
 
 def test__config__load_file_dir():
@@ -287,26 +263,6 @@ def test__config__load_user_appdir_config(
             call(os.path.expanduser("~/Library/Application Support/sqlfluff")),
         ]
     )
-
-
-@pytest.mark.parametrize(
-    "raw_str, expected",
-    [
-        ("AL01,LT08,AL07", ["AL01", "LT08", "AL07"]),
-        ("\nAL01,\nLT08,\nAL07,", ["AL01", "LT08", "AL07"]),
-        (["AL01", "LT08", "AL07"], ["AL01", "LT08", "AL07"]),
-    ],
-)
-def test__config__split_comma_separated_string(raw_str, expected):
-    """Tests that string and lists are output correctly."""
-    assert config.split_comma_separated_string(raw_str) == expected
-
-
-def test__config__split_comma_separated_string_correct_type():
-    """Tests that invalid data types throw the correct error."""
-    with pytest.raises(SQLFluffUserError):
-        config.split_comma_separated_string(1)
-        config.split_comma_separated_string(True)
 
 
 def test__config__templater_selection():

@@ -39,8 +39,8 @@ from typing import (
 
 import regex
 
-from sqlfluff.core.config import split_comma_separated_string
 from sqlfluff.core.errors import SQLFluffUserError, SQLLintError
+from sqlfluff.core.helpers.string import split_comma_separated_string
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.plugin.host import is_main_process, plugins_loaded
 from sqlfluff.core.rules.config_info import get_config_info
