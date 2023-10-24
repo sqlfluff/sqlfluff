@@ -15,8 +15,8 @@ from typing import (
 )
 
 from sqlfluff.core.errors import SQLTemplaterError
-from sqlfluff.core.slice_helpers import offset_slice, zero_slice
-from sqlfluff.core.string_helpers import findall
+from sqlfluff.core.helpers.slice import offset_slice, zero_slice
+from sqlfluff.core.helpers.string import findall
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
     RawTemplater,

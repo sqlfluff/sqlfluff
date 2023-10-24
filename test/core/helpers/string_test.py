@@ -2,7 +2,7 @@
 
 import pytest
 
-from sqlfluff.core.string_helpers import findall
+from sqlfluff.core.helpers.string import findall
 
 
 @pytest.mark.parametrize(

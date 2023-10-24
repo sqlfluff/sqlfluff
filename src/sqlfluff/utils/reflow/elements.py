@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from itertools import chain
 from typing import Dict, List, Optional, Sequence, Set, Tuple, Type, Union, cast
 
+from sqlfluff.core.helpers.slice import slice_overlaps
 from sqlfluff.core.parser import PositionMarker
 from sqlfluff.core.parser.segments import (
     BaseSegment,
@@ -16,7 +17,6 @@ from sqlfluff.core.parser.segments import (
     WhitespaceSegment,
 )
 from sqlfluff.core.rules.base import LintFix, LintResult
-from sqlfluff.core.slice_helpers import slice_overlaps
 from sqlfluff.utils.reflow.config import ReflowConfig
 from sqlfluff.utils.reflow.depthmap import DepthInfo
 

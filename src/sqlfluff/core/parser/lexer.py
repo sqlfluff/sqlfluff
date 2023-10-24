@@ -8,6 +8,7 @@ import regex
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLLexError
+from sqlfluff.core.helpers.slice import is_zero_slice, offset_slice, to_tuple
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments import (
     BaseSegment,
@@ -20,7 +21,6 @@ from sqlfluff.core.parser.segments import (
     TemplateSegment,
     UnlexableSegment,
 )
-from sqlfluff.core.slice_helpers import is_zero_slice, offset_slice, to_tuple
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.templaters.base import TemplatedFileSlice
 

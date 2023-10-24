@@ -22,7 +22,7 @@ from jinja2.sandbox import SandboxedEnvironment
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLBaseError, SQLFluffUserError, SQLTemplaterError
-from sqlfluff.core.slice_helpers import is_zero_slice, slice_length
+from sqlfluff.core.helpers.slice import is_zero_slice, slice_length
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
     TemplatedFile,

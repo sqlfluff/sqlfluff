@@ -19,8 +19,8 @@ from typing import (
     cast,
 )
 
+from sqlfluff.core.helpers.slice import slice_length
 from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.slice_helpers import slice_length
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.segments import BaseSegment, MetaSegment, RawSegment

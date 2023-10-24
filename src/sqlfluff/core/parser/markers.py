@@ -6,7 +6,7 @@ This class is a construct to keep track of positions within a file.
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Optional, Tuple
 
-from sqlfluff.core.slice_helpers import zero_slice
+from sqlfluff.core.helpers.slice import zero_slice
 
 if TYPE_CHECKING:
     from sqlfluff.core.templaters import TemplatedFile  # pragma: no cover
