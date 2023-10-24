@@ -456,18 +456,14 @@ class DbtTemplater(JinjaTemplater):
         fname_absolute_path = os.path.abspath(fname)
 
         try:
-            from dbt.exceptions import (
-                CompilationException as DbtCompilationException,
-            )
-            from dbt.exceptions import (
-                FailedToConnectException as DbtFailedToConnectException,
-            )
+            # These are the names in dbt-core 1.4.1+
+            # https://github.com/dbt-labs/dbt-core/pull/6539
+            from dbt.exceptions import CompilationError, FailedToConnectError
         except ImportError:
+            # These are the historic names for older dbt-core versions
+            from dbt.exceptions import CompilationException as CompilationError
             from dbt.exceptions import (
-                CompilationError as DbtCompilationException,
-            )
-            from dbt.exceptions import (
-                FailedToConnectError as DbtFailedToConnectException,
+                FailedToConnectException as FailedToConnectError,
             )
 
         try:
@@ -476,21 +472,7 @@ class DbtTemplater(JinjaTemplater):
             # Reset the fail counter
             self._sequential_fails = 0
             return processed_result
-        except DbtCompilationException as e:
-            # Increment the counter
-            self._sequential_fails += 1
-            if e.node:
-                return None, [
-                    SQLTemplaterError(
-                        f"dbt compilation error on file '{e.node.original_file_path}', "
-                        f"{e.msg}",
-                        # It's fatal if we're over the limit
-                        fatal=self._sequential_fails > self.sequential_fail_limit,
-                    )
-                ]
-            else:
-                raise  # pragma: no cover
-        except DbtFailedToConnectException as e:
+        except FailedToConnectError as e:
             return None, [
                 SQLTemplaterError(
                     "dbt tried to connect to the database and failed: you could use "
@@ -498,6 +480,23 @@ class DbtTemplater(JinjaTemplater):
                     "https://docs.getdbt.com/reference/dbt-jinja-functions/execute/ "
                     f"Error: {e.msg}",
                     fatal=True,
+                )
+            ]
+        except CompilationError as e:
+            # Increment the counter
+            self._sequential_fails += 1
+            if e.node:
+                _msg = (
+                    f"dbt compilation error on file '{e.node.original_file_path}'"
+                    f", {e.msg}"
+                )
+            else:
+                _msg = f"dbt compilation error: {e.msg}"
+            return None, [
+                SQLTemplaterError(
+                    _msg,
+                    # It's fatal if we're over the limit
+                    fatal=self._sequential_fails > self.sequential_fail_limit,
                 )
             ]
         # If a SQLFluff error is raised, just pass it through
@@ -614,7 +613,10 @@ class DbtTemplater(JinjaTemplater):
         except ImportError:
             cv_project_root = None
 
+        # NOTE: _find_node will raise a compilation exception if the project
+        # fails to compile, and we catch that in the outer `.process()` method.
         node = self._find_node(fname, config)
+
         templater_logger.debug(
             "_find_node for path %r returned object of type %s.", fname, type(node)
         )
@@ -625,6 +627,15 @@ class DbtTemplater(JinjaTemplater):
             if v.config.materialized == "ephemeral"
             and not getattr(v, "compiled", False)
         )
+
+        try:
+            # These are the names in dbt-core 1.4.1+
+            # https://github.com/dbt-labs/dbt-core/pull/6539
+            from dbt.exceptions import UndefinedMacroError
+        except ImportError:
+            # These are the historic names for older dbt-core versions
+            from dbt.exceptions import UndefinedMacroException as UndefinedMacroError
+
         with self.connection():
             # Apply the monkeypatch.
             Environment.from_string = from_string
@@ -633,6 +644,10 @@ class DbtTemplater(JinjaTemplater):
                     node=node,
                     manifest=self.dbt_manifest,
                 )
+            except UndefinedMacroError as err:
+                # The explanation on the undefined macro error is already fairly
+                # explanatory, so just pass it straight through.
+                raise SQLTemplaterError(str(err))
             except Exception as err:  # pragma: no cover
                 # NOTE: We use .error() here rather than .exception() because
                 # for most users, the trace which accompanies the latter isn't
