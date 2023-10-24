@@ -386,11 +386,10 @@ def test__templater_dbt_templating_absolute_path(
     [
         (
             "compiler_error.sql",
-            "Compilation Error in model compiler_error "
-            "(models/my_new_project/compiler_error.sql)\n"
-            "  Unexpected end of template. Jinja was looking for the following "
-            "tags: 'endfor' or 'else'. The innermost block that needs to be closed "
-            "is 'for'.\n    line 5\n      {{ col }}",
+            "dbt compilation error on file 'models/my_new_project/compiler_error.sql'"
+            ", Unexpected end of template. Jinja was looking for the following tags:"
+            " 'endfor' or 'else'. The innermost block that needs to be closed is "
+            "'for'.\n  line 5\n    {{ col }}",
         ),
         (
             "issue_3849.sql",
