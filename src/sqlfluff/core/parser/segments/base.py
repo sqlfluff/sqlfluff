@@ -1176,7 +1176,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
             f"{self.segments[-1].raw!r}.\n{self.segments!r}"
         )
 
-
     def _validate_segment_after_fixes(
         self,
         dialect: "Dialect",
