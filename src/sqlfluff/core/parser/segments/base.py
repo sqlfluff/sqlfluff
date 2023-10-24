@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import logging
 import weakref
-from collections import defaultdict
 from dataclasses import dataclass
 from io import StringIO
 from itertools import chain
@@ -41,14 +40,11 @@ from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.matchable import Matchable
-from sqlfluff.core.parser.segments.fix import AnchorEditInfo, FixPatch, SourceFix
 from sqlfluff.core.parser.types import SimpleHintType
-from sqlfluff.core.templaters.base import TemplatedFile
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.dialects import Dialect
     from sqlfluff.core.parser.segments.raw import RawSegment
-    from sqlfluff.core.rules import LintFix
 
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
@@ -57,6 +53,25 @@ TupleSerialisedSegment = Tuple[str, Union[str, Tuple["TupleSerialisedSegment", .
 RecordSerialisedSegment = Dict[
     str, Union[None, str, "RecordSerialisedSegment", List["RecordSerialisedSegment"]]
 ]
+
+
+@dataclass(frozen=True)
+class SourceFix:
+    """A stored reference to a fix in the non-templated file."""
+
+    edit: str
+    source_slice: slice
+    # TODO: It might be possible to refactor this to not require
+    # a templated_slice (because in theory it's unnecessary).
+    # However much of the fix handling code assumes we need
+    # a position in the templated file to interpret it.
+    # More work required to achieve that if desired.
+    templated_slice: slice
+
+    def __hash__(self) -> int:
+        # Only hash based on the source slice, not the
+        # templated slice (which might change)
+        return hash((self.edit, self.source_slice.start, self.source_slice.stop))
 
 
 @dataclass(frozen=True)
@@ -1161,213 +1176,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
             f"{self.segments[-1].raw!r}.\n{self.segments!r}"
         )
 
-    def apply_fixes(
-        self, dialect: "Dialect", rule_code: str, fixes: Dict[int, AnchorEditInfo]
-    ) -> Tuple["BaseSegment", List["BaseSegment"], List["BaseSegment"], bool]:
-        """Apply a dictionary of fixes to this segment.
-
-        Used in applying fixes if we're fixing linting errors.
-        If anything changes, this should return a new version of the segment
-        rather than mutating the original.
-
-        Note: We need to have fixes to apply AND this must have children. In the case
-        of raw segments, they will be replaced or removed by their parent and
-        so this function should just return self.
-        """
-        if not fixes or self.is_raw():
-            return self, [], [], True
-
-        seg_buffer = []
-        before = []
-        after = []
-        fixes_applied: List[LintFix] = []
-        requires_validate = False
-
-        for seg in self.segments:
-            # Look for uuid match.
-            # This handles potential positioning ambiguity.
-            anchor_info: Optional[AnchorEditInfo] = fixes.pop(seg.uuid, None)
-
-            if anchor_info is None:
-                # No fix matches here, just add the segment and move on.
-                seg_buffer.append(seg)
-                continue
-
-            # Otherwise there is a fix match.
-            seg_fixes = anchor_info.fixes
-            if (
-                len(seg_fixes) == 2 and seg_fixes[0].edit_type == "create_after"
-            ):  # pragma: no cover
-                # Must be create_before & create_after. Swap so the
-                # "before" comes first.
-                seg_fixes.reverse()
-
-            for f in anchor_info.fixes:
-                assert f.anchor.uuid == seg.uuid
-                fixes_applied.append(f)
-                linter_logger.debug(
-                    "Matched fix for %s against segment: %s -> %s",
-                    rule_code,
-                    f,
-                    seg,
-                )
-
-                # Deletes are easy.
-                if f.edit_type == "delete":
-                    # We're just getting rid of this segment.
-                    requires_validate = True
-                    # NOTE: We don't add the segment in this case.
-                    continue
-
-                # Otherwise it must be a replace or a create.
-                assert f.edit_type in (
-                    "replace",
-                    "create_before",
-                    "create_after",
-                ), f"Unexpected edit_type: {f.edit_type!r} in {f!r}"
-
-                if f.edit_type == "create_after" and len(anchor_info.fixes) == 1:
-                    # in the case of a creation after that is not part
-                    # of a create_before/create_after pair, also add
-                    # this segment before the edit.
-                    seg_buffer.append(seg)
-
-                # We're doing a replacement (it could be a single
-                # segment or an iterable)
-                assert f.edit, f"Edit {f.edit_type!r} requires `edit`."
-                consumed_pos = False
-                for s in f.edit:
-                    seg_buffer.append(s)
-                    # If one of them has the same raw representation
-                    # then the first that matches gets to take the
-                    # original position marker.
-                    if (
-                        f.edit_type == "replace"
-                        and s.raw == seg.raw
-                        and not consumed_pos
-                    ):
-                        seg_buffer[-1].pos_marker = seg.pos_marker
-                        consumed_pos = True
-
-                # If we're just editing a segment AND keeping the type the
-                # same then no need to validate. Otherwise we should
-                # trigger a validation (e.g. for creations or
-                # multi-replace).
-                if not (
-                    f.edit_type == "replace"
-                    and len(f.edit) == 1
-                    and f.edit[0].class_types == seg.class_types
-                ):
-                    requires_validate = True
-
-                if f.edit_type == "create_before":
-                    # in the case of a creation before, also add this
-                    # segment on the end
-                    seg_buffer.append(seg)
-
-        # Invalidate any caches
-        self.invalidate_caches()
-
-        # If any fixes applied, do an intermediate reposition. When applying
-        # fixes to children and then trying to reposition them, that recursion
-        # may rely on the parent having already populated positions for any
-        # of the fixes applied there first. This ensures those segments have
-        # working positions to work with.
-        if fixes_applied:
-            assert self.pos_marker
-            seg_buffer = list(
-                self._position_segments(tuple(seg_buffer), parent_pos=self.pos_marker)
-            )
-
-        # Then recurse (i.e. deal with the children) (Requeueing)
-        seg_queue = seg_buffer
-        seg_buffer = []
-        for seg in seg_queue:
-            s, pre, post, validated = seg.apply_fixes(dialect, rule_code, fixes)
-            # 'before' and 'after' will usually be empty. Only used when
-            # lower-level fixes left 'seg' with non-code (usually
-            # whitespace) segments as the first or last children. This is
-            # generally not allowed (see the can_start_end_non_code field),
-            # and these segments need to be "bubbled up" the tree.
-            seg_buffer.extend(pre)
-            seg_buffer.append(s)
-            seg_buffer.extend(post)
-            # If we fail to validate a child segment, make sure to validate this
-            # segment.
-            if not validated:
-                requires_validate = True
-
-        # Most correct whitespace positioning will have already been handled
-        # _however_, the exception is `replace` edits which match start or
-        # end with whitespace. We also need to handle any leading or trailing
-        # whitespace ejected from the any fixes applied to child segments.
-        # Here we handle those by checking the start and end of the resulting
-        # segment sequence for whitespace.
-        # If we're left with any non-code at the end, trim them off and pass them
-        # up to the parent segment for handling.
-        if not self.can_start_end_non_code:
-            _idx = 0
-            for _idx in range(0, len(seg_buffer)):
-                if self._is_code_or_meta(seg_buffer[_idx]):
-                    break
-            before = seg_buffer[:_idx]
-            seg_buffer = seg_buffer[_idx:]
-
-            _idx = len(seg_buffer)
-            for _idx in range(len(seg_buffer), 0, -1):
-                if self._is_code_or_meta(seg_buffer[_idx - 1]):
-                    break
-            after = seg_buffer[_idx:]
-            seg_buffer = seg_buffer[:_idx]
-
-        # Reform into a new segment
-        assert self.pos_marker
-        try:
-            new_seg = self.__class__(
-                # Realign the segments within
-                segments=self._position_segments(
-                    tuple(seg_buffer), parent_pos=self.pos_marker
-                ),
-                pos_marker=self.pos_marker,
-                # Pass through any additional kwargs
-                **{k: getattr(self, k) for k in self.additional_kwargs},
-            )
-        except AssertionError as err:  # pragma: no cover
-            # An AssertionError on creating a new segment is likely a whitespace
-            # check fail. If possible add information about the fixes we tried to
-            # apply, before re-raising.
-            # NOTE: only available in python 3.11+.
-            if hasattr(err, "add_note"):
-                err.add_note(f" After applying fixes: {fixes_applied}.")
-            raise err
-
-        # Only validate if there's a match_grammar. Otherwise we may get
-        # strange results (for example with the BracketedSegment).
-        if requires_validate and hasattr(new_seg, "match_grammar"):
-            validated = self._validate_segment_after_fixes(dialect, new_seg)
-        else:
-            validated = not requires_validate
-        # Return the new segment and any non-code that needs to bubble up
-        # the tree.
-        # NOTE: We pass on whether this segment has been validated. It's
-        # very possible that our parsing here may fail depending on the
-        # type of segment that has been replaced, but if not we rely on
-        # a parent segment still being valid. If we get all the way up
-        # to the root and it's still not valid - that's a problem.
-        return new_seg, before, after, validated
-
-    @classmethod
-    def compute_anchor_edit_info(
-        cls, fixes: List["LintFix"]
-    ) -> Dict[int, AnchorEditInfo]:
-        """Group and count fixes by anchor, return dictionary."""
-        anchor_info = defaultdict(AnchorEditInfo)  # type: ignore
-        for fix in fixes:
-            # :TRICKY: Use segment uuid as the dictionary key since
-            # different segments may compare as equal.
-            anchor_id = fix.anchor.uuid
-            anchor_info[anchor_id].add(fix)
-        return dict(anchor_info)
 
     def _validate_segment_after_fixes(
         self,
@@ -1414,177 +1222,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         message: str, *args: Any
     ) -> None:  # pragma: no cover
         linter_logger.critical(message, exc_info=True, *args)
-
-    def _iter_source_fix_patches(
-        self, templated_file: TemplatedFile
-    ) -> Iterator[FixPatch]:
-        """Yield any source patches as fixes now.
-
-        NOTE: This yields source fixes for the segment and any of its
-        children, so it's important to call it at the right point in
-        the recursion to avoid yielding duplicates.
-        """
-        for source_fix in self.source_fixes:
-            yield FixPatch(
-                source_fix.templated_slice,
-                source_fix.edit,
-                patch_category="source",
-                source_slice=source_fix.source_slice,
-                templated_str=templated_file.templated_str[source_fix.templated_slice],
-                source_str=templated_file.source_str[source_fix.source_slice],
-            )
-
-    def iter_patches(self, templated_file: TemplatedFile) -> Iterator[FixPatch]:
-        """Iterate through the segments generating fix patches.
-
-        The patches are generated in TEMPLATED space. This is important
-        so that we defer dealing with any loops until later. At this stage
-        everything *should* happen in templated order.
-
-        Occasionally we have an insertion around a placeholder, so we also
-        return a hint to deal with that.
-        """
-        # Does it match? If so we can ignore it.
-        assert self.pos_marker
-        templated_raw = templated_file.templated_str[self.pos_marker.templated_slice]
-        matches = self.raw == templated_raw
-        if matches:
-            # First yield any source fixes
-            yield from self._iter_source_fix_patches(templated_file)
-            # Then return.
-            return
-
-        # If we're here, the segment doesn't match the original.
-        linter_logger.debug(
-            "# Changed Segment Found: %s at %s: Original: [%r] Fixed: [%r]",
-            type(self).__name__,
-            self.pos_marker.templated_slice,
-            templated_raw,
-            self.raw,
-        )
-
-        # If it's all literal, then we don't need to recurse.
-        if self.pos_marker.is_literal():
-            # First yield any source fixes
-            yield from self._iter_source_fix_patches(templated_file)
-            # Then yield the position in the source file and the patch
-            yield FixPatch(
-                source_slice=self.pos_marker.source_slice,
-                templated_slice=self.pos_marker.templated_slice,
-                patch_category="literal",
-                fixed_raw=self.raw,
-                templated_str=templated_file.templated_str[
-                    self.pos_marker.templated_slice
-                ],
-                source_str=templated_file.source_str[self.pos_marker.source_slice],
-            )
-        # Can we go deeper?
-        elif not self.segments:
-            # It's not literal, but it's also a raw segment. If we're going
-            # to yield a change, we would have done it from the parent, so
-            # we just abort from here.
-            return  # pragma: no cover TODO?
-        else:
-            # This segment isn't a literal, but has changed, we need to go deeper.
-
-            # If there's an end of file segment or indent, ignore them just for the
-            # purposes of patch iteration.
-            # NOTE: This doesn't mutate the underlying `self.segments`.
-            segments = self.segments
-            while segments and segments[-1].is_type("end_of_file", "indent"):
-                segments = segments[:-1]
-
-            # Iterate through the child segments
-            source_idx = self.pos_marker.source_slice.start
-            templated_idx = self.pos_marker.templated_slice.start
-            insert_buff = ""
-            for segment in segments:
-                # First check for insertions.
-                # At this stage, everything should have a position.
-                assert segment.pos_marker
-                # We know it's an insertion if it has length but not in the templated
-                # file.
-                if segment.raw and segment.pos_marker.is_point():
-                    # Add it to the insertion buffer if it has length:
-                    if segment.raw:
-                        insert_buff += segment.raw
-                        linter_logger.debug(
-                            "Appending insertion buffer. %r @idx: %s",
-                            insert_buff,
-                            templated_idx,
-                        )
-                    continue
-
-                # If we get here, then we know it's an original. Check for deletions at
-                # the point before this segment (vs the TEMPLATED).
-                # Deletions in this sense could also mean source consumption.
-                start_diff = segment.pos_marker.templated_slice.start - templated_idx
-
-                # Check to see whether there's a discontinuity before the current
-                # segment
-                if start_diff > 0 or insert_buff:
-                    # If we have an insert buffer, then it's an edit, otherwise a
-                    # deletion.
-
-                    # For the start of the next segment, we need the position of the
-                    # first raw, not the pos marker of the whole thing. That accounts
-                    # better for loops.
-                    first_segment_pos = segment.raw_segments[0].pos_marker
-                    yield FixPatch(
-                        # Whether the source slice is zero depends on the start_diff.
-                        # A non-zero start diff implies a deletion, or more likely
-                        # a consumed element of the source. We can use the tracking
-                        # markers from the last segment to recreate where this element
-                        # should be inserted in both source and template.
-                        source_slice=slice(
-                            source_idx,
-                            first_segment_pos.source_slice.start,
-                        ),
-                        templated_slice=slice(
-                            templated_idx,
-                            first_segment_pos.templated_slice.start,
-                        ),
-                        patch_category="mid_point",
-                        fixed_raw=insert_buff,
-                        templated_str="",
-                        source_str="",
-                    )
-
-                    insert_buff = ""
-
-                # Now we deal with any changes *within* the segment itself.
-                yield from segment.iter_patches(templated_file=templated_file)
-
-                # Once we've dealt with any patches from the segment, update
-                # our position markers.
-                source_idx = segment.pos_marker.source_slice.stop
-                templated_idx = segment.pos_marker.templated_slice.stop
-
-            # After the loop, we check whether there's a trailing deletion
-            # or insert. Also valid if we still have an insertion buffer here.
-            end_diff = self.pos_marker.templated_slice.stop - templated_idx
-            if end_diff or insert_buff:
-                source_slice = slice(
-                    source_idx,
-                    self.pos_marker.source_slice.stop,
-                )
-                templated_slice = slice(
-                    templated_idx,
-                    self.pos_marker.templated_slice.stop,
-                )
-                # We determine the source_slice directly rather than
-                # inferring it so that we can be very specific that
-                # we ensure that fixes adjacent to source-only slices
-                # (e.g. {% endif %}) are placed appropriately relative
-                # to source-only slices.
-                yield FixPatch(
-                    source_slice=source_slice,
-                    templated_slice=templated_slice,
-                    patch_category="end_point",
-                    fixed_raw=insert_buff,
-                    templated_str=templated_file.templated_str[templated_slice],
-                    source_str=templated_file.source_str[source_slice],
-                )
 
     def edit(
         self, raw: Optional[str] = None, source_fixes: Optional[List[SourceFix]] = None

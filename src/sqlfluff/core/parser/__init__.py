@@ -43,6 +43,7 @@ from sqlfluff.core.parser.segments import (
     NewlineSegment,
     RawSegment,
     SegmentGenerator,
+    SourceFix,
     SymbolSegment,
     UnlexableSegment,
     WhitespaceSegment,
@@ -52,6 +53,7 @@ from sqlfluff.core.parser.types import ParseMode
 
 __all__ = (
     "BaseSegment",
+    "SourceFix",
     "BaseFileSegment",
     "BracketedSegment",
     "RawSegment",

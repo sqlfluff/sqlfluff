@@ -11,7 +11,7 @@ import logging
 import pytest
 
 from sqlfluff.core import Linter
-from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.rules.fix import apply_fixes, compute_anchor_edit_info
 from sqlfluff.utils.reflow.helpers import deduce_line_indent, fixes_from_results
 from sqlfluff.utils.reflow.reindent import (
     _crawl_indent_points,
@@ -639,9 +639,9 @@ def test_reflow__lint_indent_points(raw_sql_in, raw_sql_out, default_config, cap
     # Now we've checked the elements - check that applying the fixes gets us to
     # the same place.
     print("Results:", results)
-    anchor_info = BaseSegment.compute_anchor_edit_info(fixes_from_results(results))
-    fixed_tree, _, _, valid = root.apply_fixes(
-        default_config.get("dialect_obj"), "TEST", anchor_info
+    anchor_info = compute_anchor_edit_info(fixes_from_results(results))
+    fixed_tree, _, _, valid = apply_fixes(
+        root, default_config.get("dialect_obj"), "TEST", anchor_info
     )
     assert valid, f"Reparse check failed: {fixed_tree.raw!r}"
     assert fixed_tree.raw == raw_sql_out, "Element check passed - but fix check failed!"
