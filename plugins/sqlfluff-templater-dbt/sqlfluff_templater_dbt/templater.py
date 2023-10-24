@@ -490,9 +490,7 @@ class DbtTemplater(JinjaTemplater):
                     f", {e.msg}"
                 )
             else:
-                _msg = (
-                    f"dbt compilation error: {e.msg}"
-                )
+                _msg = f"dbt compilation error: {e.msg}"
             return None, [
                 SQLTemplaterError(
                     _msg,
