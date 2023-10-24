@@ -1076,7 +1076,9 @@ class FluffConfig:
         loader = ConfigLoader.get_global()
         config_state = {}
         for config_string in config_strings:
-            config_state = loader.load_config_string(config_string, configs=config_state)
+            config_state = loader.load_config_string(
+                config_string, configs=config_state
+            )
         return cls(
             configs=config_state,
             extra_config_path=extra_config_path,
