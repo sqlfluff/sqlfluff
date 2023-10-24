@@ -457,6 +457,7 @@ class DbtTemplater(JinjaTemplater):
 
         try:
             # These are the names in dbt-core 1.4.1+
+            # https://github.com/dbt-labs/dbt-core/pull/6539
             from dbt.exceptions import CompilationError, FailedToConnectError
         except ImportError:
             # These are the historic names for older dbt-core versions
