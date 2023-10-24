@@ -19,9 +19,17 @@ sqlfluff.fix("SELECT  1", config_path="test/fixtures/.sqlfluff")
 config = FluffConfig(configs={"core": {"dialect": "bigquery"}})
 # 3b. FluffConfig objects can be created from a config file in a string.
 config = FluffConfig.from_string("[sqlfluff]\ndialect=bigquery\n")
-# 3c. FluffConfig objects can be created from a path containing a config file.
+# 3c. FluffConfig objects can be created from a config file in multiple strings
+#     to simulate the effect of multiple nested config strings.
+config = FluffConfig.from_strings(
+    # NOTE: Given these two strings, the resulting dialect would be "mysql"
+    # as the later files take precedence.
+    "[sqlfluff]\ndialect=bigquery\n",
+    "[sqlfluff]\ndialect=mysql\n",
+)
+# 3d. FluffConfig objects can be created from a path containing a config file.
 config = FluffConfig.from_path("test/fixtures/")
-# 3c. FluffConfig objects can be from keyword arguments
+# 3e. FluffConfig objects can be from keyword arguments
 config = FluffConfig.from_kwargs(dialect="bigquery", rules=["LT01"])
 
 # The FluffConfig is then provided via a config argument.

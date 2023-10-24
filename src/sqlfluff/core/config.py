@@ -1047,11 +1047,38 @@ class FluffConfig:
         overrides: Optional[Dict[str, Any]] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
     ) -> "FluffConfig":
-        """Loads a config object given a particular path."""
+        """Loads a config object from a single config string."""
         loader = ConfigLoader.get_global()
         c = loader.load_config_string(config_string)
         return cls(
             configs=c,
+            extra_config_path=extra_config_path,
+            ignore_local_config=ignore_local_config,
+            overrides=overrides,
+            plugin_manager=plugin_manager,
+        )
+
+    @classmethod
+    def from_strings(
+        cls,
+        *config_strings: str,
+        extra_config_path: Optional[str] = None,
+        ignore_local_config: bool = False,
+        overrides: Optional[Dict[str, Any]] = None,
+        plugin_manager: Optional[pluggy.PluginManager] = None,
+    ) -> "FluffConfig":
+        """Loads a config object given a series of nested config strings.
+
+        Config strings are incorporated from first to last, treating the
+        first element as the "root" config, and then later config strings
+        will take precedence over any earlier values.
+        """
+        loader = ConfigLoader.get_global()
+        config_state = {}
+        for config_string in config_strings:
+            config_state = loader.load_config_string(config_string, configs=config_state)
+        return cls(
+            configs=config_state,
             extra_config_path=extra_config_path,
             ignore_local_config=ignore_local_config,
             overrides=overrides,
