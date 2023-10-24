@@ -627,6 +627,15 @@ class DbtTemplater(JinjaTemplater):
             if v.config.materialized == "ephemeral"
             and not getattr(v, "compiled", False)
         )
+
+        try:
+            # These are the names in dbt-core 1.4.1+
+            # https://github.com/dbt-labs/dbt-core/pull/6539
+            from dbt.exceptions import UndefinedMacroError
+        except ImportError:
+            # These are the historic names for older dbt-core versions
+            from dbt.exceptions import UndefinedMacroException as UndefinedMacroError
+
         with self.connection():
             # Apply the monkeypatch.
             Environment.from_string = from_string
@@ -635,6 +644,10 @@ class DbtTemplater(JinjaTemplater):
                     node=node,
                     manifest=self.dbt_manifest,
                 )
+            except UndefinedMacroError as err:
+                # The explanation on the undefined macro error is already fairly
+                # explanatory, so just pass it straight through.
+                raise SQLTemplaterError(str(err))
             except Exception as err:  # pragma: no cover
                 # NOTE: We use .error() here rather than .exception() because
                 # for most users, the trace which accompanies the latter isn't

@@ -392,11 +392,18 @@ def test__templater_dbt_templating_absolute_path(
             "'for'.\n  line 5\n    {{ col }}",
         ),
         (
-            "issue_3849.sql",
+            "unknown_ref.sql",
             # https://github.com/sqlfluff/sqlfluff/issues/3849
-            "Model 'model.my_new_project.issue_3849' "
-            "(models/my_new_project/issue_3849.sql) depends on a node named "
+            "Model 'model.my_new_project.unknown_ref' "
+            "(models/my_new_project/unknown_ref.sql) depends on a node named "
             "'i_do_not_exist' which was not found",
+        ),
+        (
+            "unknown_macro.sql",
+            # https://github.com/sqlfluff/sqlfluff/issues/3849
+            "Compilation Error in model unknown_macro "
+            "(models/my_new_project/unknown_macro.sql)\n  'invalid_macro' is "
+            "undefined. This can happen when calling a macro that does not exist.",
         ),
     ],
 )
