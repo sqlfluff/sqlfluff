@@ -21,10 +21,10 @@ from sqlfluff.core.errors import (
     SQLParseError,
     SQLTemplaterError,
 )
-from sqlfluff.core.linter.noqa import IgnoreMask
 
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments import BaseSegment, FixPatch
+from sqlfluff.core.rules.noqa import IgnoreMask
 from sqlfluff.core.templaters import RawFileSlice, TemplatedFile
 
 # Instantiate the linter logger

@@ -58,8 +58,8 @@ from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 # https://github.com/python/typeshed/issues/7855
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.config import FluffConfig
-    from sqlfluff.core.linter import IgnoreMask
     from sqlfluff.core.plugin.hookspecs import PluginSpec
+    from sqlfluff.core.rules.noqa import IgnoreMask
 
     _LoggerAdapter = logging.LoggerAdapter[logging.Logger]
 else:
