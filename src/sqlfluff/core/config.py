@@ -1,5 +1,7 @@
 """Module for loading config."""
 
+from __future__ import annotations
+
 try:
     from importlib.resources import files
 except ImportError:  # pragma: no cover
@@ -359,7 +361,7 @@ class ConfigLoader:
         self._config_cache: Dict[str, Dict[str, Any]] = {}
 
     @classmethod
-    def get_global(cls) -> "ConfigLoader":
+    def get_global(cls) -> ConfigLoader:
         """Get the singleton loader."""
         global global_loader
         if not global_loader:
@@ -1022,7 +1024,7 @@ class FluffConfig:
         ignore_local_config: bool = False,
         overrides: Optional[Dict[str, Any]] = None,
         **kw: Any,
-    ) -> "FluffConfig":
+    ) -> FluffConfig:
         """Loads a config object just based on the root directory."""
         loader = ConfigLoader.get_global()
         c = loader.load_config_up_to_path(
@@ -1046,7 +1048,7 @@ class FluffConfig:
         ignore_local_config: bool = False,
         overrides: Optional[Dict[str, Any]] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
-    ) -> "FluffConfig":
+    ) -> FluffConfig:
         """Loads a config object from a single config string."""
         loader = ConfigLoader.get_global()
         c = loader.load_config_string(config_string)
@@ -1066,7 +1068,7 @@ class FluffConfig:
         ignore_local_config: bool = False,
         overrides: Optional[Dict[str, Any]] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
-    ) -> "FluffConfig":
+    ) -> FluffConfig:
         """Loads a config object given a series of nested config strings.
 
         Config strings are incorporated from first to last, treating the
@@ -1095,7 +1097,7 @@ class FluffConfig:
         ignore_local_config: bool = False,
         overrides: Optional[Dict[str, Any]] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
-    ) -> "FluffConfig":
+    ) -> FluffConfig:
         """Loads a config object given a particular path."""
         loader = ConfigLoader.get_global()
         c = loader.load_config_up_to_path(
@@ -1114,12 +1116,12 @@ class FluffConfig:
     @classmethod
     def from_kwargs(
         cls,
-        config: Optional["FluffConfig"] = None,
+        config: Optional[FluffConfig] = None,
         dialect: Optional[str] = None,
         rules: Optional[List[str]] = None,
         exclude_rules: Optional[List[str]] = None,
         require_dialect: bool = True,
-    ) -> "FluffConfig":
+    ) -> FluffConfig:
         """Instantiate a config from either an existing config or kwargs.
 
         This is a convenience method for the ways that the public classes
@@ -1172,7 +1174,7 @@ class FluffConfig:
                 "{}".format(templater_name, ", ".join(templater_lookup.keys()))
             )
 
-    def make_child_from_path(self, path: str) -> "FluffConfig":
+    def make_child_from_path(self, path: str) -> FluffConfig:
         """Make a child config at a path but pass on overrides and extra_config_path."""
         return self.from_path(
             path,
@@ -1182,7 +1184,7 @@ class FluffConfig:
             plugin_manager=self._plugin_manager,
         )
 
-    def diff_to(self, other: "FluffConfig") -> Dict[str, Any]:
+    def diff_to(self, other: FluffConfig) -> Dict[str, Any]:
         """Compare this config to another.
 
         Args:
