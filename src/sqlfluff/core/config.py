@@ -195,26 +195,29 @@ REMOVED_CONFIGS = [
 ]
 
 
-def coerce_value(val: str) -> Any:
+def coerce_value(val: str) -> Union[int, float, bool, None, str]:
     """Try to coerce to a more specific type."""
     # Try to coerce it to a more specific type,
     # otherwise just make it a string.
     try:
-        v: Any = int(val)
+        return int(val)
     except ValueError:
-        try:
-            v = float(val)
-        except ValueError:
-            cleaned_val = val.strip().lower()
-            if cleaned_val in ["true"]:
-                v = True
-            elif cleaned_val in ["false"]:
-                v = False
-            elif cleaned_val in ["none"]:
-                v = None
-            else:
-                v = val
-    return v
+        pass
+
+    try:
+        return float(val)
+    except ValueError:
+        pass
+
+    cleaned_val = val.strip().lower()
+    if cleaned_val in ["true"]:
+        return True
+    elif cleaned_val in ["false"]:
+        return False
+    elif cleaned_val in ["none"]:
+        return None
+
+    return val
 
 
 class ConfigLoader:

@@ -201,7 +201,7 @@ class LintedFile(NamedTuple):
             "        Templated Hint: ...%r <> %r...", pre_hint, post_hint
         )
 
-    def fix_string(self) -> Tuple[Any, bool]:
+    def fix_string(self) -> Tuple[str, bool]:
         """Obtain the changes to a path as a string.
 
         We use the source mapping features of TemplatedFile
