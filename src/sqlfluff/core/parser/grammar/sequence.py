@@ -6,6 +6,7 @@ from os import getenv
 from typing import Optional, Set, Tuple, Type, Union, cast
 from typing import Sequence as SequenceType
 
+from sqlfluff.core.helpers.slice import is_zero_slice
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
@@ -28,7 +29,6 @@ from sqlfluff.core.parser.segments import (
     UnparsableSegment,
 )
 from sqlfluff.core.parser.types import ParseMode, SimpleHintType
-from sqlfluff.core.slice_helpers import is_zero_slice
 
 
 def _flush_metas(

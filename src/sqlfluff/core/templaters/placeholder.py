@@ -5,7 +5,7 @@ from typing import Dict, Optional, Tuple
 
 import regex
 
-from sqlfluff.core.slice_helpers import offset_slice
+from sqlfluff.core.helpers.slice import offset_slice
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
     RawTemplater,

@@ -21,10 +21,11 @@ from sqlfluff.core.errors import (
     SQLParseError,
     SQLTemplaterError,
 )
-from sqlfluff.core.linter.noqa import IgnoreMask
 
 # Classes needed only for type checking
-from sqlfluff.core.parser.segments import BaseSegment, FixPatch
+from sqlfluff.core.parser.segments import BaseSegment
+from sqlfluff.core.rules.fix import FixPatch, iter_patches
+from sqlfluff.core.rules.noqa import IgnoreMask
 from sqlfluff.core.templaters import RawFileSlice, TemplatedFile
 
 # Instantiate the linter logger
@@ -286,7 +287,7 @@ class LintedFile(NamedTuple):
         dedupe_buffer = []
         # We use enumerate so that we get an index for each patch. This is entirely
         # so when debugging logs we can find a given patch again!
-        for idx, patch in enumerate(tree.iter_patches(templated_file=templated_file)):
+        for idx, patch in enumerate(iter_patches(tree, templated_file=templated_file)):
             linter_logger.debug("  %s Yielded patch: %s", idx, patch)
             cls._log_hints(patch, templated_file)
 

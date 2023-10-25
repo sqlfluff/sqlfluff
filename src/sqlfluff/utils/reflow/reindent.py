@@ -17,6 +17,7 @@ from typing import (
 )
 
 from sqlfluff.core.errors import SQLFluffUserError
+from sqlfluff.core.helpers.slice import slice_length
 from sqlfluff.core.parser import (
     BaseSegment,
     NewlineSegment,
@@ -26,7 +27,6 @@ from sqlfluff.core.parser import (
 from sqlfluff.core.parser.segments import Indent, SourceFix
 from sqlfluff.core.parser.segments.meta import MetaSegment, TemplateSegment
 from sqlfluff.core.rules.base import LintFix, LintResult
-from sqlfluff.core.slice_helpers import slice_length
 from sqlfluff.utils.reflow.elements import (
     IndentStats,
     ReflowBlock,

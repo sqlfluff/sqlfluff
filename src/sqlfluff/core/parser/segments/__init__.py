@@ -2,7 +2,6 @@
 
 from sqlfluff.core.parser.segments.base import (
     BaseSegment,
-    FixPatch,
     SourceFix,
     UnparsableSegment,
 )
@@ -58,7 +57,6 @@ __all__ = (
     "TemplateSegment",
     "EndOfFile",
     "TemplateLoop",
-    "FixPatch",
     "SourceFix",
     "IdentifierSegment",
     "LiteralSegment",

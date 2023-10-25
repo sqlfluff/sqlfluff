@@ -8,11 +8,11 @@ from sqlfluff.core.linter import LintedFile
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments import (
     BaseSegment,
-    FixPatch,
     RawSegment,
     TemplateSegment,
 )
 from sqlfluff.core.parser.segments.raw import SourceFix
+from sqlfluff.core.rules.fix import FixPatch
 from sqlfluff.core.templaters import RawFileSlice, TemplatedFile
 from sqlfluff.core.templaters.base import TemplatedFileSlice
 

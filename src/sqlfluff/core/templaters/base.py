@@ -6,7 +6,7 @@ from typing import Any, Dict, Iterable, Iterator, List, NamedTuple, Optional, Tu
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLFluffSkipFile
-from sqlfluff.core.slice_helpers import zero_slice
+from sqlfluff.core.helpers.slice import zero_slice
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")

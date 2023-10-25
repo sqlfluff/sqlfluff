@@ -9,7 +9,7 @@ from sqlfluff.core.errors import (
     SQLBaseError,
     SQLParseError,
 )
-from sqlfluff.core.linter import IgnoreMask, NoQaDirective
+from sqlfluff.core.rules.noqa import IgnoreMask, NoQaDirective
 
 # noqa tests require a rule_set, therefore we construct dummy rule set for glob matching.
 dummy_rule_map = Linter().get_rulepack().reference_map
