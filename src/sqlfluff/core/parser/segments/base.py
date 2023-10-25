@@ -1213,6 +1213,8 @@ class BaseSegment(metaclass=SegmentMetaclass):
             f"Validation Check Fail for {self}.\nFound additional Unparsables: "
             f"{closing_unparsables - opening_unparsables}"
         )
+        for unparsable in closing_unparsables - opening_unparsables:
+            linter_logger.debug(f"Unparsable:\n{unparsable.stringify()}\n")
         return False
 
     @staticmethod

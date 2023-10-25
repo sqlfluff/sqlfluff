@@ -516,8 +516,8 @@ sparksql_dialect.add(
     ),
     # Adding Hint related segments so they are not treated as generic comments
     # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
-    StartHintSegment=StringParser("/*+", KeywordSegment, type="start_hint"),
-    EndHintSegment=StringParser("*/", KeywordSegment, type="end_hint"),
+    StartHintSegment=StringParser("/*+", SymbolSegment, type="start_hint"),
+    EndHintSegment=StringParser("*/", SymbolSegment, type="end_hint"),
     PartitionSpecGrammar=Sequence(
         OneOf(
             "PARTITION",
@@ -743,14 +743,14 @@ sparksql_dialect.add(
 # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
 sparksql_dialect.insert_lexer_matchers(
     [
-        RegexLexer("start_hint", r"\/\*\+", CodeSegment),
+        StringLexer("start_hint", "/*+", CodeSegment),
     ],
     before="block_comment",
 )
 
 sparksql_dialect.insert_lexer_matchers(
     [
-        RegexLexer("end_hint", r"\*\/", CodeSegment),
+        StringLexer("end_hint", "*/", CodeSegment),
     ],
     before="single_quote",
 )

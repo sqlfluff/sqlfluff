@@ -76,6 +76,19 @@ def test__config__load_from_string():
     assert cfg == config_a
 
 
+def test__config__from_strings():
+    """Test loading config from multiple strings."""
+    strings = [
+        "[sqlfluff]\ndialect=mysql\ntesting_val=foobar",
+        "[sqlfluff]\ndialect=postgres\ntesting_val2=bar",
+        "[sqlfluff]\ndialect=mysql\ntesting_val=foo",
+    ]
+    cfg = FluffConfig.from_strings(*strings)
+    assert cfg.get("dialect") == "mysql"
+    assert cfg.get("testing_val2") == "bar"
+    assert cfg.get("testing_val") == "foo"
+
+
 def test__config__load_file_f():
     """Test loading config from a file path."""
     c = ConfigLoader()
