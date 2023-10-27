@@ -14,6 +14,19 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This is a fairly minor release, primarily bugfixes and dialect improvements.
+
+For python API users, there's the addition of a public method on the `FluffConfig`
+object allowing the construction of a config object from multiple strings to
+mimic the effect of nested config files in the CLI.
+
+This release also includes a selection of internal refactoring and reorganisation
+to support future development work.
+
+This also sees the first contributions by [@ShubhamJagtap2000](https://github.com/ShubhamJagtap2000)
+& [@kang8](https://github.com/kang8), particularly notable in that both were
+contributions to SQLFluff documentation! 🎉🎉🏆🎉🎉
+
 ## What’s Changed
 
 * One (very) small typing improvements [#5355](https://github.com/sqlfluff/sqlfluff/pull/5355) [@alanmcruickshank](https://github.com/alanmcruickshank)
