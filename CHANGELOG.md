@@ -10,6 +10,44 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [2.3.5] - 2023-10-27
+
+## Highlights
+
+This is a fairly minor release, primarily bugfixes and dialect improvements.
+
+For python API users, there's the addition of a public method on the `FluffConfig`
+object allowing the construction of a config object from multiple strings to
+mimic the effect of nested config files in the CLI.
+
+This release also includes a selection of internal refactoring and reorganisation
+to support future development work.
+
+This also sees the first contributions by [@ShubhamJagtap2000](https://github.com/ShubhamJagtap2000)
+& [@kang8](https://github.com/kang8), particularly notable in that both were
+contributions to SQLFluff documentation! 🎉🎉🏆🎉🎉
+
+## What’s Changed
+
+* One (very) small typing improvements [#5355](https://github.com/sqlfluff/sqlfluff/pull/5355) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Unpick dependencies between modules in `sqlfluff.core` [#5348](https://github.com/sqlfluff/sqlfluff/pull/5348) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Resolve SparkSQL re-parsing issue + test validation in test suite. [#5351](https://github.com/sqlfluff/sqlfluff/pull/5351) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Snowflake: Support ALTER MASKING POLICY [#5350](https://github.com/sqlfluff/sqlfluff/pull/5350) [@jmks](https://github.com/jmks)
+* Add a public API for nesting config strings. [#5349](https://github.com/sqlfluff/sqlfluff/pull/5349) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Update handling of dbt compilation errors [#5345](https://github.com/sqlfluff/sqlfluff/pull/5345) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Snowflake - Extend Column Default Constraint [#5343](https://github.com/sqlfluff/sqlfluff/pull/5343) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Fix the dbt anchor link in the realworld documentation [#5341](https://github.com/sqlfluff/sqlfluff/pull/5341) [@kang8](https://github.com/kang8)
+* Update README.md [#5340](https://github.com/sqlfluff/sqlfluff/pull/5340) [@ShubhamJagtap2000](https://github.com/ShubhamJagtap2000)
+* Logic to render variants of Jinja templates for more coverage. [#5339](https://github.com/sqlfluff/sqlfluff/pull/5339) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Templater slicing refactoring of `RawFileSlice` [#5338](https://github.com/sqlfluff/sqlfluff/pull/5338) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* BigQuery: Support multiple statements in the `BEGIN..EXCEPTION..END` [#5322](https://github.com/sqlfluff/sqlfluff/pull/5322) [@abdel](https://github.com/abdel)
+* Remove codecov traces [#5337](https://github.com/sqlfluff/sqlfluff/pull/5337) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
+## New Contributors
+
+* [@ShubhamJagtap2000](https://github.com/ShubhamJagtap2000) made their first contribution in [#5340](https://github.com/sqlfluff/sqlfluff/pull/5340)
+* [@kang8](https://github.com/kang8) made their first contribution in [#5341](https://github.com/sqlfluff/sqlfluff/pull/5341)
+
 ## [2.3.4] - 2023-10-17
 
 ## Highlights
