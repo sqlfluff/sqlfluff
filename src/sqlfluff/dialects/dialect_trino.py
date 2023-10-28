@@ -303,9 +303,7 @@ class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
-        insert=[
-            Ref("AnalyzeStatementSegment")
-        ],
+        insert=[Ref("AnalyzeStatementSegment")],
         remove=[
             Ref("TransactionStatementSegment"),
         ],
@@ -329,7 +327,7 @@ class AnalyzeStatementSegment(BaseSegment):
                     Sequence(
                         Ref("ParameterNameSegment"),
                         Ref("EqualsSegment"),
-                        Ref("ExpressionSegment")
+                        Ref("ExpressionSegment"),
                     ),
                 ),
             ),
