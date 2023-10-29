@@ -754,7 +754,9 @@ def _stdin_fix(linter: Linter, formatter, fix_even_unparsable: bool) -> None:
     templater_error = result.num_violations(types=SQLTemplaterError) > 0
     unfixable_error = result.num_violations(types=SQLLintError, fixable=False) > 0
     if not fix_even_unparsable:
-        exit_code = formatter.handle_files_with_tmp_or_prs_errors(result)
+        exit_code = formatter.handle_files_with_tmp_or_prs_errors(
+            result, force_stderr=True
+        )
 
     if result.num_violations(types=SQLLintError, fixable=True) > 0:
         stdout = result.paths[0].files[0].fix_string()[0]
