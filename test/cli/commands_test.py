@@ -1133,6 +1133,24 @@ def test__cli__command_fix_stdin(stdin, rules, stdout):
             "   select    *    FRoM     t    ",
             "select * from t\n",
         ),
+        (
+            # Check that warnings related to parsing errors on input don't
+            # go to stdout. This query shouldn't change, but stdout should
+            # remain clean.
+            # https://github.com/sqlfluff/sqlfluff/issues/5327
+            "select\n"
+            "    count(*) over (\n"
+            "        order by a desc \n"
+            "        range between b row and '10 seconds' following  -- noqa: PRS\n"
+            "    ) as c\n"
+            "from d\n",
+            "select\n"
+            "    count(*) over (\n"
+            "        order by a desc \n"
+            "        range between b row and '10 seconds' following  -- noqa: PRS\n"
+            "    ) as c\n"
+            "from d\n",
+        ),
     ],
 )
 def test__cli__command_format_stdin(stdin, stdout):
@@ -1143,8 +1161,9 @@ def test__cli__command_format_stdin(stdin, stdout):
             ("-", "--disable-progress-bar", "--dialect=ansi"),
         ],
         cli_input=stdin,
+        mix_stderr=False,
     )
-    assert result.output == stdout
+    assert result.stdout == stdout
 
 
 def test__cli__command_fix_stdin_logging_to_stderr(monkeypatch):

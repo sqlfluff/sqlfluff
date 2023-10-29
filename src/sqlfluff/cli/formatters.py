@@ -583,7 +583,9 @@ class OutputStreamFormatter:
             Color.lightgrey,
         )
 
-    def handle_files_with_tmp_or_prs_errors(self, lint_result: LintingResult) -> int:
+    def handle_files_with_tmp_or_prs_errors(
+        self, lint_result: LintingResult, force_stderr=False
+    ) -> int:
         """Discard lint fixes for files with templating or parse errors.
 
         Returns 1 if there are any files with templating or parse errors after
@@ -608,7 +610,7 @@ class OutputStreamFormatter:
                         color=color,
                     ),
                     color=not self.plain_output,
-                    err=num_filtered_errors > 0,
+                    err=force_stderr or num_filtered_errors > 0,
                 )
         return EXIT_FAIL if num_filtered_errors else EXIT_SUCCESS
 
