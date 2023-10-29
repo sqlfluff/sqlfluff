@@ -303,7 +303,34 @@ class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
+        insert=[Ref("AnalyzeStatementSegment")],
         remove=[
             Ref("TransactionStatementSegment"),
         ],
+    )
+
+
+class AnalyzeStatementSegment(BaseSegment):
+    """An 'ANALYZE' statement.
+
+    As per docs https://trino.io/docs/current/sql/analyze.html
+    """
+
+    type = "analyze_statement"
+    match_grammar = Sequence(
+        "ANALYZE",
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
     )
