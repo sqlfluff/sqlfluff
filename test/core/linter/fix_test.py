@@ -1,7 +1,8 @@
 """Test routines for fixing errors."""
 import pytest
 
-from sqlfluff.core.rules.fix import LintFix, compute_anchor_edit_info
+from sqlfluff.core.linter.fix import compute_anchor_edit_info
+from sqlfluff.core.rules.fix import LintFix
 
 
 @pytest.fixture(scope="module")

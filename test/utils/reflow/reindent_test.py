@@ -11,7 +11,7 @@ import logging
 import pytest
 
 from sqlfluff.core import Linter
-from sqlfluff.core.rules.fix import apply_fixes, compute_anchor_edit_info
+from sqlfluff.core.linter.fix import apply_fixes, compute_anchor_edit_info
 from sqlfluff.utils.reflow.helpers import deduce_line_indent, fixes_from_results
 from sqlfluff.utils.reflow.reindent import (
     _crawl_indent_points,
