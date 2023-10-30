@@ -21,10 +21,10 @@ from sqlfluff.core.errors import (
     SQLParseError,
     SQLTemplaterError,
 )
+from sqlfluff.core.linter.patch import FixPatch, iter_patches
 
 # Classes needed only for type checking
 from sqlfluff.core.parser.segments import BaseSegment
-from sqlfluff.core.rules.fix import FixPatch, iter_patches
 from sqlfluff.core.rules.noqa import IgnoreMask
 from sqlfluff.core.templaters import RawFileSlice, TemplatedFile
 
