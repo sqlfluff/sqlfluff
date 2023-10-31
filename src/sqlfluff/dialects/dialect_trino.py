@@ -115,9 +115,7 @@ trino_dialect.replace(
         Ref("TildeSegment"),
         Ref("NotOperatorGrammar"),
     ),
-    PostFunctionGrammar=ansi_dialect.get_grammar(
-        "PostFunctionGrammar"
-    ).copy(
+    PostFunctionGrammar=ansi_dialect.get_grammar("PostFunctionGrammar").copy(
         insert=[
             Ref("WithinGroupClauseSegment"),
         ],
