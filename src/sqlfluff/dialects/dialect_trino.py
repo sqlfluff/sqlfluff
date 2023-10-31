@@ -334,3 +334,36 @@ class AnalyzeStatementSegment(BaseSegment):
             optional=True,
         ),
     )
+
+class WithinGroupClauseSegment(BaseSegment):
+    """An WITHIN GROUP clause for window functions.
+    
+    https://trino.io/docs/current/functions/aggregate.html#array_agg
+    """
+
+    type = "withingroup_clause"
+    match_grammar = Sequence(
+        "WITHIN",
+        "GROUP",
+        Bracketed(Ref("OrderByClauseSegment", optional=False)),
+    )
+
+class ListaggOverflowClauseSegment(BaseSegment):
+    """ON OVERFLOW clause of listagg function.
+    
+    https://trino.io/docs/current/functions/aggregate.html#array_agg
+    """
+    type = "listagg_overflow_clause"
+    match_grammar = Sequence(
+        "ON",
+        "OVERFLOW",
+        OneOf(
+            "ERROR",
+            Sequence(
+                "TRUNCATE",
+                Ref("SingleQuotedIdentifierSegment", optional=True),
+                OneOf("WITH", "WITHOUT", optional=True),
+                Ref.keyword("COUNT", optional=True),
+            ),
+        ),
+    )
