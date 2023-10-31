@@ -115,6 +115,9 @@ trino_dialect.replace(
         Ref("TildeSegment"),
         Ref("NotOperatorGrammar"),
     ),
+    PostFunctionGrammar=AnyNumberOf(
+        Ref("WithinGroupClauseSegment"),
+    ),
     FunctionContentsGrammar=AnyNumberOf(
         Ref("ExpressionSegment"),
         # A Cast-like function
@@ -163,6 +166,7 @@ trino_dialect.replace(
         Ref("IgnoreRespectNullsGrammar"),
         Ref("IndexColumnDefinitionSegment"),
         Ref("EmptyStructLiteralSegment"),
+        Ref("ListaggOverflowClauseSegment"),
     ),
 )
 
@@ -335,9 +339,10 @@ class AnalyzeStatementSegment(BaseSegment):
         ),
     )
 
+
 class WithinGroupClauseSegment(BaseSegment):
     """An WITHIN GROUP clause for window functions.
-    
+
     https://trino.io/docs/current/functions/aggregate.html#array_agg
     """
 
@@ -348,11 +353,13 @@ class WithinGroupClauseSegment(BaseSegment):
         Bracketed(Ref("OrderByClauseSegment", optional=False)),
     )
 
+
 class ListaggOverflowClauseSegment(BaseSegment):
     """ON OVERFLOW clause of listagg function.
-    
+
     https://trino.io/docs/current/functions/aggregate.html#array_agg
     """
+
     type = "listagg_overflow_clause"
     match_grammar = Sequence(
         "ON",
