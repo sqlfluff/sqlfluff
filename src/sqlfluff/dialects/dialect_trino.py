@@ -115,8 +115,12 @@ trino_dialect.replace(
         Ref("TildeSegment"),
         Ref("NotOperatorGrammar"),
     ),
-    PostFunctionGrammar=AnyNumberOf(
-        Ref("WithinGroupClauseSegment"),
+    PostFunctionGrammar=ansi_dialect.get_grammar(
+        "PostFunctionGrammar"
+    ).copy(
+        insert=[
+            Ref("WithinGroupClauseSegment"),
+        ],
     ),
     FunctionContentsGrammar=AnyNumberOf(
         Ref("ExpressionSegment"),
