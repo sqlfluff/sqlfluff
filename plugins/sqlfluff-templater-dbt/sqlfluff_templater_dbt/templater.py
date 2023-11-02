@@ -15,6 +15,7 @@ import os.path
 from collections import deque
 from contextlib import contextmanager
 from dataclasses import dataclass
+from functools import cached_property
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -31,7 +32,6 @@ from typing import (
 from jinja2 import Environment
 from jinja2_simple_tags import StandaloneTag
 
-from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.errors import SQLFluffSkipFile, SQLFluffUserError, SQLTemplaterError
 from sqlfluff.core.templaters.base import TemplatedFile, large_file_check
 from sqlfluff.core.templaters.jinja import JinjaTemplater
