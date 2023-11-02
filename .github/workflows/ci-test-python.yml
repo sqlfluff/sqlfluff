@@ -43,7 +43,6 @@ jobs:
         cache: 'pip'
         cache-dependency-path: |
           setup.cfg
-          requirements.txt
           requirements_dev.txt
 
     - name: Install dependencies
