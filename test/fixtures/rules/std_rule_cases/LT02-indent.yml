@@ -346,6 +346,19 @@ test_pass_indented_from_with_comment:
     -- Comment
     JOIN t2 USING (user_id)
 
+test_pass_ignored_comment:
+  # Test ignoring comments entirely.
+  # https://github.com/sqlfluff/sqlfluff/issues/3311
+  pass_str: |
+    SELECT *
+    FROM
+        t1
+                             -- Comment
+    JOIN t2 USING (user_id)
+  configs:
+    indentation:
+      ignore_comment_lines: true
+
 test_fail_indented_from_with_comment_alternate:
   # This shows the alternative position of comments being allowed.
   pass_str: |

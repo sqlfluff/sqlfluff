@@ -564,7 +564,9 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
             lines.remove(line)
 
 
-def _revise_comment_lines(lines: List[_IndentLine], elements: ReflowSequenceType):
+def _revise_comment_lines(
+    lines: List[_IndentLine], elements: ReflowSequenceType, ignore_comment_lines: bool
+):
     """Given an initial set of individual lines. Revise comment ones.
 
     NOTE: This mutates the `lines` argument.
@@ -578,7 +580,12 @@ def _revise_comment_lines(lines: List[_IndentLine], elements: ReflowSequenceType
     # Slice to avoid copying
     for idx, line in enumerate(lines[:]):
         if line.is_all_comments(elements):
-            comment_line_buffer.append(idx)
+            if ignore_comment_lines:
+                # If we're removing comment lines, purge this line from the buffer.
+                reflow_logger.debug("Ignoring comment line idx: %s", idx)
+                lines.remove(line)
+            else:
+                comment_line_buffer.append(idx)
         else:
             # Not a comment only line, if there's a buffer anchor
             # to this one.
@@ -1469,6 +1476,7 @@ def lint_indent_points(
     single_indent: str,
     skip_indentation_in: FrozenSet[str] = frozenset(),
     allow_implicit_indents: bool = False,
+    ignore_comment_lines: bool = False,
 ) -> Tuple[ReflowSequenceType, List[LintResult]]:
     """Lint the indent points to check we have line breaks where we should.
 
@@ -1500,7 +1508,7 @@ def lint_indent_points(
     # Revise templated indents
     _revise_templated_lines(lines, elements)
     # Revise comment indents
-    _revise_comment_lines(lines, elements)
+    _revise_comment_lines(lines, elements, ignore_comment_lines=ignore_comment_lines)
 
     # Skip elements we're configured to not touch (i.e. scripts)
     for line in lines[:]:
