@@ -715,8 +715,8 @@ def test__cli__command_versioning():
     # Get the package version info
     pkg_version = sqlfluff.__version__
     # Get the version info from the config file
-    with open("pyproject.toml", "rb") as config_file:
-        config = tomllib.load(config_file)
+    with open("pyproject.toml", "r") as config_file:
+        config = tomllib.loads(config_file.read())
     config_version = config["project"]["version"]
     assert pkg_version == config_version
     # Get the version from the cli
