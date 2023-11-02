@@ -240,9 +240,7 @@ def apply_fixes(
         # whitespace) segments as the first or last children. This is
         # generally not allowed (see the can_start_end_non_code field),
         # and these segments need to be "bubbled up" the tree.
-        seg_buffer.extend(pre)
-        seg_buffer.append(s)
-        seg_buffer.extend(post)
+        seg_buffer += pre + [s] + post
         # If we fail to validate a child segment, make sure to validate this
         # segment.
         if not validated:
