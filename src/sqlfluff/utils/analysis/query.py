@@ -2,6 +2,7 @@
 import logging
 from dataclasses import dataclass, field
 from enum import Enum
+from functools import cached_property
 from typing import (
     Dict,
     Generic,
@@ -15,7 +16,6 @@ from typing import (
     cast,
 )
 
-from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser import BaseSegment
