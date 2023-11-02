@@ -1,6 +1,5 @@
 """The Test file for CLI (General)."""
 
-import configparser
 import json
 import logging
 import os
@@ -37,6 +36,13 @@ from sqlfluff.cli.commands import (
 from sqlfluff.core.parser import CommentSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult
 from sqlfluff.utils.testing.cli import invoke_assert_code
+
+# tomllib is only in the stdlib from 3.11+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:  # pragma: no cover
+    import toml as tomllib
+
 
 re_ansi_escape = re.compile(r"\x1b[^m]*m")
 
@@ -709,9 +715,9 @@ def test__cli__command_versioning():
     # Get the package version info
     pkg_version = sqlfluff.__version__
     # Get the version info from the config file
-    config = configparser.ConfigParser()
-    config.read_file(open("setup.cfg"))
-    config_version = config["metadata"]["version"]
+    with open("pyproject.toml", "rb") as config_file:
+        config = tomllib.load(config_file)
+    config_version = config["project"]["version"]
     assert pkg_version == config_version
     # Get the version from the cli
     runner = CliRunner()
