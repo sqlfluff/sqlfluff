@@ -5,9 +5,9 @@ list see the documentation:
 https://www.sphinx-doc.org/en/master/usage/configuration.html
 """
 
+import configparser
 import os
 import sys
-import configparser
 
 # -- Path setup --------------------------------------------------------------
 
@@ -100,8 +100,6 @@ html_theme_options = {
     "github_type": "star",
     # Use `"true"` instead of `True` for counting GitHub star, see https://ghbtns.com
     "github_count": "true",
-    # Codecov button
-    "codecov_button": True,
 }
 
 # -- Options for redirects ---------------------------------------------

@@ -38,6 +38,7 @@ from sqlfluff.core.parser import (
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_tsql_keywords import (
+    FUTURE_RESERVED_KEYWORDS,
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
 )
@@ -47,8 +48,10 @@ tsql_dialect = ansi_dialect.copy_as("tsql")
 
 tsql_dialect.sets("reserved_keywords").clear()
 tsql_dialect.sets("unreserved_keywords").clear()
+tsql_dialect.sets("future_reserved_keywords").clear()
 tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 tsql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
+tsql_dialect.sets("future_reserved_keywords").update(FUTURE_RESERVED_KEYWORDS)
 
 # Set the datetime units
 tsql_dialect.sets("datetime_units").clear()
@@ -100,6 +103,17 @@ tsql_dialect.sets("datetime_units").update(
 tsql_dialect.sets("date_part_function_name").clear()
 tsql_dialect.sets("date_part_function_name").update(
     ["DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME", "DATEPART"]
+)
+
+tsql_dialect.sets("date_format").clear()
+tsql_dialect.sets("date_format").update(
+    [
+        "mdy",
+        "dmy",
+        "ymd",
+        "myd",
+        "dym",
+    ]
 )
 
 tsql_dialect.sets("bare_functions").update(
@@ -307,6 +321,7 @@ tsql_dialect.add(
     SqlcmdFilePathSegment=TypedParser(
         "unquoted_relative_sql_file_path",
         CodeSegment,
+        type="unquoted_relative_sql_file_path",
     ),
     FileCompressionSegment=SegmentGenerator(
         lambda dialect: MultiStringParser(
@@ -329,6 +344,20 @@ tsql_dialect.add(
             type="serde_method",
         )
     ),
+    ProcedureParameterGrammar=Sequence(
+        Ref("ParameterNameSegment", optional=True),
+        Sequence("AS", optional=True),
+        Ref("DatatypeSegment"),
+        AnySetOf("VARYING", Sequence("NOT", optional=True), "NULL"),
+        Sequence(Ref("EqualsSegment"), Ref("ExpressionSegment"), optional=True),
+    ),
+    DateFormatSegment=SegmentGenerator(
+        lambda dialect: MultiStringParser(
+            dialect.sets("date_format"),
+            CodeSegment,
+            type="date_format",
+        )
+    ),
 )
 
 tsql_dialect.replace(
@@ -340,7 +369,12 @@ tsql_dialect.replace(
             r"[A-Z_][A-Z0-9_@$#]*",
             IdentifierSegment,
             type="naked_identifier",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^("
+            + r"|".join(
+                dialect.sets("reserved_keywords")
+                | dialect.sets("future_reserved_keywords")
+            )
+            + r")$",
         )
     ),
     # Overring ANSI BaseExpressionElement to remove Interval Expression Segment
@@ -381,6 +415,7 @@ tsql_dialect.replace(
         Ref("ParameterNameSegment", optional=True),
         Sequence("AS", optional=True),
         Ref("DatatypeSegment"),
+        Sequence("NULL", optional=True),
         Sequence(Ref("EqualsSegment"), Ref("ExpressionSegment"), optional=True),
     ),
     FunctionNameIdentifierSegment=SegmentGenerator(
@@ -390,7 +425,12 @@ tsql_dialect.replace(
             r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
             CodeSegment,
             type="function_name_identifier",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^("
+            + r"|".join(
+                dialect.sets("reserved_keywords")
+                | dialect.sets("future_reserved_keywords")
+            )
+            + r")$",
         )
     ),
     # Override ANSI IsClauseGrammar to remove TSQL non-keyword NAN
@@ -407,7 +447,10 @@ tsql_dialect.replace(
                 type="data_type_identifier",
                 # anti_template=r"^(NOT)$",
                 anti_template=r"^("
-                + r"|".join(dialect.sets("reserved_keywords"))
+                + r"|".join(
+                    dialect.sets("reserved_keywords")
+                    | dialect.sets("future_reserved_keywords")
+                )
                 + r")$",
                 # TODO - this is a stopgap until we implement explicit data types
             ),
@@ -607,6 +650,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropExternalTableStatementSegment"),
             Ref("CopyIntoTableStatementSegment"),
             Ref("CreateFullTextIndexStatementSegment"),
+            Ref("AtomicBeginEndSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -732,9 +776,7 @@ class SelectClauseSegment(BaseSegment):
         Indent,
         # NOTE: Don't allow trailing.
         Delimited(Ref("SelectClauseElementSegment")),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
+        Dedent,
         # NOTE: In TSQL - this grammar is NOT greedy.
     )
 
@@ -753,9 +795,6 @@ class UnorderedSelectStatementSegment(BaseSegment):
     type = "select_statement"
     match_grammar = Sequence(
         Ref("SelectClauseSegment"),
-        # Dedent for the indent in the select clause.
-        # It's here so that it can come AFTER any whitespace.
-        Dedent,
         Ref("IntoTableSegment", optional=True),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
@@ -996,6 +1035,7 @@ class CreateFullTextIndexStatementSegment(BaseSegment):
                     Ref("ObjectReferenceSegment"),
                 ),
             ),
+            allow_trailing=True,
         ),
         optional=True,
     )
@@ -2597,7 +2637,10 @@ class SetStatementSegment(BaseSegment):
                 Sequence(
                     Ref("ParameterNameSegment"),
                     Ref("AssignmentOperatorSegment"),
-                    Ref("ExpressionSegment"),
+                    OneOf(
+                        Ref("ExpressionSegment"),
+                        Ref("SelectableGrammar"),
+                    ),
                 ),
             ),
         ),
@@ -2643,8 +2686,9 @@ class ProcedureParameterListGrammar(BaseSegment):
     match_grammar = OptionallyBracketed(
         Delimited(
             Sequence(
-                Ref("FunctionParameterGrammar"),
-                OneOf("OUT", "OUTPUT", "READONLY", optional=True),
+                Ref("ProcedureParameterGrammar"),
+                OneOf("OUT", "OUTPUT", optional=True),
+                Sequence("READONLY", optional=True),
             ),
             optional=True,
         ),
@@ -2660,12 +2704,34 @@ class CreateProcedureStatementSegment(BaseSegment):
 
     type = "create_procedure_statement"
 
+    _procedure_option = Sequence(
+        "WITH",
+        Delimited(
+            AnySetOf(
+                "ENCRYPTION",
+                "RECOMPILE",
+                "NATIVE_COMPILATION",  # natively compiled stored procedure
+                "SCHEMABINDING",  # natively compiled stored procedure
+                Ref("ExecuteAsClauseSegment", optional=True),
+            ),
+        ),
+        optional=True,
+    )
+
     match_grammar = Sequence(
         OneOf("CREATE", "ALTER", Sequence("CREATE", "OR", "ALTER")),
-        OneOf("PROCEDURE", "PROC"),
+        OneOf("PROC", "PROCEDURE"),
         Ref("ObjectReferenceSegment"),
+        # Not for natively compiled stored procedures
+        Sequence(
+            Ref("SemicolonSegment"),
+            Ref("NumericLiteralSegment"),
+            optional=True,
+        ),
         Indent,
         Ref("ProcedureParameterListGrammar", optional=True),
+        _procedure_option,
+        Sequence("FOR", "REPLICATION", optional=True),
         Dedent,
         "AS",
         Ref("ProcedureDefinitionGrammar"),
@@ -2698,7 +2764,15 @@ class ProcedureDefinitionGrammar(BaseSegment):
     type = "procedure_statement"
     name = "procedure_statement"
 
-    match_grammar = Ref("OneOrMoreStatementsGrammar")
+    match_grammar = OneOf(
+        Ref("OneOrMoreStatementsGrammar"),
+        Ref("AtomicBeginEndSegment"),
+        Sequence(
+            "EXTERNAL",
+            "NAME",
+            Ref("ObjectReferenceSegment"),
+        ),
+    )
 
 
 class CreateViewStatementSegment(BaseSegment):
@@ -3562,6 +3636,69 @@ class BeginEndSegment(BaseSegment):
         Ref("OneOrMoreStatementsGrammar"),
         Dedent,
         "END",
+    )
+
+
+class AtomicBeginEndSegment(BaseSegment):
+    """A special `BEGIN/END` block with atomic options.
+
+    This is only dedicated to natively compiled stored procedures.
+
+    Encloses multiple statements into a single statement object.
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/begin-end-transact-sql?view=sql-server-ver15
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-procedure-transact-sql?view=sql-server-ver16#syntax
+    """
+
+    type = "atomic_begin_end_block"
+    match_grammar = Sequence(
+        "BEGIN",
+        Sequence(
+            "ATOMIC",
+            "WITH",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        "LANGUAGE",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegmentOptWithN"),
+                    ),
+                    Sequence(
+                        "TRANSACTION",
+                        "ISOLATION",
+                        "LEVEL",
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            "SNAPSHOT",
+                            Sequence("REPEATABLE", "READ"),
+                            "SERIALIZABLE",
+                        ),
+                    ),
+                    Sequence(
+                        "DATEFIRST",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "DATEFORMAT",
+                        Ref("EqualsSegment"),
+                        Ref("DateFormatSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "DELAYED_DURABILITY",
+                        Ref("EqualsSegment"),
+                        OneOf("ON", "OFF"),
+                        optional=True,
+                    ),
+                ),
+            ),
+        ),
+        Ref("DelimiterGrammar", optional=True),
+        Indent,
+        Ref("OneOrMoreStatementsGrammar"),
+        Dedent,
+        Sequence("END", optional=True),
     )
 
 
@@ -4657,6 +4794,7 @@ class OutputClauseSegment(BaseSegment):
                         Ref("AliasExpressionSegment", optional=True),
                     ),
                     Ref("SingleIdentifierGrammar"),
+                    terminators=[Ref.keyword("INTO")],
                 ),
             ),
             Dedent,

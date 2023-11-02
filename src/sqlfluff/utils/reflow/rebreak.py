@@ -2,19 +2,16 @@
 
 import logging
 from dataclasses import dataclass
-
-from typing import List, Type, Tuple, cast
+from typing import List, Tuple, Type, cast
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import LintFix, LintResult
-
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
 from sqlfluff.utils.reflow.helpers import (
+    deduce_line_indent,
     fixes_from_results,
     pretty_segment_name,
-    deduce_line_indent,
 )
-
 
 # We're in the utils module, but users will expect reflow
 # logs to appear in the context of rules. Hence it's a subset
@@ -166,6 +163,20 @@ def identify_rebreak_spans(
             continue
         # Does the element itself have config? (The easy case)
         if elem.line_position:
+            # We should check whether this is a valid place to break based
+            # on whether it's in a templated tag. If it's not a literal, then skip
+            # it.
+            # TODO: We probably only care if the side of the element that we would
+            # break at (i.e. the start if it's `leading` or the end if it's
+            # `trailing`), but we'll go with the blunt logic for simplicity first.
+            if not elem.segments[0].pos_marker.is_literal():
+                reflow_logger.debug(
+                    "        ! Skipping rebreak span on %s because "
+                    "non-literal location.",
+                    elem.segments[0],
+                )
+                continue
+
             # Blocks should only have one segment so it's easy to pick it.
             spans.append(
                 _RebreakSpan(

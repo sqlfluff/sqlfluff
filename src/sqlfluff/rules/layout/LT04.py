@@ -4,13 +4,20 @@ from typing import List
 
 from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.reflow import ReflowSequence
-
 from sqlfluff.rules.layout.LT03 import Rule_LT03
+from sqlfluff.utils.reflow import ReflowSequence
 
 
 class Rule_LT04(Rule_LT03):
     """Leading/Trailing comma enforcement.
+
+    The configuration for whether operators should be ``trailing`` or
+    ``leading`` is part of :ref:`layoutconfig`. The default configuration is:
+
+    .. code-block:: cfg
+
+        [sqlfluff:layout:type:comma]
+        line_position = trailing
 
     **Anti-pattern**
 

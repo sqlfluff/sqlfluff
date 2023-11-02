@@ -1,6 +1,6 @@
 """Defines the formatters for the CLI."""
-from io import StringIO
 import sys
+from io import StringIO
 from typing import List, Optional, Tuple, Union
 
 import click
@@ -9,14 +9,13 @@ from colorama import Style
 from sqlfluff.cli import EXIT_FAIL, EXIT_SUCCESS
 from sqlfluff.cli.helpers import (
     get_package_version,
-    get_python_version,
     get_python_implementation,
+    get_python_version,
     pad_line,
     wrap_field,
 )
 from sqlfluff.cli.outputstream import OutputStream
-
-from sqlfluff.core import SQLBaseError, FluffConfig, Linter, TimingSummary
+from sqlfluff.core import FluffConfig, Linter, SQLBaseError, TimingSummary
 from sqlfluff.core.enums import Color
 from sqlfluff.core.linter import LintedFile, LintingResult, ParsedString
 
@@ -584,7 +583,9 @@ class OutputStreamFormatter:
             Color.lightgrey,
         )
 
-    def handle_files_with_tmp_or_prs_errors(self, lint_result: LintingResult) -> int:
+    def handle_files_with_tmp_or_prs_errors(
+        self, lint_result: LintingResult, force_stderr=False
+    ) -> int:
         """Discard lint fixes for files with templating or parse errors.
 
         Returns 1 if there are any files with templating or parse errors after
@@ -609,7 +610,7 @@ class OutputStreamFormatter:
                         color=color,
                     ),
                     color=not self.plain_output,
-                    err=num_filtered_errors > 0,
+                    err=force_stderr or num_filtered_errors > 0,
                 )
         return EXIT_FAIL if num_filtered_errors else EXIT_SUCCESS
 

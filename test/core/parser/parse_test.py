@@ -20,11 +20,12 @@ def test__parser__parse_match(test_segments):
     ctx = ParseContext(dialect=None)
     # This should match and have consumed everything, which should
     # now be part of a BasicSegment.
-    m = BasicSegment.match(test_segments[:1], parse_context=ctx)
-    assert m
-    assert len(m.matched_segments) == 1
-    assert isinstance(m.matched_segments[0], BasicSegment)
-    assert m.matched_segments[0].segments[0].type == "raw"
+    match = BasicSegment.match(test_segments, 0, parse_context=ctx)
+    assert match
+    matched = match.apply(test_segments)
+    assert len(matched) == 1
+    assert isinstance(matched[0], BasicSegment)
+    assert matched[0].segments[0].type == "raw"
 
 
 def test__parser__parse_error():
@@ -44,6 +45,6 @@ def test__parser__parse_error():
     assert (
         'Expected: "<Delimited: '
         "[<Ref: 'SelectClauseElementSegment'>]> "
-        "after <KeywordSegment: ([L:  1, P:  1]) 'SELECT'>. "
+        "after <WordSegment: ([L:  1, P:  1]) 'SELECT'>. "
         "Found nothing."
     ) in parsed.tree.stringify()

@@ -341,3 +341,45 @@ test_multiline_single:
             )
         ) AS col
     FROM test_table
+
+test_multiline_expressions:
+  # NOTE: LT09 doesn't fix the indentation, so that may still look strange here,
+  # but we should make sure we're inserting new line breaks in the right places.
+  # https://github.com/sqlfluff/sqlfluff/issues/5258
+  fail_str: |
+    SELECT
+        a,
+        b1, b2,
+        COUNT(DISTINCT id) AS c1, COUNT(DISTINCT name) AS c2, COUNT(DISTINCT city) AS c3,
+        COUNT(
+            DISTINCT id) AS d1, COUNT(DISTINCT name) AS d2, COUNT(DISTINCT city) AS d3,
+        COUNT(DISTINCT
+            id) AS e1, COUNT(DISTINCT name) AS e2, COUNT(DISTINCT city) AS e3
+    FROM some_table;
+  fix_str: |
+    SELECT
+        a,
+        b1,
+    b2,
+        COUNT(DISTINCT id) AS c1,
+    COUNT(DISTINCT name) AS c2,
+    COUNT(DISTINCT city) AS c3,
+        COUNT(
+            DISTINCT id) AS d1,
+    COUNT(DISTINCT name) AS d2,
+    COUNT(DISTINCT city) AS d3,
+        COUNT(DISTINCT
+            id) AS e1,
+    COUNT(DISTINCT name) AS e2,
+    COUNT(DISTINCT city) AS e3
+    FROM some_table;
+
+test_pass_leading_commas:
+  # https://github.com/sqlfluff/sqlfluff/issues/5329
+  # NOTE: We shouldn't even need to configure the leading commas here.
+  # Commas shouldn't be accounted for in whether elements are on the same line.
+  pass_str: |
+    select
+        a
+        , b
+        , c

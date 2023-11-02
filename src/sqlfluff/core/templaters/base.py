@@ -6,7 +6,7 @@ from typing import Any, Dict, Iterable, Iterator, List, NamedTuple, Optional, Tu
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLFluffSkipFile
-from sqlfluff.core.slice_helpers import zero_slice
+from sqlfluff.core.helpers.slice import zero_slice
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -62,16 +62,21 @@ class RawFileSlice(NamedTuple):
     raw: str  # Source string
     slice_type: str
     source_idx: int  # Offset from beginning of source string
-    slice_subtype: Optional[str] = None
-    # Block index, incremented on start or end block tags, e.g. "if", "for"
+    # Block index, incremented on start or end block tags, e.g. "if", "for".
+    # This is used in `BaseRule.discard_unsafe_fixes()` to reject any fixes
+    # which span multiple templated blocks.
     block_idx: int = 0
+    # The command of a templated tag, e.g. "if", "for"
+    # This is used in template tracing as a kind of cache to identify the kind
+    # of template element this is without having to re-extract it each time.
+    tag: Optional[str] = None
 
     def end_source_idx(self) -> int:
         """Return the closing index of this slice."""
         return self.source_idx + len(self.raw)
 
     def source_slice(self) -> slice:
-        """Return the a slice object for this slice."""
+        """Return a slice object for this slice."""
         return slice(self.source_idx, self.end_source_idx())
 
     def is_source_only_slice(self) -> bool:
@@ -124,9 +129,18 @@ class TemplatedFile:
     ):
         """Initialise the TemplatedFile.
 
-        If no templated_str is provided then we assume that
-        the file is NOT templated and that the templated view
-        is the same as the source view.
+        If no templated_str is provided then we assume that the file is NOT
+        templated and that the templated view is the same as the source view.
+
+        Args:
+            source_str (str): The source string.
+            fname (str): The file name.
+            templated_str (Optional[str], optional): The templated string.
+                Defaults to None.
+            sliced_file (Optional[List[TemplatedFileSlice]], optional): The sliced file.
+                Defaults to None.
+            raw_sliced (Optional[List[RawFileSlice]], optional): The raw sliced file.
+                Defaults to None.
         """
         self.source_str = source_str
         # An empty string is still allowed as the templated string.
@@ -209,6 +223,7 @@ class TemplatedFile:
         return cls(source_str=raw, fname="<string>")
 
     def __repr__(self) -> str:  # pragma: no cover TODO?
+        """Return a string representation of the 'TemplatedFile' object."""
         return "<TemplatedFile>"
 
     def __str__(self) -> str:
@@ -491,7 +506,7 @@ class RawTemplater:
         fname: str,
         config: Optional[FluffConfig] = None,
         formatter=None,
-    ) -> Tuple[Optional[TemplatedFile], list]:
+    ) -> Tuple[Optional[TemplatedFile], List]:
         """Process a string and return a TemplatedFile.
 
         Note that the arguments are enforced as keywords
@@ -513,6 +528,13 @@ class RawTemplater:
         """
         return TemplatedFile(in_str, fname=fname), []
 
+    @large_file_check
+    def process_with_variants(
+        self, *, in_str: str, fname: str, config=None, formatter=None
+    ) -> Iterator[Tuple[Optional[TemplatedFile], List]]:
+        """Extended version of `process` which returns multiple variants."""
+        raise NotImplementedError  # pragma: no cover
+
     def __eq__(self, other: Any) -> bool:
         """Return true if `other` is of the same class as this one.
 
@@ -521,5 +543,11 @@ class RawTemplater:
         return isinstance(other, self.__class__)
 
     def config_pairs(self) -> List[Tuple[str, str]]:
-        """Returns info about the given templater for output by the cli."""
+        """Returns info about the given templater for output by the cli.
+
+        Returns:
+            List[Tuple[str, str]]: A list of tuples containing information
+                about the given templater. Each tuple contains two strings:
+                the string 'templater' and the name of the templater.
+        """
         return [("templater", self.name)]

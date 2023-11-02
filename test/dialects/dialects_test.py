@@ -73,6 +73,10 @@ def test__dialect__base_file_parse(dialect, file):
     # Check that there's nothing unparsable
     typs = parsed.tree.type_set()
     assert "unparsable" not in typs
+    # When testing the validity of fixes we re-parse sections of the file.
+    # To ensure this is safe - here we re-parse the unfixed file to ensure
+    # it's still valid even in the case that no fixes have been applied.
+    assert parsed.tree.validate_segment_with_reparse(parsed.config.get("dialect_obj"))
 
 
 @pytest.mark.integration

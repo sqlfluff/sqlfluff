@@ -118,6 +118,13 @@ class SQLBaseError(ValueError):
 
         Designed for rule codes so works with L001, LL0X but also TMP or PRS
         for templating and parsing errors.
+
+        Args:
+            warning_iterable (List[str]): A list of strings representing the warning
+                codes to check.
+
+        Returns:
+            None
         """
         if self.rule_code() in warning_iterable:
             self.warning = True
@@ -278,11 +285,23 @@ class SQLLintError(SQLBaseError):
         fix_raws = tuple(
             tuple(e.raw for e in f.edit) if f.edit else None for f in self.fixes
         )
-        source_fixes = tuple(
-            tuple(tuple(e.source_fixes) for e in f.edit) if f.edit else None
-            for f in self.fixes
-        )
-        return (self.check_tuple(), self.description, fix_raws, source_fixes)
+        _source_fixes: List[Tuple[str, int, int]] = []
+        for fix in self.fixes:
+            if not fix.edit:
+                continue
+            for edit in fix.edit:
+                for source_edit in edit.source_fixes:
+                    # NOTE: It's important that we don't dedupe on the
+                    # templated slice for the source fix, because that will
+                    # be different for different locations in any loop.
+                    _source_fixes.append(
+                        (
+                            source_edit.edit,
+                            source_edit.source_slice.start,
+                            source_edit.source_slice.stop,
+                        )
+                    )
+        return (self.check_tuple(), self.description, fix_raws, tuple(_source_fixes))
 
     def __repr__(self) -> str:
         return "<SQLLintError: rule {} pos:{!r}, #fixes: {}, description: {}>".format(

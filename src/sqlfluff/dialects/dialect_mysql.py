@@ -27,6 +27,7 @@ from sqlfluff.core.parser import (
     Ref,
     RegexLexer,
     RegexParser,
+    SegmentGenerator,
     Sequence,
     StringLexer,
     StringParser,
@@ -246,6 +247,14 @@ mysql_dialect.replace(
     ColumnConstraintDefaultGrammar=OneOf(
         Bracketed(ansi_dialect.get_grammar("ColumnConstraintDefaultGrammar")),
         ansi_dialect.get_grammar("ColumnConstraintDefaultGrammar"),
+    ),
+    NakedIdentifierSegment=SegmentGenerator(
+        lambda dialect: RegexParser(
+            r"([A-Z0-9_]*[A-Z][A-Z0-9_]*)|_",
+            IdentifierSegment,
+            type="naked_identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
     ),
 )
 

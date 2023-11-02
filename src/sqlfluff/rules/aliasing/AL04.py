@@ -2,12 +2,13 @@
 
 import itertools
 from typing import List, Optional, Tuple
-from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
+
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules import BaseRule, LintResult, RuleContext, EvalResultType
-from sqlfluff.utils.analysis.select import get_select_statement_info
+from sqlfluff.core.rules import BaseRule, EvalResultType, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
+from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
+from sqlfluff.utils.analysis.select import get_select_statement_info
 
 
 class Rule_AL04(BaseRule):

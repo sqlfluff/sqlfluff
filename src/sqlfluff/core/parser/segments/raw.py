@@ -4,8 +4,8 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
-from typing import Any, List, Optional, Set, Tuple
-from uuid import UUID, uuid4
+from typing import Any, FrozenSet, List, Optional, Tuple
+from uuid import uuid4
 
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
@@ -34,7 +34,7 @@ class RawSegment(BaseSegment):
         trim_start: Optional[Tuple[str, ...]] = None,
         trim_chars: Optional[Tuple[str, ...]] = None,
         source_fixes: Optional[List[SourceFix]] = None,
-        uuid: Optional[UUID] = None,
+        uuid: Optional[int] = None,
     ):
         """Initialise raw segment.
 
@@ -64,8 +64,8 @@ class RawSegment(BaseSegment):
         self.trim_chars = trim_chars
         # Keep track of any source fixes
         self._source_fixes = source_fixes
-        # UUID for matching
-        self.uuid = uuid or uuid4()
+        # UUID for matching (the int attribute of it)
+        self.uuid = uuid or uuid4().int
         self.representation = "<{}: ({}) {!r}>".format(
             self.__class__.__name__, self.pos_marker, self.raw
         )
@@ -81,11 +81,6 @@ class RawSegment(BaseSegment):
         super(BaseSegment, self).__setattr__(key, value)
 
     # ################ PUBLIC PROPERTIES
-
-    @property
-    def matched_length(self) -> int:
-        """Return the length of the segment in characters."""
-        return len(self._raw)
 
     @property
     def is_code(self) -> bool:
@@ -118,12 +113,12 @@ class RawSegment(BaseSegment):
         return [self]
 
     @property
-    def class_types(self) -> Set[str]:
+    def class_types(self) -> FrozenSet[str]:
         """The set of full types for this segment, including inherited.
 
         Add the surrogate type for raw segments.
         """
-        return set(self.instance_types) | super().class_types
+        return frozenset(self.instance_types) | super().class_types
 
     @property
     def source_fixes(self) -> List[SourceFix]:
@@ -153,7 +148,11 @@ class RawSegment(BaseSegment):
         return [self]
 
     def raw_trimmed(self) -> str:
-        """Return a trimmed version of the raw content."""
+        """Return a trimmed version of the raw content.
+
+        Returns:
+            str: The trimmed version of the raw content.
+        """
         raw_buff = self.raw
         if self.trim_start:
             for seq in self.trim_start:
@@ -175,7 +174,17 @@ class RawSegment(BaseSegment):
     def stringify(
         self, ident: int = 0, tabsize: int = 4, code_only: bool = False
     ) -> str:
-        """Use indentation to render this segment and its children as a string."""
+        """Use indentation to render this segment and its children as a string.
+
+        Args:
+            ident (int, optional): The indentation level. Defaults to 0.
+            tabsize (int, optional): The size of each tab. Defaults to 4.
+            code_only (bool, optional): Whether to render only the code.
+                Defaults to False.
+
+        Returns:
+            str: The rendered string.
+        """
         preface = self._preface(ident=ident, tabsize=tabsize)
         return preface + "\n"
 
@@ -183,6 +192,9 @@ class RawSegment(BaseSegment):
         """Return any extra output required at the end when logging.
 
         NB Override this for specific subclasses if we want extra output.
+
+        Returns:
+            str: The extra output.
         """
         return f"{self.raw!r}"
 
@@ -191,12 +203,18 @@ class RawSegment(BaseSegment):
     ) -> "RawSegment":
         """Create a new segment, with exactly the same position but different content.
 
+        Args:
+            raw (Optional[str]): The new content for the segment.
+            source_fixes (Optional[List[SourceFix]]): A list of fixes to be applied to
+                the segment.
+
         Returns:
-            A copy of this object with new contents.
+            RawSegment: A copy of this object with new contents.
 
         Used mostly by fixes.
 
-        NOTE: This *doesn't* copy the uuid. The edited segment is a new segment.
+        NOTE: This *doesn't* copy the uuid. The edited segment is a new
+        segment.
 
         """
         return self.__class__(

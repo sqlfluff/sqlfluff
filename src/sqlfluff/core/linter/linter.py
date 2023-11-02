@@ -39,10 +39,11 @@ from sqlfluff.core.linter.linted_file import (
     LintedFile,
 )
 from sqlfluff.core.linter.linting_result import LintingResult
-from sqlfluff.core.linter.noqa import IgnoreMask
 from sqlfluff.core.parser import Lexer, Parser
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.rules import BaseRule, RulePack, get_ruleset
+from sqlfluff.core.rules.fix import apply_fixes, compute_anchor_edit_info
+from sqlfluff.core.rules.noqa import IgnoreMask
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.segments.meta import MetaSegment
@@ -463,7 +464,7 @@ class Linter:
                     if fix and fixes:
                         linter_logger.info(f"Applying Fixes [{crawler.code}]: {fixes}")
                         # Do some sanity checks on the fixes before applying.
-                        anchor_info = BaseSegment.compute_anchor_edit_info(fixes)
+                        anchor_info = compute_anchor_edit_info(fixes)
                         if any(
                             not info.is_valid for info in anchor_info.values()
                         ):  # pragma: no cover
@@ -491,8 +492,11 @@ class Linter:
                             # This is the happy path. We have fixes, now we want to
                             # apply them.
                             last_fixes = fixes
-                            new_tree, _, _, _valid = tree.apply_fixes(
-                                config.get("dialect_obj"), crawler.code, anchor_info
+                            new_tree, _, _, _valid = apply_fixes(
+                                tree,
+                                config.get("dialect_obj"),
+                                crawler.code,
+                                anchor_info,
                             )
                             # Check for infinite loops. We use a combination of the
                             # fixed templated file and the list of source fixes to

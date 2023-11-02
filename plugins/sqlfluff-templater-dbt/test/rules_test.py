@@ -1,17 +1,17 @@
 """Tests for the standard set of rules."""
-import pytest
 import os
 import os.path
 from pathlib import Path
 
+import pytest
+
 from sqlfluff.core import Linter
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
-
 from test.fixtures.dbt.templater import (  # noqa
     DBT_FLUFF_CONFIG,
-    project_dir,
     dbt_templater,
+    project_dir,
 )
 
 

@@ -1,30 +1,27 @@
 """Tests for the configuration routines."""
 
+import logging
 import os
 import sys
-import logging
-
-from sqlfluff.core import config, Linter, FluffConfig
-from sqlfluff.core.config import (
-    REMOVED_CONFIGS,
-    ConfigLoader,
-    nested_combine,
-    dict_diff,
-)
-from sqlfluff.core.errors import SQLFluffUserError
-from sqlfluff.core.templaters import (
-    RawTemplater,
-    PythonTemplater,
-    JinjaTemplater,
-    PlaceholderTemplater,
-)
-from sqlfluff.utils.testing.logging import fluff_log_catcher
-
 from pathlib import Path
-from unittest.mock import patch, call
+from unittest.mock import call, patch
+
 import appdirs
 import pytest
 
+from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.config import (
+    REMOVED_CONFIGS,
+    ConfigLoader,
+)
+from sqlfluff.core.errors import SQLFluffUserError
+from sqlfluff.core.templaters import (
+    JinjaTemplater,
+    PlaceholderTemplater,
+    PythonTemplater,
+    RawTemplater,
+)
+from sqlfluff.utils.testing.logging import fluff_log_catcher
 
 config_a = {
     "core": {"testing_val": "foobar", "testing_int": 4, "dialect": "mysql"},
@@ -58,28 +55,6 @@ def mock_xdg_home(monkeypatch):
     monkeypatch.setenv("XDG_CONFIG_HOME", "~/.config/my/special/path")
 
 
-def test__config__nested_combine():
-    """Test combination of two config dicts."""
-    a = {"a": {"b": {"c": 123, "d": 456}}}
-    b = {"b": {"b": {"c": 123, "d": 456}}}
-    c = {"a": {"b": {"c": 234, "e": 456}}}
-    r = nested_combine(a, b, c)
-    assert r == {
-        "a": {"b": {"c": 234, "e": 456, "d": 456}},
-        "b": {"b": {"c": 123, "d": 456}},
-    }
-
-
-def test__config__dict_diff():
-    """Test diffs between two config dicts."""
-    a = {"a": {"b": {"c": 123, "d": 456, "f": 6}}}
-    b = {"b": {"b": {"c": 123, "d": 456}}}
-    c = {"a": {"b": {"c": 234, "e": 456, "f": 6}}}
-    assert dict_diff(a, b) == a
-    assert dict_diff(a, c) == {"a": {"b": {"c": 123, "d": 456}}}
-    assert dict_diff(c, a) == {"a": {"b": {"c": 234, "e": 456}}}
-
-
 def test__config__load_file_dir():
     """Test loading config from a directory path."""
     c = ConfigLoader()
@@ -99,6 +74,19 @@ def test__config__load_from_string():
         config_string = f.read()
     cfg = c.load_config_string(config_string)
     assert cfg == config_a
+
+
+def test__config__from_strings():
+    """Test loading config from multiple strings."""
+    strings = [
+        "[sqlfluff]\ndialect=mysql\ntesting_val=foobar",
+        "[sqlfluff]\ndialect=postgres\ntesting_val2=bar",
+        "[sqlfluff]\ndialect=mysql\ntesting_val=foo",
+    ]
+    cfg = FluffConfig.from_strings(*strings)
+    assert cfg.get("dialect") == "mysql"
+    assert cfg.get("testing_val2") == "bar"
+    assert cfg.get("testing_val") == "foo"
 
 
 def test__config__load_file_f():
@@ -288,26 +276,6 @@ def test__config__load_user_appdir_config(
             call(os.path.expanduser("~/Library/Application Support/sqlfluff")),
         ]
     )
-
-
-@pytest.mark.parametrize(
-    "raw_str, expected",
-    [
-        ("AL01,LT08,AL07", ["AL01", "LT08", "AL07"]),
-        ("\nAL01,\nLT08,\nAL07,", ["AL01", "LT08", "AL07"]),
-        (["AL01", "LT08", "AL07"], ["AL01", "LT08", "AL07"]),
-    ],
-)
-def test__config__split_comma_separated_string(raw_str, expected):
-    """Tests that string and lists are output correctly."""
-    assert config.split_comma_separated_string(raw_str) == expected
-
-
-def test__config__split_comma_separated_string_correct_type():
-    """Tests that invalid data types throw the correct error."""
-    with pytest.raises(SQLFluffUserError):
-        config.split_comma_separated_string(1)
-        config.split_comma_separated_string(True)
 
 
 def test__config__templater_selection():

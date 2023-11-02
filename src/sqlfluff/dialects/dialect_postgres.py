@@ -956,7 +956,7 @@ class DropFunctionStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Delimited(
             Sequence(
-                Ref("FunctionNameSegment"),
+                Ref("ObjectReferenceSegment"),
                 Ref("FunctionParameterListGrammar", optional=True),
             )
         ),
@@ -1309,6 +1309,14 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                     ),
                 ),
             ),
+            Sequence(
+                "BEGIN",
+                "ATOMIC",
+                Ref("SelectStatementSegment"),
+                Ref("SemicolonSegment"),
+                "END",
+                Ref("SemicolonSegment"),
+            ),
         ),
         Sequence(
             "WITH",
@@ -1422,9 +1430,7 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
             optional=True,
             allow_trailing=True,
         ),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
+        Dedent,
         terminators=[
             "INTO",
             "FROM",

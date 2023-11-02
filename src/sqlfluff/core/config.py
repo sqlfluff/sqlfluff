@@ -1,5 +1,7 @@
 """Module for loading config."""
 
+from __future__ import annotations
+
 try:
     from importlib.resources import files
 except ImportError:  # pragma: no cover
@@ -33,6 +35,11 @@ import appdirs
 import pluggy
 
 from sqlfluff.core.errors import SQLFluffUserError
+from sqlfluff.core.helpers.dict import dict_diff, nested_combine
+from sqlfluff.core.helpers.string import (
+    split_colon_separated_string,
+    split_comma_separated_string,
+)
 from sqlfluff.core.plugin.host import get_plugin_manager
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -210,140 +217,6 @@ def coerce_value(val: str) -> Any:
     return v
 
 
-def nested_combine(*dicts: Dict[str, Any]) -> Dict[str, Any]:
-    """Combine an iterable of dictionaries.
-
-    Each dictionary is combined into a result dictionary. For
-    each key in the first dictionary, it will be overwritten
-    by any same-named key in any later dictionaries in the
-    iterable. If the element at that key is a dictionary, rather
-    than just overwriting we use the same function to combine
-    those dictionaries.
-
-    Args:
-        *dicts: An iterable of dictionaries to be combined.
-
-    Returns:
-        `dict`: A combined dictionary from the input dictionaries.
-
-    A simple example:
-    >>> nested_combine({"a": {"b": "c"}}, {"a": {"d": "e"}})
-    {'a': {'b': 'c', 'd': 'e'}}
-
-    Keys overwrite left to right:
-    >>> nested_combine({"a": {"b": "c"}}, {"a": {"b": "e"}})
-    {'a': {'b': 'e'}}
-    """
-    r: Dict[str, Any] = {}
-    for d in dicts:
-        for k in d:
-            if k in r and isinstance(r[k], dict):
-                if isinstance(d[k], dict):
-                    r[k] = nested_combine(r[k], d[k])
-                else:  # pragma: no cover
-                    raise ValueError(
-                        "Key {!r} is a dict in one config but not another! PANIC: "
-                        "{!r}".format(k, d[k])
-                    )
-            else:
-                r[k] = d[k]
-    return r
-
-
-def dict_diff(
-    left: Dict[str, Any], right: Dict[str, Any], ignore: Optional[List[str]] = None
-) -> Dict[str, Any]:
-    """Work out the difference between two dictionaries.
-
-    Returns a dictionary which represents elements in the `left`
-    dictionary which aren't in the `right` or are different to
-    those in the `right`. If the element is a dictionary, we
-    recursively look for differences in those dictionaries,
-    likewise only returning the differing elements.
-
-    NOTE: If an element is in the `right` but not in the `left`
-    at all (i.e. an element has been *removed*) then it will
-    not show up in the comparison.
-
-    Args:
-        left (:obj:`dict`): The object containing the *new* elements
-            which will be compared against the other.
-        right (:obj:`dict`): The object to compare against.
-        ignore (:obj:`list` of `str`, optional): Keys to ignore.
-
-    Returns:
-        `dict`: A dictionary representing the difference.
-
-    Basic functionality shown, especially returning the left as:
-    >>> dict_diff({"a": "b", "c": "d"}, {"a": "b", "c": "e"})
-    {'c': 'd'}
-
-    Ignoring works on a key basis:
-    >>> dict_diff({"a": "b"}, {"a": "c"})
-    {'a': 'b'}
-    >>> dict_diff({"a": "b"}, {"a": "c"}, ["a"])
-    {}
-    """
-    buff: Dict[str, Any] = {}
-    for k in left:
-        if ignore and k in ignore:
-            continue
-        # Is the key there at all?
-        if k not in right:
-            buff[k] = left[k]
-        # Is the content the same?
-        elif left[k] == right[k]:
-            continue
-        # If it's not the same but both are dicts, then compare
-        elif isinstance(left[k], dict) and isinstance(right[k], dict):
-            diff = dict_diff(left[k], right[k], ignore=ignore)
-            # Only include the difference if non-null.
-            if diff:
-                buff[k] = diff
-        # It's just different
-        else:
-            buff[k] = left[k]
-    return buff
-
-
-def split_comma_separated_string(raw: Union[str, List[str]]) -> List[str]:
-    """Converts comma separated string to List, stripping whitespace."""
-    if isinstance(raw, str):
-        return [s.strip() for s in raw.split(",") if s.strip()]
-    if isinstance(raw, list):
-        return raw
-    raise SQLFluffUserError(
-        f"Expected list or comma separated string. Got {type(raw)}"
-        f" instead for value {raw}."
-    )
-
-
-def split_colon_separated_string(in_str: str) -> Tuple[Tuple[str, ...], str]:
-    """Converts a colon separated string.
-
-    NOTE: This also includes some provisions for values which may be
-    Windows paths containing colons and NOT stripping those.
-    """
-    config_path: List[str] = []
-    for element in in_str.split(":"):
-        # If the next element begins with a backslash, and the previous
-        # one had length == 1,  then this is probably a windows path.
-        # In which case, rejoin them together.
-        element = element.strip()
-        if (
-            element
-            and element[0] == "\\"
-            and config_path[-1]
-            and len(config_path[-1]) == 1
-        ):
-            config_path[-1] = config_path[-1] + ":" + element
-        else:
-            # Otherwise just add it to the path.
-            config_path.append(element)
-
-    return tuple(config_path[:-1]), config_path[-1]
-
-
 class ConfigLoader:
     """The class for loading config files.
 
@@ -359,7 +232,7 @@ class ConfigLoader:
         self._config_cache: Dict[str, Dict[str, Any]] = {}
 
     @classmethod
-    def get_global(cls) -> "ConfigLoader":
+    def get_global(cls) -> ConfigLoader:
         """Get the singleton loader."""
         global global_loader
         if not global_loader:
@@ -1022,7 +895,7 @@ class FluffConfig:
         ignore_local_config: bool = False,
         overrides: Optional[Dict[str, Any]] = None,
         **kw: Any,
-    ) -> "FluffConfig":
+    ) -> FluffConfig:
         """Loads a config object just based on the root directory."""
         loader = ConfigLoader.get_global()
         c = loader.load_config_up_to_path(
@@ -1046,12 +919,41 @@ class FluffConfig:
         ignore_local_config: bool = False,
         overrides: Optional[Dict[str, Any]] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
-    ) -> "FluffConfig":
-        """Loads a config object given a particular path."""
+    ) -> FluffConfig:
+        """Loads a config object from a single config string."""
         loader = ConfigLoader.get_global()
         c = loader.load_config_string(config_string)
         return cls(
             configs=c,
+            extra_config_path=extra_config_path,
+            ignore_local_config=ignore_local_config,
+            overrides=overrides,
+            plugin_manager=plugin_manager,
+        )
+
+    @classmethod
+    def from_strings(
+        cls,
+        *config_strings: str,
+        extra_config_path: Optional[str] = None,
+        ignore_local_config: bool = False,
+        overrides: Optional[Dict[str, Any]] = None,
+        plugin_manager: Optional[pluggy.PluginManager] = None,
+    ) -> FluffConfig:
+        """Loads a config object given a series of nested config strings.
+
+        Config strings are incorporated from first to last, treating the
+        first element as the "root" config, and then later config strings
+        will take precedence over any earlier values.
+        """
+        loader = ConfigLoader.get_global()
+        config_state: Dict[str, Any] = {}
+        for config_string in config_strings:
+            config_state = loader.load_config_string(
+                config_string, configs=config_state
+            )
+        return cls(
+            configs=config_state,
             extra_config_path=extra_config_path,
             ignore_local_config=ignore_local_config,
             overrides=overrides,
@@ -1066,7 +968,7 @@ class FluffConfig:
         ignore_local_config: bool = False,
         overrides: Optional[Dict[str, Any]] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
-    ) -> "FluffConfig":
+    ) -> FluffConfig:
         """Loads a config object given a particular path."""
         loader = ConfigLoader.get_global()
         c = loader.load_config_up_to_path(
@@ -1085,12 +987,12 @@ class FluffConfig:
     @classmethod
     def from_kwargs(
         cls,
-        config: Optional["FluffConfig"] = None,
+        config: Optional[FluffConfig] = None,
         dialect: Optional[str] = None,
         rules: Optional[List[str]] = None,
         exclude_rules: Optional[List[str]] = None,
         require_dialect: bool = True,
-    ) -> "FluffConfig":
+    ) -> FluffConfig:
         """Instantiate a config from either an existing config or kwargs.
 
         This is a convenience method for the ways that the public classes
@@ -1143,7 +1045,7 @@ class FluffConfig:
                 "{}".format(templater_name, ", ".join(templater_lookup.keys()))
             )
 
-    def make_child_from_path(self, path: str) -> "FluffConfig":
+    def make_child_from_path(self, path: str) -> FluffConfig:
         """Make a child config at a path but pass on overrides and extra_config_path."""
         return self.from_path(
             path,
@@ -1153,7 +1055,7 @@ class FluffConfig:
             plugin_manager=self._plugin_manager,
         )
 
-    def diff_to(self, other: "FluffConfig") -> Dict[str, Any]:
+    def diff_to(self, other: FluffConfig) -> Dict[str, Any]:
         """Compare this config to another.
 
         Args:

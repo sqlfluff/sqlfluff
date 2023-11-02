@@ -9,7 +9,6 @@ from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
     Bracketed,
-    Dedent,
     Delimited,
     LiteralSegment,
     Matchable,
@@ -116,6 +115,11 @@ trino_dialect.replace(
         Ref("TildeSegment"),
         Ref("NotOperatorGrammar"),
     ),
+    PostFunctionGrammar=ansi_dialect.get_grammar("PostFunctionGrammar").copy(
+        insert=[
+            Ref("WithinGroupClauseSegment"),
+        ],
+    ),
     FunctionContentsGrammar=AnyNumberOf(
         Ref("ExpressionSegment"),
         # A Cast-like function
@@ -164,6 +168,7 @@ trino_dialect.replace(
         Ref("IgnoreRespectNullsGrammar"),
         Ref("IndexColumnDefinitionSegment"),
         Ref("EmptyStructLiteralSegment"),
+        Ref("ListaggOverflowClauseSegment"),
     ),
 )
 
@@ -227,9 +232,6 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 
     match_grammar: Matchable = Sequence(
         Ref("SelectClauseSegment"),
-        # Dedent for the indent in the select clause.
-        # It's here so that it can come AFTER any whitespace.
-        Dedent,
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("GroupByClauseSegment", optional=True),
@@ -307,7 +309,70 @@ class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
+        insert=[Ref("AnalyzeStatementSegment")],
         remove=[
             Ref("TransactionStatementSegment"),
         ],
+    )
+
+
+class AnalyzeStatementSegment(BaseSegment):
+    """An 'ANALYZE' statement.
+
+    As per docs https://trino.io/docs/current/sql/analyze.html
+    """
+
+    type = "analyze_statement"
+    match_grammar = Sequence(
+        "ANALYZE",
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class WithinGroupClauseSegment(BaseSegment):
+    """An WITHIN GROUP clause for window functions.
+
+    https://trino.io/docs/current/functions/aggregate.html#array_agg
+    """
+
+    type = "withingroup_clause"
+    match_grammar = Sequence(
+        "WITHIN",
+        "GROUP",
+        Bracketed(Ref("OrderByClauseSegment", optional=False)),
+    )
+
+
+class ListaggOverflowClauseSegment(BaseSegment):
+    """ON OVERFLOW clause of listagg function.
+
+    https://trino.io/docs/current/functions/aggregate.html#array_agg
+    """
+
+    type = "listagg_overflow_clause"
+    match_grammar = Sequence(
+        "ON",
+        "OVERFLOW",
+        OneOf(
+            "ERROR",
+            Sequence(
+                "TRUNCATE",
+                Ref("SingleQuotedIdentifierSegment", optional=True),
+                OneOf("WITH", "WITHOUT", optional=True),
+                Ref.keyword("COUNT", optional=True),
+            ),
+        ),
     )

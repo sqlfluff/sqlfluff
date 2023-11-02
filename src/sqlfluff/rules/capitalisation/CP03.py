@@ -3,7 +3,6 @@
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.rules import LintFix
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-
 from sqlfluff.rules.capitalisation.CP01 import Rule_CP01
 
 

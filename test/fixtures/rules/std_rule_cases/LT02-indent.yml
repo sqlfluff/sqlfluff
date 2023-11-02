@@ -346,6 +346,19 @@ test_pass_indented_from_with_comment:
     -- Comment
     JOIN t2 USING (user_id)
 
+test_pass_ignored_comment:
+  # Test ignoring comments entirely.
+  # https://github.com/sqlfluff/sqlfluff/issues/3311
+  pass_str: |
+    SELECT *
+    FROM
+        t1
+                             -- Comment
+    JOIN t2 USING (user_id)
+  configs:
+    indentation:
+      ignore_comment_lines: true
+
 test_fail_indented_from_with_comment_alternate:
   # This shows the alternative position of comments being allowed.
   pass_str: |
@@ -2127,3 +2140,63 @@ test_pass_implicit_where:
   configs:
     indentation:
       allow_implicit_indents: true
+
+test_pass_templated_join:
+  # See: https://github.com/sqlfluff/sqlfluff/issues/5290
+  pass_str: |
+    select *
+    from a
+    {% if True %}
+        left join b using(x)
+    {% endif %}
+
+test_whitespace_control_issue_5277:
+  # https://github.com/sqlfluff/sqlfluff/issues/5277
+  fail_str: |
+    WITH a AS (
+        SELECT *
+        FROM tbl
+        WHERE
+            TRUE
+            {% if True -%}
+                AND b > (SELECT 1 FROM {{ this }})
+        {%- endif %}
+    )
+    select * from a
+  fix_str: |
+    WITH a AS (
+        SELECT *
+        FROM tbl
+        WHERE
+            TRUE
+            {% if True -%}
+                AND b > (SELECT 1 FROM {{ this }})
+            {%- endif %}
+    )
+    select * from a
+
+test_inconsistent_indent:
+  # In specific circumstances the indentation algorithm can behave
+  # unexpectedly, this is a test case to catch one, where the
+  # fix was unexpected.
+  # https://github.com/sqlfluff/sqlfluff/issues/5277
+  fail_str: |
+    WITH x AS (
+        SELECT
+            o.p AS p
+            {% for action in ["a", "b"] %}
+                , n.campaign_count_{{ action }}
+        {% endfor %}
+        FROM o
+    )
+    SELECT * FROM x
+  fix_str: |
+    WITH x AS (
+        SELECT
+            o.p AS p
+            {% for action in ["a", "b"] %}
+                , n.campaign_count_{{ action }}
+            {% endfor %}
+        FROM o
+    )
+    SELECT * FROM x

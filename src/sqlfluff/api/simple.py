@@ -1,12 +1,13 @@
 """The simple public API methods."""
 
 from typing import Any, Dict, List, Optional
+
 from sqlfluff.core import (
-    dialect_selector,
     FluffConfig,
     Linter,
     SQLBaseError,
     SQLFluffUserError,
+    dialect_selector,
 )
 
 
@@ -121,6 +122,8 @@ def fix(
         config_path (:obj:`Optional[str]`, optional): A path to a .sqlfluff config,
             which is only used if a `config` is not already provided.
             Defaults to None.
+        fix_even_unparsable (:obj:`bool`, optional): Optional override for the
+            corresponding SQLFluff configuration value.
 
     Returns:
         :obj:`str` for the fixed SQL if possible.

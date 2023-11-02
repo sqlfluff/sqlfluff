@@ -1,11 +1,12 @@
 """Defines the templaters."""
+import copy
 import importlib
 import logging
 import os.path
 import pkgutil
 import sys
 from functools import reduce
-from typing import Callable, Dict, Generator, List, Optional, Tuple
+from typing import Callable, Dict, Generator, Iterator, List, Optional, Set, Tuple, cast
 
 import jinja2.nodes
 from jinja2 import (
@@ -20,7 +21,8 @@ from jinja2.ext import Extension
 from jinja2.sandbox import SandboxedEnvironment
 
 from sqlfluff.core.config import FluffConfig
-from sqlfluff.core.errors import SQLBaseError, SQLTemplaterError
+from sqlfluff.core.errors import SQLBaseError, SQLFluffUserError, SQLTemplaterError
+from sqlfluff.core.helpers.slice import is_zero_slice, slice_length
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
     TemplatedFile,
@@ -28,7 +30,7 @@ from sqlfluff.core.templaters.base import (
     large_file_check,
 )
 from sqlfluff.core.templaters.python import PythonTemplater
-from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer
+from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer, JinjaTrace
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -52,12 +54,20 @@ class JinjaTemplater(PythonTemplater):
         """Take a template string and extract any macros from it.
 
         Lovingly inspired by http://codyaray.com/2015/05/auto-load-jinja2-macros
+
+        Raises:
+            TemplateSyntaxError: If the macro we try to load has invalid
+                syntax. We assume that outer functions will catch this
+                exception and handle it appropriately.
         """
         from jinja2.runtime import Macro  # noqa
 
         # Iterate through keys exported from the loaded template string
         context = {}
+        # NOTE: `env.from_string()` will raise TemplateSyntaxError if `template`
+        # is invalid.
         macro_template = env.from_string(template, globals=ctx)
+
         # This is kind of low level and hacky but it works
         try:
             for k in macro_template.module.__dict__:
@@ -77,7 +87,20 @@ class JinjaTemplater(PythonTemplater):
     def _extract_macros_from_path(
         cls, path: List[str], env: Environment, ctx: Dict
     ) -> dict:
-        """Take a path and extract macros from it."""
+        """Take a path and extract macros from it.
+
+        Args:
+            path (List[str]): A list of paths.
+            env (Environment): The environment object.
+            ctx (Dict): The context dictionary.
+
+        Returns:
+            dict: A dictionary containing the extracted macros.
+
+        Raises:
+            ValueError: If a path does not exist.
+            SQLTemplaterError: If there is an error in the Jinja macro file.
+        """
         macro_ctx = {}
         for path_entry in path:
             # Does it exist? It should as this check was done on config load.
@@ -113,7 +136,16 @@ class JinjaTemplater(PythonTemplater):
         return macro_ctx
 
     def _extract_macros_from_config(self, config, env, ctx):
-        """Take a config and load any macros from it."""
+        """Take a config and load any macros from it.
+
+        Args:
+            config: The config to extract macros from.
+            env: The environment.
+            ctx: The context.
+
+        Returns:
+            dict: A dictionary containing the extracted macros.
+        """
         if config:
             # This is now a nested section
             loaded_context = (
@@ -125,12 +157,29 @@ class JinjaTemplater(PythonTemplater):
         # Iterate to load macros
         macro_ctx = {}
         for value in loaded_context.values():
-            macro_ctx.update(
-                self._extract_macros_from_template(value, env=env, ctx=ctx)
-            )
+            try:
+                macro_ctx.update(
+                    self._extract_macros_from_template(value, env=env, ctx=ctx)
+                )
+            except TemplateSyntaxError as err:
+                raise SQLFluffUserError(
+                    f"Error loading user provided macro:\n`{value}`\n> {err}."
+                )
         return macro_ctx
 
     def _extract_libraries_from_config(self, config):
+        """Extracts libraries from the given configuration.
+
+        This function iterates over the modules in the library path and
+        imports them dynamically. The imported modules are then added to a 'Libraries'
+        object, which is returned as a dictionary excluding magic methods.
+
+        Args:
+            config: The configuration object.
+
+        Returns:
+            dict: A dictionary containing the extracted libraries.
+        """
         # If a more global library_path is set, let that take precedence.
         library_path = config.get("library_path") or config.get_section(
             (self.templater_selector, self.name, "library_path")
@@ -242,7 +291,25 @@ class JinjaTemplater(PythonTemplater):
             )
 
     def _get_jinja_env(self, config=None):
-        """Get a properly configured jinja environment."""
+        """Get a properly configured jinja environment.
+
+        This method returns a properly configured jinja environment. It
+        first checks if the 'ignore' key is present in the config dictionary and
+        if it contains the value 'templating'. If so, it creates a subclass of
+        FileSystemLoader called SafeFileSystemLoader that overrides the
+        get_source method to handle missing templates when templating is ignored.
+        If 'ignore' is not present or does not contain 'templating', it uses the
+        regular FileSystemLoader. It then sets the extensions to ['jinja2.ext.do']
+        and adds the DBTTestExtension if the _apply_dbt_builtins method returns
+        True. Finally, it returns a SandboxedEnvironment object with the
+        specified settings.
+
+        Args:
+            config (dict, optional): A dictionary containing configuration settings.
+
+        Returns:
+            jinja2.Environment: A properly configured jinja environment.
+        """
         # We explicitly want to preserve newlines.
         macros_path = self._get_macros_path(config)
         ignore_templating = config and "templating" in config.get("ignore")
@@ -282,6 +349,22 @@ class JinjaTemplater(PythonTemplater):
         )
 
     def _get_macros_path(self, config: FluffConfig) -> Optional[List[str]]:
+        """Get the list of macros paths from the provided config object.
+
+        This method searches for a config section specified by the
+        templater_selector, name, and 'load_macros_from_path' keys. If the section is
+        found, it retrieves the value associated with that section and splits it into
+        a list of strings using a comma as the delimiter. The resulting list is
+        stripped of whitespace and empty strings and returned. If the section is not
+        found or the resulting list is empty, it returns None.
+
+        Args:
+            config (FluffConfig): The config object to search for the macros path
+                section.
+
+        Returns:
+            Optional[List[str]]: The list of macros paths if found, None otherwise.
+        """
         if config:
             macros_path = config.get_section(
                 (self.templater_selector, self.name, "load_macros_from_path")
@@ -293,6 +376,20 @@ class JinjaTemplater(PythonTemplater):
         return None
 
     def _apply_dbt_builtins(self, config: FluffConfig) -> bool:
+        """Check if dbt builtins should be applied from the provided config object.
+
+        This method searches for a config section specified by the
+        templater_selector, name, and 'apply_dbt_builtins' keys. If the section
+        is found, it returns the value associated with that section. If the
+        section is not found, it returns False.
+
+        Args:
+            config (FluffConfig): The config object to search for the apply_dbt_builtins
+                section.
+
+        Returns:
+            bool: True if dbt builtins should be applied, False otherwise.
+        """
         if config:
             return config.get_section(
                 (self.templater_selector, self.name, "apply_dbt_builtins")
@@ -300,7 +397,16 @@ class JinjaTemplater(PythonTemplater):
         return False
 
     def get_context(self, fname=None, config=None, **kw) -> Dict:
-        """Get the templating context from the config."""
+        """Get the templating context from the config.
+
+        Args:
+            fname (str, optional): The name of the file.
+            config (dict, optional): The configuration.
+            **kw: Additional keyword arguments.
+
+        Returns:
+            dict: The templating context.
+        """
         # Load the context
         env = kw.pop("env")
         live_context = super().get_context(fname=fname, config=config)
@@ -346,7 +452,20 @@ class JinjaTemplater(PythonTemplater):
     def construct_render_func(
         self, fname=None, config=None
     ) -> Tuple[Environment, dict, Callable[[str], str]]:
-        """Builds and returns objects needed to create and run templates."""
+        """Builds and returns objects needed to create and run templates.
+
+        Args:
+            fname (Optional[str]): The name of the file.
+            config (Optional[dict]): The configuration settings.
+
+        Returns:
+            Tuple[Environment, dict, Callable[[str], str]]: A tuple
+            containing the following:
+                - env (Environment): An instance of the 'Environment' class.
+                - live_context (dict): A dictionary containing the live context.
+                - render_func (Callable[[str], str]): A callable function
+                that is used to instantiate templates.
+        """
         # Load the context
         env = self._get_jinja_env(config)
         live_context = self.get_context(fname=fname, config=config, env=env)
@@ -379,26 +498,36 @@ class JinjaTemplater(PythonTemplater):
 
     @large_file_check
     def process(
-        self, *, in_str: str, fname: str, config=None, formatter=None
+        self,
+        *,
+        in_str: str,
+        fname: str,
+        config: Optional[FluffConfig] = None,
+        formatter=None,
     ) -> Tuple[Optional[TemplatedFile], list]:
         """Process a string and return the new string.
 
         Note that the arguments are enforced as keywords
-        because Templaters can have differences in their
-        `process` method signature.
-        A Templater that only supports reading from a file
-        would need the following signature:
+        because Templaters can have differences in their `process`
+        method signature. A Templater that only supports reading
+        from a file would need the following signature:
             process(*, fname, in_str=None, config=None)
-        (arguments are swapped)
+            (arguments are swapped)
 
         Args:
-            in_str (:obj:`str`): The input string.
-            fname (:obj:`str`, optional): The filename of this string. This is
+            in_str (str): The input string.
+            fname (str, optional): The filename of this string. This is
                 mostly for loading config files at runtime.
-            config (:obj:`FluffConfig`): A specific config to use for this
+            config (FluffConfig): A specific config to use for this
                 templating operation. Only necessary for some templaters.
-            formatter (:obj:`CallbackFormatter`): Optional object for output.
+            formatter (CallbackFormatter): Optional object for output.
 
+        Raises:
+            ValueError: If the 'config' argument is not provided.
+
+        Returns:
+            Tuple[Optional[TemplatedFile], list]: A tuple containing the
+            templated file and a list of violations.
         """
         if not config:  # pragma: no cover
             raise ValueError(
@@ -521,7 +650,19 @@ class JinjaTemplater(PythonTemplater):
     def slice_file(
         self, raw_str: str, render_func: Callable[[str], str], config=None, **kwargs
     ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
-        """Slice the file to determine regions where we can fix."""
+        """Slice the file to determine regions where we can fix.
+
+        Args:
+            raw_str (str): The raw string to be sliced.
+            render_func (Callable[[str], str]): The rendering function to be used.
+            config (optional): Optional configuration.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
+                A tuple containing a list of raw file slices, a list of
+                templated file slices, and the templated string.
+        """
         # The JinjaTracer slicing algorithm is more robust, but it requires
         # us to create and render a second template (not raw_str).
 
@@ -531,6 +672,207 @@ class JinjaTemplater(PythonTemplater):
         tracer = analyzer.analyze(render_func)
         trace = tracer.trace(append_to_templated=kwargs.pop("append_to_templated", ""))
         return trace.raw_sliced, trace.sliced_file, trace.templated_str
+
+    def _handle_unreached_code(
+        self,
+        in_str: str,
+        render_func: Callable[[str], str],
+        uncovered_slices: Set[int],
+        append_to_templated="",
+    ):
+        """Address uncovered slices by tweaking the template to hit them.
+
+        Args:
+            in_str (:obj:`str`): The raw source file.
+            render_func (:obj:`callable`): The render func for the templater.
+            uncovered_slices (:obj:`set` of :obj:`int`): Indices of slices in the raw
+                file which are not rendered in the original rendering. These are the
+                slices we'll attempt to hit by modifying the template. NOTE: These are
+                indices in the _sequence of slices_, not _character indices_ in the
+                raw source file.
+            append_to_templated (:obj:`str`, optional): Optional string to append
+                to the templated file.
+        """
+        analyzer = JinjaAnalyzer(in_str, self._get_jinja_env())
+        tracer_copy = analyzer.analyze(render_func)
+
+        max_variants_generated = 10
+        max_variants_returned = 5
+        variants: Dict[str, Tuple[int, JinjaTrace]] = {}
+
+        # Create a mapping of the original source slices before modification so
+        # we can adjust the positions post-modification.
+        original_source_slices = {
+            idx: raw_slice.source_slice()
+            for idx, raw_slice in enumerate(tracer_copy.raw_sliced)
+        }
+
+        for uncovered_slice in sorted(uncovered_slices)[:max_variants_generated]:
+            tracer_probe = copy.deepcopy(tracer_copy)
+            tracer_trace = copy.deepcopy(tracer_copy)
+            override_raw_slices = []
+            # Find a path that takes us to 'uncovered_slice'.
+            choices = tracer_probe.move_to_slice(uncovered_slice, 0)
+            for branch, options in choices.items():
+                tag = tracer_probe.raw_sliced[branch].tag
+                if tag in ("if", "elif"):
+                    # Replace the existing "if" of "elif" expression with a new,
+                    # hardcoded value that hits the target slice in the template
+                    # (here that is options[0]).
+                    new_value = "True" if options[0] == branch + 1 else "False"
+                    tracer_trace.raw_slice_info[
+                        tracer_probe.raw_sliced[branch]
+                    ].alternate_code = f"{{% {tag} {new_value} %}}"
+                    override_raw_slices.append(branch)
+            # Render and analyze the template with the overrides.
+            variant_key = tuple(
+                cast(str, tracer_trace.raw_slice_info[rs].alternate_code)
+                if idx in override_raw_slices
+                and tracer_trace.raw_slice_info[rs].alternate_code is not None
+                else rs.raw
+                for idx, rs in enumerate(tracer_trace.raw_sliced)
+            )
+            # In some cases (especially with nested if statements), we may
+            # generate a variant that duplicates an existing variant. Skip
+            # those.
+            if variant_key not in variants:
+                variant_raw_str = "".join(variant_key)
+                analyzer = JinjaAnalyzer(variant_raw_str, self._get_jinja_env())
+                tracer_trace = analyzer.analyze(render_func)
+                try:
+                    trace = tracer_trace.trace(
+                        append_to_templated=append_to_templated,
+                    )
+                except:  # noqa: E722
+                    # If we get an error tracing the variant, skip it. This may
+                    # happen for a variety of reasons. Basically there's no
+                    # guarantee that the variant will be valid Jinja.
+                    continue
+                else:
+                    # Compute a score for the variant based on the size of initially
+                    # uncovered literal slices it hits.
+                    # NOTE: We need to map this back to the positions in the original
+                    # file, and only have the positions in the modified file here.
+                    # That means we go translate back via the slice index in raw file.
+
+                    # First, work out the literal positions in the modified file which
+                    # are now covered.
+                    _covered_source_positions = {
+                        tfs.source_slice.start
+                        for tfs in trace.sliced_file
+                        if tfs.slice_type == "literal"
+                        and not is_zero_slice(tfs.templated_slice)
+                    }
+                    # Second, convert these back into indices so we can use them to
+                    # refer to the unmodified source file.
+                    _covered_raw_slice_idxs = [
+                        idx
+                        for idx, raw_slice in enumerate(trace.raw_sliced)
+                        if raw_slice.source_idx in _covered_source_positions
+                    ]
+
+                    score = sum(
+                        slice_length(original_source_slices[idx])
+                        for idx in _covered_raw_slice_idxs
+                        if idx in uncovered_slices
+                    )
+
+                    variants[variant_raw_str] = (score, trace)
+
+        # Return the top-scoring variants.
+        sorted_variants: List[Tuple[int, JinjaTrace]] = sorted(
+            variants.values(), key=lambda v: v[0], reverse=True
+        )
+        for _, trace in sorted_variants[:max_variants_returned]:
+            # :TRICKY: Yield variants that _look like_ they were rendered from
+            # the original template, but actually were rendered from a modified
+            # template. This should ensure that lint issues and fixes for the
+            # variants are handled correctly and can be combined with those from
+            # the original template.
+            # To do this we run through modified slices and adjust their source
+            # slices to correspond with the original version. We do this by referencing
+            # their slice position in the original file, because we know we haven't
+            # changed the number or ordering of slices, just their length/content.
+            adjusted_slices: List[TemplatedFileSlice] = [
+                tfs._replace(source_slice=original_source_slices[idx])
+                for idx, tfs in enumerate(trace.sliced_file)
+            ]
+            yield (
+                tracer_copy.raw_sliced,
+                adjusted_slices,
+                trace.templated_str,
+            )
+
+    @large_file_check
+    def process_with_variants(
+        self, *, in_str: str, fname: str, config=None, formatter=None
+    ) -> Iterator[Tuple[Optional[TemplatedFile], List]]:
+        """Process a string and return one or more variant renderings.
+
+        Note that the arguments are enforced as keywords
+        because Templaters can have differences in their
+        `process` method signature.
+        A Templater that only supports reading from a file
+        would need the following signature:
+            process(*, fname, in_str=None, config=None)
+        (arguments are swapped)
+
+        Args:
+            in_str (:obj:`str`): The input string.
+            fname (:obj:`str`, optional): The filename of this string. This is
+                mostly for loading config files at runtime.
+            config (:obj:`FluffConfig`): A specific config to use for this
+                templating operation. Only necessary for some templaters.
+            formatter (:obj:`CallbackFormatter`): Optional object for output.
+
+        """
+        templated_file, violations = self.process(
+            in_str=in_str, fname=fname, config=config, formatter=formatter
+        )
+        yield templated_file, violations
+
+        if not templated_file:
+            return  # pragma: no cover
+
+        # Find uncovered code (if any), tweak the template to hit that code.
+        # First, identify the literals which _are_ covered.
+        covered_literal_positions = {
+            tfs.source_slice.start
+            for tfs in templated_file.sliced_file
+            # It's covered if it's rendered
+            if not is_zero_slice(tfs.templated_slice)
+        }
+        templater_logger.debug(
+            "Covered literal positions %s", covered_literal_positions
+        )
+
+        uncovered_literal_idxs = {
+            idx
+            for idx, raw_slice in enumerate(templated_file.raw_sliced)
+            if raw_slice.slice_type == "literal"
+            and raw_slice.source_idx not in covered_literal_positions
+        }
+        templater_logger.debug(
+            "Uncovered literals correspond to slices %s", uncovered_literal_idxs
+        )
+
+        # NOTE: No validation required as all validation done in the `.process()`
+        # call above.
+        _, _, render_func = self.construct_render_func(fname=fname, config=config)
+
+        for raw_sliced, sliced_file, templated_str in self._handle_unreached_code(
+            in_str, render_func, uncovered_literal_idxs
+        ):
+            yield (
+                TemplatedFile(
+                    source_str=in_str,
+                    templated_str=templated_str,
+                    fname=fname,
+                    sliced_file=sliced_file,
+                    raw_sliced=raw_sliced,
+                ),
+                violations,
+            )
 
 
 class DummyUndefined(jinja2.Undefined):
@@ -571,15 +913,41 @@ class DummyUndefined(jinja2.Undefined):
         return result
 
     def __getattr__(self, item):
+        """Intercept any calls to undefined attributes.
+
+        Args:
+            item (str): The name of the attribute.
+
+        Returns:
+            object: A dynamically created instance of this class.
+        """
         return self.create(f"{self.name}.{item}")
 
     # Implement the most common magic methods. This helps avoid
     # templating errors for undefined variables.
     # https://www.tutorialsteacher.com/python/magic-methods-in-python
     def _self_impl(self, *args, **kwargs) -> "DummyUndefined":
+        """Return an instance of the class itself.
+
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            object: An instance of the class itself.
+        """
         return self
 
     def _bool_impl(self, *args, **kwargs) -> bool:
+        """Return a boolean value.
+
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            bool: A boolean value.
+        """
         return True
 
     __add__ = _self_impl
@@ -608,10 +976,20 @@ class DummyUndefined(jinja2.Undefined):
     __gt__ = _bool_impl
 
     def __hash__(self) -> int:  # pragma: no cov
+        """Return a constant hash value.
+
+        Returns:
+            int: A constant hash value.
+        """
         # This is called by the "in" operator, among other things.
         return 0
 
     def __iter__(self):
+        """Return an iterator that contains only the instance of the class itself.
+
+        Returns:
+            iterator: An iterator.
+        """
         return [self].__iter__()
 
 

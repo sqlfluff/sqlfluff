@@ -2,8 +2,8 @@
 
 import sys
 import textwrap
-from typing import Callable, List, Dict, Any
 from collections import abc
+from typing import Any, Callable, Dict, List
 
 from sqlfluff import __version__ as pkg_version
 from functools import cached_property
