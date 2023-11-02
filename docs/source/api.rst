@@ -39,21 +39,21 @@ You can use :code:`FluffConfig()` class to configure SQLFluff behaviour.
 
 
 .. literalinclude:: ../../examples/04_config_overrides.py
-   : language: python
+   :language: python
 
 
 Instances of :code:`FluffConfig()` can be created manually, or parsed.
 
 
 .. literalinclude:: ../../examples/05_simple_api_config.py
-   : language: python
+   :language: python
 
 
 Supported dialects and rules are available through :code:`list_dialects()` and :code:`list_rules()`.
 
 
 .. literalinclude:: ../../examples/03_getting_rules_and_dialects.py
-   : language: python
+   :language: python
 
 
 Advanced API reference
