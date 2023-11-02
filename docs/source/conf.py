@@ -5,7 +5,11 @@ list see the documentation:
 https://www.sphinx-doc.org/en/master/usage/configuration.html
 """
 
-import configparser
+# tomllib is only in the stdlib from 3.11+
+try:
+    import tomllib as toml
+except ImportError:
+    import tomli as toml
 import os
 import sys
 
@@ -19,9 +23,9 @@ sys.path.append(os.path.abspath("./_ext"))
 
 # Get the global config info as currently stated
 # (we use the config file to avoid actually loading any python here)
-config = configparser.ConfigParser()
-config.read(["../../setup.cfg"])
-stable_version = config.get("sqlfluff_docs", "stable_version")
+with open("../../pyproject.toml", "rb") as config_file:
+    config = toml.load(config_file)
+stable_version = config.get("tool.sqlfluff_docs", "stable_version")
 
 # -- Project information -----------------------------------------------------
 

@@ -6,3 +6,5 @@ sphinx-click
 sphinx-reredirects
 doc8
 tqdm
+# tomli for reading toml files
+tomli
