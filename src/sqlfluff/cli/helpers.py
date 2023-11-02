@@ -3,10 +3,10 @@
 import sys
 import textwrap
 from collections import abc
+from functools import cached_property
 from typing import Any, Callable, Dict, List
 
 from sqlfluff import __version__ as pkg_version
-from functools import cached_property
 
 
 def get_python_version() -> str:

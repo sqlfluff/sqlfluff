@@ -1,12 +1,11 @@
 """Sqlfluff is a SQL linter for humans."""
 import sys
+from importlib import metadata
 
 import pytest
 
 # Expose the public API.
 from sqlfluff.api import fix, lint, list_dialects, list_rules, parse
-
-from importlib import metadata
 
 __all__ = (
     "lint",
