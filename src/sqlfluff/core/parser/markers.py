@@ -237,7 +237,7 @@ class PositionMarker:
 
         This value is used for:
         - Ignoring linting errors in templated sections.
-        - Whether `iter_patches` can return without recursing.
+        - Whether `_iter_templated_patches` can return without recursing.
         - Whether certain rules (such as JJ01) are triggered.
         """
         return self.templated_file.is_source_slice_literal(self.source_slice)
