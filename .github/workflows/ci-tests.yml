@@ -144,7 +144,7 @@ jobs:
         python-version: '3.12'
     - name: Install dependencies
       run: |
-        pip install -r requirements.txt -r requirements_dev.txt
+        pip install -r requirements_dev.txt
         pip install -e .
     - name: Generate the YAML files
       run: |
