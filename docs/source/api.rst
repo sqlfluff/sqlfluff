@@ -49,7 +49,8 @@ Instances of :code:`FluffConfig()` can be created manually, or parsed.
    :language: python
 
 
-Supported dialects and rules are available through :code:`list_dialects()` and :code:`list_rules()`.
+Supported dialects and rules are available through :code:`list_dialects()`
+and :code:`list_rules()`.
 
 
 .. literalinclude:: ../../examples/03_getting_rules_and_dialects.py
