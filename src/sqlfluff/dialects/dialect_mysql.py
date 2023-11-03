@@ -1124,6 +1124,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ReplaceSegment"),
             Ref("AlterDatabaseStatementSegment"),
             Ref("ReturnStatementSegment"),
+            Ref("SetNamesStatementSegment"),
         ],
         remove=[
             # handle CREATE SCHEMA in CreateDatabaseStatementSegment
@@ -2708,4 +2709,19 @@ class ReturnStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "RETURN",
         Ref("ExpressionSegment"),
+    )
+
+
+class SetNamesStatementSegment(BaseSegment):
+    """A `SET NAMES` statement.
+
+    As specified in https://dev.mysql.com/doc/refman/8.0/en/set-names.html
+    """
+
+    type = "set_names_statement"
+    match_grammar: Matchable = Sequence(
+        "SET",
+        "NAMES",
+        OneOf("DEFAULT", Ref("QuotedLiteralSegment"), Ref("NakedIdentifierSegment")),
+        Sequence("COLLATE", Ref("CollationReferenceSegment"), optional=True),
     )
