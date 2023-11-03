@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fd535f609b65d22497d484902183cbfed83028e566ddc56502d9f7cf064c78aa
+_hash: 3247b862cfe5d401832e0b10a68f5acb9adf258b44f136aa9aa669e32f5f5026
 file:
 - statement:
     access_statement:
@@ -164,4 +164,51 @@ file:
       - quoted_identifier: '`prj_svc`'
       - at_sign_literal: '@'
       - quoted_identifier: '`%`'
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: 'ON'
+    - wildcard_identifier:
+        naked_identifier: db1
+        dot: .
+        star: '*'
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: "'prj_svc'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'%'"
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: PRIVILEGES
+    - keyword: 'ON'
+    - wildcard_identifier:
+        naked_identifier: db1
+        dot: .
+        star: '*'
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: "'prj_svc'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: PRIVILEGES
+    - keyword: 'ON'
+    - wildcard_identifier:
+      - star: '*'
+      - dot: .
+      - star: '*'
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: "'prj_svc'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'%'"
 - statement_terminator: ;
