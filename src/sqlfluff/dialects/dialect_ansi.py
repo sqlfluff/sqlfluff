@@ -1551,10 +1551,16 @@ class WildcardIdentifierSegment(ObjectReferenceSegment):
     match_grammar: Matchable = Sequence(
         # *, blah.*, blah.blah.*, etc.
         AnyNumberOf(
-            Sequence(
-                Ref("SingleIdentifierGrammar"),
-                Ref("ObjectReferenceDelimiterGrammar"),
-                allow_gaps=True,
+            OneOf(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("ObjectReferenceDelimiterGrammar"),
+                    allow_gaps=True,
+                ),
+                Sequence(
+                    Ref("StarSegment"),
+                    Ref("DotSegment"),
+                ),
             )
         ),
         Ref("StarSegment"),
@@ -3405,6 +3411,7 @@ class AccessStatementSegment(BaseSegment):
                     Ref("FunctionNameSegment"),
                     Ref("FunctionParameterListGrammar", optional=True),
                 ),
+                Ref("WildcardIdentifierSegment"),
                 terminators=["TO", "FROM"],
             ),
         ),

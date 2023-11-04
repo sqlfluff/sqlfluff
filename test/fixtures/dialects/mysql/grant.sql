@@ -6,3 +6,6 @@ GRANT INSERT, UPDATE, DELETE, SELECT, REFERENCES ON prj_table TO 'prj_svc'@'%';
 GRANT INSERT, UPDATE, DELETE, SELECT, REFERENCES ON prj_table TO "prj_svc"@"%";
 GRANT INSERT, UPDATE, DELETE, SELECT, REFERENCES ON prj_table TO `prj_svc`@`%`;
 GRANT INSERT, UPDATE, DELETE, SELECT, REFERENCES ON prj_table TO `prj_svc` @`%`;
+GRANT ALL ON db1.* TO 'prj_svc'@'%';
+GRANT ALL PRIVILEGES ON db1.* TO 'prj_svc'@'localhost';
+GRANT ALL PRIVILEGES ON *.* TO 'prj_svc'@'%';
