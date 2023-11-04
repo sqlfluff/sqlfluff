@@ -153,3 +153,26 @@ BEGIN ATOMIC
   SELECT *
   FROM data;
 END;
+
+create or replace function tz_date(timestamp with time zone, text) returns date
+    language sql
+    immutable strict
+    return ($1 at time zone $2)::date;
+
+CREATE FUNCTION storage.insert_dimension
+(in_ordinality int, in_fieldname varchar, in_default_val varchar,
+ in_valid_from timestamp, in_valid_until timestamp)
+returns storage.dimensions language sql
+BEGIN ATOMIC
+    UPDATE storage.dimensions
+       SET ordinality = ordinality + 1
+     WHERE ordinality >= in_ordinality;
+
+    INSERT INTO storage.dimensions
+                (ordinality, fieldname, default_val, valid_from, valid_until)
+         VALUES (in_ordinality, in_fieldname,
+                coalesce(in_default_val, 'notexist'),
+                coalesce(in_valid_from, '-infinity'),
+                coalesce(in_valid_until, 'infinity'))
+    RETURNING *;
+END;

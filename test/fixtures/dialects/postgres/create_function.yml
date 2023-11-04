@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5e159dd09576772d0f482616449f7291ae6875bd834947338133532762478aec
+_hash: e8085ca8c143b2a4f92c5c649fa42732ec82fcabe04ecdea94558c31676e63d6
 file:
 - statement:
     create_function_statement:
@@ -788,4 +788,210 @@ file:
                     naked_identifier: data
       - statement_terminator: ;
       - keyword: END
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: function
+    - function_name:
+        function_name_identifier: tz_date
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            datetime_type_identifier:
+            - keyword: timestamp
+            - keyword: with
+            - keyword: time
+            - keyword: zone
+        - comma: ','
+        - data_type:
+            keyword: text
+        - end_bracket: )
+    - keyword: returns
+    - data_type:
+        datetime_type_identifier:
+          keyword: date
+    - function_definition:
+      - language_clause:
+          keyword: language
+          naked_identifier: sql
+      - keyword: immutable
+      - keyword: strict
+      - keyword: return
+      - expression:
+          cast_expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                dollar_numeric_literal: $1
+                time_zone_grammar:
+                - keyword: at
+                - keyword: time
+                - keyword: zone
+                - expression:
+                    dollar_numeric_literal: $2
+              end_bracket: )
+            casting_operator: '::'
+            data_type:
+              datetime_type_identifier:
+                keyword: date
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: storage
+        dot: .
+        function_name_identifier: insert_dimension
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: in_ordinality
+        - data_type:
+            keyword: int
+        - comma: ','
+        - parameter: in_fieldname
+        - data_type:
+            keyword: varchar
+        - comma: ','
+        - parameter: in_default_val
+        - data_type:
+            keyword: varchar
+        - comma: ','
+        - parameter: in_valid_from
+        - data_type:
+            datetime_type_identifier:
+              keyword: timestamp
+        - comma: ','
+        - parameter: in_valid_until
+        - data_type:
+            datetime_type_identifier:
+              keyword: timestamp
+        - end_bracket: )
+    - keyword: returns
+    - data_type:
+        naked_identifier: storage
+        dot: .
+        data_type_identifier: dimensions
+    - function_definition:
+      - language_clause:
+          keyword: language
+          naked_identifier: sql
+      - keyword: BEGIN
+      - keyword: ATOMIC
+      - update_statement:
+          keyword: UPDATE
+          table_reference:
+          - naked_identifier: storage
+          - dot: .
+          - naked_identifier: dimensions
+          set_clause_list:
+            keyword: SET
+            set_clause:
+              column_reference:
+                naked_identifier: ordinality
+              comparison_operator:
+                raw_comparison_operator: '='
+              expression:
+                column_reference:
+                  naked_identifier: ordinality
+                binary_operator: +
+                numeric_literal: '1'
+          where_clause:
+            keyword: WHERE
+            expression:
+            - column_reference:
+                naked_identifier: ordinality
+            - comparison_operator:
+              - raw_comparison_operator: '>'
+              - raw_comparison_operator: '='
+            - column_reference:
+                naked_identifier: in_ordinality
       - statement_terminator: ;
+      - insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+          - naked_identifier: storage
+          - dot: .
+          - naked_identifier: dimensions
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: ordinality
+          - comma: ','
+          - column_reference:
+              naked_identifier: fieldname
+          - comma: ','
+          - column_reference:
+              naked_identifier: default_val
+          - comma: ','
+          - column_reference:
+              naked_identifier: valid_from
+          - comma: ','
+          - column_reference:
+              naked_identifier: valid_until
+          - end_bracket: )
+        - values_clause:
+            keyword: VALUES
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  naked_identifier: in_ordinality
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: in_fieldname
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: coalesce
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: in_default_val
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'notexist'"
+                  - end_bracket: )
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: coalesce
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: in_valid_from
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'-infinity'"
+                  - end_bracket: )
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: coalesce
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: in_valid_until
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'infinity'"
+                  - end_bracket: )
+            - end_bracket: )
+        - keyword: RETURNING
+        - star: '*'
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
