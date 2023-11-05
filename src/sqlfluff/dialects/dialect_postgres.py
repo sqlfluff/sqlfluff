@@ -1310,12 +1310,27 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                 ),
             ),
             Sequence(
+                "RETURN",
+                Ref("ExpressionSegment"),
+            ),
+            Sequence(
                 "BEGIN",
                 "ATOMIC",
-                Ref("SelectStatementSegment"),
-                Ref("SemicolonSegment"),
+                AnyNumberOf(
+                    Sequence(
+                        Ref("InsertStatementSegment"),
+                        Ref("SemicolonSegment"),
+                    ),
+                    Sequence(
+                        Ref("UpdateStatementSegment"),
+                        Ref("SemicolonSegment"),
+                    ),
+                    Sequence(
+                        Ref("SelectStatementSegment"),
+                        Ref("SemicolonSegment"),
+                    ),
+                ),
                 "END",
-                Ref("SemicolonSegment"),
             ),
         ),
         Sequence(
