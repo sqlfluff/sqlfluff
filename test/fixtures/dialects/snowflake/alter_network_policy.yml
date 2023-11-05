@@ -1,0 +1,106 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4f53cb5d8916b735a9139e046b4fa8b50af3be13ffbcbfcfbfb5110ed4502d94
+file:
+- statement:
+    alter_network_policy_statement:
+    - keyword: ALTER
+    - keyword: NETWORK
+    - keyword: POLICY
+    - naked_identifier: mypolicy1
+    - keyword: SET
+    - keyword: ALLOWED_IP_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'192.168.1.0/24'"
+      - comma: ','
+      - quoted_literal: "'192.168.255.100'"
+      - end_bracket: )
+    - keyword: BLOCKED_IP_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'192.168.1.99'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_network_policy_statement:
+    - keyword: ALTER
+    - keyword: NETWORK
+    - keyword: POLICY
+    - naked_identifier: foo
+    - keyword: RENAME
+    - keyword: TO
+    - naked_identifier: bar
+- statement_terminator: ;
+- statement:
+    alter_network_policy_statement:
+    - keyword: ALTER
+    - keyword: NETWORK
+    - keyword: POLICY
+    - naked_identifier: foo
+    - keyword: SET
+    - tag_equals:
+        keyword: TAG
+        tag_reference:
+        - naked_identifier: admin
+        - dot: .
+        - naked_identifier: my_tag
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'foo'"
+- statement_terminator: ;
+- statement:
+    alter_network_policy_statement:
+    - keyword: ALTER
+    - keyword: NETWORK
+    - keyword: POLICY
+    - naked_identifier: foo
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+      - naked_identifier: admin
+      - dot: .
+      - naked_identifier: my_tag
+- statement_terminator: ;
+- statement:
+    alter_network_policy_statement:
+    - keyword: ALTER
+    - keyword: NETWORK
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: foo
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_network_policy_statement:
+    - keyword: ALTER
+    - keyword: NETWORK
+    - keyword: POLICY
+    - naked_identifier: foo
+    - keyword: REMOVE
+    - keyword: ALLOWED_NETWORK_RULE_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'foo'"
+- statement_terminator: ;
+- statement:
+    alter_network_policy_statement:
+    - keyword: ALTER
+    - keyword: NETWORK
+    - keyword: POLICY
+    - naked_identifier: foo
+    - keyword: ADD
+    - keyword: BLOCKED_NETWORK_RULE_LIST
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'bar'"
+- statement_terminator: ;
