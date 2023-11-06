@@ -14,6 +14,17 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This release makes a couple of potentially breaking changes:
+
+* It drops support for python 3.7, which reached end of life in June 2023.
+
+* It migrates to `pyproject.toml` rather than `setup.cfg` as the python
+  packaging configuration file (although keeping `setuptools` as the default backend).
+
+Further breaking changes may be made as part of the full 3.0.0 release, but this
+alpha release is designed to test the new packaging changes for any issues before
+releasing a stable version.
+
 ## What’s Changed
 
 * Migrate to `pyproject.toml` for the core project. [#5373](https://github.com/sqlfluff/sqlfluff/pull/5373) [@alanmcruickshank](https://github.com/alanmcruickshank)
