@@ -10,6 +10,34 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [3.0.0a1] - 2023-11-06
+
+## Highlights
+
+## What’s Changed
+
+* Migrate to `pyproject.toml` for the core project. [#5373](https://github.com/sqlfluff/sqlfluff/pull/5373) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix the snippet from a pyproject.toml in configuration.rst [#5378](https://github.com/sqlfluff/sqlfluff/pull/5378) [@ishiis](https://github.com/ishiis)
+* Snowflake: Support AlterNetworkPolicy Statements [#5377](https://github.com/sqlfluff/sqlfluff/pull/5377) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* postgres: add support for bodies of "language sql" functions [#5376](https://github.com/sqlfluff/sqlfluff/pull/5376) [@65278](https://github.com/65278)
+* Add support for SET NAMES statement in MySQL [#5374](https://github.com/sqlfluff/sqlfluff/pull/5374) [@joaostorrer](https://github.com/joaostorrer)
+* Fix GRANT ALL PRIVILEGES statement in MySQL [#5375](https://github.com/sqlfluff/sqlfluff/pull/5375) [@joaostorrer](https://github.com/joaostorrer)
+* Another extraction of fixing logic. [#5365](https://github.com/sqlfluff/sqlfluff/pull/5365) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Remove root requirements.txt [#5372](https://github.com/sqlfluff/sqlfluff/pull/5372) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Drop support of python 3.7 [#5288](https://github.com/sqlfluff/sqlfluff/pull/5288) [@zhongjiajie](https://github.com/zhongjiajie)
+* API configuration documentation [#5369](https://github.com/sqlfluff/sqlfluff/pull/5369) [@golergka](https://github.com/golergka)
+* add listagg extras support in trino dialect [#5368](https://github.com/sqlfluff/sqlfluff/pull/5368) [@wjhrdy](https://github.com/wjhrdy)
+* Allow ignoring of comments from indentation entirely #3311 [#5363](https://github.com/sqlfluff/sqlfluff/pull/5363) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Trino: Support Analyze statements [#5361](https://github.com/sqlfluff/sqlfluff/pull/5361) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Resolve #5327 (logging to stdout) [#5362](https://github.com/sqlfluff/sqlfluff/pull/5362) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
+## New Contributors
+
+* [@wjhrdy](https://github.com/wjhrdy) made their first contribution in [#5368](https://github.com/sqlfluff/sqlfluff/pull/5368)
+* [@golergka](https://github.com/golergka) made their first contribution in [#5369](https://github.com/sqlfluff/sqlfluff/pull/5369)
+* [@65278](https://github.com/65278) made their first contribution in [#5376](https://github.com/sqlfluff/sqlfluff/pull/5376)
+* [@ishiis](https://github.com/ishiis) made their first contribution in [#5378](https://github.com/sqlfluff/sqlfluff/pull/5378)
+
 ## [2.3.5] - 2023-10-27
 
 ## Highlights

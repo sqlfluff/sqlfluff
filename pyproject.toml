@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sqlfluff"
-version = "2.3.5"
+version = "3.0.0a1"
 description = "The SQL Linter for Humans"
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.8"
@@ -106,7 +106,7 @@ Chat = "https://github.com/sqlfluff/sqlfluff#sqlfluff-on-slack"
 
 [tool.sqlfluff_docs]
 # NOTE: Stable version is used by docs/conf.py
-stable_version = "2.3.5"
+stable_version = "3.0.0a1"
 
 
 [tool.setuptools]
