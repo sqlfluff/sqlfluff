@@ -66,15 +66,15 @@ For example, a snippet from a :code:`pyproject.toml` file:
     sql_file_exts = ".sql,.sql.j2,.dml,.ddl"
 
     [tool.sqlfluff.indentation]
-    indented_joins = False
-    indented_using_on = True
-    template_blocks_indent = False
+    indented_joins = false
+    indented_using_on = true
+    template_blocks_indent = false
 
     [tool.sqlfluff.templater]
-    unwrap_wrapped_queries = True
+    unwrap_wrapped_queries = true
 
     [tool.sqlfluff.templater.jinja]
-    apply_dbt_builtins = True
+    apply_dbt_builtins = true
 
     # For rule specific configuration, use dots between the names exactly
     # as you would in .sqlfluff. In the background, SQLFluff will unpack the
