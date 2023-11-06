@@ -179,7 +179,7 @@ def release(new_version_num):
 
     write_changelog.close()
 
-    for filename in ["setup.cfg", "plugins/sqlfluff-templater-dbt/setup.cfg"]:
+    for filename in ["plugins/sqlfluff-templater-dbt/setup.cfg"]:
         input_file = open(filename, "r").readlines()
         # Regardless of platform, write newlines as \n
         write_file = open(filename, "w", newline="\n")
