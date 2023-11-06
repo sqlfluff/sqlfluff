@@ -1071,6 +1071,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterSequenceStatementSegment"),
             Ref("AlterDatabaseSegment"),
             Ref("AlterMaskingPolicySegment"),
+            Ref("AlterNetworkPolicyStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -2720,6 +2721,81 @@ class AlterProcedureStatementSegment(BaseSegment):
                 "UNSET",
                 OneOf(
                     Sequence("TAG", Delimited(Ref("TagReferenceSegment"))), "COMMENT"
+                ),
+            ),
+        ),
+    )
+
+
+class AlterNetworkPolicyStatementSegment(BaseSegment):
+    """An ALTER NETWORK POLICY statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/alter-network-policy
+    """
+
+    type = "alter_network_policy_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "NETWORK",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        OneOf(
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Sequence(
+                        "ALLOWED_NETWORK_RULE_LIST",
+                        Ref("EqualsSegment"),
+                        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                    ),
+                    Sequence(
+                        "BLOCKED_NETWORK_RULE_LIST",
+                        Ref("EqualsSegment"),
+                        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                    ),
+                    Sequence(
+                        "ALLOWED_IP_LIST",
+                        Ref("EqualsSegment"),
+                        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                    ),
+                    Sequence(
+                        "BLOCKED_IP_LIST",
+                        Ref("EqualsSegment"),
+                        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                    ),
+                    Sequence(
+                        "COMMENT",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                "COMMENT",
+            ),
+            Sequence(
+                OneOf(
+                    "ADD",
+                    "REMOVE",
+                ),
+                OneOf(
+                    "ALLOWED_NETWORK_RULE_LIST",
+                    "BLOCKED_NETWORK_RULE_LIST",
+                ),
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence("RENAME", "TO", Ref("SingleIdentifierGrammar")),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence(
+                "UNSET",
+                "TAG",
+                Ref("TagReferenceSegment"),
+                AnyNumberOf(
+                    Ref("CommaSegment"), Ref("TagReferenceSegment"), optional=True
                 ),
             ),
         ),
