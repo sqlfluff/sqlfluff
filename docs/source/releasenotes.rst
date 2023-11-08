@@ -10,6 +10,33 @@ of each individual release, see the detailed changelog_.
 
 .. _changelog: https://github.com/sqlfluff/sqlfluff/blob/main/CHANGELOG.md
 
+Upgrading to 3.x
+----------------
+
+This release makes a couple of potentially breaking changes:
+
+* It drops support for python 3.7, which reached end of life in June 2023.
+
+* It migrates to :code:`pyproject.toml` rather than :code:`setup.cfg` as
+  the python packaging configuration file (although keeping :code:`setuptools`
+  as the default backend).
+
+Upgrading to 2.3
+----------------
+
+This release include two minor breaking changes which will only affect
+users engaged in performance optimisation of SQLFluff itself.
+
+* The :code:`--profiler` option on :code:`sqlfluff parse` has been removed.
+  It was only present on the `parse` command and not `lint` or `fix`, and
+  it is just as simple to invoke the python `cProfiler` directly.
+
+* The :code:`--recurse` cli option and :code:`sqlfluff.recurse` configuration
+  option have both been removed. They both existed purely for debugging the
+  parser, and were never used in a production setting. The improvement in
+  other debugging messages when unparsable sections are found means that
+  this option is no longer necessary.
+
 Upgrading to 2.2
 ----------------
 
