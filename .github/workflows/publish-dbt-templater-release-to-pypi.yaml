@@ -28,7 +28,7 @@ jobs:
         run: cp -r plugins/sqlfluff-templater-dbt/dist/. dist/
 
       - name: Publish Python distribution to PyPI
-        uses: pypa/gh-action-pypi-publish@master
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
           password: ${{ secrets.PYPI_DBT_TEMPLATER_TOKEN }}
