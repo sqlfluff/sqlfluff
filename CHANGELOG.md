@@ -27,6 +27,7 @@ releasing a stable version.
 
 ## What’s Changed
 
+* Move the rest of pytest over to `pyproject.toml` [#5383](https://github.com/sqlfluff/sqlfluff/pull/5383) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Move doc8 over to pyproject [#5385](https://github.com/sqlfluff/sqlfluff/pull/5385) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Remove exceptions for typing stubs that now exist. [#5382](https://github.com/sqlfluff/sqlfluff/pull/5382) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Migrate to `pyproject.toml` for the core project. [#5373](https://github.com/sqlfluff/sqlfluff/pull/5373) [@alanmcruickshank](https://github.com/alanmcruickshank)
