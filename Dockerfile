@@ -7,19 +7,20 @@ WORKDIR /app
 ENV VIRTUAL_ENV /app/.venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH $VIRTUAL_ENV/bin:$PATH
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel pip-tools
 
 # Install requirements separately
 # to take advantage of layer caching.
-# N.B. we extract the requirements from setup.cfg
-COPY setup.cfg .
-RUN python -c "import configparser; c = configparser.ConfigParser(); c.read('setup.cfg'); print(c['options']['install_requires'])" > requirements.txt
+# N.B. we extract the requirements from pyproject.toml
+COPY pyproject.toml .
+# Use piptools to extract requirements from pyproject.toml as described in
+# https://github.com/pypa/pip/issues/11584
+RUN pip-compile -o requirements.txt pyproject.toml -v --strip-extras
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 # Copy minimal set of SQLFluff package files.
 COPY MANIFEST.in .
 COPY README.md .
-COPY setup.py .
 COPY src ./src
 
 # Install sqlfluff package.

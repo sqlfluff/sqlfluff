@@ -103,23 +103,6 @@ Changes = "https://github.com/sqlfluff/sqlfluff/blob/main/CHANGELOG.md"
 Twitter = "https://twitter.com/SQLFluff"
 Chat = "https://github.com/sqlfluff/sqlfluff#sqlfluff-on-slack"
 
-
-[tool.sqlfluff_docs]
-# NOTE: Stable version is used by docs/conf.py
-stable_version = "2.3.5"
-
-
-[tool.setuptools]
-package-dir = {"" = "src"}
-
-[tool.setuptools.packages.find]
-where = ["src"]
-namespaces = false
-
-[tool.setuptools.package-data]
-sqlfluff = ["config.ini", "core/default_config.cfg", "py.typed"]
-
-
 [project.scripts]
 sqlfluff = "sqlfluff.cli.commands:cli"
 
@@ -141,6 +124,15 @@ sqlfluff_rules_structure = "sqlfluff.rules.structure"
 sqlfluff_rules_convention = "sqlfluff.rules.convention"
 sqlfluff_rules_jinja = "sqlfluff.rules.jinja"
 sqlfluff_rules_tsql = "sqlfluff.rules.tsql"
+
+
+[tool.sqlfluff_docs]
+# NOTE: Stable version is used by docs/conf.py
+stable_version = "2.3.5"
+
+
+[tool.setuptools.package-data]
+sqlfluff = ["core/default_config.cfg", "py.typed"]
 
 
 [tool.importlinter]
