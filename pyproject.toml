@@ -250,6 +250,8 @@ convention = "google"
 
 
 [tool.pytest.ini_options]
+python_files = "*_test.py"
+testpaths = "test"
 markers = [
     "dbt: Marks tests needing the \"dbt\" plugin (deselect with '-m \"not dbt\"').",
     "integration: Marks tests outside of the core suite.",
