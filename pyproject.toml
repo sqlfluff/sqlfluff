@@ -216,19 +216,7 @@ implicit_reexport = true
 
 # skip type checking for 3rd party packages for which stubs are not available
 [[tool.mypy.overrides]]
-module = "pathspec.*"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
 module = "diff_cover.*"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "dbt.*"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "pluggy.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
@@ -269,3 +257,8 @@ markers = [
     "fix_suite: Marks the suite of fixing tests across a range of dialects (part of integration).",
     "rules_suite: Marks the suite of rules tests. Also known as the yaml tests (part of integration).",
 ]
+
+
+[tool.doc8]
+# Ignore auto-generated docs
+ignore-path = "docs/source/partials/"
