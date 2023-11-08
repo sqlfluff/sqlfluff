@@ -106,7 +106,7 @@ Chat = "https://github.com/sqlfluff/sqlfluff#sqlfluff-on-slack"
 
 [tool.sqlfluff_docs]
 # NOTE: Stable version is used by docs/conf.py
-stable_version = "3.0.0a1"
+stable_version = "2.3.5"
 
 
 [tool.setuptools]
