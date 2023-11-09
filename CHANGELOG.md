@@ -10,6 +10,18 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [3.0.0a2] - 2023-11-09
+
+## Highlights
+
+The initial 3.0.0a1 release failed to build a docker image, this resolves
+that issue.
+
+## What’s Changed
+
+* Update publish actions and Dockerfile. [#5390](https://github.com/sqlfluff/sqlfluff/pull/5390) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
+
 ## [3.0.0a1] - 2023-11-08
 
 ## Highlights
