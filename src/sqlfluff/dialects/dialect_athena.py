@@ -457,7 +457,7 @@ class CreateTableStatementSegment(BaseSegment):
                     Bracketed(
                         Delimited(
                             Sequence(
-                                Ref("ColumnDefinitionSegment"),
+                                Ref("NakedIdentifierSegment"),
                                 Ref("CommentGrammar", optional=True),
                             ),
                         ),
