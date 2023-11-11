@@ -8,7 +8,7 @@ create table my_database.my_table(
 
 CREATE TABLE iceberg_table WITH (
   format = 'PARQUET',
-  table_type ='ICEBERG',
+  table_type = 'ICEBERG',
   partitioning = ARRAY['column_name'],
   external_location ='s3://DOC-EXAMPLE-BUCKET/tables/iceberg_table/'
 ) AS
