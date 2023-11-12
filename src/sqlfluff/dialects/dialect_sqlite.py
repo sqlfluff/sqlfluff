@@ -44,7 +44,7 @@ sqlite_dialect.patch_lexer_matchers(
         # SQLite allows block comments to be terminated by end of input
         RegexLexer(
             "block_comment",
-            r"\/\*([^\*]|\*(?!\/))*(\*\/|\Z)?",
+            r"\/\*([^\*]|\*(?!\/))*(\*\/|\Z)",
             CommentSegment,
             subdivider=RegexLexer(
                 "newline",
