@@ -508,7 +508,7 @@ def _create_table_ref(table_name: str, dialect: Dialect) -> TableExpressionSegme
     IdentifierSegment = cast(
         Type[CodeSegment], dialect.get_segment("IdentifierSegment")
     )
-    table_seg = TableExpressionSeg(
+    return TableExpressionSeg(
         segments=(
             TableReferenceSeg(
                 segments=(
@@ -520,7 +520,6 @@ def _create_table_ref(table_name: str, dialect: Dialect) -> TableExpressionSegme
             ),
         ),
     )
-    return table_seg  # type: ignore
 
 
 def _get_case_preference(root_select: Segments):
