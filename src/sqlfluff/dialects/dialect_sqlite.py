@@ -9,16 +9,20 @@ from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
     Bracketed,
+    CommentSegment,
     Delimited,
     LiteralSegment,
     Matchable,
+    NewlineSegment,
     Nothing,
     OneOf,
     OptionallyBracketed,
     ParseMode,
     Ref,
+    RegexLexer,
     Sequence,
     TypedParser,
+    WhitespaceSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_sqlite_keywords import (
@@ -34,6 +38,27 @@ sqlite_dialect.sets("reserved_keywords").clear()
 sqlite_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 sqlite_dialect.sets("unreserved_keywords").clear()
 sqlite_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
+
+sqlite_dialect.patch_lexer_matchers(
+    [
+        # SQLite allows block comments to be terminated by end of input
+        RegexLexer(
+            "block_comment",
+            r"\/\*([^\*]|\*(?!\/))*(\*\/|\Z)?",
+            CommentSegment,
+            subdivider=RegexLexer(
+                "newline",
+                r"\r\n|\n",
+                NewlineSegment,
+            ),
+            trim_post_subdivide=RegexLexer(
+                "whitespace",
+                r"[^\S\r\n]+",
+                WhitespaceSegment,
+            ),
+        ),
+    ]
+)
 
 sqlite_dialect.replace(
     BooleanBinaryOperatorGrammar=OneOf(
