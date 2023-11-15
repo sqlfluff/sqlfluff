@@ -652,12 +652,24 @@ class DeleteStatementSegment(BaseSegment):
         OneOf(
             Sequence(
                 "FROM",
-                Delimited(Ref("TableReferenceSegment"), terminators=["USING"]),
+                Delimited(
+                    Sequence(
+                        Ref("TableReferenceSegment"),
+                        Sequence(Ref("DotSegment"), Ref("StarSegment"), optional=True),
+                    ),
+                    terminators=["USING"],
+                ),
                 Ref("DeleteUsingClauseSegment"),
                 Ref("WhereClauseSegment", optional=True),
             ),
             Sequence(
-                Delimited(Ref("TableReferenceSegment"), terminators=["FROM"]),
+                Delimited(
+                    Sequence(
+                        Ref("TableReferenceSegment"),
+                        Sequence(Ref("DotSegment"), Ref("StarSegment"), optional=True),
+                    ),
+                    terminators=["FROM"],
+                ),
                 Ref("FromClauseSegment"),
                 Ref("WhereClauseSegment", optional=True),
             ),
