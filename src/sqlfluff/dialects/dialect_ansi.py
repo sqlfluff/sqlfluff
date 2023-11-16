@@ -2612,6 +2612,7 @@ ansi_dialect.add(
     # Things that behave like select statements
     SelectableGrammar=OneOf(
         OptionallyBracketed(Ref("WithCompoundStatementSegment")),
+        OptionallyBracketed(Ref("WithCompoundNonSelectStatementSegment")),
         Ref("NonWithSelectableGrammar"),
         Bracketed(Ref("SelectableGrammar")),
     ),
@@ -2637,6 +2638,7 @@ ansi_dialect.add(
         # otherwise we can't because any order by clauses should belong
         # to the set expression.
         Bracketed(Ref("SelectStatementSegment")),
+        Bracketed(Ref("WithCompoundStatementSegment")),
         Bracketed(Ref("NonSetSelectableGrammar")),
     ),
 )
@@ -2670,7 +2672,7 @@ class CTEDefinitionSegment(BaseSegment):
     )
 
     def get_identifier(self) -> IdentifierSegment:
-        """Gets the identifier of this CTE.
+        """Get the identifier of this CTE.
 
         Note: it blindly gets the first identifier it finds
         which given the structure of a CTE definition is
@@ -2700,10 +2702,29 @@ class WithCompoundStatementSegment(BaseSegment):
             allow_trailing=True,
         ),
         Conditional(Dedent, indented_ctes=True),
-        OneOf(
-            Ref("NonWithSelectableGrammar"),
-            Ref("NonWithNonSelectableGrammar"),
+        Ref("NonWithSelectableGrammar"),
+    )
+
+
+class WithCompoundNonSelectStatementSegment(BaseSegment):
+    """A `UPDATE/INSERT/DELETE` statement preceded by a selection of `WITH` clauses.
+
+    `WITH tab (col1,col2) AS (SELECT a,b FROM x)`
+    """
+
+    type = "with_compound_statement"
+    # match grammar
+    match_grammar: Matchable = Sequence(
+        "WITH",
+        Ref.keyword("RECURSIVE", optional=True),
+        Conditional(Indent, indented_ctes=True),
+        Delimited(
+            Ref("CTEDefinitionSegment"),
+            terminators=["SELECT"],
+            allow_trailing=True,
         ),
+        Conditional(Dedent, indented_ctes=True),
+        Ref("NonWithNonSelectableGrammar"),
     )
 
 
