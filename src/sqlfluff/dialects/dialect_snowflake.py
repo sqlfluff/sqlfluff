@@ -2508,6 +2508,14 @@ class AccessStatementSegment(BaseSegment):
                 ),
                 Sequence("ROLE", Ref("ObjectReferenceSegment")),
                 Sequence("OWNERSHIP", "ON", "USER", Ref("ObjectReferenceSegment")),
+                Sequence(
+                    "ADD",
+                    "SEARCH",
+                    "OPTIMIZATION",
+                    "ON",
+                    "SCHEMA",
+                    Ref("SchemaReferenceSegment"),
+                ),
                 # In the case where a role is granted non-explicitly,
                 # e.g. GRANT ROLE_NAME TO OTHER_ROLE_NAME
                 # See https://docs.snowflake.com/en/sql-reference/sql/grant-role.html
