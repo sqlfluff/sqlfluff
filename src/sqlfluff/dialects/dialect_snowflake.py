@@ -336,20 +336,19 @@ snowflake_dialect.add(
     ),
     S3Path=RegexParser(
         # https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
-        r"'s3://[a-zA-Z0-9_][a-zA-Z0-9_\.]{0,255}[a-zA-Z0-9_](?:/.*)?'",
+        r"'s3://.*'",
         CodeSegment,
         type="bucket_path",
     ),
     GCSPath=RegexParser(
         # https://cloud.google.com/storage/docs/naming-buckets
-        r"'gcs://[a-z0-9][\w\.-]{1,61}[a-z0-9](?:/.+)?'",
+        r"'gcs://.*",
         CodeSegment,
         type="bucket_path",
     ),
     AzureBlobStoragePath=RegexParser(
         # https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/resource-name-rules#microsoftstorage
-        r"'azure://[a-z0-9][a-z0-9-]{1,61}[a-z0-9]\.blob\.core\.windows\.net/[a-z0-9]"
-        r"[a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
+        r"'azure://.*",
         CodeSegment,
         type="bucket_path",
     ),
@@ -5467,97 +5466,97 @@ class CreateStageSegment(BaseSegment):
                     optional=True,
                 ),
             ),
-            # External S3 stage
             Sequence(
                 "URL",
                 Ref("EqualsSegment"),
-                Ref("S3Path"),
-                Ref("S3ExternalStageParameters", optional=True),
-                Sequence(
-                    "DIRECTORY",
-                    Ref("EqualsSegment"),
-                    Bracketed(
+                OneOf(
+                    # External S3 stage
+                    Sequence(
+                        Ref("S3Path"),
+                        Ref("S3ExternalStageParameters", optional=True),
                         Sequence(
-                            "ENABLE",
+                            "DIRECTORY",
                             Ref("EqualsSegment"),
-                            Ref("BooleanLiteralGrammar"),
-                        ),
-                        Sequence(
-                            "AUTO_REFRESH",
-                            Ref("EqualsSegment"),
-                            Ref("BooleanLiteralGrammar"),
-                            optional=True,
-                        ),
-                    ),
-                    optional=True,
-                ),
-            ),
-            # External GCS stage
-            Sequence(
-                "URL",
-                Ref("EqualsSegment"),
-                Ref("GCSPath"),
-                Ref("GCSExternalStageParameters", optional=True),
-                Sequence(
-                    "DIRECTORY",
-                    Ref("EqualsSegment"),
-                    Bracketed(
-                        Sequence(
-                            "ENABLE",
-                            Ref("EqualsSegment"),
-                            Ref("BooleanLiteralGrammar"),
-                        ),
-                        Sequence(
-                            "AUTO_REFRESH",
-                            Ref("EqualsSegment"),
-                            Ref("BooleanLiteralGrammar"),
-                            optional=True,
-                        ),
-                        Sequence(
-                            "NOTIFICATION_INTEGRATION",
-                            Ref("EqualsSegment"),
-                            OneOf(
-                                Ref("NakedIdentifierSegment"),
-                                Ref("QuotedLiteralSegment"),
+                            Bracketed(
+                                Sequence(
+                                    "ENABLE",
+                                    Ref("EqualsSegment"),
+                                    Ref("BooleanLiteralGrammar"),
+                                ),
+                                Sequence(
+                                    "AUTO_REFRESH",
+                                    Ref("EqualsSegment"),
+                                    Ref("BooleanLiteralGrammar"),
+                                    optional=True,
+                                ),
                             ),
                             optional=True,
                         ),
                     ),
-                    optional=True,
-                ),
-            ),
-            # External Azure Blob Storage stage
-            Sequence(
-                "URL",
-                Ref("EqualsSegment"),
-                Ref("AzureBlobStoragePath"),
-                Ref("AzureBlobStorageExternalStageParameters", optional=True),
-                Sequence(
-                    "DIRECTORY",
-                    Ref("EqualsSegment"),
-                    Bracketed(
+                    # External GCS stage
+                    Sequence(
+                        Ref("GCSPath"),
+                        Ref("GCSExternalStageParameters", optional=True),
                         Sequence(
-                            "ENABLE",
+                            "DIRECTORY",
                             Ref("EqualsSegment"),
-                            Ref("BooleanLiteralGrammar"),
-                        ),
-                        Sequence(
-                            "AUTO_REFRESH",
-                            Ref("EqualsSegment"),
-                            Ref("BooleanLiteralGrammar"),
-                            optional=True,
-                        ),
-                        Sequence(
-                            "NOTIFICATION_INTEGRATION",
-                            Ref("EqualsSegment"),
-                            OneOf(
-                                Ref("NakedIdentifierSegment"),
-                                Ref("QuotedLiteralSegment"),
+                            Bracketed(
+                                Sequence(
+                                    "ENABLE",
+                                    Ref("EqualsSegment"),
+                                    Ref("BooleanLiteralGrammar"),
+                                ),
+                                Sequence(
+                                    "AUTO_REFRESH",
+                                    Ref("EqualsSegment"),
+                                    Ref("BooleanLiteralGrammar"),
+                                    optional=True,
+                                ),
+                                Sequence(
+                                    "NOTIFICATION_INTEGRATION",
+                                    Ref("EqualsSegment"),
+                                    OneOf(
+                                        Ref("NakedIdentifierSegment"),
+                                        Ref("QuotedLiteralSegment"),
+                                    ),
+                                    optional=True,
+                                ),
                             ),
                             optional=True,
                         ),
                     ),
-                    optional=True,
+                    # External Azure Blob Storage stage
+                    Sequence(
+                        Ref("AzureBlobStoragePath"),
+                        Ref("AzureBlobStorageExternalStageParameters", optional=True),
+                        Sequence(
+                            "DIRECTORY",
+                            Ref("EqualsSegment"),
+                            Bracketed(
+                                Sequence(
+                                    "ENABLE",
+                                    Ref("EqualsSegment"),
+                                    Ref("BooleanLiteralGrammar"),
+                                ),
+                                Sequence(
+                                    "AUTO_REFRESH",
+                                    Ref("EqualsSegment"),
+                                    Ref("BooleanLiteralGrammar"),
+                                    optional=True,
+                                ),
+                                Sequence(
+                                    "NOTIFICATION_INTEGRATION",
+                                    Ref("EqualsSegment"),
+                                    OneOf(
+                                        Ref("NakedIdentifierSegment"),
+                                        Ref("QuotedLiteralSegment"),
+                                    ),
+                                    optional=True,
+                                ),
+                            ),
+                            optional=True,
+                        ),
+                    ),
                 ),
             ),
             optional=True,

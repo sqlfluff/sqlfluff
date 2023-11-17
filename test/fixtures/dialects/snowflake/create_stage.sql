@@ -83,3 +83,6 @@ CREATE OR REPLACE STAGE foo.bar
 
 CREATE OR REPLACE STAGE your_stage_name
   URL = 's3://your_s3_bucket/your_path_in_s3';
+
+CREATE OR REPLACE STAGE your_stage_name
+  URL = 's3://your-s3-bucket/your-path-in-s3';
