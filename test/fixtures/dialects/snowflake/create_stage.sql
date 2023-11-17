@@ -80,3 +80,6 @@ CREATE OR REPLACE STAGE foo.bar
   STORAGE_INTEGRATION = foo
   FILE_FORMAT = (FORMAT_NAME = foo.bar.baz)
 ;
+
+CREATE OR REPLACE STAGE your_stage_name
+  URL = 's3://your_s3_bucket/your_path_in_s3';
