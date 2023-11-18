@@ -3306,6 +3306,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
                 ),
                 optional=True,
             ),
+            Ref("OrderNoOrderGrammar", optional=True),
         ),
         Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
         Sequence(
@@ -3484,7 +3485,7 @@ class CreateSequenceStatementSegment(BaseSegment):
             Ref("IntegerSegment"),
             optional=True,
         ),
-        OneOf("ORDER", "NOORDER", optional=True),
+        Ref("OrderNoOrderGrammar", optional=True),
         Ref("CommentEqualsClauseSegment", optional=True),
     )
 
@@ -3511,10 +3512,7 @@ class AlterSequenceStatementSegment(BaseSegment):
                     Ref("IntegerSegment"),
                     optional=True,
                 ),
-                OneOf(
-                    "ORDER",
-                    "NOORDER",
-                ),
+                Ref("OrderNoOrderGrammar", optional=True),
                 Ref("CommentEqualsClauseSegment"),
             ),
             optional=True,
