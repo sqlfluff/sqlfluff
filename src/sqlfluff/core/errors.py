@@ -12,8 +12,6 @@ https://stackoverflow.com/questions/49715881/how-to-pickle-inherited-exceptions
 """
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type
 
-from sqlfluff.core.helpers.slice import to_tuple
-
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser import BaseSegment, PositionMarker
     from sqlfluff.core.rules import BaseRule, LintFix
@@ -21,16 +19,16 @@ if TYPE_CHECKING:  # pragma: no cover
 CheckTuple = Tuple[str, int, int]
 
 
-def _source_position(segment: Optional["BaseSegment"]) -> Tuple[int, int]:
+def _extract_position(segment: Optional["BaseSegment"]) -> Dict[str, int]:
     """If a segment is present and is a literal, return it's source length."""
     if segment:
-        _position = segment.pos_marker
-        assert _position
-        if _position.is_literal():
-            return to_tuple(_position.source_slice)
-    # A negative location is an indicator of not being able to accurately
+        position = segment.pos_marker
+        assert position
+        if position.is_literal():
+            return position.to_source_dict()
+    # An empty location is an indicator of not being able to accurately
     # represent the location.
-    return (-1, -1)
+    return {}
 
 
 class SQLBaseError(ValueError):
@@ -103,8 +101,8 @@ class SQLBaseError(ValueError):
         This is useful in the API for outputting violations.
         """
         return {
-            "line_no": self.line_no,
-            "line_pos": self.line_pos,
+            "start_line_no": self.line_no,
+            "start_line_pos": self.line_pos,
             "code": self.rule_code(),
             "description": self.desc(),
             "name": getattr(self, "rule").name if hasattr(self, "rule") else "",
@@ -236,7 +234,7 @@ class SQLParseError(SQLBaseError):
         """
         _base_dict = super().to_dict()
         _base_dict.update(
-            source_position=_source_position(self.segment),
+            **_extract_position(self.segment),
         )
         return _base_dict
 
@@ -302,7 +300,7 @@ class SQLLintError(SQLBaseError):
         _base_dict = super().to_dict()
         _base_dict.update(
             fixes=[fix.to_dict() for fix in self.fixes],
-            source_position=_source_position(self.segment),
+            **_extract_position(self.segment),
         )
         return _base_dict
 
