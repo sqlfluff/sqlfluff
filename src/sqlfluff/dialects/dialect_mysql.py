@@ -625,6 +625,19 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
+class DeleteTargetTableSegment(BaseSegment):
+    """A target table used in `DELETE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/delete.html
+    """
+
+    type = "delete_target_table"
+    match_grammar = Sequence(
+        Ref("TableReferenceSegment"),
+        Sequence(Ref("DotSegment"), Ref("StarSegment"), optional=True),
+    )
+
+
 class DeleteUsingClauseSegment(BaseSegment):
     """A `USING` clause froma `DELETE` Statement`."""
 
@@ -653,10 +666,7 @@ class DeleteStatementSegment(BaseSegment):
             Sequence(
                 "FROM",
                 Delimited(
-                    Sequence(
-                        Ref("TableReferenceSegment"),
-                        Sequence(Ref("DotSegment"), Ref("StarSegment"), optional=True),
-                    ),
+                    Ref("DeleteTargetTableSegment"),
                     terminators=["USING"],
                 ),
                 Ref("DeleteUsingClauseSegment"),
@@ -664,10 +674,7 @@ class DeleteStatementSegment(BaseSegment):
             ),
             Sequence(
                 Delimited(
-                    Sequence(
-                        Ref("TableReferenceSegment"),
-                        Sequence(Ref("DotSegment"), Ref("StarSegment"), optional=True),
-                    ),
+                    Ref("DeleteTargetTableSegment"),
                     terminators=["FROM"],
                 ),
                 Ref("FromClauseSegment"),

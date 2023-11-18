@@ -3,13 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ffe881c9638bc869342dbb6864ec931f36196264c3c50e76348d097eecb6d446
+_hash: ac590f281d42bf98748a58c0d64c99b5fcc8b92bb8a2765fed198bb767c55f12
 file:
 - statement:
     delete_statement:
       keyword: DELETE
-      table_reference:
-        naked_identifier: a
+      delete_target_table:
+        table_reference:
+          naked_identifier: a
       from_clause:
         keyword: FROM
         from_expression:
@@ -72,8 +73,9 @@ file:
     - keyword: LOW_PRIORITY
     - keyword: QUICK
     - keyword: IGNORE
-    - table_reference:
-        naked_identifier: a
+    - delete_target_table:
+        table_reference:
+          naked_identifier: a
     - from_clause:
         keyword: FROM
         from_expression:
@@ -134,11 +136,13 @@ file:
 - statement:
     delete_statement:
     - keyword: DELETE
-    - table_reference:
-        naked_identifier: t1
+    - delete_target_table:
+        table_reference:
+          naked_identifier: t1
     - comma: ','
-    - table_reference:
-        naked_identifier: t2
+    - delete_target_table:
+        table_reference:
+          naked_identifier: t2
     - from_clause:
         keyword: FROM
         from_expression:
@@ -191,11 +195,13 @@ file:
     - keyword: LOW_PRIORITY
     - keyword: QUICK
     - keyword: IGNORE
-    - table_reference:
-        naked_identifier: t1
+    - delete_target_table:
+        table_reference:
+          naked_identifier: t1
     - comma: ','
-    - table_reference:
-        naked_identifier: t2
+    - delete_target_table:
+        table_reference:
+          naked_identifier: t2
     - from_clause:
         keyword: FROM
         from_expression:
@@ -246,11 +252,13 @@ file:
     delete_statement:
     - keyword: DELETE
     - keyword: FROM
-    - table_reference:
-        naked_identifier: t1
+    - delete_target_table:
+        table_reference:
+          naked_identifier: t1
     - comma: ','
-    - table_reference:
-        naked_identifier: t2
+    - delete_target_table:
+        table_reference:
+          naked_identifier: t2
     - using_clause:
         keyword: USING
         from_expression:
@@ -304,11 +312,13 @@ file:
     - keyword: QUICK
     - keyword: IGNORE
     - keyword: FROM
-    - table_reference:
-        naked_identifier: t1
+    - delete_target_table:
+        table_reference:
+          naked_identifier: t1
     - comma: ','
-    - table_reference:
-        naked_identifier: t2
+    - delete_target_table:
+        table_reference:
+          naked_identifier: t2
     - using_clause:
         keyword: USING
         from_expression:
@@ -358,11 +368,13 @@ file:
 - statement:
     delete_statement:
     - keyword: DELETE
-    - table_reference:
-        naked_identifier: a1
+    - delete_target_table:
+        table_reference:
+          naked_identifier: a1
     - comma: ','
-    - table_reference:
-        naked_identifier: a2
+    - delete_target_table:
+        table_reference:
+          naked_identifier: a2
     - from_clause:
         keyword: FROM
         from_expression:
@@ -400,15 +412,17 @@ file:
 - statement:
     delete_statement:
     - keyword: DELETE
-    - table_reference:
-        naked_identifier: t1
-    - dot: .
-    - star: '*'
+    - delete_target_table:
+        table_reference:
+          naked_identifier: t1
+        dot: .
+        star: '*'
     - comma: ','
-    - table_reference:
-        naked_identifier: t2
-    - dot: .
-    - star: '*'
+    - delete_target_table:
+        table_reference:
+          naked_identifier: t2
+        dot: .
+        star: '*'
     - from_clause:
         keyword: FROM
         from_expression:
@@ -459,15 +473,17 @@ file:
     delete_statement:
     - keyword: DELETE
     - keyword: FROM
-    - table_reference:
-        naked_identifier: t1
-    - dot: .
-    - star: '*'
+    - delete_target_table:
+        table_reference:
+          naked_identifier: t1
+        dot: .
+        star: '*'
     - comma: ','
-    - table_reference:
-        naked_identifier: t2
-    - dot: .
-    - star: '*'
+    - delete_target_table:
+        table_reference:
+          naked_identifier: t2
+        dot: .
+        star: '*'
     - using_clause:
         keyword: USING
         from_expression:
