@@ -10,13 +10,27 @@ tracking.
 
 https://stackoverflow.com/questions/49715881/how-to-pickle-inherited-exceptions
 """
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type
+
+from sqlfluff.core.helpers.slice import to_tuple
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser import BaseSegment, PositionMarker
     from sqlfluff.core.rules import BaseRule, LintFix
 
 CheckTuple = Tuple[str, int, int]
+
+
+def _source_position(segment: Optional["BaseSegment"]) -> Tuple[int, int]:
+    """If a segment is present and is a literal, return it's source length."""
+    if segment:
+        _position = segment.pos_marker
+        assert _position
+        if _position.is_literal():
+            return to_tuple(_position.source_slice)
+    # A negative location is an indicator of not being able to accurately
+    # represent the location.
+    return (-1, -1)
 
 
 class SQLBaseError(ValueError):
@@ -83,7 +97,7 @@ class SQLBaseError(ValueError):
 
         return self.__class__.__name__  # pragma: no cover
 
-    def get_info_dict(self) -> Dict[str, Union[str, int]]:
+    def to_dict(self) -> Dict[str, Any]:
         """Return a dict of properties.
 
         This is useful in the API for outputting violations.
@@ -94,6 +108,7 @@ class SQLBaseError(ValueError):
             "code": self.rule_code(),
             "description": self.desc(),
             "name": getattr(self, "rule").name if hasattr(self, "rule") else "",
+            "warning": self.warning,
         }
 
     def check_tuple(self) -> CheckTuple:
@@ -212,6 +227,19 @@ class SQLParseError(SQLBaseError):
             self.warning,
         )
 
+    def to_dict(self) -> Dict[str, Any]:
+        """Return a dict of properties.
+
+        This is useful in the API for outputting violations.
+
+        For parsing errors we additionally add the length of the unparsable segment.
+        """
+        _base_dict = super().to_dict()
+        _base_dict.update(
+            source_position=_source_position(self.segment),
+        )
+        return _base_dict
+
 
 class SQLLintError(SQLBaseError):
     """An error which occurred during linting.
@@ -263,6 +291,20 @@ class SQLLintError(SQLBaseError):
             self.fatal,
             self.warning,
         )
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Return a dict of properties.
+
+        This is useful in the API for outputting violations.
+
+        For linting errors we additionally add details of any fixes.
+        """
+        _base_dict = super().to_dict()
+        _base_dict.update(
+            fixes=[fix.to_dict() for fix in self.fixes],
+            source_position=_source_position(self.segment),
+        )
+        return _base_dict
 
     @property
     def fixable(self) -> bool:

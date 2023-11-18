@@ -205,7 +205,7 @@ class LintingResult:
                 "filepath": path,
                 "violations": sorted(
                     # Sort violations by line and then position
-                    (v.get_info_dict() for v in violations),
+                    (v.to_dict() for v in violations),
                     # The tuple allows sorting by line number, then position, then code
                     key=lambda v: (v["line_no"], v["line_pos"], v["code"]),
                 ),

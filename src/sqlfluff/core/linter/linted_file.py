@@ -82,7 +82,6 @@ class LintedFile(NamedTuple):
         raises that error.
         """
         vs: List[CheckTuple] = []
-        v: SQLLintError
         for v in self.get_violations():
             if isinstance(v, SQLLintError):
                 vs.append(v.check_tuple())
@@ -123,7 +122,7 @@ class LintedFile(NamedTuple):
         filter_warning: bool = True,
         warn_unused_ignores: bool = False,
         fixable: Optional[bool] = None,
-    ) -> list:
+    ) -> List[SQLBaseError]:
         """Get a list of violations, respecting filters and ignore options.
 
         Optionally now with filters.

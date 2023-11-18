@@ -330,7 +330,7 @@ def test__dbt_templated_models_do_not_raise_lint_error(
         print(linted_file.tree.stringify())
         print("\n\n## VIOLATIONS:")
         for idx, v in enumerate(linted_file.violations):
-            print(f"   {idx}:{v.get_info_dict()}")
+            print(f"   {idx}:{v.to_dict()}")
 
     violations = lnt.check_tuples()
     assert len(violations) == 0

@@ -16,6 +16,9 @@ lint_result = [
         "line_no": 1,
         "line_pos": 1,
         "name": "ambiguous.column_count",
+        "fixes": [],
+        "warning": False,
+        "source_position": (0, 40),
     },
     {
         "code": "CP01",
@@ -23,6 +26,9 @@ lint_result = [
         "line_pos": 1,
         "description": "Keywords must be consistently upper case.",
         "name": "capitalisation.keywords",
+        "fixes": [{"type": "replace", "edit": "SELECT", "source_position": (0, 6)}],
+        "warning": False,
+        "source_position": (0, 6),
     },
     {
         "code": "LT09",
@@ -31,6 +37,18 @@ lint_result = [
         "line_no": 1,
         "line_pos": 1,
         "name": "layout.select_targets",
+        "fixes": [
+            {"type": "delete", "edit": "", "source_position": (6, 8)},
+            {"type": "create_before", "edit": "\n", "source_position": (8, 9)},
+            {"type": "delete", "edit": "", "source_position": (10, 11)},
+            {"type": "create_before", "edit": "\n", "source_position": (11, 12)},
+            {"type": "delete", "edit": "", "source_position": (13, 14)},
+            {"type": "create_before", "edit": "\n", "source_position": (14, 26)},
+            {"type": "delete", "edit": "", "source_position": (26, 28)},
+            {"type": "create_before", "edit": "\n", "source_position": (28, 40)},
+        ],
+        "warning": False,
+        "source_position": (0, 26),
     },
     {
         "code": "LT01",
@@ -38,6 +56,9 @@ lint_result = [
         "line_no": 1,
         "line_pos": 7,
         "name": "layout.spacing",
+        "fixes": [{"type": "replace", "edit": " ", "source_position": (6, 8)}],
+        "warning": False,
+        "source_position": (6, 8),
     },
     {
         "code": "AL03",
@@ -45,6 +66,9 @@ lint_result = [
         "line_pos": 12,
         "description": "Column expression without alias. Use explicit `AS` clause.",
         "name": "aliasing.expression",
+        "fixes": [],
+        "warning": False,
+        "source_position": (11, 12),
     },
     {
         "code": "CP01",
@@ -52,6 +76,9 @@ lint_result = [
         "line_pos": 20,
         "description": "Keywords must be consistently upper case.",
         "name": "capitalisation.keywords",
+        "fixes": [{"type": "replace", "edit": "AS", "source_position": (19, 21)}],
+        "warning": False,
+        "source_position": (19, 21),
     },
     {
         "code": "LT01",
@@ -61,6 +88,9 @@ lint_result = [
         "line_no": 1,
         "line_pos": 22,
         "name": "layout.spacing",
+        "fixes": [{"type": "replace", "edit": " ", "source_position": (21, 23)}],
+        "warning": False,
+        "source_position": (21, 23),
     },
     {
         "code": "CP02",
@@ -68,6 +98,9 @@ lint_result = [
         "line_pos": 24,
         "description": "Unquoted identifiers must be consistently lower case.",
         "name": "capitalisation.identifiers",
+        "fixes": [{"type": "replace", "edit": "foo", "source_position": (23, 26)}],
+        "warning": False,
+        "source_position": (23, 26),
     },
     {
         "code": "LT01",
@@ -75,6 +108,9 @@ lint_result = [
         "line_no": 1,
         "line_pos": 27,
         "name": "layout.spacing",
+        "fixes": [{"type": "replace", "edit": " ", "source_position": (26, 28)}],
+        "warning": False,
+        "source_position": (26, 28),
     },
     {
         "code": "CP01",
@@ -82,6 +118,9 @@ lint_result = [
         "line_pos": 29,
         "description": "Keywords must be consistently upper case.",
         "name": "capitalisation.keywords",
+        "fixes": [{"type": "replace", "edit": "FROM", "source_position": (28, 32)}],
+        "warning": False,
+        "source_position": (28, 32),
     },
     {
         "code": "CP02",
@@ -89,6 +128,9 @@ lint_result = [
         "line_pos": 34,
         "description": "Unquoted identifiers must be consistently lower case.",
         "name": "capitalisation.identifiers",
+        "fixes": [{"type": "replace", "edit": "mytable", "source_position": (33, 40)}],
+        "warning": False,
+        "source_position": (33, 40),
     },
     {
         "code": "LT12",
@@ -96,6 +138,9 @@ lint_result = [
         "line_pos": 41,
         "description": "Files must end with a single trailing newline.",
         "name": "layout.end_of_file",
+        "fixes": [{"type": "create_after", "edit": "\n", "source_position": (0, 40)}],
+        "warning": False,
+        "source_position": (40, 40),
     },
 ]
 

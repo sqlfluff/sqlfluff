@@ -3,6 +3,9 @@
 import logging
 from itertools import chain
 from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
     Iterable,
     List,
     Optional,
@@ -11,6 +14,7 @@ from typing import (
     cast,
 )
 
+from sqlfluff.core.helpers.slice import to_tuple
 from sqlfluff.core.parser import (
     BaseSegment,
     PositionMarker,
@@ -128,6 +132,31 @@ class LintFix:
             f"<LintFix: {self.edit_type} {self.anchor.get_type()}"
             f"@{self.anchor.pos_marker} {detail}>"
         )
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialise this LintFix as a dict."""
+        assert self.anchor
+        _position = self.anchor.pos_marker
+        assert _position
+        _source_loc = to_tuple(_position.source_slice)
+        if self.edit_type == "delete":
+            _edit = ""
+        elif self.edit_type == "replace" and self.is_just_source_edit():
+            assert self.edit is not None
+            assert len(self.edit) == 1
+            assert len(self.edit[0].source_fixes) == 1
+            _source_fix = self.edit[0].source_fixes[0]
+            _source_loc = to_tuple(_source_fix.source_slice)
+            _edit = _source_fix.edit
+        else:
+            seg_list = cast(List[BaseSegment], self.edit)
+            _edit = "".join(s.raw for s in seg_list)
+
+        return {
+            "type": self.edit_type,
+            "source_position": _source_loc,
+            "edit": _edit,
+        }
 
     def __eq__(self, other: object) -> bool:
         """Compare equality with another fix.
