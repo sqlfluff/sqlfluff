@@ -33,7 +33,18 @@ lint_result = [
         "end_file_pos": 6,
         "description": "Keywords must be consistently upper case.",
         "name": "capitalisation.keywords",
-        "fixes": [{"type": "replace", "edit": "SELECT", "source_position": (0, 6)}],
+        "fixes": [
+            {
+                "type": "replace",
+                "edit": "SELECT",
+                "start_line_no": 1,
+                "start_line_pos": 1,
+                "start_file_pos": 0,
+                "end_line_no": 1,
+                "end_line_pos": 7,
+                "end_file_pos": 6,
+            }
+        ],
         "warning": False,
     },
     {
@@ -48,14 +59,86 @@ lint_result = [
         "end_file_pos": 26,
         "name": "layout.select_targets",
         "fixes": [
-            {"type": "delete", "edit": "", "source_position": (6, 8)},
-            {"type": "create_before", "edit": "\n", "source_position": (8, 9)},
-            {"type": "delete", "edit": "", "source_position": (10, 11)},
-            {"type": "create_before", "edit": "\n", "source_position": (11, 12)},
-            {"type": "delete", "edit": "", "source_position": (13, 14)},
-            {"type": "create_before", "edit": "\n", "source_position": (14, 26)},
-            {"type": "delete", "edit": "", "source_position": (26, 28)},
-            {"type": "create_before", "edit": "\n", "source_position": (28, 40)},
+            {
+                "type": "delete",
+                "edit": "",
+                "start_line_no": 1,
+                "start_line_pos": 7,
+                "start_file_pos": 6,
+                "end_line_no": 1,
+                "end_line_pos": 9,
+                "end_file_pos": 8,
+            },
+            {
+                "type": "create_before",
+                "edit": "\n",
+                "start_line_no": 1,
+                "start_line_pos": 9,
+                "start_file_pos": 8,
+                "end_line_no": 1,
+                "end_line_pos": 9,
+                "end_file_pos": 8,
+            },
+            {
+                "type": "delete",
+                "edit": "",
+                "start_line_no": 1,
+                "start_line_pos": 11,
+                "start_file_pos": 10,
+                "end_line_no": 1,
+                "end_line_pos": 12,
+                "end_file_pos": 11,
+            },
+            {
+                "type": "create_before",
+                "edit": "\n",
+                "start_line_no": 1,
+                "start_line_pos": 12,
+                "start_file_pos": 11,
+                "end_line_no": 1,
+                "end_line_pos": 12,
+                "end_file_pos": 11,
+            },
+            {
+                "type": "delete",
+                "edit": "",
+                "start_line_no": 1,
+                "start_line_pos": 14,
+                "start_file_pos": 13,
+                "end_line_no": 1,
+                "end_line_pos": 15,
+                "end_file_pos": 14,
+            },
+            {
+                "type": "create_before",
+                "edit": "\n",
+                "start_line_no": 1,
+                "start_line_pos": 15,
+                "start_file_pos": 14,
+                "end_line_no": 1,
+                "end_line_pos": 15,
+                "end_file_pos": 14,
+            },
+            {
+                "type": "delete",
+                "edit": "",
+                "start_line_no": 1,
+                "start_line_pos": 27,
+                "start_file_pos": 26,
+                "end_line_no": 1,
+                "end_line_pos": 29,
+                "end_file_pos": 28,
+            },
+            {
+                "type": "create_before",
+                "edit": "\n",
+                "start_line_no": 1,
+                "start_line_pos": 29,
+                "start_file_pos": 28,
+                "end_line_no": 1,
+                "end_line_pos": 29,
+                "end_file_pos": 28,
+            },
         ],
         "warning": False,
     },
@@ -69,7 +152,18 @@ lint_result = [
         "end_line_pos": 9,
         "end_file_pos": 8,
         "name": "layout.spacing",
-        "fixes": [{"type": "replace", "edit": " ", "source_position": (6, 8)}],
+        "fixes": [
+            {
+                "type": "replace",
+                "edit": " ",
+                "start_line_no": 1,
+                "start_line_pos": 7,
+                "start_file_pos": 6,
+                "end_line_no": 1,
+                "end_line_pos": 9,
+                "end_file_pos": 8,
+            }
+        ],
         "warning": False,
     },
     {
@@ -95,7 +189,18 @@ lint_result = [
         "end_file_pos": 21,
         "description": "Keywords must be consistently upper case.",
         "name": "capitalisation.keywords",
-        "fixes": [{"type": "replace", "edit": "AS", "source_position": (19, 21)}],
+        "fixes": [
+            {
+                "type": "replace",
+                "edit": "AS",
+                "start_line_no": 1,
+                "start_line_pos": 20,
+                "start_file_pos": 19,
+                "end_line_no": 1,
+                "end_line_pos": 22,
+                "end_file_pos": 21,
+            }
+        ],
         "warning": False,
     },
     {
@@ -110,7 +215,18 @@ lint_result = [
         "end_line_pos": 24,
         "end_file_pos": 23,
         "name": "layout.spacing",
-        "fixes": [{"type": "replace", "edit": " ", "source_position": (21, 23)}],
+        "fixes": [
+            {
+                "type": "replace",
+                "edit": " ",
+                "start_line_no": 1,
+                "start_line_pos": 22,
+                "start_file_pos": 21,
+                "end_line_no": 1,
+                "end_line_pos": 24,
+                "end_file_pos": 23,
+            }
+        ],
         "warning": False,
     },
     {
@@ -123,7 +239,18 @@ lint_result = [
         "end_file_pos": 26,
         "description": "Unquoted identifiers must be consistently lower case.",
         "name": "capitalisation.identifiers",
-        "fixes": [{"type": "replace", "edit": "foo", "source_position": (23, 26)}],
+        "fixes": [
+            {
+                "type": "replace",
+                "edit": "foo",
+                "start_line_no": 1,
+                "start_line_pos": 24,
+                "start_file_pos": 23,
+                "end_line_no": 1,
+                "end_line_pos": 27,
+                "end_file_pos": 26,
+            }
+        ],
         "warning": False,
     },
     {
@@ -136,7 +263,18 @@ lint_result = [
         "end_line_pos": 29,
         "end_file_pos": 28,
         "name": "layout.spacing",
-        "fixes": [{"type": "replace", "edit": " ", "source_position": (26, 28)}],
+        "fixes": [
+            {
+                "type": "replace",
+                "edit": " ",
+                "start_line_no": 1,
+                "start_line_pos": 27,
+                "start_file_pos": 26,
+                "end_line_no": 1,
+                "end_line_pos": 29,
+                "end_file_pos": 28,
+            }
+        ],
         "warning": False,
     },
     {
@@ -149,7 +287,18 @@ lint_result = [
         "end_file_pos": 32,
         "description": "Keywords must be consistently upper case.",
         "name": "capitalisation.keywords",
-        "fixes": [{"type": "replace", "edit": "FROM", "source_position": (28, 32)}],
+        "fixes": [
+            {
+                "type": "replace",
+                "edit": "FROM",
+                "start_line_no": 1,
+                "start_line_pos": 29,
+                "start_file_pos": 28,
+                "end_line_no": 1,
+                "end_line_pos": 33,
+                "end_file_pos": 32,
+            }
+        ],
         "warning": False,
     },
     {
@@ -162,7 +311,18 @@ lint_result = [
         "end_file_pos": 40,
         "description": "Unquoted identifiers must be consistently lower case.",
         "name": "capitalisation.identifiers",
-        "fixes": [{"type": "replace", "edit": "mytable", "source_position": (33, 40)}],
+        "fixes": [
+            {
+                "type": "replace",
+                "edit": "mytable",
+                "start_line_no": 1,
+                "start_line_pos": 34,
+                "start_file_pos": 33,
+                "end_line_no": 1,
+                "end_line_pos": 41,
+                "end_file_pos": 40,
+            }
+        ],
         "warning": False,
     },
     {
@@ -175,7 +335,18 @@ lint_result = [
         "end_file_pos": 40,
         "description": "Files must end with a single trailing newline.",
         "name": "layout.end_of_file",
-        "fixes": [{"type": "create_after", "edit": "\n", "source_position": (0, 40)}],
+        "fixes": [
+            {
+                "type": "create_after",
+                "edit": "\n",
+                "start_line_no": 1,
+                "start_line_pos": 41,
+                "start_file_pos": 40,
+                "end_line_no": 1,
+                "end_line_pos": 41,
+                "end_file_pos": 40,
+            }
+        ],
         "warning": False,
     },
 ]

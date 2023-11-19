@@ -89,7 +89,7 @@ class Segments(tuple):
             )
         return RawFileSlices(
             *sorted(raw_slices, key=lambda slice_: slice_.source_idx),
-            templated_file=self.templated_file
+            templated_file=self.templated_file,
         )
 
     # TODO:This method isn't used as at 2022-08-10. Consider removing in future.

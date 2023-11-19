@@ -248,15 +248,4 @@ class PositionMarker:
 
     def to_source_dict(self) -> Dict[str, int]:
         """Serialise the source position."""
-        start = self.source_position()
-        stop = self.templated_file.get_line_pos_of_char_pos(
-            self.source_slice.stop, source=True
-        )
-        return {
-            "start_line_no": start[0],
-            "start_line_pos": start[1],
-            "start_file_pos": self.source_slice.start,
-            "end_line_no": stop[0],
-            "end_line_pos": stop[1],
-            "end_file_pos": self.source_slice.stop,
-        }
+        return self.templated_file.source_position_dict_from_slice(self.source_slice)

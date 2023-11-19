@@ -471,6 +471,19 @@ class TemplatedFile:
                 ret_buff.append(elem)
         return ret_buff
 
+    def source_position_dict_from_slice(self, source_slice: slice) -> Dict[str, int]:
+        """Create a source position dict from a slice."""
+        start = self.get_line_pos_of_char_pos(source_slice.start, source=True)
+        stop = self.get_line_pos_of_char_pos(source_slice.stop, source=True)
+        return {
+            "start_line_no": start[0],
+            "start_line_pos": start[1],
+            "start_file_pos": source_slice.start,
+            "end_line_no": stop[0],
+            "end_line_pos": stop[1],
+            "end_file_pos": source_slice.stop,
+        }
+
 
 class RawTemplater:
     """A templater which does nothing.

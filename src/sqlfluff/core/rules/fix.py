@@ -3,7 +3,6 @@
 import logging
 from itertools import chain
 from typing import (
-    TYPE_CHECKING,
     Any,
     Dict,
     Iterable,
@@ -14,7 +13,6 @@ from typing import (
     cast,
 )
 
-from sqlfluff.core.helpers.slice import to_tuple
 from sqlfluff.core.parser import (
     BaseSegment,
     PositionMarker,
@@ -138,24 +136,47 @@ class LintFix:
         assert self.anchor
         _position = self.anchor.pos_marker
         assert _position
-        _source_loc = to_tuple(_position.source_slice)
+        _src_loc = _position.to_source_dict()
         if self.edit_type == "delete":
-            _edit = ""
+            return {
+                "type": self.edit_type,
+                "edit": "",
+                **_src_loc,
+            }
         elif self.edit_type == "replace" and self.is_just_source_edit():
             assert self.edit is not None
             assert len(self.edit) == 1
             assert len(self.edit[0].source_fixes) == 1
             _source_fix = self.edit[0].source_fixes[0]
-            _source_loc = to_tuple(_source_fix.source_slice)
-            _edit = _source_fix.edit
-        else:
-            seg_list = cast(List[BaseSegment], self.edit)
-            _edit = "".join(s.raw for s in seg_list)
+            return {
+                "type": self.edit_type,
+                "edit": _source_fix.edit,
+                **_position.templated_file.source_position_dict_from_slice(
+                    _source_fix.source_slice
+                ),
+            }
+
+        # Otherwise it's a standard creation or a replace.
+        seg_list = cast(List[BaseSegment], self.edit)
+        _edit = "".join(s.raw for s in seg_list)
+
+        if self.edit_type == "create_before":
+            # If we're creating _before_, the end point isn't relevant.
+            # Make it the same as the start.
+            _src_loc["end_line_no"] = _src_loc["start_line_no"]
+            _src_loc["end_line_pos"] = _src_loc["start_line_pos"]
+            _src_loc["end_file_pos"] = _src_loc["start_file_pos"]
+        elif self.edit_type == "create_after":
+            # If we're creating _after_, the start point isn't relevant.
+            # Make it the same as the end.
+            _src_loc["start_line_no"] = _src_loc["end_line_no"]
+            _src_loc["start_line_pos"] = _src_loc["end_line_pos"]
+            _src_loc["start_file_pos"] = _src_loc["end_file_pos"]
 
         return {
             "type": self.edit_type,
-            "source_position": _source_loc,
             "edit": _edit,
+            **_src_loc,
         }
 
     def __eq__(self, other: object) -> bool:
