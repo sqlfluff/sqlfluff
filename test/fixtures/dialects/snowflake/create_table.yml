@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c2e97e0473403cc1af6e0ba8dd54cc56a3e1b5a66b1cde9ac79d160e53a5ef3f
+_hash: aff2c9a51a0ef861c4e32b69e197f4b7cb1dca431c9d76da6afa9c1e00125b06
 file:
 - statement:
     create_table_statement:
@@ -936,5 +936,53 @@ file:
                 casting_operator: '::'
                 data_type:
                   data_type_identifier: TIMESTAMP_NTZ
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: EXAMPLE_TABLE
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: EXAMPLE
+          data_type:
+            data_type_identifier: VARCHAR
+          column_constraint_segment:
+          - keyword: AUTOINCREMENT
+          - keyword: START
+          - numeric_literal: '1'
+          - keyword: INCREMENT
+          - numeric_literal: '1'
+          - keyword: ORDER
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: EXAMPLE_TABLE
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: EXAMPLE
+          data_type:
+            data_type_identifier: VARCHAR
+          column_constraint_segment:
+          - keyword: AUTOINCREMENT
+          - keyword: START
+          - numeric_literal: '1'
+          - keyword: INCREMENT
+          - numeric_literal: '1'
+          - keyword: NOORDER
         end_bracket: )
 - statement_terminator: ;
