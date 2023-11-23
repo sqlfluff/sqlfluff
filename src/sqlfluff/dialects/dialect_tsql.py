@@ -5988,3 +5988,22 @@ class CopyIntoTableStatementSegment(BaseSegment):
             optional=True,
         ),
     )
+
+
+class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
+    """`CREATE USER` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-user-transact-sql?view=sql-server-ver16#syntax
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        "USER",
+        Ref("RoleReferenceSegment"),
+        Sequence(
+            OneOf("FROM", "FOR"),
+            "LOGIN",
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+    )
