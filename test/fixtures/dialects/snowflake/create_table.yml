@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aff2c9a51a0ef861c4e32b69e197f4b7cb1dca431c9d76da6afa9c1e00125b06
+_hash: aeba969f26bbd96e19f9d50456b394277f9ff8265058283c9f5f85557165e0e6
 file:
 - statement:
     create_table_statement:
@@ -985,4 +985,75 @@ file:
           - numeric_literal: '1'
           - keyword: NOORDER
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: names
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'1 minute'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            expression:
+              cast_expression:
+                column_reference:
+                  naked_identifier: var
+                semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: id
+                casting_operator: '::'
+                data_type:
+                  data_type_identifier: int
+            alias_expression:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            expression:
+              cast_expression:
+                column_reference:
+                  naked_identifier: var
+                semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: fname
+                casting_operator: '::'
+                data_type:
+                  data_type_identifier: string
+            alias_expression:
+              naked_identifier: first_name
+        - comma: ','
+        - select_clause_element:
+            expression:
+              cast_expression:
+                column_reference:
+                  naked_identifier: var
+                semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: lname
+                casting_operator: '::'
+                data_type:
+                  data_type_identifier: string
+            alias_expression:
+              naked_identifier: last_name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: raw
 - statement_terminator: ;
