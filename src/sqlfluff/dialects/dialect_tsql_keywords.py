@@ -252,6 +252,7 @@ UNRESERVED_KEYWORDS = [
     "ABORT",
     "ABORT_AFTER_WAIT",
     "ABSENT",
+    "ACTION",
     "ATOMIC",
     "AFTER",
     "ALGORITHM",
