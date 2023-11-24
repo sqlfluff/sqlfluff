@@ -11,3 +11,14 @@ AS SELECT
     a,
     b
 FROM stream(live.customers_bronze);
+
+CREATE TEMPORARY LIVE VIEW filtered_data(
+    a COMMENT 'a',
+    b COMMENT 'b',
+    CONSTRAINT valid_a EXPECT (a IS NOT NULL),
+    CONSTRAINT valid_b EXPECT (b > 0)
+)
+AS SELECT
+    a,
+    b
+FROM live.taxi_raw;

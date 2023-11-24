@@ -700,6 +700,7 @@ sparksql_dialect.add(
                         ),
                         Ref("CommentGrammar", optional=True),
                     ),
+                    Ref("ConstraintStatementSegment", optional=True),
                 ),
             ),
             # Like Syntax
@@ -1319,6 +1320,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                         Ref("ColumnReferenceSegment"),
                         Ref("CommentGrammar", optional=True),
                     ),
+                    Ref("ConstraintStatementSegment", optional=True),
                 ),
             ),
             optional=True,
