@@ -133,6 +133,16 @@ class SetTimeZoneStatementSegment(BaseSegment):
     )
 
 
+class OptimizeStatementSegment(BaseSegment):
+    """An `OPTIMIZE` statement."""
+
+    type = "optimize_statement"
+    match_grammar = Sequence(
+        "OPTIMIZE",
+        Ref("TableReferenceSegment"),
+    )
+
+
 class StatementSegment(sparksql.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -145,5 +155,6 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("DropCatalogStatementSegment"),
             Ref("UseCatalogStatementSegment"),
             Ref("SetTimeZoneStatementSegment"),
+            Ref("OptimizeStatementSegment"),
         ]
     )
