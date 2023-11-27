@@ -606,7 +606,6 @@ snowflake_dialect.replace(
         Sequence("VOLATILE", optional=True),
         optional=True,
     ),
-    TemporaryTransientGrammar=OneOf(Ref("TemporaryGrammar"), "TRANSIENT"),
     BaseExpressionElementGrammar=ansi_dialect.get_grammar(
         "BaseExpressionElementGrammar"
     ).copy(
@@ -3607,9 +3606,22 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         Ref("TemporaryTransientGrammar", optional=True),
+        Ref.keyword("DYNAMIC", optional=True),
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
+        Sequence(
+            "TARGET_LAG",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "WAREHOUSE",
+            Ref("EqualsSegment"),
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
         # Columns and comment syntax:
         AnySetOf(
             Sequence(
