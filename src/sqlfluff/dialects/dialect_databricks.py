@@ -6,7 +6,7 @@ It also has some extensions.
 """
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.core.parser import BaseSegment, OneOf, Ref, Sequence
+from sqlfluff.core.parser import BaseSegment, Bracketed, Delimited, OneOf, Ref, Sequence
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_sparksql as sparksql
 from sqlfluff.dialects.dialect_databricks_keywords import (
@@ -133,6 +133,30 @@ class SetTimeZoneStatementSegment(BaseSegment):
     )
 
 
+class OptimizeTableStatementSegment(BaseSegment):
+    """An `OPTIMIZE` statement.
+
+    https://docs.databricks.com/en/sql/language-manual/delta-optimize.html
+    """
+
+    type = "optimize_table_statement"
+    match_grammar = Sequence(
+        "OPTIMIZE",
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "WHERE",
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "ZORDER",
+            "BY",
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            optional=True,
+        ),
+    )
+
+
 class StatementSegment(sparksql.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -145,5 +169,6 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("DropCatalogStatementSegment"),
             Ref("UseCatalogStatementSegment"),
             Ref("SetTimeZoneStatementSegment"),
+            Ref("OptimizeTableStatementSegment"),
         ]
     )
