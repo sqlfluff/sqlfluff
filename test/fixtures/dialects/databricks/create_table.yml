@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cf62f7d77457ec7b866b2687c738a40c53f3259fd94a543f7cc0b918e0ae01c8
+_hash: 93e4e18dcc44dfeb83d1e8f08fbce4b6cf176112a13c77be1f6a38921e6b50eb
 file:
 - statement:
     create_table_statement:
@@ -40,8 +40,43 @@ file:
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    optimize_statement:
+    optimize_table_statement:
       keyword: OPTIMIZE
       table_reference:
         naked_identifier: tablename
+- statement_terminator: ;
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - table_reference:
+        naked_identifier: tablename
+    - keyword: WHERE
+    - expression:
+        column_reference:
+          naked_identifier: date
+        comparison_operator:
+        - raw_comparison_operator: '>'
+        - raw_comparison_operator: '='
+        function:
+          function_name:
+            function_name_identifier: current_timestamp
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+        binary_operator: '-'
+        interval_expression:
+          keyword: INTERVAL
+          interval_literal:
+            numeric_literal: '1'
+            date_part: day
+    - keyword: ZORDER
+    - keyword: BY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: eventType
+      - comma: ','
+      - column_reference:
+          naked_identifier: eventTime
+      - end_bracket: )
 - statement_terminator: ;
