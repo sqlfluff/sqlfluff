@@ -1694,24 +1694,8 @@ class ReferencesConstraintGrammar(BaseSegment):
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         Sequence(
             "ON",
-            "DELETE",
-            OneOf(
-                Sequence("NO", "ACTION"),
-                "CASCADE",
-                Sequence("SET", "NULL"),
-                Sequence("SET", "DEFAULT"),
-            ),
-            optional=True,
-        ),
-        Sequence(
-            "ON",
-            "UPDATE",
-            OneOf(
-                Sequence("NO", "ACTION"),
-                "CASCADE",
-                Sequence("SET", "NULL"),
-                Sequence("SET", "DEFAULT"),
-            ),
+            OneOf("DELETE", "UPDATE"),
+            Ref("ReferentialActionGrammar"),
             optional=True,
         ),
         Sequence("NOT", "FOR", "REPLICATION", optional=True),
