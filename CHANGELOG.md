@@ -14,8 +14,8 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
-This brings no further _breaking_ changes on top of `3.0.0a2`, to batch
-out a few of the more minor fixes flowing through while other breaking
+This brings no further _breaking_ changes on top of `3.0.0a2`, but instead
+releases a few of the more minor fixes flowing through while other breaking
 changes are staged in. In particular there are a few dialect improvements
 for Snowflake, TSQL, SQLite and Databricks alongsids a few further
 improvements to deployment scripts off the back of earlier changes for `3.x`.
