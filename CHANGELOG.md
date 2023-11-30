@@ -10,6 +10,40 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [3.0.0a3] - 2023-11-29
+
+## Highlights
+
+This brings no further _breaking_ changes on top of `3.0.0a2`, but instead
+releases a few of the more minor fixes flowing through while other breaking
+changes are staged in. In particular there are a few dialect improvements
+for Snowflake, TSQL, SQLite and Databricks alongsids a few further
+improvements to deployment scripts off the back of earlier changes for `3.x`.
+
+## What’s Changed
+
+* fix assertion in `test__api__lint_string_specific_exclude_single` [#5437](https://github.com/sqlfluff/sqlfluff/pull/5437) [@gvozdvmozgu](https://github.com/gvozdvmozgu)
+* Databricks CLUSTER BY and OPTIMIZE [#5436](https://github.com/sqlfluff/sqlfluff/pull/5436) [@greg-finley](https://github.com/greg-finley)
+* TSQL: ON DELETE NO ACTION [#5434](https://github.com/sqlfluff/sqlfluff/pull/5434) [@greg-finley](https://github.com/greg-finley)
+* Snowflake dynamic table [#5435](https://github.com/sqlfluff/sqlfluff/pull/5435) [@greg-finley](https://github.com/greg-finley)
+* Support parsing CONSTRAINT definitions when creating Delta Live Tables in SparkSQL/Databricks [#5438](https://github.com/sqlfluff/sqlfluff/pull/5438) [@rocwang](https://github.com/rocwang)
+* adds few fixes for databricks/sparksql [#5431](https://github.com/sqlfluff/sqlfluff/pull/5431) [@markbaas](https://github.com/markbaas)
+* TSQL: CREATE USER {FOR|FROM} LOGIN [#5426](https://github.com/sqlfluff/sqlfluff/pull/5426) [@greg-finley](https://github.com/greg-finley)
+* Snowflake Create table order/noorder [#5421](https://github.com/sqlfluff/sqlfluff/pull/5421) [@greg-finley](https://github.com/greg-finley)
+* Simplify Snowflake regexes [#5419](https://github.com/sqlfluff/sqlfluff/pull/5419) [@greg-finley](https://github.com/greg-finley)
+* Permit .* after each tbl_name in multi-table delete syntax [#5408](https://github.com/sqlfluff/sqlfluff/pull/5408) [@yoichi](https://github.com/yoichi)
+* Fix snowflake add search optimization grant [#5412](https://github.com/sqlfluff/sqlfluff/pull/5412) [@jongracecox](https://github.com/jongracecox)
+* ANSI: Allow combination of UNION clause and WITH clause [#5413](https://github.com/sqlfluff/sqlfluff/pull/5413) [@yoichi](https://github.com/yoichi)
+* SQLite: Allow block comments to be terminated by end of input [#5400](https://github.com/sqlfluff/sqlfluff/pull/5400) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Update publish github action to use kebab case [#5392](https://github.com/sqlfluff/sqlfluff/pull/5392) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
+## New Contributors
+
+* [@jongracecox](https://github.com/jongracecox) made their first contribution in [#5412](https://github.com/sqlfluff/sqlfluff/pull/5412)
+* [@markbaas](https://github.com/markbaas) made their first contribution in [#5431](https://github.com/sqlfluff/sqlfluff/pull/5431)
+* [@rocwang](https://github.com/rocwang) made their first contribution in [#5438](https://github.com/sqlfluff/sqlfluff/pull/5438)
+* [@gvozdvmozgu](https://github.com/gvozdvmozgu) made their first contribution in [#5437](https://github.com/sqlfluff/sqlfluff/pull/5437)
+
 ## [3.0.0a2] - 2023-11-09
 
 ## Highlights

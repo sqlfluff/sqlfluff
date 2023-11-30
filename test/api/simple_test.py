@@ -399,7 +399,7 @@ def test__api__lint_string_specific_exclude_single():
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check only AM04 is found
     assert len(result) == 9
-    set(["LT12", "CP01", "AL03", "CP02", "LT09", "AM04"]) == set(
+    assert set(["LT12", "CP01", "AL03", "CP02", "LT09", "AM04"]) == set(
         [r["code"] for r in result]
     )
 

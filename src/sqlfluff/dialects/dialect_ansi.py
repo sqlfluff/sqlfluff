@@ -645,6 +645,7 @@ ansi_dialect.add(
             Ref("TableReferenceSegment"),
         ),
     ),
+    OrderNoOrderGrammar=OneOf("ORDER", "NOORDER"),
 )
 
 
@@ -4003,7 +4004,7 @@ class CreateSequenceOptionsSegment(BaseSegment):
         ),
         OneOf(Sequence("CACHE", Ref("NumericLiteralSegment")), "NOCACHE"),
         OneOf("CYCLE", "NOCYCLE"),
-        OneOf("ORDER", "NOORDER"),
+        Ref("OrderNoOrderGrammar"),
     )
 
 
@@ -4043,7 +4044,7 @@ class AlterSequenceOptionsSegment(BaseSegment):
         ),
         OneOf(Sequence("CACHE", Ref("NumericLiteralSegment")), "NOCACHE"),
         OneOf("CYCLE", "NOCYCLE"),
-        OneOf("ORDER", "NOORDER"),
+        Ref("OrderNoOrderGrammar"),
     )
 
 

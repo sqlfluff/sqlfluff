@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 408ecb04633aa2ae4271bb41dd60e415eb94b20cde131120e50c133b6f3d536e
+_hash: edf92b2b8ae3b3d8197468edb50ab31c5835247527474925fef3e1b213bd5fc6
 file:
 - statement:
     create_view_statement:
@@ -70,4 +70,75 @@ file:
                       - dot: .
                       - naked_identifier: customers_bronze
                     end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: LIVE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: filtered_data
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - keyword: COMMENT
+      - quoted_literal: "'a'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - keyword: COMMENT
+      - quoted_literal: "'b'"
+      - comma: ','
+      - constraint_statement:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: valid_a
+        - keyword: EXPECT
+        - bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: a
+            - keyword: IS
+            - keyword: NOT
+            - null_literal: 'NULL'
+            end_bracket: )
+      - comma: ','
+      - constraint_statement:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: valid_b
+        - keyword: EXPECT
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: b
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0'
+            end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: live
+                - dot: .
+                - naked_identifier: taxi_raw
 - statement_terminator: ;

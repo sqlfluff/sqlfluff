@@ -696,9 +696,11 @@ sparksql_dialect.add(
                         OneOf(
                             Ref("ColumnDefinitionSegment"),
                             Ref("GeneratedColumnDefinitionSegment"),
+                            Ref("TableConstraintSegment", optional=True),
                         ),
                         Ref("CommentGrammar", optional=True),
                     ),
+                    Ref("ConstraintStatementSegment", optional=True),
                 ),
             ),
             # Like Syntax
@@ -726,6 +728,9 @@ sparksql_dialect.add(
             Ref("LocationGrammar", optional=True),
             Ref("CommentGrammar", optional=True),
             Ref("TablePropertiesGrammar", optional=True),
+        ),
+        Sequence(
+            "CLUSTER", "BY", Ref("BracketedColumnReferenceListGrammar"), optional=True
         ),
         Dedent,
         # Create AS syntax:
@@ -1055,10 +1060,12 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 OneOf(
                     Sequence(
                         "COLUMN",
+                        Ref("IfExistsGrammar", optional=True),
                         Ref("ColumnReferenceSegment"),
                     ),
                     Sequence(
                         "COLUMNS",
+                        Ref("IfExistsGrammar", optional=True),
                         Bracketed(
                             Delimited(AnyNumberOf(Ref("ColumnReferenceSegment"))),
                         ),
@@ -1293,15 +1300,6 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     match_grammar = Sequence("CREATE", Ref("TableDefinitionSegment"))
 
 
-class CreateHiveFormatTableStatementSegment(hive.CreateTableStatementSegment):
-    """A `CREATE TABLE` statement using Hive format.
-
-    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-hiveformat.html
-    """
-
-    pass
-
-
 class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
     """A `CREATE VIEW` statement.
 
@@ -1325,6 +1323,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                         Ref("ColumnReferenceSegment"),
                         Ref("CommentGrammar", optional=True),
                     ),
+                    Ref("ConstraintStatementSegment", optional=True),
                 ),
             ),
             optional=True,
@@ -2545,7 +2544,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterDatabaseStatementSegment"),
             Ref("AlterTableStatementSegment"),
             Ref("AlterViewStatementSegment"),
-            Ref("CreateHiveFormatTableStatementSegment"),
+            Ref("CreateTableStatementSegment"),
             Ref("MsckRepairTableStatementSegment"),
             Ref("UseDatabaseStatementSegment"),
             # Auxiliary Statements
@@ -2918,7 +2917,7 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
             optional=True,
         ),
         Ref("SetClauseListSegment"),
-        Ref("WhereClauseSegment"),
+        Ref("WhereClauseSegment", optional=True),
     )
 
 

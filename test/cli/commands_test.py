@@ -146,7 +146,7 @@ def test__cli__command_parse_error_dialect_explicit_warning():
     # For any parsing error there should be a non-zero exit code
     # and a human-readable warning should be displayed.
     # Dialect specified as commandline option.
-    result = invoke_assert_code(
+    invoke_assert_code(
         ret_code=1,
         args=[
             parse,
@@ -157,10 +157,10 @@ def test__cli__command_parse_error_dialect_explicit_warning():
                 "test/fixtures/cli/fail_many.sql",
             ],
         ],
-    )
-    assert (
-        "WARNING: Parsing errors found and dialect is set to 'postgres'. "
-        "Have you configured your dialect correctly?" in result.stdout
+        assert_output_contains=(
+            "WARNING: Parsing errors found and dialect is set to 'postgres'. "
+            "Have you configured your dialect correctly?"
+        ),
     )
 
 
@@ -169,7 +169,7 @@ def test__cli__command_parse_error_dialect_implicit_warning():
     # For any parsing error there should be a non-zero exit code
     # and a human-readable warning should be displayed.
     # Dialect specified in .sqlfluff config.
-    result = invoke_assert_code(
+    invoke_assert_code(
         ret_code=1,
         args=[
             # Config sets dialect to tsql
@@ -181,16 +181,16 @@ def test__cli__command_parse_error_dialect_implicit_warning():
                 "test/fixtures/cli/fail_many.sql",
             ],
         ],
-    )
-    assert (
-        "WARNING: Parsing errors found and dialect is set to 'tsql'. "
-        "Have you configured your dialect correctly?" in result.stdout
+        assert_output_contains=(
+            "WARNING: Parsing errors found and dialect is set to 'tsql'. "
+            "Have you configured your dialect correctly?"
+        ),
     )
 
 
 def test__cli__command_dialect_legacy():
     """Check the script raises the right exception on a legacy dialect."""
-    result = invoke_assert_code(
+    invoke_assert_code(
         ret_code=2,
         args=[
             lint,
@@ -201,13 +201,13 @@ def test__cli__command_dialect_legacy():
                 "test/fixtures/linter/indentation_error_simple.sql",
             ],
         ],
+        assert_output_contains="Please use the 'exasol' dialect instead.",
     )
-    assert "Please use the 'exasol' dialect instead." in result.stdout
 
 
 def test__cli__command_extra_config_fail():
     """Check the script raises the right exception non-existent extra config path."""
-    result = invoke_assert_code(
+    invoke_assert_code(
         ret_code=2,
         args=[
             lint,
@@ -217,10 +217,10 @@ def test__cli__command_extra_config_fail():
                 "test/fixtures/cli/extra_config_tsql.sql",
             ],
         ],
-    )
-    assert (
-        "Extra config 'test/fixtures/cli/extra_configs/.sqlfluffsdfdfdfsfd' does not "
-        "exist." in result.stdout
+        assert_output_contains=(
+            "Extra config 'test/fixtures/cli/extra_configs/.sqlfluffsdfdfdfsfd' does "
+            "not exist."
+        ),
     )
 
 
@@ -269,9 +269,13 @@ def test__cli__command_render_stdin():
     """Check render on a simple script using stdin."""
     with open("test/fixtures/cli/passing_a.sql") as test_file:
         sql = test_file.read()
-    result = invoke_assert_code(args=[render, ("--dialect=ansi", "-")], cli_input=sql)
-    # Check we get back out the same file we input.
-    assert result.output.startswith(sql)
+
+    invoke_assert_code(
+        args=[render, ("--dialect=ansi", "-")],
+        cli_input=sql,
+        # Check we get back out the same file we input.
+        assert_output_contains=sql,
+    )
 
 
 @pytest.mark.parametrize(
@@ -1206,7 +1210,7 @@ def test__cli__command_fix_stdin_safety():
 
 
 @pytest.mark.parametrize(
-    "sql,exit_code,params,output_contains",
+    "sql,exit_code,params,assert_output_contains",
     [
         (
             "create TABLE {{ params.dsfsdfds }}.t (a int)",
@@ -1225,22 +1229,15 @@ def test__cli__command_fix_stdin_safety():
     ],
 )
 def test__cli__command_fix_stdin_error_exit_code(
-    sql, exit_code, params, output_contains
+    sql, exit_code, params, assert_output_contains
 ):
     """Check that the CLI fails nicely if fixing a templated stdin."""
-    if exit_code == 0:
-        invoke_assert_code(
-            args=[fix, ("--dialect=ansi", "-")],
-            cli_input=sql,
-        )
-    else:
-        with pytest.raises(SystemExit) as exc_info:
-            invoke_assert_code(
-                args=[fix, (params, "--dialect=ansi", "-")],
-                cli_input=sql,
-                output_contains=output_contains,
-            )
-        assert exc_info.value.args[0] == exit_code
+    invoke_assert_code(
+        ret_code=exit_code,
+        args=[fix, ((params,) if params else ()) + ("--dialect=ansi", "-")],
+        cli_input=sql,
+        assert_output_contains=assert_output_contains,
+    )
 
 
 @pytest.mark.parametrize(
@@ -1369,11 +1366,14 @@ def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_
 )
 def test__cli__command_fail_nice_not_found(command):
     """Check commands fail as expected when then don't find files."""
-    result = invoke_assert_code(args=command, ret_code=2)
-    assert (
-        "User Error: Specified path does not exist. Check it/they "
-        "exist(s): this_file_does_not_exist.sql"
-    ) in result.output
+    invoke_assert_code(
+        args=command,
+        ret_code=2,
+        assert_output_contains=(
+            "User Error: Specified path does not exist. Check it/they "
+            "exist(s): this_file_does_not_exist.sql"
+        ),
+    )
 
 
 @patch("click.utils.should_strip_ansi")
@@ -1748,7 +1748,7 @@ def test_cli_no_disable_noqa_flag():
 
 def test_cli_disable_noqa_flag():
     """Test that --disable-noqa flag ignores inline noqa comments."""
-    result = invoke_assert_code(
+    invoke_assert_code(
         ret_code=1,
         args=[
             lint,
@@ -1757,16 +1757,14 @@ def test_cli_disable_noqa_flag():
                 "--disable-noqa",
             ],
         ],
+        # Linting error is raised even though it is inline ignored.
+        assert_output_contains=r"L:   6 | P:  11 | CP01 |",
     )
-    raw_output = repr(result.output)
-
-    # Linting error is raised even though it is inline ignored.
-    assert r"L:   6 | P:  11 | CP01 |" in raw_output
 
 
 def test_cli_warn_unused_noqa_flag():
     """Test that --warn-unused-ignores flag works."""
-    result = invoke_assert_code(
+    invoke_assert_code(
         # Return value should still be success.
         ret_code=0,
         args=[
@@ -1776,11 +1774,11 @@ def test_cli_warn_unused_noqa_flag():
                 "--warn-unused-ignores",
             ],
         ],
+        # Warning shown.
+        assert_output_contains=(
+            r"L:   5 | P:  18 | NOQA | WARNING: Unused noqa: 'noqa: CP01'"
+        ),
     )
-    raw_output = repr(result.output)
-
-    # Warning shown.
-    assert r"L:   5 | P:  18 | NOQA | WARNING: Unused noqa: 'noqa: CP01'" in raw_output
 
 
 def test_cli_get_default_config():
@@ -1885,21 +1883,15 @@ class TestProgressBars:
                 ],
             ],
         )
-        raw_output = repr(result.output)
+        normalised_output = repr(result.output.replace("\\", "/"))
 
-        sep = os.sep
-        if sys.platform == "win32":
-            sep *= 2
+        assert r"\rfile test/fixtures/linter/passing.sql:" in normalised_output
         assert (
-            r"\rfile test/fixtures/linter/passing.sql:".replace("/", sep) in raw_output
+            r"\rfile test/fixtures/linter/indentation_errors.sql:" in normalised_output
         )
-        assert (
-            r"\rfile test/fixtures/linter/indentation_errors.sql:".replace("/", sep)
-            in raw_output
-        )
-        assert r"\rlint by rules:" in raw_output
-        assert r"\rrule LT01:" in raw_output
-        assert r"\rrule CV05:" in raw_output
+        assert r"\rlint by rules:" in normalised_output
+        assert r"\rrule LT01:" in normalised_output
+        assert r"\rrule CV05:" in normalised_output
 
     def test_cli_lint_enabled_progress_bar_multiple_files(
         self, mock_disable_progress_bar: MagicMock
@@ -1964,7 +1956,7 @@ class TestProgressBars:
         self, mock_disable_progress_bar: MagicMock
     ) -> None:
         """Same as above but checks additionally if deprecation warning is printed."""
-        result = invoke_assert_code(
+        invoke_assert_code(
             args=[
                 fix,
                 [
@@ -1972,13 +1964,11 @@ class TestProgressBars:
                     "test/fixtures/linter/passing.sql",
                 ],
             ],
+            assert_output_contains=(
+                "DeprecationWarning: The option '--disable_progress_bar' is "
+                "deprecated, use '--disable-progress-bar'"
+            ),
         )
-        raw_output = repr(result.output)
-
-        assert (
-            "DeprecationWarning: The option '--disable_progress_bar' is deprecated, "
-            "use '--disable-progress-bar'"
-        ) in raw_output
 
 
 multiple_expected_output = """==== finding fixable violations ====
@@ -1997,7 +1987,7 @@ Aborting...
 
 def test__cli__fix_multiple_errors_no_show_errors():
     """Test the fix output."""
-    result = invoke_assert_code(
+    invoke_assert_code(
         ret_code=1,
         args=[
             fix,
@@ -2006,18 +1996,13 @@ def test__cli__fix_multiple_errors_no_show_errors():
                 "test/fixtures/linter/multiple_sql_errors.sql",
             ],
         ],
+        assert_output_contains=multiple_expected_output,
     )
-    # We should get a readout of what the error was
-    check_a = "4 unfixable linting violations found"
-    assert check_a in result.output
-    # Finally check the WHOLE output to make sure that unexpected newlines are not
-    # added. The replace command just accounts for cross platform testing.
-    assert result.output.replace("\\", "/").startswith(multiple_expected_output)
 
 
 def test__cli__fix_multiple_errors_quiet_force():
     """Test the fix --quiet option with --force."""
-    result = invoke_assert_code(
+    invoke_assert_code(
         ret_code=0,
         args=[
             fix,
@@ -2030,17 +2015,16 @@ def test__cli__fix_multiple_errors_quiet_force():
                 "_fix",
             ],
         ],
-    )
-    normalised_output = result.output.replace("\\", "/")
-    assert normalised_output.startswith(
-        """== [test/fixtures/linter/multiple_sql_errors.sql] FIXED
+        assert_output_contains=(
+            """== [test/fixtures/linter/multiple_sql_errors.sql] FIXED
 2 fixable linting violations found"""
+        ),
     )
 
 
 def test__cli__fix_multiple_errors_quiet_no_force():
     """Test the fix --quiet option without --force."""
-    result = invoke_assert_code(
+    invoke_assert_code(
         ret_code=0,
         args=[
             fix,
@@ -2054,13 +2038,12 @@ def test__cli__fix_multiple_errors_quiet_no_force():
             # Test with the confirmation step.
             "y",
         ],
-    )
-    normalised_output = result.output.replace("\\", "/")
-    assert normalised_output.startswith(
-        """2 fixable linting violations found
+        assert_output_contains=(
+            """2 fixable linting violations found
 Are you sure you wish to attempt to fix these? [Y/n] ...
 == [test/fixtures/linter/multiple_sql_errors.sql] FIXED
 All Finished"""
+        ),
     )
 
 
@@ -2134,11 +2117,7 @@ def test__cli__multiple_files__fix_multiple_errors_show_errors():
 
 def test__cli__render_fail():
     """Basic how render fails."""
-    expected_render_output = (
-        "L:   3 | P:   8 |  TMP | Undefined jinja template " "variable: 'something'"
-    )
-
-    result = invoke_assert_code(
+    invoke_assert_code(
         ret_code=1,
         args=[
             render,
@@ -2146,17 +2125,15 @@ def test__cli__render_fail():
                 "test/fixtures/cli/fail_many.sql",
             ],
         ],
+        assert_output_contains=(
+            "L:   3 | P:   8 |  TMP | Undefined jinja template " "variable: 'something'"
+        ),
     )
-    # Check whole output. The replace command just accounts for
-    # cross platform testing.
-    assert result.output.replace("\\", "/").startswith(expected_render_output)
 
 
 def test__cli__render_pass():
     """Basic how render works."""
-    expected_render_output = "SELECT 56 FROM sch1.tbl2"
-
-    result = invoke_assert_code(
+    invoke_assert_code(
         ret_code=0,
         args=[
             render,
@@ -2164,7 +2141,5 @@ def test__cli__render_pass():
                 "test/fixtures/templater/jinja_a/jinja.sql",
             ],
         ],
+        assert_output_contains="SELECT 56 FROM sch1.tbl2",
     )
-    # Check whole output. The replace command just accounts for
-    # cross platform testing.
-    assert result.output.replace("\\", "/").startswith(expected_render_output)

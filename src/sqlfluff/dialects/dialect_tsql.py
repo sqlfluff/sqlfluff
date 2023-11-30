@@ -1694,24 +1694,8 @@ class ReferencesConstraintGrammar(BaseSegment):
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         Sequence(
             "ON",
-            "DELETE",
-            OneOf(
-                Sequence("NO", "ACTION"),
-                "CASCADE",
-                Sequence("SET", "NULL"),
-                Sequence("SET", "DEFAULT"),
-            ),
-            optional=True,
-        ),
-        Sequence(
-            "ON",
-            "UPDATE",
-            OneOf(
-                Sequence("NO", "ACTION"),
-                "CASCADE",
-                Sequence("SET", "NULL"),
-                Sequence("SET", "DEFAULT"),
-            ),
+            OneOf("DELETE", "UPDATE"),
+            Ref("ReferentialActionGrammar"),
             optional=True,
         ),
         Sequence("NOT", "FOR", "REPLICATION", optional=True),
@@ -5985,6 +5969,25 @@ class CopyIntoTableStatementSegment(BaseSegment):
                     )
                 )
             ),
+            optional=True,
+        ),
+    )
+
+
+class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
+    """`CREATE USER` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-user-transact-sql?view=sql-server-ver16#syntax
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        "USER",
+        Ref("RoleReferenceSegment"),
+        Sequence(
+            OneOf("FROM", "FOR"),
+            "LOGIN",
+            Ref("ObjectReferenceSegment"),
             optional=True,
         ),
     )
