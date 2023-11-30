@@ -1936,7 +1936,7 @@ class TestProgressBars:
         self, mock_disable_progress_bar: MagicMock
     ) -> None:
         """When progress bar is disabled, nothing should be printed into output."""
-        invoke_assert_code(
+        result = invoke_assert_code(
             args=[
                 fix,
                 [
@@ -1944,11 +1944,13 @@ class TestProgressBars:
                     "test/fixtures/linter/passing.sql",
                 ],
             ],
-            assert_output_contains=(
-                "DeprecationWarning: The option '--disable_progress_bar' is "
-                "deprecated, use '--disable-progress-bar'"
-            ),
         )
+        raw_output = repr(result.output)
+
+        assert (
+            "DeprecationWarning: The option '--disable_progress_bar' is deprecated, "
+            "use '--disable-progress-bar'"
+        ) not in raw_output
 
     def test_cli_fix_disabled_progress_bar_deprecated_option(
         self, mock_disable_progress_bar: MagicMock
