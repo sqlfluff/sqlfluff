@@ -157,7 +157,7 @@ def raw_slices(
         *templated_file.raw_slices_spanning_source_slice(
             segment.pos_marker.source_slice
         ),
-        templated_file=templated_file
+        templated_file=templated_file,
     )
 
 
