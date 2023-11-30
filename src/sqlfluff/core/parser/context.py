@@ -271,7 +271,7 @@ class ParseContext:
             disable=progress_bar_configuration.disable_progress_bar,
             leave=False,
         )
-        self._current_line = 0
+
         try:
             yield self
         finally:
