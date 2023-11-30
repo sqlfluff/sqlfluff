@@ -1883,14 +1883,11 @@ class TestProgressBars:
                 ],
             ],
         )
-        normalised_output = result.output.replace("\\", "/")
+        normalised_output = repr(result.output.replace("\\", "/"))
 
+        assert r"\rfile test/fixtures/linter/passing.sql:" in normalised_output
         assert (
-            r"\rfile test/fixtures/linter/passing.sql:" in normalised_output
-        )
-        assert (
-            r"\rfile test/fixtures/linter/indentation_errors.sql:"
-            in normalised_output
+            r"\rfile test/fixtures/linter/indentation_errors.sql:" in normalised_output
         )
         assert r"\rlint by rules:" in normalised_output
         assert r"\rrule LT01:" in normalised_output
