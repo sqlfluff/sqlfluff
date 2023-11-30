@@ -1234,13 +1234,12 @@ def test__cli__command_fix_stdin_error_exit_code(
             cli_input=sql,
         )
     else:
-        with pytest.raises(SystemExit) as exc_info:
-            invoke_assert_code(
-                args=[fix, (params, "--dialect=ansi", "-")],
-                cli_input=sql,
-                output_contains=output_contains,
-            )
-        assert exc_info.value.args[0] == exit_code
+        invoke_assert_code(
+            args=[fix, (params, "--dialect=ansi", "-")],
+            cli_input=sql,
+            output_contains=output_contains,
+            ret_code=exit_code,
+        )
 
 
 @pytest.mark.parametrize(

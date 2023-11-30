@@ -11,6 +11,7 @@ def invoke_assert_code(
     cli_input: Optional[str] = None,
     mix_stderr: bool = True,
     output_contains: str = "",
+    raise_exceptions: bool = True,
 ) -> Result:
     """Invoke a command and check return code."""
     args = args or []
@@ -21,11 +22,13 @@ def invoke_assert_code(
     result = runner.invoke(*args, **kwargs)
     # Output the CLI code for debugging
     print(result.output)
-    # Check return codes
     if output_contains != "":
         assert output_contains in result.output
-    if ret_code == 0:
-        if result.exception:
+    # Check return codes, and unless we specifically want to pass back exceptions,
+    # we should raise any exceptions which aren't `SystemExit` ones (i.e. ones
+    # raised by `sys.exit()`)
+    if raise_exceptions and result.exception:
+        if not isinstance(result.exception, SystemExit):
             raise result.exception
     assert ret_code == result.exit_code
     return result
