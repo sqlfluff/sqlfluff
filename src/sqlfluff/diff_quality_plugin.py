@@ -71,7 +71,7 @@ class SQLFluffViolationReporter(QualityReporter):
                 else:
                     for file in report:
                         self.violations_dict[file["filepath"]] = [
-                            Violation(v["line_no"], v["description"])
+                            Violation(v["start_line_no"], v["description"])
                             for v in file["violations"]
                         ]
         else:

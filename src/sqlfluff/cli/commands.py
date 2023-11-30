@@ -684,8 +684,8 @@ def lint(
                 line = f"::{annotation_level} "
                 line += "title=SQLFluff,"
                 line += f"file={filepath},"
-                line += f"line={violation['line_no']},"
-                line += f"col={violation['line_pos']}"
+                line += f"line={violation['start_line_no']},"
+                line += f"col={violation['start_line_pos']}"
                 line += "::"
                 line += f"{violation['code']}: {violation['description']}"
                 if violation["name"]:
