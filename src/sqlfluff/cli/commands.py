@@ -662,9 +662,16 @@ def lint(
                 github_result.append(
                     {
                         "file": filepath,
-                        "line": violation["line_no"],
-                        "start_column": violation["line_pos"],
-                        "end_column": violation["line_pos"],
+                        "start_line": violation["start_line_no"],
+                        "start_column": violation["start_line_pos"],
+                        # NOTE: There should always be a start, there _may_ not be an end
+                        # so in that case we default back to just re-using the start.
+                        "end_line": violation.get(
+                            "end_line_no", violation["start_line_no"]
+                        ),
+                        "end_column": violation.get(
+                            "end_line_pos", violation["start_line_pos"]
+                        ),
                         "title": "SQLFluff",
                         "message": f"{violation['code']}: {violation['description']}",
                         "annotation_level": annotation_level,
@@ -686,6 +693,10 @@ def lint(
                 line += f"file={filepath},"
                 line += f"line={violation['start_line_no']},"
                 line += f"col={violation['start_line_pos']}"
+                if "end_line_no" in violation:
+                    line += f",endLine={violation['end_line_no']},"
+                if "end_line_pos" in violation:
+                    line += f",endColumn={violation['end_line_pos']}"
                 line += "::"
                 line += f"{violation['code']}: {violation['description']}"
                 if violation["name"]:

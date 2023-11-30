@@ -1504,11 +1504,12 @@ def test__cli__command_lint_serialize_github_annotation():
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "line": 2,
+            "start_line": 2,
+            "end_line": 2,
             "message": "RF02: Unqualified reference 'foo' found in select with more "
             "than one referenced table/view.",
             "start_column": 5,
-            "end_column": 5,
+            "end_column": 8,
             "title": "SQLFluff",
         },
         {
@@ -1517,10 +1518,11 @@ def test__cli__command_lint_serialize_github_annotation():
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "line": 3,
+            "start_line": 3,
+            "end_line": 3,
             "message": "LT02: Expected indent of 8 spaces.",
             "start_column": 1,
-            "end_column": 1,
+            "end_column": 5,
             "title": "SQLFluff",
         },
         {
@@ -1529,10 +1531,11 @@ def test__cli__command_lint_serialize_github_annotation():
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "line": 3,
+            "start_line": 3,
+            "end_line": 3,
             "message": "AL02: Implicit/explicit aliasing of columns.",
             "start_column": 5,
-            "end_column": 5,
+            "end_column": 8,
             "title": "SQLFluff",
         },
         {
@@ -1541,9 +1544,23 @@ def test__cli__command_lint_serialize_github_annotation():
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "line": 3,
+            "start_line": 3,
+            "end_line": 3,
             "message": "CP02: Unquoted identifiers must be consistently lower case.",
             "start_column": 5,
+            "end_column": 8,
+            "title": "SQLFluff",
+        },
+        {
+            "annotation_level": "warning",
+            # Normalise paths to control for OS variance
+            "file": os.path.normpath(
+                "test/fixtures/linter/identifier_capitalisation.sql"
+            ),
+            "start_line": 4,
+            "end_line": 4,
+            "message": "CP01: Keywords must be consistently lower case.",
+            "start_column": 1,
             "end_column": 5,
             "title": "SQLFluff",
         },
@@ -1553,22 +1570,11 @@ def test__cli__command_lint_serialize_github_annotation():
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "line": 4,
-            "message": "CP01: Keywords must be consistently lower case.",
-            "start_column": 1,
-            "end_column": 1,
-            "title": "SQLFluff",
-        },
-        {
-            "annotation_level": "warning",
-            # Normalise paths to control for OS variance
-            "file": os.path.normpath(
-                "test/fixtures/linter/identifier_capitalisation.sql"
-            ),
-            "line": 4,
+            "start_line": 4,
+            "end_line": 4,
             "message": "CP02: Unquoted identifiers must be consistently lower case.",
             "start_column": 12,
-            "end_column": 12,
+            "end_column": 16,
             "title": "SQLFluff",
         },
         {
@@ -1577,10 +1583,11 @@ def test__cli__command_lint_serialize_github_annotation():
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "line": 4,
+            "start_line": 4,
+            "end_line": 4,
             "message": "CP02: Unquoted identifiers must be consistently lower case.",
             "start_column": 18,
-            "end_column": 18,
+            "end_column": 22,
             "title": "SQLFluff",
         },
     ]

@@ -311,9 +311,9 @@ test_violation_locations:
       start_line_no: 6
       start_line_pos: 15
       start_file_pos: 87
-      start_line_no: 6
-      start_line_pos: 16
-      start_file_pos: 88
+      end_line_no: 6
+      end_line_pos: 16
+      end_file_pos: 88
       fixes:
       - edit: ''
         end_file_pos: 88
@@ -362,7 +362,7 @@ test_violation_locations:
         start_file_pos: 149
         start_line_no: 8
         start_line_pos: 21
-        type: replace  
+        type: replace
     - code: AL07
       description: Avoid aliases in from clauses and join conditions.
       name: aliasing.forbid
