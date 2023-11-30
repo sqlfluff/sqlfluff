@@ -10,7 +10,7 @@ def invoke_assert_code(
     kwargs: Optional[Dict[str, Any]] = None,
     cli_input: Optional[str] = None,
     mix_stderr: bool = True,
-    output_contains: str = "",
+    assert_output_contains: str = "",
     raise_exceptions: bool = True,
 ) -> Result:
     """Invoke a command and check return code."""
@@ -22,8 +22,9 @@ def invoke_assert_code(
     result = runner.invoke(*args, **kwargs)
     # Output the CLI code for debugging
     print(result.output)
-    if output_contains != "":
-        assert output_contains in result.output
+    if assert_output_contains != "":
+        # The replace command just accounts for cross platform testing.
+        assert assert_output_contains in result.output.replace("\\", "/")
     # Check return codes, and unless we specifically want to pass back exceptions,
     # we should raise any exceptions which aren't `SystemExit` ones (i.e. ones
     # raised by `sys.exit()`)
