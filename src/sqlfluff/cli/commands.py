@@ -695,7 +695,7 @@ def lint(
                 line += f"line={violation['start_line_no']},"
                 line += f"col={violation['start_line_pos']}"
                 if "end_line_no" in violation:
-                    line += f",endLine={violation['end_line_no']},"
+                    line += f",endLine={violation['end_line_no']}"
                 if "end_line_pos" in violation:
                     line += f",endColumn={violation['end_line_pos']}"
                 line += "::"
