@@ -211,7 +211,10 @@ class LintingResult:
                 ),
             }
             for LintedDir in self.paths
-            for path, violations in LintedDir.violation_dict().items()
+            for path, violations in LintedDir.violation_dict(
+                # Keep the warnings
+                filter_warning=False
+            ).items()
             if violations
         ]
 

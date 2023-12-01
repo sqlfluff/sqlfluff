@@ -1490,7 +1490,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     print("Result length:", payload_length)
 
     if serialize == "human":
-        assert payload_length == 25 if write_file else 34
+        assert payload_length == 26 if write_file else 34
     elif serialize == "none":
         assert payload_length == 1  # There will be a single newline.
     elif serialize == "json":
@@ -1538,8 +1538,8 @@ def test__cli__command_lint_serialize_github_annotation():
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "start_line": 2,
-            "end_line": 2,
+            "start_line": 3,
+            "end_line": 3,
             "message": "RF02: Unqualified reference 'foo' found in select with more "
             "than one referenced table/view.",
             "start_column": 5,
@@ -1552,8 +1552,8 @@ def test__cli__command_lint_serialize_github_annotation():
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "start_line": 3,
-            "end_line": 3,
+            "start_line": 4,
+            "end_line": 4,
             "message": "LT02: Expected indent of 8 spaces.",
             "start_column": 1,
             "end_column": 5,
@@ -1565,8 +1565,8 @@ def test__cli__command_lint_serialize_github_annotation():
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "start_line": 3,
-            "end_line": 3,
+            "start_line": 4,
+            "end_line": 4,
             "message": "AL02: Implicit/explicit aliasing of columns.",
             "start_column": 5,
             "end_column": 8,
@@ -1578,21 +1578,22 @@ def test__cli__command_lint_serialize_github_annotation():
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "start_line": 3,
-            "end_line": 3,
+            "start_line": 4,
+            "end_line": 4,
             "message": "CP02: Unquoted identifiers must be consistently lower case.",
             "start_column": 5,
             "end_column": 8,
             "title": "SQLFluff",
         },
         {
-            "annotation_level": "warning",
+            # Warnings should come through as notices.
+            "annotation_level": "notice",
             # Normalise paths to control for OS variance
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "start_line": 4,
-            "end_line": 4,
+            "start_line": 5,
+            "end_line": 5,
             "message": "CP01: Keywords must be consistently lower case.",
             "start_column": 1,
             "end_column": 5,
@@ -1604,8 +1605,8 @@ def test__cli__command_lint_serialize_github_annotation():
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "start_line": 4,
-            "end_line": 4,
+            "start_line": 5,
+            "end_line": 5,
             "message": "CP02: Unquoted identifiers must be consistently lower case.",
             "start_column": 12,
             "end_column": 16,
@@ -1617,8 +1618,8 @@ def test__cli__command_lint_serialize_github_annotation():
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "start_line": 4,
-            "end_line": 4,
+            "start_line": 5,
+            "end_line": 5,
             "message": "CP02: Unquoted identifiers must be consistently lower case.",
             "start_column": 18,
             "end_column": 22,
@@ -1651,29 +1652,30 @@ def test__cli__command_lint_serialize_github_annotation_native():
     assert result.output == "\n".join(
         [
             f"::error title=SQLFluff,file={fpath_normalised},"
-            "line=2,col=5,endLine=2,endColumn=8::"
+            "line=3,col=5,endLine=3,endColumn=8::"
             "RF02: Unqualified reference 'foo' found in select with more than one "
             "referenced table/view. [references.qualification]",
             f"::error title=SQLFluff,file={fpath_normalised},"
-            "line=3,col=1,endLine=3,endColumn=5::"
+            "line=4,col=1,endLine=4,endColumn=5::"
             "LT02: Expected indent of 8 spaces. [layout.indent]",
             f"::error title=SQLFluff,file={fpath_normalised},"
-            "line=3,col=5,endLine=3,endColumn=8::"
+            "line=4,col=5,endLine=4,endColumn=8::"
             "AL02: Implicit/explicit aliasing of columns. [aliasing.column]",
             f"::error title=SQLFluff,file={fpath_normalised},"
-            "line=3,col=5,endLine=3,endColumn=8::"
+            "line=4,col=5,endLine=4,endColumn=8::"
             "CP02: Unquoted identifiers must be consistently lower case. "
             "[capitalisation.identifiers]",
-            f"::error title=SQLFluff,file={fpath_normalised},"
-            "line=4,col=1,endLine=4,endColumn=5::"
+            # Warnings should always come through as notices.
+            f"::notice title=SQLFluff,file={fpath_normalised},"
+            "line=5,col=1,endLine=5,endColumn=5::"
             "CP01: Keywords must be consistently lower case. "
             "[capitalisation.keywords]",
             f"::error title=SQLFluff,file={fpath_normalised},"
-            "line=4,col=12,endLine=4,endColumn=16::"
+            "line=5,col=12,endLine=5,endColumn=16::"
             "CP02: Unquoted identifiers must be consistently lower case. "
             "[capitalisation.identifiers]",
             f"::error title=SQLFluff,file={fpath_normalised},"
-            "line=4,col=18,endLine=4,endColumn=22::"
+            "line=5,col=18,endLine=5,endColumn=22::"
             "CP02: Unquoted identifiers must be consistently lower case. "
             "[capitalisation.identifiers]",
             "",  # SQLFluff produces trailing newline

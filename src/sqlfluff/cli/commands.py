@@ -675,7 +675,10 @@ def lint(
                         ),
                         "title": "SQLFluff",
                         "message": f"{violation['code']}: {violation['description']}",
-                        "annotation_level": annotation_level,
+                        "annotation_level": annotation_level
+                        # Warnings are always notices.
+                        if not violation["warning"]
+                        else "notice",
                     }
                 )
         file_output = json.dumps(github_result)
@@ -689,7 +692,11 @@ def lint(
             for violation in record["violations"]:
                 # NOTE: The output format is designed for GitHub action:
                 # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-notice-message
-                line = f"::{annotation_level} "
+                if violation["warning"]:
+                    # Warnings are always notices.
+                    line = "::notice "
+                else:
+                    line = f"::{annotation_level} "
                 line += "title=SQLFluff,"
                 line += f"file={filepath},"
                 line += f"line={violation['start_line_no']},"
