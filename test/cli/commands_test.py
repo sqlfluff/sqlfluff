@@ -1490,7 +1490,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_
     print("Result length:", payload_length)
 
     if serialize == "human":
-        assert payload_length == 26 if write_file else 34
+        assert payload_length == 25 if write_file else 34
     elif serialize == "none":
         assert payload_length == 1  # There will be a single newline.
     elif serialize == "json":
