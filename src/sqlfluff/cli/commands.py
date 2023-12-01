@@ -545,11 +545,13 @@ def dump_file_payload(filename: Optional[str], payload: str) -> None:
 )
 @click.option(
     "--annotation-level",
-    default="notice",
+    default="warning",
     type=click.Choice(["notice", "warning", "failure", "error"], case_sensitive=False),
     help=(
-        "When format is set to github-annotation or github-annotation-native, "
-        "default annotation level (default=notice). failure and error are equivalent."
+        'When format is set to "github-annotation" or "github-annotation-native", '
+        'default annotation level (default="warning"). "failure" and "error" '
+        "are equivalent. Any rules configured only as warnings will always come "
+        'through with type "notice" regardless of this option.'
     ),
 )
 @click.option(
@@ -675,8 +677,8 @@ def lint(
                         ),
                         "title": "SQLFluff",
                         "message": f"{violation['code']}: {violation['description']}",
-                        "annotation_level": annotation_level
                         # Warnings are always notices.
+                        "annotation_level": annotation_level
                         if not violation["warning"]
                         else "notice",
                     }
