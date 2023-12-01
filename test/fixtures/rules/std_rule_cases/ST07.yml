@@ -45,7 +45,6 @@ test_partial_fixed_up_to_2nd_join:
       end_line_no: 4
       end_line_pos: 19
       end_file_pos: 82
-      
 
 select_using_fail:
   fail_str: |

@@ -322,7 +322,7 @@ test_fail_inconsistent_type_casting_3_arguments_convert_when_config_shorthand:
     end_line_no: 2
     end_line_pos: 25
     end_file_pos: 31
-    
+
   configs:
     rules:
       convention.casting_style:

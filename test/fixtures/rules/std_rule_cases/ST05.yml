@@ -126,11 +126,11 @@ double_nested_fail_2:
       fixes: []
       start_line_no: 2
       start_line_pos: 20
-      start_file_pos: 68
+      start_file_pos: 31
       end_line_no: 2
       end_line_pos: 21
       end_file_pos: 32
-      
+
   configs:
     rules:
       structure.subquery:

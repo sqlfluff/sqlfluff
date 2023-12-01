@@ -7,6 +7,7 @@ test_fail_reindent_first_line_1:
     - code: LT02
       description: First line should not be indented.
       name: layout.indent
+      warning: false
       start_line_no: 1
       start_line_pos: 1
       start_file_pos: 0

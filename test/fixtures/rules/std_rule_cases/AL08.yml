@@ -38,7 +38,6 @@ test_fail_locs:
       end_line_no: 3
       end_line_pos: 11
       end_file_pos: 24
-      
     - code: AL08
       description: Reuse of column alias 'bar' from line 4.
       name: aliasing.unique.column
