@@ -28,7 +28,7 @@ def _extract_position(segment: Optional["BaseSegment"]) -> Dict[str, int]:
             return position.to_source_dict()
     # An empty location is an indicator of not being able to accurately
     # represent the location.
-    return {}
+    return {}  # pragma: no cover
 
 
 class SQLBaseError(ValueError):
@@ -302,6 +302,25 @@ class SQLLintError(SQLBaseError):
             fixes=[fix.to_dict() for fix in self.fixes],
             **_extract_position(self.segment),
         )
+        # Edge case: If the base error doesn't have an end position
+        # but we only have one fix and it _does_. Then use use that in the
+        # overall fix.
+        if "end_line_pos" not in _base_dict and len(_base_dict["fixes"]) == 1:
+            _fix = _base_dict["fixes"][0]
+            # If the mandatory keys match...
+            if (
+                _fix["start_line_no"] == _base_dict["start_line_no"]
+                and _fix["start_line_pos"] == _base_dict["start_line_pos"]
+            ):
+                # ...then hoist all the optional ones from the fix.
+                for key in [
+                    "start_file_pos",
+                    "end_line_no",
+                    "end_line_pos",
+                    "end_file_pos",
+                ]:
+                    _base_dict[key] = _fix[key]
+
         return _base_dict
 
     @property
