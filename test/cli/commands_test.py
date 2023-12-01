@@ -1309,17 +1309,51 @@ def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_pat
                     "violations": [
                         {
                             "code": "CP01",
-                            "line_no": 1,
-                            "line_pos": 1,
+                            "start_line_no": 1,
+                            "start_line_pos": 1,
+                            "start_file_pos": 0,
+                            "end_line_no": 1,
+                            "end_line_pos": 7,
+                            "end_file_pos": 6,
                             "description": "Keywords must be consistently upper case.",
                             "name": "capitalisation.keywords",
+                            "warning": False,
+                            "fixes": [
+                                {
+                                    "type": "replace",
+                                    "edit": "SELECT",
+                                    "start_line_no": 1,
+                                    "start_line_pos": 1,
+                                    "start_file_pos": 0,
+                                    "end_line_no": 1,
+                                    "end_line_pos": 7,
+                                    "end_file_pos": 6,
+                                }
+                            ],
                         },
                         {
                             "code": "CP01",
-                            "line_no": 1,
-                            "line_pos": 10,
+                            "start_line_no": 1,
+                            "start_line_pos": 10,
+                            "start_file_pos": 9,
+                            "end_line_no": 1,
+                            "end_line_pos": 14,
+                            "end_file_pos": 13,
                             "description": "Keywords must be consistently upper case.",
                             "name": "capitalisation.keywords",
+                            "warning": False,
+                            "fixes": [
+                                {
+                                    "type": "replace",
+                                    "edit": "FROM",
+                                    "start_line_no": 1,
+                                    "start_line_pos": 10,
+                                    "start_file_pos": 9,
+                                    "end_line_no": 1,
+                                    "end_line_pos": 14,
+                                    "end_file_pos": 13,
+                                }
+                            ],
                         },
                     ],
                 }
@@ -1616,23 +1650,30 @@ def test__cli__command_lint_serialize_github_annotation_native():
 
     assert result.output == "\n".join(
         [
-            f"::error title=SQLFluff,file={fpath_normalised},line=2,col=5::"
+            f"::error title=SQLFluff,file={fpath_normalised},"
+            "line=2,col=5,endLine=2,endColumn=8::"
             "RF02: Unqualified reference 'foo' found in select with more than one "
             "referenced table/view. [references.qualification]",
-            f"::error title=SQLFluff,file={fpath_normalised},line=3,col=1::"
+            f"::error title=SQLFluff,file={fpath_normalised},"
+            "line=3,col=1,endLine=3,endColumn=5::"
             "LT02: Expected indent of 8 spaces. [layout.indent]",
-            f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
+            f"::error title=SQLFluff,file={fpath_normalised},"
+            "line=3,col=5,endLine=3,endColumn=8::"
             "AL02: Implicit/explicit aliasing of columns. [aliasing.column]",
-            f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
+            f"::error title=SQLFluff,file={fpath_normalised},"
+            "line=3,col=5,endLine=3,endColumn=8::"
             "CP02: Unquoted identifiers must be consistently lower case. "
             "[capitalisation.identifiers]",
-            f"::error title=SQLFluff,file={fpath_normalised},line=4,col=1::"
+            f"::error title=SQLFluff,file={fpath_normalised},"
+            "line=4,col=1,endLine=4,endColumn=5::"
             "CP01: Keywords must be consistently lower case. "
             "[capitalisation.keywords]",
-            f"::error title=SQLFluff,file={fpath_normalised},line=4,col=12::"
+            f"::error title=SQLFluff,file={fpath_normalised},"
+            "line=4,col=12,endLine=4,endColumn=16::"
             "CP02: Unquoted identifiers must be consistently lower case. "
             "[capitalisation.identifiers]",
-            f"::error title=SQLFluff,file={fpath_normalised},line=4,col=18::"
+            f"::error title=SQLFluff,file={fpath_normalised},"
+            "line=4,col=18,endLine=4,endColumn=22::"
             "CP02: Unquoted identifiers must be consistently lower case. "
             "[capitalisation.identifiers]",
             "",  # SQLFluff produces trailing newline
