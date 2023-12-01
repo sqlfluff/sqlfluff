@@ -1377,7 +1377,10 @@ def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_pat
                             "end_line_no": 1,
                             "end_line_pos": 13,
                             "end_file_pos": 12,
-                            "description": "Jinja tags should have a single whitespace on either side: {{1}}",
+                            "description": (
+                                "Jinja tags should have a single whitespace on "
+                                "either side: {{1}}"
+                            ),
                             "name": "jinja.padding",
                             "warning": False,
                             "fixes": [
