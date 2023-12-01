@@ -131,6 +131,7 @@ test_fail_old_python_test:
     - code: LT01
       description: Expected single whitespace between binary operator '+' and quoted literal.
       name: layout.spacing
+      warning: false
       start_file_pos: 10
       start_line_no: 1
       start_line_pos: 11
@@ -149,6 +150,7 @@ test_fail_old_python_test:
     - code: LT01
       description: Expected single whitespace between quoted literal and binary operator '+'.
       name: layout.spacing
+      warning: false
       start_file_pos: 13
       start_line_no: 1
       start_line_pos: 14
@@ -167,6 +169,7 @@ test_fail_old_python_test:
     - code: LT01
       description: Expected single whitespace between binary operator '+' and quoted literal.
       name: layout.spacing
+      warning: false
       start_file_pos: 14
       start_line_no: 1
       start_line_pos: 15

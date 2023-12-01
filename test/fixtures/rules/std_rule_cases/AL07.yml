@@ -308,6 +308,7 @@ test_violation_locations:
     - code: AL07
       description: Avoid aliases in from clauses and join conditions.
       name: aliasing.forbid
+      warning: false
       start_line_no: 6
       start_line_pos: 15
       start_file_pos: 87
@@ -366,6 +367,7 @@ test_violation_locations:
     - code: AL07
       description: Avoid aliases in from clauses and join conditions.
       name: aliasing.forbid
+      warning: false
       start_line_no: 7
       start_line_pos: 19
       start_file_pos: 107
@@ -424,6 +426,7 @@ test_violation_locations:
     - code: AL07
       description: Avoid aliases in from clauses and join conditions.
       name: aliasing.forbid
+      warning: false
       start_line_no: 8
       start_line_pos: 16
       start_file_pos: 144

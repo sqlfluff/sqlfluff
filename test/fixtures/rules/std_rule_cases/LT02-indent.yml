@@ -73,6 +73,7 @@ test_fail_tab_indentation:
     - code: LT02
       description: Expected indent of 1 tabs.
       name: layout.indent
+      warning: false
       start_line_no: 3
       start_line_pos: 1
       start_file_pos: 11
@@ -135,6 +136,7 @@ test_fail_indented_joins_true_fix:
     - code: LT02
       description: Expected indent of 4 spaces.
       name: layout.indent
+      warning: false
       start_line_no: 3
       start_line_pos: 1
       start_file_pos: 27
