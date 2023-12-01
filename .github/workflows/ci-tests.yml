@@ -53,6 +53,7 @@ jobs:
       - name: 🧪 Lint dbt models
         shell: bash -l {0}
         run: |
+          pip install -e .
           sqlfluff lint --format github-annotation --annotation-level error --nofail issue_3857_yuzu.sql > ./annotations_y.json
 
       # annotate PR
@@ -71,6 +72,7 @@ jobs:
       - name: 🧪 Lint dbt models
         shell: bash -l {0}
         run: |
+          pip install -e .
           sqlfluff lint --format github-annotation-native --annotation-level error --nofail issue_3857_native.sql
 
   # Test with coverage tracking on most recent python (py12).
