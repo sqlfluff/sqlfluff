@@ -59,7 +59,7 @@ jobs:
       shell: bash -l {0}
       run: |
         pip install -e .
-        sqlfluff lint --format github-annotation --annotation-level error --nofail issue_3857_yuzu.sql > ./annotations_y.json
+        sqlfluff lint --format github-annotation --annotation-level error --nofail issue_3857/issue_3857_yuzu.sql > ./annotations_y.json
     # annotate PR
     - name: Annotate PR
       uses: yuzutech/annotations-action@v0.4.0
@@ -67,7 +67,7 @@ jobs:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
         title: "SQLFluff Lint"
         input: "./annotations_y.json"
-  
+
   issue_3857_tests_n:
     runs-on: ubuntu-latest
     name: Issue 3857 tests native
@@ -82,7 +82,7 @@ jobs:
       shell: bash -l {0}
       run: |
         pip install -e .
-        sqlfluff lint --format github-annotation-native --annotation-level error --nofail issue_3857_native.sql
+        sqlfluff lint --format github-annotation-native --annotation-level error --nofail issue_3857/issue_3857_native.sql
 
   # Test with coverage tracking on most recent python (py12).
   python-version-tests:
