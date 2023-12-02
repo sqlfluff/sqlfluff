@@ -161,7 +161,7 @@ def prep_violations(rule, violations):
 def assert_violations_before_fix(test_case, violations_before_fix):
     """Assert that the given violations are found in the given sql."""
     print("# Asserting Violations Before Fix")
-    violation_info = [e.get_info_dict() for e in violations_before_fix]
+    violation_info = [e.to_dict() for e in violations_before_fix]
     try:
         assert violation_info == prep_violations(test_case.rule, test_case.violations)
     except AssertionError:  # pragma: no cover
@@ -178,7 +178,7 @@ def assert_violations_after_fix(test_case):
         configs=test_case.configs,
         line_numbers=test_case.line_numbers,
     )
-    violation_info = [e.get_info_dict() for e in violations_after_fix]
+    violation_info = [e.to_dict() for e in violations_after_fix]
     try:
         assert violation_info == prep_violations(
             test_case.rule, test_case.violations_after_fix

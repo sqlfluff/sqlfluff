@@ -1298,28 +1298,103 @@ def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_pat
 
 @pytest.mark.parametrize("serialize", ["yaml", "json", "none"])
 @pytest.mark.parametrize(
-    "sql,expected,exit_code",
+    "sql,rules,expected,exit_code",
     [
-        ("select * from tbl", [], 0),  # empty list if no violations
+        ("select * from tbl", "CP01", [], 0),  # empty list if no violations
         (
             "SElect * from tbl",
+            "CP01",
             [
                 {
                     "filepath": "stdin",
                     "violations": [
                         {
                             "code": "CP01",
-                            "line_no": 1,
-                            "line_pos": 1,
+                            "start_line_no": 1,
+                            "start_line_pos": 1,
+                            "start_file_pos": 0,
+                            "end_line_no": 1,
+                            "end_line_pos": 7,
+                            "end_file_pos": 6,
                             "description": "Keywords must be consistently upper case.",
                             "name": "capitalisation.keywords",
+                            "warning": False,
+                            "fixes": [
+                                {
+                                    "type": "replace",
+                                    "edit": "SELECT",
+                                    "start_line_no": 1,
+                                    "start_line_pos": 1,
+                                    "start_file_pos": 0,
+                                    "end_line_no": 1,
+                                    "end_line_pos": 7,
+                                    "end_file_pos": 6,
+                                }
+                            ],
                         },
                         {
                             "code": "CP01",
-                            "line_no": 1,
-                            "line_pos": 10,
+                            "start_line_no": 1,
+                            "start_line_pos": 10,
+                            "start_file_pos": 9,
+                            "end_line_no": 1,
+                            "end_line_pos": 14,
+                            "end_file_pos": 13,
                             "description": "Keywords must be consistently upper case.",
                             "name": "capitalisation.keywords",
+                            "warning": False,
+                            "fixes": [
+                                {
+                                    "type": "replace",
+                                    "edit": "FROM",
+                                    "start_line_no": 1,
+                                    "start_line_pos": 10,
+                                    "start_file_pos": 9,
+                                    "end_line_no": 1,
+                                    "end_line_pos": 14,
+                                    "end_file_pos": 13,
+                                }
+                            ],
+                        },
+                    ],
+                }
+            ],
+            1,
+        ),
+        # Test serialisation with a source only fix.
+        (
+            "SELECT {{1}}",
+            "JJ01",
+            [
+                {
+                    "filepath": "stdin",
+                    "violations": [
+                        {
+                            "code": "JJ01",
+                            "start_line_no": 1,
+                            "start_line_pos": 8,
+                            "start_file_pos": 7,
+                            "end_line_no": 1,
+                            "end_line_pos": 13,
+                            "end_file_pos": 12,
+                            "description": (
+                                "Jinja tags should have a single whitespace on "
+                                "either side: {{1}}"
+                            ),
+                            "name": "jinja.padding",
+                            "warning": False,
+                            "fixes": [
+                                {
+                                    "type": "replace",
+                                    "edit": "{{ 1 }}",
+                                    "start_line_no": 1,
+                                    "start_line_pos": 8,
+                                    "start_file_pos": 7,
+                                    "end_line_no": 1,
+                                    "end_line_pos": 13,
+                                    "end_file_pos": 12,
+                                }
+                            ],
                         },
                     ],
                 }
@@ -1328,7 +1403,9 @@ def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_pat
         ),
     ],
 )
-def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_code):
+def test__cli__command_lint_serialize_from_stdin(
+    serialize, sql, rules, expected, exit_code
+):
     """Check an explicit serialized return value for a single error."""
     result = invoke_assert_code(
         args=[
@@ -1336,7 +1413,7 @@ def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_
             (
                 "-",
                 "--rules",
-                "CP01",
+                rules,
                 "--format",
                 serialize,
                 "--disable-progress-bar",
@@ -1504,11 +1581,12 @@ def test__cli__command_lint_serialize_github_annotation():
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "line": 2,
+            "start_line": 3,
+            "end_line": 3,
             "message": "RF02: Unqualified reference 'foo' found in select with more "
             "than one referenced table/view.",
             "start_column": 5,
-            "end_column": 5,
+            "end_column": 8,
             "title": "SQLFluff",
         },
         {
@@ -1517,10 +1595,11 @@ def test__cli__command_lint_serialize_github_annotation():
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "line": 3,
+            "start_line": 4,
+            "end_line": 4,
             "message": "LT02: Expected indent of 8 spaces.",
             "start_column": 1,
-            "end_column": 1,
+            "end_column": 5,
             "title": "SQLFluff",
         },
         {
@@ -1529,10 +1608,11 @@ def test__cli__command_lint_serialize_github_annotation():
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "line": 3,
+            "start_line": 4,
+            "end_line": 4,
             "message": "AL02: Implicit/explicit aliasing of columns.",
             "start_column": 5,
-            "end_column": 5,
+            "end_column": 8,
             "title": "SQLFluff",
         },
         {
@@ -1541,9 +1621,24 @@ def test__cli__command_lint_serialize_github_annotation():
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "line": 3,
+            "start_line": 4,
+            "end_line": 4,
             "message": "CP02: Unquoted identifiers must be consistently lower case.",
             "start_column": 5,
+            "end_column": 8,
+            "title": "SQLFluff",
+        },
+        {
+            # Warnings should come through as notices.
+            "annotation_level": "notice",
+            # Normalise paths to control for OS variance
+            "file": os.path.normpath(
+                "test/fixtures/linter/identifier_capitalisation.sql"
+            ),
+            "start_line": 5,
+            "end_line": 5,
+            "message": "CP01: Keywords must be consistently lower case.",
+            "start_column": 1,
             "end_column": 5,
             "title": "SQLFluff",
         },
@@ -1553,22 +1648,11 @@ def test__cli__command_lint_serialize_github_annotation():
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "line": 4,
-            "message": "CP01: Keywords must be consistently lower case.",
-            "start_column": 1,
-            "end_column": 1,
-            "title": "SQLFluff",
-        },
-        {
-            "annotation_level": "warning",
-            # Normalise paths to control for OS variance
-            "file": os.path.normpath(
-                "test/fixtures/linter/identifier_capitalisation.sql"
-            ),
-            "line": 4,
+            "start_line": 5,
+            "end_line": 5,
             "message": "CP02: Unquoted identifiers must be consistently lower case.",
             "start_column": 12,
-            "end_column": 12,
+            "end_column": 16,
             "title": "SQLFluff",
         },
         {
@@ -1577,26 +1661,78 @@ def test__cli__command_lint_serialize_github_annotation():
             "file": os.path.normpath(
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
-            "line": 4,
+            "start_line": 5,
+            "end_line": 5,
             "message": "CP02: Unquoted identifiers must be consistently lower case.",
             "start_column": 18,
-            "end_column": 18,
+            "end_column": 22,
             "title": "SQLFluff",
         },
     ]
 
 
-def test__cli__command_lint_serialize_github_annotation_native():
+@pytest.mark.parametrize(
+    "filename,expected_output",
+    [
+        (
+            "test/fixtures/linter/identifier_capitalisation.sql",
+            (
+                "::error title=SQLFluff,file={filename},"
+                "line=3,col=5,endLine=3,endColumn=8::"
+                "RF02: Unqualified reference 'foo' found in select with more than one "
+                "referenced table/view. [references.qualification]\n"
+                "::error title=SQLFluff,file={filename},"
+                "line=4,col=1,endLine=4,endColumn=5::"
+                "LT02: Expected indent of 8 spaces. [layout.indent]\n"
+                "::error title=SQLFluff,file={filename},"
+                "line=4,col=5,endLine=4,endColumn=8::"
+                "AL02: Implicit/explicit aliasing of columns. [aliasing.column]\n"
+                "::error title=SQLFluff,file={filename},"
+                "line=4,col=5,endLine=4,endColumn=8::"
+                "CP02: Unquoted identifiers must be consistently lower case. "
+                "[capitalisation.identifiers]\n"
+                # Warnings should always come through as notices.
+                "::notice title=SQLFluff,file={filename},"
+                "line=5,col=1,endLine=5,endColumn=5::"
+                "CP01: Keywords must be consistently lower case. "
+                "[capitalisation.keywords]\n"
+                "::error title=SQLFluff,file={filename},"
+                "line=5,col=12,endLine=5,endColumn=16::"
+                "CP02: Unquoted identifiers must be consistently lower case. "
+                "[capitalisation.identifiers]\n"
+                "::error title=SQLFluff,file={filename},"
+                "line=5,col=18,endLine=5,endColumn=22::"
+                "CP02: Unquoted identifiers must be consistently lower case. "
+                "[capitalisation.identifiers]\n"
+                # SQLFluff produces trailing newline
+            ),
+        ),
+        (
+            "test/fixtures/linter/jinja_spacing.sql",
+            (
+                "::error title=SQLFluff,file={filename},"
+                "line=3,col=15,endLine=3,endColumn=22::JJ01: "
+                "Jinja tags should have a single whitespace on either "
+                # NOTE: Double escaping, because we're going to pass this through a
+                # .format() method.
+                "side: {{{{foo}}}} "
+                "[jinja.padding]\n"
+            ),
+        ),
+    ],
+)
+def test__cli__command_lint_serialize_github_annotation_native(
+    filename, expected_output
+):
     """Test format of github-annotation output."""
-    fpath = "test/fixtures/linter/identifier_capitalisation.sql"
     # Normalise paths to control for OS variance
-    fpath_normalised = os.path.normpath(fpath)
+    fpath_normalised = os.path.normpath(filename)
 
     result = invoke_assert_code(
         args=[
             lint,
             (
-                fpath,
+                filename,
                 "--format",
                 "github-annotation-native",
                 "--annotation-level",
@@ -1607,30 +1743,7 @@ def test__cli__command_lint_serialize_github_annotation_native():
         ret_code=1,
     )
 
-    assert result.output == "\n".join(
-        [
-            f"::error title=SQLFluff,file={fpath_normalised},line=2,col=5::"
-            "RF02: Unqualified reference 'foo' found in select with more than one "
-            "referenced table/view. [references.qualification]",
-            f"::error title=SQLFluff,file={fpath_normalised},line=3,col=1::"
-            "LT02: Expected indent of 8 spaces. [layout.indent]",
-            f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
-            "AL02: Implicit/explicit aliasing of columns. [aliasing.column]",
-            f"::error title=SQLFluff,file={fpath_normalised},line=3,col=5::"
-            "CP02: Unquoted identifiers must be consistently lower case. "
-            "[capitalisation.identifiers]",
-            f"::error title=SQLFluff,file={fpath_normalised},line=4,col=1::"
-            "CP01: Keywords must be consistently lower case. "
-            "[capitalisation.keywords]",
-            f"::error title=SQLFluff,file={fpath_normalised},line=4,col=12::"
-            "CP02: Unquoted identifiers must be consistently lower case. "
-            "[capitalisation.identifiers]",
-            f"::error title=SQLFluff,file={fpath_normalised},line=4,col=18::"
-            "CP02: Unquoted identifiers must be consistently lower case. "
-            "[capitalisation.identifiers]",
-            "",  # SQLFluff produces trailing newline
-        ]
-    )
+    assert result.output == expected_output.format(filename=fpath_normalised)
 
 
 @pytest.mark.parametrize("serialize", ["github-annotation", "github-annotation-native"])

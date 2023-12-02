@@ -21,6 +21,18 @@ This release makes a couple of potentially breaking changes:
   the python packaging configuration file (although keeping :code:`setuptools`
   as the default backend).
 
+* The serialised output for :code:`sqlfluff lint` now contains more information
+  about the span of linting issues and initial proposed fixes. Beside the *new*
+  fields, the original fields of :code:`line_pos` and :code:`line_no` have been
+  renamed to :code:`start_line_pos` and :code:`start_line_no`, to distinguish
+  them from the new fields starting :code:`end_*`.
+
+* The default :code:`annotation_level` set by the :code:`--annotation-level`
+  option on the :code:`sqlfluff lint` command has been changed from :code:`notice`
+  to :code:`warning`, to better distinguish linting errors from warnings, which
+  always now have the level of :code:`notice`. This is only relevant when using
+  the :code:`github-annotation`` or :code:`github-annotation-native` formats.
+
 Upgrading to 2.3
 ----------------
 

@@ -36,9 +36,15 @@ test_partial_fixed_up_to_2nd_join:
     inner join z using(id)
   violations_after_fix:
     - description: Found USING statement. Expected only ON statements.
-      line_no: 4
-      line_pos: 14
       name: structure.using
+      warning: false
+      fixes: []
+      start_line_no: 4
+      start_line_pos: 14
+      start_file_pos: 77
+      end_line_no: 4
+      end_line_pos: 19
+      end_file_pos: 82
 
 select_using_fail:
   fail_str: |
