@@ -677,7 +677,11 @@ def lint(
                         ),
                         "title": "SQLFluff",
                         "message": f"{violation['code']}: {violation['description']}",
-                        # Warnings are always notices.
+                        # The annotation_level is configurable, but will only apply
+                        # to any SQLFluff rules which have not been downgraded
+                        # to warnings using the `warnings` config value. Any which have
+                        # been set to warn rather than fail will always be given the
+                        # `notice` annotation level in the serialised result.
                         "annotation_level": annotation_level
                         if not violation["warning"]
                         else "notice",
@@ -694,11 +698,14 @@ def lint(
             for violation in record["violations"]:
                 # NOTE: The output format is designed for GitHub action:
                 # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-notice-message
-                if violation["warning"]:
-                    # Warnings are always notices.
-                    line = "::notice "
-                else:
-                    line = f"::{annotation_level} "
+
+                # The annotation_level is configurable, but will only apply
+                # to any SQLFluff rules which have not been downgraded
+                # to warnings using the `warnings` config value. Any which have
+                # been set to warn rather than fail will always be given the
+                # `notice` annotation level in the serialised result.
+                line = "::notice " if violation["warning"] else f"::{annotation_level} "
+
                 line += "title=SQLFluff,"
                 line += f"file={filepath},"
                 line += f"line={violation['start_line_no']},"
