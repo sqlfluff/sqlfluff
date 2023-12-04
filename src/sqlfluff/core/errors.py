@@ -10,13 +10,14 @@ tracking.
 
 https://stackoverflow.com/questions/49715881/how-to-pickle-inherited-exceptions
 """
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union, cast
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser import BaseSegment, PositionMarker
     from sqlfluff.core.rules import BaseRule, LintFix
 
 CheckTuple = Tuple[str, int, int]
+SerializedObject = Dict[str, Union[str, int, bool, List["SerializedObject"]]]
 
 
 def _extract_position(segment: Optional["BaseSegment"]) -> Dict[str, int]:
@@ -95,7 +96,7 @@ class SQLBaseError(ValueError):
 
         return self.__class__.__name__  # pragma: no cover
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> SerializedObject:
         """Return a dict of properties.
 
         This is useful in the API for outputting violations.
@@ -225,7 +226,7 @@ class SQLParseError(SQLBaseError):
             self.warning,
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> SerializedObject:
         """Return a dict of properties.
 
         This is useful in the API for outputting violations.
@@ -290,7 +291,7 @@ class SQLLintError(SQLBaseError):
             self.warning,
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> SerializedObject:
         """Return a dict of properties.
 
         This is useful in the API for outputting violations.
@@ -305,8 +306,9 @@ class SQLLintError(SQLBaseError):
         # Edge case: If the base error doesn't have an end position
         # but we only have one fix and it _does_. Then use use that in the
         # overall fix.
-        if "end_line_pos" not in _base_dict and len(_base_dict["fixes"]) == 1:
-            _fix = _base_dict["fixes"][0]
+        _fixes = cast(List[SerializedObject], _base_dict.get("fixes", []))
+        if "end_line_pos" not in _base_dict and len(_fixes) == 1:
+            _fix = _fixes[0]
             # If the mandatory keys match...
             if (
                 _fix["start_line_no"] == _base_dict["start_line_no"]
