@@ -11,6 +11,7 @@ from sqlfluff.core.parser import (
     Conditional,
     Dedent,
     Delimited,
+    IdentifierSegment,
     Indent,
     LiteralSegment,
     Matchable,
@@ -30,11 +31,21 @@ ansi_dialect = load_raw_dialect("ansi")
 
 clickhouse_dialect = ansi_dialect.copy_as("clickhouse")
 clickhouse_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
+
+clickhouse_dialect.add(
+    BackQuotedIdentifierSegment=TypedParser(
+        "back_quote",
+        IdentifierSegment,
+        type="quoted_identifier",
+    ),
+)
+
 clickhouse_dialect.replace(
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
         Ref("SingleQuotedIdentifierSegment"),
+        Ref("BackQuotedIdentifierSegment"),
     ),
     QuotedLiteralSegment=OneOf(
         TypedParser(
