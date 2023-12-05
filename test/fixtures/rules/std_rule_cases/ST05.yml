@@ -121,9 +121,16 @@ double_nested_fail_2:
     join b on (a.x = b.x)
   violations_after_fix:
     - description: select_statement clauses should not contain subqueries. Use CTEs instead
-      line_no: 2
-      line_pos: 20
       name: structure.subquery
+      warning: false
+      fixes: []
+      start_line_no: 2
+      start_line_pos: 20
+      start_file_pos: 31
+      end_line_no: 2
+      end_line_pos: 21
+      end_file_pos: 32
+
   configs:
     rules:
       structure.subquery:
@@ -157,9 +164,15 @@ unfixable_cte_clash:
     join c on (a.x = b.x)
   violations_after_fix:
     - description: select_statement clauses should not contain subqueries. Use CTEs instead
-      line_no: 5
-      line_pos: 20
       name: structure.subquery
+      warning: false
+      fixes: []
+      start_line_no: 5
+      start_line_pos: 20
+      start_file_pos: 68
+      end_line_no: 5
+      end_line_pos: 21
+      end_file_pos: 69
   configs:
     rules:
       structure.subquery:

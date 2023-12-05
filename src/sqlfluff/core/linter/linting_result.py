@@ -205,13 +205,16 @@ class LintingResult:
                 "filepath": path,
                 "violations": sorted(
                     # Sort violations by line and then position
-                    (v.get_info_dict() for v in violations),
+                    (v.to_dict() for v in violations),
                     # The tuple allows sorting by line number, then position, then code
-                    key=lambda v: (v["line_no"], v["line_pos"], v["code"]),
+                    key=lambda v: (v["start_line_no"], v["start_line_pos"], v["code"]),
                 ),
             }
             for LintedDir in self.paths
-            for path, violations in LintedDir.violation_dict().items()
+            for path, violations in LintedDir.violation_dict(
+                # Keep the warnings
+                filter_warning=False
+            ).items()
             if violations
         ]
 

@@ -3,6 +3,8 @@
 import logging
 from itertools import chain
 from typing import (
+    Any,
+    Dict,
     Iterable,
     List,
     Optional,
@@ -128,6 +130,54 @@ class LintFix:
             f"<LintFix: {self.edit_type} {self.anchor.get_type()}"
             f"@{self.anchor.pos_marker} {detail}>"
         )
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialise this LintFix as a dict."""
+        assert self.anchor
+        _position = self.anchor.pos_marker
+        assert _position
+        _src_loc = _position.to_source_dict()
+        if self.edit_type == "delete":
+            return {
+                "type": self.edit_type,
+                "edit": "",
+                **_src_loc,
+            }
+        elif self.edit_type == "replace" and self.is_just_source_edit():
+            assert self.edit is not None
+            assert len(self.edit) == 1
+            assert len(self.edit[0].source_fixes) == 1
+            _source_fix = self.edit[0].source_fixes[0]
+            return {
+                "type": self.edit_type,
+                "edit": _source_fix.edit,
+                **_position.templated_file.source_position_dict_from_slice(
+                    _source_fix.source_slice
+                ),
+            }
+
+        # Otherwise it's a standard creation or a replace.
+        seg_list = cast(List[BaseSegment], self.edit)
+        _edit = "".join(s.raw for s in seg_list)
+
+        if self.edit_type == "create_before":
+            # If we're creating _before_, the end point isn't relevant.
+            # Make it the same as the start.
+            _src_loc["end_line_no"] = _src_loc["start_line_no"]
+            _src_loc["end_line_pos"] = _src_loc["start_line_pos"]
+            _src_loc["end_file_pos"] = _src_loc["start_file_pos"]
+        elif self.edit_type == "create_after":
+            # If we're creating _after_, the start point isn't relevant.
+            # Make it the same as the end.
+            _src_loc["start_line_no"] = _src_loc["end_line_no"]
+            _src_loc["start_line_pos"] = _src_loc["end_line_pos"]
+            _src_loc["start_file_pos"] = _src_loc["end_file_pos"]
+
+        return {
+            "type": self.edit_type,
+            "edit": _edit,
+            **_src_loc,
+        }
 
     def __eq__(self, other: object) -> bool:
         """Compare equality with another fix.

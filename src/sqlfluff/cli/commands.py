@@ -545,11 +545,13 @@ def dump_file_payload(filename: Optional[str], payload: str) -> None:
 )
 @click.option(
     "--annotation-level",
-    default="notice",
+    default="warning",
     type=click.Choice(["notice", "warning", "failure", "error"], case_sensitive=False),
     help=(
-        "When format is set to github-annotation or github-annotation-native, "
-        "default annotation level (default=notice). failure and error are equivalent."
+        'When format is set to "github-annotation" or "github-annotation-native", '
+        'default annotation level (default="warning"). "failure" and "error" '
+        "are equivalent. Any rules configured only as warnings will always come "
+        'through with type "notice" regardless of this option.'
     ),
 )
 @click.option(
@@ -662,12 +664,27 @@ def lint(
                 github_result.append(
                     {
                         "file": filepath,
-                        "line": violation["line_no"],
-                        "start_column": violation["line_pos"],
-                        "end_column": violation["line_pos"],
+                        "start_line": violation["start_line_no"],
+                        "start_column": violation["start_line_pos"],
+                        # NOTE: There should always be a start, there _may_ not be an
+                        # end, so in that case we default back to just re-using
+                        # the start.
+                        "end_line": violation.get(
+                            "end_line_no", violation["start_line_no"]
+                        ),
+                        "end_column": violation.get(
+                            "end_line_pos", violation["start_line_pos"]
+                        ),
                         "title": "SQLFluff",
                         "message": f"{violation['code']}: {violation['description']}",
-                        "annotation_level": annotation_level,
+                        # The annotation_level is configurable, but will only apply
+                        # to any SQLFluff rules which have not been downgraded
+                        # to warnings using the `warnings` config value. Any which have
+                        # been set to warn rather than fail will always be given the
+                        # `notice` annotation level in the serialised result.
+                        "annotation_level": annotation_level
+                        if not violation["warning"]
+                        else "notice",
                     }
                 )
         file_output = json.dumps(github_result)
@@ -681,11 +698,22 @@ def lint(
             for violation in record["violations"]:
                 # NOTE: The output format is designed for GitHub action:
                 # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-a-notice-message
-                line = f"::{annotation_level} "
+
+                # The annotation_level is configurable, but will only apply
+                # to any SQLFluff rules which have not been downgraded
+                # to warnings using the `warnings` config value. Any which have
+                # been set to warn rather than fail will always be given the
+                # `notice` annotation level in the serialised result.
+                line = "::notice " if violation["warning"] else f"::{annotation_level} "
+
                 line += "title=SQLFluff,"
                 line += f"file={filepath},"
-                line += f"line={violation['line_no']},"
-                line += f"col={violation['line_pos']}"
+                line += f"line={violation['start_line_no']},"
+                line += f"col={violation['start_line_pos']}"
+                if "end_line_no" in violation:
+                    line += f",endLine={violation['end_line_no']}"
+                if "end_line_pos" in violation:
+                    line += f",endColumn={violation['end_line_pos']}"
                 line += "::"
                 line += f"{violation['code']}: {violation['description']}"
                 if violation["name"]:
