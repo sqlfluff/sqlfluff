@@ -10,6 +10,33 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [3.0.0a4] - 2023-12-05
+
+## Highlights
+
+This release makes a breaking change to the serialized output of the
+CLI (and by extension, any of the serialized outputs of the API).
+
+* The serialised output for `sqlfluff lint` now contains more information
+  about the span of linting issues and initial proposed fixes. Beside the *new*
+  fields, the original fields of `line_pos` and `line_no` have been
+  renamed to `start_line_pos` and `start_line_no`, to distinguish
+  them from the new fields starting `end_*`.
+
+* The default `annotation_level` set by the `--annotation-level`
+  option on the `sqlfluff lint` command has been changed from `notice`
+  to `warning`, to better distinguish linting errors from warnings, which
+  always now have the level of `notice`. This is only relevant when using
+  the `github-annotation` or `github-annotation-native` formats.
+
+## What’s Changed
+
+* Build out rule and fix serialisation [#5364](https://github.com/sqlfluff/sqlfluff/pull/5364) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add warning about github actions annotations limit [#5450](https://github.com/sqlfluff/sqlfluff/pull/5450) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* chore: remove unused line initialization in ParseContext [#5448](https://github.com/sqlfluff/sqlfluff/pull/5448) [@gvozdvmozgu](https://github.com/gvozdvmozgu)
+* Refine CLI testing fixture [#5446](https://github.com/sqlfluff/sqlfluff/pull/5446) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Update black linting [#5447](https://github.com/sqlfluff/sqlfluff/pull/5447) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
 ## [3.0.0a3] - 2023-11-29
 
 ## Highlights

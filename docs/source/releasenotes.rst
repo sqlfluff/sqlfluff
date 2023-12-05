@@ -31,7 +31,7 @@ This release makes a couple of potentially breaking changes:
   option on the :code:`sqlfluff lint` command has been changed from :code:`notice`
   to :code:`warning`, to better distinguish linting errors from warnings, which
   always now have the level of :code:`notice`. This is only relevant when using
-  the :code:`github-annotation`` or :code:`github-annotation-native` formats.
+  the :code:`github-annotation` or :code:`github-annotation-native` formats.
 
 Upgrading to 2.3
 ----------------
