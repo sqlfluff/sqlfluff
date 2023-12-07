@@ -103,6 +103,15 @@ SELECT
 FROM people
 GROUP BY cube(name, age);
 
+-- CUBE within GROUP BY clause with single clause
+SELECT
+    name,
+    count(*) AS record_count
+FROM people
+GROUP BY cube(
+    name
+);
+
 -- ROLLUP within GROUP BY clause
 SELECT
     name,

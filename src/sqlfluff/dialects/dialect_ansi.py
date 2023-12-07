@@ -2340,9 +2340,13 @@ class GroupingSetsClauseSegment(BaseSegment):
         "GROUPING",
         "SETS",
         Bracketed(
-            Delimited(
+            OneOf(
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingExpressionList"),
+                Delimited(
+                    Ref("CubeRollupClauseSegment"),
+                    Ref("GroupingExpressionList"),
+                ),
             )
         ),
     )
