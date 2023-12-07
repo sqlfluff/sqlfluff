@@ -2388,6 +2388,7 @@ class GroupByClauseSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "GROUP",
         "BY",
+        Indent,
         OneOf(
             Ref("CubeRollupClauseSegment"),
             # We could replace this next bit with a GroupingExpressionList
@@ -2395,7 +2396,6 @@ class GroupByClauseSegment(BaseSegment):
             # repeating this bit of code, but I would rather keep it flat
             # to avoid changing regular `GROUP BY` clauses.
             Sequence(
-                Indent,
                 Delimited(
                     OneOf(
                         Ref("ColumnReferenceSegment"),
@@ -2406,9 +2406,9 @@ class GroupByClauseSegment(BaseSegment):
                     ),
                     terminators=[Ref("GroupByClauseTerminatorGrammar")],
                 ),
-                Dedent,
             ),
         ),
+        Dedent,
     )
 
 
