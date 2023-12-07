@@ -2340,14 +2340,10 @@ class GroupingSetsClauseSegment(BaseSegment):
         "GROUPING",
         "SETS",
         Bracketed(
-            OneOf(
+            Delimited(
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingExpressionList"),
-                Delimited(
-                    Ref("CubeRollupClauseSegment"),
-                    Ref("GroupingExpressionList"),
-                ),
-            )
+            ),
         ),
     )
 
@@ -2358,7 +2354,6 @@ class GroupingExpressionList(BaseSegment):
     type = "grouping_expression_list"
 
     match_grammar: Matchable = Sequence(
-        Indent,
         Delimited(
             OneOf(
                 Ref("ColumnReferenceSegment"),
@@ -2370,7 +2365,6 @@ class GroupingExpressionList(BaseSegment):
             ),
             terminators=[Ref("GroupByClauseTerminatorGrammar")],
         ),
-        Dedent,
     )
 
 
