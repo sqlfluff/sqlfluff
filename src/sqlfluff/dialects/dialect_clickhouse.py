@@ -32,26 +32,6 @@ ansi_dialect = load_raw_dialect("ansi")
 clickhouse_dialect = ansi_dialect.copy_as("clickhouse")
 clickhouse_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
-clickhouse_dialect.replace(
-    SingleIdentifierGrammar=OneOf(
-        Ref("NakedIdentifierSegment"),
-        Ref("QuotedIdentifierSegment"),
-        Ref("SingleQuotedIdentifierSegment"),
-        Ref("BackQuotedIdentifierSegment"),
-    ),
-    QuotedLiteralSegment=OneOf(
-        TypedParser(
-            "single_quote",
-            LiteralSegment,
-            type="quoted_literal",
-        ),
-        TypedParser(
-            "dollar_quote",
-            LiteralSegment,
-            type="quoted_literal",
-        ),
-    ),
-)
 
 clickhouse_dialect.insert_lexer_matchers(
     # https://clickhouse.com/docs/en/sql-reference/functions#higher-order-functions---operator-and-lambdaparams-expr-function
@@ -145,15 +125,30 @@ clickhouse_dialect.replace(
         # Add Lambda Function
         Ref("LambdaFunctionSegment"),
     ),
-)
-
-clickhouse_dialect.replace(
     JoinLikeClauseGrammar=Sequence(
         AnyNumberOf(
             Ref("ArrayJoinClauseSegment"),
             min_times=1,
         ),
         Ref("AliasExpressionSegment", optional=True),
+    ),
+    QuotedLiteralSegment=OneOf(
+        TypedParser(
+            "single_quote",
+            LiteralSegment,
+            type="quoted_literal",
+        ),
+        TypedParser(
+            "dollar_quote",
+            LiteralSegment,
+            type="quoted_literal",
+        ),
+    ),
+    SingleIdentifierGrammar=OneOf(
+        Ref("NakedIdentifierSegment"),
+        Ref("QuotedIdentifierSegment"),
+        Ref("SingleQuotedIdentifierSegment"),
+        Ref("BackQuotedIdentifierSegment"),
     ),
 )
 
