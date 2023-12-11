@@ -32,14 +32,6 @@ ansi_dialect = load_raw_dialect("ansi")
 clickhouse_dialect = ansi_dialect.copy_as("clickhouse")
 clickhouse_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
-clickhouse_dialect.add(
-    BackQuotedIdentifierSegment=TypedParser(
-        "back_quote",
-        IdentifierSegment,
-        type="quoted_identifier",
-    ),
-)
-
 clickhouse_dialect.replace(
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -68,6 +60,11 @@ clickhouse_dialect.insert_lexer_matchers(
 )
 
 clickhouse_dialect.add(
+    BackQuotedIdentifierSegment=TypedParser(
+        "back_quote",
+        IdentifierSegment,
+        type="quoted_identifier",
+    ),
     JoinTypeKeywords=OneOf(
         # This case INNER [ANY,ALL] JOIN
         Sequence("INNER", OneOf("ALL", "ANY", optional=True)),
