@@ -322,40 +322,39 @@ class ColumnDefinitionSegment(BaseSegment):
             ),
             Sequence(
                 OneOf("DATETIME", "TIMESTAMP"),
-                Sequence(
-                    Bracketed(Ref("NumericLiteralSegment"), optional=True),
-                    optional=True,
-                ),
-                Sequence(Sequence("NOT", optional=True), "NULL", optional=True),
-                Sequence(
-                    "DEFAULT",
-                    OneOf(
-                        Sequence(
-                            OneOf("CURRENT_TIMESTAMP", "NOW"),
+                Bracketed(Ref("NumericLiteralSegment"), optional=True),  # Precision
+                AnyNumberOf(
+                    # Allow NULL/NOT NULL, DEFAULT, and ON UPDATE in any order
+                    Sequence(Sequence("NOT", optional=True), "NULL", optional=True),
+                    Sequence(
+                        "DEFAULT",
+                        OneOf(
+                            Sequence(
+                                OneOf("CURRENT_TIMESTAMP", "NOW"),
+                                Bracketed(
+                                    Ref("NumericLiteralSegment", optional=True),
+                                    optional=True,
+                                ),
+                            ),
+                            Ref("NumericLiteralSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "ON",
+                        "UPDATE",
+                        OneOf(
+                            "CURRENT_TIMESTAMP",
+                            "NOW",
                             Bracketed(
                                 Ref("NumericLiteralSegment", optional=True),
                                 optional=True,
                             ),
                         ),
-                        Ref("NumericLiteralSegment"),
-                        Ref("QuotedLiteralSegment"),
                         optional=True,
                     ),
-                    optional=True,
-                ),
-                Sequence(
-                    Sequence("ON", "UPDATE", optional=True),
-                    Sequence(
-                        OneOf("CURRENT_TIMESTAMP", "NOW"),
-                        Bracketed(
-                            Ref("NumericLiteralSegment", optional=True),
-                            optional=True,
-                        ),
-                    ),
-                    Sequence(
-                        Bracketed(Ref("NumericLiteralSegment")),
-                        optional=True,
-                    ),
+                    min_times=1,
                     optional=True,
                 ),
             ),
