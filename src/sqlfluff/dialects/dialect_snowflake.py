@@ -6057,17 +6057,14 @@ class CreateDatabaseRoleStatementSegment(BaseSegment):
     type = "create_database_role_statement"
     match_grammar = Sequence(
         "CREATE",
-        Sequence(
-            "OR",
-            "REPLACE",
+        Ref(
+            "OrReplaceGrammar",
             optional=True,
         ),
         "DATABASE",
         "ROLE",
-        Sequence(
-            "IF",
-            "NOT",
-            "EXISTS",
+        Ref(
+            "IfNotExistsGrammar",
             optional=True,
         ),
         Ref("ObjectReferenceSegment"),
