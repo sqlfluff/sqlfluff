@@ -1059,6 +1059,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("PutStatementSegment"),
             Ref("RemoveStatementSegment"),
             Ref("CreateDatabaseFromShareStatementSegment"),
+            Ref("CreateDatabaseRoleStatementSegment"),
             Ref("AlterRoleStatementSegment"),
             Ref("AlterStorageIntegrationSegment"),
             Ref("ExecuteImmediateClauseSegment"),
@@ -6038,6 +6039,38 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
             optional=True,
         ),
         Ref("RoleReferenceSegment"),
+        Sequence(
+            "COMMENT",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    )
+
+
+class CreateDatabaseRoleStatementSegment(BaseSegment):
+    """A `CREATE DATABASE ROLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-database-role
+    """
+
+    type = "create_database_role_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence(
+            "OR",
+            "REPLACE",
+            optional=True,
+        ),
+        "DATABASE",
+        "ROLE",
+        Sequence(
+            "IF",
+            "NOT",
+            "EXISTS",
+            optional=True,
+        ),
+        Ref("ObjectReferenceSegment"),
         Sequence(
             "COMMENT",
             Ref("EqualsSegment"),
