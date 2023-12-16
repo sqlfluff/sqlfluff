@@ -925,7 +925,7 @@ class PythonTemplater(RawTemplater):
                     last_owu_idx,
                 )
 
-                if template_idx > starts[1]:  # pragma: no cover
+                if template_idx > starts[1]:
                     # Yield the bit before this literal. We yield it
                     # all as a tuple, because if we could do any better
                     # we would have done it by now.
