@@ -11,7 +11,7 @@ import-linter
 doc8
 Pygments
 # testing
-coverage==7.3.2
+coverage>=6.4
 hypothesis
 pytest
 pytest-cov
