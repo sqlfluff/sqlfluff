@@ -354,7 +354,6 @@ class ColumnDefinitionSegment(BaseSegment):
                         ),
                         optional=True,
                     ),
-                    min_times=1,
                     optional=True,
                 ),
             ),
