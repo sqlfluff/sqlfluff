@@ -68,6 +68,7 @@ dependencies = [
     "chardet",
     "click",
     "colorama>=0.3",
+    "distlib==0.3.7",
     # Used for diffcover plugin
     "diff-cover==8.0.1",
     "importlib_resources; python_version < '3.9'",
