@@ -69,7 +69,7 @@ dependencies = [
     "click",
     "colorama>=0.3",
     # Used for diffcover plugin
-    "diff-cover=8.0.1",
+    "diff-cover==8.0.1",
     "importlib_resources; python_version < '3.9'",
     "Jinja2",
     # Used for .sqlfluffignore
