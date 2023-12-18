@@ -56,7 +56,7 @@ jobs:
           # This saves time, as testing without coverage tracking is faster.
           - coverage: false
           # Override coverage to be true for most recent python version.
-          - python-version: "3.12"
+          - python-version: "3.12.0"
             coverage: true
     permissions:
       contents: read
