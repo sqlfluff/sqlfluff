@@ -3176,6 +3176,7 @@ class ApplyChangesIntoStatementSegment(BaseSegment):
                     Ref("BracketedColumnReferenceListGrammar"),
                 ),
             ),
+            optional=True
         ),
         Sequence(
             "STORED",
