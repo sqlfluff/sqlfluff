@@ -469,6 +469,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateMaterializedViewStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
             Ref("DropMaterializedViewStatementSegment"),
+            Ref("DropTableFunctionStatementSegment"),
+            Ref("CreateTableFunctionStatementSegment"),            
         ],
     )
 
@@ -1519,6 +1521,68 @@ class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
         Ref("DatatypeSegment"),  # Column type
         AnyNumberOf(Ref("ColumnConstraintSegment")),
         Ref("OptionsSegment", optional=True),
+    )
+
+
+class CreateTableFunctionStatementSegment(BaseSegment):
+    """A `CREATE TABLE FUNCTION` statement."""
+
+    # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_table_function_statement
+
+    #type = "create_table_function_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "TABLE",
+        "FUNCTION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        # Column list for input parameters
+        Sequence(
+            Bracketed(
+                Delimited(
+                    Ref("ColumnDefinitionSegment"),
+                    allow_trailing=True,
+                    optional=True,
+                )
+            ),
+            optional=True,
+        ),
+        # Column list for the schema of the table that the function returns
+        Sequence(
+            "RETURNS",
+            "TABLE",
+            Bracketed(
+                Delimited(  # Comma-separated list of field names/types
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Ref("DatatypeSegment"),
+                        ),
+                ),
+                bracket_type="angle",
+                bracket_pairs_set="angle_bracket_pairs",
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "AS",
+            OptionallyBracketed(Ref("SelectableGrammar")),
+        ),
+    )
+
+
+class DropTableFunctionStatementSegment(BaseSegment):
+    """A `DROP TABLE FUNCTION` statement."""
+
+    type = "drop_table_function_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "TABLE",
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("TableReferenceSegment")),
     )
 
 
