@@ -5,6 +5,7 @@ https://duckdb.org/docs/
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
+    BaseSegment,
     BinaryOperatorSegment,
     Bracketed,
     CodeSegment,
@@ -13,6 +14,7 @@ from sqlfluff.core.parser import (
     Indent,
     Matchable,
     OneOf,
+    OptionallyBracketed,
     Ref,
     Sequence,
     StringLexer,
@@ -86,6 +88,56 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     )
 
 
+class SelectStatementSegment(ansi.SelectStatementSegment):
+    """A duckdb `SELECT` statement including optional Qualify.
+
+    https://duckdb.org/docs/sql/query_syntax/qualify
+    """
+
+    type = "select_statement"
+
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+        before=Ref("OrderByClauseSegment", optional=True),
+    )
+
+
+class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
+    """A `SELECT` statement without any ORDER clauses or later.
+
+    This is designed for use in the context of set operations,
+    for other use cases, we should use the main
+    SelectStatementSegment.
+    """
+
+    type = "select_statement"
+
+    match_grammar: Matchable = Sequence(
+        OneOf(
+            Sequence(
+                Ref("SelectClauseSegment"),
+                Ref("FromClauseSegment", optional=True),
+            ),
+            Sequence(
+                # From-First Syntax:
+                # https://duckdb.org/docs/sql/query_syntax/from
+                Ref("FromClauseSegment"),
+                Ref("SelectClauseSegment", optional=True),
+            ),
+        ),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("GroupByClauseSegment", optional=True),
+        Ref("HavingClauseSegment", optional=True),
+        Ref("NamedWindowSegment", optional=True),
+        Ref("QualifyClauseSegment", optional=True),
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("OrderByClauseSegment"),
+            Ref("LimitClauseSegment"),
+        ],
+    )
+
+
 class OrderByClauseSegment(ansi.OrderByClauseSegment):
     """A `ORDER BY` clause like in `SELECT`."""
 
@@ -128,6 +180,21 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
             allow_trailing=True,
             terminators=[Ref("GroupByClauseTerminatorGrammar")],
         ),
+        Dedent,
+    )
+
+
+class QualifyClauseSegment(BaseSegment):
+    """A `QUALIFY` clause like in `SELECT`.
+
+    https://duckdb.org/docs/sql/query_syntax/qualify.html
+    """
+
+    type = "qualify_clause"
+    match_grammar = Sequence(
+        "QUALIFY",
+        Indent,
+        OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )
 
