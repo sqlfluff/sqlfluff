@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 37b2a74b15a9dd3b024b90fe985bd48e80b07477eacd4e2b224f992196ac4ac5
+_hash: e9c33e67e5d27f30efd11d52a52f8df18d2b949a6a4585b07a9053b6d4e5f1a8
 file:
   statement:
     create_table_statement:
@@ -18,9 +18,8 @@ file:
         - keyword: DATETIME
         - keyword: DEFAULT
         - keyword: CURRENT_TIMESTAMP
-        - column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
+        - keyword: NOT
+        - keyword: 'NULL'
       - comma: ','
       - column_definition:
         - naked_identifier: ts1
@@ -138,9 +137,9 @@ file:
         - naked_identifier: ts8
         - keyword: TIMESTAMP
         - keyword: 'NULL'
-        - keyword: DEFAULT
         - column_constraint_segment:
-            keyword: 'NULL'
+            keyword: DEFAULT
+            null_literal: 'NULL'
       - comma: ','
       - column_definition:
         - naked_identifier: ts9
