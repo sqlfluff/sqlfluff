@@ -845,6 +845,22 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
     )
 
 
+class DatabaseRoleReferenceSegment(ansi.ObjectReferenceSegment):
+    """Database role reference ([database_name.]rolename).
+
+    See https://docs.snowflake.com/en/sql-reference/sql/create-database-role
+    (the <name> item of the "Required parameters" section).
+    """
+
+    type = "database_role_reference"
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            Sequence(Ref("SingleIdentifierGrammar"), Ref("DotSegment"), optional=True),
+            Ref("SingleIdentifierGrammar"),
+        ),
+    )
+
+
 class ConnectByClauseSegment(BaseSegment):
     """A `CONNECT BY` clause.
 
@@ -2479,6 +2495,7 @@ class AccessStatementSegment(BaseSegment):
                     "IN",
                     OneOf("DATABASE", "SCHEMA"),
                 ),
+                Sequence("DATABASE", "ROLE"),
                 optional=True,
             ),
             Delimited(
@@ -2506,6 +2523,7 @@ class AccessStatementSegment(BaseSegment):
                     _objects,
                 ),
                 Sequence("ROLE", Ref("ObjectReferenceSegment")),
+                Sequence("DATABASE", "ROLE", Ref("DatabaseRoleReferenceSegment")),
                 Sequence("OWNERSHIP", "ON", "USER", Ref("ObjectReferenceSegment")),
                 Sequence(
                     "ADD",
@@ -2521,9 +2539,14 @@ class AccessStatementSegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
             ),
             "TO",
-            OneOf("USER", "ROLE", "SHARE", optional=True),
+            OneOf("USER", "ROLE", "SHARE", Sequence("DATABASE", "ROLE"), optional=True),
             Delimited(
-                OneOf(Ref("RoleReferenceSegment"), Ref("FunctionSegment"), "PUBLIC"),
+                OneOf(
+                    Ref("RoleReferenceSegment"),
+                    Ref("FunctionSegment"),
+                    Ref("DatabaseRoleReferenceSegment"),
+                    "PUBLIC",
+                ),
             ),
             OneOf(
                 Sequence("WITH", "GRANT", "OPTION"),
@@ -2556,10 +2579,11 @@ class AccessStatementSegment(BaseSegment):
                     _objects,
                 ),
                 Sequence("ROLE", Ref("ObjectReferenceSegment")),
+                Sequence("DATABASE", "ROLE", Ref("DatabaseRoleReferenceSegment")),
                 Sequence("OWNERSHIP", "ON", "USER", Ref("ObjectReferenceSegment")),
             ),
             "FROM",
-            OneOf("USER", "ROLE", "SHARE", optional=True),
+            OneOf("USER", "ROLE", "SHARE", Sequence("DATABASE", "ROLE"), optional=True),
             Delimited(
                 Ref("ObjectReferenceSegment"),
             ),
@@ -6067,7 +6091,7 @@ class CreateDatabaseRoleStatementSegment(BaseSegment):
             "IfNotExistsGrammar",
             optional=True,
         ),
-        Ref("ObjectReferenceSegment"),
+        Ref("DatabaseRoleReferenceSegment"),
         Sequence(
             "COMMENT",
             Ref("EqualsSegment"),
