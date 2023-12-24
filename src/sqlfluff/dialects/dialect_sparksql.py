@@ -281,6 +281,10 @@ sparksql_dialect.replace(
         "RLIKE",
         "REGEXP",
     ),
+    NotOperatorGrammar=OneOf(
+        StringParser("NOT", KeywordSegment, type="keyword"),
+        StringParser("!", CodeSegment, type="not_operator"),
+    ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
