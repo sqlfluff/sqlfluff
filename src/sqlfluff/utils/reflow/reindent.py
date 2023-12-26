@@ -2051,7 +2051,7 @@ def lint_line_length(
             # we know there's always a trailing block.
             "end_of_file" in elem_buffer[i + 1].class_types
             # Or is there a newline?
-            or has_untemplated_newline(cast(ReflowPoint, elem))
+            or has_untemplated_newline(elem)
         ):
             # In either case we want to process this, so carry on.
             pass

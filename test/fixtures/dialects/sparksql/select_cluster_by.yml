@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0e2f4d9b1508eac0bc91d3eb8ccb54f67814f7f1092115425e5dbaa8f723b8fc
+_hash: a030205bf2c161478bcf6abd2b798e6e80f83d20844ae0e5221093dbe089b533
 file:
 - statement:
     select_statement:
@@ -234,4 +234,49 @@ file:
       - keyword: BY
       - column_reference:
           naked_identifier: age
+- statement_terminator: ;
+- statement:
+    set_expression:
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: age
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: person
+    - set_operator:
+      - keyword: UNION
+      - keyword: ALL
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: age
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: person_cold
+        cluster_by_clause:
+        - keyword: CLUSTER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: age
 - statement_terminator: ;

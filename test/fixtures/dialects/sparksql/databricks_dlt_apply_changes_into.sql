@@ -43,3 +43,12 @@ APPLY AS TRUNCATE WHEN operation = "TRUNCATE"
 SEQUENCE BY sequence_num
 COLUMNS * EXCEPT (operation, sequence_num)
 STORED AS SCD TYPE 1;
+
+-- Create and populate the target table.
+-- "APPLY CHANGES INTO" without a "COLUMNS" clause
+CREATE OR REFRESH STREAMING LIVE TABLE target;
+
+APPLY CHANGES INTO live.target
+FROM STREAM(cdc_data.users)
+KEYS (user_id)
+SEQUENCE BY sequence_num;
