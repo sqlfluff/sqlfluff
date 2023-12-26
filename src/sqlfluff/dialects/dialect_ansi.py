@@ -2503,7 +2503,11 @@ class FetchClauseSegment(BaseSegment):
             "FIRST",
             "NEXT",
         ),
-        Ref("NumericLiteralSegment", optional=True),
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("ExpressionSegment", exclude=Ref.keyword("ROW")),
+            optional=True,
+        ),
         OneOf("ROW", "ROWS"),
         "ONLY",
     )

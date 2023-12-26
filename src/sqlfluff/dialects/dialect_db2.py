@@ -11,8 +11,10 @@ from sqlfluff.core.parser import (
     Bracketed,
     CodeSegment,
     CommentSegment,
+    Dedent,
     Delimited,
     IdentifierSegment,
+    Indent,
     OneOf,
     OptionallyBracketed,
     ParseMode,
@@ -53,6 +55,29 @@ db2_dialect.replace(
     PostFunctionGrammar=OneOf(
         Ref("OverClauseSegment"),
         Ref("WithinGroupClauseSegment"),
+    ),
+    FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "FromClauseTerminatorGrammar"
+    ).copy(
+        insert=[Ref.keyword("OFFSET")],
+    ),
+    WhereClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "WhereClauseTerminatorGrammar"
+    ).copy(
+        insert=[Ref.keyword("OFFSET")],
+    ),
+    GroupByClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "GroupByClauseTerminatorGrammar"
+    ).copy(
+        insert=[Ref.keyword("OFFSET")],
+    ),
+    HavingClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "HavingClauseTerminatorGrammar"
+    ).copy(
+        insert=[Ref.keyword("OFFSET")],
+    ),
+    OrderByClauseTerminators=ansi_dialect.get_grammar("OrderByClauseTerminators").copy(
+        insert=[Ref.keyword("OFFSET")],
     ),
     Expression_C_Grammar=OneOf(
         Sequence("EXISTS", Bracketed(Ref("SelectableGrammar"))),
@@ -264,6 +289,63 @@ class NamedArgumentSegment(BaseSegment):
         Ref("NakedIdentifierSegment"),
         Ref("RightArrowSegment"),
         Ref("ExpressionSegment"),
+    )
+
+
+class OffsetClauseSegment(BaseSegment):
+    """OFFSET clause in as SELECT statement."""
+
+    type = "offset_clause"
+
+    match_grammar = Sequence(
+        "OFFSET",
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("ExpressionSegment"),
+        ),
+        OneOf("ROW", "ROWS"),
+    )
+
+
+class LimitClauseSegment(BaseSegment):
+    """A `LIMIT` clause like in `SELECT`."""
+
+    type = "limit_clause"
+    match_grammar = OneOf(
+        Sequence(
+            "LIMIT",
+            Indent,
+            OptionallyBracketed(
+                OneOf(
+                    # Allow a number by itself OR
+                    Ref("NumericLiteralSegment"),
+                    # An arbitrary expression
+                    Ref("ExpressionSegment"),
+                    "ALL",
+                )
+            ),
+            OneOf(
+                Sequence(
+                    "OFFSET",
+                    OneOf(
+                        # Allow a number by itself OR
+                        Ref("NumericLiteralSegment"),
+                        # An arbitrary expression
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+                Sequence(
+                    Ref("CommaSegment"),
+                    Ref("NumericLiteralSegment"),
+                ),
+                optional=True,
+            ),
+            Dedent,
+        ),
+        Sequence(
+            Ref("OffsetClauseSegment", optional=True),
+            Ref("FetchClauseSegment", optional=True),
+        ),
     )
 
 
