@@ -200,19 +200,15 @@ ignore_imports = [
 
 [tool.mypy]
 warn_unused_configs = true
+warn_redundant_casts = true
 warn_unused_ignores = true
-
-[[tool.mypy.overrides]]
-module = "sqlfluff.*"
+strict_equality = true
+extra_checks = true
 implicit_reexport = true
 
 # skip type checking for 3rd party packages for which stubs are not available
 [[tool.mypy.overrides]]
 module = "diff_cover.*"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "tqdm.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
