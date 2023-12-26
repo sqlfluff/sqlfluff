@@ -5,6 +5,7 @@ https://duckdb.org/docs/
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
+    AnyNumberOf,
     BaseSegment,
     BinaryOperatorSegment,
     Bracketed,
@@ -13,6 +14,7 @@ from sqlfluff.core.parser import (
     Delimited,
     Indent,
     Matchable,
+    Nothing,
     OneOf,
     OptionallyBracketed,
     Ref,
@@ -26,6 +28,12 @@ ansi_dialect = load_raw_dialect("ansi")
 postgres_dialect = load_raw_dialect("postgres")
 duckdb_dialect = postgres_dialect.copy_as("duckdb")
 
+duckdb_dialect.sets("unreserved_keywords").update(
+    [
+        "VIRTUAL",
+    ]
+)
+
 duckdb_dialect.replace(
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -36,6 +44,7 @@ duckdb_dialect.replace(
         StringParser("//", BinaryOperatorSegment),
         StringParser("/", BinaryOperatorSegment),
     ),
+    CreateTableAsStatementSegment=Nothing(),
     UnionGrammar=ansi_dialect.get_grammar("UnionGrammar").copy(
         insert=[
             Sequence("BY", "NAME", optional=True),
@@ -49,6 +58,97 @@ duckdb_dialect.insert_lexer_matchers(
     ],
     before="divide",
 )
+
+
+class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
+    """A column option; each CREATE TABLE column can have 0 or more.
+
+    https://duckdb.org/docs/sql/statements/create_table
+    https://duckdb.org/docs/sql/statements/alter_table
+    """
+
+    # Column constraint from
+    # https://duckdb.org/docs/sql/statements/create_table
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
+            Sequence(
+                "CHECK",
+                Bracketed(Ref("ExpressionSegment")),
+            ),
+            Sequence(  # DEFAULT <value>
+                "DEFAULT",
+                OneOf(
+                    Ref("LiteralGrammar"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            "UNIQUE",
+            Sequence(
+                "PRIMARY",
+                "KEY",
+            ),
+            Ref("ReferenceDefinitionGrammar"),
+            Sequence(
+                "COLLATE",
+                Ref("CollationReferenceSegment"),
+            ),
+        ),
+    )
+
+
+class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
+    """A `CREATE TABLE` statement.
+
+    As specified in https://duckdb.org/docs/sql/statements/create_table.html
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                "AS",
+                OptionallyBracketed(Ref("SelectableGrammar")),
+            ),
+            # Columns and comment syntax:
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        Sequence(
+                            Ref("ColumnReferenceSegment"),
+                            OneOf(
+                                Sequence(
+                                    Ref("DatatypeSegment"),
+                                    AnyNumberOf(
+                                        OneOf(
+                                            Ref("ColumnConstraintSegment"),
+                                        ),
+                                    ),
+                                ),
+                                Sequence(
+                                    Ref(
+                                        "DatatypeSegment",
+                                        optional=True,
+                                        exclude=Ref.keyword("AS"),
+                                    ),
+                                    Sequence("GENERATED", "ALWAYS", optional=True),
+                                    "AS",
+                                    Bracketed(Ref("ExpressionSegment")),
+                                    OneOf("STORED", "VIRTUAL", optional=True),
+                                ),
+                            ),
+                        ),
+                        Ref("TableConstraintSegment"),
+                    ),
+                )
+            ),
+        ),
+    )
 
 
 class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
