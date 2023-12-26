@@ -281,6 +281,10 @@ sparksql_dialect.replace(
         "RLIKE",
         "REGEXP",
     ),
+    NotOperatorGrammar=OneOf(
+        StringParser("NOT", KeywordSegment, type="keyword"),
+        StringParser("!", CodeSegment, type="not_operator"),
+    ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
@@ -442,7 +446,11 @@ sparksql_dialect.add(
         Ref("EqualsSegment", optional=True),
         OneOf(
             Ref("LiteralGrammar"),
-            Ref("SingleIdentifierGrammar"),
+            # when property value is Java Class Name
+            Delimited(
+                Ref("PropertiesNakedIdentifierSegment"),
+                delimiter=Ref("DotSegment"),
+            ),
         ),
     ),
     PropertyNameListGrammar=Delimited(Ref("PropertyNameSegment")),
@@ -1786,7 +1794,12 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """
 
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
-        insert=[Ref("QualifyClauseSegment", optional=True)],
+        insert=[
+            Ref("QualifyClauseSegment", optional=True),
+            Ref("ClusterByClauseSegment", optional=True),
+            Ref("DistributeByClauseSegment", optional=True),
+            Ref("SortByClauseSegment", optional=True),
+        ],
         # Removing non-valid clauses that exist in ANSI dialect
         remove=[Ref("OverlapsClauseSegment", optional=True)],
     )
@@ -3176,6 +3189,7 @@ class ApplyChangesIntoStatementSegment(BaseSegment):
                     Ref("BracketedColumnReferenceListGrammar"),
                 ),
             ),
+            optional=True,
         ),
         Sequence(
             "STORED",
