@@ -6,12 +6,15 @@ https://www.ibm.com/docs/en/i/7.4?topic=overview-db2-i
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    AnySetOf,
     BaseSegment,
     Bracketed,
     CodeSegment,
     CommentSegment,
+    Delimited,
     IdentifierSegment,
     OneOf,
+    OptionallyBracketed,
     ParseMode,
     Ref,
     RegexLexer,
@@ -122,6 +125,134 @@ class CallStoredProcedureSegment(BaseSegment):
     )
 
 
+class CopyOptionsSegment(BaseSegment):
+    """Copy-options when using like or as for creating a table.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-table#sdx-synid_frag-copy-options
+    """
+
+    type = "copy_options"
+
+    match_grammar = AnySetOf(
+        Sequence(
+            OneOf("INCLUDING", "EXCLUDING"),
+            Ref.keyword("COLUMN", optional=True),
+            "DEFAULTS",
+        ),
+        Sequence(
+            OneOf("INCLUDING", "EXCLUDING"),
+            "IDENTITY",
+            Sequence(
+                "COLUMN",
+                "ATTRIBUTES",
+                optional=True,
+            ),
+        ),
+    )
+
+
+class DeclareGlobalTempTableSegment(BaseSegment):
+    """DECLARE GLOBAL TEMPORARY TABLE statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-declare-global-temporary-table
+    """
+
+    type = "declare_temp_table"
+
+    match_grammar = Sequence(
+        "DECLARE",
+        "GLOBAL",
+        "TEMPORARY",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            # Columns and comment syntax:
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnDefinitionSegment"),
+                    ),
+                )
+            ),
+            # Create AS syntax:
+            Sequence(
+                "AS",
+                OptionallyBracketed(Ref("SelectableGrammar")),
+                Ref("WithDataClauseSegment"),
+                Ref("CopyOptionsSegment", optional=True),
+            ),
+            # Create like syntax
+            Sequence(
+                "LIKE",
+                Ref("TableReferenceSegment"),
+                Ref("CopyOptionsSegment", optional=True),
+            ),
+        ),
+        AnySetOf(
+            Sequence(
+                "ORGANIZE",
+                "BY",
+                OneOf("ROW", "COLUMN"),
+            ),
+            OneOf(
+                Sequence(
+                    "ON",
+                    "COMMIT",
+                    OneOf("DELETE", "PRESERVE"),
+                    "ROWS",
+                ),
+            ),
+            OneOf(
+                "LOGGED",
+                Sequence(
+                    "NOT",
+                    "LOGGED",
+                    Sequence(
+                        "ON",
+                        "ROLLBACK",
+                        OneOf("DELETE", "PRESERVE"),
+                        "ROWS",
+                        optional=True,
+                    ),
+                ),
+            ),
+            Sequence(
+                "WITH",
+                "REPLACE",
+            ),
+            Sequence(
+                "IN",
+                Ref("TablespaceReferenceSegment"),
+            ),
+            Ref("DeclareDistributionClauseSegment"),
+        ),
+    )
+
+
+class DeclareDistributionClauseSegment(BaseSegment):
+    """Distribution clause in declaring table creation.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-declare-global-temporary-table#sdx-synid_frag-distribution-clause
+    """
+
+    type = "distribution_clause"
+    match_grammar = Sequence(
+        "DISTRIBUTE",
+        OneOf("BY", "ON"),
+        OneOf(
+            Sequence(
+                Ref.keyword("HASH", optional=True),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                ),
+            ),
+            "RANDOM",
+        ),
+    )
+
+
 class NamedArgumentSegment(BaseSegment):
     """Named argument to a function.
 
@@ -156,5 +287,6 @@ class StatementSegment(ansi.StatementSegment):
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("CallStoredProcedureSegment"),
+            Ref("DeclareGlobalTempTableSegment"),
         ]
     )
