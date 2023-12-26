@@ -225,3 +225,10 @@ class RawSegment(BaseSegment):
             trim_chars=self.trim_chars,
             source_fixes=source_fixes or self.source_fixes,
         )
+
+
+__all__ = [
+    "PositionMarker",
+    "RawSegment",
+    "SourceFix",
+]
