@@ -290,3 +290,28 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DeclareGlobalTempTableSegment"),
         ]
     )
+
+
+class ValuesClauseSegment(ansi.ValuesClauseSegment):
+    """A `VALUES` clause like in `INSERT` or as a standalone statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=queries-fullselect#sdx-synid_frag-values-clause
+    """
+
+    type = "values_clause"
+    match_grammar = Sequence(
+        "VALUES",
+        Delimited(
+            Bracketed(
+                Delimited(
+                    "DEFAULT",
+                    Ref("ExpressionSegment"),
+                ),
+                parse_mode=ParseMode.GREEDY,
+            ),
+            "DEFAULT",
+            Ref("ExpressionSegment"),
+        ),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("LimitClauseSegment", optional=True),
+    )
