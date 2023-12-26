@@ -109,4 +109,6 @@ SELECT
     SYSTEM_USER
 
 
-FROM dbo . all_pop
+FROM dbo . all_pop;
+
+SELECT DISTINCT TOP 5 some_value FROM some_table;

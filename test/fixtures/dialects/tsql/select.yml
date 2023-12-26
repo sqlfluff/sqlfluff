@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5ce6e3c7c4dc3263e4f470a51c0b7c52a2173bba1d16f2852067b0d232b40bc6
+_hash: 1d69fef2bd5e7ce6121b0b367ea7517bfc62c4baac0e8db01a13f77b2b16e360
 file:
   batch:
-    statement:
+  - statement:
       select_statement:
         select_clause:
         - keyword: SELECT
@@ -877,3 +877,24 @@ file:
                 - naked_identifier: dbo
                 - dot: .
                 - naked_identifier: all_pop
+          statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_modifier:
+          - keyword: DISTINCT
+          - keyword: TOP
+          - expression:
+              numeric_literal: '5'
+          select_clause_element:
+            column_reference:
+              naked_identifier: some_value
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: some_table
+          statement_terminator: ;
