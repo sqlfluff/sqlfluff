@@ -95,3 +95,13 @@ def dialect_selector(s: str) -> Dialect:
     # Expand any callable references at this point.
     # NOTE: The result of .expand() is a new class.
     return dialect.expand()
+
+
+__all__ = [
+    "Dialect",
+    "DialectTuple",
+    "SQLFluffUserError",
+    "load_raw_dialect",
+    "dialect_readout",
+    "dialect_selector",
+]

@@ -29,10 +29,9 @@ repos:
     hooks:
       - id: black
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.4.1
+    rev: v1.8.0
     hooks:
       - id: mypy
-        args: [--ignore-missing-imports]
         additional_dependencies:
           [
             types-toml,
@@ -42,6 +41,7 @@ repos:
             types-colorama,
             types-pyyaml,
             types-regex,
+            types-tqdm,
           ]
         files: ^src/sqlfluff/.*
   - repo: https://github.com/pycqa/flake8
