@@ -744,7 +744,7 @@ class JinjaTemplater(PythonTemplater):
                     trace = tracer_trace.trace(
                         append_to_templated=append_to_templated,
                     )
-                except:  # noqa: E722
+                except Exception:
                     # If we get an error tracing the variant, skip it. This may
                     # happen for a variety of reasons. Basically there's no
                     # guarantee that the variant will be valid Jinja.
