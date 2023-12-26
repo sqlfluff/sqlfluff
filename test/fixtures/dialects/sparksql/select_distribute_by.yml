@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9ce5dad4768aabdc2d0ae563cdd3b7b9db42c3608bc643d818f18cc212079131
+_hash: 9e06dff72c34220df50e3d92c3498b51f62d8bc752083d27f84d47d6439d3e5a
 file:
 - statement:
     select_statement:
@@ -283,4 +283,54 @@ file:
       - keyword: BY
       - column_reference:
           naked_identifier: age
+- statement_terminator: ;
+- statement:
+    set_expression:
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: age
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: person
+    - set_operator:
+      - keyword: UNION
+      - keyword: ALL
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: age
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: person_cold
+        distribute_by_clause:
+        - keyword: DISTRIBUTE
+        - keyword: BY
+        - column_reference:
+            naked_identifier: age
+        sort_by_clause:
+        - keyword: SORT
+        - keyword: BY
+        - column_reference:
+            naked_identifier: age
 - statement_terminator: ;

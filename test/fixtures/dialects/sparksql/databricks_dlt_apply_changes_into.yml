@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5e45c610ddacccbffcbf4ed49cd0db81a4283d99450908feee8fd16b86c4f242
+_hash: bcd83f9b2bb00b52c40cc2140d7dce1c396c9ac0ee2d4290dbd3d99b10c7f42f
 file:
 - statement:
     create_table_statement:
@@ -311,4 +311,52 @@ file:
     - keyword: SCD
     - keyword: TYPE
     - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: STREAMING
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: target
+- statement_terminator: ;
+- statement:
+    apply_changes_into_statement:
+    - keyword: APPLY
+    - keyword: CHANGES
+    - keyword: INTO
+    - table_expression:
+        table_reference:
+        - naked_identifier: live
+        - dot: .
+        - naked_identifier: target
+    - from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: STREAM
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: cdc_data
+                    - dot: .
+                    - naked_identifier: users
+                  end_bracket: )
+    - keyword: KEYS
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: user_id
+        end_bracket: )
+    - keyword: SEQUENCE
+    - keyword: BY
+    - column_reference:
+        naked_identifier: sequence_num
 - statement_terminator: ;

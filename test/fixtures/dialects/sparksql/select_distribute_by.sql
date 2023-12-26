@@ -59,3 +59,15 @@ GROUP BY age
 HAVING COUNT(age) > 1
 DISTRIBUTE BY age
 SORT BY age;
+
+SELECT
+    age,
+    name
+FROM person
+UNION ALL
+SELECT
+    age,
+    name
+FROM person_cold
+DISTRIBUTE BY age
+SORT BY age;

@@ -182,10 +182,7 @@ class Linter:
         templating_blocks_indent = bool(templating_blocks_indent)
         # If we're forcing it through we don't check.
         if templating_blocks_indent and not force_block_indent:
-            indent_balance = sum(
-                getattr(elem, "indent_val", 0)
-                for elem in cast(Tuple[BaseSegment, ...], tokens)
-            )
+            indent_balance = sum(getattr(elem, "indent_val", 0) for elem in tokens)
             if indent_balance != 0:  # pragma: no cover
                 linter_logger.debug(
                     "Indent balance test failed for %r. Template indents will not be "
@@ -198,7 +195,7 @@ class Linter:
         # The file will have been lexed without config, so check all indents
         # are enabled.
         new_tokens = []
-        for token in cast(Tuple[BaseSegment, ...], tokens):
+        for token in tokens:
             if token.is_meta:
                 token = cast("MetaSegment", token)
                 if token.indent_val != 0:
