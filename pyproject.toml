@@ -202,6 +202,7 @@ ignore_imports = [
 warn_unused_configs = true
 warn_redundant_casts = true
 warn_unused_ignores = true
+strict_equality = true
 
 [[tool.mypy.overrides]]
 module = "sqlfluff.*"

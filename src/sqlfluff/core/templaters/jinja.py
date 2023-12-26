@@ -724,6 +724,7 @@ class JinjaTemplater(PythonTemplater):
                         tracer_probe.raw_sliced[branch]
                     ].alternate_code = f"{{% {tag} {new_value} %}}"
                     override_raw_slices.append(branch)
+
             # Render and analyze the template with the overrides.
             variant_key = tuple(
                 cast(str, tracer_trace.raw_slice_info[rs].alternate_code)
@@ -735,8 +736,8 @@ class JinjaTemplater(PythonTemplater):
             # In some cases (especially with nested if statements), we may
             # generate a variant that duplicates an existing variant. Skip
             # those.
-            if variant_key not in variants:
-                variant_raw_str = "".join(variant_key)
+            variant_raw_str = "".join(variant_key)
+            if variant_raw_str not in variants:
                 analyzer = JinjaAnalyzer(variant_raw_str, self._get_jinja_env())
                 tracer_trace = analyzer.analyze(render_func)
                 try:
