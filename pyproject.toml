@@ -212,10 +212,6 @@ module = "diff_cover.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = "tqdm.*"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
 module = "tblib.*"
 ignore_missing_imports = true
 

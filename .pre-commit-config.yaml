@@ -41,6 +41,7 @@ repos:
             types-colorama,
             types-pyyaml,
             types-regex,
+            types-tqdm,
           ]
         files: ^src/sqlfluff/.*
   - repo: https://github.com/pycqa/flake8
