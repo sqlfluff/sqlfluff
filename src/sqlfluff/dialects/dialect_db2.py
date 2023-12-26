@@ -18,8 +18,12 @@ from sqlfluff.core.parser import (
     RegexParser,
     SegmentGenerator,
     Sequence,
+    StringLexer,
+    StringParser,
+    SymbolSegment,
     WordSegment,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_db2_keywords import UNRESERVED_KEYWORDS
 
 ansi_dialect = load_raw_dialect("ansi")
@@ -38,6 +42,10 @@ db2_dialect.replace(
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
+    ),
+    FunctionContentsExpressionGrammar=OneOf(
+        Ref("ExpressionSegment"),
+        Ref("NamedArgumentSegment"),
     ),
     PostFunctionGrammar=OneOf(
         Ref("OverClauseSegment"),
@@ -58,6 +66,12 @@ db2_dialect.replace(
     ),
 )
 
+db2_dialect.insert_lexer_matchers(
+    [
+        StringLexer("right_arrow", "=>", CodeSegment),
+    ],
+    before="equals",
+)
 
 db2_dialect.patch_lexer_matchers(
     [
@@ -85,6 +99,42 @@ db2_dialect.patch_lexer_matchers(
     ]
 )
 
+db2_dialect.add(
+    RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+)
+
+
+class CallStoredProcedureSegment(BaseSegment):
+    """This is a CALL statement used to execute a stored procedure.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-call
+    """
+
+    type = "call_segment"
+
+    match_grammar = Sequence(
+        "CALL",
+        OneOf(
+            Ref("FunctionSegment"),
+            # Call without parenthesis
+            Ref("FunctionNameSegment", reset_terminators=True),
+        ),
+    )
+
+
+class NamedArgumentSegment(BaseSegment):
+    """Named argument to a function.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-call
+    """
+
+    type = "named_argument"
+    match_grammar = Sequence(
+        Ref("NakedIdentifierSegment"),
+        Ref("RightArrowSegment"),
+        Ref("ExpressionSegment"),
+    )
+
 
 class WithinGroupClauseSegment(BaseSegment):
     """An WITHIN GROUP clause for window functions."""
@@ -97,4 +147,14 @@ class WithinGroupClauseSegment(BaseSegment):
         Bracketed(
             Ref("OrderByClauseSegment", optional=True), parse_mode=ParseMode.GREEDY
         ),
+    )
+
+
+class StatementSegment(ansi.StatementSegment):
+    """An element in the targets of a select statement."""
+
+    match_grammar = ansi.StatementSegment.match_grammar.copy(
+        insert=[
+            Ref("CallStoredProcedureSegment"),
+        ]
     )
