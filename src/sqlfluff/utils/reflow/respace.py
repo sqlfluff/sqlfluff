@@ -11,7 +11,8 @@ from sqlfluff.core.parser import (
     RawSegment,
     WhitespaceSegment,
 )
-from sqlfluff.core.rules.base import LintFix, LintResult
+from sqlfluff.core.rules import LintFix
+from sqlfluff.core.rules.base import LintResult
 from sqlfluff.utils.reflow.helpers import pretty_segment_name
 
 if TYPE_CHECKING:  # pragma: no cover

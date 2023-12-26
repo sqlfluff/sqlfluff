@@ -16,7 +16,8 @@ from sqlfluff.core.parser.segments import (
     TemplateSegment,
     WhitespaceSegment,
 )
-from sqlfluff.core.rules.base import LintFix, LintResult
+from sqlfluff.core.rules import LintFix
+from sqlfluff.core.rules.base import LintResult
 from sqlfluff.utils.reflow.config import ReflowConfig
 from sqlfluff.utils.reflow.depthmap import DepthInfo
 

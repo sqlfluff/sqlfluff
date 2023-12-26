@@ -26,7 +26,8 @@ from sqlfluff.core.parser import (
 )
 from sqlfluff.core.parser.segments import Indent, SourceFix
 from sqlfluff.core.parser.segments.meta import MetaSegment, TemplateSegment
-from sqlfluff.core.rules.base import LintFix, LintResult
+from sqlfluff.core.rules import LintFix
+from sqlfluff.core.rules.base import LintResult
 from sqlfluff.utils.reflow.elements import (
     IndentStats,
     ReflowBlock,

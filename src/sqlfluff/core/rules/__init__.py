@@ -4,7 +4,6 @@ from sqlfluff.core.plugin.host import get_plugin_manager
 from sqlfluff.core.rules.base import (
     BaseRule,
     EvalResultType,
-    LintFix,
     LintResult,
     RuleGhost,
     RulePack,
@@ -12,6 +11,7 @@ from sqlfluff.core.rules.base import (
 )
 from sqlfluff.core.rules.config_info import STANDARD_CONFIG_INFO_DICT
 from sqlfluff.core.rules.context import RuleContext
+from sqlfluff.core.rules.fix import LintFix
 
 
 def _load_standard_rules() -> RuleSet:
