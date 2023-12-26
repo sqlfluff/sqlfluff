@@ -118,33 +118,31 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             # Columns and comment syntax:
             Bracketed(
                 Delimited(
-                    OneOf(
-                        Sequence(
-                            Ref("ColumnReferenceSegment"),
-                            OneOf(
-                                Sequence(
-                                    Ref("DatatypeSegment"),
-                                    AnyNumberOf(
-                                        OneOf(
-                                            Ref("ColumnConstraintSegment"),
-                                        ),
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        OneOf(
+                            Sequence(
+                                Ref("DatatypeSegment"),
+                                AnyNumberOf(
+                                    OneOf(
+                                        Ref("ColumnConstraintSegment"),
                                     ),
-                                ),
-                                Sequence(
-                                    Ref(
-                                        "DatatypeSegment",
-                                        optional=True,
-                                        exclude=Ref.keyword("AS"),
-                                    ),
-                                    Sequence("GENERATED", "ALWAYS", optional=True),
-                                    "AS",
-                                    Bracketed(Ref("ExpressionSegment")),
-                                    OneOf("STORED", "VIRTUAL", optional=True),
                                 ),
                             ),
+                            Sequence(
+                                Ref(
+                                    "DatatypeSegment",
+                                    optional=True,
+                                    exclude=Ref.keyword("AS"),
+                                ),
+                                Sequence("GENERATED", "ALWAYS", optional=True),
+                                "AS",
+                                Bracketed(Ref("ExpressionSegment")),
+                                OneOf("STORED", "VIRTUAL", optional=True),
+                            ),
                         ),
-                        Ref("TableConstraintSegment"),
                     ),
+                    Ref("TableConstraintSegment"),
                 )
             ),
         ),
