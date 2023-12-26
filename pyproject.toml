@@ -204,9 +204,6 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 strict_equality = true
 extra_checks = true
-
-[[tool.mypy.overrides]]
-module = "sqlfluff.*"
 implicit_reexport = true
 
 # skip type checking for 3rd party packages for which stubs are not available
