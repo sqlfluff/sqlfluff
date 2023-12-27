@@ -731,7 +731,14 @@ class ConfigLoader:
         if not given_path.is_dir():
             given_path = given_path.parent
 
-        common_path = Path(os.path.commonpath([working_path, given_path]))
+        try:
+            common_path = Path(os.path.commonpath([working_path, given_path]))
+        except ValueError:
+            # Getting a value error means that we're likely on a windows system
+            # and have been provided a `working_path` and `given_path` which are
+            # in different drives. In this situation, there's no shared path,
+            # so just yield the given path.
+            return str(given_path.resolve())
 
         # we have a sub path! We can load nested paths
         path_to_visit = common_path
