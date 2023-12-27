@@ -1,0 +1,705 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 55603d359772051b394b4c74721ac95533d5b977f9bd9ee4c35ff272f8f6b67f
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: i
+      - data_type:
+          keyword: INTEGER
+      - comma: ','
+      - column_reference:
+          naked_identifier: j
+      - data_type:
+          keyword: INTEGER
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: INTEGER
+      - column_constraint_segment:
+        - keyword: PRIMARY
+        - keyword: KEY
+      - comma: ','
+      - column_reference:
+          naked_identifier: j
+      - data_type:
+          keyword: VARCHAR
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: INTEGER
+      - comma: ','
+      - column_reference:
+          naked_identifier: j
+      - data_type:
+          keyword: VARCHAR
+      - comma: ','
+      - table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: id
+          - comma: ','
+          - column_reference:
+              naked_identifier: j
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: i
+      - data_type:
+          keyword: INTEGER
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          naked_identifier: decimalnr
+      - data_type:
+          data_type_identifier: DOUBLE
+      - column_constraint_segment:
+          keyword: CHECK
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: decimalnr
+              comparison_operator:
+                raw_comparison_operator: <
+              numeric_literal: '10'
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: date
+      - data_type:
+          datetime_type_identifier:
+            keyword: DATE
+      - column_constraint_segment:
+          keyword: UNIQUE
+      - comma: ','
+      - column_reference:
+          naked_identifier: time
+      - data_type:
+          datetime_type_identifier:
+            keyword: TIMESTAMP
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            numeric_literal: '42'
+            alias_expression:
+              keyword: AS
+              naked_identifier: i
+        - comma: ','
+        - select_clause_element:
+            numeric_literal: '84'
+            alias_expression:
+              keyword: AS
+              naked_identifier: j
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                function:
+                  function_name:
+                    function_name_identifier: read_csv_auto
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'path/file.csv'"
+                    end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - keyword: AS
+    - select_statement:
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                function:
+                  function_name:
+                    function_name_identifier: read_csv_auto
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'path/file.csv'"
+                    end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                function:
+                  function_name:
+                    function_name_identifier: read_csv
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'path/file.csv'"
+                    end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: i
+      - data_type:
+          keyword: INTEGER
+      - comma: ','
+      - column_reference:
+          naked_identifier: j
+      - data_type:
+          keyword: INTEGER
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: i
+      - data_type:
+          keyword: INTEGER
+      - comma: ','
+      - column_reference:
+          naked_identifier: j
+      - data_type:
+          keyword: INTEGER
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: INTEGER
+      - column_constraint_segment:
+        - keyword: PRIMARY
+        - keyword: KEY
+      - comma: ','
+      - column_reference:
+          naked_identifier: percentage
+      - data_type:
+          keyword: INTEGER
+      - column_constraint_segment:
+          keyword: CHECK
+          bracketed:
+            start_bracket: (
+            expression:
+            - numeric_literal: '0'
+            - comparison_operator:
+              - raw_comparison_operator: <
+              - raw_comparison_operator: '='
+            - column_reference:
+                naked_identifier: percentage
+            - binary_operator: AND
+            - column_reference:
+                naked_identifier: percentage
+            - comparison_operator:
+              - raw_comparison_operator: <
+              - raw_comparison_operator: '='
+            - numeric_literal: '100'
+            end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t2
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: INTEGER
+      - column_constraint_segment:
+        - keyword: PRIMARY
+        - keyword: KEY
+      - comma: ','
+      - column_reference:
+          naked_identifier: x
+      - data_type:
+          keyword: INTEGER
+      - comma: ','
+      - column_reference:
+          naked_identifier: y
+      - data_type:
+          keyword: INTEGER
+      - column_constraint_segment:
+          keyword: CHECK
+          bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: x
+            - comparison_operator:
+                raw_comparison_operator: <
+            - column_reference:
+                naked_identifier: y
+            end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t3
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: INTEGER
+      - column_constraint_segment:
+        - keyword: PRIMARY
+        - keyword: KEY
+      - comma: ','
+      - column_reference:
+          naked_identifier: x
+      - data_type:
+          keyword: INTEGER
+      - comma: ','
+      - column_reference:
+          naked_identifier: y
+      - data_type:
+          keyword: INTEGER
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: x_smaller_than_y
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: x
+            - comparison_operator:
+                raw_comparison_operator: <
+            - column_reference:
+                naked_identifier: y
+            end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: INTEGER
+      - column_constraint_segment:
+        - keyword: PRIMARY
+        - keyword: KEY
+      - comma: ','
+      - column_reference:
+          naked_identifier: j
+      - data_type:
+          keyword: VARCHAR
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t2
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: INTEGER
+      - column_constraint_segment:
+        - keyword: PRIMARY
+        - keyword: KEY
+      - comma: ','
+      - column_reference:
+          naked_identifier: t1_id
+      - data_type:
+          keyword: INTEGER
+      - comma: ','
+      - table_constraint:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: t1_id
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: t1
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t3
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: INTEGER
+      - comma: ','
+      - column_reference:
+          naked_identifier: j
+      - data_type:
+          keyword: VARCHAR
+      - comma: ','
+      - table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: id
+          - comma: ','
+          - column_reference:
+              naked_identifier: j
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t4
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: INTEGER
+      - column_constraint_segment:
+        - keyword: PRIMARY
+        - keyword: KEY
+      - comma: ','
+      - column_reference:
+          naked_identifier: t3_id
+      - data_type:
+          keyword: INTEGER
+      - comma: ','
+      - column_reference:
+          naked_identifier: t3_j
+      - data_type:
+          keyword: VARCHAR
+      - comma: ','
+      - table_constraint:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: t3_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: t3_j
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: t3
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: id
+          - comma: ','
+          - column_reference:
+              naked_identifier: j
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t5
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: INTEGER
+      - column_constraint_segment:
+          keyword: UNIQUE
+      - comma: ','
+      - column_reference:
+          naked_identifier: j
+      - data_type:
+          keyword: VARCHAR
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t6
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: INTEGER
+      - column_constraint_segment:
+        - keyword: PRIMARY
+        - keyword: KEY
+      - comma: ','
+      - column_reference:
+          naked_identifier: t5_id
+      - data_type:
+          keyword: INTEGER
+      - comma: ','
+      - table_constraint:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: t5_id
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: t5
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: x
+      - data_type:
+          keyword: FLOAT
+      - comma: ','
+      - column_reference:
+          naked_identifier: two_x
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '2'
+            binary_operator: '*'
+            column_reference:
+              naked_identifier: x
+          end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: x
+      - data_type:
+          keyword: FLOAT
+      - comma: ','
+      - column_reference:
+          naked_identifier: two_x
+      - data_type:
+          keyword: FLOAT
+      - keyword: GENERATED
+      - keyword: ALWAYS
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '2'
+            binary_operator: '*'
+            column_reference:
+              naked_identifier: x
+          end_bracket: )
+      - keyword: VIRTUAL
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_values
+    - keyword: AS
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '1'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_dflt_int
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: id
+        data_type:
+          keyword: INTEGER
+        column_constraint_segment:
+          keyword: DEFAULT
+          numeric_literal: '0'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_dflt_dt
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: dt
+        data_type:
+          datetime_type_identifier:
+            keyword: DATE
+        column_constraint_segment:
+          keyword: DEFAULT
+          expression:
+            bare_function: CURRENT_DATE
+        end_bracket: )
+- statement_terminator: ;
