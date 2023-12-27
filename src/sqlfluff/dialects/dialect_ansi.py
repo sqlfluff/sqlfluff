@@ -1278,7 +1278,9 @@ class WindowSpecificationSegment(BaseSegment):
     type = "window_specification"
     match_grammar: Matchable = Sequence(
         Ref(
-            "SingleIdentifierGrammar", optional=True, exclude=Ref.keyword("PARTITION")
+            "SingleIdentifierGrammar",
+            optional=True,
+            exclude=OneOf(Ref.keyword("PARTITION"), Ref.keyword("ORDER")),
         ),  # "Base" window name
         Ref("PartitionClauseSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
