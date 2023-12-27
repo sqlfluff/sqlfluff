@@ -749,7 +749,7 @@ class SelectClauseModifierSegment(BaseSegment):
     """Things that come after SELECT but before the columns."""
 
     type = "select_clause_modifier"
-    match_grammar = OneOf(
+    match_grammar = AnyNumberOf(
         "DISTINCT",
         "ALL",
         Sequence(
