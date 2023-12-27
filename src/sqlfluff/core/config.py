@@ -732,28 +732,34 @@ class ConfigLoader:
             given_path = given_path.parent
 
         try:
-            common_path = Path(os.path.commonpath([working_path, given_path]))
+            _common_path = Path(
+                os.path.commonpath([working_path, given_path])
+            ).absolute()
+            # It's a sub path if the common path is the working path.
+            sub_path = _common_path == working_path
         except ValueError:
             # Getting a value error means that we're likely on a windows system
             # and have been provided a `working_path` and `given_path` which are
             # in different drives. In this situation, there's no shared path,
             # so just yield the given path.
-            return str(given_path.resolve())
+            sub_path = False
 
-        # we have a sub path! We can load nested paths
-        path_to_visit = common_path
-        while path_to_visit != given_path:
-            yield str(path_to_visit.resolve())
-            next_path_to_visit = (
-                path_to_visit / given_path.relative_to(path_to_visit).parts[0]
-            )
-            if next_path_to_visit == path_to_visit:  # pragma: no cover
-                # we're not making progress...
-                # [prevent infinite loop]
-                break
-            path_to_visit = next_path_to_visit
+        # Always yield the working path
+        yield str(working_path.resolve())
 
-        yield str(given_path.resolve())
+        # If we're in a nested path scenario, then we work between the two
+        # paths, yielding config locations at each. If the given path is
+        # NOT a subpath of the working location, then we don't. In that
+        # scenario we just load the configuration at the working location
+        # and then the given location.
+        if sub_path:
+            # we have a sub path! We can load nested paths
+            for step in given_path.relative_to(working_path).parts:
+                working_path = working_path / step
+                yield str(working_path.resolve())
+        else:
+            # If not iterating, just yield the given path
+            yield str(given_path.resolve())
 
 
 class FluffConfig:
