@@ -429,6 +429,25 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     )
 
 
+class AliasExpressionSegment(ansi.AliasExpressionSegment):
+    """Modified to allow UDTF in SELECT clause to return multiple columns aliases.
+
+    Full Apache Hive `Built-in Table-Generating Functions (UDTF)` reference here:
+    https://cwiki.apache.org/confluence/display/hive/languagemanual+udf#LanguageManualUDF-Built-inTable-GeneratingFunctions(UDTF)
+    """
+
+    match_grammar = Sequence(
+        Ref.keyword("AS", optional=True),
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar", optional=True),
+                Bracketed(Ref("SingleIdentifierListSegment")),
+            ),
+            Ref("SingleIdentifierGrammar"),
+        ),
+    )
+
+
 class LateralViewClauseSegment(BaseSegment):
     """A `LATERAL VIEW` in a `FROM` clause.
 
