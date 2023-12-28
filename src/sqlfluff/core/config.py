@@ -731,19 +731,20 @@ class ConfigLoader:
         if not given_path.is_dir():
             given_path = given_path.parent
 
+        common_path: Optional[Path]
         try:
             common_path = Path(
                 os.path.commonpath([working_path, given_path])
             ).absolute()
             # Check how many parts the common path has
-            if common_path.parts == 0:
-                common_path = ""
+            if not common_path.parts:
+                common_path = None
         except ValueError:
             # Getting a value error means that we're likely on a windows system
             # and have been provided a `working_path` and `given_path` which are
             # in different drives. In this situation, there's no shared path,
             # so just yield the given path.
-            common_path = ""
+            common_path = None
 
         # Always yield the working path
         yield str(working_path.resolve())
