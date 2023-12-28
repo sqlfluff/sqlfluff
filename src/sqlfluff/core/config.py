@@ -732,17 +732,18 @@ class ConfigLoader:
             given_path = given_path.parent
 
         try:
-            _common_path = Path(
+            common_path = Path(
                 os.path.commonpath([working_path, given_path])
             ).absolute()
-            # It's a sub path if the common path is the working path.
-            sub_path = _common_path == working_path
+            # Check how many parts the common path has
+            if common_path.parts == 0:
+                common_path = ""
         except ValueError:
             # Getting a value error means that we're likely on a windows system
             # and have been provided a `working_path` and `given_path` which are
             # in different drives. In this situation, there's no shared path,
             # so just yield the given path.
-            sub_path = False
+            common_path = ""
 
         # Always yield the working path
         yield str(working_path.resolve())
@@ -752,11 +753,21 @@ class ConfigLoader:
         # NOT a subpath of the working location, then we don't. In that
         # scenario we just load the configuration at the working location
         # and then the given location.
-        if sub_path:
-            # we have a sub path! We can load nested paths
-            for step in given_path.relative_to(working_path).parts:
-                working_path = working_path / step
-                yield str(working_path.resolve())
+
+        # NOTE: In essence I think we should only consider it to
+        # be a true sub-path if `common_path` IS `working_path`,
+        # however to mimic past behaviour, we work up from a shared
+        # root if one exists.
+        # TODO: In future we should instead work upward not from the common
+        # shared path, but instead work up from the dbt project root if present.
+        # However given the current location of the config loading routines
+        # there isn't a good way for that location to be passed through.
+        if common_path:
+            # we have a sub path! We can load nested paths.
+            # NOTE: As we work up, we mutate `common_path`.
+            for step in given_path.relative_to(common_path).parts:
+                common_path = common_path / step
+                yield str(common_path.resolve())
         else:
             # If not iterating, just yield the given path
             yield str(given_path.resolve())
