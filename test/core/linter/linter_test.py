@@ -150,7 +150,8 @@ def test__linter__path_from_paths__sqlfluffignore_current_directory():
             "path_a/",
             ignore_non_existent_files=True,
             ignore_files=True,
-            working_path="test/fixtures/linter/sqlfluffignore/",
+            # NOTE: We don't set the `working_directory` here because it's assumed
+            # to be the working directory, and we've already set that above.
         )
         assert len(paths) == 0
     finally:

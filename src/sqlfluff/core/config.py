@@ -763,7 +763,9 @@ class ConfigLoader:
         # shared path, but instead work up from the dbt project root if present.
         # However given the current location of the config loading routines
         # there isn't a good way for that location to be passed through.
-        if common_path:
+        # NOTE: If this is a reverse sub-path? i.e. where the working path is
+        # deeper than the given path, don't iterate.
+        if common_path and common_path != given_path:
             # we have a sub path! We can load nested paths.
             # NOTE: As we work up, we mutate `common_path`.
             for step in given_path.relative_to(common_path).parts:
