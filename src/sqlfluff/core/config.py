@@ -747,6 +747,7 @@ class ConfigLoader:
             common_path = None
 
         # Always yield the working path
+        config_logger.warning("YIELD: %s", str(working_path.resolve()))
         yield str(working_path.resolve())
 
         # If we're in a nested path scenario, then we work between the two
@@ -770,9 +771,11 @@ class ConfigLoader:
             # NOTE: As we work up, we mutate `common_path`.
             for step in given_path.relative_to(common_path).parts:
                 common_path = common_path / step
+                config_logger.warning("YIELD: %s", str(common_path.resolve()))
                 yield str(common_path.resolve())
         else:
             # If not iterating, just yield the given path
+            config_logger.warning("YIELD: %s", str(given_path.resolve()))
             yield str(given_path.resolve())
 
 

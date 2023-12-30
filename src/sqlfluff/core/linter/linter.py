@@ -900,6 +900,7 @@ class Linter:
         ignore_file_paths = ConfigLoader.find_ignore_config_files(
             path=path, working_path=working_path, ignore_file_name=ignore_file_name
         )
+        linter_logger.warning("IGNORE PATHS: %s", ignore_file_paths)
         # Add paths that could contain "ignore files"
         # to the path_walk list
         path_walk_ignore_file = [
