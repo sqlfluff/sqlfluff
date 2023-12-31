@@ -36,6 +36,7 @@ import pluggy
 
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import dict_diff, nested_combine
+from sqlfluff.core.helpers.file import iter_intermediate_paths
 from sqlfluff.core.helpers.string import (
     split_colon_separated_string,
     split_comma_separated_string,
@@ -678,7 +679,7 @@ class ConfigLoader:
         )
         user_config = self.load_user_config() if not ignore_local_config else {}
         config_paths = (
-            self.iter_config_locations_up_to_path(path)
+            iter_intermediate_paths(Path(path).absolute(), Path.cwd())
             if not ignore_local_config
             else {}
         )
@@ -702,81 +703,18 @@ class ConfigLoader:
         ignore_file_name: str = ".sqlfluffignore",
     ) -> Set[str]:
         """Finds sqlfluff ignore files from both the path and its parent paths."""
+        _working_path: Path = (
+            Path(working_path) if isinstance(working_path, str) else working_path
+        )
         return set(
             filter(
                 os.path.isfile,
                 map(
                     lambda x: os.path.join(x, ignore_file_name),
-                    cls.iter_config_locations_up_to_path(
-                        path=path, working_path=working_path
-                    ),
+                    iter_intermediate_paths(Path(path).absolute(), _working_path),
                 ),
             )
         )
-
-    @staticmethod
-    def iter_config_locations_up_to_path(
-        path: str, working_path: Union[str, Path] = Path.cwd()
-    ) -> Iterator[str]:
-        """Finds config locations from both the path and its parent paths.
-
-        The lowest priority is the user appdir, then home dir, then increasingly
-        the configs closest to the file being directly linted.
-        """
-        given_path = Path(path).absolute()
-        working_path = Path(working_path).absolute()
-
-        # If we've been passed a file and not a directory,
-        # then go straight to the directory.
-        if not given_path.is_dir():
-            given_path = given_path.parent
-
-        common_path: Optional[Path]
-        try:
-            common_path = Path(
-                os.path.commonpath([working_path, given_path])
-            ).absolute()
-            # Check how many parts the common path has
-            if not common_path.parts:
-                common_path = None
-        except ValueError:
-            # Getting a value error means that we're likely on a windows system
-            # and have been provided a `working_path` and `given_path` which are
-            # in different drives. In this situation, there's no shared path,
-            # so just yield the given path.
-            common_path = None
-
-        # Always yield the working path
-        config_logger.warning("YIELD: %s", str(working_path.resolve()))
-        yield str(working_path.resolve())
-
-        # If we're in a nested path scenario, then we work between the two
-        # paths, yielding config locations at each. If the given path is
-        # NOT a subpath of the working location, then we don't. In that
-        # scenario we just load the configuration at the working location
-        # and then the given location.
-
-        # NOTE: In essence I think we should only consider it to
-        # be a true sub-path if `common_path` IS `working_path`,
-        # however to mimic past behaviour, we work up from a shared
-        # root if one exists.
-        # TODO: In future we should instead work upward not from the common
-        # shared path, but instead work up from the dbt project root if present.
-        # However given the current location of the config loading routines
-        # there isn't a good way for that location to be passed through.
-        # NOTE: If this is a reverse sub-path? i.e. where the working path is
-        # deeper than the given path, don't iterate.
-        if common_path and common_path != given_path:
-            # we have a sub path! We can load nested paths.
-            # NOTE: As we work up, we mutate `common_path`.
-            for step in given_path.relative_to(common_path).parts:
-                common_path = common_path / step
-                config_logger.warning("YIELD: %s", str(common_path.resolve()))
-                yield str(common_path.resolve())
-        else:
-            # If not iterating, just yield the given path
-            config_logger.warning("YIELD: %s", str(given_path.resolve()))
-            yield str(given_path.resolve())
 
 
 class FluffConfig:
