@@ -581,8 +581,12 @@ class ConfigLoader:
         elems = self._validate_configs(elems, "<config string>")
         return self._incorporate_vals(configs or {}, elems)
 
-    def load_config_at_path(self, path: str) -> Dict[str, Any]:
+    def load_config_at_path(self, path: Union[str, Path]) -> Dict[str, Any]:
         """Load config from a given path."""
+        # If we've been passed a Path object, resolve it.
+        if isinstance(path, Path):
+            path = str(path.resolve())
+
         # First check the cache
         if str(path) in self._config_cache:
             return self._config_cache[str(path)]
