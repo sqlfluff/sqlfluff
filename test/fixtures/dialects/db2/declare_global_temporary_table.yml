@@ -1,0 +1,910 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4c49735cc4fa31ea57cc9347534d097600ff73cca7803ff5de34178d4798bf59
+file:
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: SESSION
+      - dot: .
+      - naked_identifier: TEMP_EMP
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: EMPNO
+          data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          naked_identifier: SALARY
+          data_type:
+            data_type_identifier: DECIMAL
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '9'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: BONUS
+          data_type:
+            data_type_identifier: DECIMAL
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '9'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: COMM
+          data_type:
+            data_type_identifier: DECIMAL
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '9'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_bracket: )
+      - end_bracket: )
+    - keyword: 'ON'
+    - keyword: COMMIT
+    - keyword: PRESERVE
+    - keyword: ROWS
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: TEMPTAB1
+    - keyword: LIKE
+    - table_reference:
+      - naked_identifier: USER1
+      - dot: .
+      - naked_identifier: EMPTAB
+    - copy_options:
+      - keyword: INCLUDING
+      - keyword: IDENTITY
+    - keyword: 'ON'
+    - keyword: COMMIT
+    - keyword: PRESERVE
+    - keyword: ROWS
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: EMPNO
+          data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: EMPNO
+          data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        end_bracket: )
+    - keyword: ORGANIZE
+    - keyword: BY
+    - keyword: ROW
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: EMPNO
+          data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        end_bracket: )
+    - keyword: ORGANIZE
+    - keyword: BY
+    - keyword: COLUMN
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: EMPNO
+          data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        end_bracket: )
+    - keyword: 'ON'
+    - keyword: COMMIT
+    - keyword: DELETE
+    - keyword: ROWS
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: EMPNO
+          data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        end_bracket: )
+    - keyword: 'ON'
+    - keyword: COMMIT
+    - keyword: PRESERVE
+    - keyword: ROWS
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: EMPNO
+          data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        end_bracket: )
+    - keyword: LOGGED
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: EMPNO
+          data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        end_bracket: )
+    - keyword: NOT
+    - keyword: LOGGED
+    - keyword: 'ON'
+    - keyword: ROLLBACK
+    - keyword: DELETE
+    - keyword: ROWS
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: EMPNO
+          data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        end_bracket: )
+    - keyword: NOT
+    - keyword: LOGGED
+    - keyword: 'ON'
+    - keyword: ROLLBACK
+    - keyword: PRESERVE
+    - keyword: ROWS
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: EMPNO
+          data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        end_bracket: )
+    - keyword: WITH
+    - keyword: REPLACE
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: EMPNO
+          data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        end_bracket: )
+    - keyword: IN
+    - tablespace_reference:
+        naked_identifier: USERTEMPSPACE1
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: EMPNO
+          data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        end_bracket: )
+    - distribution_clause:
+      - keyword: DISTRIBUTE
+      - keyword: BY
+      - keyword: RANDOM
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: EMPNO
+          data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        end_bracket: )
+    - distribution_clause:
+      - keyword: DISTRIBUTE
+      - keyword: 'ON'
+      - keyword: RANDOM
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: EMPNO
+          data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        end_bracket: )
+    - distribution_clause:
+      - keyword: DISTRIBUTE
+      - keyword: BY
+      - keyword: HASH
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: EMP_NO
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: COL1
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: MY_SCHEMA
+                  - dot: .
+                  - naked_identifier: MY_TABLE
+        end_bracket: )
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: COL1
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: MY_SCHEMA
+                  - dot: .
+                  - naked_identifier: MY_TABLE
+        end_bracket: )
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: COL1
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: MY_SCHEMA
+                  - dot: .
+                  - naked_identifier: MY_TABLE
+        end_bracket: )
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+    - copy_options:
+      - keyword: INCLUDING
+      - keyword: DEFAULTS
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: COL1
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: MY_SCHEMA
+                  - dot: .
+                  - naked_identifier: MY_TABLE
+        end_bracket: )
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+    - copy_options:
+      - keyword: INCLUDING
+      - keyword: COLUMN
+      - keyword: DEFAULTS
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: COL1
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: MY_SCHEMA
+                  - dot: .
+                  - naked_identifier: MY_TABLE
+        end_bracket: )
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+    - copy_options:
+      - keyword: EXCLUDING
+      - keyword: DEFAULTS
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: COL1
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: MY_SCHEMA
+                  - dot: .
+                  - naked_identifier: MY_TABLE
+        end_bracket: )
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+    - copy_options:
+      - keyword: EXCLUDING
+      - keyword: COLUMN
+      - keyword: DEFAULTS
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: COL1
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: MY_SCHEMA
+                  - dot: .
+                  - naked_identifier: MY_TABLE
+        end_bracket: )
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+    - copy_options:
+      - keyword: EXCLUDING
+      - keyword: IDENTITY
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: COL1
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: MY_SCHEMA
+                  - dot: .
+                  - naked_identifier: MY_TABLE
+        end_bracket: )
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+    - copy_options:
+      - keyword: INCLUDING
+      - keyword: IDENTITY
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: COL1
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: MY_SCHEMA
+                  - dot: .
+                  - naked_identifier: MY_TABLE
+        end_bracket: )
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+    - copy_options:
+      - keyword: EXCLUDING
+      - keyword: IDENTITY
+      - keyword: COLUMN
+      - keyword: ATTRIBUTES
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: COL1
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: MY_SCHEMA
+                  - dot: .
+                  - naked_identifier: MY_TABLE
+        end_bracket: )
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+    - copy_options:
+      - keyword: INCLUDING
+      - keyword: IDENTITY
+      - keyword: COLUMN
+      - keyword: ATTRIBUTES
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: COL1
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: MY_SCHEMA
+                  - dot: .
+                  - naked_identifier: MY_TABLE
+        end_bracket: )
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: DATA
+    - distribution_clause:
+      - keyword: DISTRIBUTE
+      - keyword: 'ON'
+      - keyword: HASH
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: COL1
+          end_bracket: )
+    - keyword: IN
+    - tablespace_reference:
+        naked_identifier: USERTEMPSPACE1
+    - keyword: ORGANIZE
+    - keyword: BY
+    - keyword: ROW
+    - keyword: 'ON'
+    - keyword: COMMIT
+    - keyword: PRESERVE
+    - keyword: ROWS
+    - keyword: NOT
+    - keyword: LOGGED
+    - keyword: WITH
+    - keyword: REPLACE
+- statement_terminator: ;
+- statement:
+    declare_temp_table:
+    - keyword: DECLARE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: MY_DGTT_TABLE
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: COL1
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: MY_SCHEMA
+                  - dot: .
+                  - naked_identifier: MY_TABLE
+        end_bracket: )
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: DATA
+    - keyword: IN
+    - tablespace_reference:
+        naked_identifier: USERTEMPSPACE1
+    - distribution_clause:
+      - keyword: DISTRIBUTE
+      - keyword: 'ON'
+      - keyword: HASH
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: COL1
+          end_bracket: )
+    - keyword: ORGANIZE
+    - keyword: BY
+    - keyword: COLUMN
+    - keyword: 'ON'
+    - keyword: COMMIT
+    - keyword: PRESERVE
+    - keyword: ROWS
+    - keyword: NOT
+    - keyword: LOGGED
+- statement_terminator: ;
