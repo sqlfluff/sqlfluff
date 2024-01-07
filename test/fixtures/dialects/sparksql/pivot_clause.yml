@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f42a1fba96a87f2284233ef86a94e4982380d774a4d0ded032c7b33f1326c6f0
+_hash: 0507cd82ae7db822f01c3ec05deb2b5d520536dafbb684b3a5614b70ca879178
 file:
 - statement:
     select_statement:
@@ -629,6 +629,134 @@ file:
               - alias_expression:
                   keyword: as
                   naked_identifier: ctrl
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+        - from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: select
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: year
+                  - comma: ','
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: quarter
+                  - comma: ','
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: sales
+                  from_clause:
+                    keyword: from
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: sales
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: s
+        - pivot_clause:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: sum
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: sales
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: total
+            - comma: ','
+            - function:
+                function_name:
+                  function_name_identifier: avg
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: sales
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: avg
+            - keyword: FOR
+            - naked_identifier: quarter
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: q1
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: q2
+              - comma: ','
+              - expression:
+                  numeric_literal: '3'
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: q3
+              - comma: ','
+              - expression:
+                  numeric_literal: '4'
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: q4
+              - end_bracket: )
+            - end_bracket: )
+        - pivot_clause:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: sum
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: q1_avg
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: total
+            - keyword: FOR
+            - naked_identifier: year
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '2018'
+              - comma: ','
+              - expression:
+                  numeric_literal: '2019'
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
