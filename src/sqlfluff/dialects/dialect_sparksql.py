@@ -2805,15 +2805,14 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
+        Ref("SamplingExpressionSegment", optional=True),
         Ref(
             "AliasExpressionSegment",
             exclude=OneOf(
                 Ref("FromClauseTerminatorGrammar"),
-                Ref("SamplingExpressionSegment"),
             ),
             optional=True,
         ),
-        Ref("SamplingExpressionSegment", optional=True),
         # NB: `LateralViewClauseSegment`, `NamedWindowSegment`,
         # and `PivotClauseSegment should come after Alias/Sampling
         # expressions so those are matched before
