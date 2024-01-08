@@ -271,6 +271,7 @@ UNRESERVED_KEYWORDS = [
     "UNBOUNDED",
     "UNCACHE",
     "UNLOCK",
+    "UNPIVOT",
     "UNSET",
     "UPDATE",
     "USE",
