@@ -1,0 +1,653 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7d322862763837298cb547f51f593367443f93ec170e036ca39885c87e927639
+file:
+- statement:
+    simplified_pivot:
+    - keyword: PIVOT
+    - table_expression:
+        table_reference:
+          naked_identifier: Cities
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: Year
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: sum
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: Population
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    simplified_pivot:
+    - keyword: PIVOT
+    - table_expression:
+        table_reference:
+          naked_identifier: Cities
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: Year
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: first
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: Population
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    simplified_pivot:
+    - keyword: PIVOT
+    - table_expression:
+        table_reference:
+          naked_identifier: Cities
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: Year
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: sum
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: Population
+          end_bracket: )
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: Country
+- statement_terminator: ;
+- statement:
+    simplified_pivot:
+    - keyword: PIVOT
+    - table_expression:
+        table_reference:
+          naked_identifier: Cities
+    - keyword: 'ON'
+    - expression:
+        column_reference:
+          naked_identifier: Year
+        keyword: IN
+        bracketed:
+        - start_bracket: (
+        - numeric_literal: '2000'
+        - comma: ','
+        - numeric_literal: '2010'
+        - end_bracket: )
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: sum
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: Population
+          end_bracket: )
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: Country
+- statement_terminator: ;
+- statement:
+    simplified_pivot:
+    - keyword: PIVOT
+    - table_expression:
+        table_reference:
+          naked_identifier: Cities
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: Country
+    - comma: ','
+    - column_reference:
+        naked_identifier: Name
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: sum
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: Population
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    simplified_pivot:
+    - keyword: PIVOT
+    - table_expression:
+        table_reference:
+          naked_identifier: Cities
+    - keyword: 'ON'
+    - expression:
+      - column_reference:
+          naked_identifier: Country
+      - binary_operator:
+        - pipe: '|'
+        - pipe: '|'
+      - quoted_literal: "'_'"
+      - binary_operator:
+        - pipe: '|'
+        - pipe: '|'
+      - column_reference:
+          naked_identifier: Name
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: sum
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: Population
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    simplified_pivot:
+    - keyword: PIVOT
+    - table_expression:
+        table_reference:
+          naked_identifier: Cities
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: Year
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: sum
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: Population
+          end_bracket: )
+    - alias_expression:
+        keyword: AS
+        naked_identifier: total
+    - comma: ','
+    - function:
+        function_name:
+          function_name_identifier: max
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: Population
+          end_bracket: )
+    - alias_expression:
+        keyword: AS
+        naked_identifier: max
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: Country
+- statement_terminator: ;
+- statement:
+    simplified_pivot:
+    - keyword: PIVOT
+    - table_expression:
+        table_reference:
+          naked_identifier: Cities
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: Year
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: sum
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: Population
+          end_bracket: )
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: Country
+      - comma: ','
+      - column_reference:
+          naked_identifier: Name
+- statement_terminator: ;
+- statement:
+    simplified_pivot:
+    - keyword: PIVOT
+    - table_expression:
+        table_reference:
+          naked_identifier: Cities
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: Year
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: sum
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: Population
+          end_bracket: )
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: Country
+      - comma: ','
+      - column_reference:
+          naked_identifier: Name
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: Name
+- statement_terminator: ;
+- statement:
+    simplified_pivot:
+    - keyword: PIVOT
+    - table_expression:
+        table_reference:
+          naked_identifier: Cities
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: Year
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: sum
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: Population
+          end_bracket: )
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: Country
+      - comma: ','
+      - column_reference:
+          naked_identifier: Name
+    - limit_clause:
+        keyword: LIMIT
+        numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    simplified_pivot:
+    - keyword: PIVOT
+    - table_expression:
+        table_reference:
+          naked_identifier: Cities
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: Year
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: sum
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: Population
+          end_bracket: )
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: Country
+      - comma: ','
+      - column_reference:
+          naked_identifier: Name
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: Name
+    - limit_clause:
+        keyword: LIMIT
+        numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    simplified_pivot:
+    - keyword: PIVOT
+    - table_expression:
+        table_reference:
+          naked_identifier: Cities
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: sum
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: Population
+          end_bracket: )
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: Country
+      - comma: ','
+      - column_reference:
+          naked_identifier: Name
+- statement_terminator: ;
+- statement:
+    simplified_pivot:
+    - keyword: PIVOT
+    - table_expression:
+        table_reference:
+          naked_identifier: Cities
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: Year
+- statement_terminator: ;
+- statement:
+    simplified_pivot:
+    - keyword: PIVOT
+    - table_expression:
+        table_reference:
+          naked_identifier: Cities
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: sum
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: Population
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    simplified_pivot:
+      keyword: PIVOT
+      table_expression:
+        table_reference:
+          naked_identifier: Cities
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: Country
+      - comma: ','
+      - column_reference:
+          naked_identifier: Name
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: pivot_alias
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          simplified_pivot:
+          - keyword: PIVOT
+          - table_expression:
+              table_reference:
+                naked_identifier: Cities
+          - keyword: 'ON'
+          - column_reference:
+              naked_identifier: Year
+          - keyword: USING
+          - function:
+              function_name:
+                function_name_identifier: sum
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: Population
+                end_bracket: )
+          - groupby_clause:
+            - keyword: GROUP
+            - keyword: BY
+            - column_reference:
+                naked_identifier: Country
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: pivot_alias
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                simplified_pivot:
+                - keyword: PIVOT
+                - table_expression:
+                    table_reference:
+                      naked_identifier: Cities
+                - keyword: 'ON'
+                - column_reference:
+                    naked_identifier: Year
+                - keyword: USING
+                - function:
+                    function_name:
+                      function_name_identifier: sum
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: Population
+                      end_bracket: )
+                - groupby_clause:
+                  - keyword: GROUP
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: Country
+                end_bracket: )
+            alias_expression:
+              naked_identifier: pivot_alias
+- statement_terminator: ;
+- statement:
+    select_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                simplified_pivot:
+                - keyword: PIVOT
+                - table_expression:
+                    table_reference:
+                      naked_identifier: Cities
+                - keyword: 'ON'
+                - column_reference:
+                    naked_identifier: Year
+                - keyword: USING
+                - function:
+                    function_name:
+                      function_name_identifier: sum
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: Population
+                      end_bracket: )
+                - groupby_clause:
+                  - keyword: GROUP
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: Country
+                end_bracket: )
+            alias_expression:
+              naked_identifier: year_pivot
+          join_clause:
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                bracketed:
+                  start_bracket: (
+                  simplified_pivot:
+                  - keyword: PIVOT
+                  - table_expression:
+                      table_reference:
+                        naked_identifier: Cities
+                  - keyword: 'ON'
+                  - column_reference:
+                      naked_identifier: Name
+                  - keyword: USING
+                  - function:
+                      function_name:
+                        function_name_identifier: sum
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: Population
+                        end_bracket: )
+                  - groupby_clause:
+                    - keyword: GROUP
+                    - keyword: BY
+                    - column_reference:
+                        naked_identifier: Country
+                  end_bracket: )
+              alias_expression:
+                naked_identifier: name_pivot
+          - keyword: USING
+          - bracketed:
+              start_bracket: (
+              naked_identifier: Country
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: Cities
+          from_pivot_expression:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: sum
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: Population
+                  end_bracket: )
+            - keyword: FOR
+            - naked_identifier: Year
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '2000'
+              - comma: ','
+              - numeric_literal: '2010'
+              - comma: ','
+              - numeric_literal: '2020'
+              - end_bracket: )
+            - groupby_clause:
+              - keyword: GROUP
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: Country
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: Cities
+          from_pivot_expression:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: sum
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: Population
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: total
+            - comma: ','
+            - function:
+                function_name:
+                  function_name_identifier: count
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: Population
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: count
+            - keyword: FOR
+            - naked_identifier: Year
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '2000'
+              - comma: ','
+              - numeric_literal: '2010'
+              - end_bracket: )
+            - naked_identifier: Country
+            - keyword: in
+            - bracketed:
+              - start_bracket: (
+              - quoted_literal: "'NL'"
+              - comma: ','
+              - quoted_literal: "'US'"
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;

@@ -23,10 +23,20 @@ from sqlfluff.core.parser import (
     StringParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.dialects import dialect_postgres as postgres
 
 ansi_dialect = load_raw_dialect("ansi")
 postgres_dialect = load_raw_dialect("postgres")
 duckdb_dialect = postgres_dialect.copy_as("duckdb")
+
+duckdb_dialect.sets("reserved_keywords").update(
+    [
+        "PIVOT",
+        "PIVOT_LONGER",
+        "PIVOT_WIDER",
+        "UNPIVOT",
+    ]
+)
 
 duckdb_dialect.sets("unreserved_keywords").update(
     [
@@ -49,6 +59,22 @@ duckdb_dialect.replace(
         insert=[
             Sequence("BY", "NAME", optional=True),
         ]
+    ),
+    JoinLikeClauseGrammar=Sequence(
+        AnyNumberOf(
+            Ref("FromPivotExpressionSegment"),
+            Ref("FromUnpivotExpressionSegment"),
+            min_times=1,
+        ),
+        Ref("AliasExpressionSegment", optional=True),
+    ),
+    NonSetSelectableGrammar=postgres_dialect.get_grammar(
+        "NonSetSelectableGrammar"
+    ).copy(
+        insert=[
+            Ref("SimplifiedPivotExpressionSegment"),
+            Ref("SimplifiedUnpivotExpressionSegment"),
+        ],
     ),
 )
 
@@ -186,6 +212,21 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     )
 
 
+class ColumnsExpressionSegment(BaseSegment):
+    """Columns expression in a select statement.
+
+    https://duckdb.org/docs/sql/expressions/star#columns-expression
+    """
+
+    type = "columns_expression"
+    match_grammar = Sequence(
+        "COLUMNS",
+        Bracketed(
+            Ref("SelectClauseElementSegment"),
+        ),
+    )
+
+
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """A duckdb `SELECT` statement including optional Qualify.
 
@@ -307,4 +348,157 @@ class ObjectLiteralElementSegment(ansi.ObjectLiteralElementSegment):
         ),
         Ref("ColonSegment"),
         Ref("BaseExpressionElementGrammar"),
+    )
+
+
+class StatementSegment(postgres.StatementSegment):
+    """An element in the targets of a select statement."""
+
+    match_grammar = postgres.StatementSegment.match_grammar.copy(
+        insert=[
+            Ref("SimplifiedPivotExpressionSegment"),
+            Ref("SimplifiedUnpivotExpressionSegment"),
+        ]
+    )
+
+
+class FromPivotExpressionSegment(BaseSegment):
+    """A PIVOT expression."""
+
+    type = "from_pivot_expression"
+    match_grammar = Sequence(
+        "PIVOT",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("FunctionSegment"),
+                    Ref("AliasExpressionSegment", optional=True),
+                )
+            ),
+            "FOR",
+            AnyNumberOf(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    "IN",
+                    Bracketed(Delimited(Ref("LiteralGrammar"))),
+                ),
+            ),
+            Ref("GroupByClauseSegment", optional=True),
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+        ),
+        reset_terminators=True,
+    )
+
+
+class SimplifiedPivotExpressionSegment(BaseSegment):
+    """The DuckDB simplified PIVOT syntax.
+
+    https://duckdb.org/docs/sql/statements/pivot#simplified-pivot-full-syntax-diagram
+    """
+
+    type = "simplified_pivot"
+    match_grammar = Sequence(
+        OneOf("PIVOT", "PIVOT_WIDER"),
+        Ref("TableExpressionSegment"),
+        Sequence(
+            "ON",
+            Delimited(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+                Sequence(
+                    "IN",
+                    Bracketed(Delimited(Ref("LiteralGrammar"))),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "USING",
+            Delimited(
+                Sequence(
+                    Ref("FunctionSegment"),
+                    Ref("AliasExpressionSegment", optional=True),
+                ),
+            ),
+            optional=True,
+        ),
+        Ref("GroupByClauseSegment", optional=True),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("LimitClauseSegment", optional=True),
+    )
+
+
+class FromUnpivotExpressionSegment(BaseSegment):
+    """An UNPIVOT expression."""
+
+    type = "from_unpivot_expression"
+    match_grammar = Sequence(
+        "UNPIVOT",
+        Sequence("INCLUDE", "NULLS", optional=True),
+        Bracketed(
+            OneOf(
+                Ref("SingleIdentifierGrammar"),
+                Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+            ),
+            "FOR",
+            AnyNumberOf(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    "IN",
+                    Bracketed(
+                        Delimited(
+                            Sequence(
+                                OptionallyBracketed(
+                                    Delimited(Ref("SingleIdentifierGrammar"))
+                                ),
+                                Ref("AliasExpressionSegment", optional=True),
+                            ),
+                            Ref("ColumnsExpressionSegment"),
+                        ),
+                    ),
+                ),
+                min_times=1,
+            ),
+        ),
+    )
+
+
+class SimplifiedUnpivotExpressionSegment(BaseSegment):
+    """The DuckDB simplified UNPIVOT syntax.
+
+    https://duckdb.org/docs/sql/statements/unpivot#simplified-unpivot-full-syntax-diagram
+    """
+
+    type = "simplified_unpivot"
+    match_grammar = Sequence(
+        OneOf("UNPIVOT", "PIVOT_LONGER"),
+        Ref("TableExpressionSegment"),
+        "ON",
+        Delimited(
+            Sequence(
+                OneOf(
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                    ),
+                    Ref("ColumnReferenceSegment"),
+                ),
+                Ref("AliasExpressionSegment", optional=True),
+            ),
+            Ref("ColumnsExpressionSegment"),
+        ),
+        "INTO",
+        "NAME",
+        Ref("SingleIdentifierGrammar"),
+        "VALUE",
+        Delimited(
+            Ref("SingleIdentifierGrammar"),
+        ),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("LimitClauseSegment", optional=True),
     )
