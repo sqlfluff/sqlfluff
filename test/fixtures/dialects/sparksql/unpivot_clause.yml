@@ -1,0 +1,267 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: de64ad2af662f2c6b546ba322499432535cf5b5d3cba347363053ab657fe24ea
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: sales_quarterly
+          unpivot_clause:
+            keyword: UNPIVOT
+            bracketed:
+              start_bracket: (
+              unpivot_single_column:
+              - naked_identifier: sales
+              - keyword: FOR
+              - naked_identifier: quarter
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
+                    naked_identifier: q1
+                - comma: ','
+                - column_reference:
+                    naked_identifier: q2
+                - comma: ','
+                - column_reference:
+                    naked_identifier: q3
+                - comma: ','
+                - column_reference:
+                    naked_identifier: q4
+                - end_bracket: )
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              naked_identifier: up
+              dot: .
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: sales_quarterly
+          unpivot_clause:
+          - keyword: UNPIVOT
+          - keyword: INCLUDE
+          - keyword: NULLS
+          - bracketed:
+              start_bracket: (
+              unpivot_single_column:
+              - naked_identifier: sales
+              - keyword: FOR
+              - naked_identifier: quarter
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
+                    naked_identifier: q1
+                - alias_expression:
+                    keyword: AS
+                    naked_identifier: Q1
+                - comma: ','
+                - column_reference:
+                    naked_identifier: q2
+                - alias_expression:
+                    keyword: AS
+                    naked_identifier: Q2
+                - comma: ','
+                - column_reference:
+                    naked_identifier: q3
+                - alias_expression:
+                    keyword: AS
+                    naked_identifier: Q3
+                - comma: ','
+                - column_reference:
+                    naked_identifier: q4
+                - alias_expression:
+                    keyword: AS
+                    naked_identifier: Q4
+                - end_bracket: )
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: up
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: sales_quarterly
+          unpivot_clause:
+          - keyword: UNPIVOT
+          - keyword: EXCLUDE
+          - keyword: NULLS
+          - bracketed:
+              start_bracket: (
+              unpivot_multi_column:
+              - bracketed:
+                - start_bracket: (
+                - naked_identifier: first_quarter
+                - comma: ','
+                - naked_identifier: second_quarter
+                - end_bracket: )
+              - keyword: FOR
+              - naked_identifier: half_of_the_year
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                      naked_identifier: q1
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: q2
+                  - end_bracket: )
+                - alias_expression:
+                    keyword: AS
+                    naked_identifier: H1
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                      naked_identifier: q3
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: q4
+                  - end_bracket: )
+                - alias_expression:
+                    keyword: AS
+                    naked_identifier: H2
+                - end_bracket: )
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: sales
+          unpivot_clause:
+          - keyword: UNPIVOT
+          - keyword: INCLUDE
+          - keyword: NULLS
+          - bracketed:
+              start_bracket: (
+              unpivot_single_column:
+              - naked_identifier: sales
+              - keyword: FOR
+              - naked_identifier: quarter
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
+                    naked_identifier: q1
+                - alias_expression:
+                    keyword: AS
+                    quoted_identifier: '`Jan-Mar`'
+                - comma: ','
+                - column_reference:
+                    naked_identifier: q2
+                - alias_expression:
+                    keyword: AS
+                    quoted_identifier: '`Apr-Jun`'
+                - comma: ','
+                - column_reference:
+                    naked_identifier: q3
+                - alias_expression:
+                    keyword: AS
+                    quoted_identifier: '`Jul-Sep`'
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: sales
+                  - dot: .
+                  - naked_identifier: q4
+                - alias_expression:
+                    keyword: AS
+                    quoted_identifier: '`Oct-Dec`'
+                - end_bracket: )
+              end_bracket: )
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: sales
+          unpivot_clause:
+          - keyword: UNPIVOT
+          - keyword: INCLUDE
+          - keyword: NULLS
+          - bracketed:
+              start_bracket: (
+              unpivot_single_column:
+              - naked_identifier: sales
+              - keyword: FOR
+              - naked_identifier: quarter
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
+                    naked_identifier: q1
+                - alias_expression:
+                    keyword: AS
+                    quoted_identifier: '`Jan-Mar`'
+                - comma: ','
+                - column_reference:
+                    naked_identifier: q2
+                - alias_expression:
+                    keyword: AS
+                    quoted_identifier: '`Apr-Jun`'
+                - comma: ','
+                - column_reference:
+                    naked_identifier: q3
+                - alias_expression:
+                    keyword: AS
+                    quoted_identifier: '`Jul-Sep`'
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: sales
+                  - dot: .
+                  - naked_identifier: q4
+                - alias_expression:
+                    keyword: AS
+                    quoted_identifier: '`Oct-Dec`'
+                - end_bracket: )
+              end_bracket: )
+- statement_terminator: ;

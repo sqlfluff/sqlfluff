@@ -83,3 +83,13 @@ SELECT * FROM (
     ctrl_run_id as ctrl
   )
 );
+
+-- double pivot
+SELECT *
+  FROM (select year, quarter, sales from sales) AS s
+  PIVOT (sum(sales) AS total, avg(sales) AS avg
+    FOR quarter
+    IN (1 AS q1, 2 AS q2, 3 AS q3, 4 AS q4))
+  PIVOT (sum(q1_avg) AS total
+    FOR year
+    IN (2018, 2019));
