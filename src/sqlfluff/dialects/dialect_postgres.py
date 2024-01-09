@@ -2239,6 +2239,138 @@ class DropExtensionStatementSegment(BaseSegment):
     )
 
 
+class AlterExtensionStatementSegment(BaseSegment):
+    """An `ALTER EXTENSION` statement.
+
+    https://www.postgresql.org/docs/16/sql-alterextension.html
+    """
+
+    type = "alter_extension_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "EXTENSION",
+        Ref("ExtensionReferenceSegment"),
+        OneOf(
+            Sequence(
+                "UPDATE",
+                Sequence(
+                    "TO",
+                    Ref("LiteralGrammar"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "SET",
+                "SCHEMA",
+                OneOf(Ref("SchemaReferenceSegment"), "CURRENT_SCHEMA"),
+            ),
+            Sequence(
+                OneOf(
+                    "ADD",
+                    "DROP",
+                ),
+                OneOf(
+                    Sequence(
+                        OneOf(
+                            Sequence("ACCESS", "METHOD"),
+                            "COLLATION",
+                            "CONVERSION",
+                            "DOMAIN",
+                            Sequence("EVENT", "TRIGGER"),
+                            Sequence("FOREIGN", "DATA", "WRAPPER"),
+                            Sequence("FOREIGN", "TABLE"),
+                            Sequence(
+                                Ref.keyword("PROCEDURAL", optional=True),
+                                "LANGUAGE",
+                            ),
+                            "SCHEMA",
+                            "SEQUENCE",
+                            "SERVER",
+                            Sequence(
+                                "TEXT",
+                                "SEARCH",
+                                OneOf(
+                                    "CONFIGURATION",
+                                    "DICTIONARY",
+                                    "PARSER",
+                                    "TEMPLATE",
+                                ),
+                            ),
+                            "TYPE",
+                        ),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence(
+                        OneOf(
+                            Sequence("MATERIALIZED", "VIEW"),
+                            "TABLE",
+                            "VIEW",
+                        ),
+                        Ref("TableReferenceSegment"),
+                    ),
+                    Sequence(
+                        "AGGREGATE",
+                        Ref("ObjectReferenceSegment"),
+                        Bracketed(
+                            Sequence(
+                                # TODO: Is this too permissive?
+                                Anything(),
+                                optional=True,
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        "CAST",
+                        Bracketed(
+                            Sequence(
+                                Ref("ObjectReferenceSegment"),
+                                "AS",
+                                Ref("ObjectReferenceSegment"),
+                            ),
+                        ),
+                    ),
+                    Sequence(
+                        OneOf(
+                            "FUNCTION",
+                            "PROCEDURE",
+                            "ROUTINE",
+                        ),
+                        Delimited(
+                            Sequence(
+                                Ref("FunctionNameSegment"),
+                                Ref("FunctionParameterListGrammar", optional=True),
+                            ),
+                        ),
+                    ),
+                    Sequence(
+                        "OPERATOR",
+                        OneOf(
+                            Sequence(
+                                Ref("ObjectReferenceSegment"),
+                                Bracketed(
+                                    Delimited(
+                                        Ref("DatatypeSegment"),
+                                        Ref("CommaSegment"),
+                                        Ref("DatatypeSegment"),
+                                    ),
+                                ),
+                            ),
+                            Sequence(
+                                OneOf("CLASS", "FAMILY"),
+                                Ref("ObjectReferenceSegment"),
+                                "USING",
+                                Ref("IndexAccessMethodSegment"),
+                            ),
+                        ),
+                    ),
+                    Sequence("TRANSFORM", "FOR", "TYPE", Ref("ParameterNameSegment")),
+                ),
+            ),
+        ),
+    )
+
+
 class PublicationReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to a publication."""
 
@@ -3955,6 +4087,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterRoleStatementSegment"),
             Ref("CreateExtensionStatementSegment"),
             Ref("DropExtensionStatementSegment"),
+            Ref("AlterExtensionStatementSegment"),
             Ref("CreatePublicationStatementSegment"),
             Ref("AlterPublicationStatementSegment"),
             Ref("DropPublicationStatementSegment"),
