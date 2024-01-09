@@ -1529,7 +1529,7 @@ class CreateTableFunctionStatementSegment(BaseSegment):
 
     # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_table_function_statement
 
-    #type = "create_table_function_statement"
+    type = "create_table_function_statement"
 
     match_grammar = Sequence(
         "CREATE",
