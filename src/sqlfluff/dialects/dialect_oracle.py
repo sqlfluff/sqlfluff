@@ -279,6 +279,7 @@ oracle_dialect.replace(
             Sequence("TO", Ref("IntervalUnitsGrammar"), optional=True),
         ),
     ),
+    PreTableFunctionKeywordsGrammar=OneOf("LATERAL"),
 )
 
 

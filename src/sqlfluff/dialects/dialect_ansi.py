@@ -539,17 +539,20 @@ ansi_dialect.add(
     JoinKeywordsGrammar=Sequence("JOIN"),
     # NATURAL joins are not supported in all dialects (e.g. not in Bigquery
     # or T-SQL). So define here to allow override with Nothing() for those.
-    NaturalJoinKeywordsGrammar=Sequence(
-        "NATURAL",
-        OneOf(
-            # Note that NATURAL joins do not support CROSS joins
-            "INNER",
-            Sequence(
-                OneOf("LEFT", "RIGHT", "FULL"),
-                Ref.keyword("OUTER", optional=True),
+    # Make OneOf to flip CROSS joins to natural style joins.
+    NaturalJoinKeywordsGrammar=OneOf(
+        Sequence(
+            "NATURAL",
+            OneOf(
+                # Note that NATURAL joins do not support CROSS joins
+                "INNER",
+                Sequence(
+                    OneOf("LEFT", "RIGHT", "FULL"),
+                    Ref.keyword("OUTER", optional=True),
+                    optional=True,
+                ),
                 optional=True,
             ),
-            optional=True,
         ),
     ),
     # This can be overwritten by dialects
@@ -1424,6 +1427,7 @@ class FromExpressionElementSegment(BaseSegment):
                 Ref("FromClauseTerminatorGrammar"),
                 Ref("SamplingExpressionSegment"),
                 Ref("JoinLikeClauseGrammar"),
+                Ref("JoinClauseSegment"),
             ),
             optional=True,
         ),

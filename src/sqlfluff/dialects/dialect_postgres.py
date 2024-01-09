@@ -459,7 +459,7 @@ postgres_dialect.replace(
     # https://www.postgresql.org/docs/14/functions-comparison.html
     IsNullGrammar=Ref.keyword("ISNULL"),
     NotNullGrammar=Ref.keyword("NOTNULL"),
-    JoinKeywordsGrammar=Sequence("JOIN", Sequence("LATERAL", optional=True)),
+    PreTableFunctionKeywordsGrammar=OneOf("LATERAL"),
     SelectClauseTerminatorGrammar=OneOf(
         "INTO",
         "FROM",
@@ -521,6 +521,14 @@ postgres_dialect.replace(
         Ref("DeleteStatementSegment"),
     ),
     NonWithNonSelectableGrammar=OneOf(),
+    JoinTypeKeywordsGrammar=ansi_dialect.get_grammar("JoinTypeKeywordsGrammar").copy(
+        remove=[Ref.keyword("CROSS")],
+    ),
+    NaturalJoinKeywordsGrammar=ansi_dialect.get_grammar(
+        "NaturalJoinKeywordsGrammar"
+    ).copy(
+        insert=[Ref.keyword("CROSS")],
+    ),
 )
 
 
