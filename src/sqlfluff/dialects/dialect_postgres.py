@@ -16,6 +16,7 @@ from sqlfluff.core.parser import (
     LiteralSegment,
     Matchable,
     NewlineSegment,
+    Nothing,
     OneOf,
     OptionallyBracketed,
     ParseMode,
@@ -460,6 +461,8 @@ postgres_dialect.replace(
     IsNullGrammar=Ref.keyword("ISNULL"),
     NotNullGrammar=Ref.keyword("NOTNULL"),
     PreTableFunctionKeywordsGrammar=OneOf("LATERAL"),
+    ConditionalCrossJoinKeywordsGrammar=Nothing(),
+    UnconditionalCrossJoinKeywordsGrammar=Ref.keyword("CROSS"),
     SelectClauseTerminatorGrammar=OneOf(
         "INTO",
         "FROM",
@@ -521,14 +524,6 @@ postgres_dialect.replace(
         Ref("DeleteStatementSegment"),
     ),
     NonWithNonSelectableGrammar=OneOf(),
-    JoinTypeKeywordsGrammar=ansi_dialect.get_grammar("JoinTypeKeywordsGrammar").copy(
-        remove=[Ref.keyword("CROSS")],
-    ),
-    NaturalJoinKeywordsGrammar=ansi_dialect.get_grammar(
-        "NaturalJoinKeywordsGrammar"
-    ).copy(
-        insert=[Ref.keyword("CROSS")],
-    ),
 )
 
 

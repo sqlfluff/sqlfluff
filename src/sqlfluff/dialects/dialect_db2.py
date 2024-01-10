@@ -15,6 +15,7 @@ from sqlfluff.core.parser import (
     Delimited,
     IdentifierSegment,
     Indent,
+    Nothing,
     OneOf,
     OptionallyBracketed,
     ParseMode,
@@ -53,10 +54,9 @@ db2_dialect.replace(
         Ref("ExpressionSegment"),
         Ref("NamedArgumentSegment"),
     ),
-    JoinTypeKeywordsGrammar=ansi_dialect.get_grammar("JoinTypeKeywordsGrammar").copy(
-        remove=[Ref.keyword("CROSS")],
-    ),
-    NaturalJoinKeywordsGrammar=Ref.keyword("CROSS"),
+    ConditionalCrossJoinKeywordsGrammar=Nothing(),
+    NaturalJoinKeywordsGrammar=Nothing(),
+    UnconditionalCrossJoinKeywordsGrammar=Ref.keyword("CROSS"),
     PreTableFunctionKeywordsGrammar=OneOf("LATERAL"),
     PostFunctionGrammar=OneOf(
         Ref("OverClauseSegment"),

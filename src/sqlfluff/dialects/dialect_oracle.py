@@ -18,6 +18,7 @@ from sqlfluff.core.parser import (
     IdentifierSegment,
     LiteralSegment,
     Matchable,
+    Nothing,
     OneOf,
     OptionallyBracketed,
     ParseMode,
@@ -280,6 +281,8 @@ oracle_dialect.replace(
         ),
     ),
     PreTableFunctionKeywordsGrammar=OneOf("LATERAL"),
+    ConditionalCrossJoinKeywordsGrammar=Nothing(),
+    UnconditionalCrossJoinKeywordsGrammar=Ref.keyword("CROSS"),
 )
 
 
