@@ -546,6 +546,7 @@ tsql_dialect.replace(
         optional=True,
     ),
     JoinKeywordsGrammar=OneOf("JOIN", "APPLY"),
+    ConditionalCrossJoinKeywordsGrammar=Nothing(),
     NaturalJoinKeywordsGrammar=Ref.keyword("CROSS"),
     ExtendedNaturalJoinKeywordsGrammar=Sequence("OUTER", "APPLY"),
     NestedJoinGrammar=Sequence(

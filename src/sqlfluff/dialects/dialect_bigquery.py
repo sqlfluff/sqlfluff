@@ -244,7 +244,9 @@ bigquery_dialect.replace(
         ),
         Ref("AliasExpressionSegment", optional=True),
     ),
+    ConditionalCrossJoinKeywordsGrammar=Nothing(),
     NaturalJoinKeywordsGrammar=Nothing(),
+    UnconditionalCrossJoinKeywordsGrammar=Ref.keyword("CROSS"),
     MergeIntoLiteralGrammar=Sequence("MERGE", Ref.keyword("INTO", optional=True)),
     AccessorGrammar=AnyNumberOf(
         Ref("ArrayAccessorSegment"),

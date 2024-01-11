@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 348309b797f6429b65e4a5f06569e534d325fefae4c392fe07f6d38a3f7c7a16
+_hash: dd7ca0dbc4bba24779a850b15f0119b86808ea02e947d8f371afdfe30241706e
 file:
 - statement:
     select_statement:
@@ -422,8 +422,8 @@ file:
           join_clause:
           - keyword: CROSS
           - keyword: JOIN
-          - keyword: LATERAL
           - from_expression_element:
+              keyword: LATERAL
               table_expression:
                 function:
                   function_name:

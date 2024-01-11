@@ -522,8 +522,9 @@ ansi_dialect.add(
     ),
     IgnoreRespectNullsGrammar=Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
     FrameClauseUnitGrammar=OneOf("ROWS", "RANGE"),
+    # Some dialects do not support `ON` or `USING` with `CROSS JOIN`
+    ConditionalCrossJoinKeywordsGrammar=Ref.keyword("CROSS"),
     JoinTypeKeywordsGrammar=OneOf(
-        "CROSS",
         "INNER",
         Sequence(
             OneOf(
@@ -533,7 +534,10 @@ ansi_dialect.add(
             ),
             Ref.keyword("OUTER", optional=True),
         ),
-        optional=True,
+    ),
+    ConditionalJoinKeywordsGrammar=OneOf(
+        Ref("JoinTypeKeywordsGrammar"),
+        Ref("ConditionalCrossJoinKeywordsGrammar"),
     ),
     # It's as a sequence to allow to parametrize that in Postgres dialect with LATERAL
     JoinKeywordsGrammar=Sequence("JOIN"),
@@ -541,16 +545,12 @@ ansi_dialect.add(
     # or T-SQL). So define here to allow override with Nothing() for those.
     NaturalJoinKeywordsGrammar=Sequence(
         "NATURAL",
-        OneOf(
-            # Note that NATURAL joins do not support CROSS joins
-            "INNER",
-            Sequence(
-                OneOf("LEFT", "RIGHT", "FULL"),
-                Ref.keyword("OUTER", optional=True),
-                optional=True,
-            ),
-            optional=True,
-        ),
+        Ref("JoinTypeKeywordsGrammar", optional=True),
+    ),
+    UnconditionalCrossJoinKeywordsGrammar=Nothing(),
+    UnconditionalJoinKeywordsGrammar=OneOf(
+        Ref("NaturalJoinKeywordsGrammar"),
+        Ref("UnconditionalCrossJoinKeywordsGrammar"),
     ),
     # This can be overwritten by dialects
     ExtendedNaturalJoinKeywordsGrammar=Nothing(),
@@ -1424,6 +1424,7 @@ class FromExpressionElementSegment(BaseSegment):
                 Ref("FromClauseTerminatorGrammar"),
                 Ref("SamplingExpressionSegment"),
                 Ref("JoinLikeClauseGrammar"),
+                Ref("JoinClauseSegment"),
             ),
             optional=True,
         ),
@@ -1687,7 +1688,7 @@ class JoinClauseSegment(BaseSegment):
     match_grammar: Matchable = OneOf(
         # NB These qualifiers are optional
         Sequence(
-            Ref("JoinTypeKeywordsGrammar", optional=True),
+            Ref("ConditionalJoinKeywordsGrammar", optional=True),
             Ref("JoinKeywordsGrammar"),
             Indent,
             Ref("FromExpressionElementSegment"),
@@ -1727,7 +1728,7 @@ class JoinClauseSegment(BaseSegment):
         ),
         # Note NATURAL joins do not support Join conditions
         Sequence(
-            Ref("NaturalJoinKeywordsGrammar"),
+            Ref("UnconditionalJoinKeywordsGrammar"),
             Ref("JoinKeywordsGrammar"),
             Indent,
             Ref("FromExpressionElementSegment"),
