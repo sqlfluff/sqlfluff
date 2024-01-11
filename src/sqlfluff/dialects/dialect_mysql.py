@@ -1258,9 +1258,8 @@ class AlterTableStatementSegment(BaseSegment):
                     Ref("IfNotExistsGrammar", optional=True),
                     Ref("ColumnDefinitionSegment"),
                     OneOf(
-                        Sequence(
-                            OneOf("FIRST", "AFTER"), Ref("ColumnReferenceSegment")
-                        ),
+                        "FIRST",
+                        Sequence("AFTER", Ref("ColumnReferenceSegment")),
                         # Bracketed Version of the same
                         Ref("BracketedColumnReferenceListGrammar"),
                         optional=True,
@@ -1271,9 +1270,8 @@ class AlterTableStatementSegment(BaseSegment):
                     Ref.keyword("COLUMN", optional=True),
                     Ref("ColumnDefinitionSegment"),
                     OneOf(
-                        Sequence(
-                            OneOf("FIRST", "AFTER"), Ref("ColumnReferenceSegment")
-                        ),
+                        "FIRST",
+                        Sequence("AFTER", Ref("ColumnReferenceSegment")),
                         # Bracketed Version of the same
                         Ref("BracketedColumnReferenceListGrammar"),
                         optional=True,

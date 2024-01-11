@@ -3,6 +3,8 @@ ALTER TABLE `users`
     `name` varchar(255) NOT NULL,
     COMMENT "name of user";
 
+ALTER TABLE `users` MODIFY `name` varchar(255) NOT NULL FIRST;
+
 ALTER TABLE `users` RENAME TO `user`;
 
 ALTER TABLE `user` RENAME AS `users`;
@@ -61,3 +63,5 @@ ALTER TABLE `users`
 
 ALTER TABLE `users`
     ADD COLUMN IF NOT EXISTS `active` tinyint(1) DEFAULT '0';
+
+ALTER TABLE `foo` ADD `bar` INT FIRST;
