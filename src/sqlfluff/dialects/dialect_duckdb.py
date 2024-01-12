@@ -40,6 +40,10 @@ duckdb_dialect.sets("reserved_keywords").update(
 
 duckdb_dialect.sets("unreserved_keywords").update(
     [
+        "ANTI",
+        "ASOF",
+        "POSITIONAL",
+        "SEMI",
         "VIRTUAL",
     ]
 )
@@ -75,6 +79,26 @@ duckdb_dialect.replace(
             Ref("SimplifiedPivotExpressionSegment"),
             Ref("SimplifiedUnpivotExpressionSegment"),
         ],
+    ),
+    JoinTypeKeywordsGrammar=postgres_dialect.get_grammar(
+        "JoinTypeKeywordsGrammar"
+    ).copy(
+        insert=[
+            Ref.keyword("ANTI"),
+            Ref.keyword("SEMI"),
+        ],
+    ),
+    ConditionalJoinKeywordsGrammar=postgres_dialect.get_grammar(
+        "ConditionalJoinKeywordsGrammar"
+    ).copy(
+        insert=[
+            Sequence("ASOF", Ref("JoinTypeKeywordsGrammar", optional=True)),
+        ],
+    ),
+    UnconditionalJoinKeywordsGrammar=postgres_dialect.get_grammar(
+        "UnconditionalJoinKeywordsGrammar"
+    ).copy(
+        insert=[Ref.keyword("POSITIONAL")],
     ),
 )
 
