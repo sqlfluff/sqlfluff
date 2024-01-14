@@ -80,26 +80,20 @@ duckdb_dialect.replace(
             Ref("SimplifiedUnpivotExpressionSegment"),
         ],
     ),
-    JoinTypeKeywordsGrammar=postgres_dialect.get_grammar(
-        "JoinTypeKeywordsGrammar"
-    ).copy(
-        insert=[
-            Ref.keyword("ANTI"),
-            Ref.keyword("SEMI"),
-        ],
+    NonStandardJoinTypeKeywordsGrammar=OneOf(
+        "ANTI",
+        "SEMI",
+        Sequence(
+            "ASOF",
+            OneOf(
+                Ref("JoinTypeKeywordsGrammar"),
+                "ANTI",
+                "SEMI",
+                optional=True,
+            ),
+        ),
     ),
-    ConditionalJoinKeywordsGrammar=postgres_dialect.get_grammar(
-        "ConditionalJoinKeywordsGrammar"
-    ).copy(
-        insert=[
-            Sequence("ASOF", Ref("JoinTypeKeywordsGrammar", optional=True)),
-        ],
-    ),
-    UnconditionalJoinKeywordsGrammar=postgres_dialect.get_grammar(
-        "UnconditionalJoinKeywordsGrammar"
-    ).copy(
-        insert=[Ref.keyword("POSITIONAL")],
-    ),
+    HorizontalJoinKeywordsGrammar=Ref.keyword("POSITIONAL"),
 )
 
 duckdb_dialect.insert_lexer_matchers(

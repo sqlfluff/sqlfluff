@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: baa236dee663f5af04feb422cb15ff1cedea974b235e9895f76f5bb1d3850d16
+_hash: 1c574210a093244da340d0d2579eb64c78c83f678b1c2e34a9d1bc63889680b6
 file:
 - statement:
     select_statement:
@@ -90,4 +90,74 @@ file:
                 - naked_identifier: safety_data
                 - dot: .
                 - naked_identifier: report_id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: cars
+          - dot: .
+          - naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: cars
+          - dot: .
+          - naked_identifier: manufacturer
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: cars
+          join_clause:
+          - keyword: SEMI
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: region
+          - keyword: USING
+          - bracketed:
+              start_bracket: (
+              naked_identifier: region_id
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: cars
+          - dot: .
+          - naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: cars
+          - dot: .
+          - naked_identifier: manufacturer
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: cars
+          join_clause:
+          - keyword: ANTI
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: region
+          - keyword: USING
+          - bracketed:
+              start_bracket: (
+              naked_identifier: region_id
+              end_bracket: )
 - statement_terminator: ;
