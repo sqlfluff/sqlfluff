@@ -40,6 +40,10 @@ duckdb_dialect.sets("reserved_keywords").update(
 
 duckdb_dialect.sets("unreserved_keywords").update(
     [
+        "ANTI",
+        "ASOF",
+        "POSITIONAL",
+        "SEMI",
         "VIRTUAL",
     ]
 )
@@ -76,6 +80,20 @@ duckdb_dialect.replace(
             Ref("SimplifiedUnpivotExpressionSegment"),
         ],
     ),
+    NonStandardJoinTypeKeywordsGrammar=OneOf(
+        "ANTI",
+        "SEMI",
+        Sequence(
+            "ASOF",
+            OneOf(
+                Ref("JoinTypeKeywordsGrammar"),
+                "ANTI",
+                "SEMI",
+                optional=True,
+            ),
+        ),
+    ),
+    HorizontalJoinKeywordsGrammar=Ref.keyword("POSITIONAL"),
 )
 
 duckdb_dialect.insert_lexer_matchers(

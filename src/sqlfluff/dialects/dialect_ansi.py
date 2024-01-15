@@ -535,9 +535,12 @@ ansi_dialect.add(
             Ref.keyword("OUTER", optional=True),
         ),
     ),
+    # Extensible in individual dialects
+    NonStandardJoinTypeKeywordsGrammar=Nothing(),
     ConditionalJoinKeywordsGrammar=OneOf(
         Ref("JoinTypeKeywordsGrammar"),
         Ref("ConditionalCrossJoinKeywordsGrammar"),
+        Ref("NonStandardJoinTypeKeywordsGrammar"),
     ),
     # It's as a sequence to allow to parametrize that in Postgres dialect with LATERAL
     JoinKeywordsGrammar=Sequence("JOIN"),
@@ -548,9 +551,13 @@ ansi_dialect.add(
         Ref("JoinTypeKeywordsGrammar", optional=True),
     ),
     UnconditionalCrossJoinKeywordsGrammar=Nothing(),
+    # Some dialects such as DuckDB and Clickhouse support a row by row
+    # join between two tables (e.g. POSITIONAL and PASTE)
+    HorizontalJoinKeywordsGrammar=Nothing(),
     UnconditionalJoinKeywordsGrammar=OneOf(
         Ref("NaturalJoinKeywordsGrammar"),
         Ref("UnconditionalCrossJoinKeywordsGrammar"),
+        Ref("HorizontalJoinKeywordsGrammar"),
     ),
     # This can be overwritten by dialects
     ExtendedNaturalJoinKeywordsGrammar=Nothing(),
