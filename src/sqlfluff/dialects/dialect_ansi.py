@@ -694,6 +694,11 @@ class IntervalExpressionSegment(BaseSegment):
             ),
             # The String version
             Ref("QuotedLiteralSegment"),
+            # Combine version
+            Sequence(
+                Ref("QuotedLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
+            ),
         ),
     )
 
@@ -2126,6 +2131,7 @@ ansi_dialect.add(
             Ref("TypedStructLiteralSegment"),
             Ref("ArrayExpressionSegment"),
             Ref("ColumnReferenceSegment"),
+            Ref("OverlapsClauseSegment"),
             # For triggers, we allow "NEW.*" but not just "*" nor "a.b.*"
             # So can't use WildcardIdentifierSegment nor WildcardExpressionSegment
             Sequence(

@@ -12,7 +12,7 @@ city_id int NOT NULL,
 logdate date NOT NULL,
 peaktemp int,
 unitsales int
-) WITH (appendoptimized=true)
+) WITH (appendoptimized=true, orientation="column")
 DISTRIBUTED BY (txn_id);
 
 
@@ -37,3 +37,11 @@ logdate date NOT NULL,
 test_text int
 )
 DISTRIBUTED REPLICATED;
+
+create table table1 (
+    column1 int
+    , column2 varchar
+    , column3 boolean
+)
+with (appendoptimized = true, compresstype = zstd)
+distributed by (column1, column2);

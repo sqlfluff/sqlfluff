@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fa079509f47722b87061b8271e67c58da8a3f67bfa948ae63312847c7cc96952
+_hash: e8c2074cb7e0175b3a48d7cee8c4f1b22d987151bbe11834726c592fa085979e
 file:
 - statement:
     create_table_statement:
@@ -102,12 +102,17 @@ file:
       - end_bracket: )
     - keyword: WITH
     - bracketed:
-        start_bracket: (
-        parameter: appendoptimized
-        comparison_operator:
+      - start_bracket: (
+      - parameter: appendoptimized
+      - comparison_operator:
           raw_comparison_operator: '='
-        boolean_literal: 'true'
-        end_bracket: )
+      - boolean_literal: 'true'
+      - comma: ','
+      - parameter: orientation
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_identifier: '"column"'
+      - end_bracket: )
     - distributed_by:
       - keyword: DISTRIBUTED
       - keyword: BY
@@ -224,4 +229,52 @@ file:
     - distributed_by:
       - keyword: DISTRIBUTED
       - keyword: REPLICATED
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: table1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: column1
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: column2
+      - data_type:
+          keyword: varchar
+      - comma: ','
+      - column_reference:
+          naked_identifier: column3
+      - data_type:
+          keyword: boolean
+      - end_bracket: )
+    - keyword: with
+    - bracketed:
+      - start_bracket: (
+      - parameter: appendoptimized
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - parameter: compresstype
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: zstd
+      - end_bracket: )
+    - distributed_by:
+      - keyword: distributed
+      - keyword: by
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: column1
+        - comma: ','
+        - column_reference:
+            naked_identifier: column2
+        - end_bracket: )
 - statement_terminator: ;
