@@ -45,6 +45,10 @@ alter table t2 alter column c0 encode lzo;
 
 ALTER TABLE the_schema.the_table ADD COLUMN the_timestamp TIMESTAMP;
 
+ALTER TABLE the_schema.the_table APPEND FROM the_schema.the_temp_table IGNOREEXTRA FILLTARGET;
+
+ALTER TABLE the_schema.the_table APPEND FROM the_schema.the_temp_table;
+
 ALTER TABLE the_schema.the_table ADD COLUMN the_boolean BOOLEAN DEFAULT FALSE;
 
 alter table users
