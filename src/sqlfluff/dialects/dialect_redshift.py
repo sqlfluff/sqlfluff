@@ -686,6 +686,13 @@ class AlterTableActionSegment(BaseSegment):
             Ref("ColumnReferenceSegment"),
             Ref("DropBehaviorGrammar", optional=True),
         ),
+        Sequence(
+            "APPEND",
+            "FROM",
+            Ref("TableReferenceSegment"),
+            Ref.keyword("IGNOREEXTRA", optional=True),
+            Ref.keyword("FILLTARGET", optional=True),
+        ),
     )
 
 
