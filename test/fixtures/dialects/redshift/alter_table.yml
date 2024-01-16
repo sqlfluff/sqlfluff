@@ -409,9 +409,9 @@ file:
       - keyword: APPEND
       - keyword: FROM
       - table_reference:
-          - naked_identifier: the_schema
-          - dot: .
-          - naked_identifier: the_temp_table
+        - naked_identifier: the_schema
+        - dot: .
+        - naked_identifier: the_temp_table
       - keyword: IGNOREEXTRA
       - keyword: FILLTARGET
 - statement_terminator: ;
@@ -427,7 +427,7 @@ file:
       - keyword: APPEND
       - keyword: FROM
       - table_reference:
-          - naked_identifier: the_schema
-          - dot: .
-          - naked_identifier: the_temp_table
+        - naked_identifier: the_schema
+        - dot: .
+        - naked_identifier: the_temp_table
 - statement_terminator: ;
