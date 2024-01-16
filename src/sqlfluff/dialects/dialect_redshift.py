@@ -824,7 +824,7 @@ class CreateTableAsStatementSegment(BaseSegment):
             optional=True,
         ),
         "TABLE",
-        vvvv,
+        Ref("ObjectReferenceSegment"),
         Bracketed(
             Delimited(
                 Ref("ColumnReferenceSegment"),
