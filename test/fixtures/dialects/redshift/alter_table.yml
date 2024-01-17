@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b358e5c9e83a669ac2d4bdf4ac461d1798190d2ff1004402370fd07685404904
+_hash: 8625286eacd50d6ec538e32d6cb127a141aeef835c85f95c2a86727d38455321
 file:
 - statement:
     alter_table_statement:
@@ -396,4 +396,38 @@ file:
       - column_reference:
           naked_identifier: feedback_score
       - keyword: cascade
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: the_schema
+      - dot: .
+      - naked_identifier: the_table
+    - alter_table_action_segment:
+      - keyword: APPEND
+      - keyword: FROM
+      - table_reference:
+        - naked_identifier: the_schema
+        - dot: .
+        - naked_identifier: the_temp_table
+      - keyword: IGNOREEXTRA
+      - keyword: FILLTARGET
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: the_schema
+      - dot: .
+      - naked_identifier: the_table
+    - alter_table_action_segment:
+      - keyword: APPEND
+      - keyword: FROM
+      - table_reference:
+        - naked_identifier: the_schema
+        - dot: .
+        - naked_identifier: the_temp_table
 - statement_terminator: ;
