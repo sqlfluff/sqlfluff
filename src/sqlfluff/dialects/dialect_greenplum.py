@@ -15,7 +15,7 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     Ref,
     Sequence,
-    AnySetOf,
+    AnySetOf, Anything,
 )
 from sqlfluff.dialects import dialect_postgres as postgres
 from sqlfluff.dialects.dialect_greenplum_keywords import greenplum_keywords
@@ -161,26 +161,32 @@ class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
             Sequence(
                 "PARTITION",
                 "BY",
-                OneOf("RANGE", "LIST", "HASH"),
+                OneOf("RANGE", "LIST"),
                 Bracketed(
-                    AnyNumberOf(
-                        Delimited(
-                            Sequence(
-                                OneOf(
-                                    Ref("ColumnReferenceSegment"),
-                                    Ref("FunctionSegment"),
-                                ),
-                                AnyNumberOf(
-                                    Sequence(
-                                        "COLLATE",
-                                        Ref("CollationReferenceSegment"),
-                                        optional=True,
-                                    ),
-                                    Ref("ParameterNameSegment", optional=True),
-                                ),
+                    Ref("ColumnReferenceSegment"),
+                ),
+                AnyNumberOf(
+                    Sequence(
+                        "SUBPARTITION",
+                        "BY",
+                        OneOf("RANGE", "LIST"),
+                        Bracketed(
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                        Sequence(
+                            "SUBPARTITION",
+                            "TEMPLATE",
+                            Bracketed(
+                                # TODO: Is this too permissive?
+                                Anything(),
                             ),
-                        )
-                    )
+                            optional=True
+                        ),
+                    ),
+                ),
+                Bracketed(
+                    # TODO: Is this too permissive?
+                    Anything(),
                 ),
             ),
             Sequence("USING", Ref("ParameterNameSegment")),

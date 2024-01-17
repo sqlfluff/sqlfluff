@@ -962,6 +962,26 @@ class DropAggregateStatementSegment(BaseSegment):
     )
 
 
+class CreateAggregateStatementSegment(BaseSegment):
+    """A `CREATE AGGREGATE` statement.
+
+    https://www.postgresql.org/docs/16/sql-createaggregate.html
+    """
+
+    type = "create_aggregate_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        "AGGREGATE",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(
+            # TODO: Is this too permissive?
+            Anything(),
+        ),
+        Ref("FunctionParameterListGrammar"),
+    )
+
+
 class RelationOptionSegment(BaseSegment):
     """Relation option element from reloptions.
 
@@ -4208,6 +4228,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateUserMappingStatementSegment"),
             Ref("ImportForeignSchemaStatementSegment"),
             Ref("DropAggregateStatementSegment"),
+            Ref("CreateAggregateStatementSegment"),
         ],
     )
 

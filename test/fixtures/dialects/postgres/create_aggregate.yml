@@ -1,0 +1,54 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 98271f8e2a97d5965c25e12d880709e5d652e39c2056e0fe56a2d36b6f64988e
+file:
+  statement:
+    create_aggregate_statement:
+    - keyword: CREATE
+    - keyword: AGGREGATE
+    - object_reference:
+        naked_identifier: agg_twocols
+    - bracketed:
+      - start_bracket: (
+      - word: numeric
+      - comma: ','
+      - word: numeric
+      - end_bracket: )
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            data_type_identifier: SFUNC
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - expression:
+            column_reference:
+              naked_identifier: mysfunc_accum
+        - comma: ','
+        - data_type:
+            data_type_identifier: STYPE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - expression:
+            column_reference:
+              naked_identifier: numeric
+        - comma: ','
+        - data_type:
+            data_type_identifier: COMBINEFUNC
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - expression:
+            column_reference:
+              naked_identifier: mycombine_accum
+        - comma: ','
+        - data_type:
+            data_type_identifier: INITCOND
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - expression:
+            numeric_literal: '0'
+        - end_bracket: )
+  statement_terminator: ;
