@@ -653,6 +653,9 @@ ansi_dialect.add(
         ),
     ),
     OrderNoOrderGrammar=OneOf("ORDER", "NOORDER"),
+    ColumnsExpressionNameGrammar=Nothing(),
+    # Uses grammar for LT06 support
+    ColumnsExpressionGrammar=Nothing(),
 )
 
 
@@ -1349,12 +1352,14 @@ class FunctionSegment(BaseSegment):
                 ),
             ),
         ),
+        Ref("ColumnsExpressionGrammar"),
         Sequence(
             Sequence(
                 Ref(
                     "FunctionNameSegment",
                     exclude=OneOf(
                         Ref("DatePartFunctionNameSegment"),
+                        Ref("ColumnsExpressionFunctionNameSegment"),
                         Ref("ValuesClauseSegment"),
                     ),
                 ),
@@ -1370,6 +1375,28 @@ class FunctionSegment(BaseSegment):
             Ref("PostFunctionGrammar", optional=True),
         ),
     )
+
+
+class ColumnsExpressionFunctionNameSegment(BaseSegment):
+    """COLUMNS function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = Ref("ColumnsExpressionNameGrammar")
+
+
+class ColumnsExpressionFunctionContentsSegment(BaseSegment):
+    """Columns expression in a select statement.
+
+    From DuckDB:
+    https://duckdb.org/docs/sql/expressions/star#columns-expression
+    """
+
+    type = "columns_expression"
+    match_grammar: Matchable = Nothing()
 
 
 class PartitionClauseSegment(BaseSegment):
