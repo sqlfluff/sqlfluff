@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a1d2d32acf940f030e8c387c2b2f487c10e99d359a2bfad44face163eb61b380
+_hash: db18a9572997b454551a89d98852606904c3cd7dff639cd0a8acbd4537822923
 file:
 - statement:
     select_statement:
@@ -13,15 +13,16 @@ file:
           wildcard_expression:
             wildcard_identifier:
               star: '*'
-          keyword: EXCLUDE
-          bracketed:
-          - start_bracket: (
-          - column_reference:
-              naked_identifier: jar_jar_binks
-          - comma: ','
-          - column_reference:
-              naked_identifier: midichlorians
-          - end_bracket: )
+            wildcard_exclude:
+              keyword: EXCLUDE
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: jar_jar_binks
+              - comma: ','
+              - column_reference:
+                  naked_identifier: midichlorians
+              - end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -40,15 +41,16 @@ file:
               naked_identifier: sw
               dot: .
               star: '*'
-          keyword: EXCLUDE
-          bracketed:
-          - start_bracket: (
-          - column_reference:
-              naked_identifier: jar_jar_binks
-          - comma: ','
-          - column_reference:
-              naked_identifier: midichlorians
-          - end_bracket: )
+            wildcard_exclude:
+              keyword: EXCLUDE
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: jar_jar_binks
+              - comma: ','
+              - column_reference:
+                  naked_identifier: midichlorians
+              - end_bracket: )
       - comma: ','
       - select_clause_element:
           wildcard_expression:
@@ -56,9 +58,10 @@ file:
               naked_identifier: ff
               dot: .
               star: '*'
-          keyword: EXCLUDE
-          column_reference:
-            naked_identifier: cancellation
+            wildcard_exclude:
+              keyword: EXCLUDE
+              column_reference:
+                naked_identifier: cancellation
       from_clause:
       - keyword: FROM
       - from_expression:

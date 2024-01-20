@@ -193,6 +193,54 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     )
 
 
+class WildcardExcludeExpressionSegment(BaseSegment):
+    """An `EXCLUDE` clause within a wildcard expression."""
+
+    type = "wildcard_exclude"
+    match_grammar = Sequence(
+        "EXCLUDE",
+        OneOf(
+            Ref("ColumnReferenceSegment"),
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+        ),
+    )
+
+
+class WildcardReplaceExpressionSegment(BaseSegment):
+    """A `REPLACE` clause within a wildcard expression."""
+
+    type = "wildcard_replace"
+    match_grammar = Sequence(
+        "REPLACE",
+        OneOf(
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("BaseExpressionElementGrammar"),
+                        Ref("AliasExpressionSegment", optional=True),
+                    ),
+                )
+            ),
+            Sequence(
+                Ref("BaseExpressionElementGrammar"),
+                Ref("AliasExpressionSegment", optional=True),
+            ),
+        ),
+    )
+
+
+class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
+    """An extension of the star expression for DuckDB."""
+
+    match_grammar = Sequence(
+        # *, blah.*, blah.blah.*, etc.
+        Ref("WildcardIdentifierSegment"),
+        # Optional EXCLUDE or REPLACE clause
+        Ref("WildcardExcludeExpressionSegment", optional=True),
+        Ref("WildcardReplaceExpressionSegment", optional=True),
+    )
+
+
 class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     """An element in the targets of a select statement."""
 
@@ -201,30 +249,14 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     match_grammar = OneOf(
         Sequence(
             Ref("WildcardExpressionSegment"),
-            OneOf(
-                Sequence(
-                    "EXCLUDE",
-                    OneOf(
-                        Ref("ColumnReferenceSegment"),
-                        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-                    ),
-                ),
-                Sequence(
-                    "REPLACE",
-                    Bracketed(
-                        Delimited(
-                            Sequence(
-                                Ref("BaseExpressionElementGrammar"),
-                                Ref("AliasExpressionSegment", optional=True),
-                            ),
-                        )
-                    ),
-                ),
-                optional=True,
-            ),
         ),
+        # While `COLUMNS` is a function, we want to exclude it from alias rules.
+        Ref("ColumnsExpressionSegment"),
         Sequence(
-            Ref("BaseExpressionElementGrammar"),
+            Ref(
+                "BaseExpressionElementGrammar",
+                exclude=Ref("ColumnsExpressionSegment"),
+            ),
             Ref("AliasExpressionSegment", optional=True),
         ),
     )

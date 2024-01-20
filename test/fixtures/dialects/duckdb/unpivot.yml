@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ffa5695204ce9abb99a8e664d53dfd632ee8c271fed39f45923ce46d672bd4d2
+_hash: 1e1b7c6e9644ba9bf74fcb2446a57f8d3716ef819a4972cbbfd79c2ee3fb9916
 file:
 - statement:
     simplified_unpivot:
@@ -50,15 +50,16 @@ file:
             wildcard_expression:
               wildcard_identifier:
                 star: '*'
-            keyword: EXCLUDE
-            bracketed:
-            - start_bracket: (
-            - column_reference:
-                naked_identifier: empid
-            - comma: ','
-            - column_reference:
-                naked_identifier: dept
-            - end_bracket: )
+              wildcard_exclude:
+                keyword: EXCLUDE
+                bracketed:
+                - start_bracket: (
+                - column_reference:
+                    naked_identifier: empid
+                - comma: ','
+                - column_reference:
+                    naked_identifier: dept
+                - end_bracket: )
           end_bracket: )
     - keyword: INTO
     - keyword: NAME
@@ -134,15 +135,16 @@ file:
                   wildcard_expression:
                     wildcard_identifier:
                       star: '*'
-                  keyword: EXCLUDE
-                  bracketed:
-                  - start_bracket: (
-                  - column_reference:
-                      naked_identifier: empid
-                  - comma: ','
-                  - column_reference:
-                      naked_identifier: dept
-                  - end_bracket: )
+                    wildcard_exclude:
+                      keyword: EXCLUDE
+                      bracketed:
+                      - start_bracket: (
+                      - column_reference:
+                          naked_identifier: empid
+                      - comma: ','
+                      - column_reference:
+                          naked_identifier: dept
+                      - end_bracket: )
                 end_bracket: )
           - keyword: INTO
           - keyword: NAME
@@ -225,15 +227,16 @@ file:
                       wildcard_expression:
                         wildcard_identifier:
                           star: '*'
-                      keyword: EXCLUDE
-                      bracketed:
-                      - start_bracket: (
-                      - column_reference:
-                          naked_identifier: empid
-                      - comma: ','
-                      - column_reference:
-                          naked_identifier: dept
-                      - end_bracket: )
+                        wildcard_exclude:
+                          keyword: EXCLUDE
+                          bracketed:
+                          - start_bracket: (
+                          - column_reference:
+                              naked_identifier: empid
+                          - comma: ','
+                          - column_reference:
+                              naked_identifier: dept
+                          - end_bracket: )
                     end_bracket: )
                 end_bracket: )
             - end_bracket: )
