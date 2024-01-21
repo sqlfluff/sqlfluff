@@ -85,6 +85,11 @@ class Rule_AL03(BaseRule):
         ):
             return None
 
+        # Ignore if using a columns expression. A nested function such as
+        # ``MIN(COLUMNS(*))`` will assign the same alias to all columns.
+        if len(children.recursive_crawl("columns_expression")) > 0:
+            return None
+
         select_clause_children = children.select(sp.not_(sp.is_type("star")))
         is_complex_clause = _recursively_check_is_complex(select_clause_children)
         if not is_complex_clause:
