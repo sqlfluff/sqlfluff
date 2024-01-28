@@ -253,7 +253,9 @@ class JinjaTemplater(PythonTemplater):
                 return self.name
 
         dbt_builtins = {
-            "ref": lambda model_ref: model_ref,
+            "ref": lambda *args: args[-1],
+            # In case of a cross project ref in dbt, model_ref is the second
+            # argument. Otherwise it is the only argument.
             "source": lambda source_name, table: f"{source_name}_{table}",
             "config": lambda **kwargs: "",
             "var": lambda variable, default="": "item",
