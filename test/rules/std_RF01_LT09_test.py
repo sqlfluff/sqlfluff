@@ -2,6 +2,7 @@
 
 Root cause was BaseSegment.copy().
 """
+
 from sqlfluff.core import FluffConfig, Linter
 
 

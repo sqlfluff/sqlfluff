@@ -1,4 +1,5 @@
 """Enums used by sqlfluff."""
+
 from enum import Enum
 
 from colorama import Back, Fore, Style

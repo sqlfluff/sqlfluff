@@ -1,4 +1,5 @@
 """Tests for the standard set of rules."""
+
 import pytest
 
 from sqlfluff.core.config import FluffConfig
