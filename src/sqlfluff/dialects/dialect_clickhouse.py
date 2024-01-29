@@ -2,6 +2,7 @@
 
 https://clickhouse.com/
 """
+
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,

@@ -1,4 +1,5 @@
 """Surrogate class for working with Segment collections."""
+
 from typing import (
     Any,
     Callable,

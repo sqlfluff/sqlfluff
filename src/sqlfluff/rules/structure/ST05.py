@@ -1,4 +1,5 @@
 """Implementation of Rule ST05."""
+
 from functools import partial
 from typing import Iterator, List, NamedTuple, Optional, Set, Tuple, Type, TypeVar, cast
 
