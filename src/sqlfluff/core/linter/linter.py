@@ -1029,6 +1029,7 @@ class Linter:
         apply_fixes: bool = False,
         fixed_file_suffix: str = "",
         fix_even_unparsable: bool = False,
+        retain_files: bool = True,
     ) -> LintingResult:
         """Lint an iterable of paths."""
         # If no paths specified - assume local
@@ -1040,7 +1041,7 @@ class Linter:
         expanded_paths: List[str] = []
         expanded_path_to_linted_dir = {}
         for path in paths:
-            linted_dir = LintedDir(path)
+            linted_dir = LintedDir(path, retain_files=retain_files)
             result.add(linted_dir)
             for fname in self.paths_from_path(
                 path,

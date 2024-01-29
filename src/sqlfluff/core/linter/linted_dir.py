@@ -27,10 +27,10 @@ class LintedDir:
     and save memory overhead if not required.
     """
 
-    def __init__(self, path: str, persist_files: bool = True) -> None:
+    def __init__(self, path: str, retain_files: bool = True) -> None:
         self.files: List[LintedFile] = []
         self.path: str = path
-        self.persist_files: bool = persist_files
+        self.retain_files: bool = retain_files
         # Records
         self._records: List[LintingRecord] = []
         # Stats
@@ -44,7 +44,7 @@ class LintedDir:
 
         This function _always_ updates the metadata tracking, but may
         or may not persist the `file` object itself depending on the
-        `persist_files` argument given on instantiation.
+        `retain_files` argument given on instantiation.
         """
         # Generate serialised violations.
         violation_records = sorted(
@@ -72,7 +72,7 @@ class LintedDir:
         self._num_violations = file.num_violations()
 
         # Finally, if set to persist files, do that.
-        if self.persist_files:
+        if self.retain_files:
             self.files.append(file)
 
     @overload
@@ -96,7 +96,7 @@ class LintedDir:
         file the violations are from. Good for testing though.
         For more control set the `by_path` argument to true.
         """
-        assert self.persist_files, "cannot `check_tuples()` without `persist_files`"
+        assert self.retain_files, "cannot `check_tuples()` without `retain_files`"
         if by_path:
             return {
                 file.path: file.check_tuples(
@@ -152,7 +152,7 @@ class LintedDir:
 
         This also logs the output as we go using the formatter if present.
         """
-        assert self.persist_files, "cannot `persist_changes()` without `persist_files`"
+        assert self.retain_files, "cannot `persist_changes()` without `retain_files`"
         # Run all the fixes for all the files and return a dict
         buffer: Dict[str, Union[bool, str]] = {}
         for file in self.files:
@@ -164,8 +164,8 @@ class LintedDir:
     @property
     def tree(self) -> Optional[BaseSegment]:
         """A convenience method for when there is only one file and we want the tree."""
-        if not self.persist_files:
-            raise ValueError(".tree() cannot be called if `persist_files` is False.")
+        if not self.retain_files:
+            raise ValueError(".tree() cannot be called if `retain_files` is False.")
         elif len(self.files) > 1:  # pragma: no cover
             raise ValueError(
                 ".tree() cannot be called when a LintedDir contains more than one file."

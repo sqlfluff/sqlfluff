@@ -637,6 +637,9 @@ def lint(
                 ignore_non_existent_files=False,
                 ignore_files=not disregard_sqlfluffignores,
                 processes=processes,
+                # If we're just linting in the CLI, we don't need to retain the
+                # raw file content. This allows us to reduce memory overhead.
+                retain_files=False,
             )
 
     # Output the final stats
