@@ -1,4 +1,5 @@
 """Tests for the SQLFluff integration with the "diff-quality" tool."""
+
 import sys
 from pathlib import Path
 

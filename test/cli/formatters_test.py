@@ -1,4 +1,5 @@
 """The Test file for CLI Formatters."""
+
 import pathlib
 import re
 import textwrap

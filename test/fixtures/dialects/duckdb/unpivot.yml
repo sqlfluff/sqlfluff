@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ffa5695204ce9abb99a8e664d53dfd632ee8c271fed39f45923ce46d672bd4d2
+_hash: 279fff5170b3655c6e22a88ab1a64575e2092acccc32132fa08dee8c84edb1ad
 file:
 - statement:
     simplified_unpivot:
@@ -42,24 +42,25 @@ file:
         table_reference:
           naked_identifier: monthly_sales
     - keyword: 'ON'
-    - columns_expression:
+    - function_name:
         keyword: COLUMNS
-        bracketed:
-          start_bracket: (
-          select_clause_element:
-            wildcard_expression:
-              wildcard_identifier:
-                star: '*'
-            keyword: EXCLUDE
-            bracketed:
-            - start_bracket: (
-            - column_reference:
-                naked_identifier: empid
-            - comma: ','
-            - column_reference:
-                naked_identifier: dept
-            - end_bracket: )
-          end_bracket: )
+    - bracketed:
+        start_bracket: (
+        columns_expression:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            wildcard_exclude:
+              keyword: EXCLUDE
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: empid
+              - comma: ','
+              - column_reference:
+                  naked_identifier: dept
+              - end_bracket: )
+        end_bracket: )
     - keyword: INTO
     - keyword: NAME
     - naked_identifier: month
@@ -126,24 +127,25 @@ file:
               table_reference:
                 naked_identifier: monthly_sales
           - keyword: 'ON'
-          - columns_expression:
+          - function_name:
               keyword: COLUMNS
-              bracketed:
-                start_bracket: (
-                select_clause_element:
-                  wildcard_expression:
-                    wildcard_identifier:
-                      star: '*'
-                  keyword: EXCLUDE
-                  bracketed:
-                  - start_bracket: (
-                  - column_reference:
-                      naked_identifier: empid
-                  - comma: ','
-                  - column_reference:
-                      naked_identifier: dept
-                  - end_bracket: )
-                end_bracket: )
+          - bracketed:
+              start_bracket: (
+              columns_expression:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+                  wildcard_exclude:
+                    keyword: EXCLUDE
+                    bracketed:
+                    - start_bracket: (
+                    - column_reference:
+                        naked_identifier: empid
+                    - comma: ','
+                    - column_reference:
+                        naked_identifier: dept
+                    - end_bracket: )
+              end_bracket: )
           - keyword: INTO
           - keyword: NAME
           - naked_identifier: month
@@ -217,24 +219,25 @@ file:
             - keyword: IN
             - bracketed:
                 start_bracket: (
-                columns_expression:
+                function_name:
                   keyword: COLUMNS
-                  bracketed:
-                    start_bracket: (
-                    select_clause_element:
-                      wildcard_expression:
-                        wildcard_identifier:
-                          star: '*'
-                      keyword: EXCLUDE
-                      bracketed:
-                      - start_bracket: (
-                      - column_reference:
-                          naked_identifier: empid
-                      - comma: ','
-                      - column_reference:
-                          naked_identifier: dept
-                      - end_bracket: )
-                    end_bracket: )
+                bracketed:
+                  start_bracket: (
+                  columns_expression:
+                    wildcard_expression:
+                      wildcard_identifier:
+                        star: '*'
+                      wildcard_exclude:
+                        keyword: EXCLUDE
+                        bracketed:
+                        - start_bracket: (
+                        - column_reference:
+                            naked_identifier: empid
+                        - comma: ','
+                        - column_reference:
+                            naked_identifier: dept
+                        - end_bracket: )
+                  end_bracket: )
                 end_bracket: )
             - end_bracket: )
 - statement_terminator: ;

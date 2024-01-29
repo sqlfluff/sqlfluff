@@ -1,4 +1,5 @@
 """Test autocomplete commands."""
+
 import pytest
 
 from sqlfluff.cli.autocomplete import dialect_shell_complete

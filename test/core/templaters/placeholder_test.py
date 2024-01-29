@@ -1,4 +1,5 @@
 """Tests for templaters."""
+
 import pytest
 
 from sqlfluff.core import FluffConfig

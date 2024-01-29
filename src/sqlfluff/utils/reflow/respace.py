@@ -1,6 +1,5 @@
 """Static methods to support ReflowPoint.respace_point()."""
 
-
 import logging
 from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, cast
 
