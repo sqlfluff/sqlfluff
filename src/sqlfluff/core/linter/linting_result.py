@@ -201,21 +201,7 @@ class LintingResult:
         types (ints, strs).
         """
         return [
-            {
-                "filepath": path,
-                "violations": sorted(
-                    # Sort violations by line and then position
-                    (v.to_dict() for v in violations),
-                    # The tuple allows sorting by line number, then position, then code
-                    key=lambda v: (v["start_line_no"], v["start_line_pos"], v["code"]),
-                ),
-            }
-            for LintedDir in self.paths
-            for path, violations in LintedDir.violation_dict(
-                # Keep the warnings
-                filter_warning=False
-            ).items()
-            if violations
+            record for linted_dir in self.paths for record in linted_dir.as_records()
         ]
 
     def persist_changes(self, formatter, fixed_file_suffix: str = "") -> dict:

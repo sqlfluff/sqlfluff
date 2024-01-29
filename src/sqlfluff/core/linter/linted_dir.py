@@ -106,6 +106,30 @@ class LintedDir:
         """Return a dict of violations by file path."""
         return {file.path: file.get_violations(**kwargs) for file in self.files}
 
+    def as_records(self) -> List[dict]:
+        """Return the result as a list of dictionaries.
+
+        Each record contains a key specifying the filepath, and a list of violations.
+        This method is useful for serialization as all objects will be builtin python
+        types (ints, strs).
+        """
+        return [
+            {
+                "filepath": path,
+                "violations": sorted(
+                    # Sort violations by line and then position
+                    (v.to_dict() for v in violations),
+                    # The tuple allows sorting by line number, then position, then code
+                    key=lambda v: (v["start_line_no"], v["start_line_pos"], v["code"]),
+                ),
+            }
+            for path, violations in self.violation_dict(
+                # Keep the warnings
+                filter_warning=False
+            ).items()
+            if violations
+        ]
+
     def stats(self) -> Dict[str, int]:
         """Return a dict containing linting stats about this path."""
         return {
