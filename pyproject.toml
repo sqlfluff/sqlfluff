@@ -90,7 +90,7 @@ dependencies = [
     "toml; python_version < '3.11'",
     # For handling progress bars
     "tqdm",
-    # better type hints for older python versions
+    # Literals and TypedDicts
     "typing_extensions",
 ]
 

@@ -6,11 +6,13 @@ This stores the idea of a collection of linted files at a single start path
 
 from typing import Any, Dict, List, Optional, Union, overload
 
-from typing_extensions import Literal
+from typing_extensions import Literal, TypedDict
 
 from sqlfluff.core.errors import CheckTuple
 from sqlfluff.core.linter.linted_file import LintedFile
 from sqlfluff.core.parser.segments.base import BaseSegment
+
+LintingRecord = TypedDict("LintingRecord", {"filepath": str, "violations": List[dict]})
 
 
 class LintedDir:
@@ -30,7 +32,9 @@ class LintedDir:
         self.path: str = path
         self.persist_files: bool = persist_files
         # self._check_tupes: Dict[str, List[CheckTuple]] = {}
-        # self._records:
+        # Records
+        self._records: List[LintingRecord] = []
+        # Stats
         self._num_files: int = 0
         self._num_clean: int = 0
         self._num_unclean: int = 0
@@ -43,6 +47,23 @@ class LintedDir:
         or may not persist the `file` object itself depending on the
         `persist_files` argument given on instantiation.
         """
+        # Generate serialised violations.
+        violation_records = sorted(
+            # Keep the warnings
+            (v.to_dict() for v in file.get_violations(filter_warning=False)),
+            # The tuple allows sorting by line number, then position, then code
+            key=lambda v: (v["start_line_no"], v["start_line_pos"], v["code"]),
+        )
+
+        # Persist the records if there are violations.
+        if violation_records:
+            self._records.append(
+                {
+                    "filepath": file.path,
+                    "violations": violation_records,
+                }
+            )
+
         # Update the stats
         self._num_files += 1
         if file.is_clean():
@@ -113,22 +134,7 @@ class LintedDir:
         This method is useful for serialization as all objects will be builtin python
         types (ints, strs).
         """
-        return [
-            {
-                "filepath": path,
-                "violations": sorted(
-                    # Sort violations by line and then position
-                    (v.to_dict() for v in violations),
-                    # The tuple allows sorting by line number, then position, then code
-                    key=lambda v: (v["start_line_no"], v["start_line_pos"], v["code"]),
-                ),
-            }
-            for path, violations in self.violation_dict(
-                # Keep the warnings
-                filter_warning=False
-            ).items()
-            if violations
-        ]
+        return self._records
 
     def stats(self) -> Dict[str, int]:
         """Return a dict containing linting stats about this path."""
