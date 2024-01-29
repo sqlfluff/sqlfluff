@@ -1,6 +1,6 @@
 """Test the helpers."""
 
-import os.path
+import sys
 from pathlib import Path
 
 import pytest
@@ -60,7 +60,7 @@ def test__parser__helper_get_encoding(fname, config_encoding, result):
         (
             # Standard use case.
             # SQLFluff run from an outer location, looking to an inner.
-            ["test", "fixtures", "config", "inheritance_a", "nested", "blah.sql"],
+            "test/fixtures/config/inheritance_a/nested/blah.sql",
             "test/fixtures",
             # Order should work up from outer to inner
             [
@@ -73,7 +73,7 @@ def test__parser__helper_get_encoding(fname, config_encoding, result):
         (
             # Reverse use case.
             # SQLFluff running from an inner location, looking to outer.
-            ["test", "fixtures"],
+            "test/fixtures",
             "test/fixtures/config/inheritance_a",
             # Should only return inner, then outer.
             [
@@ -84,7 +84,7 @@ def test__parser__helper_get_encoding(fname, config_encoding, result):
         (
             # Unrelated use case.
             # SQLFluff running from an one location, looking to parallel.
-            ["test", "fixtures"],
+            "test/fixtures",
             "test/core",
             # Should each individually, with the working location first
             [
@@ -97,5 +97,19 @@ def test__parser__helper_get_encoding(fname, config_encoding, result):
 )
 def test__config__iter_config_paths(path, working_path, result):
     """Test that config paths are fetched ordered by priority."""
-    cfg_paths = iter_intermediate_paths(Path(os.path.join(*path)), Path(working_path))
+    cfg_paths = iter_intermediate_paths(Path(path), Path(working_path))
     assert [str(p) for p in cfg_paths] == [str(Path(p).resolve()) for p in result]
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Only applicable on Windows")
+def test__config__iter_config_paths_exc_win():
+    """Test that config path resolution exception handling works on windows."""
+    cfg_paths = iter_intermediate_paths(Path("J:\\\\"), Path("C:\\\\"))
+    assert list(cfg_paths) == [Path("C:\\\\"), Path("J:\\\\")]
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="Not applicable on Windows")
+def test__config__iter_config_paths_exc_unix():
+    """Test that config path resolution exception handling works on linux."""
+    cfg_paths = iter_intermediate_paths(Path("/abc"), Path("/def"))
+    assert list(cfg_paths) == [Path("/def"), Path("/abc")]
