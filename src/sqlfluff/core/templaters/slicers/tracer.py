@@ -2,6 +2,7 @@
 
 This is a newer slicing algorithm that handles cases heuristic.py does not.
 """
+
 # Import annotations for py 3.7 to allow `regex.Match[str]`
 from __future__ import annotations
 
@@ -68,9 +69,11 @@ class JinjaTracer:
     ) -> JinjaTrace:
         """Executes raw_str. Returns template output and trace."""
         trace_template_str = "".join(
-            cast(str, self.raw_slice_info[rs].alternate_code)
-            if self.raw_slice_info[rs].alternate_code is not None
-            else rs.raw
+            (
+                cast(str, self.raw_slice_info[rs].alternate_code)
+                if self.raw_slice_info[rs].alternate_code is not None
+                else rs.raw
+            )
             for rs in self.raw_sliced
         )
         trace_template_output = self.render_func(trace_template_str)
@@ -218,9 +221,11 @@ class JinjaTracer:
                 slice_type,
                 slice(
                     self.raw_sliced[slice_idx].source_idx,
-                    self.raw_sliced[slice_idx + 1].source_idx
-                    if slice_idx + 1 < len(self.raw_sliced)
-                    else len(self.raw_str),
+                    (
+                        self.raw_sliced[slice_idx + 1].source_idx
+                        if slice_idx + 1 < len(self.raw_sliced)
+                        else len(self.raw_str)
+                    ),
                 ),
                 slice(self.source_idx, self.source_idx + target_slice_length),
             )
@@ -610,9 +615,9 @@ class JinjaAnalyzer:
                             block_idx,
                         )
                     )
-                    self.raw_slice_info[
-                        self.raw_sliced[-1]
-                    ] = self.slice_info_for_literal(0)
+                    self.raw_slice_info[self.raw_sliced[-1]] = (
+                        self.slice_info_for_literal(0)
+                    )
                     self.idx_raw += trailing_chars
                 else:
                     self.raw_sliced.append(

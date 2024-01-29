@@ -2,6 +2,7 @@
 
 https://clickhouse.com/
 """
+
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -15,6 +16,7 @@ from sqlfluff.core.parser import (
     Indent,
     LiteralSegment,
     Matchable,
+    Nothing,
     OneOf,
     OptionallyBracketed,
     ParseMode,
@@ -45,74 +47,6 @@ clickhouse_dialect.add(
         IdentifierSegment,
         type="quoted_identifier",
     ),
-    JoinTypeKeywords=OneOf(
-        # This case INNER [ANY,ALL] JOIN
-        Sequence("INNER", OneOf("ALL", "ANY", optional=True)),
-        # This case [ANY,ALL] INNER JOIN
-        Sequence(OneOf("ALL", "ANY", optional=True), "INNER"),
-        # This case FULL ALL OUTER JOIN
-        Sequence(
-            "FULL",
-            Ref.keyword("ALL", optional=True),
-            Ref.keyword("OUTER", optional=True),
-        ),
-        # This case ALL FULL OUTER JOIN
-        Sequence(
-            Ref.keyword("ALL", optional=True),
-            "FULL",
-            Ref.keyword("OUTER", optional=True),
-        ),
-        # This case LEFT [OUTER,ANTI,SEMI,ANY,ASOF] JOIN
-        Sequence(
-            "LEFT",
-            OneOf(
-                "ANTI",
-                "SEMI",
-                OneOf("ANY", "ALL", optional=True),
-                "ASOF",
-                optional=True,
-            ),
-            Ref.keyword("OUTER", optional=True),
-        ),
-        # This case [ANTI,SEMI,ANY,ASOF] LEFT JOIN
-        Sequence(
-            OneOf(
-                "ANTI",
-                "SEMI",
-                OneOf("ANY", "ALL", optional=True),
-                "ASOF",
-            ),
-            "LEFT",
-        ),
-        # This case RIGHT [OUTER,ANTI,SEMI,ANY,ASOF] JOIN
-        Sequence(
-            "RIGHT",
-            OneOf(
-                "OUTER",
-                "ANTI",
-                "SEMI",
-                OneOf("ANY", "ALL", optional=True),
-                optional=True,
-            ),
-            Ref.keyword("OUTER", optional=True),
-        ),
-        # This case [OUTER,ANTI,SEMI,ANY] RIGHT JOIN
-        Sequence(
-            OneOf(
-                "ANTI",
-                "SEMI",
-                OneOf("ANY", "ALL", optional=True),
-                optional=True,
-            ),
-            "RIGHT",
-        ),
-        # This case CROSS JOIN
-        "CROSS",
-        # This case ANY JOIN
-        "ANY",
-        # This case ALL JOIN
-        "ALL",
-    ),
     LambdaFunctionSegment=TypedParser("lambda", SymbolSegment, type="lambda"),
 )
 
@@ -125,6 +59,102 @@ clickhouse_dialect.replace(
         # Add Lambda Function
         Ref("LambdaFunctionSegment"),
     ),
+    # https://clickhouse.com/docs/en/sql-reference/statements/select/join/#supported-types-of-join
+    JoinTypeKeywordsGrammar=Sequence(
+        Ref.keyword("GLOBAL", optional=True),
+        OneOf(
+            # This case INNER [ANY,ALL] JOIN
+            Sequence("INNER", OneOf("ALL", "ANY", optional=True)),
+            # This case [ANY,ALL] INNER JOIN
+            Sequence(OneOf("ALL", "ANY", optional=True), "INNER"),
+            # This case FULL ALL OUTER JOIN
+            Sequence(
+                "FULL",
+                Ref.keyword("ALL", optional=True),
+                Ref.keyword("OUTER", optional=True),
+            ),
+            # This case ALL FULL OUTER JOIN
+            Sequence(
+                Ref.keyword("ALL", optional=True),
+                "FULL",
+                Ref.keyword("OUTER", optional=True),
+            ),
+            # This case LEFT [OUTER,ANTI,SEMI,ANY,ASOF] JOIN
+            Sequence(
+                "LEFT",
+                OneOf(
+                    "ANTI",
+                    "SEMI",
+                    OneOf("ANY", "ALL", optional=True),
+                    "ASOF",
+                    optional=True,
+                ),
+                Ref.keyword("OUTER", optional=True),
+            ),
+            # This case [ANTI,SEMI,ANY,ASOF] LEFT JOIN
+            Sequence(
+                OneOf(
+                    "ANTI",
+                    "SEMI",
+                    OneOf("ANY", "ALL", optional=True),
+                    "ASOF",
+                ),
+                "LEFT",
+            ),
+            # This case RIGHT [OUTER,ANTI,SEMI,ANY,ASOF] JOIN
+            Sequence(
+                "RIGHT",
+                OneOf(
+                    "OUTER",
+                    "ANTI",
+                    "SEMI",
+                    OneOf("ANY", "ALL", optional=True),
+                    optional=True,
+                ),
+                Ref.keyword("OUTER", optional=True),
+            ),
+            # This case [OUTER,ANTI,SEMI,ANY] RIGHT JOIN
+            Sequence(
+                OneOf(
+                    "ANTI",
+                    "SEMI",
+                    OneOf("ANY", "ALL", optional=True),
+                    optional=True,
+                ),
+                "RIGHT",
+            ),
+            # This case ASOF JOIN
+            "ASOF",
+            # This case ANY JOIN
+            "ANY",
+            # This case ALL JOIN
+            "ALL",
+        ),
+    ),
+    JoinUsingConditionGrammar=Sequence(
+        "USING",
+        Conditional(Indent, indented_using_on=False),
+        Delimited(
+            OneOf(
+                Bracketed(
+                    Delimited(Ref("SingleIdentifierGrammar")),
+                    parse_mode=ParseMode.GREEDY,
+                ),
+                Delimited(Ref("SingleIdentifierGrammar")),
+            ),
+        ),
+        Conditional(Dedent, indented_using_on=False),
+    ),
+    ConditionalCrossJoinKeywordsGrammar=Nothing(),
+    UnconditionalCrossJoinKeywordsGrammar=Sequence(
+        Ref.keyword("GLOBAL", optional=True),
+        Ref.keyword("CROSS"),
+    ),
+    HorizontalJoinKeywordsGrammar=Sequence(
+        Ref.keyword("GLOBAL", optional=True),
+        Ref.keyword("PASTE"),
+    ),
+    NaturalJoinKeywordsGrammar=Nothing(),
     JoinLikeClauseGrammar=Sequence(
         AnyNumberOf(
             Ref("ArrayJoinClauseSegment"),
@@ -150,6 +180,10 @@ clickhouse_dialect.replace(
         Ref("SingleQuotedIdentifierSegment"),
         Ref("BackQuotedIdentifierSegment"),
     ),
+    InOperatorGrammar=ansi_dialect.get_grammar("InOperatorGrammar").copy(
+        insert=[Ref.keyword("GLOBAL", optional=True)],
+        before=Ref.keyword("NOT", optional=True),
+    ),
 )
 
 
@@ -168,46 +202,6 @@ class BracketedArguments(ansi.BracketedArguments):
             ),
             # The brackets might be empty for some cases...
             optional=True,
-        ),
-    )
-
-
-class JoinClauseSegment(ansi.JoinClauseSegment):
-    """Any number of join clauses, including the `JOIN` keyword.
-
-    https://clickhouse.com/docs/en/sql-reference/statements/select/join/#supported-types-of-join
-    """
-
-    match_grammar = OneOf(
-        Sequence(
-            Ref("JoinTypeKeywords", optional=True),
-            Ref("JoinKeywordsGrammar"),
-            Indent,
-            Ref("FromExpressionElementSegment"),
-            Dedent,
-            Conditional(Indent, indented_using_on=True),
-            OneOf(
-                # ON clause
-                Ref("JoinOnConditionSegment"),
-                # USING clause
-                Sequence(
-                    "USING",
-                    Conditional(Indent, indented_using_on=False),
-                    Delimited(
-                        OneOf(
-                            Bracketed(
-                                Delimited(Ref("SingleIdentifierGrammar")),
-                                parse_mode=ParseMode.GREEDY,
-                            ),
-                            Delimited(Ref("SingleIdentifierGrammar")),
-                        ),
-                    ),
-                    Conditional(Dedent, indented_using_on=False),
-                ),
-                # Requires True for CROSS JOIN
-                optional=True,
-            ),
-            Conditional(Dedent, indented_using_on=True),
         ),
     )
 

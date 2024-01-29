@@ -1,4 +1,5 @@
 """Plugin related tests."""
+
 import logging
 import sys
 

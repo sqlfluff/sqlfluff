@@ -202,9 +202,11 @@ class Rule_LT09(BaseRule):
                     start_seg = segment.segments.index(modifier)
 
                 ws_to_delete = segment.select_children(
-                    start_seg=segment.segments[start_seg]
-                    if not i
-                    else select_targets_info.select_targets[i - 1],
+                    start_seg=(
+                        segment.segments[start_seg]
+                        if not i
+                        else select_targets_info.select_targets[i - 1]
+                    ),
                     select_if=lambda s: s.is_type("whitespace"),
                     loop_while=lambda s: s.is_type("whitespace", "comma") or s.is_meta,
                 )

@@ -17,10 +17,12 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     Sequence,
     StringLexer,
     StringParser,
+    SymbolSegment,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_postgres as postgres
@@ -46,6 +48,10 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "SEMI",
         "VIRTUAL",
     ]
+)
+
+duckdb_dialect.add(
+    LambdaArrowSegment=StringParser("->", SymbolSegment, type="lambda_arrow"),
 )
 
 duckdb_dialect.replace(
@@ -94,6 +100,20 @@ duckdb_dialect.replace(
         ),
     ),
     HorizontalJoinKeywordsGrammar=Ref.keyword("POSITIONAL"),
+    FunctionContentsExpressionGrammar=OneOf(
+        Ref("LambdaExpressionSegment"),
+        Ref("NamedArgumentSegment"),
+        Ref("ExpressionSegment"),
+    ),
+    ColumnsExpressionNameGrammar=Ref.keyword("COLUMNS"),
+    # Uses grammar for LT06 support
+    ColumnsExpressionGrammar=Sequence(
+        Ref("ColumnsExpressionFunctionNameSegment"),
+        Bracketed(
+            Ref("ColumnsExpressionFunctionContentsSegment"),
+            parse_mode=ParseMode.GREEDY,
+        ),
+    ),
 )
 
 duckdb_dialect.insert_lexer_matchers(
@@ -193,6 +213,54 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     )
 
 
+class WildcardExcludeExpressionSegment(BaseSegment):
+    """An `EXCLUDE` clause within a wildcard expression."""
+
+    type = "wildcard_exclude"
+    match_grammar = Sequence(
+        "EXCLUDE",
+        OneOf(
+            Ref("ColumnReferenceSegment"),
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+        ),
+    )
+
+
+class WildcardReplaceExpressionSegment(BaseSegment):
+    """A `REPLACE` clause within a wildcard expression."""
+
+    type = "wildcard_replace"
+    match_grammar = Sequence(
+        "REPLACE",
+        OneOf(
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("BaseExpressionElementGrammar"),
+                        Ref("AliasExpressionSegment", optional=True),
+                    ),
+                )
+            ),
+            Sequence(
+                Ref("BaseExpressionElementGrammar"),
+                Ref("AliasExpressionSegment", optional=True),
+            ),
+        ),
+    )
+
+
+class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
+    """An extension of the star expression for DuckDB."""
+
+    match_grammar = Sequence(
+        # *, blah.*, blah.blah.*, etc.
+        Ref("WildcardIdentifierSegment"),
+        # Optional EXCLUDE or REPLACE clause
+        Ref("WildcardExcludeExpressionSegment", optional=True),
+        Ref("WildcardReplaceExpressionSegment", optional=True),
+    )
+
+
 class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     """An element in the targets of a select statement."""
 
@@ -201,47 +269,47 @@ class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     match_grammar = OneOf(
         Sequence(
             Ref("WildcardExpressionSegment"),
-            OneOf(
-                Sequence(
-                    "EXCLUDE",
-                    OneOf(
-                        Ref("ColumnReferenceSegment"),
-                        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-                    ),
-                ),
-                Sequence(
-                    "REPLACE",
-                    Bracketed(
-                        Delimited(
-                            Sequence(
-                                Ref("BaseExpressionElementGrammar"),
-                                Ref("AliasExpressionSegment", optional=True),
-                            ),
-                        )
-                    ),
-                ),
-                optional=True,
-            ),
         ),
         Sequence(
-            Ref("BaseExpressionElementGrammar"),
+            Ref(
+                "BaseExpressionElementGrammar",
+            ),
             Ref("AliasExpressionSegment", optional=True),
         ),
     )
 
 
-class ColumnsExpressionSegment(BaseSegment):
+class ColumnsExpressionFunctionContentsSegment(
+    ansi.ColumnsExpressionFunctionContentsSegment
+):
     """Columns expression in a select statement.
 
     https://duckdb.org/docs/sql/expressions/star#columns-expression
     """
 
     type = "columns_expression"
+    match_grammar = OneOf(
+        Ref("WildcardExpressionSegment"),
+        Ref("QuotedLiteralSegment"),
+        Ref("LambdaExpressionSegment"),
+    )
+
+
+class LambdaExpressionSegment(BaseSegment):
+    """Lambda function used in a function or columns expression.
+
+    https://duckdb.org/docs/sql/functions/lambda
+    https://duckdb.org/docs/sql/expressions/star#columns-lambda-function
+    """
+
+    type = "lambda_function"
     match_grammar = Sequence(
-        "COLUMNS",
-        Bracketed(
-            Ref("SelectClauseElementSegment"),
+        OneOf(
+            Ref("ParameterNameSegment"),
+            Bracketed(Delimited(Ref("ParameterNameSegment"))),
         ),
+        Ref("LambdaArrowSegment"),
+        Ref("ExpressionSegment"),
     )
 
 
@@ -475,7 +543,7 @@ class FromUnpivotExpressionSegment(BaseSegment):
                                 ),
                                 Ref("AliasExpressionSegment", optional=True),
                             ),
-                            Ref("ColumnsExpressionSegment"),
+                            Ref("ColumnsExpressionGrammar"),
                         ),
                     ),
                 ),
@@ -508,7 +576,7 @@ class SimplifiedUnpivotExpressionSegment(BaseSegment):
                 ),
                 Ref("AliasExpressionSegment", optional=True),
             ),
-            Ref("ColumnsExpressionSegment"),
+            Ref("ColumnsExpressionGrammar"),
         ),
         "INTO",
         "NAME",

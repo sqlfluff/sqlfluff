@@ -682,9 +682,9 @@ def lint(
                         # to warnings using the `warnings` config value. Any which have
                         # been set to warn rather than fail will always be given the
                         # `notice` annotation level in the serialised result.
-                        "annotation_level": annotation_level
-                        if not violation["warning"]
-                        else "notice",
+                        "annotation_level": (
+                            annotation_level if not violation["warning"] else "notice"
+                        ),
                     }
                 )
         file_output = json.dumps(github_result)
@@ -1300,11 +1300,13 @@ def parse(
         parsed_strings_dict = [
             dict(
                 filepath=linted_result.fname,
-                segments=linted_result.tree.as_record(
-                    code_only=code_only, show_raw=True, include_meta=include_meta
-                )
-                if linted_result.tree
-                else None,
+                segments=(
+                    linted_result.tree.as_record(
+                        code_only=code_only, show_raw=True, include_meta=include_meta
+                    )
+                    if linted_result.tree
+                    else None
+                ),
             )
             for linted_result in parsed_strings
         ]
