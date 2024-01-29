@@ -47,29 +47,23 @@ def iter_intermediate_paths(inner_path: Path, outer_path: Path) -> Iterator[Path
         # so just yield the given path.
         common_path = None
 
-    # Always yield the outer_path
-    yield outer_path.resolve()
+    # NOTE: I think the following logic here isn't correct. It is too expansive
+    # in the search locations for config files. Correcting that without access
+    # to the root project location for a dbt project and therefore allowing a
+    # a more accurate search is not feasible. In future that path should somehow
+    # be made available here.
 
-    # If we're in a nested path scenario, then we work between the two
-    # paths, yielding config locations at each. If the inner path is
-    # NOT a subpath of the outer path, then we don't.
+    # we have a sub path! We can load nested paths
+    path_to_visit = common_path
+    while path_to_visit != inner_path:
+        yield path_to_visit.resolve()
+        next_path_to_visit = (
+            path_to_visit / inner_path.relative_to(path_to_visit).parts[0]
+        )
+        if next_path_to_visit == path_to_visit:  # pragma: no cover
+            # we're not making progress...
+            # [prevent infinite loop]
+            break
+        path_to_visit = next_path_to_visit
 
-    # NOTE: In essence I think we should only consider it to
-    # be a true sub-path if `common_path` IS `working_path`,
-    # however to mimic past behaviour, we work up from a shared
-    # root if one exists.
-    # TODO: In future we should instead work upward not from the common
-    # shared path, but instead work up from the dbt project root if present.
-    # However given the current location of the config loading routines
-    # there isn't a good way for that location to be passed through.
-    # NOTE: If this is a reverse sub-path i.e. where the outer path is
-    # deeper than the inner path, don't iterate.
-    if common_path and common_path != inner_path:
-        # we have a sub path! We can load nested paths.
-        # NOTE: As we work up, we mutate `common_path`.
-        for step in inner_path.relative_to(common_path).parts:
-            common_path = common_path / step
-            yield common_path.resolve()
-    else:
-        # If not iterating, just yield the inner path
-        yield inner_path.resolve()
+    yield inner_path.resolve()
