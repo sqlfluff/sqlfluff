@@ -7,6 +7,7 @@ Here we define:
   function failed on this block of segments and to prevent further
   analysis.
 """
+
 # Import annotations for py 3.7 to allow `weakref.ReferenceType["BaseSegment"]`
 from __future__ import annotations
 

@@ -144,9 +144,9 @@ class Delimited(OneOf):
             ) as ctx:
                 match, _ = longest_match(
                     segments=segments,
-                    matchers=delimiter_matchers
-                    if seeking_delimiter
-                    else self._elements,
+                    matchers=(
+                        delimiter_matchers if seeking_delimiter else self._elements
+                    ),
                     idx=working_idx,
                     parse_context=ctx,
                 )
