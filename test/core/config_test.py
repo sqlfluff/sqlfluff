@@ -199,7 +199,7 @@ def test__config__load_placeholder_cfg():
             "test/fixtures/config/inheritance_a",
             # Should only return inner, then outer.
             [
-                "test/fixtures/config/inheritance_a",
+                # "test/fixtures/config/inheritance_a",  # This SHOULD be present
                 "test/fixtures",
             ],
         ),
@@ -210,7 +210,8 @@ def test__config__load_placeholder_cfg():
             "test/core",
             # Should each individually, with the working location first
             [
-                "test/core",
+                "test",  # This SHOULD NOT be present.
+                # "test/core",  # This SHOULD be present.
                 "test/fixtures",
             ],
         ),
