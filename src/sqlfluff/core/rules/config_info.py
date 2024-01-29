@@ -221,11 +221,17 @@ STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
             "Defaults to ``earlier``."
         ),
     },
+    "preferred_not_equal_style": {
+        "validation": ["consistent", "c_style", "ansi"],
+        "definition": (
+            "The style for using not equal to operator. Defaults to ``consistent``."
+        ),
+    },
 }
 
 
 def get_config_info() -> Dict[str, Any]:
-    """Gets the config from core sqlfluff and sqlfluff plugins and merges them."""
+    """Get the config from core sqlfluff and sqlfluff plugins and merges them."""
     plugin_manager = get_plugin_manager()
     configs_info = plugin_manager.hook.get_configs_info()
     return {

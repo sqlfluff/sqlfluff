@@ -145,9 +145,9 @@ class Rule_CV10(BaseRule):
                     if context.segment.raw[-1] == '"'
                     else "single_quotes"
                 )
-                memory[
-                    "preferred_quoted_literal_style"
-                ] = preferred_quoted_literal_style
+                memory["preferred_quoted_literal_style"] = (
+                    preferred_quoted_literal_style
+                )
                 self.logger.debug(
                     "Preferred string quotes is set to `consistent`. Derived quoting "
                     "style %s from first quoted literal.",

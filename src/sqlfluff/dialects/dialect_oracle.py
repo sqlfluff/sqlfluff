@@ -2,6 +2,7 @@
 
 This inherits from the ansi dialect.
 """
+
 from typing import cast
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -381,7 +382,7 @@ class AlterTableColumnClausesSegment(BaseSegment):
             Ref("ColumnReferenceSegment"),
             "TO",
             Ref("ColumnReferenceSegment"),
-        )
+        ),
         # @TODO: modify_collection_retrieval
         # @TODO: modify_LOB_storage_clause
         # @TODO: alter_varray_col_properties

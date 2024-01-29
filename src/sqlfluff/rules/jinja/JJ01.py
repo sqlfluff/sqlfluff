@@ -1,4 +1,5 @@
 """Implementation of Rule JJ01."""
+
 from typing import List, Tuple
 
 from sqlfluff.core.parser.segments import BaseSegment, SourceFix

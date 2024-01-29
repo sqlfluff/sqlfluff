@@ -6,6 +6,7 @@ Implements various runner types for SQLFluff:
   - Multiprocess
   - Multithread (used only by automated tests)
 """
+
 import bdb
 import functools
 import logging

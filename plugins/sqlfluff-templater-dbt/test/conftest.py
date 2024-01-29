@@ -1,4 +1,5 @@
 """pytest fixtures."""
+
 import os
 
 import pytest

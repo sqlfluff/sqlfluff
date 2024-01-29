@@ -55,3 +55,7 @@ alter table users drop column feedback_score;
 
 alter table users
 drop column feedback_score cascade;
+
+ALTER TABLE the_schema.the_table APPEND FROM the_schema.the_temp_table IGNOREEXTRA FILLTARGET;
+
+ALTER TABLE the_schema.the_table APPEND FROM the_schema.the_temp_table;
