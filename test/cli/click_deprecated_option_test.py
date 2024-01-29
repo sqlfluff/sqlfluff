@@ -1,4 +1,5 @@
 """The Test suite for `DeprecatedOption` - extension for click options."""
+
 from typing import List
 
 import click

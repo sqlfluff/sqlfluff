@@ -1,4 +1,5 @@
 """Testing utils for rule plugins."""
+
 from glob import glob
 from typing import List, NamedTuple, Optional, Set, Tuple
 

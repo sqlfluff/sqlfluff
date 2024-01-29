@@ -812,9 +812,11 @@ class Lexer:
         # Add an end of file marker
         segment_buffer.append(
             EndOfFile(
-                pos_marker=segment_buffer[-1].pos_marker.end_point_marker()
-                if segment_buffer
-                else PositionMarker.from_point(0, 0, templated_file)
+                pos_marker=(
+                    segment_buffer[-1].pos_marker.end_point_marker()
+                    if segment_buffer
+                    else PositionMarker.from_point(0, 0, templated_file)
+                )
             )
         )
         # Convert to tuple before return

@@ -1,4 +1,5 @@
 """Implementation of Rule ST03."""
+
 from sqlfluff.core.rules import BaseRule, EvalResultType, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.analysis.query import Query

@@ -1,4 +1,5 @@
 """Surrogate class for working with RawFileSlice collections."""
+
 from typing import Callable, Optional
 
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile

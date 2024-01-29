@@ -1,4 +1,5 @@
 """Complex Type helpers."""
+
 from enum import Enum
 from typing import TYPE_CHECKING, FrozenSet, Optional, Tuple, Union
 
