@@ -353,7 +353,7 @@ class JinjaAnalyzer:
             block_type="block_end",
         ),
         # Common extensions
-        # Expression statement (like {{ ... }} but doesn't åctually print anything)
+        # Expression statement (like {{ ... }} but doesn't actually print anything)
         "do": JinjaTagConfiguration(
             block_type="templated",
         ),
