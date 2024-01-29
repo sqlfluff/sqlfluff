@@ -1,4 +1,5 @@
 """Defines the formatters for the CLI."""
+
 import sys
 from io import StringIO
 from typing import List, Optional, Tuple, Union
@@ -486,9 +487,11 @@ class OutputStreamFormatter:
         summary_content = [
             (
                 key,
-                special_formats[key].format(all_stats[key])
-                if key in special_formats
-                else all_stats[key],
+                (
+                    special_formats[key].format(all_stats[key])
+                    if key in special_formats
+                    else all_stats[key]
+                ),
             )
             for key in output_fields
         ]

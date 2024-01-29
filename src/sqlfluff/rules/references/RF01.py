@@ -1,4 +1,5 @@
 """Implementation of Rule RF01."""
+
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple, cast
 

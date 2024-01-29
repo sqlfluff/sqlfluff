@@ -3,6 +3,7 @@
 This is based on postgres dialect, since it was initially based off of Postgres.
 We should monitor in future and see if it should be rebased off of ANSI
 """
+
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     Anything,
