@@ -36,6 +36,7 @@ import pluggy
 
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import dict_diff, nested_combine
+from sqlfluff.core.helpers.file import iter_intermediate_paths
 from sqlfluff.core.helpers.string import (
     split_colon_separated_string,
     split_comma_separated_string,
@@ -678,7 +679,7 @@ class ConfigLoader:
         )
         user_config = self.load_user_config() if not ignore_local_config else {}
         config_paths = (
-            self.iter_config_locations_up_to_path(path)
+            iter_intermediate_paths(Path(path).absolute(), Path.cwd())
             if not ignore_local_config
             else {}
         )
@@ -702,51 +703,18 @@ class ConfigLoader:
         ignore_file_name: str = ".sqlfluffignore",
     ) -> Set[str]:
         """Finds sqlfluff ignore files from both the path and its parent paths."""
+        _working_path: Path = (
+            Path(working_path) if isinstance(working_path, str) else working_path
+        )
         return set(
             filter(
                 os.path.isfile,
                 map(
                     lambda x: os.path.join(x, ignore_file_name),
-                    cls.iter_config_locations_up_to_path(
-                        path=path, working_path=working_path
-                    ),
+                    iter_intermediate_paths(Path(path).absolute(), _working_path),
                 ),
             )
         )
-
-    @staticmethod
-    def iter_config_locations_up_to_path(
-        path: str, working_path: Union[str, Path] = Path.cwd()
-    ) -> Iterator[str]:
-        """Finds config locations from both the path and its parent paths.
-
-        The lowest priority is the user appdir, then home dir, then increasingly
-        the configs closest to the file being directly linted.
-        """
-        given_path = Path(path).absolute()
-        working_path = Path(working_path).absolute()
-
-        # If we've been passed a file and not a directory,
-        # then go straight to the directory.
-        if not given_path.is_dir():
-            given_path = given_path.parent
-
-        common_path = Path(os.path.commonpath([working_path, given_path]))
-
-        # we have a sub path! We can load nested paths
-        path_to_visit = common_path
-        while path_to_visit != given_path:
-            yield str(path_to_visit.resolve())
-            next_path_to_visit = (
-                path_to_visit / given_path.relative_to(path_to_visit).parts[0]
-            )
-            if next_path_to_visit == path_to_visit:  # pragma: no cover
-                # we're not making progress...
-                # [prevent infinite loop]
-                break
-            path_to_visit = next_path_to_visit
-
-        yield str(given_path.resolve())
 
 
 class FluffConfig:

@@ -3,7 +3,6 @@
 import logging
 import os
 import sys
-from pathlib import Path
 from unittest.mock import call, patch
 
 import appdirs
@@ -174,57 +173,6 @@ def test__config__load_placeholder_cfg():
             }
         },
     }
-
-
-@pytest.mark.parametrize(
-    "path,working_path,result",
-    [
-        (
-            # Standard use case.
-            # SQLFluff run from an outer location, looking to an inner.
-            ["test", "fixtures", "config", "inheritance_a", "nested", "blah.sql"],
-            "test/fixtures",
-            # Order should work up from outer to inner
-            [
-                "test/fixtures",
-                "test/fixtures/config",
-                "test/fixtures/config/inheritance_a",
-                "test/fixtures/config/inheritance_a/nested",
-            ],
-        ),
-        (
-            # Reverse use case.
-            # SQLFluff running from an inner location, looking to outer.
-            ["test", "fixtures"],
-            "test/fixtures/config/inheritance_a",
-            # Should only return inner, then outer.
-            [
-                # "test/fixtures/config/inheritance_a",  # This SHOULD be present
-                "test/fixtures",
-            ],
-        ),
-        (
-            # Unrelated use case.
-            # SQLFluff running from an one location, looking to parallel.
-            ["test", "fixtures"],
-            "test/core",
-            # Should each individually, with the working location first
-            [
-                "test",  # This SHOULD NOT be present.
-                # "test/core",  # This SHOULD be present.
-                "test/fixtures",
-            ],
-        ),
-    ],
-)
-def test__config__iter_config_paths(path, working_path, result):
-    """Test that config paths are fetched ordered by priority."""
-    c = ConfigLoader()
-    cfg_paths = c.iter_config_locations_up_to_path(
-        os.path.join(*path),
-        working_path=working_path,
-    )
-    assert list(cfg_paths) == [str(Path(p).resolve()) for p in result]
 
 
 def test__config__find_sqlfluffignore_in_same_directory():
