@@ -1,4 +1,5 @@
 """Implementation of Rule AL01."""
+
 from typing import Optional, Tuple, cast
 
 from sqlfluff.core.parser import (

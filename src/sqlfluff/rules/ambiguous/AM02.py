@@ -1,4 +1,5 @@
 """Implementation of Rule AM02."""
+
 from typing import Tuple
 
 from sqlfluff.core.parser import (

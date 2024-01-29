@@ -1,4 +1,5 @@
 """Tests the python routines within CV02."""
+
 import sqlfluff
 
 

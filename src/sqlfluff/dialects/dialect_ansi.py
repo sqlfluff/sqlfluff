@@ -418,6 +418,22 @@ ansi_dialect.add(
         Ref("NanLiteralSegment"),
         Ref("BooleanLiteralGrammar"),
     ),
+    InOperatorGrammar=Sequence(
+        Ref.keyword("NOT", optional=True),
+        "IN",
+        OneOf(
+            Bracketed(
+                OneOf(
+                    Delimited(
+                        Ref("Expression_A_Grammar"),
+                    ),
+                    Ref("SelectableGrammar"),
+                ),
+                parse_mode=ParseMode.GREEDY,
+            ),
+            Ref("FunctionSegment"),  # E.g. UNNEST()
+        ),
+    ),
     SelectClauseTerminatorGrammar=OneOf(
         "FROM",
         "WHERE",
@@ -542,6 +558,22 @@ ansi_dialect.add(
         Ref("ConditionalCrossJoinKeywordsGrammar"),
         Ref("NonStandardJoinTypeKeywordsGrammar"),
     ),
+    JoinUsingConditionGrammar=Sequence(
+        "USING",
+        Indent,
+        Bracketed(
+            # NB: We don't use BracketedColumnReferenceListGrammar
+            # here because we're just using SingleIdentifierGrammar,
+            # rather than ObjectReferenceSegment or
+            # ColumnReferenceSegment.
+            # This is a) so that we don't lint it as a reference and
+            # b) because the column will probably be returned anyway
+            # during parsing.
+            Delimited(Ref("SingleIdentifierGrammar")),
+            parse_mode=ParseMode.GREEDY,
+        ),
+        Dedent,
+    ),
     # It's as a sequence to allow to parametrize that in Postgres dialect with LATERAL
     JoinKeywordsGrammar=Sequence("JOIN"),
     # NATURAL joins are not supported in all dialects (e.g. not in Bigquery
@@ -653,6 +685,9 @@ ansi_dialect.add(
         ),
     ),
     OrderNoOrderGrammar=OneOf("ORDER", "NOORDER"),
+    ColumnsExpressionNameGrammar=Nothing(),
+    # Uses grammar for LT06 support
+    ColumnsExpressionGrammar=Nothing(),
 )
 
 
@@ -1349,12 +1384,14 @@ class FunctionSegment(BaseSegment):
                 ),
             ),
         ),
+        Ref("ColumnsExpressionGrammar"),
         Sequence(
             Sequence(
                 Ref(
                     "FunctionNameSegment",
                     exclude=OneOf(
                         Ref("DatePartFunctionNameSegment"),
+                        Ref("ColumnsExpressionFunctionNameSegment"),
                         Ref("ValuesClauseSegment"),
                     ),
                 ),
@@ -1370,6 +1407,28 @@ class FunctionSegment(BaseSegment):
             Ref("PostFunctionGrammar", optional=True),
         ),
     )
+
+
+class ColumnsExpressionFunctionNameSegment(BaseSegment):
+    """COLUMNS function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = Ref("ColumnsExpressionNameGrammar")
+
+
+class ColumnsExpressionFunctionContentsSegment(BaseSegment):
+    """Columns expression in a select statement.
+
+    From DuckDB:
+    https://duckdb.org/docs/sql/expressions/star#columns-expression
+    """
+
+    type = "columns_expression"
+    match_grammar: Matchable = Nothing()
 
 
 class PartitionClauseSegment(BaseSegment):
@@ -1710,22 +1769,7 @@ class JoinClauseSegment(BaseSegment):
                     # ON clause
                     Ref("JoinOnConditionSegment"),
                     # USING clause
-                    Sequence(
-                        "USING",
-                        Indent,
-                        Bracketed(
-                            # NB: We don't use BracketedColumnReferenceListGrammar
-                            # here because we're just using SingleIdentifierGrammar,
-                            # rather than ObjectReferenceSegment or
-                            # ColumnReferenceSegment.
-                            # This is a) so that we don't lint it as a reference and
-                            # b) because the column will probably be returned anyway
-                            # during parsing.
-                            Delimited(Ref("SingleIdentifierGrammar")),
-                            parse_mode=ParseMode.GREEDY,
-                        ),
-                        Dedent,
-                    ),
+                    Ref("JoinUsingConditionGrammar"),
                     # Unqualified joins *are* allowed. They just might not
                     # be a good idea.
                 ),
@@ -2006,24 +2050,7 @@ ansi_dialect.add(
                     Ref("BinaryOperatorGrammar"),
                     Ref("Tail_Recurse_Expression_A_Grammar"),
                 ),
-                Sequence(
-                    Ref.keyword("NOT", optional=True),
-                    "IN",
-                    Bracketed(
-                        OneOf(
-                            Delimited(
-                                Ref("Expression_A_Grammar"),
-                            ),
-                            Ref("SelectableGrammar"),
-                        ),
-                        parse_mode=ParseMode.GREEDY,
-                    ),
-                ),
-                Sequence(
-                    Ref.keyword("NOT", optional=True),
-                    "IN",
-                    Ref("FunctionSegment"),  # E.g. UNNEST()
-                ),
+                Ref("InOperatorGrammar"),
                 Sequence(
                     "IS",
                     Ref.keyword("NOT", optional=True),

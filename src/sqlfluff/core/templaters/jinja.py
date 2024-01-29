@@ -1,4 +1,5 @@
 """Defines the templaters."""
+
 import copy
 import importlib
 import logging
@@ -729,10 +730,12 @@ class JinjaTemplater(PythonTemplater):
 
             # Render and analyze the template with the overrides.
             variant_key = tuple(
-                cast(str, tracer_trace.raw_slice_info[rs].alternate_code)
-                if idx in override_raw_slices
-                and tracer_trace.raw_slice_info[rs].alternate_code is not None
-                else rs.raw
+                (
+                    cast(str, tracer_trace.raw_slice_info[rs].alternate_code)
+                    if idx in override_raw_slices
+                    and tracer_trace.raw_slice_info[rs].alternate_code is not None
+                    else rs.raw
+                )
                 for idx, rs in enumerate(tracer_trace.raw_sliced)
             )
             # In some cases (especially with nested if statements), we may

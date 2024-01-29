@@ -1,4 +1,5 @@
 """Implementation of Rule ST02."""
+
 from typing import List, Optional, Tuple
 
 from sqlfluff.core.parser import (

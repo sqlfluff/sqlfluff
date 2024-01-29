@@ -1,4 +1,5 @@
 """Basic code analysis tools for SELECT statements."""
+
 from typing import List, NamedTuple, Optional, cast
 
 from sqlfluff.core.dialects.base import Dialect

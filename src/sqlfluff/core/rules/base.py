@@ -512,9 +512,12 @@ class BaseRule(metaclass=RuleMetaclass):
             except Exception as e:
                 # If a filename is present, include it in the critical exception.
                 self.logger.critical(
-                    f"Applying rule {self.code} to {fname!r} threw an Exception: {e}"
-                    if fname
-                    else f"Applying rule {self.code} threw an Exception: {e}",
+                    (
+                        f"Applying rule {self.code} to {fname!r} "
+                        f"threw an Exception: {e}"
+                        if fname
+                        else f"Applying rule {self.code} threw an Exception: {e}"
+                    ),
                     exc_info=True,
                 )
                 assert context.segment.pos_marker
@@ -743,9 +746,11 @@ class BaseRule(metaclass=RuleMetaclass):
             if fix.anchor:
                 fix.anchor = cls._choose_anchor_segment(
                     # If no parent stack, that means the segment itself is the root
-                    context.parent_stack[0]
-                    if context.parent_stack
-                    else context.segment,
+                    (
+                        context.parent_stack[0]
+                        if context.parent_stack
+                        else context.segment
+                    ),
                     fix.edit_type,
                     fix.anchor,
                 )

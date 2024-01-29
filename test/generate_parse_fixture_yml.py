@@ -1,4 +1,5 @@
 """Utility to generate yml files for all the parsing examples."""
+
 import fnmatch
 import multiprocessing
 import os
