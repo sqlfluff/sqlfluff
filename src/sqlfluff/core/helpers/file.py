@@ -53,17 +53,20 @@ def iter_intermediate_paths(inner_path: Path, outer_path: Path) -> Iterator[Path
     # a more accurate search is not feasible. In future that path should somehow
     # be made available here.
 
-    # we have a sub path! We can load nested paths
-    path_to_visit = common_path
-    while path_to_visit != inner_path:
-        yield path_to_visit.resolve()
-        next_path_to_visit = (
-            path_to_visit / inner_path.relative_to(path_to_visit).parts[0]
-        )
-        if next_path_to_visit == path_to_visit:  # pragma: no cover
-            # we're not making progress...
-            # [prevent infinite loop]
-            break
-        path_to_visit = next_path_to_visit
+    if not common_path:
+        yield outer_path.resolve()
+    else:
+        # we have a sub path! We can load nested paths
+        path_to_visit = common_path
+        while path_to_visit != inner_path:
+            yield path_to_visit.resolve()
+            next_path_to_visit = (
+                path_to_visit / inner_path.relative_to(path_to_visit).parts[0]
+            )
+            if next_path_to_visit == path_to_visit:  # pragma: no cover
+                # we're not making progress...
+                # [prevent infinite loop]
+                break
+            path_to_visit = next_path_to_visit
 
     yield inner_path.resolve()
