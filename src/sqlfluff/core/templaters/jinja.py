@@ -378,6 +378,16 @@ class JinjaTemplater(PythonTemplater):
                     return result
         return None
 
+    def _get_jinja_analyzer(
+        self, raw_str: str, env: Environment, config: Optional[FluffConfig] = None
+    ) -> JinjaAnalyzer:
+        """Creates a new object derived from JinjaAnalyzer.
+
+        Derived classes can provide their own analyzers (e.g. to support custom Jinja
+        tags).
+        """
+        return JinjaAnalyzer(raw_str, env)
+
     def _apply_dbt_builtins(self, config: FluffConfig) -> bool:
         """Check if dbt builtins should be applied from the provided config object.
 
@@ -671,7 +681,7 @@ class JinjaTemplater(PythonTemplater):
 
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str[:80])
-        analyzer = JinjaAnalyzer(raw_str, self._get_jinja_env())
+        analyzer = self._get_jinja_analyzer(raw_str, self._get_jinja_env(), config)
         tracer = analyzer.analyze(render_func)
         trace = tracer.trace(append_to_templated=kwargs.pop("append_to_templated", ""))
         return trace.raw_sliced, trace.sliced_file, trace.templated_str
@@ -682,6 +692,7 @@ class JinjaTemplater(PythonTemplater):
         render_func: Callable[[str], str],
         uncovered_slices: Set[int],
         append_to_templated="",
+        config: Optional[FluffConfig] = None,
     ):
         """Address uncovered slices by tweaking the template to hit them.
 
@@ -695,8 +706,9 @@ class JinjaTemplater(PythonTemplater):
                 raw source file.
             append_to_templated (:obj:`str`, optional): Optional string to append
                 to the templated file.
+            config (:obj:`FluffConfig`, optional): Optional config object.
         """
-        analyzer = JinjaAnalyzer(in_str, self._get_jinja_env())
+        analyzer = self._get_jinja_analyzer(in_str, self._get_jinja_env(), config)
         tracer_copy = analyzer.analyze(render_func)
 
         max_variants_generated = 10
@@ -743,7 +755,9 @@ class JinjaTemplater(PythonTemplater):
             # those.
             variant_raw_str = "".join(variant_key)
             if variant_raw_str not in variants:
-                analyzer = JinjaAnalyzer(variant_raw_str, self._get_jinja_env())
+                analyzer = self._get_jinja_analyzer(
+                    variant_raw_str, self._get_jinja_env(), config
+                )
                 tracer_trace = analyzer.analyze(render_func)
                 try:
                     trace = tracer_trace.trace(
@@ -867,7 +881,7 @@ class JinjaTemplater(PythonTemplater):
         _, _, render_func = self.construct_render_func(fname=fname, config=config)
 
         for raw_sliced, sliced_file, templated_str in self._handle_unreached_code(
-            in_str, render_func, uncovered_literal_idxs
+            in_str, render_func, uncovered_literal_idxs, config=config
         ):
             yield (
                 TemplatedFile(
