@@ -1444,6 +1444,7 @@ class FromExpressionElementSegment(BaseSegment):
         Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
         Ref("SamplingExpressionSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
+        AnyNumberOf(Ref("JoinClauseSegment"), optional=True),
     )
 
     def get_eventual_alias(self) -> AliasInfo:
@@ -1703,7 +1704,7 @@ class JoinClauseSegment(BaseSegment):
             Ref("ConditionalJoinKeywordsGrammar", optional=True),
             Ref("JoinKeywordsGrammar"),
             Indent,
-            Ref("FromExpressionElementSegment"),
+            OptionallyBracketed(Ref("FromExpressionElementSegment")),
             AnyNumberOf(Ref("NestedJoinGrammar")),
             Dedent,
             Sequence(
