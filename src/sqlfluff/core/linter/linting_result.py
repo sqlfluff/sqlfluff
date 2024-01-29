@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union, 
 from typing_extensions import Literal
 
 from sqlfluff.core.errors import CheckTuple
-from sqlfluff.core.linter.linted_dir import LintedDir
+from sqlfluff.core.linter.linted_dir import LintedDir, LintingRecord
 from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES
 from sqlfluff.core.timing import RuleTimingSummary, TimingSummary
 
@@ -193,7 +193,7 @@ class LintingResult:
                         }
                     )
 
-    def as_records(self) -> List[dict]:
+    def as_records(self) -> List[LintingRecord]:
         """Return the result as a list of dictionaries.
 
         Each record contains a key specifying the filepath, and a list of violations.

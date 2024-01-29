@@ -127,7 +127,7 @@ class LintedDir:
         """Return a dict of violations by file path."""
         return {file.path: file.get_violations(**kwargs) for file in self.files}
 
-    def as_records(self) -> List[dict]:
+    def as_records(self) -> List[LintingRecord]:
         """Return the result as a list of dictionaries.
 
         Each record contains a key specifying the filepath, and a list of violations.
