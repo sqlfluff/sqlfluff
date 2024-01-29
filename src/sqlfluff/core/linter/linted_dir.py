@@ -18,15 +18,42 @@ class LintedDir:
 
     A LintedDir may contain files in subdirectories, but they all share
     a common root.
+
+    Importantly, this class also abstracts away from the given LintedFile
+    object and allows us to either _keep_ those objects for later use, or
+    extract the results from them and allow the original object to be discarded
+    and save memory overhead if not required.
     """
 
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, persist_files: bool = True) -> None:
         self.files: List[LintedFile] = []
         self.path: str = path
+        self.persist_files: bool = persist_files
+        # self._check_tupes: Dict[str, List[CheckTuple]] = {}
+        # self._records:
+        self._num_files: int = 0
+        self._num_clean: int = 0
+        self._num_unclean: int = 0
+        self._num_violations: int = 0
 
     def add(self, file: LintedFile) -> None:
-        """Add a file to this path."""
-        self.files.append(file)
+        """Add a file to this path.
+
+        This function _always_ updates the metadata tracking, but may
+        or may not persist the `file` object itself depending on the
+        `persist_files` argument given on instantiation.
+        """
+        # Update the stats
+        self._num_files += 1
+        if file.is_clean():
+            self._num_clean += 1
+        else:
+            self._num_unclean += 1
+        self._num_violations = file.num_violations()
+
+        # Finally, if set to persist files, do that.
+        if self.persist_files:
+            self.files.append(file)
 
     @overload
     def check_tuples(self, by_path: Literal[False]) -> List[CheckTuple]:
@@ -81,12 +108,12 @@ class LintedDir:
 
     def stats(self) -> Dict[str, int]:
         """Return a dict containing linting stats about this path."""
-        return dict(
-            files=len(self.files),
-            clean=sum(file.is_clean() for file in self.files),
-            unclean=sum(not file.is_clean() for file in self.files),
-            violations=sum(file.num_violations() for file in self.files),
-        )
+        return {
+            "files": self._num_files,
+            "clean": self._num_clean,
+            "unclean": self._num_unclean,
+            "violations": self._num_violations,
+        }
 
     def persist_changes(
         self, formatter: Any = None, fixed_file_suffix: str = ""
@@ -95,6 +122,7 @@ class LintedDir:
 
         This also logs the output as we go using the formatter if present.
         """
+        assert self.persist_files, "cannot `persist_changes()` without `persist_files`"
         # Run all the fixes for all the files and return a dict
         buffer: Dict[str, Union[bool, str]] = {}
         for file in self.files:
@@ -106,7 +134,9 @@ class LintedDir:
     @property
     def tree(self) -> Optional[BaseSegment]:
         """A convenience method for when there is only one file and we want the tree."""
-        if len(self.files) > 1:  # pragma: no cover
+        if not self.persist_files:
+            raise ValueError(".tree() cannot be called if `persist_files` is False.")
+        elif len(self.files) > 1:  # pragma: no cover
             raise ValueError(
                 ".tree() cannot be called when a LintedDir contains more than one file."
             )
