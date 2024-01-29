@@ -31,7 +31,6 @@ class LintedDir:
         self.files: List[LintedFile] = []
         self.path: str = path
         self.persist_files: bool = persist_files
-        # self._check_tupes: Dict[str, List[CheckTuple]] = {}
         # Records
         self._records: List[LintingRecord] = []
         # Stats
@@ -97,6 +96,7 @@ class LintedDir:
         file the violations are from. Good for testing though.
         For more control set the `by_path` argument to true.
         """
+        assert self.persist_files, "cannot `check_tuples()` without `persist_files`"
         if by_path:
             return {
                 file.path: file.check_tuples(
