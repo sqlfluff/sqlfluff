@@ -10,6 +10,7 @@ tracking.
 
 https://stackoverflow.com/questions/49715881/how-to-pickle-inherited-exceptions
 """
+
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union, cast
 
 if TYPE_CHECKING:  # pragma: no cover

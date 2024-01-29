@@ -1,4 +1,5 @@
 """Tests specific to the postgres dialect."""
+
 from typing import Callable
 
 import pytest

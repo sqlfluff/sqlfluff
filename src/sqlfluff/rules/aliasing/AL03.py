@@ -1,4 +1,5 @@
 """Implementation of Rule AL03."""
+
 from typing import Optional
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
@@ -83,6 +84,11 @@ class Rule_AL03(BaseRule):
             .children()
             .any(sp.is_type("cte_column_list"))
         ):
+            return None
+
+        # Ignore if using a columns expression. A nested function such as
+        # ``MIN(COLUMNS(*))`` will assign the same alias to all columns.
+        if len(children.recursive_crawl("columns_expression")) > 0:
             return None
 
         select_clause_children = children.select(sp.not_(sp.is_type("star")))
