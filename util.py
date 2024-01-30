@@ -14,6 +14,7 @@ import shutil
 import time
 
 import click
+from fastcore.net import HTTPError
 from ghapi.all import GhApi
 
 
@@ -59,7 +60,14 @@ def release(new_version_num):
         repo="sqlfluff",
         token=os.environ["GITHUB_TOKEN"],
     )
-    releases = api.repos.list_releases(per_page=100)
+    try:
+        releases = api.repos.list_releases(per_page=100)
+    except HTTPError as err:
+        raise click.UsageError(
+            "HTTP Error from GitHub API. Check your credentials.\n"
+            "(i.e. GITHUB_REPOSITORY_OWNER & GITHUB_TOKEN)\n"
+            f"{err}"
+        )
 
     latest_draft_release = None
     for rel in releases:
@@ -117,9 +125,9 @@ def release(new_version_num):
             # If the release is already in the changelog, update it
             if f"## [{new_version_num}]" in input_changelog[existing_entry_start]:
                 click.echo(f"...found existing entry for {new_version_num}")
-                input_changelog[existing_entry_start] = (
-                    f"## [{new_version_num}] - {time.strftime('%Y-%m-%d')}\n"
-                )
+                input_changelog[
+                    existing_entry_start
+                ] = f"## [{new_version_num}] - {time.strftime('%Y-%m-%d')}\n"
 
                 # Delete the existing What’s Changed and New Contributors sections
                 remaining_changelog = input_changelog[existing_entry_start:]
