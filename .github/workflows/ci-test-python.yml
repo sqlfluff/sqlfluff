@@ -93,6 +93,6 @@ jobs:
       uses: actions/upload-artifact@v4
       if: ${{ inputs.coverage }}
       with:
-        name: coverage-data-py${{ inputs.python-version }}
+        name: coverage-data-py${{ inputs.python-version }}-${{ inputs.marks }}
         path: ".coverage.*"
         if-no-files-found: ignore
