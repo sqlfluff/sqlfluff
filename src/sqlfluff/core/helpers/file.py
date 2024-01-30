@@ -37,9 +37,6 @@ def iter_intermediate_paths(inner_path: Path, outer_path: Path) -> Iterator[Path
     common_path: Optional[Path]
     try:
         common_path = Path(os.path.commonpath([inner_path, outer_path])).absolute()
-        # Check how many parts the common path has
-        if not common_path.parts:
-            common_path = None
     except ValueError:
         # Getting a value error means that we're likely on a windows system
         # and have been provided a `inner_path` and `outer_path` which are
