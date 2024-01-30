@@ -112,4 +112,6 @@ def test__config__iter_config_paths_exc_win():
 def test__config__iter_config_paths_exc_unix():
     """Test that config path resolution exception handling works on linux."""
     cfg_paths = iter_intermediate_paths(Path("/abc"), Path("/def"))
-    assert list(cfg_paths) == [Path("/def"), Path("/abc")]
+    # NOTE: `/def` doesn't exist, so we'll use it's parent instead because `.is_dir()`
+    # will return false. This should still test the "zero path length" handling routine.
+    assert list(cfg_paths) == [Path("/"), Path("/abc")]
