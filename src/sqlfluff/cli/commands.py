@@ -862,7 +862,13 @@ def _paths_fix(
 
     # NB: We filter to linting violations here, because they're
     # the only ones which can be potentially fixed.
-    num_fixable = result.num_violations(types=SQLLintError, fixable=True)
+    violation_records = result.as_records()
+    num_fixable = sum(
+        # Coerce to boolean so that we effectively count the ones which have fixes.
+        bool(v.get("fixes", []))
+        for rec in violation_records
+        for v in rec["violations"]
+    )
 
     if num_fixable > 0:
         if not force and formatter.verbosity >= 0:
@@ -900,18 +906,11 @@ def _paths_fix(
             click.echo("==== no fixable linting violations found ====")
             formatter.completion_message()
 
-    error_types = [
-        (
-            dict(types=SQLLintError, fixable=False),
-            "  [{} unfixable linting violations found]",
-            EXIT_FAIL,
-        ),
-    ]
-    for num_violations_kwargs, message_format, error_level in error_types:
-        num_violations = result.num_violations(**num_violations_kwargs)
-        if num_violations > 0 and formatter.verbosity >= 0:
-            click.echo(message_format.format(num_violations))
-            exit_code = max(exit_code, error_level)
+    num_violations_kwargs = {"types": SQLLintError, "fixable": False}
+    num_violations = result.num_violations(**num_violations_kwargs)
+    if num_violations > 0 and formatter.verbosity >= 0:
+        click.echo("  [{} unfixable linting violations found]".format(num_violations))
+        exit_code = max(exit_code, EXIT_FAIL)
 
     if bench:
         click.echo("==== overall timings ====")
