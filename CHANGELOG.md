@@ -24,11 +24,13 @@ bugfixes from over the holiday period. Notably also:
   as itself.
 * Disables `AL01` (`aliasing.table`) by default for Oracle.
 
-This release also saw **TEN** new contributors in this release 🎉🎉🏆🏆🎉🎉.
+This release also saw **ELEVEN** new contributors in this release 🎉🎉🏆🏆🎉🎉.
 Great to see so many new people getting involved with the project. Thank You 🙏.
 
 ## What’s Changed
 
+* Add support & test for postgres alter policy with multiple clauses [#5577](https://github.com/sqlfluff/sqlfluff/pull/5577) [@fnimick](https://github.com/fnimick)
+* Update github actions to latest versions [#5584](https://github.com/sqlfluff/sqlfluff/pull/5584) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Allows using dbt cross project ref in jinja templater [#5574](https://github.com/sqlfluff/sqlfluff/pull/5574) [@alangner](https://github.com/alangner)
 * Improve support for Jinja templater plugins with custom tags [#5543](https://github.com/sqlfluff/sqlfluff/pull/5543) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
 * Databricks: fix `EXCEPT` with qualified column reference [#5557](https://github.com/sqlfluff/sqlfluff/pull/5557) [@keraion](https://github.com/keraion)
@@ -77,6 +79,7 @@ Great to see so many new people getting involved with the project. Thank You �
 * [@aayushr7](https://github.com/aayushr7) made their first contribution in [#5528](https://github.com/sqlfluff/sqlfluff/pull/5528)
 * [@k1drobot](https://github.com/k1drobot) made their first contribution in [#5559](https://github.com/sqlfluff/sqlfluff/pull/5559)
 * [@alangner](https://github.com/alangner) made their first contribution in [#5574](https://github.com/sqlfluff/sqlfluff/pull/5574)
+* [@fnimick](https://github.com/fnimick) made their first contribution in [#5577](https://github.com/sqlfluff/sqlfluff/pull/5577)
 
 ## [3.0.0a4] - 2023-12-05
 
