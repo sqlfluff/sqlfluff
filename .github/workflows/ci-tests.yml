@@ -211,7 +211,7 @@ jobs:
     - name: Upload coverage data (github)
       uses: actions/upload-artifact@v4
       with:
-        name: coverage-data
+        name: coverage-data-winpy3.12
         path: ".coverage.*"
         if-no-files-found: ignore
 
@@ -304,7 +304,8 @@ jobs:
       - name: Download coverage data.
         uses: actions/download-artifact@v4
         with:
-          name: coverage-data
+          pattern: coverage-data-*
+          merge-multiple: true
 
       - name: Combine coverage & fail if it's <100%.
         id: report_coverage
