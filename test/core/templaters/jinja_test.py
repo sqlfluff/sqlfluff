@@ -9,16 +9,21 @@ loops and placeholders.
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import List, NamedTuple
+from typing import List, NamedTuple, Optional, Union
 
 import pytest
+from jinja2 import Environment, nodes
 from jinja2.exceptions import UndefinedError
+from jinja2.ext import Extension
+from jinja2.nodes import Node
+from jinja2.parser import Parser
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile, SQLFluffUserError, SQLTemplaterError
 from sqlfluff.core.templaters import JinjaTemplater
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
-from sqlfluff.core.templaters.jinja import DummyUndefined, JinjaAnalyzer
+from sqlfluff.core.templaters.jinja import DummyUndefined
+from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer, JinjaTagConfiguration
 
 JINJA_STRING = (
     "SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, "
@@ -680,6 +685,7 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         # Macros
         ("jinja_b/jinja", False, False),
         # dbt builtins
+        ("jinja_c_dbt/dbt_builtins_cross_ref", True, False),
         ("jinja_c_dbt/dbt_builtins_config", True, False),
         ("jinja_c_dbt/dbt_builtins_is_incremental", True, False),
         ("jinja_c_dbt/dbt_builtins_ref", True, False),
@@ -796,11 +802,37 @@ def test__templater_jinja_block_matching(caplog):
             raise ValueError(f"Couldn't find appropriate grouping of blocks: {clause}")
 
 
+class DerivedJinjaAnalyzer(JinjaAnalyzer):
+    """An analyzer that includes some custom Jinja tags.
+
+    This is used for tests that show the analyzer can be extended for custom plugin
+    templaters that support custom tags.
+    """
+
+    @classmethod
+    def _get_tag_configuration(cls, tag: str) -> JinjaTagConfiguration:
+        tag_map = {
+            "up": JinjaTagConfiguration(
+                block_type="block_start",
+                block_tracking=True,
+            ),
+            "down": JinjaTagConfiguration(
+                block_type="block_mid",
+                block_tracking=True,
+            ),
+            "end": JinjaTagConfiguration(
+                block_type="block_end",
+                block_tracking=True,
+            ),
+        }
+        return tag_map.get(tag, super()._get_tag_configuration(tag))
+
+
 @pytest.mark.parametrize(
-    "test,result",
+    "test,result,analyzer_class",
     [
-        ("", []),
-        ("foo", [("foo", "literal", 0)]),
+        ("", [], JinjaAnalyzer),
+        ("foo", [("foo", "literal", 0)], JinjaAnalyzer),
         (
             "foo {{bar}} z ",
             [
@@ -808,6 +840,7 @@ def test__templater_jinja_block_matching(caplog):
                 ("{{bar}}", "templated", 4),
                 (" z ", "literal", 11),
             ],
+            JinjaAnalyzer,
         ),
         (
             (
@@ -828,6 +861,7 @@ def test__templater_jinja_block_matching(caplog):
                 ("{{my_table}}", "templated", 92, 2),
                 (" ", "literal", 104, 2),
             ],
+            JinjaAnalyzer,
         ),
         (
             "{% set thing %}FOO{% endset %} BAR",
@@ -837,6 +871,7 @@ def test__templater_jinja_block_matching(caplog):
                 ("{% endset %}", "block_end", 18, 1, "endset"),
                 (" BAR", "literal", 30, 2),
             ],
+            JinjaAnalyzer,
         ),
         (
             # Tests Jinja "block assignment" syntax. Also tests the use of
@@ -856,6 +891,7 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
                 ("{{ my_query }}", "templated", 83, 2),
                 ("\n", "literal", 97, 2),
             ],
+            JinjaAnalyzer,
         ),
         # Tests for jinja blocks that consume whitespace.
         (
@@ -868,6 +904,7 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
                 (" ", "literal", 42, 1),
                 ("{%-endif%}", "block_end", 43, 1, "endif"),
             ],
+            JinjaAnalyzer,
         ),
         (
             """{% for item in some_list -%}
@@ -884,6 +921,7 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
                 ("\n", "literal", 97, 1),
                 ("{%- endfor %}", "block_end", 98, 1, "endfor"),
             ],
+            JinjaAnalyzer,
         ),
         (
             JINJA_MACRO_CALL_SQL,
@@ -901,15 +939,48 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
                 ("{% endcall %}", "block_end", 142, 3, "endcall"),
                 ("\n" "FROM baz\n", "literal", 155, 4),
             ],
+            JinjaAnalyzer,
+        ),
+        (
+            # Test of tag heuristics in the default _get_tag_configuration
+            """{% randomtagstart %}
+    SELECT 1;
+{% elphony %}
+    SELECT 2;
+{% endsomethingweird %}""",
+            [
+                ("{% randomtagstart %}", "block_start", 0, 1, "randomtagstart"),
+                ("\n    SELECT 1;\n", "literal", 20, 1),
+                ("{% elphony %}", "block_mid", 35, 1, "elphony"),
+                ("\n    SELECT 2;\n", "literal", 48, 1),
+                ("{% endsomethingweird %}", "block_end", 63, 1, "endsomethingweird"),
+            ],
+            JinjaAnalyzer,
+        ),
+        (
+            # Basic test with a derived JinjaAnalyzer that supports some custom tags
+            """{% up 'create table xyz' %}
+    CREATE TABLE xyz (id int);
+{% down %}
+    DROP TABLE xyz;
+{% end %}""",
+            [
+                ("{% up 'create table xyz' %}", "block_start", 0, 1, "up"),
+                ("\n    CREATE TABLE xyz (id int);\n", "literal", 27, 1),
+                ("{% down %}", "block_mid", 59, 1, "down"),
+                ("\n    DROP TABLE xyz;\n", "literal", 69, 1),
+                ("{% end %}", "block_end", 90, 1, "end"),
+            ],
+            DerivedJinjaAnalyzer,
         ),
     ],
 )
-def test__templater_jinja_slice_template(test, result):
+def test__templater_jinja_slice_template(test, result, analyzer_class):
     """Test _slice_template."""
     templater = JinjaTemplater()
     env, _, render_func = templater.construct_render_func()
 
-    analyzer = JinjaAnalyzer(test, env)
+    analyzer = analyzer_class(test, env)
     analyzer.analyze(render_func=render_func)
     resp = analyzer.raw_sliced
     # check contiguous (unless there's a comment in it)
@@ -924,6 +995,50 @@ def test__templater_jinja_slice_template(test, result):
     assert resp == [RawFileSlice(*args) for args in result]
 
 
+class DBMigrationExtension(Extension):
+    """Example of a hypothetical custom Jinja extension.
+
+    This extension might ostensibly be used to represent up/down database migrations.
+    """
+
+    tags = {"up"}
+
+    def parse(self, parser: Parser) -> Union[Node, List[Node]]:
+        """Parse the up/down blocks."""
+        # {% up 'migration name' %}
+        next(parser.stream)  # skip the "up" token
+        parser.parse_expression()  # skip the name of this migration
+        up_body = parser.parse_statements(("name:down",))
+        # {% down %}
+        next(parser.stream)  # skip the "down" token
+        down_body = parser.parse_statements(("name:end",))
+        # {% end %}
+        next(parser.stream)
+
+        # This is just a test, so output the blocks verbatim one after the other:
+        return [nodes.Scope(up_body), nodes.Scope(down_body)]
+
+
+class DerivedJinjaTemplater(JinjaTemplater):
+    """A templater that includes some custom Jinja tags.
+
+    This is used for tests that show the templater can be extended for custom plugin
+    templaters that support custom tags.
+    """
+
+    name = "derivedtemplater"
+
+    def _get_jinja_env(self, config=None):
+        env = super()._get_jinja_env(config)
+        env.add_extension(DBMigrationExtension)
+        return env
+
+    def _get_jinja_analyzer(
+        self, raw_str: str, env: Environment, config: Optional[FluffConfig] = None
+    ) -> JinjaAnalyzer:
+        return DerivedJinjaAnalyzer(raw_str, env)
+
+
 def _statement(*args, **kwargs):
     # NOTE: The standard dbt statement() call returns nothing.
     return ""
@@ -934,10 +1049,15 @@ def _load_result(*args, **kwargs):
 
 
 @pytest.mark.parametrize(
-    "raw_file,override_context,result",
+    "raw_file,override_context,result,templater_class",
     [
-        ("", None, []),
-        ("foo", None, [("literal", slice(0, 3, None), slice(0, 3, None))]),
+        ("", None, [], JinjaTemplater),
+        (
+            "foo",
+            None,
+            [("literal", slice(0, 3, None), slice(0, 3, None))],
+            JinjaTemplater,
+        ),
         # Example with no loops
         (
             "SELECT {{blah}}, boo {# comment #} from something",
@@ -949,6 +1069,7 @@ def _load_result(*args, **kwargs):
                 ("comment", slice(21, 34, None), slice(19, 19, None)),
                 ("literal", slice(34, 49, None), slice(19, 34, None)),
             ],
+            JinjaTemplater,
         ),
         # Example with loops
         (
@@ -980,6 +1101,7 @@ def _load_result(*args, **kwargs):
                 ("templated", slice(97, 109, None), slice(58, 64, None)),
                 ("literal", slice(109, 110, None), slice(64, 65, None)),
             ],
+            JinjaTemplater,
         ),
         # Example with loops (and utilising the end slice code)
         (
@@ -1008,6 +1130,7 @@ def _load_result(*args, **kwargs):
                 ("templated", slice(95, 107, None), slice(52, 58, None)),
                 ("literal", slice(107, 108, None), slice(58, 59, None)),
             ],
+            JinjaTemplater,
         ),
         # Test a trailing split, and some variables which don't refer anything.
         (
@@ -1023,6 +1146,7 @@ def _load_result(*args, **kwargs):
                 ("templated", slice(49, 97, None), slice(16, 45, None)),
                 ("literal", slice(97, 99, None), slice(45, 47, None)),
             ],
+            JinjaTemplater,
         ),
         # Test splitting with a loop.
         (
@@ -1055,6 +1179,7 @@ def _load_result(*args, **kwargs):
                 ("block_end", slice(95, 107, None), slice(146, 146, None)),
                 ("literal", slice(107, 121, None), slice(146, 160, None)),
             ],
+            JinjaTemplater,
         ),
         # Test an example where a block is removed entirely.
         (
@@ -1066,6 +1191,7 @@ def _load_result(*args, **kwargs):
                 ("block_end", slice(18, 30, None), slice(0, 0, None)),
                 ("literal", slice(30, 39, None), slice(0, 9, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Tests Jinja "include" directive.
@@ -1078,6 +1204,7 @@ SELECT 1
                 ("templated", slice(0, 42, None), slice(0, 18, None)),
                 ("literal", slice(42, 53, None), slice(18, 29, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Tests Jinja "import" directive.
@@ -1090,6 +1217,7 @@ SELECT 1
                 ("templated", slice(0, 31, None), slice(0, 0, None)),
                 ("literal", slice(31, 42, None), slice(0, 11, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Tests Jinja "from import" directive..
@@ -1111,6 +1239,7 @@ SELECT
                 ("templated", slice(111, 132, None), slice(25, 34, None)),
                 ("literal", slice(132, 133, None), slice(34, 35, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Tests Jinja "do" directive. Should be treated as a
@@ -1128,6 +1257,7 @@ SELECT
                 ("literal", slice(28, 42, None), slice(2, 16, None)),
                 ("block_end", slice(42, 53, None), slice(16, 16, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Tests issue 2541, a bug where the {%- endfor %} was causing
@@ -1154,6 +1284,7 @@ SELECT
                 ("block_end", slice(79, 92, None), slice(30, 30, None)),
                 ("literal", slice(92, 93, None), slice(30, 31, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Similar to the test above for issue 2541, but it's even trickier:
@@ -1185,6 +1316,7 @@ SELECT
                 ("block_end", slice(100, 113, None), slice(22, 22, None)),
                 ("block_end", slice(113, 127, None), slice(22, 22, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Test for issue 2786. Also lots of whitespace control. In this
@@ -1236,6 +1368,7 @@ from my_table
                 ("block_end", slice(299, 312, None), slice(27, 27, None)),
                 ("literal", slice(312, 327, None), slice(27, 42, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Test for issue 2835. There's no space between "col" and "=".
@@ -1251,6 +1384,7 @@ SELECT {{ col }}
                 ("templated", slice(29, 38, None), slice(8, 12, None)),
                 ("literal", slice(38, 39, None), slice(12, 13, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Another test for issue 2835. The {% for %} loop inside the
@@ -1280,6 +1414,7 @@ FROM SOME_TABLE
                 ("templated", slice(113, 139, None), slice(9, 29, None)),
                 ("literal", slice(139, 156, None), slice(29, 46, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Third test for issue 2835. This was the original SQL provided in
@@ -1319,6 +1454,7 @@ FROM SOME_TABLE
                 ("templated", slice(244, 270, None), slice(11, 66, None)),
                 ("literal", slice(270, 287, None), slice(66, 83, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Test for issue 2822: Handle slicing when there's no newline after
@@ -1331,6 +1467,7 @@ FROM SOME_TABLE
                 ("literal", slice(26, 27, None), slice(13, 13, None)),
                 ("block_end", slice(27, 39, None), slice(13, 13, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Test for issue 3434: Handle {% block %}.
@@ -1348,6 +1485,7 @@ FROM SOME_TABLE
                 ("literal", slice(29, 43, None), slice(27, 41, None)),
                 ("literal", slice(86, 87, None), slice(41, 42, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Another test for issue 3434: Similar to the first, but uses
@@ -1386,6 +1524,7 @@ FROM {{ j }}{{ self.table_name() }}
                 ("block_end", slice(119, 131, None), slice(88, 88, None)),
                 ("literal", slice(131, 132, None), slice(88, 89, None)),
             ],
+            JinjaTemplater,
         ),
         (
             "{{ statement('variables', fetch_result=true) }}\n",
@@ -1397,6 +1536,7 @@ FROM {{ j }}{{ self.table_name() }}
                 ("templated", slice(0, 47, None), slice(0, 0, None)),
                 ("literal", slice(47, 48, None), slice(0, 1, None)),
             ],
+            JinjaTemplater,
         ),
         (
             "{% call statement('variables', fetch_result=true) %}\n"
@@ -1413,6 +1553,7 @@ FROM {{ j }}{{ self.table_name() }}
                 ("block_end", slice(70, 83, None), slice(0, 0, None)),
                 ("literal", slice(83, 100, None), slice(0, 17, None)),
             ],
+            JinjaTemplater,
         ),
         (
             JINJA_MACRO_CALL_SQL,
@@ -1435,12 +1576,32 @@ FROM {{ j }}{{ self.table_name() }}
                 ("block_end", slice(142, 155, None), slice(47, 47, None)),
                 ("literal", slice(155, 165, None), slice(47, 57, None)),
             ],
+            JinjaTemplater,
+        ),
+        (
+            # Simple test of a derived templater with custom tags
+            """{% up 'create table xyz' %}
+    CREATE TABLE xyz (id int);
+{% down %}
+    DROP TABLE xyz;
+{% end %}""",
+            None,
+            [
+                ("block_start", slice(0, 27, None), slice(0, 0, None)),
+                ("literal", slice(27, 59, None), slice(0, 32, None)),
+                ("block_mid", slice(59, 69, None), slice(32, 32, None)),
+                ("literal", slice(69, 90, None), slice(32, 53, None)),
+                ("block_end", slice(90, 99, None), slice(53, 53, None)),
+            ],
+            DerivedJinjaTemplater,
         ),
     ],
 )
-def test__templater_jinja_slice_file(raw_file, override_context, result, caplog):
+def test__templater_jinja_slice_file(
+    raw_file, override_context, result, templater_class, caplog
+):
     """Test slice_file."""
-    templater = JinjaTemplater(override_context=override_context)
+    templater = templater_class(override_context=override_context)
     _, _, render_func = templater.construct_render_func(
         config=FluffConfig.from_path(
             "test/fixtures/templater/jinja_slice_template_macros"
