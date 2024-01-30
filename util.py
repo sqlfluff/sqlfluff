@@ -76,7 +76,14 @@ def release(new_version_num):
             break
 
     if not latest_draft_release:
-        raise ValueError("No draft release found!")
+        raise click.UsageError(
+            "No draft release found on GitHub.\n"
+            "This could be because the GitHub action which generates it is broken, "
+            "but is more likely due to using an API token which only has read-only "
+            "access to the `sqlfluff/sqlfluff` repository. This script requires an "
+            "API token with `read and write` access to the `contents` scope in "
+            "order to be able to view draft releases."
+        )
 
     # Pre-releases are identifiable because they contain letters.
     # https://peps.python.org/pep-0440/
