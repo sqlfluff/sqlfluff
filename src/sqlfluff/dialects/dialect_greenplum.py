@@ -5,7 +5,6 @@ so we base this dialect on Postgres.
 """
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.core.parser import (
     AnyNumberOf,
     BaseSegment,
@@ -15,8 +14,10 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     Ref,
     Sequence,
-    AnySetOf, Anything,
+    AnySetOf,
+    Anything,
 )
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_postgres as postgres
 from sqlfluff.dialects.dialect_greenplum_keywords import greenplum_keywords
 from sqlfluff.dialects.dialect_postgres_keywords import get_keywords
@@ -311,7 +312,7 @@ class SelectStatementSegment(postgres.SelectStatementSegment):
 
 
 class AnalizeSegment(BaseSegment):
-    """ANALYZE statement
+    """ANALYZE statement.
 
     https://docs.vmware.com/en/VMware-Greenplum/6/greenplum-database/ref_guide-sql_commands-ANALYZE.html
     """
@@ -333,7 +334,7 @@ class AnalizeSegment(BaseSegment):
     )
 
 class FetchClauseSegment(ansi.FetchClauseSegment):
-    """FETCH statement
+    """FETCH statement.
 
     https://docs.vmware.com/en/VMware-Greenplum/6/greenplum-database/ref_guide-sql_commands-FETCH.html
     """
@@ -404,7 +405,7 @@ class DeclareStatement(BaseSegment):
 
 
 class CloseStatementSegment(BaseSegment):
-    """CLOSE statement
+    """CLOSE statement.
 
     https://docs.vmware.com/en/VMware-Greenplum/7/greenplum-database/ref_guide-sql_commands-CLOSE.html
     """
@@ -418,7 +419,7 @@ class CloseStatementSegment(BaseSegment):
 
 
 class CopyStatementSegment(postgres.CopyStatementSegment):
-    """COPY statement
+    """COPY statement.
 
     https://docs.vmware.com/en/VMware-Greenplum/6/greenplum-database/ref_guide-sql_commands-COPY.html
     """

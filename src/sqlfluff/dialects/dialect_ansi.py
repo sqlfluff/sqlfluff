@@ -1486,7 +1486,8 @@ class FromExpressionElementSegment(BaseSegment):
     """A table expression."""
 
     type = "from_expression_element"
-    match_grammar: Matchable = Sequence(
+
+    _base_from_expression_element = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
         Ref(
@@ -1503,7 +1504,16 @@ class FromExpressionElementSegment(BaseSegment):
         Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
         Ref("SamplingExpressionSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
-        AnyNumberOf(Ref("JoinClauseSegment"), optional=True),
+    )
+
+    match_grammar: Matchable = OneOf(
+        _base_from_expression_element,
+        Bracketed(
+            Sequence(
+                _base_from_expression_element,
+                AnyNumberOf(Ref("JoinClauseSegment")),
+            ),
+        ),
     )
 
     def get_eventual_alias(self) -> AliasInfo:
@@ -1763,7 +1773,7 @@ class JoinClauseSegment(BaseSegment):
             Ref("ConditionalJoinKeywordsGrammar", optional=True),
             Ref("JoinKeywordsGrammar"),
             Indent,
-            OptionallyBracketed(Ref("FromExpressionElementSegment")),
+            Ref("FromExpressionElementSegment"),
             AnyNumberOf(Ref("NestedJoinGrammar")),
             Dedent,
             Sequence(
