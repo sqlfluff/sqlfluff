@@ -129,12 +129,12 @@ def release(new_version_num):
         write_changelog.write(line)
         if "DO NOT DELETE THIS LINE" in line:
             existing_entry_start = i + 2
+            new_heading = f"## [{new_version_num}] - {time.strftime('%Y-%m-%d')}\n"
             # If the release is already in the changelog, update it
             if f"## [{new_version_num}]" in input_changelog[existing_entry_start]:
                 click.echo(f"...found existing entry for {new_version_num}")
-                input_changelog[
-                    existing_entry_start
-                ] = f"## [{new_version_num}] - {time.strftime('%Y-%m-%d')}\n"
+                # Update the existing heading with the new date.
+                input_changelog[existing_entry_start] = new_heading
 
                 # Delete the existing What’s Changed and New Contributors sections
                 remaining_changelog = input_changelog[existing_entry_start:]
@@ -188,9 +188,7 @@ def release(new_version_num):
 
             else:
                 click.echo(f"...creating new entry for {new_version_num}")
-                write_changelog.write(
-                    f"\n## [{new_version_num}] - {time.strftime('%Y-%m-%d')}\n\n## Highlights\n\n"  # noqa E501
-                )
+                write_changelog.write(f"\n{new_heading}\n## Highlights\n\n")
                 write_changelog.write(whats_changed_text)
                 write_changelog.write("\n## New Contributors\n\n")
                 # Ensure contributor names don't appear in input_changelog list
