@@ -26,8 +26,7 @@ from sqlfluff.core.parser import (
 )
 from sqlfluff.core.parser.segments import Indent, SourceFix
 from sqlfluff.core.parser.segments.meta import MetaSegment, TemplateSegment
-from sqlfluff.core.rules import LintFix
-from sqlfluff.core.rules.base import LintResult
+from sqlfluff.core.rules import LintFix, LintResult
 from sqlfluff.utils.reflow.elements import (
     IndentStats,
     ReflowBlock,
@@ -595,9 +594,9 @@ def _revise_comment_lines(
                     "  Comment Only Line: %s. Anchoring to %s", comment_line_idx, idx
                 )
                 # Mutate reference lines to match this one.
-                lines[comment_line_idx].initial_indent_balance = (
-                    line.initial_indent_balance
-                )
+                lines[
+                    comment_line_idx
+                ].initial_indent_balance = line.initial_indent_balance
             # Reset the buffer
             comment_line_buffer = []
 

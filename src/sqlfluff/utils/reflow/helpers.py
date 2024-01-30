@@ -5,8 +5,7 @@ from itertools import chain
 from typing import Iterable, List
 
 from sqlfluff.core.parser import BaseSegment, RawSegment
-from sqlfluff.core.rules import LintFix
-from sqlfluff.core.rules.base import LintResult
+from sqlfluff.core.rules import LintFix, LintResult
 
 # We're in the utils module, but users will expect reflow
 # logs to appear in the context of rules. Hence it's a subset
