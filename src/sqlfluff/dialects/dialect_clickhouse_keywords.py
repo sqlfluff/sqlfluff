@@ -128,6 +128,7 @@ UNRESERVED_KEYWORDS = [
     "OR",
     "OUTFILE",
     "OVERRIDE",
+    "PASTE",
     "POPULATE",
     "POSTGRESQL",
     "PREWHERE",

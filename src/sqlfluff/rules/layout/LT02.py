@@ -1,4 +1,5 @@
 """Implementation of Rule LT02."""
+
 from typing import List
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext

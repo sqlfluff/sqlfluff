@@ -418,6 +418,22 @@ ansi_dialect.add(
         Ref("NanLiteralSegment"),
         Ref("BooleanLiteralGrammar"),
     ),
+    InOperatorGrammar=Sequence(
+        Ref.keyword("NOT", optional=True),
+        "IN",
+        OneOf(
+            Bracketed(
+                OneOf(
+                    Delimited(
+                        Ref("Expression_A_Grammar"),
+                    ),
+                    Ref("SelectableGrammar"),
+                ),
+                parse_mode=ParseMode.GREEDY,
+            ),
+            Ref("FunctionSegment"),  # E.g. UNNEST()
+        ),
+    ),
     SelectClauseTerminatorGrammar=OneOf(
         "FROM",
         "WHERE",
@@ -522,8 +538,9 @@ ansi_dialect.add(
     ),
     IgnoreRespectNullsGrammar=Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
     FrameClauseUnitGrammar=OneOf("ROWS", "RANGE"),
+    # Some dialects do not support `ON` or `USING` with `CROSS JOIN`
+    ConditionalCrossJoinKeywordsGrammar=Ref.keyword("CROSS"),
     JoinTypeKeywordsGrammar=OneOf(
-        "CROSS",
         "INNER",
         Sequence(
             OneOf(
@@ -533,7 +550,29 @@ ansi_dialect.add(
             ),
             Ref.keyword("OUTER", optional=True),
         ),
-        optional=True,
+    ),
+    # Extensible in individual dialects
+    NonStandardJoinTypeKeywordsGrammar=Nothing(),
+    ConditionalJoinKeywordsGrammar=OneOf(
+        Ref("JoinTypeKeywordsGrammar"),
+        Ref("ConditionalCrossJoinKeywordsGrammar"),
+        Ref("NonStandardJoinTypeKeywordsGrammar"),
+    ),
+    JoinUsingConditionGrammar=Sequence(
+        "USING",
+        Indent,
+        Bracketed(
+            # NB: We don't use BracketedColumnReferenceListGrammar
+            # here because we're just using SingleIdentifierGrammar,
+            # rather than ObjectReferenceSegment or
+            # ColumnReferenceSegment.
+            # This is a) so that we don't lint it as a reference and
+            # b) because the column will probably be returned anyway
+            # during parsing.
+            Delimited(Ref("SingleIdentifierGrammar")),
+            parse_mode=ParseMode.GREEDY,
+        ),
+        Dedent,
     ),
     # It's as a sequence to allow to parametrize that in Postgres dialect with LATERAL
     JoinKeywordsGrammar=Sequence("JOIN"),
@@ -541,16 +580,16 @@ ansi_dialect.add(
     # or T-SQL). So define here to allow override with Nothing() for those.
     NaturalJoinKeywordsGrammar=Sequence(
         "NATURAL",
-        OneOf(
-            # Note that NATURAL joins do not support CROSS joins
-            "INNER",
-            Sequence(
-                OneOf("LEFT", "RIGHT", "FULL"),
-                Ref.keyword("OUTER", optional=True),
-                optional=True,
-            ),
-            optional=True,
-        ),
+        Ref("JoinTypeKeywordsGrammar", optional=True),
+    ),
+    UnconditionalCrossJoinKeywordsGrammar=Nothing(),
+    # Some dialects such as DuckDB and Clickhouse support a row by row
+    # join between two tables (e.g. POSITIONAL and PASTE)
+    HorizontalJoinKeywordsGrammar=Nothing(),
+    UnconditionalJoinKeywordsGrammar=OneOf(
+        Ref("NaturalJoinKeywordsGrammar"),
+        Ref("UnconditionalCrossJoinKeywordsGrammar"),
+        Ref("HorizontalJoinKeywordsGrammar"),
     ),
     # This can be overwritten by dialects
     ExtendedNaturalJoinKeywordsGrammar=Nothing(),
@@ -646,6 +685,9 @@ ansi_dialect.add(
         ),
     ),
     OrderNoOrderGrammar=OneOf("ORDER", "NOORDER"),
+    ColumnsExpressionNameGrammar=Nothing(),
+    # Uses grammar for LT06 support
+    ColumnsExpressionGrammar=Nothing(),
 )
 
 
@@ -1342,12 +1384,14 @@ class FunctionSegment(BaseSegment):
                 ),
             ),
         ),
+        Ref("ColumnsExpressionGrammar"),
         Sequence(
             Sequence(
                 Ref(
                     "FunctionNameSegment",
                     exclude=OneOf(
                         Ref("DatePartFunctionNameSegment"),
+                        Ref("ColumnsExpressionFunctionNameSegment"),
                         Ref("ValuesClauseSegment"),
                     ),
                 ),
@@ -1363,6 +1407,28 @@ class FunctionSegment(BaseSegment):
             Ref("PostFunctionGrammar", optional=True),
         ),
     )
+
+
+class ColumnsExpressionFunctionNameSegment(BaseSegment):
+    """COLUMNS function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = Ref("ColumnsExpressionNameGrammar")
+
+
+class ColumnsExpressionFunctionContentsSegment(BaseSegment):
+    """Columns expression in a select statement.
+
+    From DuckDB:
+    https://duckdb.org/docs/sql/expressions/star#columns-expression
+    """
+
+    type = "columns_expression"
+    match_grammar: Matchable = Nothing()
 
 
 class PartitionClauseSegment(BaseSegment):
@@ -1424,6 +1490,7 @@ class FromExpressionElementSegment(BaseSegment):
                 Ref("FromClauseTerminatorGrammar"),
                 Ref("SamplingExpressionSegment"),
                 Ref("JoinLikeClauseGrammar"),
+                Ref("JoinClauseSegment"),
             ),
             optional=True,
         ),
@@ -1687,7 +1754,7 @@ class JoinClauseSegment(BaseSegment):
     match_grammar: Matchable = OneOf(
         # NB These qualifiers are optional
         Sequence(
-            Ref("JoinTypeKeywordsGrammar", optional=True),
+            Ref("ConditionalJoinKeywordsGrammar", optional=True),
             Ref("JoinKeywordsGrammar"),
             Indent,
             Ref("FromExpressionElementSegment"),
@@ -1702,22 +1769,7 @@ class JoinClauseSegment(BaseSegment):
                     # ON clause
                     Ref("JoinOnConditionSegment"),
                     # USING clause
-                    Sequence(
-                        "USING",
-                        Indent,
-                        Bracketed(
-                            # NB: We don't use BracketedColumnReferenceListGrammar
-                            # here because we're just using SingleIdentifierGrammar,
-                            # rather than ObjectReferenceSegment or
-                            # ColumnReferenceSegment.
-                            # This is a) so that we don't lint it as a reference and
-                            # b) because the column will probably be returned anyway
-                            # during parsing.
-                            Delimited(Ref("SingleIdentifierGrammar")),
-                            parse_mode=ParseMode.GREEDY,
-                        ),
-                        Dedent,
-                    ),
+                    Ref("JoinUsingConditionGrammar"),
                     # Unqualified joins *are* allowed. They just might not
                     # be a good idea.
                 ),
@@ -1727,7 +1779,7 @@ class JoinClauseSegment(BaseSegment):
         ),
         # Note NATURAL joins do not support Join conditions
         Sequence(
-            Ref("NaturalJoinKeywordsGrammar"),
+            Ref("UnconditionalJoinKeywordsGrammar"),
             Ref("JoinKeywordsGrammar"),
             Indent,
             Ref("FromExpressionElementSegment"),
@@ -1998,24 +2050,7 @@ ansi_dialect.add(
                     Ref("BinaryOperatorGrammar"),
                     Ref("Tail_Recurse_Expression_A_Grammar"),
                 ),
-                Sequence(
-                    Ref.keyword("NOT", optional=True),
-                    "IN",
-                    Bracketed(
-                        OneOf(
-                            Delimited(
-                                Ref("Expression_A_Grammar"),
-                            ),
-                            Ref("SelectableGrammar"),
-                        ),
-                        parse_mode=ParseMode.GREEDY,
-                    ),
-                ),
-                Sequence(
-                    Ref.keyword("NOT", optional=True),
-                    "IN",
-                    Ref("FunctionSegment"),  # E.g. UNNEST()
-                ),
+                Ref("InOperatorGrammar"),
                 Sequence(
                     "IS",
                     Ref.keyword("NOT", optional=True),

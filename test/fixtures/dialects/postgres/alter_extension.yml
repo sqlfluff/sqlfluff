@@ -1,0 +1,69 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4ef89f401daaafa6f0ca8f43d53a3ae10e351d4f387256c0649d29dbe8b8603b
+file:
+- statement:
+    alter_extension_statement:
+    - keyword: ALTER
+    - keyword: EXTENSION
+    - extension_reference:
+        naked_identifier: hstore
+    - keyword: SET
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: utils
+- statement_terminator: ;
+- statement:
+    alter_extension_statement:
+    - keyword: ALTER
+    - keyword: EXTENSION
+    - extension_reference:
+        naked_identifier: hstore
+    - keyword: ADD
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: populate_record
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            data_type_identifier: anyelement
+        - comma: ','
+        - data_type:
+            data_type_identifier: hstore
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_extension_statement:
+    - keyword: ALTER
+    - keyword: EXTENSION
+    - extension_reference:
+        quoted_identifier: '"hstore"'
+    - keyword: DROP
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: ref_table
+- statement_terminator: ;
+- statement:
+    alter_extension_statement:
+    - keyword: ALTER
+    - keyword: EXTENSION
+    - extension_reference:
+        naked_identifier: hstore
+    - keyword: UPDATE
+    - keyword: TO
+    - quoted_literal: "'2.0'"
+- statement_terminator: ;
+- statement:
+    alter_extension_statement:
+    - keyword: ALTER
+    - keyword: EXTENSION
+    - extension_reference:
+        naked_identifier: repmgr
+    - keyword: UPDATE
+- statement_terminator: ;

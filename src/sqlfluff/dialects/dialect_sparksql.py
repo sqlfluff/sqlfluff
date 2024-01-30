@@ -265,6 +265,13 @@ sparksql_dialect.replace(
         "NATURAL",
         Ref("JoinTypeKeywords", optional=True),
     ),
+    JoinLikeClauseGrammar=Sequence(
+        OneOf(
+            Ref("PivotClauseSegment"),
+            Ref("UnpivotClauseSegment"),
+        ),
+        Ref("AliasExpressionSegment", optional=True),
+    ),
     LikeGrammar=OneOf(
         # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-like.html
         # ilike: https://github.com/apache/spark/pull/33966/files
@@ -2028,6 +2035,75 @@ class PivotClauseSegment(BaseSegment):
     )
 
 
+class UnpivotClauseSegment(BaseSegment):
+    """An UNPIVOT expression.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-unpivot.html
+    """
+
+    type = "unpivot_clause"
+    match_grammar = Sequence(
+        Indent,
+        "UNPIVOT",
+        Sequence(OneOf("INCLUDE", "EXCLUDE"), "NULLS", optional=True),
+        Indent,
+        Bracketed(
+            OneOf(
+                Ref("SingleValueColumnUnpivotSegment"),
+                Ref("MultiValueColumnUnpivotSegment"),
+            ),
+        ),
+        Dedent,
+    )
+
+
+class SingleValueColumnUnpivotSegment(BaseSegment):
+    """An UNPIVOT single column syntax fragment."""
+
+    type = "unpivot_single_column"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        "FOR",
+        Ref("SingleIdentifierGrammar"),
+        "IN",
+        Bracketed(
+            Indent,
+            Delimited(
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("AliasExpressionSegment", optional=True),
+                ),
+            ),
+            parse_mode=ParseMode.GREEDY,
+        ),
+        Dedent,
+    )
+
+
+class MultiValueColumnUnpivotSegment(BaseSegment):
+    """An UNPIVOT multiple column syntax fragment."""
+
+    type = "unpivot_multi_column"
+    match_grammar = Sequence(
+        Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+        Indent,
+        "FOR",
+        Ref("SingleIdentifierGrammar"),
+        "IN",
+        Bracketed(
+            Indent,
+            Delimited(
+                Sequence(
+                    Bracketed(Indent, Delimited(Ref("ColumnReferenceSegment"))),
+                    Ref("AliasExpressionSegment", optional=True),
+                ),
+            ),
+            parse_mode=ParseMode.GREEDY,
+        ),
+        Dedent,
+    )
+
+
 class TransformClauseSegment(BaseSegment):
     """A `TRANSFORM` clause like used in `SELECT`.
 
@@ -2805,21 +2881,20 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
+        Ref("SamplingExpressionSegment", optional=True),
         Ref(
             "AliasExpressionSegment",
             exclude=OneOf(
                 Ref("FromClauseTerminatorGrammar"),
-                Ref("SamplingExpressionSegment"),
+                Ref("JoinLikeClauseGrammar"),
             ),
             optional=True,
         ),
-        Ref("SamplingExpressionSegment", optional=True),
         # NB: `LateralViewClauseSegment`, `NamedWindowSegment`,
         # and `PivotClauseSegment should come after Alias/Sampling
         # expressions so those are matched before
         AnyNumberOf(Ref("LateralViewClauseSegment")),
         Ref("NamedWindowSegment", optional=True),
-        Ref("PivotClauseSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
     )
 
@@ -3220,7 +3295,7 @@ class ExceptClauseSegment(BaseSegment):
     type = "select_except_clause"
     match_grammar = Sequence(
         "EXCEPT",
-        Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
     )
 
 

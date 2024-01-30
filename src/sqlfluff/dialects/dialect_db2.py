@@ -15,6 +15,7 @@ from sqlfluff.core.parser import (
     Delimited,
     IdentifierSegment,
     Indent,
+    Nothing,
     OneOf,
     OptionallyBracketed,
     ParseMode,
@@ -34,6 +35,7 @@ from sqlfluff.dialects.dialect_db2_keywords import UNRESERVED_KEYWORDS
 ansi_dialect = load_raw_dialect("ansi")
 
 db2_dialect = ansi_dialect.copy_as("db2")
+db2_dialect.sets("reserved_keywords").remove("NATURAL")
 db2_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
 
@@ -52,6 +54,10 @@ db2_dialect.replace(
         Ref("ExpressionSegment"),
         Ref("NamedArgumentSegment"),
     ),
+    ConditionalCrossJoinKeywordsGrammar=Nothing(),
+    NaturalJoinKeywordsGrammar=Nothing(),
+    UnconditionalCrossJoinKeywordsGrammar=Ref.keyword("CROSS"),
+    PreTableFunctionKeywordsGrammar=OneOf("LATERAL"),
     PostFunctionGrammar=OneOf(
         Ref("OverClauseSegment"),
         Ref("WithinGroupClauseSegment"),

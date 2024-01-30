@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6fe63a40ae5b468ad5207ebec94cf11a25d2bcb96fb8437e5534cd2a96b54f92
+_hash: 0507cd82ae7db822f01c3ec05deb2b5d520536dafbb684b3a5614b70ca879178
 file:
 - statement:
     select_statement:
@@ -19,34 +19,34 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: person
-            pivot_clause:
-              keyword: PIVOT
-              bracketed:
-              - start_bracket: (
-              - function:
-                  function_name:
-                    function_name_identifier: SUM
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: age
-                    end_bracket: )
-              - alias_expression:
-                  keyword: AS
-                  naked_identifier: a
-              - keyword: FOR
-              - naked_identifier: name
-              - keyword: IN
-              - bracketed:
+          pivot_clause:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: SUM
+                bracketed:
                   start_bracket: (
                   expression:
-                    quoted_literal: "'John'"
-                  alias_expression:
-                    keyword: AS
-                    naked_identifier: john
+                    column_reference:
+                      naked_identifier: age
                   end_bracket: )
-              - end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: a
+            - keyword: FOR
+            - naked_identifier: name
+            - keyword: IN
+            - bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'John'"
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: john
+                end_bracket: )
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -62,92 +62,40 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: person
-            pivot_clause:
-              keyword: PIVOT
-              bracketed:
-              - start_bracket: (
-              - function:
-                  function_name:
-                    function_name_identifier: SUM
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: age
-                    end_bracket: )
-              - alias_expression:
-                  keyword: AS
-                  naked_identifier: a
-              - keyword: FOR
-              - naked_identifier: name
-              - keyword: IN
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                    quoted_literal: "'John'"
-                - alias_expression:
-                    keyword: AS
-                    naked_identifier: john
-                - comma: ','
-                - expression:
-                    quoted_literal: "'Mike'"
-                - alias_expression:
-                    keyword: AS
-                    naked_identifier: mike
-                - end_bracket: )
-              - end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          column_reference:
-            naked_identifier: a
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: person
-            pivot_clause:
-              keyword: PIVOT
-              bracketed:
-              - start_bracket: (
-              - function:
-                  function_name:
-                    function_name_identifier: SUM
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: age
-                    end_bracket: )
-              - alias_expression:
-                  keyword: AS
-                  naked_identifier: a
-              - keyword: FOR
-              - bracketed:
+          pivot_clause:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: SUM
+                bracketed:
                   start_bracket: (
-                  naked_identifier: name
+                  expression:
+                    column_reference:
+                      naked_identifier: age
                   end_bracket: )
-              - keyword: IN
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                    quoted_literal: "'John'"
-                - alias_expression:
-                    keyword: AS
-                    naked_identifier: john
-                - comma: ','
-                - expression:
-                    quoted_literal: "'Mike'"
-                - alias_expression:
-                    keyword: AS
-                    naked_identifier: mike
-                - end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: a
+            - keyword: FOR
+            - naked_identifier: name
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'John'"
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: john
+              - comma: ','
+              - expression:
+                  quoted_literal: "'Mike'"
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: mike
               - end_bracket: )
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -163,40 +111,92 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: person
-            pivot_clause:
-              keyword: PIVOT
-              bracketed:
+          pivot_clause:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: SUM
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: age
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: a
+            - keyword: FOR
+            - bracketed:
+                start_bracket: (
+                naked_identifier: name
+                end_bracket: )
+            - keyword: IN
+            - bracketed:
               - start_bracket: (
-              - function:
-                  function_name:
-                    function_name_identifier: SUM
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: age
-                    end_bracket: )
+              - expression:
+                  quoted_literal: "'John'"
               - alias_expression:
                   keyword: AS
-                  naked_identifier: a
-              - keyword: FOR
-              - naked_identifier: name
-              - keyword: IN
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                    quoted_literal: "'John'"
-                - alias_expression:
-                    keyword: AS
-                    naked_identifier: john
-                - comma: ','
-                - expression:
-                    quoted_literal: "'Mike'"
-                - alias_expression:
-                    keyword: AS
-                    naked_identifier: mike
-                - end_bracket: )
+                  naked_identifier: john
+              - comma: ','
+              - expression:
+                  quoted_literal: "'Mike'"
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: mike
               - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: person
+          pivot_clause:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: SUM
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: age
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: a
+            - keyword: FOR
+            - naked_identifier: name
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'John'"
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: john
+              - comma: ','
+              - expression:
+                  quoted_literal: "'Mike'"
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: mike
+              - end_bracket: )
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -216,53 +216,53 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: person
-            pivot_clause:
-              keyword: PIVOT
-              bracketed:
+          pivot_clause:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: SUM
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: age
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: a
+            - comma: ','
+            - function:
+                function_name:
+                  function_name_identifier: AVG
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: class
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: c
+            - keyword: FOR
+            - naked_identifier: name
+            - keyword: IN
+            - bracketed:
               - start_bracket: (
-              - function:
-                  function_name:
-                    function_name_identifier: SUM
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: age
-                    end_bracket: )
+              - expression:
+                  quoted_literal: "'John'"
               - alias_expression:
                   keyword: AS
-                  naked_identifier: a
+                  naked_identifier: john
               - comma: ','
-              - function:
-                  function_name:
-                    function_name_identifier: AVG
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: class
-                    end_bracket: )
+              - expression:
+                  quoted_literal: "'Mike'"
               - alias_expression:
                   keyword: AS
-                  naked_identifier: c
-              - keyword: FOR
-              - naked_identifier: name
-              - keyword: IN
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                    quoted_literal: "'John'"
-                - alias_expression:
-                    keyword: AS
-                    naked_identifier: john
-                - comma: ','
-                - expression:
-                    quoted_literal: "'Mike'"
-                - alias_expression:
-                    keyword: AS
-                    naked_identifier: mike
-                - end_bracket: )
+                  naked_identifier: mike
               - end_bracket: )
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -282,53 +282,53 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: person
-            pivot_clause:
-              keyword: PIVOT
-              bracketed:
+          pivot_clause:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: SUM
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: age
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: a
+            - comma: ','
+            - function:
+                function_name:
+                  function_name_identifier: AVG
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: class
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: c
+            - keyword: FOR
+            - naked_identifier: name
+            - keyword: IN
+            - bracketed:
               - start_bracket: (
-              - function:
-                  function_name:
-                    function_name_identifier: SUM
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: age
-                    end_bracket: )
+              - expression:
+                  quoted_literal: "'John'"
               - alias_expression:
                   keyword: AS
-                  naked_identifier: a
+                  naked_identifier: john
               - comma: ','
-              - function:
-                  function_name:
-                    function_name_identifier: AVG
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: class
-                    end_bracket: )
+              - expression:
+                  quoted_literal: "'Mike'"
               - alias_expression:
                   keyword: AS
-                  naked_identifier: c
-              - keyword: FOR
-              - naked_identifier: name
-              - keyword: IN
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                    quoted_literal: "'John'"
-                - alias_expression:
-                    keyword: AS
-                    naked_identifier: john
-                - comma: ','
-                - expression:
-                    quoted_literal: "'Mike'"
-                - alias_expression:
-                    keyword: AS
-                    naked_identifier: mike
-                - end_bracket: )
+                  naked_identifier: mike
               - end_bracket: )
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -348,67 +348,67 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: person
-            pivot_clause:
-              keyword: PIVOT
-              bracketed:
+          pivot_clause:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: SUM
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: age
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: a
+            - comma: ','
+            - function:
+                function_name:
+                  function_name_identifier: AVG
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: class
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: c
+            - keyword: FOR
+            - naked_identifier: name
+            - comma: ','
+            - naked_identifier: age
+            - keyword: IN
+            - bracketed:
               - start_bracket: (
-              - function:
-                  function_name:
-                    function_name_identifier: SUM
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: age
-                    end_bracket: )
-              - alias_expression:
-                  keyword: AS
-                  naked_identifier: a
-              - comma: ','
-              - function:
-                  function_name:
-                    function_name_identifier: AVG
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: class
-                    end_bracket: )
-              - alias_expression:
-                  keyword: AS
-                  naked_identifier: c
-              - keyword: FOR
-              - naked_identifier: name
-              - comma: ','
-              - naked_identifier: age
-              - keyword: IN
               - bracketed:
                 - start_bracket: (
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                      quoted_literal: "'John'"
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '30'
-                  - end_bracket: )
-                - alias_expression:
-                    keyword: AS
-                    naked_identifier: c1
+                - expression:
+                    quoted_literal: "'John'"
                 - comma: ','
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                      quoted_literal: "'Mike'"
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '40'
-                  - end_bracket: )
-                - alias_expression:
-                    keyword: AS
-                    naked_identifier: c2
+                - expression:
+                    numeric_literal: '30'
                 - end_bracket: )
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: c1
+              - comma: ','
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'Mike'"
+                - comma: ','
+                - expression:
+                    numeric_literal: '40'
+                - end_bracket: )
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: c2
               - end_bracket: )
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -435,67 +435,67 @@ file:
             alias_expression:
               keyword: AS
               naked_identifier: p
-            pivot_clause:
-              keyword: PIVOT
-              bracketed:
+          pivot_clause:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: SUM
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: age
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: a
+            - comma: ','
+            - function:
+                function_name:
+                  function_name_identifier: AVG
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: class
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: c
+            - keyword: FOR
+            - naked_identifier: name
+            - comma: ','
+            - naked_identifier: age
+            - keyword: IN
+            - bracketed:
               - start_bracket: (
-              - function:
-                  function_name:
-                    function_name_identifier: SUM
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: age
-                    end_bracket: )
-              - alias_expression:
-                  keyword: AS
-                  naked_identifier: a
-              - comma: ','
-              - function:
-                  function_name:
-                    function_name_identifier: AVG
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: class
-                    end_bracket: )
-              - alias_expression:
-                  keyword: AS
-                  naked_identifier: c
-              - keyword: FOR
-              - naked_identifier: name
-              - comma: ','
-              - naked_identifier: age
-              - keyword: IN
               - bracketed:
                 - start_bracket: (
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                      quoted_literal: "'John'"
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '30'
-                  - end_bracket: )
-                - alias_expression:
-                    keyword: AS
-                    naked_identifier: c1
+                - expression:
+                    quoted_literal: "'John'"
                 - comma: ','
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                      quoted_literal: "'Mike'"
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '40'
-                  - end_bracket: )
-                - alias_expression:
-                    keyword: AS
-                    naked_identifier: c2
+                - expression:
+                    numeric_literal: '30'
                 - end_bracket: )
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: c1
+              - comma: ','
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'Mike'"
+                - comma: ','
+                - expression:
+                    numeric_literal: '40'
+                - end_bracket: )
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: c2
               - end_bracket: )
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -515,64 +515,64 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: person
-            pivot_clause:
-              keyword: PIVOT
-              bracketed:
+          pivot_clause:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: SUM
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: age
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: a
+            - comma: ','
+            - function:
+                function_name:
+                  function_name_identifier: AVG
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: class
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: c
+            - keyword: FOR
+            - bracketed:
               - start_bracket: (
-              - function:
-                  function_name:
-                    function_name_identifier: SUM
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: age
-                    end_bracket: )
-              - alias_expression:
-                  keyword: AS
-                  naked_identifier: a
+              - naked_identifier: name
               - comma: ','
-              - function:
-                  function_name:
-                    function_name_identifier: AVG
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: class
-                    end_bracket: )
+              - naked_identifier: age
+              - end_bracket: )
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'John'"
               - alias_expression:
                   keyword: AS
-                  naked_identifier: c
-              - keyword: FOR
-              - bracketed:
-                - start_bracket: (
-                - naked_identifier: name
-                - comma: ','
-                - naked_identifier: age
-                - end_bracket: )
-              - keyword: IN
+                  naked_identifier: c1
+              - comma: ','
               - bracketed:
                 - start_bracket: (
                 - expression:
-                    quoted_literal: "'John'"
-                - alias_expression:
-                    keyword: AS
-                    naked_identifier: c1
+                    quoted_literal: "'Mike'"
                 - comma: ','
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                      quoted_literal: "'Mike'"
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '40'
-                  - end_bracket: )
-                - alias_expression:
-                    keyword: AS
-                    naked_identifier: c2
+                - expression:
+                    numeric_literal: '40'
                 - end_bracket: )
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: c2
               - end_bracket: )
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -592,43 +592,171 @@ file:
                 table_reference:
                   naked_identifier: some_table
               end_bracket: )
-            pivot_clause:
-              keyword: PIVOT
-              bracketed:
+          pivot_clause:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: min
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: timestamp_ns
+                    end_bracket: )
+                binary_operator: /
+                numeric_literal: 1e9
+            - alias_expression:
+                keyword: as
+                naked_identifier: min_timestamp_s
+            - keyword: FOR
+            - naked_identifier: run_id
+            - keyword: in
+            - bracketed:
               - start_bracket: (
               - expression:
-                  function:
-                    function_name:
-                      function_name_identifier: min
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: timestamp_ns
-                      end_bracket: )
-                  binary_operator: /
-                  numeric_literal: 1e9
+                  column_reference:
+                    naked_identifier: test_run_id
               - alias_expression:
                   keyword: as
-                  naked_identifier: min_timestamp_s
-              - keyword: FOR
-              - naked_identifier: run_id
-              - keyword: in
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                    column_reference:
-                      naked_identifier: test_run_id
-                - alias_expression:
-                    keyword: as
-                    naked_identifier: test
-                - comma: ','
-                - expression:
-                    column_reference:
-                      naked_identifier: ctrl_run_id
-                - alias_expression:
-                    keyword: as
-                    naked_identifier: ctrl
-                - end_bracket: )
+                  naked_identifier: test
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: ctrl_run_id
+              - alias_expression:
+                  keyword: as
+                  naked_identifier: ctrl
               - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+        - from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: select
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: year
+                  - comma: ','
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: quarter
+                  - comma: ','
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: sales
+                  from_clause:
+                    keyword: from
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: sales
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: s
+        - pivot_clause:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: sum
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: sales
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: total
+            - comma: ','
+            - function:
+                function_name:
+                  function_name_identifier: avg
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: sales
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: avg
+            - keyword: FOR
+            - naked_identifier: quarter
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: q1
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: q2
+              - comma: ','
+              - expression:
+                  numeric_literal: '3'
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: q3
+              - comma: ','
+              - expression:
+                  numeric_literal: '4'
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: q4
+              - end_bracket: )
+            - end_bracket: )
+        - pivot_clause:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: sum
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: q1_avg
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                naked_identifier: total
+            - keyword: FOR
+            - naked_identifier: year
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '2018'
+              - comma: ','
+              - expression:
+                  numeric_literal: '2019'
+              - end_bracket: )
+            - end_bracket: )
 - statement_terminator: ;

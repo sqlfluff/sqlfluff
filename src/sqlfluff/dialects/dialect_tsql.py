@@ -546,6 +546,7 @@ tsql_dialect.replace(
         optional=True,
     ),
     JoinKeywordsGrammar=OneOf("JOIN", "APPLY"),
+    ConditionalCrossJoinKeywordsGrammar=Nothing(),
     NaturalJoinKeywordsGrammar=Ref.keyword("CROSS"),
     ExtendedNaturalJoinKeywordsGrammar=Sequence("OUTER", "APPLY"),
     NestedJoinGrammar=Sequence(
@@ -2360,7 +2361,7 @@ class ColumnConstraintSegment(BaseSegment):
             ),
             # computed_column_definition
             Sequence("AS", Ref("ExpressionSegment")),
-            Sequence("PERSISTED", Sequence("NOT", "NULL", optional=True))
+            Sequence("PERSISTED", Sequence("NOT", "NULL", optional=True)),
             # other optional blocks (RelationalIndexOptionsSegment,
             # OnIndexOptionSegment, ReferencesConstraintGrammar, CheckConstraintGrammar)
             # are mentioned above

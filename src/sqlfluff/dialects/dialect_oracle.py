@@ -2,6 +2,7 @@
 
 This inherits from the ansi dialect.
 """
+
 from typing import cast
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -18,6 +19,7 @@ from sqlfluff.core.parser import (
     IdentifierSegment,
     LiteralSegment,
     Matchable,
+    Nothing,
     OneOf,
     OptionallyBracketed,
     ParseMode,
@@ -279,6 +281,9 @@ oracle_dialect.replace(
             Sequence("TO", Ref("IntervalUnitsGrammar"), optional=True),
         ),
     ),
+    PreTableFunctionKeywordsGrammar=OneOf("LATERAL"),
+    ConditionalCrossJoinKeywordsGrammar=Nothing(),
+    UnconditionalCrossJoinKeywordsGrammar=Ref.keyword("CROSS"),
 )
 
 
@@ -376,7 +381,7 @@ class AlterTableColumnClausesSegment(BaseSegment):
             Ref("ColumnReferenceSegment"),
             "TO",
             Ref("ColumnReferenceSegment"),
-        )
+        ),
         # @TODO: modify_collection_retrieval
         # @TODO: modify_LOB_storage_clause
         # @TODO: alter_varray_col_properties

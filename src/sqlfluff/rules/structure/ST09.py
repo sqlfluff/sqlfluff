@@ -1,4 +1,5 @@
 """Implementation of Rule ST09."""
+
 from typing import List, Optional, Tuple, cast
 
 from sqlfluff.core.parser import BaseSegment, SymbolSegment

@@ -1,4 +1,5 @@
 """Tests for the standard set of rules."""
+
 import os
 import os.path
 from pathlib import Path

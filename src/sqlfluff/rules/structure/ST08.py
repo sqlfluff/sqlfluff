@@ -1,4 +1,5 @@
 """Implementation of Rule ST08."""
+
 from typing import Optional, Tuple
 
 from sqlfluff.core.parser import BaseSegment, KeywordSegment, WhitespaceSegment

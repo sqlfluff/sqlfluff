@@ -3,6 +3,7 @@
 This is based on postgres dialect, since it was initially based off of Postgres 8.
 We should monitor in future and see if it should be rebased off of ANSI
 """
+
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -685,6 +686,13 @@ class AlterTableActionSegment(BaseSegment):
             Ref.keyword("COLUMN", optional=True),
             Ref("ColumnReferenceSegment"),
             Ref("DropBehaviorGrammar", optional=True),
+        ),
+        Sequence(
+            "APPEND",
+            "FROM",
+            Ref("TableReferenceSegment"),
+            Ref.keyword("IGNOREEXTRA", optional=True),
+            Ref.keyword("FILLTARGET", optional=True),
         ),
     )
 

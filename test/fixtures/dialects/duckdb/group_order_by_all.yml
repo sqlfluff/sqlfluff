@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2669ec22912c0564cc026fb2472887b407e941b4790df8a2407f45fc0611f10a
+_hash: 1759b9c4960a1ff609b7537b411d431eb154305019b3a6bd720485c6343871d4
 file:
 - statement:
     select_statement:
@@ -61,21 +61,22 @@ file:
           wildcard_expression:
             wildcard_identifier:
               star: '*'
-          keyword: EXCLUDE
-          bracketed:
-          - start_bracket: (
-          - column_reference:
-              naked_identifier: cantinas
-          - comma: ','
-          - column_reference:
-              naked_identifier: booths
-          - comma: ','
-          - column_reference:
-              naked_identifier: scum
-          - comma: ','
-          - column_reference:
-              naked_identifier: villainy
-          - end_bracket: )
+            wildcard_exclude:
+              keyword: EXCLUDE
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: cantinas
+              - comma: ','
+              - column_reference:
+                  naked_identifier: booths
+              - comma: ','
+              - column_reference:
+                  naked_identifier: scum
+              - comma: ','
+              - column_reference:
+                  naked_identifier: villainy
+              - end_bracket: )
       - comma: ','
       - select_clause_element:
           function:

@@ -1,4 +1,5 @@
 """Tests for the segments module."""
+
 import pytest
 
 import sqlfluff.utils.functional.segment_predicates as sp
