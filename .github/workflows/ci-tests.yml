@@ -209,7 +209,7 @@ jobs:
         mkdir temp_pytest
         python -m tox -e winpy -- --cov=sqlfluff -n 2 test -m "not integration"
     - name: Upload coverage data (github)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: coverage-data
         path: ".coverage.*"
@@ -284,7 +284,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Coveralls Finished
-      uses: coverallsapp/github-action@master
+      uses: coverallsapp/github-action@v2
       with:
         github-token: ${{ secrets.github_token }}
         parallel-finished: true
@@ -302,7 +302,7 @@ jobs:
       - run: python -m pip install --upgrade coverage[toml]
 
       - name: Download coverage data.
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: coverage-data
 
@@ -318,7 +318,7 @@ jobs:
           python -m coverage report --fail-under=100 --skip-covered --skip-empty -m | tee coverage-report.txt
 
       - name: Upload HTML report if check failed.
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: html-report
           path: htmlcov
@@ -335,7 +335,7 @@ jobs:
         # NOTE: We don't actually comment on the PR from here, we'll do that in
         # a more secure way by triggering a more secure workflow.
         # https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: txt-report
           path: |
