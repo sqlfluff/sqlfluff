@@ -685,6 +685,7 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         # Macros
         ("jinja_b/jinja", False, False),
         # dbt builtins
+        ("jinja_c_dbt/dbt_builtins_cross_ref", True, False),
         ("jinja_c_dbt/dbt_builtins_config", True, False),
         ("jinja_c_dbt/dbt_builtins_is_incremental", True, False),
         ("jinja_c_dbt/dbt_builtins_ref", True, False),
