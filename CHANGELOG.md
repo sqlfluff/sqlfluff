@@ -10,6 +10,77 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [3.0.0a5] - 2024-01-30
+
+## Highlights
+
+This release primarily brings through a large set of dialect improvements and
+bugfixes from over the holiday period. Notably also:
+
+* A change in the default behaviour for `convention.not_equals`. The new default
+  is to be `consistent`, which is slightly more relaxed than the original
+  behaviour.
+* A new rule (`aliasing.self_alias.column`) which prevents aliasing a column
+  as itself.
+* Disables `AL01` (`aliasing.table`) by default for Oracle.
+
+This release also saw **ELEVEN** new contributors in this release 🎉🎉🏆🏆🎉🎉.
+Great to see so many new people getting involved with the project. Thank You 🙏.
+
+## What’s Changed
+
+* Add support & test for postgres alter policy with multiple clauses [#5577](https://github.com/sqlfluff/sqlfluff/pull/5577) [@fnimick](https://github.com/fnimick)
+* Update github actions to latest versions [#5584](https://github.com/sqlfluff/sqlfluff/pull/5584) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Allows using dbt cross project ref in jinja templater [#5574](https://github.com/sqlfluff/sqlfluff/pull/5574) [@alangner](https://github.com/alangner)
+* Improve support for Jinja templater plugins with custom tags [#5543](https://github.com/sqlfluff/sqlfluff/pull/5543) [@james-johnston-thumbtack](https://github.com/james-johnston-thumbtack)
+* Databricks: fix `EXCEPT` with qualified column reference [#5557](https://github.com/sqlfluff/sqlfluff/pull/5557) [@keraion](https://github.com/keraion)
+* Stricter recommended config for not_equals convention [#5580](https://github.com/sqlfluff/sqlfluff/pull/5580) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* CV01: Add options for ANSI and consistent style. [#5539](https://github.com/sqlfluff/sqlfluff/pull/5539) [@keraion](https://github.com/keraion)
+* DuckDB: Fix `REPLACE` after `EXCLUDE`. Fix AL03 linting for wildcard like expression. [#5556](https://github.com/sqlfluff/sqlfluff/pull/5556) [@keraion](https://github.com/keraion)
+* Clickhouse: Add `GLOBAL JOIN`, `GLOBAL IN`, and `PASTE JOIN` [#5560](https://github.com/sqlfluff/sqlfluff/pull/5560) [@keraion](https://github.com/keraion)
+* [Docs] Use extended policy for identifier capitalisation in starter config [#5562](https://github.com/sqlfluff/sqlfluff/pull/5562) [@j-svensmark](https://github.com/j-svensmark)
+* Build: linting black 24.1.0 rules update [#5573](https://github.com/sqlfluff/sqlfluff/pull/5573) [@keraion](https://github.com/keraion)
+* Snowflake: Updating Snowflake dialect to pass acceptable RLS policy objects [#5559](https://github.com/sqlfluff/sqlfluff/pull/5559) [@k1drobot](https://github.com/k1drobot)
+* Redshift Syntax: ALTER APPEND [#5545](https://github.com/sqlfluff/sqlfluff/pull/5545) [@OTooleMichael](https://github.com/OTooleMichael)
+* DuckDB: Add ANTI, SEMI, ASOF, and POSITIONAL joins [#5544](https://github.com/sqlfluff/sqlfluff/pull/5544) [@keraion](https://github.com/keraion)
+* MySQL: fix FIRST keyword in ALTER ADD/MODIFY [#5537](https://github.com/sqlfluff/sqlfluff/pull/5537) [@archer62](https://github.com/archer62)
+* Postgres/DB2/Oracle: Fix comma join `LATERAL`. [#5533](https://github.com/sqlfluff/sqlfluff/pull/5533) [@keraion](https://github.com/keraion)
+* Add new Rule AL09: Avoid Self Alias [#5528](https://github.com/sqlfluff/sqlfluff/pull/5528) [@aayushr7](https://github.com/aayushr7)
+* Rule AL01: disabled for Oracle dialect [#5517](https://github.com/sqlfluff/sqlfluff/pull/5517) [@keraion](https://github.com/keraion)
+* Postgres ALTER EXTENSION support: dialect & tests [#5527](https://github.com/sqlfluff/sqlfluff/pull/5527) [@remy-gohiring](https://github.com/remy-gohiring)
+* SparkSQL: Add `UNPIVOT` syntax. Fix `TABLESAMPLE` aliases. [#5524](https://github.com/sqlfluff/sqlfluff/pull/5524) [@keraion](https://github.com/keraion)
+* DuckDB: Added support for `PIVOT` and `UNPIVOT` [#5514](https://github.com/sqlfluff/sqlfluff/pull/5514) [@keraion](https://github.com/keraion)
+* Fix parse error databricks window function starts with order by [#5493](https://github.com/sqlfluff/sqlfluff/pull/5493) [@snkekorfus](https://github.com/snkekorfus)
+* Hive: allow UDTF to return multiple column aliases in SELECT [#5495](https://github.com/sqlfluff/sqlfluff/pull/5495) [@reata](https://github.com/reata)
+* DB2: Add support for `DECLARE GLOBAL TEMPORARY TABLES`, `OFFSET`, `CALL`, and non-bracketed `VALUES` [#5508](https://github.com/sqlfluff/sqlfluff/pull/5508) [@keraion](https://github.com/keraion)
+* DuckDB: Add CREATE OR REPLACE TABLE syntax [#5511](https://github.com/sqlfluff/sqlfluff/pull/5511) [@keraion](https://github.com/keraion)
+* TSQL: Top and Distinct in same query [#5491](https://github.com/sqlfluff/sqlfluff/pull/5491) [@greg-finley](https://github.com/greg-finley)
+* [Spark/Databricks] Fix: make COLUMNS in APPLY CHANGES INTO optional [#5498](https://github.com/sqlfluff/sqlfluff/pull/5498) [@rocwang](https://github.com/rocwang)
+* SparkSQL: exclamation mark as logical not [#5500](https://github.com/sqlfluff/sqlfluff/pull/5500) [@reata](https://github.com/reata)
+* SparkSQL: allow value in set_statement to be Java class name [#5504](https://github.com/sqlfluff/sqlfluff/pull/5504) [@reata](https://github.com/reata)
+* SparkSQL: allow distribute/sort/cluster by at end of set operation [#5502](https://github.com/sqlfluff/sqlfluff/pull/5502) [@reata](https://github.com/reata)
+* [CI] Add a few more mypy ckecks [#5505](https://github.com/sqlfluff/sqlfluff/pull/5505) [@Koyaani](https://github.com/Koyaani)
+* Snowflake dialect: Add support for DATABASE ROLE in GRANT/REVOKE [#5490](https://github.com/sqlfluff/sqlfluff/pull/5490) [@sfc-gh-dgupta](https://github.com/sfc-gh-dgupta)
+* DuckDB: Qualify and From-First [#5485](https://github.com/sqlfluff/sqlfluff/pull/5485) [@keraion](https://github.com/keraion)
+* MySql: create table: allow null/not null in any position [#5473](https://github.com/sqlfluff/sqlfluff/pull/5473) [@archer62](https://github.com/archer62)
+* Snowflake dialect: Support for CREATE DATABASE ROLE [#5475](https://github.com/sqlfluff/sqlfluff/pull/5475) [@sfc-gh-dgupta](https://github.com/sfc-gh-dgupta)
+* Clickhouse Dialect - Support BackQuoted Identifiers [#5457](https://github.com/sqlfluff/sqlfluff/pull/5457) [@kaiyannameighu](https://github.com/kaiyannameighu)
+* Change Color.lightgrey to have a white background - dark theme friendly [#5458](https://github.com/sqlfluff/sqlfluff/pull/5458) [@ryaminal](https://github.com/ryaminal)
+* Fix indentation for single cube clause [#5462](https://github.com/sqlfluff/sqlfluff/pull/5462) [@tunetheweb](https://github.com/tunetheweb)
+
+## New Contributors
+* [@ryaminal](https://github.com/ryaminal) made their first contribution in [#5458](https://github.com/sqlfluff/sqlfluff/pull/5458)
+* [@sfc-gh-dgupta](https://github.com/sfc-gh-dgupta) made their first contribution in [#5475](https://github.com/sqlfluff/sqlfluff/pull/5475)
+* [@archer62](https://github.com/archer62) made their first contribution in [#5473](https://github.com/sqlfluff/sqlfluff/pull/5473)
+* [@keraion](https://github.com/keraion) made their first contribution in [#5485](https://github.com/sqlfluff/sqlfluff/pull/5485)
+* [@Koyaani](https://github.com/Koyaani) made their first contribution in [#5505](https://github.com/sqlfluff/sqlfluff/pull/5505)
+* [@snkekorfus](https://github.com/snkekorfus) made their first contribution in [#5493](https://github.com/sqlfluff/sqlfluff/pull/5493)
+* [@remy-gohiring](https://github.com/remy-gohiring) made their first contribution in [#5527](https://github.com/sqlfluff/sqlfluff/pull/5527)
+* [@aayushr7](https://github.com/aayushr7) made their first contribution in [#5528](https://github.com/sqlfluff/sqlfluff/pull/5528)
+* [@k1drobot](https://github.com/k1drobot) made their first contribution in [#5559](https://github.com/sqlfluff/sqlfluff/pull/5559)
+* [@alangner](https://github.com/alangner) made their first contribution in [#5574](https://github.com/sqlfluff/sqlfluff/pull/5574)
+* [@fnimick](https://github.com/fnimick) made their first contribution in [#5577](https://github.com/sqlfluff/sqlfluff/pull/5577)
+
 ## [3.0.0a4] - 2023-12-05
 
 ## Highlights
