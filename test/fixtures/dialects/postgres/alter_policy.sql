@@ -24,3 +24,8 @@ ALTER POLICY sales_rep_is_self ON invoices
   WITH CHECK (sales_rep = CURRENT_USER AND CURRENT_USER IN (
     SELECT user_id FROM allowed_users
   ));
+
+ALTER POLICY test_policy ON test_table
+  TO public, session_user
+  USING (username = current_user)
+  WITH CHECK (col > 10);

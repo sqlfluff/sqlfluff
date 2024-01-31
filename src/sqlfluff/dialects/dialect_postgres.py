@@ -2843,22 +2843,26 @@ class AlterPolicyStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         OneOf(
             Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
-            Sequence(
-                "TO",
-                Delimited(
-                    OneOf(
-                        Ref("RoleReferenceSegment"),
-                        "PUBLIC",
-                        "CURRENT_ROLE",
-                        "CURRENT_USER",
-                        "SESSION_USER",
-                    )
+            AnySetOf(
+                Sequence(
+                    "TO",
+                    Delimited(
+                        OneOf(
+                            Ref("RoleReferenceSegment"),
+                            "PUBLIC",
+                            "CURRENT_ROLE",
+                            "CURRENT_USER",
+                            "SESSION_USER",
+                        )
+                    ),
                 ),
-                optional=True,
-            ),
-            Sequence("USING", Bracketed(Ref("ExpressionSegment")), optional=True),
-            Sequence(
-                "WITH", "CHECK", Bracketed(Ref("ExpressionSegment")), optional=True
+                Sequence("USING", Bracketed(Ref("ExpressionSegment"))),
+                Sequence(
+                    "WITH",
+                    "CHECK",
+                    Bracketed(Ref("ExpressionSegment")),
+                ),
+                min_times=1,
             ),
         ),
     )
