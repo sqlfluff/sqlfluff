@@ -12,6 +12,7 @@ from sqlfluff.core.parser import (
     Bracketed,
     CodeSegment,
     CommentSegment,
+    CompositeBinaryOperatorSegment,
     CompositeComparisonOperatorSegment,
     Conditional,
     Dedent,
@@ -5287,7 +5288,7 @@ class FetchCursorStatementSegment(BaseSegment):
     )
 
 
-class ConcatSegment(ansi.CompositeBinaryOperatorSegment):
+class ConcatSegment(CompositeBinaryOperatorSegment):
     """Concat operator."""
 
     match_grammar: Matchable = Ref("PlusSegment")
