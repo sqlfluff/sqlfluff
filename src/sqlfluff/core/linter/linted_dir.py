@@ -74,9 +74,10 @@ class LintedDir:
             self._num_unclean += 1
         self._num_violations = file.num_violations()
 
-        # Append timings
-        self.step_timings.append(file.timings.step_timings)
-        self.rule_timings.extend(file.timings.rule_timings)
+        # Append timings if present
+        if file.timings:
+            self.step_timings.append(file.timings.step_timings)
+            self.rule_timings.extend(file.timings.rule_timings)
 
         # Finally, if set to persist files, do that.
         if self.retain_files:
