@@ -164,14 +164,11 @@ class LintedDir:
     @property
     def tree(self) -> Optional[BaseSegment]:
         """A convenience method for when there is only one file and we want the tree."""
-        if not self.retain_files:
-            raise ValueError(".tree() cannot be called if `retain_files` is False.")
-        elif len(self.files) > 1:  # pragma: no cover
-            raise ValueError(
-                ".tree() cannot be called when a LintedDir contains more than one file."
-            )
-        elif not self.files:  # pragma: no cover
-            raise ValueError(
-                "LintedDir has no parsed files. There is probably a parsing error."
-            )
+        assert self.retain_files, ".tree() cannot be called if `retain_files` is False."
+        assert (
+            len(self.files) == 1
+        ), ".tree() cannot be called when a LintedDir contains more than one file."
+        assert (
+            self.files
+        ), "LintedDir has no parsed files. There is probably a parsing error."
         return self.files[0].tree
