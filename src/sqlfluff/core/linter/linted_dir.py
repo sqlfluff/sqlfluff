@@ -4,7 +4,7 @@ This stores the idea of a collection of linted files at a single start path
 
 """
 
-from typing import Any, Dict, List, Optional, Union, overload
+from typing import Any, Dict, List, Optional, Tuple, Union, overload
 
 from typing_extensions import Literal, TypedDict
 
@@ -38,6 +38,9 @@ class LintedDir:
         self._num_clean: int = 0
         self._num_unclean: int = 0
         self._num_violations: int = 0
+        # Timing
+        self.step_timings: List[Dict[str, float]] = []
+        self.rule_timings: List[Tuple[str, str, float]] = []
 
     def add(self, file: LintedFile) -> None:
         """Add a file to this path.
@@ -70,6 +73,10 @@ class LintedDir:
         else:
             self._num_unclean += 1
         self._num_violations = file.num_violations()
+
+        # Append timings
+        self.step_timings.append(file.timings.step_timings)
+        self.rule_timings.extend(file.timings.rule_timings)
 
         # Finally, if set to persist files, do that.
         if self.retain_files:

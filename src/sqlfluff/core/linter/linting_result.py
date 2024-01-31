@@ -126,10 +126,11 @@ class LintingResult:
         timing = TimingSummary()
         rules_timing = RuleTimingSummary()
         for dir in self.paths:
-            for file in dir.files:
-                if file.timings:
-                    timing.add(file.timings.step_timings)
-                    rules_timing.add(file.timings.rule_timings)
+            # Add timings from cached values.
+            # NOTE: This is so we don't rely on having the raw file objects any more.
+            for t in dir.step_timings:
+                timing.add(t)
+            rules_timing.add(dir.rule_timings)
         return {**timing.summary(), **rules_timing.summary()}
 
     def persist_timing_records(self, filename: str) -> None:
