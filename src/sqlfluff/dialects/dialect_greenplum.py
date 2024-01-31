@@ -7,6 +7,8 @@ so we base this dialect on Postgres.
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    AnySetOf,
+    Anything,
     BaseSegment,
     Bracketed,
     Delimited,
@@ -14,8 +16,6 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     Ref,
     Sequence,
-    AnySetOf,
-    Anything,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_postgres as postgres

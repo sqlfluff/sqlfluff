@@ -1,4 +1,4 @@
-""" Keywords in the Greenplum Dialect.
+"""Keywords in the Greenplum Dialect.
 
 https://docs.vmware.com/en/VMware-Greenplum/6/greenplum-database/ref_guide-sql-keywords.html
 """
