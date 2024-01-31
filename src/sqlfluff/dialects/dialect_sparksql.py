@@ -3295,7 +3295,7 @@ class ExceptClauseSegment(BaseSegment):
     type = "select_except_clause"
     match_grammar = Sequence(
         "EXCEPT",
-        Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
     )
 
 

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sqlfluff"
-version = "3.0.0a4"
+version = "3.0.0a5"
 description = "The SQL Linter for Humans"
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.8"
@@ -204,7 +204,7 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 strict_equality = true
 extra_checks = true
-implicit_reexport = true
+no_implicit_reexport = true
 
 # skip type checking for 3rd party packages for which stubs are not available
 [[tool.mypy.overrides]]

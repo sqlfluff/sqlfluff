@@ -234,6 +234,28 @@ class JinjaTracer:
             self.source_idx += target_slice_length
 
 
+@dataclass(frozen=True)
+class JinjaTagConfiguration:
+    """Provides information about a Jinja tag and how it affects JinjaAnalyzer behavior.
+
+    Attributes:
+        block_type (str): The block type that the Jinja tag maps to; eventually stored
+            in TemplatedFileSlice.slice_type and RawFileSlice.slice_type.
+        block_tracking (bool): Whether the Jinja tag should be traced by JinjaTracer.
+            If True, the Jinja tag will be treated as a conditional block similar to a
+            "for/endfor" or "if/else/endif" block, and JinjaTracer will track potential
+            execution path through the block.
+        block_may_loop (bool): Whether the Jinja tag begins a block that might loop,
+            similar to a "for" tag.  If True, JinjaTracer will track the execution path
+            through the block and record a potential backward jump to the loop
+            beginning.
+    """
+
+    block_type: str
+    block_tracking: bool = False
+    block_may_loop: bool = False
+
+
 class JinjaAnalyzer:
     """Analyzes a Jinja template to prepare for tracing."""
 
@@ -257,6 +279,118 @@ class JinjaAnalyzer:
         self.inside_block = False  # {% block %}
         self.stack: List[int] = []
         self.idx_raw: int = 0
+
+    __known_tag_configurations = {
+        # Conditional blocks: "if/elif/else/endif" blocks
+        "if": JinjaTagConfiguration(
+            block_type="block_start",
+            block_tracking=True,
+        ),
+        "elif": JinjaTagConfiguration(
+            block_type="block_mid",
+            block_tracking=True,
+        ),
+        # NOTE: "else" is also used in for loops if there are no iterations
+        "else": JinjaTagConfiguration(
+            block_type="block_mid",
+            block_tracking=True,
+        ),
+        "endif": JinjaTagConfiguration(
+            block_type="block_end",
+            block_tracking=True,
+        ),
+        # Conditional blocks: "for" loops
+        "for": JinjaTagConfiguration(
+            block_type="block_start",
+            block_tracking=True,
+            block_may_loop=True,
+        ),
+        "endfor": JinjaTagConfiguration(
+            block_type="block_end",
+            block_tracking=True,
+        ),
+        # Inclusions and imports
+        # :TRICKY: Syntactically, the Jinja {% include %} directive looks like
+        # a block, but its behavior is basically syntactic sugar for
+        # {{ open("somefile).read() }}. Thus, treat it as templated code.
+        # It's a similar situation with {% import %} and {% from ... import %}.
+        "include": JinjaTagConfiguration(
+            block_type="templated",
+        ),
+        "import": JinjaTagConfiguration(
+            block_type="templated",
+        ),
+        "from": JinjaTagConfiguration(
+            block_type="templated",
+        ),
+        "extends": JinjaTagConfiguration(
+            block_type="block_start",
+        ),
+        # Macros and macro-like tags
+        "macro": JinjaTagConfiguration(
+            block_type="block_start",
+        ),
+        "endmacro": JinjaTagConfiguration(
+            block_type="block_end",
+        ),
+        "call": JinjaTagConfiguration(
+            block_type="block_start",
+        ),
+        "endcall": JinjaTagConfiguration(
+            block_type="block_end",
+        ),
+        "set": JinjaTagConfiguration(
+            block_type="block_start",
+        ),
+        "endset": JinjaTagConfiguration(
+            block_type="block_end",
+        ),
+        "block": JinjaTagConfiguration(
+            block_type="block_start",
+        ),
+        "endblock": JinjaTagConfiguration(
+            block_type="block_end",
+        ),
+        "filter": JinjaTagConfiguration(
+            block_type="block_start",
+        ),
+        "endfilter": JinjaTagConfiguration(
+            block_type="block_end",
+        ),
+        # Common extensions
+        # Expression statement (like {{ ... }} but doesn't actually print anything)
+        "do": JinjaTagConfiguration(
+            block_type="templated",
+        ),
+    }
+
+    @classmethod
+    def _get_tag_configuration(cls, tag: str) -> JinjaTagConfiguration:
+        """Return information about the behaviors of a tag."""
+        # Ideally, we should have a known configuration for this Jinja tag.  Derived
+        # classes can override this method to provide additional information about the
+        # tags they know about.
+        known_cfg = cls.__known_tag_configurations.get(tag, None)
+        if known_cfg:
+            return known_cfg
+
+        # If we don't have a firm configuration for this tag that is most likely
+        # provided by a Jinja extension, we'll try to make some guesses about it based
+        # on some heuristics.  But there's a decent chance we'll get this wrong, and
+        # the user should instead consider overriding this method in a derived class to
+        # handle their tag types.
+        if tag.startswith("end"):
+            return JinjaTagConfiguration(
+                block_type="block_end",
+            )
+        elif tag.startswith("el"):
+            # else, elif
+            return JinjaTagConfiguration(
+                block_type="block_mid",
+            )
+        return JinjaTagConfiguration(
+            block_type="block_start",
+        )
 
     def next_slice_id(self) -> str:
         """Returns a new, unique slice ID."""
@@ -428,7 +562,9 @@ class JinjaAnalyzer:
                         )
 
                     if block_type == "block" and tag_contents:
-                        block_type = self.extract_block_type(tag_contents[0])
+                        block_type = self._get_tag_configuration(
+                            tag_contents[0]
+                        ).block_type
                         block_tag = tag_contents[0]
                     if block_type == "templated" and tag_contents:
                         assert m_open and m_close
@@ -588,24 +724,6 @@ class JinjaAnalyzer:
         self.idx_raw += len(raw)
 
     @staticmethod
-    def extract_block_type(tag_name: str) -> str:
-        """Determine block type."""
-        # :TRICKY: Syntactically, the Jinja {% include %} directive looks like
-        # a block, but its behavior is basically syntactic sugar for
-        # {{ open("somefile).read() }}. Thus, treat it as templated code.
-        # It's a similar situation with {% import %} and {% from ... import %}.
-        if tag_name in ["include", "import", "from", "do"]:
-            block_type = "templated"
-        elif tag_name.startswith("end"):
-            block_type = "block_end"
-        elif tag_name.startswith("el"):
-            # else, elif
-            block_type = "block_mid"
-        else:
-            block_type = "block_start"
-        return block_type
-
-    @staticmethod
     def extract_tag_contents(
         str_parts: List[str],
         m_close: regex.Match[str],
@@ -642,12 +760,13 @@ class JinjaAnalyzer:
         """On ending a 'for' or 'if' block, set up tracking.
 
         Args:
-            block_type (str): The type of block ('for' or 'if').
-            tag_name (str): The name of the tag.
+            block_type (str): The type of block ('block_start', 'block_mid',
+                'block_end').
+            tag_name (str): The name of the tag ('for', 'if', or other configured tag).
         """
-        if block_type == "block_end" and tag_name in (
-            "endfor",
-            "endif",
+        if (
+            block_type == "block_end"
+            and self._get_tag_configuration(tag_name).block_tracking
         ):
             # Replace RawSliceInfo for this slice with one that has alternate ID
             # and code for tracking. This ensures, for instance, that if a file
@@ -663,9 +782,9 @@ class JinjaAnalyzer:
         self, slice_idx: int, block_type: str, tag_name: str
     ) -> None:
         """Based on block, update conditional jump info."""
-        if block_type == "block_start" and tag_name in (
-            "for",
-            "if",
+        if (
+            block_type == "block_start"
+            and self._get_tag_configuration(tag_name).block_tracking
         ):
             self.stack.append(slice_idx)
             return None
@@ -675,24 +794,29 @@ class JinjaAnalyzer:
         _idx = self.stack[-1]
         _raw_slice = self.raw_sliced[_idx]
         _slice_info = self.raw_slice_info[_raw_slice]
-        if block_type == "block_mid":
+        if (
+            block_type == "block_mid"
+            and self._get_tag_configuration(tag_name).block_tracking
+        ):
             # Record potential forward jump over this block.
             _slice_info.next_slice_indices.append(slice_idx)
             self.stack.pop()
             self.stack.append(slice_idx)
-        elif block_type == "block_end" and tag_name in (
-            "endfor",
-            "endif",
+        elif (
+            block_type == "block_end"
+            and self._get_tag_configuration(tag_name).block_tracking
         ):
             if not self.inside_set_macro_or_call:
                 # Record potential forward jump over this block.
                 _slice_info.next_slice_indices.append(slice_idx)
                 self.stack.pop()
-                if _raw_slice.slice_type == "block_start" and _raw_slice.tag == "for":
-                    # Record potential backward jump to the loop beginning.
-                    self.raw_slice_info[
-                        self.raw_sliced[slice_idx]
-                    ].next_slice_indices.append(_idx + 1)
+                if _raw_slice.slice_type == "block_start":
+                    assert _raw_slice.tag
+                    if self._get_tag_configuration(_raw_slice.tag).block_may_loop:
+                        # Record potential backward jump to the loop beginning.
+                        self.raw_slice_info[
+                            self.raw_sliced[slice_idx]
+                        ].next_slice_indices.append(_idx + 1)
 
     def handle_left_whitespace_stripping(self, token: str, block_idx: int) -> None:
         """If block open uses whitespace stripping, record it.

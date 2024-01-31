@@ -9,6 +9,7 @@ from sqlfluff.core.parser import (
     BracketedSegment,
     CodeSegment,
     CommentSegment,
+    CompositeComparisonOperatorSegment,
     Dedent,
     Delimited,
     IdentifierSegment,
@@ -527,7 +528,7 @@ postgres_dialect.replace(
 )
 
 
-class OverlapSegment(ansi.CompositeComparisonOperatorSegment):
+class OverlapSegment(CompositeComparisonOperatorSegment):
     """Overlaps range operator."""
 
     match_grammar = Sequence(
@@ -535,7 +536,7 @@ class OverlapSegment(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class NotExtendRightSegment(ansi.CompositeComparisonOperatorSegment):
+class NotExtendRightSegment(CompositeComparisonOperatorSegment):
     """Not extend right range operator."""
 
     match_grammar = Sequence(
@@ -543,7 +544,7 @@ class NotExtendRightSegment(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class NotExtendLeftSegment(ansi.CompositeComparisonOperatorSegment):
+class NotExtendLeftSegment(CompositeComparisonOperatorSegment):
     """Not extend left range operator."""
 
     match_grammar = Sequence(
@@ -551,7 +552,7 @@ class NotExtendLeftSegment(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class AdjacentSegment(ansi.CompositeComparisonOperatorSegment):
+class AdjacentSegment(CompositeComparisonOperatorSegment):
     """Adjacent range operator."""
 
     match_grammar = Sequence(
@@ -2720,22 +2721,26 @@ class AlterPolicyStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         OneOf(
             Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
-            Sequence(
-                "TO",
-                Delimited(
-                    OneOf(
-                        Ref("RoleReferenceSegment"),
-                        "PUBLIC",
-                        "CURRENT_ROLE",
-                        "CURRENT_USER",
-                        "SESSION_USER",
-                    )
+            AnySetOf(
+                Sequence(
+                    "TO",
+                    Delimited(
+                        OneOf(
+                            Ref("RoleReferenceSegment"),
+                            "PUBLIC",
+                            "CURRENT_ROLE",
+                            "CURRENT_USER",
+                            "SESSION_USER",
+                        )
+                    ),
                 ),
-                optional=True,
-            ),
-            Sequence("USING", Bracketed(Ref("ExpressionSegment")), optional=True),
-            Sequence(
-                "WITH", "CHECK", Bracketed(Ref("ExpressionSegment")), optional=True
+                Sequence("USING", Bracketed(Ref("ExpressionSegment"))),
+                Sequence(
+                    "WITH",
+                    "CHECK",
+                    Bracketed(Ref("ExpressionSegment")),
+                ),
+                min_times=1,
             ),
         ),
     )

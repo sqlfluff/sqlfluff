@@ -3,6 +3,7 @@
 from typing import Iterator, List, Optional, Set
 
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
+from sqlfluff.core.parser import IdentifierSegment
 from sqlfluff.core.parser.segments import BaseSegment, SymbolSegment
 from sqlfluff.core.rules import (
     BaseRule,
@@ -12,7 +13,7 @@ from sqlfluff.core.rules import (
     RuleContext,
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.dialects.dialect_ansi import IdentifierSegment, ObjectReferenceSegment
+from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.utils.analysis.query import Query
 from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
 
