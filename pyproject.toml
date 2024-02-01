@@ -204,7 +204,7 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 strict_equality = true
 extra_checks = true
-implicit_reexport = true
+no_implicit_reexport = true
 
 # skip type checking for 3rd party packages for which stubs are not available
 [[tool.mypy.overrides]]
