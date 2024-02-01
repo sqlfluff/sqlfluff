@@ -421,11 +421,13 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
 class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     """Modified from ANSI to allow for `LATERAL VIEW` clause."""
 
-    match_grammar = ansi.FromExpressionElementSegment._base_from_expression_element.copy(
-        insert=[
-            AnyNumberOf(Ref("LateralViewClauseSegment")),
-        ],
-        before=Ref("PostTableExpressionGrammar", optional=True),
+    match_grammar = (
+        ansi.FromExpressionElementSegment._base_from_expression_element.copy(
+            insert=[
+                AnyNumberOf(Ref("LateralViewClauseSegment")),
+            ],
+            before=Ref("PostTableExpressionGrammar", optional=True),
+        )
     )
 
 

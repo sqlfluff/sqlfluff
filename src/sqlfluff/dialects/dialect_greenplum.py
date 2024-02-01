@@ -181,7 +181,7 @@ class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
                                 # TODO: Is this too permissive?
                                 Anything(),
                             ),
-                            optional=True
+                            optional=True,
                         ),
                     ),
                 ),
@@ -326,12 +326,19 @@ class AnalizeSegment(BaseSegment):
         OneOf(
             Sequence(
                 Ref("TableReferenceSegment"),
-                Bracketed(Delimited(Ref("ColumnReferenceSegment"), allow_trailing=True), optional=True),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                        allow_trailing=True,
+                    ),
+                    optional=True,
+                ),
             ),
             "ALL",
-            optional=True
+            optional=True,
         ),
     )
+
 
 class FetchClauseSegment(ansi.FetchClauseSegment):
     """FETCH statement.
@@ -391,7 +398,7 @@ class DeclareStatement(BaseSegment):
         Sequence(
             OneOf("WITH", "WITHOUT"),
             "HOLD",
-            optional=True
+            optional=True,
         ),
         "FOR",
         Ref("StatementSegment"),
@@ -427,12 +434,19 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
     type = "copy_statement"
 
     _target_subset = OneOf(
-        Ref("QuotedLiteralSegment"), Sequence("PROGRAM", Ref("QuotedLiteralSegment"))
+        Ref("QuotedLiteralSegment"),
+        Sequence("PROGRAM", Ref("QuotedLiteralSegment")),
     )
 
     _table_definition = Sequence(
         Ref("TableReferenceSegment"),
-        Bracketed(Delimited(Ref("ColumnReferenceSegment"), allow_trailing=True), optional=True),
+        Bracketed(
+            Delimited(
+                Ref("ColumnReferenceSegment"),
+                allow_trailing=True,
+            ),
+            optional=True,
+        ),
     )
 
     _option = Sequence(
@@ -442,12 +456,28 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
             "BINARY",
             Sequence("OIDS", Ref("BooleanLiteralGrammar", optional=True)),
             Sequence("FREEZE", Ref("BooleanLiteralGrammar", optional=True)),
-            Sequence("DELIMITER", Ref.keyword("AS", optional=True), Ref("QuotedLiteralSegment")),
-            Sequence("NULL", Ref.keyword("AS", optional=True), Ref("QuotedLiteralSegment")),
+            Sequence(
+                "DELIMITER",
+                Ref.keyword("AS", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "NULL",
+                Ref.keyword("AS", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
             Sequence("HEADER", Ref("BooleanLiteralGrammar", optional=True)),
             Sequence("QUOTE", Ref("QuotedLiteralSegment")),
-            Sequence("ESCAPE", Ref.keyword("AS", optional=True), Ref("QuotedLiteralSegment")),
-            Sequence("NEWLINE", Ref.keyword("AS", optional=True), Ref("QuotedLiteralSegment")),
+            Sequence(
+                "ESCAPE",
+                Ref.keyword("AS", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "NEWLINE",
+                Ref.keyword("AS", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
             Sequence(
                 "FORCE_QUOTE",
                 OneOf(
@@ -483,7 +513,12 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
             ),
             Sequence(
                 "CSV",
-                Sequence("QUOTE", Ref.keyword("AS", optional=True), Ref("QuotedLiteralSegment"), optional=True),
+                Sequence(
+                    "QUOTE",
+                    Ref.keyword("AS", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
                 OneOf(
                     Sequence(
                         "FORCE",
@@ -507,7 +542,7 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
     _bracketed_option = Sequence(
         Bracketed(
             Delimited(
-                _option
+                _option,
             )
         )
     )
@@ -528,7 +563,8 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
             ),
             Sequence(
                 OneOf(
-                    _table_definition, Bracketed(Ref("UnorderedSelectStatementSegment"))
+                    _table_definition,
+                    Bracketed(Ref("UnorderedSelectStatementSegment")),
                 ),
                 "TO",
                 OneOf(
