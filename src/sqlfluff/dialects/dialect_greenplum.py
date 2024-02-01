@@ -11,9 +11,12 @@ from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
     Bracketed,
+    Dedent,
     Delimited,
+    Indent,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     Sequence,
 )
@@ -45,6 +48,36 @@ class StatementSegment(postgres.StatementSegment):
             Ref("CloseStatementSegment"),
             Ref("AnalizeSegment"),
         ],
+    )
+
+
+class SelectClauseSegment(postgres.SelectClauseSegment):
+    """Overrides Postgres to allow DISTRIBUTED as a terminator."""
+
+    match_grammar = Sequence(
+        "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        Delimited(
+            Ref("SelectClauseElementSegment"),
+            # In Postgres you don't need an element so make it optional
+            optional=True,
+            allow_trailing=True,
+        ),
+        Dedent,
+        terminators=[
+            "INTO",
+            "FROM",
+            "WHERE",
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            "OVERLAPS",
+            Ref("SetOperatorSegment"),
+            Sequence("WITH", Ref.keyword("NO", optional=True), "DATA"),
+            Ref("WithCheckOptionSegment"),
+            Ref("DistributedBySegment"),
+        ],
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
 
 
