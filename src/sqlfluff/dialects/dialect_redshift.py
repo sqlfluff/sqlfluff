@@ -748,7 +748,7 @@ class TableConstraintSegment(BaseSegment):
                 Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
                 "REFERENCES",
                 Ref("TableReferenceSegment"),
-                Sequence(Bracketed(Ref("ColumnReferenceSegment"))),
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
             ),
         ),
     )
