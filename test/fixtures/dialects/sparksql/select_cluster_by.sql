@@ -63,3 +63,6 @@ SELECT
     name
 FROM person_cold
 CLUSTER BY age;
+
+SELECT CURRENT_DATE() AS p_data_date
+CLUSTER BY p_data_date;
