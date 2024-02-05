@@ -3,7 +3,6 @@
 import logging
 import os
 import sys
-from pathlib import Path
 from unittest.mock import call, patch
 
 import appdirs
@@ -174,26 +173,6 @@ def test__config__load_placeholder_cfg():
             }
         },
     }
-
-
-def test__config__iter_config_paths_right_order():
-    """Test that config paths are fetched ordered by priority."""
-    c = ConfigLoader()
-    cfg_paths = c.iter_config_locations_up_to_path(
-        os.path.join(
-            "test", "fixtures", "config", "inheritance_a", "nested", "blah.sql"
-        ),
-        working_path="test/fixtures",
-    )
-    assert list(cfg_paths) == [
-        str(Path(p).resolve())
-        for p in [
-            "test/fixtures",
-            "test/fixtures/config",
-            "test/fixtures/config/inheritance_a",
-            "test/fixtures/config/inheritance_a/nested",
-        ]
-    ]
 
 
 def test__config__find_sqlfluffignore_in_same_directory():

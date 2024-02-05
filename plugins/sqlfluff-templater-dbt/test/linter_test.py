@@ -3,7 +3,6 @@
 import os
 import os.path
 import shutil
-import sys
 
 import pytest
 
@@ -52,10 +51,6 @@ def test__linter__config_pairs(project_dir):  # noqa
     ]
 
 
-@pytest.mark.skipif(
-    sys.platform.startswith("win"),
-    reason="Fails on GitHub Windows with: Paths don't have the same drive",
-)
 def test_dbt_target_dir(tmpdir):
     """Test with dbt project in subdir that target/ is created in the correct place.
 
