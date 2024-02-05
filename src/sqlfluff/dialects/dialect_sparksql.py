@@ -269,6 +269,7 @@ sparksql_dialect.replace(
         OneOf(
             Ref("PivotClauseSegment"),
             Ref("UnpivotClauseSegment"),
+            Ref("LateralViewClauseSegment"),
         ),
         Ref("AliasExpressionSegment", optional=True),
     ),
@@ -2893,7 +2894,6 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
         # NB: `LateralViewClauseSegment`, `NamedWindowSegment`,
         # and `PivotClauseSegment should come after Alias/Sampling
         # expressions so those are matched before
-        AnyNumberOf(Ref("LateralViewClauseSegment")),
         Ref("NamedWindowSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
     )
@@ -3332,6 +3332,9 @@ class SelectClauseSegment(BaseSegment):
             Sequence("ORDER", "BY"),
             "LIMIT",
             "OVERLAPS",
+            Sequence("CLUSTER", "BY"),
+            Sequence("DISTRIBUTE", "BY"),
+            Sequence("SORT", "BY"),
         ],
         parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
