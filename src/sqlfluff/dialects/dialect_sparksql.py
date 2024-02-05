@@ -233,6 +233,16 @@ sparksql_dialect.replace(
         Sequence("IS", "DISTINCT", "FROM"),
         Sequence("IS", "NOT", "DISTINCT", "FROM"),
     ),
+    SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "SelectClauseTerminatorGrammar"
+    ).copy(
+        insert=[
+            Sequence("CLUSTER", "BY"),
+            Sequence("DISTRIBUTE", "BY"),
+            Sequence("SORT", "BY"),
+            Ref.keyword("QUALIFY"),
+        ]
+    ),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
         "LIMIT",
@@ -1761,6 +1771,7 @@ class SetOperatorSegment(ansi.SetOperatorSegment):
             OneOf("UNION", "INTERSECT"),
             OneOf("DISTINCT", "ALL", optional=True),
         ),
+        exclude=Sequence("EXCEPT", Bracketed(Anything())),
     )
 
 
@@ -2891,10 +2902,6 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
             ),
             optional=True,
         ),
-        # NB: `LateralViewClauseSegment`, `NamedWindowSegment`,
-        # and `PivotClauseSegment should come after Alias/Sampling
-        # expressions so those are matched before
-        Ref("NamedWindowSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
     )
 
@@ -3325,17 +3332,7 @@ class SelectClauseSegment(BaseSegment):
             ),
         ),
         Dedent,
-        terminators=[
-            "FROM",
-            "WHERE",
-            "UNION",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            "OVERLAPS",
-            Sequence("CLUSTER", "BY"),
-            Sequence("DISTRIBUTE", "BY"),
-            Sequence("SORT", "BY"),
-        ],
+        terminators=[Ref("SelectClauseTerminatorGrammar")],
         parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
 

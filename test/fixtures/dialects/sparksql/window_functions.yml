@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 00bbbff73f8f9a420c42c4cdd5d98e0f36c435b97662e439e295403c96aae249
+_hash: fe52383d09720aa200bc7d56570fb86f312e6f78d1dd1d39748173bc0c46fa68
 file:
 - statement:
     select_statement:
@@ -611,20 +611,20 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: test_ignore_null
-            named_window:
-              keyword: WINDOW
-              named_window_expression:
-                naked_identifier: w
-                keyword: AS
-                bracketed:
-                  start_bracket: (
-                  window_specification:
-                    orderby_clause:
-                    - keyword: ORDER
-                    - keyword: BY
-                    - column_reference:
-                        naked_identifier: id
-                  end_bracket: )
+      named_window:
+        keyword: WINDOW
+        named_window_expression:
+          naked_identifier: w
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: id
+            end_bracket: )
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
@@ -753,20 +753,20 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: test_ignore_null
-            named_window:
-              keyword: WINDOW
-              named_window_expression:
-                naked_identifier: w
-                keyword: AS
-                bracketed:
-                  start_bracket: (
-                  window_specification:
-                    orderby_clause:
-                    - keyword: ORDER
-                    - keyword: BY
-                    - column_reference:
-                        naked_identifier: id
-                  end_bracket: )
+      named_window:
+        keyword: WINDOW
+        named_window_expression:
+          naked_identifier: w
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: id
+            end_bracket: )
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
@@ -912,22 +912,22 @@ file:
             alias_expression:
               keyword: AS
               naked_identifier: ignore_nulls
-            named_window:
-              keyword: WINDOW
-              named_window_expression:
-                naked_identifier: w
-                keyword: AS
-                bracketed:
-                  start_bracket: (
-                  window_specification:
-                    orderby_clause:
-                    - keyword: ORDER
-                    - keyword: BY
-                    - column_reference:
-                      - naked_identifier: ignore_nulls
-                      - dot: .
-                      - naked_identifier: id
-                  end_bracket: )
+      named_window:
+        keyword: WINDOW
+        named_window_expression:
+          naked_identifier: w
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                - naked_identifier: ignore_nulls
+                - dot: .
+                - naked_identifier: id
+            end_bracket: )
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
@@ -1075,34 +1075,34 @@ file:
             alias_expression:
               keyword: AS
               naked_identifier: ignore_nulls
-            named_window:
-              keyword: WINDOW
-              named_window_expression:
-                naked_identifier: w
-                keyword: AS
-                bracketed:
-                  start_bracket: (
-                  window_specification:
-                    orderby_clause:
-                    - keyword: ORDER
-                    - keyword: BY
-                    - column_reference:
-                      - naked_identifier: ignore_nulls
-                      - dot: .
-                      - naked_identifier: id
-                    frame_clause:
-                    - keyword: range
-                    - keyword: between
-                    - interval_expression:
-                        keyword: interval
-                        interval_literal:
-                          numeric_literal: '6'
-                          date_part: days
-                    - keyword: preceding
-                    - keyword: and
-                    - keyword: current
-                    - keyword: row
-                  end_bracket: )
+      named_window:
+        keyword: WINDOW
+        named_window_expression:
+          naked_identifier: w
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                - naked_identifier: ignore_nulls
+                - dot: .
+                - naked_identifier: id
+              frame_clause:
+              - keyword: range
+              - keyword: between
+              - interval_expression:
+                  keyword: interval
+                  interval_literal:
+                    numeric_literal: '6'
+                    date_part: days
+              - keyword: preceding
+              - keyword: and
+              - keyword: current
+              - keyword: row
+            end_bracket: )
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
