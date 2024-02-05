@@ -90,7 +90,7 @@ dependencies = [
     "toml; python_version < '3.11'",
     # For handling progress bars
     "tqdm",
-    # better type hints for older python versions
+    # Literals and TypedDicts
     "typing_extensions",
 ]
 
@@ -204,7 +204,7 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 strict_equality = true
 extra_checks = true
-implicit_reexport = true
+no_implicit_reexport = true
 
 # skip type checking for 3rd party packages for which stubs are not available
 [[tool.mypy.overrides]]

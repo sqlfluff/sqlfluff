@@ -15,6 +15,7 @@ from sqlfluff.core.parser import (
     BracketedSegment,
     CodeSegment,
     CommentSegment,
+    CompositeComparisonOperatorSegment,
     Delimited,
     IdentifierSegment,
     LiteralSegment,
@@ -831,7 +832,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     )
 
 
-class GreaterThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class GreaterThanOrEqualToSegment(CompositeComparisonOperatorSegment):
     """Allow spaces between operators."""
 
     match_grammar = OneOf(
@@ -846,7 +847,7 @@ class GreaterThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class LessThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class LessThanOrEqualToSegment(CompositeComparisonOperatorSegment):
     """Allow spaces between operators."""
 
     match_grammar = OneOf(
@@ -861,7 +862,7 @@ class LessThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class NotEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class NotEqualToSegment(CompositeComparisonOperatorSegment):
     """Allow spaces between operators."""
 
     match_grammar = OneOf(

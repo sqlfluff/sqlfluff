@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7d3fe19e4caf58d383de1e5d252eb2b50348dfcb5fa8a3a0a44196995e2453ce
+_hash: 81ea33a50c0e1ccc470746782f11abb036117142a236bba491e669a646e169ae
 file:
 - statement:
     create_table_statement:
@@ -926,4 +926,92 @@ file:
         - keyword: NOT
         - keyword: 'NULL'
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: c1
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: c2
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: c3
+      - data_type:
+          keyword: int
+      - comma: ','
+      - table_constraint:
+          keyword: unique
+          bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: c1
+          - comma: ','
+          - column_reference:
+              naked_identifier: c2
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: t2
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: c1
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: c2
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: c3
+      - data_type:
+          keyword: int
+      - comma: ','
+      - table_constraint:
+        - keyword: foreign
+        - keyword: key
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: c1
+          - comma: ','
+          - column_reference:
+              naked_identifier: c2
+          - end_bracket: )
+        - keyword: references
+        - table_reference:
+          - naked_identifier: public
+          - dot: .
+          - naked_identifier: t1
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: c1
+          - comma: ','
+          - column_reference:
+              naked_identifier: c2
+          - end_bracket: )
+      - end_bracket: )
 - statement_terminator: ;
