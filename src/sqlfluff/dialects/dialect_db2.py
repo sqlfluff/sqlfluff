@@ -98,6 +98,7 @@ db2_dialect.replace(
         Ref("ShorthandCastSegment"),
         Sequence(Ref("NumericLiteralSegment"), OneOf("DAYS", "DAY")),
     ),
+    BracketedSetExpressionGrammar=Bracketed(Ref("SetExpressionSegment")),
 )
 
 db2_dialect.insert_lexer_matchers(
