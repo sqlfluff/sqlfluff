@@ -98,6 +98,7 @@ db2_dialect.replace(
         Ref("ShorthandCastSegment"),
         Ref("LabeledDurationGrammar"),
     ),
+    BracketedSetExpressionGrammar=Bracketed(Ref("SetExpressionSegment")),
 )
 
 

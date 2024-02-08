@@ -255,6 +255,7 @@ bigquery_dialect.replace(
     ),
     PrimaryKeyGrammar=Nothing(),
     ForeignKeyGrammar=Nothing(),
+    BracketedSetExpressionGrammar=Bracketed(Ref("SetExpressionSegment")),
 )
 
 
@@ -363,30 +364,6 @@ class SetOperatorSegment(BaseSegment):
         Sequence("UNION", OneOf("DISTINCT", "ALL")),
         Sequence("INTERSECT", "DISTINCT"),
         Sequence("EXCEPT", "DISTINCT"),
-    )
-
-
-class SetExpressionSegment(ansi.SetExpressionSegment):
-    """A set expression with either Union, Minus, Except or Intersect."""
-
-    match_grammar: Matchable = Sequence(
-        OneOf(
-            Ref("NonSetSelectableGrammar"),
-            Bracketed(Ref("SetExpressionSegment")),
-        ),
-        AnyNumberOf(
-            Sequence(
-                Ref("SetOperatorSegment"),
-                OneOf(
-                    Ref("NonSetSelectableGrammar"),
-                    Bracketed(Ref("SetExpressionSegment")),
-                ),
-            ),
-            min_times=1,
-        ),
-        Ref("OrderByClauseSegment", optional=True),
-        Ref("LimitClauseSegment", optional=True),
-        Ref("NamedWindowSegment", optional=True),
     )
 
 
