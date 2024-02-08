@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8cbfbb0ebb67e9974ae411e9fcace308dfa8cb3db044bcba8e0a3c684853699e
+_hash: ca868384d802f535ba528cb300ea943a1e0e47a38c09240a0fda06b65c8123e1
 file:
 - statement:
     create_table_statement:
@@ -145,11 +145,11 @@ file:
           naked_identifier: description
           data_type:
             data_type_identifier: VARCHAR2
-            bracketed_arguments:
-              bracketed:
-                start_bracket: (
-                numeric_literal: '20'
-                end_bracket: )
+          bracketed:
+            start_bracket: (
+            numeric_literal: '20'
+            word: BYTE
+            end_bracket: )
       - end_bracket: )
     - keyword: 'ON'
     - keyword: COMMIT
@@ -175,11 +175,11 @@ file:
           naked_identifier: description
           data_type:
             data_type_identifier: VARCHAR2
-            bracketed_arguments:
-              bracketed:
-                start_bracket: (
-                numeric_literal: '20'
-                end_bracket: )
+          bracketed:
+            start_bracket: (
+            numeric_literal: '20'
+            word: CHAR
+            end_bracket: )
       - end_bracket: )
     - keyword: 'ON'
     - keyword: COMMIT

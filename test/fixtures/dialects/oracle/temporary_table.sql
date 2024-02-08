@@ -18,13 +18,13 @@ ON COMMIT PRESERVE ROWS;
 
 CREATE PRIVATE TEMPORARY TABLE ora$ptt_my_temp_table (
   id           NUMBER,
-  description  VARCHAR2(20)
+  description  VARCHAR2(20 BYTE)
 )
 ON COMMIT DROP DEFINITION;
 
 CREATE PRIVATE TEMPORARY TABLE ora$ptt_my_temp_table (
   id           NUMBER,
-  description  VARCHAR2(20)
+  description  VARCHAR2(20 CHAR)
 )
 ON COMMIT PRESERVE DEFINITION;
 
