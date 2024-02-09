@@ -664,6 +664,7 @@ postgres_docs_keywords = [
     ("RESTRICT", "non-reserved"),
     ("RESTRICTIVE", "non-reserved"),
     ("RESULT", "not-keyword"),
+    ("RETRIEVE", "non-reserved"),
     ("RETURN", "non-reserved"),
     ("RETURNED_CARDINALITY", "not-keyword"),
     ("RETURNED_LENGTH", "not-keyword"),

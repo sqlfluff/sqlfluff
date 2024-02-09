@@ -729,6 +729,11 @@ class IntervalExpressionSegment(BaseSegment):
             ),
             # The String version
             Ref("QuotedLiteralSegment"),
+            # Combine version
+            Sequence(
+                Ref("QuotedLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
+            ),
         ),
     )
 
@@ -1481,7 +1486,8 @@ class FromExpressionElementSegment(BaseSegment):
     """A table expression."""
 
     type = "from_expression_element"
-    match_grammar: Matchable = Sequence(
+
+    _base_from_expression_element = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
         Ref(
@@ -1498,6 +1504,16 @@ class FromExpressionElementSegment(BaseSegment):
         Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
         Ref("SamplingExpressionSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
+    )
+
+    match_grammar: Matchable = OneOf(
+        _base_from_expression_element,
+        Bracketed(
+            Sequence(
+                _base_from_expression_element,
+                AnyNumberOf(Ref("JoinClauseSegment")),
+            ),
+        ),
     )
 
     def get_eventual_alias(self) -> AliasInfo:
@@ -2153,6 +2169,7 @@ ansi_dialect.add(
             Ref("TypedStructLiteralSegment"),
             Ref("ArrayExpressionSegment"),
             Ref("ColumnReferenceSegment"),
+            Ref("OverlapsClauseSegment"),
             # For triggers, we allow "NEW.*" but not just "*" nor "a.b.*"
             # So can't use WildcardIdentifierSegment nor WildcardExpressionSegment
             Sequence(

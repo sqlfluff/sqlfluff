@@ -1,0 +1,1 @@
+FETCH FORWARD 5 FROM mycursor;

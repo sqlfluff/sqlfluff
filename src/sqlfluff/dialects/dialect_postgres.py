@@ -159,6 +159,13 @@ postgres_dialect.insert_lexer_matchers(
     before="word",  # Final thing to search for - as psql specific
 )
 
+postgres_dialect.insert_lexer_matchers(
+    [
+        StringLexer("walrus_operator", ":=", CodeSegment),
+    ],
+    before="equals",
+)
+
 postgres_dialect.patch_lexer_matchers(
     [
         # Patching comments to remove hash comments
@@ -301,6 +308,8 @@ postgres_dialect.add(
         "USER", "CURRENT_ROLE", "CURRENT_USER", "SESSION_USER"
     ),
     ImportForeignSchemaGrammar=Sequence("IMPORT", "FOREIGN", "SCHEMA"),
+    IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
+    WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
 )
 
 postgres_dialect.replace(
@@ -332,6 +341,10 @@ postgres_dialect.replace(
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
+    Expression_C_Grammar=Sequence(
+        Ref("WalrusOperatorSegment", optional=True),
+        ansi_dialect.get_grammar("Expression_C_Grammar"),
+    ),
     ParameterNameSegment=RegexParser(
         r'[A-Z_][A-Z0-9_$]*|"[^"]*"', CodeSegment, type="parameter"
     ),
@@ -343,6 +356,61 @@ postgres_dialect.replace(
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),
         Ref("NamedArgumentSegment"),
+    ),
+    FunctionContentsGrammar=AnyNumberOf(
+        Ref("ExpressionSegment"),
+        OptionallyBracketed(Ref("SetExpressionSegment")),
+        # A Cast-like function
+        Sequence(Ref("ExpressionSegment"), "AS", Ref("DatatypeSegment")),
+        # Trim function
+        Sequence(
+            Ref("TrimParametersGrammar"),
+            Ref("ExpressionSegment", optional=True, exclude=Ref.keyword("FROM")),
+            "FROM",
+            Ref("ExpressionSegment"),
+        ),
+        # An extract-like or substring-like function
+        # https://www.postgresql.org/docs/current/functions-string.html
+        Sequence(
+            OneOf(Ref("DatetimeUnitSegment"), Ref("ExpressionSegment")),
+            AnySetOf(
+                Sequence("FROM", Ref("ExpressionSegment")),
+                Sequence("FOR", Ref("ExpressionSegment")),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            # Allow an optional distinct keyword here.
+            Ref.keyword("DISTINCT", optional=True),
+            OneOf(
+                # Most functions will be using the delimited route
+                # but for COUNT(*) or similar we allow the star segment
+                # here.
+                Ref("StarSegment"),
+                Delimited(Ref("FunctionContentsExpressionGrammar")),
+            ),
+        ),
+        Ref(
+            "AggregateOrderByClause"
+        ),  # used by string_agg (postgres), group_concat (exasol),listagg (snowflake)..
+        Sequence(Ref.keyword("SEPARATOR"), Ref("LiteralGrammar")),
+        # like a function call: POSITION ( 'QL' IN 'SQL')
+        Sequence(
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("SingleIdentifierGrammar"),
+                Ref("ColumnReferenceSegment"),
+            ),
+            "IN",
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("SingleIdentifierGrammar"),
+                Ref("ColumnReferenceSegment"),
+            ),
+        ),
+        Ref("IgnoreRespectNullsGrammar"),
+        Ref("IndexColumnDefinitionSegment"),
+        Ref("EmptyStructLiteralSegment"),
     ),
     QuotedLiteralSegment=OneOf(
         # Postgres allows newline-concatenated string literals (#1488).
@@ -451,7 +519,7 @@ postgres_dialect.replace(
             Sequence(Ref("ParameterNameSegment"), Ref("DatatypeSegment")),
         ),
         Sequence(
-            OneOf("DEFAULT", Ref("EqualsSegment")),
+            OneOf("DEFAULT", Ref("EqualsSegment"), Ref("WalrusOperatorSegment")),
             Ref("ExpressionSegment"),
             optional=True,
         ),
@@ -525,6 +593,15 @@ postgres_dialect.replace(
         Ref("DeleteStatementSegment"),
     ),
     NonWithNonSelectableGrammar=OneOf(),
+    # https://www.postgresql.org/docs/current/functions-datetime.html
+    DateTimeLiteralGrammar=Sequence(
+        OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"),
+        TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
+        Sequence(
+            Ref("IntervalUnitsGrammar"),
+            Sequence("TO", Ref("IntervalUnitsGrammar"), optional=True),
+        ),
+    ),
     BracketedSetExpressionGrammar=Bracketed(Ref("SetExpressionSegment")),
 )
 
@@ -858,6 +935,52 @@ class DropCastStatementSegment(ansi.DropCastStatementSegment):
             Ref("DatatypeSegment"),
         ),
         Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class DropAggregateStatementSegment(BaseSegment):
+    """A `DROP AGGREGATE` statement.
+
+    https://www.postgresql.org/docs/15/sql-dropaggregate.html
+    """
+
+    type = "drop_aggregate_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "AGGREGATE",
+        Sequence("IF", "EXISTS", optional=True),
+        Delimited(
+            Sequence(
+                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    Ref("FunctionParameterListGrammar"),
+                    # TODO: Is this too permissive?
+                    Anything(),
+                    Ref("StarSegment"),
+                ),
+            ),
+        ),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class CreateAggregateStatementSegment(BaseSegment):
+    """A `CREATE AGGREGATE` statement.
+
+    https://www.postgresql.org/docs/16/sql-createaggregate.html
+    """
+
+    type = "create_aggregate_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        "AGGREGATE",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(
+            # TODO: Is this too permissive?
+            Anything(),
+        ),
+        Ref("FunctionParameterListGrammar"),
     )
 
 
@@ -4110,6 +4233,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateServerStatementSegment"),
             Ref("CreateUserMappingStatementSegment"),
             Ref("ImportForeignSchemaStatementSegment"),
+            Ref("DropAggregateStatementSegment"),
+            Ref("CreateAggregateStatementSegment"),
         ],
     )
 
@@ -5482,4 +5607,51 @@ class ImportForeignSchemaStatementSegment(BaseSegment):
         "INTO",
         Ref("SchemaReferenceSegment"),
         Ref("OptionsGrammar", optional=True),
+    )
+
+
+class OverlapsClauseSegment(ansi.OverlapsClauseSegment):
+    """An `OVERLAPS` clause.
+
+    https://www.postgresql.org/docs/current/functions-datetime.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        OneOf(
+            Sequence(
+                Bracketed(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("DateTimeLiteralGrammar"),
+                        Ref("ShorthandCastSegment"),
+                    ),
+                    Ref("CommaSegment"),
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("DateTimeLiteralGrammar"),
+                        Ref("ShorthandCastSegment"),
+                    ),
+                )
+            ),
+            Ref("ColumnReferenceSegment"),
+        ),
+        "OVERLAPS",
+        OneOf(
+            Sequence(
+                Bracketed(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("DateTimeLiteralGrammar"),
+                        Ref("ShorthandCastSegment"),
+                    ),
+                    Ref("CommaSegment"),
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("DateTimeLiteralGrammar"),
+                        Ref("ShorthandCastSegment"),
+                    ),
+                )
+            ),
+            Ref("ColumnReferenceSegment"),
+        ),
     )
