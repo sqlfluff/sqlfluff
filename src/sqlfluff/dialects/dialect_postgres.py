@@ -602,6 +602,7 @@ postgres_dialect.replace(
             Sequence("TO", Ref("IntervalUnitsGrammar"), optional=True),
         ),
     ),
+    BracketedSetExpressionGrammar=Bracketed(Ref("SetExpressionSegment")),
 )
 
 

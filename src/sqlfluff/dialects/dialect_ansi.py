@@ -2697,7 +2697,11 @@ ansi_dialect.add(
         Bracketed(Ref("SelectStatementSegment")),
         Bracketed(Ref("WithCompoundStatementSegment")),
         Bracketed(Ref("NonSetSelectableGrammar")),
+        Ref("BracketedSetExpressionGrammar"),
     ),
+    # Added as part of `NonSetSelectableGrammar` where a nested `SetExpressionSegment`
+    # could be used. Some dialects don't support an "ordered" set, but some may.
+    BracketedSetExpressionGrammar=Bracketed(Ref("UnorderedSetExpressionSegment")),
 )
 
 
@@ -2803,7 +2807,7 @@ class SetOperatorSegment(BaseSegment):
     )
 
 
-class SetExpressionSegment(BaseSegment):
+class UnorderedSetExpressionSegment(BaseSegment):
     """A set expression with either Union, Minus, Except or Intersect."""
 
     type = "set_expression"
@@ -2817,9 +2821,20 @@ class SetExpressionSegment(BaseSegment):
             ),
             min_times=1,
         ),
-        Ref("OrderByClauseSegment", optional=True),
-        Ref("LimitClauseSegment", optional=True),
-        Ref("NamedWindowSegment", optional=True),
+    )
+
+
+class SetExpressionSegment(BaseSegment):
+    """A set expression with either Union, Minus, Except or Intersect."""
+
+    type = "set_expression"
+    # match grammar
+    match_grammar: Matchable = UnorderedSetExpressionSegment.match_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
+        ],
     )
 
 

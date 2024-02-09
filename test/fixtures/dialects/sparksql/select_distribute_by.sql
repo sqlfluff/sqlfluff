@@ -71,3 +71,6 @@ SELECT
 FROM person_cold
 DISTRIBUTE BY age
 SORT BY age;
+
+SELECT CURRENT_DATE() AS p_data_date
+DISTRIBUTE BY p_data_date;

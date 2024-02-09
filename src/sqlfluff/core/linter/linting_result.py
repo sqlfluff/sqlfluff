@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union, 
 from typing_extensions import Literal
 
 from sqlfluff.core.errors import CheckTuple
-from sqlfluff.core.linter.linted_dir import LintedDir
+from sqlfluff.core.linter.linted_dir import LintedDir, LintingRecord
 from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES
 from sqlfluff.core.timing import RuleTimingSummary, TimingSummary
 
@@ -126,10 +126,11 @@ class LintingResult:
         timing = TimingSummary()
         rules_timing = RuleTimingSummary()
         for dir in self.paths:
-            for file in dir.files:
-                if file.timings:
-                    timing.add(file.timings.step_timings)
-                    rules_timing.add(file.timings.rule_timings)
+            # Add timings from cached values.
+            # NOTE: This is so we don't rely on having the raw file objects any more.
+            for t in dir.step_timings:
+                timing.add(t)
+            rules_timing.add(dir.rule_timings)
         return {**timing.summary(), **rules_timing.summary()}
 
     def persist_timing_records(self, filename: str) -> None:
@@ -193,7 +194,7 @@ class LintingResult:
                         }
                     )
 
-    def as_records(self) -> List[dict]:
+    def as_records(self) -> List[LintingRecord]:
         """Return the result as a list of dictionaries.
 
         Each record contains a key specifying the filepath, and a list of violations.
@@ -201,21 +202,7 @@ class LintingResult:
         types (ints, strs).
         """
         return [
-            {
-                "filepath": path,
-                "violations": sorted(
-                    # Sort violations by line and then position
-                    (v.to_dict() for v in violations),
-                    # The tuple allows sorting by line number, then position, then code
-                    key=lambda v: (v["start_line_no"], v["start_line_pos"], v["code"]),
-                ),
-            }
-            for LintedDir in self.paths
-            for path, violations in LintedDir.violation_dict(
-                # Keep the warnings
-                filter_warning=False
-            ).items()
-            if violations
+            record for linted_dir in self.paths for record in linted_dir.as_records()
         ]
 
     def persist_changes(self, formatter, fixed_file_suffix: str = "") -> dict:

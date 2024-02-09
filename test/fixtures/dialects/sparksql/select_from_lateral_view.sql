@@ -101,3 +101,14 @@ SELECT
     exploded_people.state
 FROM person AS p
     LATERAL VIEW INLINE(array_of_structs) AS name, age, state;
+
+SELECT
+    t1.column1,
+    CAST(GET_JSON_OBJECT(things, '$.percentage') AS DECIMAL(16, 8)
+    ) AS ptc
+FROM table1 AS t1
+LEFT JOIN table2 AS t2
+    ON
+        c.column1 = p.column1
+        AND t2.type = 'SOMETHING'
+    LATERAL VIEW OUTER EXPLODE(t2.column2) AS things;

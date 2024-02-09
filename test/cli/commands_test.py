@@ -357,27 +357,9 @@ def test__cli__command_render_stdin():
         # Check parsing with no output (used mostly for testing)
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--format", "none"]),
         # Check the benching commands
-        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
-        (
-            lint,
-            [
-                "-n",
-                "test/fixtures/cli/passing_b.sql",
-                "--bench",
-                "--exclude-rules",
-                "AM05",
-            ],
-        ),
-        (
-            fix,
-            [
-                "-n",
-                "test/fixtures/cli/passing_b.sql",
-                "--bench",
-                "--exclude-rules",
-                "AM05",
-            ],
-        ),
+        (parse, ["-n", "test/fixtures/cli/passing_timing.sql", "--bench"]),
+        (lint, ["-n", "test/fixtures/cli/passing_timing.sql", "--bench"]),
+        (fix, ["-n", "test/fixtures/cli/passing_timing.sql", "--bench"]),
         # Check linting works in specifying rules
         (
             lint,

@@ -30,7 +30,7 @@ from sqlfluff.core.errors import (
     SQLLintError,
     SQLParseError,
 )
-from sqlfluff.core.file_helpers import get_encoding
+from sqlfluff.core.helpers.file import get_encoding
 from sqlfluff.core.linter.common import ParsedString, RenderedFile, RuleTuple
 from sqlfluff.core.linter.fix import apply_fixes, compute_anchor_edit_info
 from sqlfluff.core.linter.linted_dir import LintedDir
@@ -117,7 +117,8 @@ class Linter:
     ) -> Tuple[str, FluffConfig, str]:
         """Load a raw file and the associated config."""
         file_config = root_config.make_child_from_path(fname)
-        encoding = get_encoding(fname=fname, config=file_config)
+        config_encoding: str = file_config.get("encoding", default="autodetect")
+        encoding = get_encoding(fname=fname, config_encoding=config_encoding)
         # Check file size before loading.
         limit = file_config.get("large_file_skip_byte_limit")
         if limit:
@@ -1029,6 +1030,7 @@ class Linter:
         apply_fixes: bool = False,
         fixed_file_suffix: str = "",
         fix_even_unparsable: bool = False,
+        retain_files: bool = True,
     ) -> LintingResult:
         """Lint an iterable of paths."""
         # If no paths specified - assume local
@@ -1040,7 +1042,7 @@ class Linter:
         expanded_paths: List[str] = []
         expanded_path_to_linted_dir = {}
         for path in paths:
-            linted_dir = LintedDir(path)
+            linted_dir = LintedDir(path, retain_files=retain_files)
             result.add(linted_dir)
             for fname in self.paths_from_path(
                 path,
