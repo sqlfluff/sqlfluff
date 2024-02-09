@@ -3,57 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e29da8ed6a23db5e70371eb566600c1025a510eed0833af74284d5ddafe41aa9
+_hash: 2110b2cab8e4479d4f37f01644f6f085c055cf3c5eabdf9a29a0f040a409148e
 file:
-- statement:
-    set_expression:
-    - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              numeric_literal: '0'
-        end_bracket: )
-    - set_operator:
-        keyword: UNION
-    - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              numeric_literal: '1'
-        end_bracket: )
-- statement_terminator: ;
-- statement:
-    set_expression:
-    - bracketed:
-        start_bracket: (
-        bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
-              keyword: SELECT
-              select_clause_element:
-                numeric_literal: '0'
-          end_bracket: )
-        end_bracket: )
-    - set_operator:
-        keyword: UNION
-    - bracketed:
-        start_bracket: (
-        bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
-              keyword: SELECT
-              select_clause_element:
-                numeric_literal: '1'
-          end_bracket: )
-        end_bracket: )
-- statement_terminator: ;
-- statement:
+  statement:
     set_expression:
     - bracketed:
         start_bracket: (
@@ -90,7 +42,8 @@ file:
                       naked_identifier: tbl2
         end_bracket: )
     - set_operator:
-        keyword: UNION
+      - keyword: UNION
+      - keyword: ALL
     - bracketed:
         start_bracket: (
         set_expression:
@@ -124,5 +77,15 @@ file:
                   table_expression:
                     table_reference:
                       naked_identifier: tbl1
+        - orderby_clause:
+          - keyword: ORDER
+          - keyword: BY
+          - column_reference:
+              naked_identifier: column_1
         end_bracket: )
-- statement_terminator: ;
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: column_2
+  statement_terminator: ;

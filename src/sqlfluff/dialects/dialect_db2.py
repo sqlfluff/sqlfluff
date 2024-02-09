@@ -96,9 +96,11 @@ db2_dialect.replace(
             AnyNumberOf(Ref("TimeZoneGrammar")),
         ),
         Ref("ShorthandCastSegment"),
-        Sequence(Ref("NumericLiteralSegment"), OneOf("DAYS", "DAY")),
+        Ref("LabeledDurationGrammar"),
     ),
+    BracketedSetExpressionGrammar=Bracketed(Ref("SetExpressionSegment")),
 )
+
 
 db2_dialect.insert_lexer_matchers(
     [
@@ -135,7 +137,93 @@ db2_dialect.patch_lexer_matchers(
 
 db2_dialect.add(
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    # https://www.ibm.com/docs/en/db2/11.5?topic=expressions-datetime-operations-durations
+    LabeledDurationGrammar=Sequence(
+        OneOf(
+            Ref("LiteralGrammar"),
+            Ref("BareFunctionSegment"),
+            Ref("FunctionSegment"),
+            Ref("ColumnReferenceSegment"),
+            Ref("Expression_D_Grammar"),
+        ),
+        OneOf(
+            "DAY",
+            "DAYS",
+            "HOUR",
+            "HOURS",
+            "MICROSECOND",
+            "MICROSECONDS",
+            "MINUTE",
+            "MINUTES",
+            "MONTH",
+            "MONTHS",
+            "SECOND",
+            "SECONDS",
+            "YEAR",
+            "YEARS",
+        ),
+    ),
+    # https://www.ibm.com/docs/en/db2/11.5?topic=elements-special-registers
+    SpecialRegisterGrammar=OneOf(
+        "CURRENT_DATE",
+        "CURRENT_PATH",
+        "CURRENT_SCHEMA",
+        "CURRENT_SERVER",
+        "CURRENT_TIME",
+        "CURRENT_TIMESTAMP",
+        "CURRENT_TIMEZONE",
+        "CURRENT_USER",
+        "SESSION_USER",
+        "SYSTEM_USER",
+        "USER",
+        Sequence(
+            "CURRENT",
+            OneOf(
+                "CLIENT_ACCTNG",
+                "CLIENT_APPLNAME",
+                "CLIENT_USERID",
+                "CLIENT_WRKSTNNAME",
+                "DATE",
+                "DBPARTITIONNUM",
+                Sequence("DECFLOAT", "ROUNDING", "MODE"),
+                Sequence("DEFAULT", "TRANSFORM", "GROUP"),
+                "DEGREE",
+                Sequence("EXPLAIN", OneOf("MODE", "SNAPSHOT")),
+                Sequence("FEDERATED", "ASYNCHRONY"),
+                Sequence("IMPLICIT", "XMLPARSE", "OPTION"),
+                "ISOLATION",
+                Sequence("LOCALE", OneOf("LC_MESSAGES", "LC_TIME")),
+                Sequence("LOCK", "TIMEOUT"),
+                Sequence("MAINTAINED", "TABLE", "TYPES", "FOR", "OPTIMIZATION"),
+                Sequence("MDC", "ROLLOUT", "MODE"),
+                "MEMBER",
+                Sequence("OPTIMIZATION", "PROFILE"),
+                Sequence("PACKAGE", "PATH"),
+                "PATH",
+                Sequence("QUERY", "OPTIMIZATION"),
+                Sequence("REFRESH", "AGE"),
+                "SCHEMA",
+                "SERVER",
+                "SQL_CCFLAGS",
+                Sequence("TEMPORAL", OneOf("BUSINESS_TIME", "SYSTEM_TIME")),
+                "TIME",
+                "TIMESTAMP",
+                "TIMEZONE",
+                "USER",
+            ),
+        ),
+    ),
 )
+
+
+class BareFunctionSegment(BaseSegment):
+    """A function that can be called without parenthesis per ANSI specification.
+
+    DB2 extends this to include `special registers`.
+    """
+
+    type = "bare_function"
+    match_grammar = Ref("SpecialRegisterGrammar")
 
 
 class CallStoredProcedureSegment(BaseSegment):

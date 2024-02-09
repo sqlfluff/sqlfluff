@@ -525,6 +525,7 @@ postgres_dialect.replace(
         Ref("DeleteStatementSegment"),
     ),
     NonWithNonSelectableGrammar=OneOf(),
+    BracketedSetExpressionGrammar=Bracketed(Ref("SetExpressionSegment")),
 )
 
 
