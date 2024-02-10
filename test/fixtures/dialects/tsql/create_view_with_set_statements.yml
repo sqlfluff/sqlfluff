@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3c4376ca88135168a4d7c082dc67d118bb7bf79ea8f244951072a2c4c99409e7
+_hash: 36403e664435e85a58a2f9863ed08a411bcedd0b733c7ca365176dd01d45eb4e
 file:
 - batch:
     statement:
@@ -132,10 +132,10 @@ file:
                 - when_clause:
                   - keyword: WHEN
                   - expression:
-                    - column_reference:
+                      column_reference:
                         naked_identifier: OLD_VALUE
-                    - keyword: IS
-                    - keyword: 'NULL'
+                      keyword: IS
+                      null_literal: 'NULL'
                   - keyword: THEN
                   - expression:
                       numeric_literal: '0'
@@ -156,10 +156,10 @@ file:
                 - when_clause:
                   - keyword: WHEN
                   - expression:
-                    - column_reference:
+                      column_reference:
                         quoted_identifier: '[DIFFERENCE]'
-                    - keyword: IS
-                    - keyword: 'NULL'
+                      keyword: IS
+                      null_literal: 'NULL'
                   - keyword: THEN
                   - expression:
                       numeric_literal: '0'

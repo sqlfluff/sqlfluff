@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 951d51cf8b09c685fcd1dd86f94137588be1f2bda875d0bee4c132f58f7035a6
+_hash: fec8581096c183915cc746afd0dc8c2cd00475a945089037d762df9344ae3b6c
 file:
   batch:
     statement:
@@ -61,7 +61,7 @@ file:
                         naked_identifier: ManagerID
                     - keyword: IS
                     - keyword: NOT
-                    - keyword: 'NULL'
+                    - null_literal: 'NULL'
               - set_operator:
                 - keyword: UNION
                 - keyword: ALL

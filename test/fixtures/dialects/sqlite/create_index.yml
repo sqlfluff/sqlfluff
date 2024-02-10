@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 42ff8ffbd151fb9e46fbdc962aa6479bceaf758ac2bdb4827d6f88e167e0ae88
+_hash: 60a5ec841e31d0c343ef489afa1a956dbf7f7a7ed7888fd12bcd01ebb55fcfcb
 file:
 - statement:
     create_index_statement:
@@ -153,7 +153,7 @@ file:
             naked_identifier: parent_po
         - keyword: IS
         - keyword: NOT
-        - keyword: 'NULL'
+        - null_literal: 'NULL'
 - statement_terminator: ;
 - statement:
     create_index_statement:
@@ -179,5 +179,5 @@ file:
             naked_identifier: c
         - keyword: IS
         - keyword: NOT
-        - keyword: 'NULL'
+        - null_literal: 'NULL'
 - statement_terminator: ;
