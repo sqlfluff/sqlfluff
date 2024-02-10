@@ -225,10 +225,7 @@ exasol_dialect.replace(
         type="parameter",
     ),
     LikeGrammar=Ref.keyword("LIKE"),
-    IsClauseGrammar=OneOf(
-        "NULL",
-        Ref("BooleanLiteralGrammar"),
-    ),
+    NanLiteralSegment=Nothing(),
     SelectClauseTerminatorGrammar=OneOf(
         "FROM",
         "WHERE",
