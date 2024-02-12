@@ -434,11 +434,7 @@ tsql_dialect.replace(
             + r")$",
         )
     ),
-    # Override ANSI IsClauseGrammar to remove TSQL non-keyword NAN
-    IsClauseGrammar=OneOf(
-        "NULL",
-        Ref("BooleanLiteralGrammar"),
-    ),
+    NanLiteralSegment=Nothing(),
     DatatypeIdentifierSegment=SegmentGenerator(
         # Generate the anti template reserved keywords
         lambda dialect: OneOf(

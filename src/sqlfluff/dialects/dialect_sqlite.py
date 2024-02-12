@@ -188,10 +188,12 @@ sqlite_dialect.replace(
         Ref("TildeSegment"),
         Ref("NotOperatorGrammar"),
     ),
-    IsClauseGrammar=OneOf(
-        "NULL",
-        Ref("BooleanLiteralGrammar"),
+    IsDistinctFromGrammar=Sequence(
+        "IS",
+        Ref.keyword("NOT", optional=True),
+        Sequence("DISTINCT", "FROM", optional=True),
     ),
+    NanLiteralSegment=Nothing(),
 )
 
 

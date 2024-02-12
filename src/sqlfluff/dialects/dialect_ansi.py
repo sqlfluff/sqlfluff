@@ -353,6 +353,9 @@ ansi_dialect.add(
     BooleanBinaryOperatorGrammar=OneOf(
         Ref("AndOperatorGrammar"), Ref("OrOperatorGrammar")
     ),
+    IsDistinctFromGrammar=Sequence(
+        "IS", Ref.keyword("NOT", optional=True), "DISTINCT", "FROM"
+    ),
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
         Ref("GreaterThanSegment"),
@@ -361,8 +364,7 @@ ansi_dialect.add(
         Ref("LessThanOrEqualToSegment"),
         Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
-        Sequence("IS", "DISTINCT", "FROM"),
-        Sequence("IS", "NOT", "DISTINCT", "FROM"),
+        Ref("IsDistinctFromGrammar"),
     ),
     # hookpoint for other dialects
     # e.g. EXASOL str to date cast with DATE '2021-01-01'

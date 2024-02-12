@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6fe6077b68d1043a06174c757f1566f29133888aab96b254faa753d3b667b133
+_hash: 327eef4aeb76cfc878ab63160eaa830b5deef4bd512edd796e6a9a3b81c2e3a5
 file:
 - batch:
     statement:
@@ -202,7 +202,7 @@ file:
                       naked_identifier: PersonID
                   - keyword: IS
                   - keyword: NOT
-                  - keyword: 'NULL'
+                  - null_literal: 'NULL'
             - set_operator:
               - keyword: UNION
               - keyword: ALL
