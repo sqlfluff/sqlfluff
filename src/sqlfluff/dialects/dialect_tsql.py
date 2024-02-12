@@ -3969,18 +3969,20 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     Overriding ANSI to add Temporal Query.
     """
 
-    match_grammar = ansi.FromExpressionElementSegment.match_grammar.copy(
-        insert=[
-            Ref("TemporalQuerySegment", optional=True),
-        ],
-        before=Ref(
-            "AliasExpressionSegment",
-            exclude=OneOf(
-                Ref("SamplingExpressionSegment"),
-                Ref("JoinLikeClauseGrammar"),
+    match_grammar = (
+        ansi.FromExpressionElementSegment._base_from_expression_element.copy(
+            insert=[
+                Ref("TemporalQuerySegment", optional=True),
+            ],
+            before=Ref(
+                "AliasExpressionSegment",
+                exclude=OneOf(
+                    Ref("SamplingExpressionSegment"),
+                    Ref("JoinLikeClauseGrammar"),
+                ),
+                optional=True,
             ),
-            optional=True,
-        ),
+        )
     )
 
 

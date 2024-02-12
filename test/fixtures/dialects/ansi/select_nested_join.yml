@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 54f9a4ef99ecbd8dbf774f944026394cf359e85da31d734032e587af7c720353
+_hash: be6f964d9cffe789a70dc92cabfa460c61f8f986aec20907d2dc296909659916
 file:
 - statement:
     select_statement:
@@ -208,13 +208,12 @@ file:
         from_expression:
           bracketed:
             start_bracket: (
-            bracketed:
-              start_bracket: (
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                      naked_identifier: orders
+            from_expression_element:
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                    naked_identifier: orders
                 join_clause:
                   keyword: join
                   from_expression_element:
@@ -241,7 +240,7 @@ file:
                             - naked_identifier: customer_id
                           end_bracket: )
                       end_bracket: )
-              end_bracket: )
+                end_bracket: )
             join_clause:
               keyword: join
               from_expression_element:
@@ -331,13 +330,12 @@ file:
             bracketed:
               start_bracket: (
               from_expression:
-                bracketed:
-                  start_bracket: (
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          naked_identifier: orders
+                from_expression_element:
+                  bracketed:
+                    start_bracket: (
+                    table_expression:
+                      table_reference:
+                        naked_identifier: orders
                     join_clause:
                       keyword: join
                       from_expression_element:
@@ -364,7 +362,7 @@ file:
                                 - naked_identifier: customer_id
                               end_bracket: )
                           end_bracket: )
-                  end_bracket: )
+                    end_bracket: )
                 join_clause:
                   keyword: join
                   from_expression_element:

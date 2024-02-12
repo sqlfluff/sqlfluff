@@ -708,7 +708,18 @@ class ColumnDefinitionSegment(BaseSegment):
             ),
             Sequence(
                 Ref("DatatypeSegment"),  # Column type
-                Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+                # For types like VARCHAR(100), VARCHAR(100 BYTE), VARCHAR (100 CHAR)
+                Bracketed(
+                    Sequence(
+                        Anything(),
+                        OneOf(
+                            "BYTE",
+                            "CHAR",
+                            optional=True,
+                        ),
+                    ),
+                    optional=True,
+                ),
                 AnyNumberOf(
                     Ref("ColumnConstraintSegment", optional=True),
                 ),

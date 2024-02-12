@@ -1,0 +1,297 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 40a75c4f4b34e45a0b5607b681d3a20e8f692984de35e4516eaecd2fe27a9a48
+file:
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+      - quoted_identifier: '"schema_1"'
+      - dot: .
+      - quoted_identifier: '"table_1"'
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          quoted_identifier: '"field_1"'
+        comma: ','
+        end_bracket: )
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - keyword: CSV
+    - keyword: 'NULL'
+    - quoted_literal: "''"
+    - keyword: DELIMITER
+    - quoted_literal: "'\t'"
+    - keyword: ESCAPE
+    - quoted_literal: "'\\\\'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: country
+    - keyword: TO
+    - keyword: STDOUT
+    - bracketed:
+        start_bracket: (
+        keyword: DELIMITER
+        quoted_literal: "'|'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: country
+    - keyword: FROM
+    - quoted_literal: "'/home/usr1/sql/country_data'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: country
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: country_name
+              keyword: LIKE
+              quoted_literal: "'A%'"
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'/home/usr1/sql/a_list_countries.copy'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: sales
+    - keyword: FROM
+    - quoted_literal: "'/home/usr1/sql/sales_data'"
+    - keyword: LOG
+    - keyword: ERRORS
+    - keyword: SEGMENT
+    - keyword: REJECT
+    - keyword: LIMIT
+    - numeric_literal: '10'
+    - keyword: ROWS
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: TO
+    - quoted_literal: "'<SEG_DATA_DIR>/gpbackup<SEGID>.txt'"
+    - keyword: 'ON'
+    - keyword: SEGMENT
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: testtbl
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'/tmp/mytst<SEGID>'"
+    - keyword: 'ON'
+    - keyword: SEGMENT
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: LINEITEM
+    - keyword: TO
+    - keyword: PROGRAM
+    - quoted_literal: "'cat > /tmp/lineitem.csv'"
+    - keyword: CSV
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: LINEITEM_4
+    - keyword: FROM
+    - keyword: PROGRAM
+    - quoted_literal: "'cat /tmp/lineitem_program<SEGID>.csv'"
+    - keyword: 'ON'
+    - keyword: SEGMENT
+    - keyword: CSV
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: FROM
+    - quoted_literal: "'/path/to/file.csv'"
+    - keyword: DELIMITER
+    - quoted_literal: "','"
+    - keyword: CSV
+    - keyword: HEADER
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+      - naked_identifier: schema_name
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: FROM
+    - quoted_literal: "'/path/to/file.csv'"
+    - keyword: DELIMITER
+    - quoted_literal: "';'"
+    - keyword: CSV
+    - keyword: HEADER
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: table_name
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: column1
+      - comma: ','
+      - column_reference:
+          naked_identifier: column2
+      - comma: ','
+      - column_reference:
+          naked_identifier: column3
+      - end_bracket: )
+    - keyword: FROM
+    - quoted_literal: "'/path/to/file.csv'"
+    - keyword: DELIMITER
+    - quoted_literal: "','"
+    - keyword: CSV
+    - keyword: HEADER
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: FROM
+    - keyword: PROGRAM
+    - quoted_literal: "'cat /path/to/file.csv'"
+    - keyword: DELIMITER
+    - quoted_literal: "','"
+    - keyword: CSV
+    - keyword: HEADER
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: FROM
+    - quoted_literal: "'/path/to/file.csv'"
+    - keyword: DELIMITER
+    - quoted_literal: "','"
+    - keyword: CSV
+    - keyword: QUOTE
+    - quoted_literal: "'\"'"
+    - keyword: ESCAPE
+    - quoted_literal: "''"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: FROM
+    - quoted_literal: "'/path/to/file.csv'"
+    - keyword: DELIMITER
+    - quoted_literal: "','"
+    - keyword: CSV
+    - keyword: 'NULL'
+    - quoted_literal: "'NA'"
+    - keyword: HEADER
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: table_name
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: column1
+      - comma: ','
+      - column_reference:
+          naked_identifier: column2
+      - comma: ','
+      - column_reference:
+          naked_identifier: column3
+      - end_bracket: )
+    - keyword: FROM
+    - quoted_literal: "'/path/to/file.csv'"
+    - keyword: DELIMITER
+    - quoted_literal: "','"
+    - keyword: CSV
+    - keyword: HEADER
+    - keyword: QUOTE
+    - quoted_literal: "'\"'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: FROM
+    - quoted_literal: "'/path/to/file.csv'"
+    - keyword: DELIMITER
+    - quoted_literal: "','"
+    - keyword: CSV
+    - keyword: ESCAPE
+    - quoted_literal: "''"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: FROM
+    - quoted_literal: "'/path/to/file.csv'"
+    - keyword: DELIMITER
+    - quoted_literal: "','"
+    - keyword: CSV
+    - keyword: HEADER
+    - keyword: ENCODING
+    - quoted_literal: "'UTF8'"
+- statement_terminator: ;
