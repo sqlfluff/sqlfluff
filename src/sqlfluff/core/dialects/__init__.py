@@ -42,6 +42,7 @@ _dialect_lookup = {
     "teradata": ("dialect_teradata", "teradata_dialect"),
     "trino": ("dialect_trino", "trino_dialect"),
     "tsql": ("dialect_tsql", "tsql_dialect"),
+    "vertica": ("dialect_vertica", "vertica_dialect"),
 }
 
 _legacy_dialects = {

@@ -59,6 +59,7 @@ keywords = [
     "teradata",
     "trino",
     "tsql",
+    "vertica",
     "dbt",
 ]
 dependencies = [
