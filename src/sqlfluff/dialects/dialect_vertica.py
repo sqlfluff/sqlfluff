@@ -165,7 +165,8 @@ class StatementSegment(ansi.StatementSegment):
 
 class ExtendedCastOperatorSegment(BaseSegment):
     """Allow ::! operator as in
-    https://docs.vertica.com/latest/en/sql-reference/language-elements/operators/data-type-coercion-operators-cast/cast-failures/"""
+    https://docs.vertica.com/latest/en/sql-reference/language-elements/operators/data-type-coercion-operators-cast/cast-failures/
+    """
 
     type = "extended_cast_operator"
     match_grammar: Matchable = OneOf(
