@@ -157,7 +157,8 @@ class StatementSegment(ansi.StatementSegment):
         insert=[
             Ref("CreateExternalTableSegment"),
             Ref("CreateTableLikeStatementSegment"),
-            Ref("CreateTableAsStatementSegment")
+            Ref("CreateTableAsStatementSegment"),
+            Ref("CreateProjectionStatementSegment")
         ],
     )
 
@@ -468,7 +469,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                         AnyNumberOf(
                             Ref("ColumnConstraintSegment"),
                             Ref("ColumnEncodingSegment"),
-                            Sequence("ACCESSRANK", Ref("IntegerSegment"))
+                            Sequence("ACCESSRANK", Ref("IntegerSegment"), optional=True),
                         ),
                     ),
                     Ref("TableConstraintSegment"),
@@ -506,7 +507,7 @@ class CreateTableAsStatementSegment(BaseSegment):
                     Sequence(
                         Ref("ColumnReferenceSegment"),
                         Ref("ColumnEncodingSegment", optional=True),
-                        Sequence("ACCESSRANK", Ref("IntegerSegment")),
+                        Sequence("ACCESSRANK", Ref("IntegerSegment"), optional=True)
                         # TODO: need to add GROUPED clause
                         #  https://docs.vertica.com/latest/en/sql-reference/statements/create-statements/create-projection/grouped-clause/
                     ),
@@ -519,12 +520,7 @@ class CreateTableAsStatementSegment(BaseSegment):
         # TODO: need to add LABEL clause
         #  https://docs.vertica.com/latest/en/admin/working-with-native-tables/creating-table-from-other-tables/creating-table-from-query/
         Sequence("AT", OneOf("LATEST", Ref("NumericLiteralSegment"), Ref("DatetimeUnitSegment")), optional=True),
-        OneOf(
-            OptionallyBracketed(Ref("SelectableGrammar")),
-            OptionallyBracketed(Sequence("TABLE", Ref("TableReferenceSegment"))),
-            Ref("ValuesClauseSegment"),
-            OptionallyBracketed(Sequence("EXECUTE", Ref("FunctionSegment"))),
-        ),
+        Ref("SelectableGrammar"),
         Ref("SegmentedByClauseSegment", optional=True)
     )
 
@@ -629,7 +625,7 @@ class CreateExternalTableSegment(BaseSegment):
                         AnyNumberOf(
                             Ref("ColumnConstraintSegment"),
                             Ref("ColumnEncodingSegment"),
-                            Sequence("ACCESSRANK", Ref("IntegerSegment"))
+                            Sequence("ACCESSRANK", Ref("IntegerSegment"), optional=True),
                         ),
                     ),
                     Ref("TableConstraintSegment"),
@@ -683,4 +679,81 @@ class CreateExternalTableSegment(BaseSegment):
             Sequence("TRAILING", "NULLCOLS"),
             Ref("CopyOptionsSegment", optional=True)
         ),
+    )
+
+
+class GroupByClauseSegment(BaseSegment):
+    """A `GROUP BY` clause like in `SELECT`."""
+
+    type = "groupby_clause"
+
+    match_grammar: Matchable = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        Sequence(
+            Delimited(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `GROUP BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can `GROUP BY coalesce(col, 1)`
+                    Ref("ExpressionSegment"),
+                ),
+                terminators=[Ref("GroupByClauseTerminatorGrammar")],
+            ),
+        ),
+        Dedent,
+    )
+
+
+class CreateProjectionStatementSegment(BaseSegment):
+    """A `CREATE PROJECTION` statement.
+
+    As specified in
+    https://docs.vertica.com/latest/en/sql-reference/statements/create-statements/create-projection/standard-projection/
+    """
+
+    type = "create_projection_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "PROJECTION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Indent,
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("ColumnEncodingSegment", optional=True),
+                    Sequence("ACCESSRANK", Ref("IntegerSegment"), optional=True),
+                    # TODO: need to add GROUPED clause
+                    #  https://docs.vertica.com/latest/en/sql-reference/statements/create-statements/create-projection/grouped-clause/
+                ),
+            ),
+            optional=True,
+        ),
+        "AS",
+        Ref("SelectableGrammar",
+            terminators=[Ref("SegmentedByClauseSegment"), "ON"]),
+        OneOf(
+            # TODO: add udtf projection type
+            AnyNumberOf(
+                Ref("OrderByClauseSegment"),
+                Ref("SegmentedByClauseSegment"),
+                Sequence(
+                    "ON",
+                    "PARTITION",
+                    "RANGE",
+                    "BETWEEN",
+                    Ref("QuotedLiteralSegment"),
+                    "AND",
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            Ref("GroupByClauseSegment"),
+            Ref("LimitClauseSegment"),
+        ),
+        Ref("KsafeSegment", optional=True),
     )
