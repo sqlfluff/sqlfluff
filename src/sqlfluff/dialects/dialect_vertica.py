@@ -784,7 +784,12 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 Ref("DatatypeSegment"),
                 AnyNumberOf(Ref("ColumnConstraintSegment")),
                 Ref("ColumnEncodingSegment", optional=True),
-                Sequence("PROJECTIONS", Bracketed(Delimited(Ref("TableReferenceSegment"))), optional=True)
+                OneOf(
+                    Sequence("PROJECTIONS", Bracketed(Delimited(Ref("TableReferenceSegment")))),
+                    Sequence("ALL", "PROJECTIONS"),
+                    optional=True
+                ),
+                Ref("ColumnConstraintSegment", optional=True),
             ),
             Sequence(
                 "ALTER",
@@ -796,18 +801,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                         "PROJECTIONS",
                         Bracketed(Delimited(Ref("TableReferenceSegment")))
                     ),
-                    Sequence(
-                        "SET",
-                        OneOf("DEFAULT", "USING", Sequence("DEFAULT", "USING")),
-                        OneOf(
-                            OneOf(
-                                Ref("LiteralGrammar"),
-                                Ref("FunctionSegment"),
-                                Ref("BareFunctionSegment"),
-                                Ref("ExpressionSegment"),
-                            )
-                        ),
-                    ),
+                    Sequence("SET", Ref("ColumnSetSegment")),
                     Sequence("SET", "NOT", "NULL"),
                     Sequence("SET", "DATA", "TYPE", Ref("DatatypeSegment")),
                     Sequence(
@@ -946,4 +940,68 @@ class AlterDefaultPrivilegesGrantSegment(BaseSegment):
             terminators=["WITH"],
         ),
         Sequence("WITH", "GRANT", "OPTION", optional=True),
+    )
+
+
+class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
+    """A column option; each CREATE TABLE column can have 0 or more.
+
+    https://docs.vertica.com/latest/en/sql-reference/statements/create-statements/create-table/column-constraint/
+    """
+
+    match_grammar = Sequence(
+        # TODO: add auto increment
+        OneOf(
+            Sequence(
+                Sequence(
+                    "CONSTRAINT",
+                    Ref("ObjectReferenceSegment"),  # Constraint name
+                    optional=True,
+                ),
+                OneOf(
+                    Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
+                    Sequence(
+                        "CHECK",
+                        Bracketed(Ref("ExpressionSegment")),
+                        OneOf("ENABLED", "DISABLED", optional=True),
+                    ),
+                    Sequence(
+                        "UNIQUE",
+                        OneOf("ENABLED", "DISABLED", optional=True),
+                    ),
+                    Sequence(
+                        "PRIMARY",
+                        "KEY",
+                        OneOf("ENABLED", "DISABLED", optional=True),
+                    ),
+                    Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]
+                ),
+            ),
+            Ref("ColumnSetSegment")
+        ),
+    )
+
+
+class ColumnSetSegment(BaseSegment):
+    """A SET DEFAULT | USING | DEFAULT USING
+
+    https://docs.vertica.com/latest/en/sql-reference/statements/alter-statements/alter-table/
+    """
+
+    type = "column_set_segment"
+
+    match_grammar = Sequence(  # DEFAULT <value>
+        OneOf(
+            "DEFAULT",
+            Sequence("SET", "USING"),
+            Sequence("DEFAULT", "USING")
+        ),
+        OneOf(
+            Ref("ShorthandCastSegment"),
+            Ref("LiteralGrammar"),
+            Ref("FunctionSegment"),
+            Ref("BareFunctionSegment"),
+            Ref("ExpressionSegment"),
+            Bracketed(Ref("SelectableGrammar"))
+        ),
     )
