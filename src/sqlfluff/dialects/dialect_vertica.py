@@ -442,6 +442,7 @@ class PartitionByClauseSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Ref.keyword("REORGANIZE", optional=True)
     )
 
 
@@ -725,7 +726,6 @@ class CreateProjectionStatementSegment(BaseSegment):
         "PROJECTION",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        Indent,
         Bracketed(
             Delimited(
                 Sequence(
@@ -740,7 +740,7 @@ class CreateProjectionStatementSegment(BaseSegment):
         ),
         "AS",
         Ref("SelectableGrammar",
-            terminators=[Ref("SegmentedByClauseSegment"), "ON"]),
+            terminators=[Ref("SegmentedByClauseSegment"), Ref("OrderByClauseSegment"), "ON"]),
         OneOf(
             # TODO: add udtf projection type
             AnyNumberOf(
