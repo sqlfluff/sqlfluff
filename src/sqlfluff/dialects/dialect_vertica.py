@@ -159,7 +159,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateTableLikeStatementSegment"),
             Ref("CreateTableAsStatementSegment"),
             Ref("CreateProjectionStatementSegment"),
-            Ref("AlterDefaultPrivilegesGrantSegment")
+            Ref("AlterDefaultPrivilegesGrantSegment"),
+            Ref("DropProjectionStatementSegment")
         ],
     )
 
@@ -1004,4 +1005,20 @@ class ColumnSetSegment(BaseSegment):
             Ref("ExpressionSegment"),
             Bracketed(Ref("SelectableGrammar"))
         ),
+    )
+
+
+class DropProjectionStatementSegment(BaseSegment):
+    """A `DROP PROJECTION` statement.
+    https://docs.vertica.com/latest/en/sql-reference/statements/drop-statements/drop-projection/
+    """
+
+    type = "drop_projection_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "PROJECTION",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("TableReferenceSegment")),
+        Ref("DropBehaviorGrammar", optional=True),
     )
