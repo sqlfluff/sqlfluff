@@ -158,7 +158,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateExternalTableSegment"),
             Ref("CreateTableLikeStatementSegment"),
             Ref("CreateTableAsStatementSegment"),
-            Ref("CreateProjectionStatementSegment")
+            Ref("CreateProjectionStatementSegment"),
+            Ref("AlterDefaultPrivilegesGrantSegment")
         ],
     )
 
@@ -314,8 +315,7 @@ class DiskQuotaSegment(BaseSegment):
     type = "disk_quota_segment"
 
     match_grammar = Sequence(
-        "DISK",
-        "QUOTA",
+        "DISK_QUOTA",
         Ref("QuotedLiteralSegment")
     )
 
@@ -342,7 +342,8 @@ class SchemaPrivilegesSegment(BaseSegment):
 
     type = "schema_privileges_segment"
     match_grammar: Matchable = Sequence(
-        OneOf("INCLUDE", "EXCLUDE"),
+        # MATERIALIZE available only in ALTER TABLE statement, but we keep it here to not duplicate the code
+        OneOf("INCLUDE", "EXCLUDE", "MATERIALIZE"),
         Sequence("SCHEMA", optional=True),
         "PRIVILEGES",
     )
@@ -521,7 +522,8 @@ class CreateTableAsStatementSegment(BaseSegment):
         # TODO: need to add LABEL clause
         #  https://docs.vertica.com/latest/en/admin/working-with-native-tables/creating-table-from-other-tables/creating-table-from-query/
         Sequence("AT", OneOf("LATEST", Ref("NumericLiteralSegment"), Ref("DatetimeUnitSegment")), optional=True),
-        Ref("SelectableGrammar"),
+        Ref("SelectableGrammar", terminators=[Ref("SegmentedByClauseSegment"), Ref("OrderByClauseSegment")]),
+        Ref("OrderByClauseSegment", optional=True),
         Ref("SegmentedByClauseSegment", optional=True)
     )
 
@@ -757,4 +759,191 @@ class CreateProjectionStatementSegment(BaseSegment):
             Ref("LimitClauseSegment"),
         ),
         Ref("KsafeSegment", optional=True),
+    )
+
+
+class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
+    """An `ALTER TABLE` statement.
+
+    As in https://docs.vertica.com/latest/en/sql-reference/statements/alter-statements/alter-table/
+    """
+
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                Delimited(Ref("AlterTableActionSegment")),
+            ),
+            Sequence(
+                "ADD",
+                Ref.keyword("COLUMN"),
+                Ref("IfNotExistsGrammar", optional=True),
+                Ref("ColumnReferenceSegment"),
+                Ref("DatatypeSegment"),
+                AnyNumberOf(Ref("ColumnConstraintSegment")),
+                Ref("ColumnEncodingSegment", optional=True),
+                Sequence("PROJECTIONS", Bracketed(Delimited(Ref("TableReferenceSegment"))), optional=True)
+            ),
+            Sequence(
+                "ALTER",
+                Ref.keyword("COLUMN"),
+                Ref("ColumnReferenceSegment"),
+                OneOf(
+                    Sequence(
+                        Ref("ColumnEncodingSegment"),
+                        "PROJECTIONS",
+                        Bracketed(Delimited(Ref("TableReferenceSegment")))
+                    ),
+                    Sequence(
+                        "SET",
+                        OneOf("DEFAULT", "USING", Sequence("DEFAULT", "USING")),
+                        OneOf(
+                            OneOf(
+                                Ref("LiteralGrammar"),
+                                Ref("FunctionSegment"),
+                                Ref("BareFunctionSegment"),
+                                Ref("ExpressionSegment"),
+                            )
+                        ),
+                    ),
+                    Sequence("SET", "NOT", "NULL"),
+                    Sequence("SET", "DATA", "TYPE", Ref("DatatypeSegment")),
+                    Sequence(
+                        "DROP",
+                        OneOf(
+                            "DEFAULT",
+                            Sequence("SET", "USING"),
+                            Sequence("DEFAULT", "USING"),
+                            Sequence("NOT", "NULL"),
+                        ),
+                    ),
+                ),
+            ),
+            Sequence(
+                "DROP",
+                "CONSTRAINT",
+                Ref("ParameterNameSegment"),
+                OneOf("CASCADE", "RESTRICT", optional=True)
+            ),
+            Sequence(
+                "DROP",
+                Ref.keyword("COLUMN", optional=True),
+                Ref("IfExistsGrammar", optional=True),
+                Ref("ColumnReferenceSegment"),
+                Ref("DropBehaviorGrammar", optional=True),
+            ),
+            Ref("PartitionByClauseSegment"),
+            Sequence("REMOVE", "PARTITIONING"),
+            Sequence(
+                "RENAME",
+                Ref.keyword("COLUMN", optional=True),
+                Ref("ColumnReferenceSegment"),
+                "TO",
+                Ref("ColumnReferenceSegment"),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ParameterNameSegment"),
+            ),
+            "REORGANIZE",
+            Sequence(
+                "SET",
+                "SCHEMA",
+                Ref("SchemaReferenceSegment")
+            ),
+        ),
+    )
+
+
+class AlterTableActionSegment(BaseSegment):
+    """Alter Table Action Segment.
+
+    https://docs.vertica.com/latest/en/sql-reference/statements/alter-statements/alter-table/
+    """
+
+    type = "alter_table_action_segment"
+
+    match_grammar = OneOf(
+        Sequence("ADD", Ref("TableConstraintSegment")),
+        Sequence(
+            "ALTER",
+            "CONSTRAINT",
+            Ref("ParameterNameSegment"),
+            OneOf("ENABLED", "DISABLED"),
+        ),
+        Ref("DiskQuotaSegment"),
+        Sequence("FORCE", "OUTER", Ref("IntegerSegment")),
+        Ref("SchemaPrivilegesSegment"),
+        Sequence(
+            "OWNER",
+            "TO",
+            Ref("ParameterNameSegment"),
+        ),
+        Sequence(
+            "SET",
+            OneOf(
+                Sequence("ActivePartitionCount", OneOf(Ref("IntegerSegment"), "DEFAULT")),
+                Sequence("IMMUTABLE", "ROWS"),
+                Sequence("MERGEOUT", OneOf("1", "2")),
+            )
+        )
+    )
+
+
+class AlterDefaultPrivilegesObjectPrivilegesSegment(BaseSegment):
+    """`ALTER DEFAULT PRIVILEGES` object privileges.
+
+    https://docs.vertica.com/latest/en/sql-reference/statements/grant-statements/grant-table/
+    """
+
+    type = "alter_default_privileges_object_privilege"
+    match_grammar = OneOf(
+        Sequence(
+            "ALL",
+            Ref.keyword("PRIVILEGES", optional=True),
+            Ref.keyword("EXTEND", optional=True)
+        ),
+        Delimited(
+            "SELECT",
+            "INSERT",
+            "UPDATE",
+            "DELETE",
+            "REFERENCES",
+            "TRUNCATE",
+            "ALTER",
+            "DROP",
+            terminators=["ON"],
+        ),
+    )
+
+
+class AlterDefaultPrivilegesGrantSegment(BaseSegment):
+    """`GRANT` for `ALTER DEFAULT PRIVILEGES`.
+
+    https://docs.vertica.com/latest/en/sql-reference/statements/grant-statements/grant-table/
+    """
+
+    type = "alter_default_privileges_grant"
+    match_grammar = Sequence(
+        "GRANT",
+        Ref("AlterDefaultPrivilegesObjectPrivilegesSegment"),
+        "ON",
+        OneOf(
+            Delimited(
+                Sequence(Ref.keyword("TABLE", optional=True), Ref("TableReferenceSegment"))
+            ),
+            Delimited(
+                Sequence("ALL", "TABLES", "IN", "SCHEMA", Ref("SchemaReferenceSegment")),
+            ),
+            terminators=["WITH"],
+        ),
+        "TO",
+        Delimited(
+            Ref("RoleReferenceSegment"),
+            terminators=["WITH"],
+        ),
+        Sequence("WITH", "GRANT", "OPTION", optional=True),
     )
