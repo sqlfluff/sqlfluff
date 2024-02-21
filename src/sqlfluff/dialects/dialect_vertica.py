@@ -160,7 +160,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateTableAsStatementSegment"),
             Ref("CreateProjectionStatementSegment"),
             Ref("AlterDefaultPrivilegesGrantSegment"),
-            Ref("DropProjectionStatementSegment")
+            Ref("DropProjectionStatementSegment"),
+            Ref("AlterViewStatementSegment"),
         ],
     )
 
@@ -1021,4 +1022,24 @@ class DropProjectionStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("TableReferenceSegment")),
         Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class AlterViewStatementSegment(BaseSegment):
+    """A `ALTER VIEW` statement.
+    https://docs.vertica.com/latest/en/sql-reference/statements/alter-statements/alter-view/
+    """
+
+    type = "alter_view_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        AnyNumberOf(
+            Sequence("OWNER", "TO", Ref("ParameterNameSegment")),
+            Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
+            Ref("SchemaPrivilegesSegment"),
+            Sequence("RENAME", "TO", Ref("ParameterNameSegment"))
+        )
     )
