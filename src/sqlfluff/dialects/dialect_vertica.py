@@ -1186,11 +1186,13 @@ class CommentOnStatementSegment(BaseSegment):
 
 class TransactionalStatements(BaseSegment):
     """DML commands wrapped by BEGIN and END
+    As in https://docs.vertica.com/latest/en/sql-reference/statements/begin/
+    https://docs.vertica.com/latest/en/sql-reference/statements/end/
     """
 
     type = "transactional_statement"
     match_grammar: Matchable = Sequence(
-        # TODO add rollback, commit logic
+        # TODO add rollback, commit logic and optional keywords
         "BEGIN",
         AnyNumberOf(
             Sequence(
