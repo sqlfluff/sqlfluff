@@ -789,7 +789,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
     match_grammar = Sequence(
         "ALTER",
         "TABLE",
-        Ref("TableReferenceSegment"),
+        Delimited(Ref("TableReferenceSegment")),
         OneOf(
             Sequence(
                 Delimited(Ref("AlterTableActionSegment")),
@@ -858,7 +858,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
             Sequence(
                 "RENAME",
                 "TO",
-                Ref("TableReferenceSegment"),
+                Delimited(Ref("TableReferenceSegment")),
             ),
             "REORGANIZE",
             Sequence(
@@ -1086,7 +1086,7 @@ class SetStatementSegment(BaseSegment):
             Sequence(
                 "SEARCH_PATH",
                 OneOf("TO", Ref("EqualsSegment")),
-                OneOf(Bracketed(Ref("ParameterNameSegment")), "DEFAULT")
+                OneOf(OptionallyBracketed(Ref("QuotedLiteralSegment")), "DEFAULT")
             ),
             Sequence(
                 "ROLE",
