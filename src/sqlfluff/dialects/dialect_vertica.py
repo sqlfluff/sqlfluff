@@ -163,6 +163,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropProjectionStatementSegment"),
             Ref("AlterViewStatementSegment"),
             Ref("SetStatementSegment"),
+            Ref("CommentOnStatementSegment"),
         ],
     )
 
@@ -1120,5 +1121,62 @@ class SetStatementSegment(BaseSegment):
                     ),
                 ),
             ),
+        ),
+    )
+
+
+class CommentOnStatementSegment(BaseSegment):
+    """`COMMENT ON` statement.
+
+    https://www.postgresql.org/docs/13/sql-comment.html
+    """
+
+    type = "comment_clause"
+
+    match_grammar = Sequence(
+        "COMMENT",
+        "ON",
+        Sequence(
+            OneOf(
+                Sequence(
+                    OneOf(
+                        "TABLE",
+                        "VIEW",
+                        "PROJECTION",
+                    ),
+                    Ref("TableReferenceSegment"),
+                ),
+                Sequence(
+                    "COLUMN",
+                    Ref("ColumnReferenceSegment"),
+                ),
+                Sequence(
+                    "CONSTRAINT",
+                    Ref("ObjectReferenceSegment"),
+                    Sequence(
+                        "ON",
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                ),
+                Sequence(
+                    OneOf("AGGREGATE", "ANALYTIC", "TRANSFORM", optional=True),
+                    "FUNCTION",
+                    Ref("FunctionNameSegment"),
+                    Sequence(Ref("FunctionParameterListGrammar"), optional=True),
+                ),
+                Sequence(
+                    "SCHEMA",
+                    Ref("SchemaReferenceSegment"),
+                ),
+                Sequence(
+                    "NODE",
+                    Ref("ParameterNameSegment"),
+                ),
+                Sequence(
+                    OneOf("SEQUENCE", "LIBRARY"),
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
+            Sequence("IS", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
         ),
     )
