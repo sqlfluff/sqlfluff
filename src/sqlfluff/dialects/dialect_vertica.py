@@ -164,7 +164,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterViewStatementSegment"),
             Ref("SetStatementSegment"),
             Ref("CommentOnStatementSegment"),
-            Ref("TransactionalStatements")
+            Ref("TransactionalStatements"),
+            Ref("AlterSessionStatements"),
         ],
     )
 
@@ -1274,6 +1275,70 @@ class DatatypeSegment(ansi.DatatypeSegment):
                 "UNSIGNED",  # UNSIGNED MySQL
                 Ref("CharCharacterSetGrammar"),
                 optional=True,
+            ),
+        ),
+    )
+
+
+class AlterSessionStatements(BaseSegment):
+
+    type = "alter_session_statement"
+    match_grammar: Matchable = Sequence(
+        # TODO add rollback, commit logic and optional keywords
+        "ALTER",
+        "SESSION",
+        OneOf(
+            Sequence(
+                "SET",
+                Ref.keyword("PARAMETER", optional=True),
+                OptionallyBracketed(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "CLEAR",
+                Ref.keyword("PARAMETER", optional=True),
+                OneOf(
+                    OptionallyBracketed(
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                    ),
+                    Sequence("PARAMETER", "ALL")
+                ),
+            ),
+            Sequence(
+                "SET",
+                "UDPARAMETER",
+                Sequence("FOR", Ref("ParameterNameSegment"), optional=True),
+                OptionallyBracketed(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "CLEAR",
+                "UDPARAMETER",
+                Sequence("FOR", Ref("ParameterNameSegment"), optional=True),
+                OneOf(
+                    "ALL",
+                    OptionallyBracketed(
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                    ),
+                ),
             ),
         ),
     )
