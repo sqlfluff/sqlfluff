@@ -1097,6 +1097,12 @@ class SetStatementSegment(BaseSegment):
                 OneOf(Ref("ParameterNameSegment"), Ref("QuotedLiteralSegment"))
             ),
             Sequence(
+                Ref.keyword("SESSION", optional=True),
+                "RESOURCE_POOL",
+                Ref("EqualsSegment"),
+                OneOf(Ref("ParameterNameSegment"), "DEFAULT"),
+            ),
+            Sequence(
                 "SESSION",
                 OneOf(
                     Sequence("AUTHORIZATION", OneOf(Ref("ParameterNameSegment"), "DEFAULT")),
@@ -1111,11 +1117,6 @@ class SetStatementSegment(BaseSegment):
                         OneOf("NONE", "=DEFAULT", Ref("QuotedLiteralSegment"))
                     ),
                     Sequence("MULTIPLEACTIVERESULTSETS", "TO", OneOf("ON", "OFF")),
-                    Sequence(
-                        "RESOURCE_POOL",
-                        Ref("EqualsSegment"),
-                        OneOf(Ref("ParameterNameSegment"), "DEFAULT"),
-                    ),
                     Sequence(
                         "WORKLOAD", "TO", OneOf(Ref("ParameterNameSegment"), "DEFAULT", "NONE")
                     ),
