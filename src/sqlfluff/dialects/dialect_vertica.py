@@ -162,6 +162,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterDefaultPrivilegesGrantSegment"),
             Ref("DropProjectionStatementSegment"),
             Ref("AlterViewStatementSegment"),
+            Ref("SetStatementSegment"),
         ],
     )
 
@@ -1042,4 +1043,82 @@ class AlterViewStatementSegment(BaseSegment):
             Ref("SchemaPrivilegesSegment"),
             Sequence("RENAME", "TO", Ref("ParameterNameSegment"))
         )
+    )
+
+
+class SetStatementSegment(BaseSegment):
+    """Set Statement.
+
+    As specified in https://docs.vertica.com/latest/en/sql-reference/statements/set-statements/
+    """
+
+    type = "set_statement"
+
+    match_grammar = Sequence(
+        "SET",
+        OneOf(
+            Sequence(
+                OneOf(
+                    "DATESTYLE",
+                    "ESCAPE_STRING_WARNING",
+                    "INTERVALSTYLE",
+                    "LOCALE",
+                    "STANDARD_CONFORMING_STRINGS"
+                ),
+                "TO",
+                Ref("ParameterNameSegment")
+            ),
+            Sequence(
+                "SEARCH_PATH",
+                OneOf("TO", Ref("EqualsSegment")),
+                OneOf(Bracketed(Ref("ParameterNameSegment")), "DEFAULT")
+            ),
+            Sequence(
+                "ROLE",
+                OneOf(
+                    "NONE",
+                    "DEFAULT",
+                    Sequence(
+                        "ALL",
+                        Sequence(
+                            "EXCEPT",
+                            Bracketed(Ref("ParameterNameSegment")),
+                            optional=True
+                        ),
+                    ),
+                    Bracketed(Ref("ParameterNameSegment")),
+                ),
+            ),
+            Sequence(
+                "TIME",
+                "ZONE",
+                Ref.keyword("TO", optional=True),
+                OneOf(Ref("ParameterNameSegment"), Ref("QuotedLiteralSegment"))
+            ),
+            Sequence(
+                "SESSION",
+                OneOf(
+                    Sequence("AUTHORIZATION", OneOf(Ref("ParameterNameSegment"), "DEFAULT")),
+                    Sequence("AUTOCOMMIT", "TO", OneOf("ON", "OFF")),
+                    Sequence("CHARACTERISTICS", "AS", "TRANSACTION", Ref("ParameterNameSegment")),
+                    Sequence(
+                        OneOf("GRACEPERIOD", "IDLESESSIONTIMEOUT", "RUNTIMECAP"),
+                        OneOf("NONE", "=DEFAULT", Ref("IntervalUnitsGrammar"))
+                    ),
+                    Sequence(
+                        OneOf("MEMORYCAP", "TEMPSPACECAP"),
+                        OneOf("NONE", "=DEFAULT", Ref("QuotedLiteralSegment"))
+                    ),
+                    Sequence("MULTIPLEACTIVERESULTSETS", "TO", OneOf("ON", "OFF")),
+                    Sequence(
+                        "RESOURCE_POOL",
+                        Ref("EqualsSegment"),
+                        OneOf(Ref("ParameterNameSegment"), "DEFAULT"),
+                    ),
+                    Sequence(
+                        "WORKLOAD", "TO", OneOf(Ref("ParameterNameSegment"), "DEFAULT", "NONE")
+                    ),
+                ),
+            ),
+        ),
     )
