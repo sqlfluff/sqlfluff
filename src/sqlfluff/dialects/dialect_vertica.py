@@ -751,7 +751,12 @@ class CreateProjectionStatementSegment(BaseSegment):
         ),
         "AS",
         Ref("SelectableGrammar",
-            terminators=[Ref("SegmentedByClauseSegment"), Ref("OrderByClauseSegment"), "ON"]),
+            terminators=[Ref("SegmentedByClauseSegment"),
+                         Ref("OrderByClauseSegment"),
+                         Ref("LimitClauseSegment"),
+                         Ref("GroupByClauseSegment"),
+                         "ON"
+                         ]),
         OneOf(
             # TODO: add udtf projection type
             AnyNumberOf(
@@ -852,7 +857,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
             Sequence(
                 "RENAME",
                 "TO",
-                Ref("ParameterNameSegment"),
+                Ref("TableReferenceSegment"),
             ),
             "REORGANIZE",
             Sequence(
