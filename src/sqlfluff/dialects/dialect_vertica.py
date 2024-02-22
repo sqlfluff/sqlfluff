@@ -75,6 +75,18 @@ vertica_dialect.sets("encoding_types").update(
     ],
 )
 
+# Add all Vertica compression types (for COPY statement)
+vertica_dialect.sets("compression_types").clear()
+vertica_dialect.sets("compression_types").update(
+    [
+        "UNCOMPRESSED",
+        "BZIP",
+        "GZIP",
+        "LZO",
+        "ZSTD",
+    ],
+)
+
 vertica_dialect.sets("date_part_function_name").update(
     ["DATEADD", "DATEDIFF", "EXTRACT", "DATE_PART"]
 )
@@ -134,11 +146,26 @@ vertica_dialect.add(
         ),
         MultiStringParser(
             [
-                f"'{compression}'"
-                for compression in vertica_dialect.sets("encoding_types")
+                f"'{encoding}'"
+                for encoding in vertica_dialect.sets("encoding_types")
             ],
             KeywordSegment,
             type="encoding_type",
+        ),
+    ),
+    CompressionType=OneOf(
+        MultiStringParser(
+            vertica_dialect.sets("compression_types"),
+            KeywordSegment,
+            type="compression_type",
+        ),
+        MultiStringParser(
+            [
+                f"'{compression}'"
+                for compression in vertica_dialect.sets("compression_type")
+            ],
+            KeywordSegment,
+            type="compression_type",
         ),
     ),
     IntegerSegment=RegexParser(
@@ -166,6 +193,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CommentOnStatementSegment"),
             Ref("TransactionalStatements"),
             Ref("AlterSessionStatements"),
+            Ref("CopyStatementSegment"),
         ],
     )
 
@@ -565,12 +593,12 @@ class CreateTableLikeStatementSegment(BaseSegment):
     )
 
 
-class CopyOptionsSegment(BaseSegment):
+class CopyOptionsForColumnsSegment(BaseSegment):
     """A vertica options for columns in COPY
     https://docs.vertica.com/latest/en/sql-reference/statements/copy/
     """
 
-    type = "copy_options"
+    type = "copy_options_for_columns"
 
     match_grammar = Sequence(
         AnyNumberOf(
@@ -614,7 +642,31 @@ class CopyColumnOptionsSegment(BaseSegment):
 
     match_grammar = Sequence(
         Ref("ColumnReferenceSegment"),
-        Ref("CopyOptionsSegment", optional=True)
+        Ref("CopyOptionsForColumnsSegment", optional=True)
+    )
+
+
+class CopyOptionsSegment(BaseSegment):
+    """A vertica options for columns in COPY
+    https://docs.vertica.com/latest/en/sql-reference/statements/copy/
+    """
+
+    type = "copy_options"
+
+    match_grammar = Sequence(
+        AnyNumberOf(
+            # TODO: add WITH FILTER, WITH PARSER, and on nodename support
+            Sequence("ABORT", "ON", "ERROR"),
+            Sequence("ERROR", "TOLERANCE"),
+            Sequence("EXCEPTION", Ref("QuotedLiteralSegment")),
+            Sequence("RECORD", "TERMINATOR", Ref("QuotedLiteralSegment")),
+            Sequence("REJECTED", "DATA", Ref("QuotedLiteralSegment")),
+            Sequence("REJECTMAX", Ref("IntegerSegment")),
+            Sequence("SKIP", Ref("IntegerSegment")),
+            Sequence("SKIP", "BYTES", Ref("IntegerSegment")),
+            Sequence("TRAILING", "NULLCOLS"),
+            Ref("CopyOptionsForColumnsSegment", optional=True)
+        ),
     )
 
 
@@ -683,19 +735,7 @@ class CreateExternalTableSegment(BaseSegment):
             "ORC",
             "PARQUET",
         ),
-        AnyNumberOf(
-            # TODO: add WITH FILTER, WITH PARSER, and on nodename support
-            Sequence("ABORT", "ON", "ERROR"),
-            Sequence("ERROR", "TOLERANCE"),
-            Sequence("EXCEPTION", Ref("QuotedLiteralSegment")),
-            Sequence("RECORD", "TERMINATOR", Ref("QuotedLiteralSegment")),
-            Sequence("REJECTED", "DATA", Ref("QuotedLiteralSegment")),
-            Sequence("REJECTMAX", Ref("IntegerSegment")),
-            Sequence("SKIP", Ref("IntegerSegment")),
-            Sequence("SKIP", "BYTES", Ref("IntegerSegment")),
-            Sequence("TRAILING", "NULLCOLS"),
-            Ref("CopyOptionsSegment", optional=True)
-        ),
+        Ref("CopyOptionsSegment", optional=True),
     )
 
 
@@ -1341,4 +1381,70 @@ class AlterSessionStatements(BaseSegment):
                 ),
             ),
         ),
+    )
+
+
+class CopyStatementSegment(BaseSegment):
+    """A `COPY` statement.
+
+    As Specified in https://docs.vertica.com/latest/en/sql-reference/statements/copy/
+    """
+
+    # TODO: it's not full and requires additional improvements
+
+    type = "copy_statement"
+
+    match_grammar = Sequence(
+        "COPY",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("CopyColumnOptionsSegment", optional=True),
+                    ),
+                ),
+            ),
+            Sequence(
+                "COLUMN",
+                "OPTION",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ColumnReferenceSegment"),
+                            Ref("CopyColumnOptionsSegment", optional=True),
+                        ),
+                    ),
+                ),
+            ),
+            optional=True
+        ),
+        "FROM",
+        OneOf(
+            Sequence(
+                Ref.keyword("LOCAL", optional=True),
+                "STDIN",
+                Ref("CompressionType", optional=True),
+                Ref("QuotedLiteralSegment")
+            ),
+            Sequence(
+                "LOCAL",
+                Ref("QuotedLiteralSegment"),
+                Ref("CompressionType", optional=True),
+            ),
+            Sequence(
+                "VERTICA",
+                Ref("TableReferenceSegment"),
+                Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
+            ),
+        ),
+        OneOf(
+            "NATIVE",
+            Sequence("NATIVE", "VARCHAR"),
+            "ORC",
+            "PARQUET",
+            optional=True
+        ),
+        Ref("CopyOptionsSegment", optional=True)
     )
