@@ -201,6 +201,13 @@ class ShorthandCastSegment(BaseSegment):
     )
 
 
+class ArrayTypeSegment(ansi.ArrayTypeSegment):
+    """Prefix for array literals specifying the type."""
+
+    type = "array_type"
+    match_grammar = Ref.keyword("ARRAY")
+
+
 class LimitClauseSegment(ansi.LimitClauseSegment):
     """
     A vertica `LIMIT` clause.
@@ -1213,4 +1220,55 @@ class TransactionalStatements(BaseSegment):
             ),
         ),
         "END",
+    )
+
+
+class DatatypeSegment(ansi.DatatypeSegment):
+    """A data type segment.
+    """
+
+    type = "data_type"
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            OneOf("TIME", "TIMESTAMP"),
+            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+        ),
+        Sequence(
+            "DOUBLE",
+            "PRECISION",
+        ),
+        Sequence(
+            "ARRAY",
+            Ref("StartSquareBracketSegment"),
+            Ref("DatatypeSegment"),
+            Ref("EndSquareBracketSegment"),
+        ),
+        Sequence(
+            OneOf(
+                Sequence(
+                    OneOf("CHARACTER", "BINARY"),
+                    OneOf("VARYING", Sequence("LARGE", "OBJECT")),
+                ),
+                Sequence(
+                    # Some dialects allow optional qualification of data types with
+                    # schemas
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("DotSegment"),
+                        allow_gaps=False,
+                        optional=True,
+                    ),
+                    Ref("DatatypeIdentifierSegment"),
+                    allow_gaps=False,
+                ),
+            ),
+            # There may be no brackets for some data types
+            Ref("BracketedArguments", optional=True),
+            OneOf(
+                "UNSIGNED",  # UNSIGNED MySQL
+                Ref("CharCharacterSetGrammar"),
+                optional=True,
+            ),
+        ),
     )
