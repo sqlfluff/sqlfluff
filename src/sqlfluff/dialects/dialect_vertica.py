@@ -1051,7 +1051,8 @@ class ColumnSetSegment(BaseSegment):
     match_grammar = Sequence(  # DEFAULT <value>
         OneOf(
             "DEFAULT",
-            Sequence("SET", "USING"),
+            # Depends on the place where we use it (in alter table or create table) we need or don't need set keyword
+            Sequence(Ref.keyword("SET", optional=True), "USING"),
             Sequence("DEFAULT", "USING")
         ),
         OneOf(
