@@ -164,6 +164,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterViewStatementSegment"),
             Ref("SetStatementSegment"),
             Ref("CommentOnStatementSegment"),
+            Ref("TransactionalStatements")
         ],
     )
 
@@ -1180,4 +1181,34 @@ class CommentOnStatementSegment(BaseSegment):
             ),
             Sequence("IS", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
         ),
+    )
+
+
+class TransactionalStatements(BaseSegment):
+    """DML commands wrapped by BEGIN and END
+    """
+
+    type = "transactional_statement"
+    match_grammar: Matchable = Sequence(
+        # TODO add rollback, commit logic
+        "BEGIN",
+        AnyNumberOf(
+            Sequence(
+                Ref("InsertStatementSegment"),
+                Ref("SemicolonSegment"),
+            ),
+            Sequence(
+                Ref("UpdateStatementSegment"),
+                Ref("SemicolonSegment"),
+            ),
+            Sequence(
+                Ref("DeleteStatementSegment"),
+                Ref("SemicolonSegment"),
+            ),
+            Sequence(
+                Ref("SelectStatementSegment"),
+                Ref("SemicolonSegment"),
+            ),
+        ),
+        "END",
     )
