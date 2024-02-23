@@ -1537,3 +1537,33 @@ class CopyStatementSegment(BaseSegment):
         ),
         Ref("CopyOptionsSegment", optional=True)
     )
+
+
+class FrameClauseSegment(ansi.FrameClauseSegment):
+    """A frame clause for window functions.
+
+    https://docs.vertica.com/latest/en/data-analysis/sql-analytics/window-framing/
+    """
+
+    _frame_extent = OneOf(
+        Sequence("CURRENT", "ROW"),
+        Sequence(
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Sequence("INTERVAL", Ref("QuotedLiteralSegment")),
+                Sequence(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("CastOperatorSegment"),
+                    Ref("DatatypeSegment"),
+                    Ref("TimeZoneGrammar", optional=True),
+                ),
+                "UNBOUNDED",
+            ),
+            OneOf("PRECEDING", "FOLLOWING"),
+        ),
+    )
+
+    match_grammar: Matchable = Sequence(
+        Ref("FrameClauseUnitGrammar"),
+        OneOf(_frame_extent, Sequence("BETWEEN", _frame_extent, "AND", _frame_extent)),
+    )
