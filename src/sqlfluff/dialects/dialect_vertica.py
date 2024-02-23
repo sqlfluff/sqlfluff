@@ -1232,7 +1232,7 @@ class SetStatementSegment(BaseSegment):
                 Ref.keyword("SESSION", optional=True),
                 "RESOURCE_POOL",
                 Ref("EqualsSegment"),
-                OneOf(Ref("ParameterNameSegment"), "DEFAULT"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("ParameterNameSegment"), "DEFAULT"),
             ),
             Sequence(
                 "SESSION",
