@@ -193,6 +193,7 @@ vertica_dialect.add(
     ),
     NullCastOperatorSegment=StringParser("::!", SymbolSegment, type="null_casting_operator"),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
+    InterpolateGrammar=Sequence("INTERPOLATE", OneOf("PREVIOUS", "NEXT"), "VALUE")
 )
 
 vertica_dialect.replace(
@@ -306,6 +307,52 @@ vertica_dialect.replace(
                 Sequence(Ref("IntervalUnitsGrammar"), Bracketed(Ref("IntegerSegment"), optional=True)),
                 optional=True
             ),
+        ),
+    ),
+    Expression_A_Grammar=Sequence(
+        # It's a copy of ansi Expression_A_Grammar
+        Ref("Tail_Recurse_Expression_A_Grammar"),
+        AnyNumberOf(
+            OneOf(
+                Sequence(
+                    Sequence(
+                        Ref.keyword("NOT", optional=True),
+                        Ref("LikeGrammar"),
+                    ),
+                    Ref("Expression_A_Grammar"),
+                    Sequence(
+                        Ref.keyword("ESCAPE"),
+                        Ref("Tail_Recurse_Expression_A_Grammar"),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    Ref("BinaryOperatorGrammar"),
+                    Ref("Tail_Recurse_Expression_A_Grammar"),
+                ),
+                Ref("InOperatorGrammar"),
+                Sequence(
+                    "IS",
+                    Ref.keyword("NOT", optional=True),
+                    Ref("IsClauseGrammar"),
+                ),
+                Ref("IsNullGrammar"),
+                Sequence(
+                    Sequence(
+                        Ref("InterpolateGrammar"),
+                    ),
+                    Ref("Expression_A_Grammar"),
+                ),
+                Ref("NotNullGrammar"),
+                Ref("CollateGrammar"),
+                Sequence(
+                    Ref.keyword("NOT", optional=True),
+                    "BETWEEN",
+                    Ref("Expression_B_Grammar"),
+                    "AND",
+                    Ref("Tail_Recurse_Expression_A_Grammar"),
+                ),
+            )
         ),
     ),
 )
