@@ -24,7 +24,8 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     BracketedSegment,
-    ParseMode
+    ParseMode,
+    TypedParser
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_vertica_keywords import (
@@ -191,6 +192,7 @@ vertica_dialect.add(
         type="integer_literal",
     ),
     NullCastOperatorSegment=StringParser("::!", SymbolSegment, type="null_casting_operator"),
+    IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
 )
 
 vertica_dialect.replace(
@@ -198,7 +200,7 @@ vertica_dialect.replace(
         Ref("ExpressionSegment"),
         OptionallyBracketed(Ref("SetExpressionSegment")),
         # A Cast-like function
-        Sequence(Ref("ExpressionSegment"), "AS", Ref("DatatypeSegment")),
+        Sequence(Ref("ExpressionSegment"), "AS", OneOf(Ref("DatatypeSegment"), Ref("DateTimeLiteralGrammar"))),
         # Trim function
         Sequence(
             Ref("TrimParametersGrammar"),
@@ -291,6 +293,20 @@ vertica_dialect.replace(
         Ref("FilterClauseGrammar"),
         # Within group clause supported by some analytic functions in Vertica
         Ref("WithinGroupClauseSegment")
+    ),
+    DateTimeLiteralGrammar=Sequence(
+        # analog of postgres dialect but with treating expressions like
+        # as interval hour TO SECOND(6)
+        OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"),
+        TypedParser("single_quote", LiteralSegment, type="date_constructor_literal", optional=True),
+        Sequence(
+            Ref("IntervalUnitsGrammar"),
+            Sequence(
+                "TO",
+                Sequence(Ref("IntervalUnitsGrammar"), Bracketed(Ref("IntegerSegment"), optional=True)),
+                optional=True
+            ),
+        ),
     ),
 )
 
