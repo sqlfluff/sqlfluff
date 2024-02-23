@@ -23,7 +23,8 @@ from sqlfluff.core.parser import (
     CodeSegment,
     StringParser,
     SymbolSegment,
-    BracketedSegment
+    BracketedSegment,
+    ParseMode
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_vertica_keywords import (
@@ -280,6 +281,16 @@ vertica_dialect.replace(
         Ref("DelimiterGrammar"),
         Ref("JoinLikeClauseGrammar"),
         BracketedSegment,
+    ),
+    PostFunctionGrammar=OneOf(
+        # Optional OVER suffix for window functions.
+        # This is supported in bigquery & postgres (and its derivatives)
+        # and so is included here for now.
+        Ref("OverClauseSegment"),
+        # Filter clause supported by both Postgres and SQLite
+        Ref("FilterClauseGrammar"),
+        # Within group clause supported by some analytic functions in Vertica
+        Ref("WithinGroupClauseSegment")
     ),
 )
 
@@ -1566,4 +1577,67 @@ class FrameClauseSegment(ansi.FrameClauseSegment):
     match_grammar: Matchable = Sequence(
         Ref("FrameClauseUnitGrammar"),
         OneOf(_frame_extent, Sequence("BETWEEN", _frame_extent, "AND", _frame_extent)),
+    )
+
+
+class FunctionSegment(ansi.FunctionSegment):
+
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            # Treat functions which take date parts separately
+            # So those functions parse date parts as DatetimeUnitSegment
+            # rather than identifiers.
+            Sequence(
+                Ref("DatePartFunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("DatetimeUnitSegment"),
+                        Ref(
+                            "FunctionContentsGrammar",
+                            # The brackets might be empty for some functions...
+                            optional=True,
+                        ),
+                    ),
+                    parse_mode=ParseMode.GREEDY,
+                ),
+            ),
+        ),
+        Ref("ColumnsExpressionGrammar"),
+        Sequence(
+            Sequence(
+                Ref(
+                    "FunctionNameSegment",
+                    exclude=OneOf(
+                        Ref("DatePartFunctionNameSegment"),
+                        Ref("ColumnsExpressionFunctionNameSegment"),
+                        Ref("ValuesClauseSegment"),
+                    ),
+                ),
+                Bracketed(
+                    Ref(
+                        "FunctionContentsGrammar",
+                        # The brackets might be empty for some functions...
+                        optional=True,
+                    ),
+                    parse_mode=ParseMode.GREEDY,
+                ),
+            ),
+            AnyNumberOf(Ref("PostFunctionGrammar")),
+            Sequence("AS", Bracketed(Delimited(Ref("ColumnReferenceSegment"))), optional=True)
+        ),
+    )
+
+
+class WithinGroupClauseSegment(BaseSegment):
+    """A `WITHIN GROUP` clause for some analytic functions.
+
+    https://docs.vertica.com/latest/en/sql-reference/functions/analytic-functions/percentile-cont-analytic/
+    """
+
+    type = "within_group_clause_statement"
+
+    match_grammar = Sequence(
+        "WITHIN",
+        "GROUP",
+        Bracketed(Ref("OrderByClauseSegment"))
     )
