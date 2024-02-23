@@ -610,6 +610,11 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
+        AnySetOf(
+            # these options are available only for temp table, so it's kind of a hack
+            Sequence("ON", "COMMIT", OneOf("DELETE", "PRESERVE"), "ROWS"),
+            Sequence("NO", "PROJECTION"),
+        ),
         Sequence(
             Bracketed(
                 Delimited(
@@ -648,9 +653,21 @@ class CreateTableAsStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
+        OneOf(
+            Sequence(
+                OneOf("GLOBAL", "LOCAL", optional=True),
+                Ref("TemporaryGrammar", optional=True),
+            ),
+            optional=True,
+        ),
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
+        AnySetOf(
+            # these options are available only for temp table, so it's kind of a hack
+            Sequence("ON", "COMMIT", OneOf("DELETE", "PRESERVE"), "ROWS"),
+            Sequence("NO", "PROJECTION"),
+        ),
         AnyNumberOf(
             Bracketed(
                 Delimited(
