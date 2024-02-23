@@ -4,6 +4,7 @@
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    AnySetOf,
     BaseSegment,
     Bracketed,
     Dedent,
@@ -173,6 +174,82 @@ vertica_dialect.add(
         r"[0-9]+",
         LiteralSegment,
         type="integer_literal",
+    ),
+)
+
+vertica_dialect.replace(
+    FunctionContentsGrammar=AnyNumberOf(
+        Ref("ExpressionSegment"),
+        OptionallyBracketed(Ref("SetExpressionSegment")),
+        # A Cast-like function
+        Sequence(Ref("ExpressionSegment"), "AS", Ref("DatatypeSegment")),
+        # Trim function
+        Sequence(
+            Ref("TrimParametersGrammar"),
+            Ref("ExpressionSegment", optional=True, exclude=Ref.keyword("FROM")),
+            "FROM",
+            Ref("ExpressionSegment"),
+        ),
+        # An extract-like or substring-like function
+        # https://www.postgresql.org/docs/current/functions-string.html
+        Sequence(
+            OneOf(Ref("DatetimeUnitSegment"), Ref("ExpressionSegment")),
+            AnySetOf(
+                Sequence("FROM", Ref("ExpressionSegment")),
+                Sequence("FOR", Ref("ExpressionSegment")),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            # Allow an optional distinct keyword here.
+            Ref.keyword("DISTINCT", optional=True),
+            OneOf(
+                # Most functions will be using the delimited route
+                # but for COUNT(*) or similar we allow the star segment
+                # here.
+                Ref("StarSegment"),
+                Delimited(Ref("FunctionContentsExpressionGrammar")),
+            ),
+        ),
+        Ref(
+            "AggregateOrderByClause"
+        ),  # used by string_agg (postgres), group_concat (exasol),listagg (snowflake)..
+        Sequence(Ref.keyword("SEPARATOR"), Ref("LiteralGrammar")),
+        # like a function call: POSITION ( 'QL' IN 'SQL')
+        Sequence(
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("SingleIdentifierGrammar"),
+                Ref("ColumnReferenceSegment"),
+            ),
+            "IN",
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("SingleIdentifierGrammar"),
+                Ref("ColumnReferenceSegment"),
+            ),
+        ),
+        # used by listagg
+        Sequence(
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("ColumnReferenceSegment"),
+                Ref("ExpressionSegment")
+            ),
+            Sequence(
+                "USING",
+                "PARAMETERS",
+                Delimited(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+        ),
+        Ref("IgnoreRespectNullsGrammar"),
+        Ref("EmptyStructLiteralSegment"),
     ),
 )
 
