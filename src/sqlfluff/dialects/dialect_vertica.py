@@ -19,6 +19,11 @@ from sqlfluff.core.parser import (
     Sequence,
     RegexParser,
     LiteralSegment,
+    StringLexer,
+    CodeSegment,
+    StringParser,
+    SymbolSegment,
+    BracketedSegment
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_vertica_keywords import (
@@ -33,6 +38,15 @@ from sqlfluff.dialects.dialect_ansi_keywords import (
 
 ansi_dialect = load_raw_dialect("ansi")
 vertica_dialect = ansi_dialect.copy_as("vertica")
+
+vertica_dialect.insert_lexer_matchers(
+    # Allow ::! operator as in
+    # https://docs.vertica.com/latest/en/sql-reference/language-elements/operators/data-type-coercion-operators-cast/cast-failures/
+    [
+        StringLexer("null_casting_operator", "::!", CodeSegment),
+    ],
+    before="casting_operator",
+)
 
 # Set Keywords
 vertica_dialect.sets("unreserved_keywords").clear()
@@ -175,6 +189,7 @@ vertica_dialect.add(
         LiteralSegment,
         type="integer_literal",
     ),
+    NullCastOperatorSegment=StringParser("::!", SymbolSegment, type="null_casting_operator"),
 )
 
 vertica_dialect.replace(
@@ -229,7 +244,7 @@ vertica_dialect.replace(
                 Ref("ColumnReferenceSegment"),
             ),
         ),
-        # used by listagg
+        # used by listagg (vertica)
         Sequence(
             OneOf(
                 Ref("QuotedLiteralSegment"),
@@ -243,7 +258,7 @@ vertica_dialect.replace(
                     Sequence(
                         Ref("ParameterNameSegment"),
                         Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
+                        OneOf(Ref("QuotedLiteralSegment"), Ref("BooleanLiteralGrammar")),
                     ),
                 ),
             ),
@@ -251,7 +266,42 @@ vertica_dialect.replace(
         Ref("IgnoreRespectNullsGrammar"),
         Ref("EmptyStructLiteralSegment"),
     ),
+    ObjectReferenceTerminatorGrammar=OneOf(
+        "ON",
+        "AS",
+        "USING",
+        Ref("CommaSegment"),
+        Ref("CastOperatorSegment"),
+        Ref("NullCastOperatorSegment"),
+        Ref("StartSquareBracketSegment"),
+        Ref("StartBracketSegment"),
+        Ref("BinaryOperatorGrammar"),
+        Ref("ColonSegment"),
+        Ref("DelimiterGrammar"),
+        Ref("JoinLikeClauseGrammar"),
+        BracketedSegment,
+    ),
 )
+
+
+class ShorthandCastSegment(ansi.ShorthandCastSegment):
+    """A casting operation using '::'."""
+
+    match_grammar: Matchable = Sequence(
+        OneOf(
+            Ref("Expression_D_Grammar"),
+            Ref("CaseExpressionSegment"),
+        ),
+        AnyNumberOf(
+            Sequence(
+                OneOf(Ref("CastOperatorSegment"), Ref("NullCastOperatorSegment")),
+                Ref("DatatypeSegment"),
+                Ref("TimeZoneGrammar", optional=True),
+                allow_gaps=False,
+            ),
+            min_times=1,
+        ),
+    )
 
 
 class StatementSegment(ansi.StatementSegment):
@@ -272,38 +322,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterSessionStatements"),
             Ref("CopyStatementSegment"),
         ],
-    )
-
-
-class ExtendedCastOperatorSegment(BaseSegment):
-    """Allow ::! operator as in
-    https://docs.vertica.com/latest/en/sql-reference/language-elements/operators/data-type-coercion-operators-cast/cast-failures/
-    """
-
-    type = "extended_cast_operator"
-    match_grammar: Matchable = OneOf(
-        Sequence(Ref("CastOperatorSegment"), Ref("RawNotSegment"), allow_gaps=False),
-        Ref("CastOperatorSegment"),
-    )
-
-
-class ShorthandCastSegment(BaseSegment):
-    """A casting operation using '::' or '::!'."""
-
-    type = "cast_expression"
-    match_grammar: Matchable = Sequence(
-        OneOf(
-            Ref("Expression_D_Grammar"),
-            Ref("CaseExpressionSegment"),
-        ),
-        AnyNumberOf(
-            Sequence(
-                Ref("ExtendedCastOperatorSegment"),
-                Ref("DatatypeSegment"),
-                Ref("TimeZoneGrammar", optional=True),
-            ),
-            min_times=1,
-        ),
     )
 
 
@@ -1402,7 +1420,6 @@ class AlterSessionStatements(BaseSegment):
 
     type = "alter_session_statement"
     match_grammar: Matchable = Sequence(
-        # TODO add rollback, commit logic and optional keywords
         "ALTER",
         "SESSION",
         OneOf(
@@ -1421,7 +1438,7 @@ class AlterSessionStatements(BaseSegment):
                 "CLEAR",
                 Ref.keyword("PARAMETER", optional=True),
                 OneOf(
-                    OptionallyBracketed(
+                    Bracketed(
                         Sequence(
                             Ref("ParameterNameSegment"),
                             Ref("EqualsSegment"),
@@ -1435,7 +1452,7 @@ class AlterSessionStatements(BaseSegment):
                 "SET",
                 "UDPARAMETER",
                 Sequence("FOR", Ref("ParameterNameSegment"), optional=True),
-                OptionallyBracketed(
+                Bracketed(
                     Sequence(
                         Ref("ParameterNameSegment"),
                         Ref("EqualsSegment"),
@@ -1449,13 +1466,7 @@ class AlterSessionStatements(BaseSegment):
                 Sequence("FOR", Ref("ParameterNameSegment"), optional=True),
                 OneOf(
                     "ALL",
-                    OptionallyBracketed(
-                        Sequence(
-                            Ref("ParameterNameSegment"),
-                            Ref("EqualsSegment"),
-                            Ref("QuotedLiteralSegment"),
-                        ),
-                    ),
+                    Bracketed(Ref("ParameterNameSegment")),
                 ),
             ),
         ),
