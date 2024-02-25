@@ -4149,6 +4149,112 @@ class DropSequenceStatementSegment(ansi.DropSequenceStatementSegment):
     )
 
 
+class StatisticsReferenceSegment(ansi.ObjectReferenceSegment):
+    """Statics Reference."""
+
+    type = "statistics_reference"
+
+
+class CreateStatisticsStatementSegment(BaseSegment):
+    """Create Statistics Segment.
+
+    As specified in https://www.postgresql.org/docs/16/sql-createstatistics.html
+    """
+
+    type = "create_statistics_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "STATISTICS",
+        Sequence(
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("StatisticsReferenceSegment"),
+            optional=True,
+        ),
+        Bracketed(
+            Delimited(
+                "DEPENDENCIES",
+                "MCV",
+                "NDISTINCT",
+            ),
+            optional=True,
+        ),
+        "ON",
+        Delimited(
+            Ref("ColumnReferenceSegment"),
+            Ref("ExpressionSegment"),
+        ),
+        "FROM",
+        Ref("TableReferenceSegment"),
+    )
+
+
+class AlterStatisticsStatementSegment(BaseSegment):
+    """Alter Statistics Segment.
+
+    As specified in https://www.postgresql.org/docs/16/sql-alterstatistics.html
+    """
+
+    type = "alter_statistics_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "STATISTICS",
+        Ref("StatisticsReferenceSegment"),
+        OneOf(
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("StatisticsReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                OneOf(
+                    Sequence(
+                        "SCHEMA",
+                        Ref("SchemaReferenceSegment"),
+                    ),
+                    Sequence(
+                        "STATISTICS",
+                        Ref("NumericLiteralSegment"),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class DropStatisticsStatementSegment(BaseSegment):
+    """Alter Statistics Segment.
+
+    As specified in https://www.postgresql.org/docs/16/sql-dropstatistics.html
+    """
+
+    type = "drop_statistics_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "STATISTICS",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("StatisticsReferenceSegment")),
+        OneOf(
+            "CASCADE",
+            "RESTRICT",
+            optional=True,
+        ),
+    )
+
+
 class AnalyzeStatementSegment(BaseSegment):
     """Analyze Statement Segment.
 
@@ -4235,6 +4341,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ImportForeignSchemaStatementSegment"),
             Ref("DropAggregateStatementSegment"),
             Ref("CreateAggregateStatementSegment"),
+            Ref("CreateStatisticsStatementSegment"),
+            Ref("AlterStatisticsStatementSegment"),
+            Ref("DropStatisticsStatementSegment"),
         ],
     )
 
