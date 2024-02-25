@@ -603,6 +603,19 @@ postgres_dialect.replace(
         ),
     ),
     BracketedSetExpressionGrammar=Bracketed(Ref("SetExpressionSegment")),
+    ReferentialActionGrammar=OneOf(
+        "CASCADE",
+        Sequence(
+            "SET",
+            OneOf("DEFAULT", "NULL"),
+            Bracketed(
+                Delimited(Ref("ColumnReferenceSegment")),
+                optional=True,
+            ),
+        ),
+        "RESTRICT",
+        Sequence("NO", "ACTION"),
+    ),
 )
 
 
@@ -3440,23 +3453,6 @@ class IndexParametersSegment(BaseSegment):
             Ref("TablespaceReferenceSegment"),
             optional=True,
         ),
-    )
-
-
-class ReferentialActionSegment(BaseSegment):
-    """Foreign Key constraints.
-
-    https://www.postgresql.org/docs/13/infoschema-referential-constraints.html
-    """
-
-    type = "referential_action"
-
-    match_grammar = OneOf(
-        "CASCADE",
-        Sequence("SET", "NULL"),
-        Sequence("SET", "DEFAULT"),
-        "RESTRICT",
-        Sequence("NO", "ACTION"),
     )
 
 
