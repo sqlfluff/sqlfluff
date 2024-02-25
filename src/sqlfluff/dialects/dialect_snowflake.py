@@ -1846,6 +1846,7 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                                 ),
                                 optional=True,
                             ),
+                            Ref.keyword("FORCE", optional=True),
                         ),
                         Sequence(
                             "COLUMN",
@@ -4362,6 +4363,7 @@ class AlterViewStatementSegment(BaseSegment):
                                         ),
                                         optional=True,
                                     ),
+                                    Ref.keyword("FORCE", optional=True),
                                 ),
                                 Sequence("UNSET", "MASKING", "POLICY"),
                                 Sequence("SET", Ref("TagEqualsSegment")),
