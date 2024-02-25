@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1d69fef2bd5e7ce6121b0b367ea7517bfc62c4baac0e8db01a13f77b2b16e360
+_hash: 59a35b46fcaf8ea8fc2fb65f68781819778331f671e63b3a8e12bb24096596dd
 file:
   batch:
   - statement:
@@ -897,4 +897,35 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: some_table
+          statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            quoted_literal: "'Tabellen'"
+            alias_expression:
+              keyword: as
+              naked_identifier: Objekt
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: Count
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+            alias_expression:
+              keyword: as
+              naked_identifier: Anzahl
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: sql_modules
           statement_terminator: ;
