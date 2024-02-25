@@ -1,0 +1,164 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e7310eb2ae713759603a76befa050792c9ab14f15f5cf3b90c8e0872a1ab4190
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: SEMI_STRUCTURED_OBJECT
+              semi_structured_expression:
+                colon: ':'
+                semi_structured_element: ID_FIELD
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: VARCHAR
+          alias_expression:
+            keyword: AS
+            naked_identifier: ID_FIELD
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: SEMI_STRUCTURED_OBJECT
+              semi_structured_expression:
+                colon: ':'
+                semi_structured_element: METADATA$FILENAME
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: VARCHAR
+          alias_expression:
+            keyword: AS
+            naked_identifier: METADATA$FILENAME
+      - comma: ','
+      - select_clause_element:
+          expression:
+            function:
+              function_name:
+                function_name_identifier: PARSE_JSON
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    column_index_identifier_segment: $1
+                end_bracket: )
+            semi_structured_expression:
+              colon: ':'
+              semi_structured_element: FILE_CONTENT_KEY
+          alias_expression:
+            naked_identifier: FILE_CONTENT_KEY
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATEADD
+            bracketed:
+            - start_bracket: (
+            - date_part: MS
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: PARSE_JSON
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        column_index_identifier_segment: $1
+                    end_bracket: )
+                semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: EVENT_TIME
+            - expression:
+                quoted_literal: "'1970-01-01'"
+            - end_bracket: )
+          alias_expression:
+            naked_identifier: EVENT_TIME
+      - comma: ','
+      - select_clause_element:
+          expression:
+            function:
+              function_name:
+                function_name_identifier: parse_json
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    column_index_identifier_segment: $1
+                end_bracket: )
+            semi_structured_expression:
+              colon: ':'
+              semi_structured_element: METADATA$FILENAME
+          alias_expression:
+            naked_identifier: METADATA$FILENAME
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATEADD
+            bracketed:
+            - start_bracket: (
+            - date_part: MS
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: PARSE_JSON
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        column_index_identifier_segment: $1
+                    end_bracket: )
+                semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: METADATA$INSERTION_TIME
+            - comma: ','
+            - expression:
+                quoted_literal: "'1970-01-01'"
+            - end_bracket: )
+          alias_expression:
+            naked_identifier: METADATA$INSERTION_TIME
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATEADD
+            bracketed:
+            - start_bracket: (
+            - date_part: MS
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: PARSE_JSON
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        column_index_identifier_segment: $1
+                    end_bracket: )
+                semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: METADATA$LAST_EVENT_INSERTION_TIME
+            - comma: ','
+            - expression:
+                quoted_literal: "'1970-01-01'"
+            - end_bracket: )
+          alias_expression:
+            naked_identifier: METADATA$LAST_EVENT_INSERTION_TIME
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                stage_path: '@staging_area_root/ingest/data/file_name.ndjson'
