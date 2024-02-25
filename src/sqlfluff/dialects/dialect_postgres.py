@@ -928,7 +928,7 @@ class DropCastStatementSegment(ansi.DropCastStatementSegment):
     match_grammar: Matchable = Sequence(
         "DROP",
         "CAST",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Bracketed(
             Ref("DatatypeSegment"),
             "AS",
@@ -948,7 +948,7 @@ class DropAggregateStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "DROP",
         "AGGREGATE",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Delimited(
             Sequence(
                 Ref("ObjectReferenceSegment"),
@@ -973,7 +973,7 @@ class CreateAggregateStatementSegment(BaseSegment):
     type = "create_aggregate_statement"
     match_grammar: Matchable = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "AGGREGATE",
         Ref("ObjectReferenceSegment"),
         Bracketed(
@@ -1034,7 +1034,7 @@ class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         Ref("TemporaryGrammar", optional=True),
         "FUNCTION",
         Ref("IfNotExistsGrammar", optional=True),
@@ -1288,7 +1288,7 @@ class CreateProcedureStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "PROCEDURE",
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
@@ -4247,7 +4247,7 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         Ref.keyword("CONSTRAINT", optional=True),
         "TRIGGER",
         Ref("TriggerReferenceSegment"),

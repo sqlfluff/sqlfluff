@@ -2024,7 +2024,7 @@ class AlterWarehouseStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "WAREHOUSE",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         OneOf(
             Sequence(
                 Ref("ObjectReferenceSegment", optional=True),
@@ -2086,7 +2086,7 @@ class AlterShareStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "SHARE",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Ref("NakedIdentifierSegment"),
         OneOf(
             Sequence(
@@ -2604,7 +2604,7 @@ class CreateCloneStatementSegment(BaseSegment):
     type = "create_clone_statement"
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         OneOf(
             "DATABASE",
             "SCHEMA",
@@ -2615,7 +2615,7 @@ class CreateCloneStatementSegment(BaseSegment):
             "STREAM",
             "TASK",
         ),
-        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         "CLONE",
         Ref("ObjectReferenceSegment"),
@@ -2652,7 +2652,7 @@ class CreateProcedureStatementSegment(BaseSegment):
     type = "create_procedure_statement"
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         Sequence("SECURE", optional=True),
         "PROCEDURE",
         Ref("FunctionNameSegment"),
@@ -2933,7 +2933,7 @@ class CreateFunctionStatementSegment(BaseSegment):
     type = "create_function_statement"
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         Sequence("SECURE", optional=True),
         "FUNCTION",
         Ref("IfNotExistsGrammar", optional=True),
@@ -3020,7 +3020,7 @@ class AlterFunctionStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "FUNCTION",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
         OneOf(
@@ -3105,7 +3105,7 @@ class CreateExternalFunctionStatementSegment(BaseSegment):
     type = "create_external_function_statement"
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         Sequence("SECURE", optional=True),
         "EXTERNAL",
         "FUNCTION",
@@ -3493,7 +3493,7 @@ class CreateSequenceStatementSegment(BaseSegment):
     type = "create_sequence_statement"
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "SEQUENCE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("SequenceReferenceSegment"),
@@ -3560,7 +3560,7 @@ class AlterSchemaStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "SCHEMA",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Ref("SchemaReferenceSegment"),
         OneOf(
             Sequence(
@@ -3756,9 +3756,9 @@ class CreateTaskSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "TASK",
-        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         Indent,
         AnyNumberOf(
@@ -4117,9 +4117,9 @@ class CreateUserSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "USER",
-        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         Indent,
         AnyNumberOf(
@@ -5013,10 +5013,10 @@ class CreateExternalTableSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "EXTERNAL",
         "TABLE",
-        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         # Columns:
         Bracketed(
@@ -5481,10 +5481,10 @@ class CreateStageSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         Ref.keyword("TEMPORARY", optional=True),
         "STAGE",
-        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         Indent,
         OneOf(
@@ -5625,7 +5625,7 @@ class AlterStageSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "STAGE",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         OneOf(
             Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
@@ -5994,7 +5994,7 @@ class AlterUserStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "USER",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Ref("RoleReferenceSegment"),
         OneOf(
             Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
@@ -6053,18 +6053,9 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence(
-            "OR",
-            "REPLACE",
-            optional=True,
-        ),
+        Ref("OrReplaceGrammar", optional=True),
         "ROLE",
-        Sequence(
-            "IF",
-            "NOT",
-            "EXISTS",
-            optional=True,
-        ),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("RoleReferenceSegment"),
         Sequence(
             "COMMENT",
@@ -6308,7 +6299,7 @@ class AlterTaskStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "TASK",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         OneOf(
             "RESUME",
@@ -6740,7 +6731,7 @@ class TruncateStatementSegment(ansi.TruncateStatementSegment):
     match_grammar = Sequence(
         "TRUNCATE",
         Ref.keyword("TABLE", optional=True),
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
     )
 
@@ -6806,11 +6797,7 @@ class CommentStatementSegment(BaseSegment):
     type = "comment_statement"
     match_grammar = Sequence(
         "COMMENT",
-        Sequence(
-            "IF",
-            "EXISTS",
-            optional=True,
-        ),
+        Ref("IfExistsGrammar", optional=True),
         "ON",
         OneOf(
             "COLUMN",
