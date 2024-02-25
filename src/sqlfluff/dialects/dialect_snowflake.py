@@ -1721,6 +1721,9 @@ class AlterTableTableColumnActionSegment(BaseSegment):
         Sequence(
             "ADD",
             Ref.keyword("COLUMN", optional=True),
+            # @TODO: Cannot specify IF NOT EXISTS if also specifying
+            # DEFAULT, AUTOINCREMENT, IDENTITY UNIQUE, PRIMARY KEY, FOREIGN KEY
+            Ref("IfNotExistsGrammar", optional=True),
             # Handle Multiple Columns
             Delimited(
                 Sequence(
