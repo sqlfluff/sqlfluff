@@ -1851,7 +1851,10 @@ class FrameClauseSegment(ansi.FrameClauseSegment):
         Sequence(
             OneOf(
                 Ref("NumericLiteralSegment"),
-                Sequence("INTERVAL", Ref("IntervalLiteralGrammar")),
+                OneOf(
+                    Sequence(Ref("QuotedLiteralSegment"), Ref("CastOperatorSegment"), "INTERVAL"),
+                    Sequence("INTERVAL", Ref("IntervalLiteralGrammar")),
+                ),
                 "UNBOUNDED",
             ),
             OneOf("PRECEDING", "FOLLOWING"),
