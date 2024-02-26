@@ -380,6 +380,21 @@ vertica_dialect.replace(
         Ref("LikeOperatorSegment"),
         Ref("IsDistinctFromGrammar"),
     ),
+    JoinTypeKeywordsGrammar=OneOf(
+        "ANTI",
+        "SEMIALL",
+        "SEMI",
+        Sequence("NULLAWARE", "ANTI"),
+        "INNER",
+        Sequence(
+            OneOf(
+                "FULL",
+                "LEFT",
+                "RIGHT",
+            ),
+            Ref.keyword("OUTER", optional=True),
+        ),
+    ),
 )
 
 
@@ -1853,7 +1868,13 @@ class FrameClauseSegment(ansi.FrameClauseSegment):
                 Ref("NumericLiteralSegment"),
                 OneOf(
                     Sequence(Ref("QuotedLiteralSegment"), Ref("CastOperatorSegment"), "INTERVAL"),
-                    Sequence("INTERVAL", Ref("IntervalLiteralGrammar")),
+                    Sequence(
+                        # TODO maybe this logic should be in an additional segment?
+                        # because there are so many options for the interval representation.
+                        Ref.keyword("INTERVAL", optional=True),
+                        OneOf(Ref("IntervalLiteralGrammar"), Ref("QuotedLiteralSegment")),
+                        Ref("DatetimeUnitSegment", optional=True)
+                    ),
                 ),
                 "UNBOUNDED",
             ),
