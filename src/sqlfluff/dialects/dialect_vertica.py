@@ -204,7 +204,15 @@ vertica_dialect.add(
     NullCastOperatorSegment=StringParser("::!", SymbolSegment, type="null_casting_operator"),
     NullEqualsOperatorSegment=StringParser("<=>", SymbolSegment, type="null_equals_operator"),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
-    InterpolateGrammar=Sequence("INTERPOLATE", OneOf("PREVIOUS", "NEXT"), "VALUE")
+    InterpolateGrammar=Sequence("INTERPOLATE", OneOf("PREVIOUS", "NEXT"), "VALUE"),
+    IntervalLiteralGrammar=Sequence(
+        Ref("IntervalUnitsGrammar"),
+        Sequence(
+            "TO",
+            Sequence(Ref("IntervalUnitsGrammar"), Bracketed(Ref("IntegerSegment"), optional=True)),
+            optional=True
+        ),
+    ),
 )
 
 vertica_dialect.replace(
@@ -313,14 +321,7 @@ vertica_dialect.replace(
         # as interval hour TO SECOND(6)
         OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"),
         TypedParser("single_quote", LiteralSegment, type="date_constructor_literal", optional=True),
-        Sequence(
-            Ref("IntervalUnitsGrammar"),
-            Sequence(
-                "TO",
-                Sequence(Ref("IntervalUnitsGrammar"), Bracketed(Ref("IntegerSegment"), optional=True)),
-                optional=True
-            ),
-        ),
+        Ref("IntervalLiteralGrammar", optional=True)
     ),
     Expression_A_Grammar=Sequence(
         # It's a copy of ansi Expression_A_Grammar
@@ -1834,4 +1835,30 @@ class PartitionClauseSegment(ansi.PartitionClauseSegment):
             "ROW",
             Sequence("LEFT", "JOIN"),
         ),
+    )
+
+
+class FrameClauseSegment(ansi.FrameClauseSegment):
+    """A frame clause for window functions.
+
+    https://docs.vertica.com/latest/en/sql-reference/language-elements/window-clauses/window-partition-clause/
+    """
+
+    type = "frame_clause"
+
+    _frame_extent = OneOf(
+        Sequence("CURRENT", "ROW"),
+        Sequence(
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Sequence("INTERVAL", Ref("IntervalLiteralGrammar")),
+                "UNBOUNDED",
+            ),
+            OneOf("PRECEDING", "FOLLOWING"),
+        ),
+    )
+
+    match_grammar: Matchable = Sequence(
+        Ref("FrameClauseUnitGrammar"),
+        OneOf(_frame_extent, Sequence("BETWEEN", _frame_extent, "AND", _frame_extent)),
     )
