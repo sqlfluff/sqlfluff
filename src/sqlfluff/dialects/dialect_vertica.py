@@ -55,6 +55,16 @@ vertica_dialect.insert_lexer_matchers(
     before="less_than",
 )
 
+vertica_dialect.insert_lexer_matchers(
+    # Allow additional math operators as in
+    # https://docs.vertica.com/latest/en/sql-reference/language-elements/operators/mathematical-operators/
+    # TODO: add other math operators
+    [
+        StringLexer("integer_division", "//", CodeSegment),
+    ],
+    before="divide",
+)
+
 # Set Keywords
 vertica_dialect.update_keywords_set_from_multiline_string(
     "unreserved_keywords", vertica_unreserved_keywords
@@ -201,6 +211,7 @@ vertica_dialect.add(
             optional=True
         ),
     ),
+    IntegerDivideSegment=StringParser("//", SymbolSegment, type="binary_operator"),
 )
 
 vertica_dialect.replace(
@@ -382,6 +393,19 @@ vertica_dialect.replace(
             ),
             Ref.keyword("OUTER", optional=True),
         ),
+    ),
+    ArithmeticBinaryOperatorGrammar=OneOf(
+        Ref("PlusSegment"),
+        Ref("MinusSegment"),
+        Ref("DivideSegment"),
+        Ref("IntegerDivideSegment"),
+        Ref("MultiplySegment"),
+        Ref("ModuloSegment"),
+        Ref("BitwiseAndSegment"),
+        Ref("BitwiseOrSegment"),
+        Ref("BitwiseXorSegment"),
+        Ref("BitwiseLShiftSegment"),
+        Ref("BitwiseRShiftSegment"),
     ),
 )
 
@@ -642,6 +666,7 @@ class PartitionByClauseSegment(BaseSegment):
                 Sequence(
                     AnyNumberOf(
                         Ref("ColumnReferenceSegment"),
+                        Ref("ExpressionSegment"),
                         Ref("FunctionSegment"),
                         Ref("ShorthandCastSegment"),
                     ),
