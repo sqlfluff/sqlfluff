@@ -25,7 +25,8 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     BracketedSegment,
     ParseMode,
-    TypedParser
+    TypedParser,
+    CompositeComparisonOperatorSegment
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_vertica_keywords import (
@@ -48,6 +49,15 @@ vertica_dialect.insert_lexer_matchers(
         StringLexer("null_casting_operator", "::!", CodeSegment),
     ],
     before="casting_operator",
+)
+
+vertica_dialect.insert_lexer_matchers(
+    # Allow <==> operator as in
+    # https://docs.vertica.com/latest/en/sql-reference/language-elements/operators/comparison-operators/
+    [
+        StringLexer("null_equals_operator", "<=>", CodeSegment),
+    ],
+    before="less_than",
 )
 
 # Set Keywords
@@ -192,6 +202,7 @@ vertica_dialect.add(
         type="integer_literal",
     ),
     NullCastOperatorSegment=StringParser("::!", SymbolSegment, type="null_casting_operator"),
+    NullEqualsOperatorSegment=StringParser("<=>", SymbolSegment, type="null_equals_operator"),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
     InterpolateGrammar=Sequence("INTERPOLATE", OneOf("PREVIOUS", "NEXT"), "VALUE")
 )
@@ -263,7 +274,7 @@ vertica_dialect.replace(
                     Sequence(
                         Ref("ParameterNameSegment"),
                         Ref("EqualsSegment"),
-                        OneOf(Ref("QuotedLiteralSegment"), Ref("BooleanLiteralGrammar"), Ref("IntegerSegment")),
+                        OneOf(Ref("QuotedLiteralSegment"), Ref("BooleanLiteralGrammar"), Ref("NumericLiteralSegment")),
                     ),
                 ),
             ),
@@ -355,6 +366,17 @@ vertica_dialect.replace(
                 ),
             )
         ),
+    ),
+    ComparisonOperatorGrammar=OneOf(
+        Ref("EqualsSegment"),
+        Ref("NullEqualsSegment"),
+        Ref("GreaterThanSegment"),
+        Ref("LessThanSegment"),
+        Ref("GreaterThanOrEqualToSegment"),
+        Ref("LessThanOrEqualToSegment"),
+        Ref("NotEqualToSegment"),
+        Ref("LikeOperatorSegment"),
+        Ref("IsDistinctFromGrammar"),
     ),
 )
 
@@ -1783,3 +1805,9 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("WithDataClauseSegment"),
         ],
     )
+
+
+class NullEqualsSegment(CompositeComparisonOperatorSegment):
+    """Null Equals operator."""
+
+    match_grammar: Matchable = Ref("NullEqualsOperatorSegment")
