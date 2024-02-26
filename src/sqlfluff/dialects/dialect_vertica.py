@@ -34,11 +34,6 @@ from sqlfluff.dialects.dialect_vertica_keywords import (
     vertica_unreserved_keywords,
 )
 
-from sqlfluff.dialects.dialect_ansi_keywords import (
-    ansi_reserved_keywords,
-    ansi_unreserved_keywords,
-)
-
 ansi_dialect = load_raw_dialect("ansi")
 vertica_dialect = ansi_dialect.copy_as("vertica")
 
@@ -61,21 +56,14 @@ vertica_dialect.insert_lexer_matchers(
 )
 
 # Set Keywords
-vertica_dialect.sets("unreserved_keywords").clear()
 vertica_dialect.update_keywords_set_from_multiline_string(
     "unreserved_keywords", vertica_unreserved_keywords
 )
-vertica_dialect.update_keywords_set_from_multiline_string(
-    "unreserved_keywords", ansi_unreserved_keywords
-)
 
-vertica_dialect.sets("reserved_keywords").clear()
 vertica_dialect.update_keywords_set_from_multiline_string(
     "reserved_keywords", vertica_reserved_keywords
 )
-vertica_dialect.update_keywords_set_from_multiline_string(
-    "reserved_keywords", ansi_reserved_keywords
-)
+vertica_dialect.sets("reserved_keywords").difference_update(["ROWS"])
 
 vertica_dialect.sets("bare_functions").clear()
 vertica_dialect.sets("bare_functions").update(
@@ -960,6 +948,7 @@ class CreateExternalTableSegment(BaseSegment):
             Sequence("NATIVE", "VARCHAR"),
             "ORC",
             "PARQUET",
+            optional=True
         ),
         Ref("CopyOptionsSegment", optional=True),
     )
