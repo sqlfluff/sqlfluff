@@ -259,7 +259,7 @@ vertica_dialect.replace(
                 Ref("ColumnReferenceSegment"),
             ),
         ),
-        # used by listagg (vertica)
+        # used by listagg, explode, unnest
         Sequence(
             Ref.keyword("DISTINCT", optional=True),
             OneOf(
@@ -278,6 +278,7 @@ vertica_dialect.replace(
                     ),
                 ),
             ),
+            Ref("OverClauseSegment", optional=True),
         ),
         Ref("IgnoreRespectNullsGrammar"),
         Ref("EmptyStructLiteralSegment"),
@@ -1811,3 +1812,26 @@ class NullEqualsSegment(CompositeComparisonOperatorSegment):
     """Null Equals operator."""
 
     match_grammar: Matchable = Ref("NullEqualsOperatorSegment")
+
+
+class PartitionClauseSegment(ansi.PartitionClauseSegment):
+    """A `PARTITION BY` for window functions.
+    https://docs.vertica.com/latest/en/sql-reference/language-elements/window-clauses/window-partition-clause/
+    """
+
+    match_grammar: Matchable = Sequence(
+        "PARTITION",
+        OneOf(
+            Sequence(
+                "BY",
+                Indent,
+                # Brackets are optional in a partition by statement
+                OptionallyBracketed(Delimited(Ref("ExpressionSegment"))),
+                Dedent,
+            ),
+            "BEST",
+            "NODES",
+            "ROW",
+            Sequence("LEFT", "JOIN"),
+        ),
+    )
