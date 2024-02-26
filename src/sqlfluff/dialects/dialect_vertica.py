@@ -1526,6 +1526,11 @@ class DatatypeSegment(ansi.DatatypeSegment):
             "PRECISION",
         ),
         Sequence(
+            Ref.keyword("LONG", optional=True),
+            "VARCHAR",
+            Ref("BracketedArguments", optional=True)
+        ),
+        Sequence(
             "ARRAY",
             Ref("StartSquareBracketSegment"),
             Ref("DatatypeSegment"),
@@ -1552,11 +1557,6 @@ class DatatypeSegment(ansi.DatatypeSegment):
             ),
             # There may be no brackets for some data types
             Ref("BracketedArguments", optional=True),
-            OneOf(
-                "UNSIGNED",  # UNSIGNED MySQL
-                Ref("CharCharacterSetGrammar"),
-                optional=True,
-            ),
         ),
     )
 
