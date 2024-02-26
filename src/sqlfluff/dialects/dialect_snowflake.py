@@ -4257,6 +4257,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
             "RECURSIVE",
         ),
         Ref("TemporaryGrammar", optional=True),
+        Sequence("MATERIALIZED", optional=True),
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
@@ -4265,6 +4266,25 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                 Delimited(
                     Sequence(
                         Ref("ColumnReferenceSegment"),
+                        Sequence(
+                            Ref.keyword("WITH", optional=True),
+                            "MASKING",
+                            "POLICY",
+                            Ref("FunctionNameSegment"),
+                            Sequence(
+                                "USING",
+                                Bracketed(
+                                    Delimited(
+                                        OneOf(
+                                            Ref("ColumnReferenceSegment"),
+                                            Ref("ExpressionSegment"),
+                                        )
+                                    ),
+                                ),
+                                optional=True,
+                            ),
+                            optional=True,
+                        ),
                         Ref("CommentClauseSegment", optional=True),
                     ),
                 ),
