@@ -582,7 +582,7 @@ class SchemaPrivilegesSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         # MATERIALIZE available only in ALTER TABLE statement, but we keep it here to not duplicate the code
         OneOf("INCLUDE", "EXCLUDE", "MATERIALIZE"),
-        Sequence("SCHEMA", optional=True),
+        Ref.keyword("SCHEMA", optional=True),
         "PRIVILEGES",
     )
 
@@ -722,7 +722,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                 ),
             ),
         ),
-        AnyNumberOf(
+        AnySetOf(
             Ref("OrderByClauseSegment"),
             Ref("SegmentedByClauseSegment"),
             Ref("KsafeSegment"),
