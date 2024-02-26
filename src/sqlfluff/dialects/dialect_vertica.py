@@ -250,6 +250,7 @@ vertica_dialect.replace(
         ),
         # used by listagg (vertica)
         Sequence(
+            Ref.keyword("DISTINCT", optional=True),
             OneOf(
                 Ref("QuotedLiteralSegment"),
                 Ref("ColumnReferenceSegment"),
@@ -262,7 +263,7 @@ vertica_dialect.replace(
                     Sequence(
                         Ref("ParameterNameSegment"),
                         Ref("EqualsSegment"),
-                        OneOf(Ref("QuotedLiteralSegment"), Ref("BooleanLiteralGrammar")),
+                        OneOf(Ref("QuotedLiteralSegment"), Ref("BooleanLiteralGrammar"), Ref("IntegerSegment")),
                     ),
                 ),
             ),
