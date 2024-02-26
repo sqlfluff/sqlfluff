@@ -1721,3 +1721,64 @@ class WithinGroupClauseSegment(BaseSegment):
         "GROUP",
         Bracketed(Ref("OrderByClauseSegment"))
     )
+
+
+class TimeseriesClauseSegment(BaseSegment):
+    """
+    A vertica `TIMESERIES` clause.
+    https://docs.vertica.com/latest/en/sql-reference/statements/select/timeseries-clause/
+    """
+
+    type = "timeseries_clause_statement"
+
+    match_grammar: Matchable = Sequence(
+        "TIMESERIES",
+        Ref("AliasExpressionSegment"),
+        Ref.keyword("AS"),
+        Ref("QuotedLiteralSegment"),
+        Indent,
+        Ref("OverClauseSegment"),
+        # TODO: add optional ORDER BY
+        Dedent,
+    )
+
+
+class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
+    match_grammar: Matchable = Sequence(
+        Ref("SelectClauseSegment"),
+        Ref("FromClauseSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("GroupByClauseSegment", optional=True),
+        Ref("HavingClauseSegment", optional=True),
+        Ref("OverlapsClauseSegment", optional=True),
+        Ref("NamedWindowSegment", optional=True),
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithDataClauseSegment"),
+            Ref("OrderByClauseSegment"),
+            Ref("LimitClauseSegment"),
+            Ref("TimeseriesClauseSegment"),
+        ],
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
+    )
+
+
+class SelectStatementSegment(ansi.SelectStatementSegment):
+
+    match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("FetchClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("TimeseriesClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
+        ],
+        # Overwrite the terminators, because we want to remove some.
+        replace_terminators=True,
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithDataClauseSegment"),
+        ],
+    )
