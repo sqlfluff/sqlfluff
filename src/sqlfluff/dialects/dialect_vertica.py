@@ -1333,12 +1333,12 @@ class AlterViewStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "ALTER",
         "VIEW",
-        Ref("TableReferenceSegment"),
+        Delimited(Ref("TableReferenceSegment")),
         AnyNumberOf(
             Sequence("OWNER", "TO", Ref("ParameterNameSegment")),
             Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
             Ref("SchemaPrivilegesSegment"),
-            Sequence("RENAME", "TO", Ref("ParameterNameSegment"))
+            Sequence("RENAME", "TO", Delimited(Ref("ParameterNameSegment")))
         )
     )
 
