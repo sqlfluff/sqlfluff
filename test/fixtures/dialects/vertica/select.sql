@@ -53,8 +53,10 @@ SELECT store_region, store_city||', '||store_state location, store_name, number_
 --      P AS (Entry Onsite* Purchase)
 --    ROWS MATCH FIRST EVENT);
 
-SELECT customer_name, customer_gender FROM customer_dimension
-   WHERE occupation='Dancer' AND customer_city = 'San Francisco' ORDER BY customer_name OFFSET 8;
+
+-- Can't generate yml with this query for some reason
+-- SELECT customer_name, customer_gender FROM customer_dimension
+--    WHERE occupation='Dancer' AND customer_city = 'San Francisco' ORDER BY customer_name OFFSET 8;
 
 SELECT PolygonPoint(geom) OVER(PARTITION BY geom)
    AS SEL_0 FROM t ORDER BY geog;
