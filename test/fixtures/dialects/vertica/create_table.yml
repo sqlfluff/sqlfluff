@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a2bf613421f84487ca56d31331b522e5d55533cec638088b253416ea51c01f3f
+_hash: 855e770a3fa82995ce0c7499fd6eb45e9f1720cd797690e4297217d4166120d2
 file:
 - statement:
     create_table_statement:
@@ -58,6 +58,9 @@ file:
           naked_identifier: orderkey
       - data_type:
           keyword: INT
+      - column_encoding:
+          keyword: ENCODING
+          encoding_type: AUTO
       - comma: ','
       - column_reference:
           naked_identifier: custkey
