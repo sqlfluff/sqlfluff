@@ -1951,3 +1951,21 @@ class AlterSchemaStatementSegment(BaseSegment):
             Ref("DiskQuotaSegment")
         ),
     )
+
+
+class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
+    """A `CREATE SCHEMA` statement.
+    https://docs.vertica.com/latest/en/sql-reference/statements/create-statements/create-schema/
+    """
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SchemaReferenceSegment"),
+        AnySetOf(
+            Sequence("AUTHORIZATION", Ref("RoleReferenceSegment")),
+            Sequence("DEFAULT", Ref("SchemaPrivilegesSegment")),
+            Ref("DiskQuotaSegment")
+        ),
+    )
