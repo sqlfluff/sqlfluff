@@ -254,12 +254,14 @@ vertica_dialect.replace(
         Sequence(Ref.keyword("SEPARATOR"), Ref("LiteralGrammar")),
         # like a function call: POSITION ( 'QL' IN 'SQL')
         Sequence(
+            Ref("DatatypeSegment", optional=True),
             OneOf(
                 Ref("QuotedLiteralSegment"),
                 Ref("SingleIdentifierGrammar"),
                 Ref("ColumnReferenceSegment"),
             ),
             "IN",
+            Ref("DatatypeSegment", optional=True),
             OneOf(
                 Ref("QuotedLiteralSegment"),
                 Ref("SingleIdentifierGrammar"),
@@ -417,6 +419,10 @@ vertica_dialect.replace(
         Ref("BitwiseLShiftSegment"),
         Ref("BitwiseRShiftSegment"),
     ),
+    # Vertica supports the non-standard ISNULL and NONNULL comparison operators. See
+    # https://docs.vertica.com/latest/en/sql-reference/language-elements/operators/null-operators/
+    IsNullGrammar=Ref.keyword("ISNULL"),
+    NotNullGrammar=Ref.keyword("NOTNULL"),
 )
 
 
@@ -1378,7 +1384,7 @@ class SetStatementSegment(BaseSegment):
             Sequence(
                 "SEARCH_PATH",
                 OneOf("TO", Ref("EqualsSegment")),
-                OneOf(OptionallyBracketed(Ref("QuotedLiteralSegment")), "DEFAULT")
+                OneOf(Delimited(Ref("ParameterNameSegment")), "DEFAULT")
             ),
             Sequence(
                 "ROLE",
@@ -1389,11 +1395,11 @@ class SetStatementSegment(BaseSegment):
                         "ALL",
                         Sequence(
                             "EXCEPT",
-                            Bracketed(Ref("ParameterNameSegment")),
+                            Delimited(Ref("ParameterNameSegment")),
                             optional=True
                         ),
                     ),
-                    Bracketed(Ref("ParameterNameSegment")),
+                    Delimited(Ref("ParameterNameSegment")),
                 ),
             ),
             Sequence(
@@ -1416,15 +1422,17 @@ class SetStatementSegment(BaseSegment):
                     Sequence("CHARACTERISTICS", "AS", "TRANSACTION", Ref("ParameterNameSegment")),
                     Sequence(
                         OneOf("GRACEPERIOD", "IDLESESSIONTIMEOUT", "RUNTIMECAP"),
-                        OneOf("NONE", "=DEFAULT", Ref("IntervalUnitsGrammar"))
+                        OneOf("NONE", Sequence(Ref("EqualsSegment"), "DEFAULT"), Ref("QuotedLiteralSegment"))
                     ),
                     Sequence(
                         OneOf("MEMORYCAP", "TEMPSPACECAP"),
-                        OneOf("NONE", "=DEFAULT", Ref("QuotedLiteralSegment"))
+                        OneOf("NONE", Sequence(Ref("EqualsSegment"), "DEFAULT"), Ref("QuotedLiteralSegment"))
                     ),
                     Sequence("MULTIPLEACTIVERESULTSETS", "TO", OneOf("ON", "OFF")),
                     Sequence(
-                        "WORKLOAD", "TO", OneOf(Ref("ParameterNameSegment"), "DEFAULT", "NONE")
+                        "WORKLOAD",
+                        Ref.keyword("TO", optional=True),
+                        OneOf(Ref("ParameterNameSegment"), "DEFAULT", "NONE")
                     ),
                 ),
             ),
