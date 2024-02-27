@@ -2,6 +2,7 @@
 ---- Base cases
 ALTER TABLE my_table ADD COLUMN my_column INTEGER;
 ALTER TABLE my_table ADD COLUMN my_column VARCHAR(5000) NOT NULL;
+ALTER TABLE my_table ADD COLUMN IF NOT EXISTS my_column INTEGER;
 
 ------ Multiple columns
 ALTER TABLE my_table ADD COLUMN column_1 varchar, column_2 integer;
