@@ -6,7 +6,9 @@ from keywords
 """
 
 # From reserved keywords were removed keywords that work correctly
-# in create table(keyword some_datatype) without quotes. Put them in unreserved_keywords.
+# in create table(keyword some_datatype) without quotes.
+# Put them in unreserved_keywords.
+
 vertica_reserved_keywords = """ALL
 AND
 ANY
