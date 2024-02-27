@@ -1,4 +1,6 @@
 """The Vertica dialect.
+
+https://docs.vertica.com/latest/en/
 """
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -7,26 +9,26 @@ from sqlfluff.core.parser import (
     AnySetOf,
     BaseSegment,
     Bracketed,
+    BracketedSegment,
+    CodeSegment,
+    CompositeComparisonOperatorSegment,
     Dedent,
     Delimited,
     Indent,
     KeywordSegment,
+    LiteralSegment,
     Matchable,
     MultiStringParser,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
-    Sequence,
     RegexParser,
-    LiteralSegment,
+    Sequence,
     StringLexer,
-    CodeSegment,
     StringParser,
     SymbolSegment,
-    BracketedSegment,
-    ParseMode,
     TypedParser,
-    CompositeComparisonOperatorSegment
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_vertica_keywords import (
@@ -443,10 +445,11 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
 
 
 class LimitClauseSegment(ansi.LimitClauseSegment):
-    """
-    A vertica `LIMIT` clause.
+    """A vertica `LIMIT` clause.
+
     https://docs.vertica.com/latest/en/sql-reference/statements/select/limit-clause/
     """
+
     match_grammar: Matchable = Sequence(
         "LIMIT",
         Indent,
@@ -583,6 +586,7 @@ class KsafeSegment(BaseSegment):
 
 class SchemaPrivilegesSegment(BaseSegment):
     """Schema Privileges Segment.
+
     As specified in https://docs.vertica.com/latest/en/sql-reference/statements/create-statements/create-table/
     """
 
@@ -817,7 +821,8 @@ class CreateTableLikeStatementSegment(BaseSegment):
 
 
 class CopyOptionsForColumnsSegment(BaseSegment):
-    """A vertica options for columns in COPY
+    """A vertica options for columns in COPY.
+
     https://docs.vertica.com/latest/en/sql-reference/statements/copy/
     """
 
@@ -857,7 +862,8 @@ class CopyOptionsForColumnsSegment(BaseSegment):
 
 
 class CopyColumnOptionsSegment(BaseSegment):
-    """A vertica options for columns in COPY
+    """A vertica column description in COPY.
+
     https://docs.vertica.com/latest/en/sql-reference/statements/copy/
     """
 
@@ -870,7 +876,8 @@ class CopyColumnOptionsSegment(BaseSegment):
 
 
 class CopyOptionsSegment(BaseSegment):
-    """A vertica options for columns in COPY
+    """A vertica options for COPY.
+
     https://docs.vertica.com/latest/en/sql-reference/statements/copy/
     """
 
@@ -1265,7 +1272,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
 
 
 class ColumnSetSegment(BaseSegment):
-    """A SET DEFAULT | USING | DEFAULT USING
+    """A SET DEFAULT | USING | DEFAULT USING.
 
     https://docs.vertica.com/latest/en/sql-reference/statements/alter-statements/alter-table/
     """
@@ -1292,6 +1299,7 @@ class ColumnSetSegment(BaseSegment):
 
 class DropProjectionStatementSegment(BaseSegment):
     """A `DROP PROJECTION` statement.
+
     https://docs.vertica.com/latest/en/sql-reference/statements/drop-statements/drop-projection/
     """
 
@@ -1308,6 +1316,7 @@ class DropProjectionStatementSegment(BaseSegment):
 
 class AlterViewStatementSegment(BaseSegment):
     """A `ALTER VIEW` statement.
+
     https://docs.vertica.com/latest/en/sql-reference/statements/alter-statements/alter-view/
     """
 
@@ -1465,7 +1474,8 @@ class CommentOnStatementSegment(BaseSegment):
 
 
 class TransactionalStatements(BaseSegment):
-    """DML commands wrapped by BEGIN and END
+    """DML commands wrapped by BEGIN and END.
+
     As in https://docs.vertica.com/latest/en/sql-reference/statements/begin/
     https://docs.vertica.com/latest/en/sql-reference/statements/end/
     """
@@ -1497,8 +1507,7 @@ class TransactionalStatements(BaseSegment):
 
 
 class DatatypeSegment(ansi.DatatypeSegment):
-    """A data type segment.
-    """
+    """A data type segment."""
 
     match_grammar: Matchable = Sequence(
         OneOf(
@@ -1601,20 +1610,11 @@ class DatatypeSegment(ansi.DatatypeSegment):
     )
 
 
-class ArrayAccessorSegment(ansi.ArrayAccessorSegment):
-    """An array accessor e.g. [3:4]. or """
-
-    match_grammar: Matchable = Bracketed(
-        Delimited(
-            OneOf(Ref("NumericLiteralSegment"), Ref("ExpressionSegment")),
-            delimiter=Ref("SliceSegment"),
-        ),
-        bracket_type="square",
-        parse_mode=ParseMode.GREEDY,
-    )
-
-
 class AlterSessionStatements(BaseSegment):
+    """An ALTER SESSION statement.
+
+    As in https://docs.vertica.com/latest/en/sql-reference/statements/alter-statements/alter-session/
+    """
 
     type = "alter_session_statement"
     match_grammar: Matchable = Sequence(
@@ -1735,37 +1735,11 @@ class CopyStatementSegment(BaseSegment):
     )
 
 
-class FrameClauseSegment(ansi.FrameClauseSegment):
-    """A frame clause for window functions.
-
-    https://docs.vertica.com/latest/en/data-analysis/sql-analytics/window-framing/
-    """
-
-    _frame_extent = OneOf(
-        Sequence("CURRENT", "ROW"),
-        Sequence(
-            OneOf(
-                Ref("NumericLiteralSegment"),
-                Sequence("INTERVAL", Ref("QuotedLiteralSegment")),
-                Sequence(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("CastOperatorSegment"),
-                    Ref("DatatypeSegment"),
-                    Ref("TimeZoneGrammar", optional=True),
-                ),
-                "UNBOUNDED",
-            ),
-            OneOf("PRECEDING", "FOLLOWING"),
-        ),
-    )
-
-    match_grammar: Matchable = Sequence(
-        Ref("FrameClauseUnitGrammar"),
-        OneOf(_frame_extent, Sequence("BETWEEN", _frame_extent, "AND", _frame_extent)),
-    )
-
-
 class FunctionSegment(ansi.FunctionSegment):
+    """A scalar or aggregate function.
+
+    https://docs.vertica.com/latest/en/sql-reference/functions/aggregate-functions/
+    """
 
     match_grammar: Matchable = OneOf(
         Sequence(
@@ -1808,6 +1782,7 @@ class FunctionSegment(ansi.FunctionSegment):
                 ),
             ),
             AnyNumberOf(Ref("PostFunctionGrammar")),
+            # Allow AS clause for some functions at the end
             Sequence("AS", Bracketed(Delimited(Ref("ColumnReferenceSegment"))), optional=True)
         ),
     )
@@ -1829,8 +1804,8 @@ class WithinGroupClauseSegment(BaseSegment):
 
 
 class TimeseriesClauseSegment(BaseSegment):
-    """
-    A vertica `TIMESERIES` clause.
+    """A vertica `TIMESERIES` clause.
+
     https://docs.vertica.com/latest/en/sql-reference/statements/select/timeseries-clause/
     """
 
@@ -1849,6 +1824,11 @@ class TimeseriesClauseSegment(BaseSegment):
 
 
 class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
+    """A `SELECT` statement without any ORDER clauses or later.
+
+    Copy of ansi class except additional terminator TimeseriesClauseSegment
+    """
+
     match_grammar: Matchable = Sequence(
         Ref("SelectClauseSegment"),
         Ref("FromClauseSegment", optional=True),
@@ -1870,6 +1850,10 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 
 
 class SelectStatementSegment(ansi.SelectStatementSegment):
+    """A `SELECT` statement.
+
+    Copy of ansi class except additional TimeseriesClauseSegment grammar
+    """
 
     match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
@@ -1897,6 +1881,7 @@ class NullEqualsSegment(CompositeComparisonOperatorSegment):
 
 class PartitionClauseSegment(ansi.PartitionClauseSegment):
     """A `PARTITION BY` for window functions.
+
     https://docs.vertica.com/latest/en/sql-reference/language-elements/window-clauses/window-partition-clause/
     """
 
@@ -1987,6 +1972,7 @@ class AlterSchemaStatementSegment(BaseSegment):
 
 class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
     """A `CREATE SCHEMA` statement.
+
     https://docs.vertica.com/latest/en/sql-reference/statements/create-statements/create-schema/
     """
 

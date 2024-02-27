@@ -1,7 +1,9 @@
-"""A list of all SQL key words.
+"""A list of all SQL keywords.
+
 Based on query:
 select *
-from keywords"""
+from keywords
+"""
 
 # From reserved keywords were removed keywords that work correctly
 # in create table(keyword some_datatype) without quotes. Put them in unreserved_keywords.
