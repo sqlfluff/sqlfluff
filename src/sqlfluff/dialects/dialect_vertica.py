@@ -727,11 +727,6 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        AnySetOf(
-            # these options are available only for temp table, so it's kind of a hack
-            Sequence("ON", "COMMIT", OneOf("DELETE", "PRESERVE"), "ROWS"),
-            Sequence("NO", "PROJECTION"),
-        ),
         Sequence(
             Bracketed(
                 Delimited(
@@ -755,6 +750,11 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             Ref("SchemaPrivilegesSegment"),
             Ref("DiskQuotaSegment"),
             Ref("PartitionByClauseSegment"),
+        ),
+        AnySetOf(
+            # these options are available only for temp table, so it's kind of a hack
+            Sequence("ON", "COMMIT", OneOf("DELETE", "PRESERVE"), "ROWS"),
+            Sequence("NO", "PROJECTION"),
         ),
     )
 
@@ -1533,7 +1533,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
             ),
             # array types
             OneOf(
-                # TODO: need to add opportunity to specify size of array
+                # TODO: need to add an opportunity to specify size of array
                 AnyNumberOf(
                     Bracketed(
                         Ref("ExpressionSegment", optional=True), bracket_type="square"
@@ -1543,6 +1543,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                 Ref("SizedArrayTypeSegment"),
                 optional=True,
             ),
+            # TODO: add row data type support
             Sequence(
                 OneOf(
                     Sequence(
