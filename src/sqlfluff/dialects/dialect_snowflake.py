@@ -209,7 +209,8 @@ snowflake_dialect.add(
         type="quoted_star",
         trim_chars=("'",),
     ),
-    # Any identifier is valid as a semi-structured element in Snowflake as long as it's not a reserved keyword
+    # Any identifier is valid as a semi-structured element in Snowflake 
+    # as long as it's not a reserved keyword
     # https://docs.snowflake.com/en/sql-reference/identifiers-syntax
     NakedSemiStructuredElementSegment=RegexParser(
         r"[a-zA-Z_][a-zA-Z0-9_$]*",
