@@ -447,6 +447,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("TransactionalStatements"),
             Ref("AlterSessionStatements"),
             Ref("CopyStatementSegment"),
+            Ref("AlterSchemaStatementSegment"),
         ],
     )
 
@@ -1899,4 +1900,36 @@ class FrameClauseSegment(ansi.FrameClauseSegment):
     match_grammar: Matchable = Sequence(
         Ref("FrameClauseUnitGrammar"),
         OneOf(_frame_extent, Sequence("BETWEEN", _frame_extent, "AND", _frame_extent)),
+    )
+
+
+class AlterSchemaStatementSegment(BaseSegment):
+    """An `ALTER SCHEMA` statement.
+
+    https://docs.vertica.com/latest/en/sql-reference/statements/alter-statements/alter-schema/
+    """
+
+    type = "alter_schema_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "SCHEMA",
+        Delimited(Ref("SchemaReferenceSegment")),
+        OneOf(
+            Sequence(
+                "DEFAULT",
+                Ref("SchemaPrivilegesSegment")
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Delimited(Ref("SchemaReferenceSegment")),
+            ),
+            Sequence(
+                "OWNER",
+                "TO",
+                Ref("RoleReferenceSegment"),
+                Ref.keyword("CASCADE", optional=True)
+            ),
+            Ref("DiskQuotaSegment")
+        ),
     )
