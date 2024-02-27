@@ -393,6 +393,16 @@ vertica_dialect.replace(
             ),
             Ref.keyword("OUTER", optional=True),
         ),
+        Sequence(
+            "NATURAL",
+            OneOf(
+                "INNER",
+                Sequence(
+                    OneOf("RIGHT", "LEFT", "FULL"),
+                    "OUTER"
+                ),
+            ),
+        ),
     ),
     ArithmeticBinaryOperatorGrammar=OneOf(
         Ref("PlusSegment"),
@@ -1517,20 +1527,66 @@ class DatatypeSegment(ansi.DatatypeSegment):
 
     match_grammar: Matchable = Sequence(
         OneOf(
+            # Date / Datetime
             Sequence(
                 OneOf("TIME", "TIMESTAMP"),
                 Bracketed(Ref("NumericLiteralSegment"), optional=True),
                 Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
             ),
+            "DATE",
+            "DATETIME",
+            "SMALLDATETIME",
+            Sequence("INTERVAL", Ref("IntervalLiteralGrammar", optional=True)),
+            # Approximate Numeric
+            Sequence("DOUBLE", "PRECISION",),
+            Sequence("FLOAT", Bracketed(Ref("NumericLiteralSegment"), optional=True)),
+            "FLOAT8",
+            "REAL",
+            # Exact Numeric
+            "INTEGER",
+            "INT",
+            "BIGINT",
+            "INT8",
+            "SMALLINT",
+            "TINYINT",
             Sequence(
-                "DOUBLE",
-                "PRECISION",
+                OneOf(
+                    "DECIMAL",
+                    "NUMERIC",
+                    "NUMBER",
+                    "MONEY"
+                ),
+                Bracketed(
+                    Ref("IntegerSegment"),
+                    Sequence(Ref("CommaSegment"), Ref("IntegerSegment"), optional=True),
+                    optional=True
+                )
             ),
+            # Spatial
+            Sequence(
+                OneOf("GEOMETRY", "GEOGRAPHY"),
+                Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            ),
+            # UUID
+            "UUID",
+            # Text
             Sequence(
                 Ref.keyword("LONG", optional=True),
                 "VARCHAR",
                 Ref("BracketedArguments", optional=True)
             ),
+            Sequence(
+                "CHAR",
+                Ref("BracketedArguments", optional=True)
+            ),
+            # Binary types
+            OneOf(
+                "BINARY",
+                Sequence(Ref.keyword("LONG", optional=True), "VARBINARY"),
+                "BYTEA",
+                "RAW"
+            ),
+            "BOOLEAN",
             # array types
             OneOf(
                 # TODO: need to add an opportunity to specify size of array
