@@ -120,42 +120,25 @@ vertica_dialect.sets("date_part_function_name").update(
 # https://docs.vertica.com/latest/en/sql-reference/functions/data-type-specific-functions/datetime-functions/date-part/
 vertica_dialect.sets("datetime_units").update(
     [
-        # millennium
         "MILLENNIUM",
-        # century
         "CENTURY",
-        # decade
         "DECADE",
-        # epoch
         "EPOCH",
-        # year
         "YEAR",
         "ISOYEAR",
-        # quarter
         "QUARTER",
-        # month
         "MONTH",
-        # week
         "WEEK",
         "ISOWEEK",
-        # day of week
         "ISODOW",
         "DOW",
-        # day of year
         "DOY",
-        # day
         "DAY",
-        # hour
         "HOUR",
-        # minute
         "MINUTE",
-        # second
         "SECOND",
-        # millisec
         "MILLISECONDS",
-        # microsec
         "MICROSECONDS",
-        # timezone
         "TIME ZONE",
         "TIMEZONE_HOUR",
         "TIMEZONE_MINUTE",
@@ -163,35 +146,19 @@ vertica_dialect.sets("datetime_units").update(
 )
 
 vertica_dialect.add(
-    EncodingType=OneOf(
+    EncodingType=Sequence(
         MultiStringParser(
             vertica_dialect.sets("encoding_types"),
             KeywordSegment,
             type="encoding_type",
         ),
-        MultiStringParser(
-            [
-                f"'{encoding}'"
-                for encoding in vertica_dialect.sets("encoding_types")
-            ],
-            KeywordSegment,
-            type="encoding_type",
-        ),
     ),
-    CompressionType=OneOf(
+    CompressionType=Sequence(
         MultiStringParser(
             vertica_dialect.sets("compression_types"),
             KeywordSegment,
             type="compression_type",
-        ),
-        MultiStringParser(
-            [
-                f"'{compression}'"
-                for compression in vertica_dialect.sets("compression_type")
-            ],
-            KeywordSegment,
-            type="compression_type",
-        ),
+        )
     ),
     IntegerSegment=RegexParser(
         # An unquoted integer that can be passed as an argument to Snowflake functions.
@@ -427,7 +394,7 @@ vertica_dialect.replace(
 
 
 class ShorthandCastSegment(ansi.ShorthandCastSegment):
-    """A casting operation using '::'."""
+    """A casting operation using '::' or '::!'."""
 
     match_grammar: Matchable = Sequence(
         OneOf(

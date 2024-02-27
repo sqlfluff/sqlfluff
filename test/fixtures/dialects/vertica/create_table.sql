@@ -3,14 +3,14 @@
 
 CREATE TABLE public.Premium_Customer
 (
-    ID IDENTITY ,
+    ID IDENTITY,
     lname varchar(25),
     fname varchar(25),
     store_membership_card int
 );
 
 CREATE TABLE orders(
-    orderkey    INT,
+    orderkey    INT ENCODING AUTO,
     custkey     INT,
     prodkey     ARRAY[VARCHAR(10)],
     orderprices ARRAY[DECIMAL(12,2)],
