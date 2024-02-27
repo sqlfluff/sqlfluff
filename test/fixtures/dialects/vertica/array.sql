@@ -1,3 +1,4 @@
+-- https://docs.vertica.com/latest/en/sql-reference/data-types/complex-types/array/
 SELECT ARRAY[1, 2, 3];
 
 SELECT ARRAY[ARRAY[1], ARRAY[2]];

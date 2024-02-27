@@ -1,3 +1,4 @@
+-- https://docs.vertica.com/latest/en/admin/working-with-native-tables/altering-table-definitions/
 ALTER TABLE public.store_orders ADD COLUMN expected_ship_date date;
 ALTER TABLE public.store_orders
 ADD COLUMN delivery_date date PROJECTIONS (store_orders_p);

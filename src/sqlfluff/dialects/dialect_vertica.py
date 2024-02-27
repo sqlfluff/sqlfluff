@@ -423,7 +423,7 @@ class ShorthandCastSegment(ansi.ShorthandCastSegment):
                 OneOf(Ref("CastOperatorSegment"), Ref("NullCastOperatorSegment")),
                 Ref("DatatypeSegment"),
                 Ref("TimeZoneGrammar", optional=True),
-                allow_gaps=False,
+                allow_gaps=True,
             ),
             min_times=1,
         ),
@@ -841,7 +841,7 @@ class CopyOptionsForColumnsSegment(BaseSegment):
     type = "copy_options_for_columns"
 
     match_grammar = Sequence(
-        AnyNumberOf(
+        AnySetOf(
             Sequence(
                 "DELIMITER",
                 Sequence("AS", optional=True),
@@ -862,14 +862,14 @@ class CopyOptionsForColumnsSegment(BaseSegment):
                 Sequence("NO", "ESCAPE")
             ),
             Sequence("FILLER", Ref("DatatypeSegment")),
-            Sequence("FORMAT", OneOf("OCTAL", "HEX", "BITSTREAM")),
+            Sequence("FORMAT", Ref("QuotedLiteralSegment")),
             Sequence(
                 "NULL",
                 Sequence("AS", optional=True),
                 Ref("QuotedLiteralSegment")
             ),
-            Sequence("TRIM", Ref("QuotedLiteralSegment"))
-        )
+            Sequence("TRIM", Ref("QuotedLiteralSegment")),
+        ),
     )
 
 
@@ -1655,10 +1655,7 @@ class CopyStatementSegment(BaseSegment):
         OneOf(
             Bracketed(
                 Delimited(
-                    Sequence(
-                        Ref("ColumnReferenceSegment"),
-                        Ref("CopyColumnOptionsSegment", optional=True),
-                    ),
+                    Ref("CopyColumnOptionsSegment")
                 ),
             ),
             Sequence(
@@ -1681,7 +1678,7 @@ class CopyStatementSegment(BaseSegment):
                 Ref.keyword("LOCAL", optional=True),
                 "STDIN",
                 Ref("CompressionType", optional=True),
-                Ref("QuotedLiteralSegment")
+                Ref("QuotedLiteralSegment", optional=True)
             ),
             Sequence(
                 "LOCAL",
@@ -1693,6 +1690,7 @@ class CopyStatementSegment(BaseSegment):
                 Ref("TableReferenceSegment"),
                 Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
             ),
+            Sequence(Delimited(Ref("QuotedLiteralSegment")))
         ),
         OneOf(
             "NATIVE",
