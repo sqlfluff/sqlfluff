@@ -29,6 +29,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
+    WhitespaceSegment,
     WordSegment,
 )
 from sqlfluff.core.parser.grammar.anyof import AnySetOf
@@ -186,6 +187,44 @@ postgres_dialect.patch_lexer_matchers(
             "double_quote",
             r'(?s)".+?"',
             CodeSegment,
+        ),
+        # Patching block comments to account for nested blocks.
+        # N.B. this syntax is only possible via the non-standard-library
+        # (but still backwards compatible) `regex` package.
+        # https://pypi.org/project/regex/
+        # Pattern breakdown:
+        # /\*                    Match opening slash.
+        #   (?>                  Atomic grouping
+        #                        (https://www.regular-expressions.info/atomic.html).
+        #       [^*/]+           Non forward-slash or asterisk characters.
+        #       |\*(?!\/)        Negative lookahead assertion to match
+        #                        asterisks not followed by a forward-slash.
+        #       |/[^*]           Match lone forward-slashes not followed by an asterisk.
+        #   )*                   Match any number of the atomic group contents.
+        #   (?>
+        #       (?R)             Recursively match the block comment pattern
+        #                        to match nested block comments.
+        #       (?>
+        #           [^*/]+
+        #           |\*(?!\/)
+        #           |/[^*]
+        #       )*
+        #   )*
+        # \*/                    Match closing slash.
+        RegexLexer(
+            "block_comment",
+            r"/\*(?>[^*/]+|\*(?!\/)|/[^*])*(?>(?R)(?>[^*/]+|\*(?!\/)|/[^*])*)*\*/",
+            CommentSegment,
+            subdivider=RegexLexer(
+                "newline",
+                r"\r\n|\n",
+                NewlineSegment,
+            ),
+            trim_post_subdivide=RegexLexer(
+                "whitespace",
+                r"[^\S\r\n]+",
+                WhitespaceSegment,
+            ),
         ),
         RegexLexer("word", r"[a-zA-Z_][0-9a-zA-Z_$]*", WordSegment),
     ]
