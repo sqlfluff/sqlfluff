@@ -1634,10 +1634,10 @@ class CreateExternalTableStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "EXTERNAL",
         "TABLE",
-        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         Bracketed(
             Delimited(
