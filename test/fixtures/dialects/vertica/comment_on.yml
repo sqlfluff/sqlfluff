@@ -1,0 +1,367 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9edab621e9a9ab85520bd3dd13254aa74f45375bc64f083df7bfe47a86252897
+file:
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: AGGREGATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: APPROXIMATE_MEDIAN
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            keyword: FLOAT
+          end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'alias of APPROXIMATE_PERCENTILE with 0.5 as its parameter'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: AGGREGATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: APPROXIMATE_MEDIAN
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            keyword: FLOAT
+          end_bracket: )
+    - keyword: IS
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: ANALYTIC
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: an_rank
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'built from the AnalyticFunctions library'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: ANALYTIC
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: an_rank
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: IS
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: CONSTRAINT
+    - object_reference:
+        naked_identifier: constraint_x
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: promotion_dimension
+    - keyword: IS
+    - quoted_literal: "'Primary key'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: CONSTRAINT
+    - object_reference:
+        naked_identifier: constraint_x
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: promotion_dimension
+    - keyword: IS
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: macros
+        dot: .
+        function_name_identifier: zerowhennull
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            keyword: INT
+          end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'Returns a 0 if not NULL'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: macros
+        dot: .
+        function_name_identifier: zerowhennull
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            keyword: INT
+          end_bracket: )
+    - keyword: IS
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: LIBRARY
+    - object_reference:
+        naked_identifier: MyFunctions
+    - keyword: IS
+    - quoted_literal: "'In development'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: LIBRARY
+    - object_reference:
+        naked_identifier: MyFunctions
+    - keyword: IS
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: NODE
+    - parameter: initiator
+    - keyword: IS
+    - quoted_literal: "'Initiator node'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: NODE
+    - parameter: initiator
+    - keyword: IS
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: PROJECTION
+    - table_reference:
+        naked_identifier: customer_dimension_vmart_node01
+    - keyword: IS
+    - quoted_literal: "'Test data'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: PROJECTION
+    - table_reference:
+        naked_identifier: customer_dimension_vmart_node01
+    - keyword: IS
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: customer_dimension_vmart_node01
+      - dot: .
+      - naked_identifier: customer_name
+    - keyword: IS
+    - quoted_literal: "'Last name only'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: customer_dimension_vmart_node01
+      - dot: .
+      - naked_identifier: customer_name
+    - keyword: IS
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: public
+    - keyword: IS
+    - quoted_literal: "'All users can access this schema'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: public
+    - keyword: IS
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SEQUENCE
+    - object_reference:
+        naked_identifier: prom_seq
+    - keyword: IS
+    - quoted_literal: "'Promotion codes'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SEQUENCE
+    - object_reference:
+        naked_identifier: prom_seq
+    - keyword: IS
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: promotion_dimension
+    - keyword: IS
+    - quoted_literal: "'2011 Promotions'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: promotion_dimension
+    - keyword: IS
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: store
+      - dot: .
+      - naked_identifier: store_sales_fact
+      - dot: .
+      - naked_identifier: transaction_time
+    - keyword: IS
+    - quoted_literal: "'GMT'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: store
+      - dot: .
+      - naked_identifier: store_sales_fact
+      - dot: .
+      - naked_identifier: transaction_time
+    - keyword: IS
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TRANSFORM
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: macros
+        dot: .
+        function_name_identifier: zerowhennull
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            keyword: INT
+          end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'Returns a 0 if not NULL'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TRANSFORM
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: macros
+        dot: .
+        function_name_identifier: zerowhennull
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            keyword: INT
+          end_bracket: )
+    - keyword: IS
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: curr_month_ship
+    - keyword: IS
+    - quoted_literal: "'Shipping data for the current month'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: curr_month_ship
+    - keyword: IS
+    - keyword: 'NULL'
+- statement_terminator: ;

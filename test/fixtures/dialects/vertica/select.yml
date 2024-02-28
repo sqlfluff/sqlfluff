@@ -1,0 +1,714 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 534cb0aeb4de1b9fe80a6a191823e98dbb8a555d45630bf12ad217ea4fcc98b9
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: T1
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - naked_identifier: T1
+          - dot: .
+          - naked_identifier: x
+          keyword: IN
+          bracketed:
+            start_bracket: (
+            set_expression:
+            - select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    function:
+                      function_name:
+                        function_name_identifier: MAX
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: c1
+                        end_bracket: )
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: T2
+            - set_operator:
+                keyword: EXCEPT
+            - select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    function:
+                      function_name:
+                        function_name_identifier: MAX
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: cc1
+                        end_bracket: )
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: T3
+            - set_operator:
+                keyword: EXCEPT
+            - select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    function:
+                      function_name:
+                        function_name_identifier: MAX
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: d1
+                        end_bracket: )
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: T4
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: user_id
+          - dot: .
+          - naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: user_name
+          - dot: .
+          - naked_identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: user_name
+          join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: user_id
+            join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: user_name
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: user_id
+                - dot: .
+                - naked_identifier: id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: employee_last_name
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: SUM
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: vacation_days
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employee_dimension
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: employee_last_name
+          keyword: ILIKE
+          quoted_literal: "'S%'"
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: employee_last_name
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: employee_last_name
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: MAX
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: annual_salary
+              end_bracket: )
+          alias_expression:
+            keyword: as
+            naked_identifier: highest_salary
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employee_dimension
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: employee_last_name
+      having_clause:
+        keyword: HAVING
+        expression:
+          function:
+            function_name:
+              function_name_identifier: MAX
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: annual_salary
+              end_bracket: )
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '800000'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: highest_salary
+      - keyword: DESC
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: T1
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - naked_identifier: T1
+          - dot: .
+          - naked_identifier: x
+          keyword: IN
+          bracketed:
+            start_bracket: (
+            set_expression:
+            - select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    function:
+                      function_name:
+                        function_name_identifier: MAX
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: c1
+                        end_bracket: )
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: T2
+            - set_operator:
+                keyword: INTERSECT
+            - select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    function:
+                      function_name:
+                        function_name_identifier: MAX
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: cc1
+                        end_bracket: )
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: T3
+            - set_operator:
+                keyword: INTERSECT
+            - select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    function:
+                      function_name:
+                        function_name_identifier: MAX
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: d1
+                        end_bracket: )
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: T4
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: store_region
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: store_city
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "', '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - column_reference:
+              naked_identifier: store_state
+          alias_expression:
+            naked_identifier: location
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: store_name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: number_of_employees
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: store
+              - dot: .
+              - naked_identifier: store_dimension
+      limit_clause:
+        keyword: LIMIT
+        numeric_literal: '2'
+        over_clause:
+          keyword: OVER
+          bracketed:
+            start_bracket: (
+            window_specification:
+              partitionby_clause:
+              - keyword: PARTITION
+              - keyword: BY
+              - expression:
+                  column_reference:
+                    naked_identifier: store_region
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: number_of_employees
+              - keyword: ASC
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: PolygonPoint
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: geom
+              end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: geom
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: SEL_0
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: geog
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: symbol
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: AVG
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: first_bid
+              end_bracket: )
+          alias_expression:
+            keyword: as
+            naked_identifier: avg_bid
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: symbol
+                  - comma: ','
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: slice_time
+                  - comma: ','
+                  - select_clause_element:
+                      function:
+                        function_name:
+                          function_name_identifier: TS_FIRST_VALUE
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: bid1
+                          end_bracket: )
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: first_bid
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: Tickstore
+                  where_clause:
+                    keyword: WHERE
+                    expression:
+                      column_reference:
+                        naked_identifier: symbol
+                      keyword: IN
+                      bracketed:
+                      - start_bracket: (
+                      - quoted_literal: "'MSFT'"
+                      - comma: ','
+                      - quoted_literal: "'IBM'"
+                      - end_bracket: )
+                  timeseries_clause_statement:
+                  - keyword: TIMESERIES
+                  - alias_expression:
+                      naked_identifier: slice_time
+                  - keyword: AS
+                  - quoted_literal: "'5 seconds'"
+                  - over_clause:
+                      keyword: OVER
+                      bracketed:
+                        start_bracket: (
+                        window_specification:
+                          partitionby_clause:
+                          - keyword: PARTITION
+                          - keyword: BY
+                          - expression:
+                              column_reference:
+                                naked_identifier: symbol
+                          orderby_clause:
+                          - keyword: ORDER
+                          - keyword: BY
+                          - column_reference:
+                              naked_identifier: ts
+                        end_bracket: )
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: resultOfGFI
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: symbol
+- statement_terminator: ;
+- statement:
+    set_expression:
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: id
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: emp_name
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: company_a
+          orderby_clause:
+          - keyword: ORDER
+          - keyword: BY
+          - column_reference:
+              naked_identifier: emp_name
+          limit_clause:
+            keyword: LIMIT
+            numeric_literal: '2'
+        end_bracket: )
+    - set_operator:
+      - keyword: UNION
+      - keyword: ALL
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: id
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: emp_name
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: company_b
+          orderby_clause:
+          - keyword: ORDER
+          - keyword: BY
+          - column_reference:
+              naked_identifier: emp_name
+          limit_clause:
+            keyword: LIMIT
+            numeric_literal: '2'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          keyword: DISTINCT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: customer_key
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: customer_name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: public
+              - dot: .
+              - naked_identifier: customer_dimension
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: customer_key
+        - keyword: IN
+        - bracketed:
+            start_bracket: (
+            set_expression:
+            - select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                      naked_identifier: customer_key
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - naked_identifier: store
+                        - dot: .
+                        - naked_identifier: store_sales_fact
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                    column_reference:
+                      naked_identifier: sales_dollar_amount
+                    comparison_operator:
+                      raw_comparison_operator: '>'
+                    numeric_literal: '500'
+            - set_operator:
+              - keyword: UNION
+              - keyword: ALL
+            - select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                      naked_identifier: customer_key
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - naked_identifier: online_sales
+                        - dot: .
+                        - naked_identifier: online_sales_fact
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                    column_reference:
+                      naked_identifier: sales_dollar_amount
+                    comparison_operator:
+                      raw_comparison_operator: '>'
+                    numeric_literal: '500'
+            end_bracket: )
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: customer_state
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'CT'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_modifier:
+          keyword: DISTINCT
+        select_clause_element:
+          column_reference:
+            naked_identifier: customer_name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: customer_dimension
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: customer_region
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'East'"
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: customer_name
+        - keyword: ILIKE
+        - quoted_literal: "'Amer%'"
+- statement_terminator: ;
