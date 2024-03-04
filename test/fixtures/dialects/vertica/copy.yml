@@ -1,0 +1,130 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 164ad184ba85bf2e42edd3ecc9b869028e600e2aae06265fda39c45191ef9bd0
+file:
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: customer_dimension
+    - bracketed:
+        start_bracket: (
+        copy_column_options:
+          column_reference:
+            naked_identifier: customer_since
+          copy_options_for_columns:
+            keyword: FORMAT
+            quoted_literal: "'YYYY'"
+        end_bracket: )
+    - keyword: FROM
+    - keyword: STDIN
+    - copy_options:
+        copy_options_for_columns:
+        - keyword: DELIMITER
+        - quoted_literal: "','"
+        - keyword: 'NULL'
+        - keyword: AS
+        - quoted_literal: "'null'"
+        - keyword: ENCLOSED
+        - keyword: BY
+        - quoted_literal: "'\"'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: sampletab
+    - keyword: FROM
+    - quoted_literal: "'/home/dbadmin/one.dat'"
+    - comma: ','
+    - quoted_literal: "'home/dbadmin/two.dat'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: myTable
+    - keyword: FROM
+    - quoted_literal: "'webhdfs:///mydirectory/ofmanyfiles/*.dat'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: myTable
+    - keyword: FROM
+    - quoted_literal: "'webhdfs:///mydirectory/*_[0-9]'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: myTable
+    - keyword: FROM
+    - quoted_literal: "'webhdfs:///data/sales/01/*.dat'"
+    - comma: ','
+    - quoted_literal: "'webhdfs:///data/sales/02/*.dat'"
+    - comma: ','
+    - quoted_literal: "'webhdfs:///data/sales/historical.dat'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - quoted_literal: "'webhdfs:///opt/data/file1.dat'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - quoted_literal: "'webhdfs://testNS/opt/data/file2.csv'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: t
+    - keyword: FROM
+    - quoted_literal: "'s3://AWS_DataLake/*'"
+    - keyword: ORC
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: names
+    - bracketed:
+      - start_bracket: (
+      - copy_column_options:
+          column_reference:
+            naked_identifier: first
+      - comma: ','
+      - copy_column_options:
+          column_reference:
+            naked_identifier: middle
+          copy_options_for_columns:
+            keyword: FILLER
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '20'
+                  end_bracket: )
+      - comma: ','
+      - copy_column_options:
+          column_reference:
+            naked_identifier: last
+      - end_bracket: )
+    - keyword: FROM
+    - keyword: STDIN
+- statement_terminator: ;

@@ -1,0 +1,184 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f6e20a1413d392fdc48e3cc3cad8a49e61b86fa419e3a37282e19a8ff395f417
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: store_orders
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: expected_ship_date
+    - data_type:
+        keyword: date
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: store_orders
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: delivery_date
+    - data_type:
+        keyword: date
+    - keyword: PROJECTIONS
+    - bracketed:
+        start_bracket: (
+        table_reference:
+          naked_identifier: store_orders_p
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: b
+    - keyword: DROP
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: DROP
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: y
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: DROP
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: a
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: DROP
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: x
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - keyword: DROP
+    - column_reference:
+        naked_identifier: x
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: new_sales
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: CONSTRAINT
+      - parameter: C_PRIMARY
+      - keyword: ENABLED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: s1
+      - dot: .
+      - naked_identifier: t1
+    - comma: ','
+    - table_reference:
+      - naked_identifier: s1
+      - dot: .
+      - naked_identifier: t2
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+        naked_identifier: u1
+    - comma: ','
+    - table_reference:
+        naked_identifier: u2
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - comma: ','
+    - table_reference:
+        naked_identifier: t2
+    - comma: ','
+    - table_reference:
+        naked_identifier: temp
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+        naked_identifier: temp
+    - comma: ','
+    - table_reference:
+        naked_identifier: t1
+    - comma: ','
+    - table_reference:
+        naked_identifier: t2
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: s1
+      - dot: .
+      - naked_identifier: t1
+    - keyword: SET
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s2
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t33
+    - alter_table_action_segment:
+      - keyword: OWNER
+      - keyword: TO
+      - parameter: Alice
+- statement_terminator: ;

@@ -1,0 +1,49 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d229332af88fd940c50ebd3bbf4504adc8d425609d42c4ed66e219e49eb267f1
+file:
+- statement:
+    alter_statistics_statement:
+    - keyword: ALTER
+    - keyword: STATISTICS
+    - statistics_reference:
+        naked_identifier: foo
+    - keyword: OWNER
+    - keyword: TO
+    - parameter: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    alter_statistics_statement:
+    - keyword: ALTER
+    - keyword: STATISTICS
+    - statistics_reference:
+        naked_identifier: foo
+    - keyword: RENAME
+    - keyword: TO
+    - statistics_reference:
+        naked_identifier: bar
+- statement_terminator: ;
+- statement:
+    alter_statistics_statement:
+    - keyword: ALTER
+    - keyword: STATISTICS
+    - statistics_reference:
+        naked_identifier: foo
+    - keyword: SET
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: my_schema
+- statement_terminator: ;
+- statement:
+    alter_statistics_statement:
+    - keyword: ALTER
+    - keyword: STATISTICS
+    - statistics_reference:
+        naked_identifier: foo
+    - keyword: SET
+    - keyword: STATISTICS
+    - numeric_literal: '4'
+- statement_terminator: ;

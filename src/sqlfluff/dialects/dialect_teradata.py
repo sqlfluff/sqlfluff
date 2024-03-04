@@ -633,12 +633,12 @@ class CreateTableStatementSegment(BaseSegment):
     type = "create_table_statement"
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         # Adding Teradata specific [MULTISET| SET]
         OneOf("SET", "MULTISET", optional=True),
         OneOf(Sequence("GLOBAL", "TEMPORARY"), "VOLATILE", optional=True),
         "TABLE",
-        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         # , NO FALLBACK, NO BEFORE JOURNAL, NO AFTER JOURNAL
         Ref("TdCreateTableOptions", optional=True),

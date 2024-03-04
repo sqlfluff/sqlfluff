@@ -373,10 +373,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
     ) -> List[Tuple["RawSegment", List[PathStep]]]:
         """Returns a list of raw segments in this segment with the ancestors."""
         buffer = []
-        code_idxs = tuple(idx for idx, seg in enumerate(self.segments) if seg.is_code)
         for idx, seg in enumerate(self.segments):
             # If it's a raw, yield it with this segment as the parent
-            new_step = [PathStep(self, idx, len(self.segments), code_idxs)]
+            new_step = [PathStep(self, idx, len(self.segments), self._code_indices)]
             if seg.is_type("raw"):
                 buffer.append((cast("RawSegment", seg), new_step))
             # If it's not, recurse - prepending self to the ancestor stack

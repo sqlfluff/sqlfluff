@@ -180,7 +180,7 @@ tsql_dialect.insert_lexer_matchers(
         RegexLexer(
             "unquoted_relative_sql_file_path",
             # currently there is no way to pass `regex.IGNORECASE` flag to `RegexLexer`
-            r"[.\w\\/#-]+\.[sS][qQ][lL]",
+            r"[.\w\\/#-]+\.[sS][qQ][lL]\b",
             CodeSegment,
         ),
     ],
@@ -434,11 +434,7 @@ tsql_dialect.replace(
             + r")$",
         )
     ),
-    # Override ANSI IsClauseGrammar to remove TSQL non-keyword NAN
-    IsClauseGrammar=OneOf(
-        "NULL",
-        Ref("BooleanLiteralGrammar"),
-    ),
+    NanLiteralSegment=Nothing(),
     DatatypeIdentifierSegment=SegmentGenerator(
         # Generate the anti template reserved keywords
         lambda dialect: OneOf(

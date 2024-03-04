@@ -1,0 +1,19 @@
+CREATE TABLE Repro (
+    col TEXT NOT NULL CHECK (col IS DATE(col))
+);
+
+CREATE TABLE Repro (
+    col TEXT NOT NULL CHECK (col IS NOT DATE(col))
+);
+
+SELECT *
+FROM Tab
+WHERE col1 IS NOT DATE(col2);
+
+SELECT *
+FROM Tab
+WHERE col1 IS col2;
+
+SELECT *
+FROM Tab
+WHERE col1 IS NOT col2;

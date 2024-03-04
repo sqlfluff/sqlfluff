@@ -256,3 +256,12 @@ Trino
 The dialect for `Trino`_.
 
 .. _`Trino`: https://trino.io/docs/current/
+
+.. _vertica_dialect_ref:
+
+Vertica
+--------
+
+The dialect for `Vertica`_.
+
+.. _`Vertica`: https://www.vertica.com/documentation/vertica/all/

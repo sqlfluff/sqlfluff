@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 00cee9d2c0d7a5946f8c3b726fc6c88810c061a192cdcd90fa1c23f3f64a5f28
+_hash: 784faa8eecac7eea5c5d415755498d13b962cf2ad57deaaaf51a2613ac99b3b7
 file:
   batch:
     statement:
@@ -53,7 +53,7 @@ file:
                     naked_identifier: SalesPersonID
                 - keyword: IS
                 - keyword: NOT
-                - keyword: 'NULL'
+                - null_literal: 'NULL'
               groupby_clause:
               - keyword: GROUP
               - keyword: BY

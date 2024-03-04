@@ -1414,7 +1414,7 @@ class CreateFunctionStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         Ref("TemporaryGrammar", optional=True),
         "FUNCTION",
         Ref("IfNotExistsGrammar", optional=True),
