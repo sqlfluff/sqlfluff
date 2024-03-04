@@ -318,6 +318,4 @@ UNRESERVED_KEYWORDS = [
     "TEXT",
     "CHOICES",
     "REMOVE",
-    "PYTHON",
-    "SQL",
 ]

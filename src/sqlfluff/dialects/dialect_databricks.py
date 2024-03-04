@@ -6,7 +6,18 @@ It also has some extensions.
 """
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.core.parser import BaseSegment, Bracketed, Delimited, OneOf, Ref, Sequence
+from sqlfluff.core.parser import (
+    AnyNumberOf,
+    BaseSegment, 
+    Bracketed, 
+    Matchable,
+    CodeSegment,
+    Delimited, 
+    OneOf, 
+    Ref, 
+    Sequence, 
+    TypedParser,
+)
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_sparksql as sparksql
 from sqlfluff.dialects.dialect_databricks_keywords import (
@@ -25,6 +36,27 @@ databricks_dialect.sets("unreserved_keywords").difference_update(RESERVED_KEYWOR
 databricks_dialect.sets("reserved_keywords").clear()
 databricks_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
+
+databricks_dialect.add(
+    DoubleQuotedUDFBody=TypedParser(
+        "double_quote",
+        CodeSegment,
+        type="udf_body",
+        trim_chars=('"',),
+    ),
+    SingleQuotedUDFBody=TypedParser(
+        "single_quote",
+        CodeSegment,
+        type="udf_body",
+        trim_chars=("'",),
+    ),
+    DollarQuotedUDFBody=TypedParser(
+        "dollar_quote",
+        CodeSegment,
+        type="udf_body",
+        trim_chars=("$",),
+    ),
+)
 
 # Object References
 class CatalogReferenceSegment(ansi.ObjectReferenceSegment):
@@ -170,5 +202,93 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("UseCatalogStatementSegment"),
             Ref("SetTimeZoneStatementSegment"),
             Ref("OptimizeTableStatementSegment"),
+            Ref("CreateDatabricksFunctionStatementSegment"),
+            Ref("FunctionParameterListGrammarWithComments"), 
         ]
+    )
+
+class FunctionParameterListGrammarWithComments(BaseSegment):
+    """The parameters for a function ie. `(column type COMMENT 'comment')`."""
+
+    type = "function_parameter_list_with_comments"
+
+    match_grammar: Matchable = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("FunctionParameterGrammar"),
+                AnyNumberOf(
+                    Sequence("DEFAULT", Ref("LiteralGrammar"), optional=True),
+                    Ref("CommentClauseSegment", optional=True),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
+    """This is the body of a `CREATE FUNCTION AS` statement."""
+
+    match_grammar = Sequence(
+        AnyNumberOf(
+            Sequence(
+                "LANGUAGE",
+                OneOf(Ref.keyword("SQL"), Ref.keyword("PYTHON")),
+                optional=True,
+            ),
+            Sequence(
+                OneOf("DETERMINISTIC", Sequence("NOT", "DETERMINISTIC")),
+                optional=True,
+            ),
+            Ref("CommentClauseSegment", optional=True),
+            Sequence(
+                OneOf(Sequence("CONTAINS", "SQL"), Sequence("READS", "SQL", "DATA")),
+                optional=True,
+            ),
+            Sequence(
+                OneOf(
+                    Sequence(
+                        "AS",
+                        OneOf(
+                            Ref("DoubleQuotedUDFBody"),
+                            Ref("SingleQuotedUDFBody"),
+                            Ref("DollarQuotedUDFBody"),
+                            Bracketed(
+                                OneOf(
+                                    Ref("ExpressionSegment"),
+                                    Ref("SelectStatementSegment"),
+                                )
+                            ),
+                        ),
+                    ),
+                    Sequence(
+                        "RETURN",
+                        OneOf(Ref("ExpressionSegment"), Ref("SelectStatementSegment"), Ref("WithCompoundStatementSegment")),
+                    ),
+                )
+            ),
+        )
+    )
+
+class CreateDatabricksFunctionStatementSegment(BaseSegment):
+    """A `CREATE FUNCTION` statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-sql-function.html
+    """
+
+    type = "create_sql_function_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "FUNCTION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammarWithComments"),
+        Sequence(
+            "RETURNS",
+            Ref("DatatypeSegment"),
+            optional=True,
+        ),
+        Ref("FunctionDefinitionGrammar"),
     )

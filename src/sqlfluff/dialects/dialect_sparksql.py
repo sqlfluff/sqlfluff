@@ -420,24 +420,6 @@ sparksql_dialect.add(
         CodeSegment,
         type="semi_structured_element",
     ),
-    DoubleQuotedUDFBody=TypedParser(
-        "double_quote",
-        CodeSegment,
-        type="udf_body",
-        trim_chars=('"',),
-    ),
-    SingleQuotedUDFBody=TypedParser(
-        "single_quote",
-        CodeSegment,
-        type="udf_body",
-        trim_chars=("'",),
-    ),
-    DollarQuotedUDFBody=TypedParser(
-        "dollar_quote",
-        CodeSegment,
-        type="udf_body",
-        trim_chars=("$",),
-    ),
     RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
     BinaryfileKeywordSegment=StringParser(
         "BINARYFILE",
@@ -1314,51 +1296,6 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
     )
 
 
-class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
-    """This is the body of a `CREATE FUNCTION AS` statement."""
-
-    match_grammar = Sequence(
-        AnyNumberOf(
-            Sequence(
-                "LANGUAGE",
-                OneOf(Ref.keyword("SQL"), Ref.keyword("PYTHON")),
-                optional=True,
-            ),
-            Sequence(
-                OneOf("DETERMINISTIC", Sequence("NOT", "DETERMINISTIC")),
-                optional=True,
-            ),
-            Ref("CommentClauseSegment", optional=True),
-            Sequence(
-                OneOf(Sequence("CONTAINS", "SQL"), Sequence("READS", "SQL", "DATA")),
-                optional=True,
-            ),
-            Sequence(
-                OneOf(
-                    Sequence(
-                        "AS",
-                        OneOf(
-                            Ref("DoubleQuotedUDFBody"),
-                            Ref("SingleQuotedUDFBody"),
-                            Ref("DollarQuotedUDFBody"),
-                            Bracketed(
-                                OneOf(
-                                    Ref("ExpressionSegment"),
-                                    Ref("SelectStatementSegment"),
-                                )
-                            ),
-                        ),
-                    ),
-                    Sequence(
-                        "RETURN",
-                        OneOf(Ref("ExpressionSegment"), Ref("SelectStatementSegment")),
-                    ),
-                )
-            ),
-        )
-    )
-
-
 class FunctionParameterListGrammarWithComments(BaseSegment):
     """The parameters for a function ie. `(column type COMMENT 'comment')`."""
 
@@ -1376,32 +1313,6 @@ class FunctionParameterListGrammarWithComments(BaseSegment):
             optional=True,
         ),
     )
-
-
-class CreateDatabricksFunctionStatementSegment(BaseSegment):
-    """A `CREATE FUNCTION` statement.
-
-    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-sql-function.html
-    """
-
-    type = "create_databricks_function_statement"
-
-    match_grammar: Matchable = Sequence(
-        "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
-        Ref("TemporaryGrammar", optional=True),
-        "FUNCTION",
-        Ref("IfNotExistsGrammar", optional=True),
-        Ref("FunctionNameSegment"),
-        Ref("FunctionParameterListGrammarWithComments"),
-        Sequence(
-            "RETURNS",
-            Ref("DatatypeSegment"),
-            optional=True,
-        ),
-        Ref("FunctionDefinitionGrammar"),
-    )
-
 
 class CreateFunctionStatementSegment(BaseSegment):
     """A `CREATE FUNCTION` statement.
@@ -2792,9 +2703,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateWidgetStatementSegment"),
             Ref("RemoveWidgetStatementSegment"),
             Ref("ReplaceTableStatementSegment"),
-            # Databricks - functions
-            Ref("CreateDatabricksFunctionStatementSegment"),
-            Ref("FunctionParameterListGrammarWithComments"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
