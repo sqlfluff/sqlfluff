@@ -826,11 +826,10 @@ def _paths_fix(
     paths,
     processes,
     fix_even_unparsable,
-    force,
     fixed_suffix,
     bench,
     show_lint_violations,
-    warn_force: bool = True,
+    check: bool = False,
     persist_timing: Optional[str] = None,
 ) -> None:
     """Handle fixing from paths."""
@@ -839,20 +838,14 @@ def _paths_fix(
         click.echo("==== finding fixable violations ====")
     exit_code = EXIT_SUCCESS
 
-    if force and warn_force and formatter.verbosity >= 0:
-        click.echo(
-            f"{formatter.colorize('FORCE MODE', Color.red)}: " "Attempting fixes..."
-        )
-
     with PathAndUserErrorHandler(formatter):
         result: LintingResult = linter.lint_paths(
             paths,
             fix=True,
             ignore_non_existent_files=False,
             processes=processes,
-            # If --force is set, then apply the changes as we go rather
-            # than waiting until the end.
-            apply_fixes=force,
+            # If --check is set, then don't apply any fixes until the end.
+            apply_fixes=not check,
             fixed_file_suffix=fixed_suffix,
             fix_even_unparsable=fix_even_unparsable,
         )
@@ -871,12 +864,12 @@ def _paths_fix(
     )
 
     if num_fixable > 0:
-        if not force and formatter.verbosity >= 0:
+        if check and formatter.verbosity >= 0:
             click.echo("==== fixing violations ====")
 
         click.echo(f"{num_fixable} " "fixable linting violations found")
 
-        if not force:
+        if check:
             click.echo(
                 "Are you sure you wish to attempt to fix these? [Y/n] ", nl=False
             )
@@ -947,10 +940,19 @@ def _paths_fix(
     "--force",
     is_flag=True,
     help=(
-        "Skip the confirmation prompt and go straight to applying "
-        "fixes. Fixes will also be applied file by file, during the "
+        "[DEPRECATED - From 3.0 onward this is the default behaviour] "
+        "Apply fixes will also be applied file by file, during the "
         "linting process, rather than waiting until all files are "
-        "linted before fixing. **Use this with caution.**"
+        "linted before fixing."
+    ),
+)
+@click.option(
+    "--check",
+    is_flag=True,
+    help=(
+        "Analyse all files and ask for confirmation before applying "
+        "any fixes. Fixes will be applied all together at the end of "
+        "the operation."
     ),
 )
 @click.option(
@@ -991,6 +993,7 @@ def _paths_fix(
 def fix(
     force: bool,
     paths: Tuple[str],
+    check: bool = False,
     bench: bool = False,
     quiet: bool = False,
     fixed_suffix: str = "",
@@ -1042,6 +1045,14 @@ def fix(
         stderr_output=fixing_stdin,
     )
 
+    if force:
+        click.echo(
+            formatter.colorize(
+                "The --force option is deprecated as it is now the default behaviour.",
+                Color.red,
+            )
+        )
+
     # handle stdin case. should output formatted sql to stdout and nothing else.
     if fixing_stdin:
         _stdin_fix(lnt, formatter, fix_even_unparsable)
@@ -1052,10 +1063,10 @@ def fix(
             paths,
             processes,
             fix_even_unparsable,
-            force,
             fixed_suffix,
             bench,
             show_lint_violations,
+            check=check,
             persist_timing=persist_timing,
         )
 
@@ -1150,11 +1161,9 @@ def cli_format(
             paths,
             processes,
             fix_even_unparsable=False,
-            force=True,  # Always force in format mode.
             fixed_suffix=fixed_suffix,
             bench=bench,
             show_lint_violations=False,
-            warn_force=False,  # don't warn about being in force mode.
             persist_timing=persist_timing,
         )
 
