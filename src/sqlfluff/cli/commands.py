@@ -769,6 +769,35 @@ def do_fixes(
     return False  # pragma: no cover
 
 
+def _handle_unparsable(
+    fix_even_unparsable: bool,
+    initial_exit_code: int,
+    linting_result: LintingResult,
+    formatter,
+):
+    """Handles the treatment of files with templating and parsing issues.
+
+    By default, any files with templating or parsing errors shouldn't have
+    fixes attempted - because we can't guarantee the validity of the fixes.
+
+    This method returns 1 if there are any files with templating or parse errors after
+    filtering, else 0 (Intended as a process exit code). If `fix_even_unparsable` is
+    set then it just returns whatever the pre-existing exit code was.
+
+    NOTE: This method mutates the LintingResult so that future use of the object
+    has updated violation counts which can be used for other exit code calcs.
+    """
+    if fix_even_unparsable:
+        # If we're fixing even when unparsable, don't perform any filtering.
+        return initial_exit_code
+    total_errors, num_filtered_errors = linting_result.count_tmp_prs_errors()
+    linting_result.discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors()
+    formatter.print_out_residual_error_counts(
+        total_errors, num_filtered_errors, force_stderr=True
+    )
+    return EXIT_FAIL if num_filtered_errors else EXIT_SUCCESS
+
+
 def _stdin_fix(linter: Linter, formatter, fix_even_unparsable: bool) -> None:
     """Handle fixing from stdin."""
     exit_code = EXIT_SUCCESS
@@ -777,10 +806,8 @@ def _stdin_fix(linter: Linter, formatter, fix_even_unparsable: bool) -> None:
     result = linter.lint_string_wrapped(stdin, fname="stdin", fix=True)
     templater_error = result.num_violations(types=SQLTemplaterError) > 0
     unfixable_error = result.num_violations(types=SQLLintError, fixable=False) > 0
-    if not fix_even_unparsable:
-        exit_code = formatter.handle_files_with_tmp_or_prs_errors(
-            result, force_stderr=True
-        )
+
+    exit_code = _handle_unparsable(fix_even_unparsable, exit_code, result, formatter)
 
     if result.num_violations(types=SQLLintError, fixable=True) > 0:
         stdout = result.paths[0].files[0].fix_string()[0]
@@ -843,8 +870,7 @@ def _paths_fix(
             fix_even_unparsable=fix_even_unparsable,
         )
 
-    if not fix_even_unparsable:
-        exit_code = formatter.handle_files_with_tmp_or_prs_errors(result)
+    exit_code = _handle_unparsable(fix_even_unparsable, exit_code, result, formatter)
 
     # NB: We filter to linting violations here, because they're
     # the only ones which can be potentially fixed.

@@ -8,8 +8,8 @@ from typing import Any, Dict, List, Optional, Tuple, Union, overload
 
 from typing_extensions import Literal, TypedDict
 
-from sqlfluff.core.errors import CheckTuple
-from sqlfluff.core.linter.linted_file import LintedFile
+from sqlfluff.core.errors import CheckTuple, SQLLintError
+from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES, LintedFile
 from sqlfluff.core.parser.segments.base import BaseSegment
 
 LintingRecord = TypedDict("LintingRecord", {"filepath": str, "violations": List[dict]})
@@ -38,6 +38,10 @@ class LintedDir:
         self._num_clean: int = 0
         self._num_unclean: int = 0
         self._num_violations: int = 0
+        self.num_unfiltered_tmp_prs_errors: int = 0
+        self._unfiltered_tmp_prs_errors_map: Dict[str, int] = {}
+        self.num_tmp_prs_errors: int = 0
+        self.num_unfixable_lint_errors: int = 0
         # Timing
         self.step_timings: List[Dict[str, float]] = []
         self.rule_timings: List[Tuple[str, str, float]] = []
@@ -73,6 +77,20 @@ class LintedDir:
         else:
             self._num_unclean += 1
         self._num_violations = file.num_violations()
+        _unfiltered_tmp_prs_errors = file.num_violations(
+            types=TMP_PRS_ERROR_TYPES,
+            filter_ignore=False,
+            filter_warning=False,
+        )
+        self.num_unfiltered_tmp_prs_errors += _unfiltered_tmp_prs_errors
+        self._unfiltered_tmp_prs_errors_map[file.path] = _unfiltered_tmp_prs_errors
+        self.num_tmp_prs_errors += file.num_violations(
+            types=TMP_PRS_ERROR_TYPES,
+        )
+        self.num_unfixable_lint_errors += file.num_violations(
+            types=SQLLintError,
+            fixable=False,
+        )
 
         # Append timings if present
         if file.timings:
@@ -168,6 +186,22 @@ class LintedDir:
                 suffix=fixed_file_suffix, formatter=formatter
             )
         return buffer
+
+    def discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors(self) -> None:
+        """Discard lint fixes for files with templating or parse errors."""
+        if self.num_unfiltered_tmp_prs_errors:
+            # Filter serialised versions if present.
+            for record in self._records:
+                if self._unfiltered_tmp_prs_errors_map[record["filepath"]]:
+                    for violation in record["violations"]:
+                        if violation.get("fixes", []):
+                            violation["fixes"] = []
+            # Filter the full versions if present.
+            for linted_file in self.files:
+                if self._unfiltered_tmp_prs_errors_map[linted_file.path]:
+                    for violation in linted_file.violations:
+                        if isinstance(violation, SQLLintError):
+                            violation.fixes = []
 
     @property
     def tree(self) -> Optional[BaseSegment]:

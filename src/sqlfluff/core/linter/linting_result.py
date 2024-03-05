@@ -8,7 +8,6 @@ from typing_extensions import Literal
 
 from sqlfluff.core.errors import CheckTuple
 from sqlfluff.core.linter.linted_dir import LintedDir, LintingRecord
-from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES
 from sqlfluff.core.timing import RuleTimingSummary, TimingSummary
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -228,27 +227,11 @@ class LintingResult:
 
     def count_tmp_prs_errors(self) -> Tuple[int, int]:
         """Count templating or parse errors before and after filtering."""
-        total_errors = self.num_violations(
-            types=TMP_PRS_ERROR_TYPES,
-            filter_ignore=False,
-            filter_warning=False,
-        )
-        num_filtered_errors = 0
-        for linted_dir in self.paths:
-            for linted_file in linted_dir.files:
-                num_filtered_errors += linted_file.num_violations(
-                    types=TMP_PRS_ERROR_TYPES
-                )
+        total_errors = sum(path.num_unfiltered_tmp_prs_errors for path in self.paths)
+        num_filtered_errors = sum(path.num_tmp_prs_errors for path in self.paths)
         return total_errors, num_filtered_errors
 
     def discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors(self) -> None:
         """Discard lint fixes for files with templating or parse errors."""
-        total_errors = self.num_violations(
-            types=TMP_PRS_ERROR_TYPES,
-            filter_ignore=False,
-            filter_warning=False,
-        )
-        if total_errors:
-            for linted_dir in self.paths:
-                for linted_file in linted_dir.files:
-                    linted_file.discard_fixes_if_tmp_or_prs_errors()
+        for path in self.paths:
+            path.discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors()

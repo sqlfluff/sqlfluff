@@ -18,7 +18,7 @@ from sqlfluff.cli.helpers import (
 from sqlfluff.cli.outputstream import OutputStream
 from sqlfluff.core import FluffConfig, Linter, SQLBaseError, TimingSummary
 from sqlfluff.core.enums import Color
-from sqlfluff.core.linter import LintedFile, LintingResult, ParsedString
+from sqlfluff.core.linter import LintedFile, ParsedString
 
 
 def split_string_on_spaces(s: str, line_length: int = 100) -> List[str]:
@@ -586,16 +586,18 @@ class OutputStreamFormatter:
             Color.lightgrey,
         )
 
-    def handle_files_with_tmp_or_prs_errors(
-        self, lint_result: LintingResult, force_stderr=False
-    ) -> int:
-        """Discard lint fixes for files with templating or parse errors.
+    def print_out_residual_error_counts(
+        self, total_errors: int, num_filtered_errors: int, force_stderr: bool = False
+    ) -> None:
+        """Output the residual error totals for the file.
 
-        Returns 1 if there are any files with templating or parse errors after
-        filtering, else 0. (Intended as a process exit code.)
+        Args:
+            total_errors (int): The total number of templating & parsing errors.
+            num_filtered_errors (int): The number of templating & parsing errors
+                which remain after any noqa and filters applied.
+            force_stderr (bool): Whether to force the output onto stderr. By default
+                the output is on stdout if there are no errors, otherwise stderr.
         """
-        total_errors, num_filtered_errors = lint_result.count_tmp_prs_errors()
-        lint_result.discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors()
         if total_errors:
             click.echo(
                 message=self.colorize(
@@ -615,7 +617,6 @@ class OutputStreamFormatter:
                     color=not self.plain_output,
                     err=force_stderr or num_filtered_errors > 0,
                 )
-        return EXIT_FAIL if num_filtered_errors else EXIT_SUCCESS
 
     def print_out_violations_and_timing(
         self,
