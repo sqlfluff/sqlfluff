@@ -868,6 +868,10 @@ def _paths_fix(
             apply_fixes=not check,
             fixed_file_suffix=fixed_suffix,
             fix_even_unparsable=fix_even_unparsable,
+            # If --check is not set, then don't apply any fixes until the end.
+            # NOTE: This should enable us to limit the memory overhead of keeping
+            # a large parsed project in memory unless necessary.
+            retain_files=check,
         )
 
     exit_code = _handle_unparsable(fix_even_unparsable, exit_code, result, formatter)
@@ -918,10 +922,9 @@ def _paths_fix(
             click.echo("==== no fixable linting violations found ====")
             formatter.completion_message()
 
-    num_violations_kwargs = {"types": SQLLintError, "fixable": False}
-    num_violations = result.num_violations(**num_violations_kwargs)
-    if num_violations > 0 and formatter.verbosity >= 0:
-        click.echo("  [{} unfixable linting violations found]".format(num_violations))
+    num_unfixable = sum(p.num_unfixable_lint_errors for p in result.paths)
+    if num_unfixable > 0 and formatter.verbosity >= 0:
+        click.echo("  [{} unfixable linting violations found]".format(num_unfixable))
         exit_code = max(exit_code, EXIT_FAIL)
 
     if bench:

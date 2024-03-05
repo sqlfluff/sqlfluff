@@ -195,6 +195,9 @@ class LintedDir:
                 if self._unfiltered_tmp_prs_errors_map[record["filepath"]]:
                     for violation in record["violations"]:
                         if violation.get("fixes", []):
+                            # We're changing a violating with fixes, to one without,
+                            # so we need to increment the cache value.
+                            self.num_unfixable_lint_errors += 1
                             violation["fixes"] = []
             # Filter the full versions if present.
             for linted_file in self.files:
