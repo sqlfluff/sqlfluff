@@ -18,10 +18,6 @@ from tqdm import tqdm
 
 from sqlfluff.cli import EXIT_ERROR, EXIT_FAIL, EXIT_SUCCESS
 from sqlfluff.cli.autocomplete import dialect_shell_complete, shell_completion_enabled
-from sqlfluff.cli.click_deprecated_option import (
-    DeprecatedOption,
-    DeprecatedOptionsCommand,
-)
 from sqlfluff.cli.formatters import (
     OutputStreamFormatter,
     format_linting_result_header,
@@ -336,12 +332,9 @@ def lint_options(f: Callable) -> Callable:
         ),
     )(f)
     f = click.option(
-        "--disable_progress_bar",
         "--disable-progress-bar",
         is_flag=True,
         help="Disables progress bars.",
-        cls=DeprecatedOption,
-        deprecated=["--disable_progress_bar"],
     )(f)
     f = click.option(
         "--persist-timing",
@@ -523,7 +516,7 @@ def dump_file_payload(filename: Optional[str], payload: str) -> None:
         click.echo(payload)
 
 
-@cli.command(cls=DeprecatedOptionsCommand)
+@cli.command()
 @common_options
 @core_options
 @lint_options
@@ -931,7 +924,7 @@ def _paths_fix(
     sys.exit(exit_code)
 
 
-@cli.command(cls=DeprecatedOptionsCommand)
+@cli.command()
 @common_options
 @core_options
 @lint_options
@@ -1071,7 +1064,7 @@ def fix(
         )
 
 
-@cli.command(name="format", cls=DeprecatedOptionsCommand)
+@cli.command(name="format")
 @common_options
 @core_options
 @lint_options
