@@ -410,7 +410,9 @@ class OutputStreamFormatter:
         return f"== [{self.colorize(filename, Color.lightgrey)}] {status_string}"
 
     def format_violation(
-        self, violation: Union[SQLBaseError, dict], max_line_length: int = 90
+        self,
+        violation: Union[SQLBaseError, dict],
+        max_line_length: int = 90,
     ) -> str:
         """Format a violation.
 
@@ -418,17 +420,19 @@ class OutputStreamFormatter:
         dict representation. If the former is passed, then the conversion is
         done within the method so we can work with a common representation.
         """
-        if isinstance(violation, SQLBaseError):
-            violation = violation.to_dict()
+        if isinstance(violation, dict):
+            v_dict: dict = violation
+        elif isinstance(violation, SQLBaseError):
+            v_dict = violation.to_dict()
         elif not isinstance(violation, dict):  # pragma: no cover
             raise ValueError(f"Unexpected violation format: {violation}")
 
-        desc: str = violation["description"]
-        code: str = violation["code"]
-        name: str = violation["name"]
-        line_no: int = violation["start_line_no"]
-        line_pos: int = violation["start_line_pos"]
-        warning: bool = violation["warning"]
+        desc: str = v_dict["description"]
+        code: str = v_dict["code"]
+        name: str = v_dict["name"]
+        line_no: int = v_dict["start_line_no"]
+        line_pos: int = v_dict["start_line_pos"]
+        warning: bool = v_dict["warning"]
         line_elem = "   -" if line_no is None else f"{line_no:4d}"
         pos_elem = "   -" if line_pos is None else f"{line_pos:4d}"
 
