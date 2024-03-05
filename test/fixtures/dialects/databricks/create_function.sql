@@ -23,29 +23,29 @@ CREATE TEMPORARY FUNCTION test_avg
 AS 'org.apache.hadoop.hive.ql.udf.generic.GenericUDAFAverage';
 
 -- Create a temporary function with no parameter
-CREATE TEMPORARY FUNCTION hello() 
+CREATE TEMPORARY FUNCTION hello()
 RETURNS STRING RETURN 'Hello World!';
 
 -- Create a temporary function with no parameter.
-CREATE OR REPLACE TEMPORARY FUNCTION function_name() 
-RETURNS TIMESTAMP LANGUAGE SQL 
+CREATE OR REPLACE TEMPORARY FUNCTION function_name()
+RETURNS TIMESTAMP LANGUAGE SQL
 RETURN SELECT MAX(time) AS time FROM my_table;
 
 -- Create a permanent function with parameters
-CREATE FUNCTION area(x DOUBLE, y DOUBLE) 
-RETURNS DOUBLE 
+CREATE FUNCTION area(x DOUBLE, y DOUBLE)
+RETURNS DOUBLE
 RETURN x * y;
 
 -- Compose SQL functions.
-CREATE FUNCTION square(x DOUBLE) 
-RETURNS DOUBLE 
+CREATE FUNCTION square(x DOUBLE)
+RETURNS DOUBLE
 RETURN area(x, x);
 
 -- Create a CTE function
 CREATE FUNCTION cte_function(x INT)
-RETURNS string 
-LANGUAGE SQL 
-RETURN 
+RETURNS string
+LANGUAGE SQL
+RETURN
 WITH cte AS (SELECT x AS y)
 SELECT * FROM cte;
 

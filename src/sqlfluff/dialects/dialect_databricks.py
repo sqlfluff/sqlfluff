@@ -8,14 +8,14 @@ It also has some extensions.
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
-    BaseSegment, 
-    Bracketed, 
-    Matchable,
+    BaseSegment,
+    Bracketed,
     CodeSegment,
-    Delimited, 
-    OneOf, 
-    Ref, 
-    Sequence, 
+    Delimited,
+    Matchable,
+    OneOf,
+    Ref,
+    Sequence,
     TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -203,9 +203,10 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("SetTimeZoneStatementSegment"),
             Ref("OptimizeTableStatementSegment"),
             Ref("CreateDatabricksFunctionStatementSegment"),
-            Ref("FunctionParameterListGrammarWithComments"), 
+            Ref("FunctionParameterListGrammarWithComments"),
         ]
     )
+
 
 class FunctionParameterListGrammarWithComments(BaseSegment):
     """The parameters for a function ie. `(column type COMMENT 'comment')`."""
@@ -262,7 +263,11 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                     ),
                     Sequence(
                         "RETURN",
-                        OneOf(Ref("ExpressionSegment"), Ref("SelectStatementSegment"), Ref("WithCompoundStatementSegment")),
+                        OneOf(
+                            Ref("ExpressionSegment"),
+                            Ref("SelectStatementSegment"),
+                            Ref("WithCompoundStatementSegment"),
+                        ),
                     ),
                 )
             ),

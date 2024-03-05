@@ -1314,6 +1314,7 @@ class FunctionParameterListGrammarWithComments(BaseSegment):
         ),
     )
 
+
 class CreateFunctionStatementSegment(BaseSegment):
     """A `CREATE FUNCTION` statement.
 
