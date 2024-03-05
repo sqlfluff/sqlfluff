@@ -350,7 +350,7 @@ def test__cli__command_render_stdin():
         # Check basic parsing, with the code only option
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-c"]),
         # Check basic parsing, with the yaml output
-        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-c", "-f", "yaml"]),
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-c", "--format", "yaml"]),
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--format", "yaml"]),
         # Check parsing with no output (used mostly for testing)
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--format", "none"]),
@@ -471,7 +471,6 @@ def test__cli__command_lint_parse(command):
                     "test/fixtures/cli/fail_many.sql",
                     "-vvvvvvv",
                 ],
-                "y",
             ),
             1,
         ),
@@ -486,7 +485,6 @@ def test__cli__command_lint_parse(command):
                     "_fix",
                     "test/fixtures/cli/fail_many.sql",
                 ],
-                "y",
             ),
             1,
         ),
@@ -499,7 +497,6 @@ def test__cli__command_lint_parse(command):
                     "_fix",
                     "test/fixtures/cli/fail_many.sql",
                 ],
-                "y",
             ),
             1,
         ),
@@ -820,7 +817,7 @@ def test__cli__command__fix(rule, fname):
             FROM my_schema.my_table
             where processdate ! 3
             """,
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "CP01"],
+            ["--fixed-suffix", "FIXED", "--rules", "CP01"],
             None,
             1,
         ),
@@ -833,7 +830,7 @@ def test__cli__command__fix(rule, fname):
             where processdate {{ condition }}
             """,
             # Test the short versions of the options.
-            ["--force", "-x", "FIXED", "-r", "CP01"],
+            ["-x", "FIXED", "-r", "CP01"],
             None,
             1,
         ),
@@ -847,7 +844,7 @@ def test__cli__command__fix(rule, fname):
             where processdate ! 3  -- noqa: PRS
             """,
             # Test the short versions of the options.
-            ["--force", "-x", "FIXED", "-r", "CP01"],
+            ["-x", "FIXED", "-r", "CP01"],
             None,
             1,
         ),
@@ -859,7 +856,7 @@ def test__cli__command__fix(rule, fname):
             FROM my_schema.my_table
             WHERE processdate ! 3
             """,
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "CP01"],
+            ["--fixed-suffix", "FIXED", "--rules", "CP01"],
             None,
             1,
         ),
@@ -871,7 +868,7 @@ def test__cli__command__fix(rule, fname):
             FROM my_schema.my_table
             WHERE processdate ! 3  --noqa: PRS
             """,
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "CP01"],
+            ["--fixed-suffix", "FIXED", "--rules", "CP01"],
             None,
             0,
         ),
@@ -885,7 +882,6 @@ def test__cli__command__fix(rule, fname):
             where processdate ! 3
             """,
             [
-                "--force",
                 "--fixed-suffix",
                 "FIXED",
                 "--rules",
@@ -919,7 +915,7 @@ def test__cli__command__fix(rule, fname):
                 FROM my_schema.my_table
                 where processdate != 3""",
             ],
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "CP01"],
+            ["--fixed-suffix", "FIXED", "--rules", "CP01"],
             [
                 None,
                 """SELECT my_col
@@ -954,12 +950,8 @@ def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmpd
         with pytest.raises(SystemExit) as e:
             fix(
                 fix_args
-                + [
-                    "-f",
-                    # Use the short dialect option
-                    "-d",
-                    "ansi",
-                ]
+                # Use the short dialect option
+                + ["-d", "ansi"]
             )
         assert exit_code == e.value.code
     for idx, this_fixed in enumerate(fixed):
@@ -999,7 +991,6 @@ where processdate ! 3
     options = [
         "--dialect",
         "ansi",
-        "-f",
         "--fixed-suffix=FIXED",
         sql_path,
     ]
