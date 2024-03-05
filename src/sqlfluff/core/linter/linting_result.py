@@ -93,12 +93,6 @@ class LintingResult:
             buff += path.get_violations(**kwargs)
         return buff
 
-    def violation_dict(self, **kwargs) -> dict:
-        """Return a dict of paths and violations."""
-        return self.combine_dicts(
-            *(path.violation_dict(**kwargs) for path in self.paths)
-        )
-
     def stats(self, fail_code: int, success_code: int) -> Dict[str, Any]:
         """Return a stats dictionary of this result."""
         all_stats: Dict[str, Any] = dict(files=0, clean=0, unclean=0, violations=0)
