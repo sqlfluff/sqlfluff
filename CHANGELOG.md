@@ -30,10 +30,11 @@ This release should be considered a release candidate for the final `3.0.0`
 release which will follow shortly in the next few days unless any other
 major issues are found.
 
-Thanks particularly to the **six** new contributors we saw in this release 🏆🎉.
+Thanks particularly to the **seven** new contributors we saw in this release 🏆🎉.
 
 ## What’s Changed
 
+* Add Support for Databricks `CREATE FUNCTION` Syntax in SparkSQL Parser [#5615](https://github.com/sqlfluff/sqlfluff/pull/5615) [@mitchellvanrijkom](https://github.com/mitchellvanrijkom)
 * Swap fix `--force` for `--check` [#5650](https://github.com/sqlfluff/sqlfluff/pull/5650) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Remove `DeprecatedOption` [#5649](https://github.com/sqlfluff/sqlfluff/pull/5649) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Resolve broken loop limit test [#5651](https://github.com/sqlfluff/sqlfluff/pull/5651) [@alanmcruickshank](https://github.com/alanmcruickshank)
@@ -63,13 +64,13 @@ Thanks particularly to the **six** new contributors we saw in this release 🏆�
 * [CI] Add `no_implicit_reexport` mypy check [#5509](https://github.com/sqlfluff/sqlfluff/pull/5509) [@Koyaani](https://github.com/Koyaani)
 
 ## New Contributors
-
 * [@maoxingda](https://github.com/maoxingda) made their first contribution in [#5594](https://github.com/sqlfluff/sqlfluff/pull/5594)
 * [@Jefffrey](https://github.com/Jefffrey) made their first contribution in [#5613](https://github.com/sqlfluff/sqlfluff/pull/5613)
 * [@kkozhakin](https://github.com/kkozhakin) made their first contribution in [#5546](https://github.com/sqlfluff/sqlfluff/pull/5546)
 * [@gshen7](https://github.com/gshen7) made their first contribution in [#5621](https://github.com/sqlfluff/sqlfluff/pull/5621)
 * [@PolitePp](https://github.com/PolitePp) made their first contribution in [#5640](https://github.com/sqlfluff/sqlfluff/pull/5640)
 * [@DannyMor](https://github.com/DannyMor) made their first contribution in [#5635](https://github.com/sqlfluff/sqlfluff/pull/5635)
+* [@mitchellvanrijkom](https://github.com/mitchellvanrijkom) made their first contribution in [#5615](https://github.com/sqlfluff/sqlfluff/pull/5615)
 
 ## [3.0.0a5] - 2024-01-30
 
