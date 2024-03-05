@@ -226,6 +226,7 @@ class FunctionParameterListGrammarWithComments(BaseSegment):
         ),
     )
 
+
 class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
     """This is the body of a `CREATE FUNCTION AS` statement."""
 
@@ -273,6 +274,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
             ),
         )
     )
+
 
 class CreateDatabricksFunctionStatementSegment(BaseSegment):
     """A `CREATE FUNCTION` statement.
