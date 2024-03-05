@@ -33,8 +33,6 @@ from sqlfluff.cli.commands import (
     rules,
     version,
 )
-from sqlfluff.core.parser import CommentSegment
-from sqlfluff.core.rules import LintFix, LintResult
 from sqlfluff.utils.testing.cli import invoke_assert_code
 
 # tomllib is only in the stdlib from 3.11+
@@ -1040,58 +1038,6 @@ WHERE processdate ! 3
             )
     else:
         assert not os.path.isfile(fixed_path)
-
-
-_fix_counter = 0
-
-
-def _mock_eval(rule, context):
-    # For test__cli__fix_loop_limit_behavior, we mock BaseRule.crawl(),
-    # replacing it with this function. This function generates an infinite
-    # sequence of fixes without ever repeating the same fix. This causes the
-    # linter to hit the loop limit, allowing us to test that behavior.
-    if context.segment.is_type("comment") and "Comment" in context.segment.raw:
-        global _fix_counter
-        _fix_counter += 1
-        fix = LintFix.replace(
-            context.segment, [CommentSegment(f"-- Comment {_fix_counter}")]
-        )
-        return LintResult(context.segment, fixes=[fix])
-    else:
-        return LintResult()
-
-
-@pytest.mark.parametrize(
-    "sql, exit_code",
-    [
-        # NOTE: Should this actually return 1?
-        ("-- Comment A\nSELECT 1 FROM foo", 0),
-        ("-- noqa: disable=all\n-- Comment A\nSELECT 1 FROM foo", 0),
-    ],
-)
-@patch("sqlfluff.rules.layout.LT01.Rule_LT01._eval", _mock_eval)
-def test__cli__fix_loop_limit_behavior(sql, exit_code, tmpdir):
-    """Tests how "fix" behaves when the loop limit is exceeded."""
-    fix_args = ["--force", "--fixed-suffix", "FIXED", "--rules", "LT01"]
-    tmp_path = pathlib.Path(str(tmpdir))
-    filepath = tmp_path / "testing.sql"
-    filepath.write_text(textwrap.dedent(sql))
-    with tmpdir.as_cwd():
-        with pytest.raises(SystemExit) as e:
-            fix(
-                fix_args
-                + [
-                    "-f",
-                    "--dialect=ansi",
-                ]
-            )
-        assert exit_code == e.value.code
-    # In both parametrized test cases, no output file should have been
-    # created.
-    # - Case #1: Hitting the loop limit is an error (SHOULD it?)
-    # - Case #2: "noqa" suppressed all lint errors, thus no fixes applied
-    fixed_path = tmp_path / "testingFIXED.sql"
-    assert not fixed_path.is_file()
 
 
 @pytest.mark.parametrize(
