@@ -350,7 +350,7 @@ def test__cli__command_render_stdin():
         # Check basic parsing, with the code only option
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-c"]),
         # Check basic parsing, with the yaml output
-        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-c", "-f", "yaml"]),
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-c", "--format", "yaml"]),
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--format", "yaml"]),
         # Check parsing with no output (used mostly for testing)
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--format", "none"]),
@@ -471,7 +471,6 @@ def test__cli__command_lint_parse(command):
                     "test/fixtures/cli/fail_many.sql",
                     "-vvvvvvv",
                 ],
-                "y",
             ),
             1,
         ),
@@ -486,7 +485,6 @@ def test__cli__command_lint_parse(command):
                     "_fix",
                     "test/fixtures/cli/fail_many.sql",
                 ],
-                "y",
             ),
             1,
         ),
@@ -499,7 +497,6 @@ def test__cli__command_lint_parse(command):
                     "_fix",
                     "test/fixtures/cli/fail_many.sql",
                 ],
-                "y",
             ),
             1,
         ),
@@ -739,7 +736,7 @@ def generic_roundtrip_test(
     source_file,
     rulestring,
     final_exit_code=0,
-    force=True,
+    check=False,
     fix_input=None,
     fix_exit_code=0,
     input_file_encoding="utf-8",
@@ -767,8 +764,8 @@ def generic_roundtrip_test(
         args=[lint, ["--dialect=ansi", "--rules", rulestring, filepath]],
     )
     # Fix the file (in force mode)
-    if force:
-        fix_args = ["--rules", rulestring, "-f", filepath]
+    if check:
+        fix_args = ["--rules", rulestring, "--check", filepath]
     else:
         fix_args = ["--rules", rulestring, filepath]
     fix_args.append("--dialect=ansi")
@@ -820,7 +817,7 @@ def test__cli__command__fix(rule, fname):
             FROM my_schema.my_table
             where processdate ! 3
             """,
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "CP01"],
+            ["--fixed-suffix", "FIXED", "--rules", "CP01"],
             None,
             1,
         ),
@@ -833,7 +830,7 @@ def test__cli__command__fix(rule, fname):
             where processdate {{ condition }}
             """,
             # Test the short versions of the options.
-            ["--force", "-x", "FIXED", "-r", "CP01"],
+            ["-x", "FIXED", "-r", "CP01"],
             None,
             1,
         ),
@@ -847,7 +844,7 @@ def test__cli__command__fix(rule, fname):
             where processdate ! 3  -- noqa: PRS
             """,
             # Test the short versions of the options.
-            ["--force", "-x", "FIXED", "-r", "CP01"],
+            ["-x", "FIXED", "-r", "CP01"],
             None,
             1,
         ),
@@ -859,7 +856,7 @@ def test__cli__command__fix(rule, fname):
             FROM my_schema.my_table
             WHERE processdate ! 3
             """,
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "CP01"],
+            ["--fixed-suffix", "FIXED", "--rules", "CP01"],
             None,
             1,
         ),
@@ -871,7 +868,7 @@ def test__cli__command__fix(rule, fname):
             FROM my_schema.my_table
             WHERE processdate ! 3  --noqa: PRS
             """,
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "CP01"],
+            ["--fixed-suffix", "FIXED", "--rules", "CP01"],
             None,
             0,
         ),
@@ -885,7 +882,6 @@ def test__cli__command__fix(rule, fname):
             where processdate ! 3
             """,
             [
-                "--force",
                 "--fixed-suffix",
                 "FIXED",
                 "--rules",
@@ -919,7 +915,7 @@ def test__cli__command__fix(rule, fname):
                 FROM my_schema.my_table
                 where processdate != 3""",
             ],
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "CP01"],
+            ["--fixed-suffix", "FIXED", "--rules", "CP01"],
             [
                 None,
                 """SELECT my_col
@@ -954,12 +950,8 @@ def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmpd
         with pytest.raises(SystemExit) as e:
             fix(
                 fix_args
-                + [
-                    "-f",
-                    # Use the short dialect option
-                    "-d",
-                    "ansi",
-                ]
+                # Use the short dialect option
+                + ["-d", "ansi"]
             )
         assert exit_code == e.value.code
     for idx, this_fixed in enumerate(fixed):
@@ -999,7 +991,6 @@ where processdate ! 3
     options = [
         "--dialect",
         "ansi",
-        "-f",
         "--fixed-suffix=FIXED",
         sql_path,
     ]
@@ -1175,13 +1166,13 @@ def test__cli__command_fix_stdin_error_exit_code(
         ("LT01", "test/fixtures/linter/indentation_errors.sql", "n", 1, 1),
     ],
 )
-def test__cli__command__fix_no_force(rule, fname, prompt, exit_code, fix_exit_code):
+def test__cli__command__fix_check(rule, fname, prompt, exit_code, fix_exit_code):
     """Round trip test, using the prompts."""
     with open(fname) as test_file:
         generic_roundtrip_test(
             test_file,
             rule,
-            force=False,
+            check=True,
             final_exit_code=exit_code,
             fix_input=prompt,
             fix_exit_code=fix_exit_code,
@@ -1972,6 +1963,7 @@ def test__cli__fix_multiple_errors_no_show_errors():
         args=[
             fix,
             [
+                "--check",  # Run in check mode to get the confirmation.
                 "--disable-progress-bar",
                 "test/fixtures/linter/multiple_sql_errors.sql",
             ],
@@ -1989,7 +1981,6 @@ def test__cli__fix_multiple_errors_quiet_force():
             [
                 "--disable-progress-bar",
                 "test/fixtures/linter/multiple_sql_errors.sql",
-                "--force",
                 "--quiet",
                 "-x",
                 "_fix",
@@ -2002,7 +1993,7 @@ def test__cli__fix_multiple_errors_quiet_force():
     )
 
 
-def test__cli__fix_multiple_errors_quiet_no_force():
+def test__cli__fix_multiple_errors_quiet_check():
     """Test the fix --quiet option without --force."""
     invoke_assert_code(
         ret_code=0,
@@ -2011,6 +2002,7 @@ def test__cli__fix_multiple_errors_quiet_no_force():
             [
                 "--disable-progress-bar",
                 "test/fixtures/linter/multiple_sql_errors.sql",
+                "--check",  # Run in check mode to get the confirmation.
                 "--quiet",
                 "-x",
                 "_fix",
@@ -2037,6 +2029,7 @@ def test__cli__fix_multiple_errors_show_errors():
                 "--disable-progress-bar",
                 "--show-lint-violations",
                 "test/fixtures/linter/multiple_sql_errors.sql",
+                "--check",  # Run in check mode to get the confirmation.
             ],
         ],
     )
@@ -2074,6 +2067,7 @@ def test__cli__multiple_files__fix_multiple_errors_show_errors():
             fix,
             [
                 "--disable-progress-bar",
+                "--check",  # Run in check mode to get the confirmation.
                 "--show-lint-violations",
                 sql_path,
                 indent_path,

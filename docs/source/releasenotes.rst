@@ -33,9 +33,15 @@ This release makes a couple of potentially breaking changes:
   always now have the level of :code:`notice`. This is only relevant when using
   the :code:`github-annotation` or :code:`github-annotation-native` formats.
 
-* The previously deprecated `--disable_progress_bar` on `lint`, `fix` and `format`
-  has now been removed entirely. Please migrate to `--disable-progress-bar` to
-  continue using this option.
+* The previously deprecated :code:`--disable_progress_bar` on `:code:lint`,
+  :code:`fix` and :code:`format` has now been removed entirely. Please migrate
+  to :code:`--disable-progress-bar` to continue using this option.
+
+* The :code:`--force` option on :code:`sqlfluff fix` is now the default behaviour
+  and so the option has been deprecated. A new :code:`--check` option has been
+  introduced which mimics the old default behaviour. This has been changed as it
+  enables significantly lower memory overheads when linting and fixing large
+  projects.
 
 Upgrading to 2.3
 ----------------
