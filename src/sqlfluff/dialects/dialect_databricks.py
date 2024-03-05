@@ -58,6 +58,7 @@ databricks_dialect.add(
     ),
 )
 
+
 # Object References
 class CatalogReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to a catalog.
