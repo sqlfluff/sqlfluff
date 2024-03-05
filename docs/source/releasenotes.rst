@@ -33,6 +33,10 @@ This release makes a couple of potentially breaking changes:
   always now have the level of :code:`notice`. This is only relevant when using
   the :code:`github-annotation` or :code:`github-annotation-native` formats.
 
+* The previously deprecated `--disable_progress_bar` on `lint`, `fix` and `format`
+  has now been removed entirely. Please migrate to `--disable-progress-bar` to
+  continue using this option.
+
 Upgrading to 2.3
 ----------------
 
