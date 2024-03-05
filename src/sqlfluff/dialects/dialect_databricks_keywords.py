@@ -26,4 +26,6 @@ UNRESERVED_KEYWORDS = [
     "CATALOG",
     "OPTIMIZE",
     "ZORDER",
+    "PYTHON",
+    "SQL",
 ]
