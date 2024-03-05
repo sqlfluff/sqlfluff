@@ -35,7 +35,7 @@ This release makes a couple of potentially breaking changes:
 
 * The previously deprecated :code:`--disable_progress_bar` on `:code:lint`,
   :code:`fix` and :code:`format` has now been removed entirely. Please migrate
-  to `--disable-progress-bar` to continue using this option.
+  to :code:`--disable-progress-bar` to continue using this option.
 
 * The :code:`--force` option on :code:`sqlfluff fix` is now the default behaviour
   and so the option has been deprecated. A new :code:`--check` option has been
