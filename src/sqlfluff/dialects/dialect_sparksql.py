@@ -1296,11 +1296,33 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
     )
 
 
-class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
+class FunctionParameterListGrammarWithComments(BaseSegment):
+    """The parameters for a function ie. `(column type COMMENT 'comment')`."""
+
+    type = "function_parameter_list_with_comments"
+
+    match_grammar: Matchable = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("FunctionParameterGrammar"),
+                AnyNumberOf(
+                    Sequence("DEFAULT", Ref("LiteralGrammar"), optional=True),
+                    Ref("CommentClauseSegment", optional=True),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class CreateFunctionStatementSegment(BaseSegment):
     """A `CREATE FUNCTION` statement.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-function.html
+
     """
+
+    type = "create_function_statement"
 
     match_grammar = Sequence(
         "CREATE",
