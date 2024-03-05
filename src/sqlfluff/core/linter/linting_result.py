@@ -200,9 +200,11 @@ class LintingResult:
         This method is useful for serialization as all objects will be builtin python
         types (ints, strs).
         """
-        return [
-            record for linted_dir in self.paths for record in linted_dir.as_records()
-        ]
+        return sorted(
+            (record for linted_dir in self.paths for record in linted_dir.as_records()),
+            # Sort records by filename
+            key=lambda record: record["filepath"],
+        )
 
     def persist_changes(self, formatter, fixed_file_suffix: str = "") -> dict:
         """Run all the fixes for all the files and return a dict."""

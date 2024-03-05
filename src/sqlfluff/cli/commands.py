@@ -939,12 +939,15 @@ def _paths_fix(
 
     if show_lint_violations:
         click.echo("==== lint for unfixable violations ====")
-        all_results = result.violation_dict(**num_violations_kwargs)
-        sorted_files = sorted(all_results.keys())
-        for file in sorted_files:
-            violations = all_results.get(file, [])
-            click.echo(formatter.format_filename(file, success=(not violations)))
-            for violation in violations:
+        for record in result.as_records():
+            # Non fixable linting errors _have_ a `fixes` value, but it's an empty list.
+            non_fixable = [
+                v for v in record["violations"] if v.get("fixes", None) == []
+            ]
+            click.echo(
+                formatter.format_filename(record["filepath"], success=(not non_fixable))
+            )
+            for violation in non_fixable:
                 click.echo(formatter.format_violation(violation))
 
     if persist_timing:

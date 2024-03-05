@@ -410,42 +410,48 @@ class OutputStreamFormatter:
         return f"== [{self.colorize(filename, Color.lightgrey)}] {status_string}"
 
     def format_violation(
-        self, violation: SQLBaseError, max_line_length: int = 90
+        self, violation: Union[SQLBaseError, dict], max_line_length: int = 90
     ) -> str:
-        """Format a violation."""
-        if not isinstance(violation, SQLBaseError):  # pragma: no cover
+        """Format a violation.
+
+        NOTE: This method accepts both SQLBaseError objects and the serialised
+        dict representation. If the former is passed, then the conversion is
+        done within the method so we can work with a common representation.
+        """
+        if isinstance(violation, SQLBaseError):
+            violation = violation.to_dict()
+        elif not isinstance(violation, dict):  # pragma: no cover
             raise ValueError(f"Unexpected violation format: {violation}")
 
-        desc: str = violation.desc()
-        line_elem = "   -" if violation.line_no is None else f"{violation.line_no:4d}"
-        pos_elem = "   -" if violation.line_pos is None else f"{violation.line_pos:4d}"
+        desc: str = violation["description"]
+        code: str = violation["code"]
+        name: str = violation["name"]
+        line_no: int = violation["start_line_no"]
+        line_pos: int = violation["start_line_pos"]
+        warning: bool = violation["warning"]
+        line_elem = "   -" if line_no is None else f"{line_no:4d}"
+        pos_elem = "   -" if line_pos is None else f"{line_pos:4d}"
 
-        if violation.ignore:
-            desc = "IGNORE: " + desc  # pragma: no cover
-        elif violation.warning:
+        if warning:
             desc = "WARNING: " + desc  # pragma: no cover
 
         # If the rule has a name, add that the description.
-        if hasattr(violation, "rule"):
-            rule = getattr(violation, "rule", None)
-            if rule and rule.name:
-                desc += f" [{self.colorize(rule.name, Color.lightgrey)}]"
+        if name:
+            desc += f" [{self.colorize(name, Color.lightgrey)}]"
 
         split_desc = split_string_on_spaces(desc, line_length=max_line_length - 25)
 
         out_buff = ""
         # Grey out the violation if we're ignoring or warning it.
         section_color: Color
-        if violation.ignore or violation.warning:
-            # For now keep warnings and ignores the same colour. The additional
-            # text in the description allows distinction.
+        if warning:
             section_color = Color.lightgrey
         else:
             section_color = Color.blue
 
         for idx, line in enumerate(split_desc):
             if idx == 0:
-                rule_code = violation.rule_code().rjust(4)
+                rule_code = code.rjust(4)
                 if "PRS" in rule_code:
                     section_color = Color.red
                 out_buff += self.colorize(
