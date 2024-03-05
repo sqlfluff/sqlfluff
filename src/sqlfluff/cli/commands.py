@@ -1041,7 +1041,8 @@ def fix(
     if force:
         click.echo(
             formatter.colorize(
-                "The -f/--force option is deprecated as it is now the default behaviour.",
+                "The -f/--force option is deprecated as it is now the "
+                "default behaviour.",
                 Color.red,
             )
         )
