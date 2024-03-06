@@ -1485,16 +1485,6 @@ class OptionsSegment(BaseSegment):
     )
 
 
-class NotEnforcedSegment(BaseSegment):
-    """NOT ENFORCED clause for a primary key."""
-
-    type = "not_enforced_segment"
-    match_grammar = Sequence(
-        "NOT",
-        "ENFORCED",
-    )
-
-
 # ReferenceDefinitionGrammar
 class ForeignKeyReferenceSegment(BaseSegment):
     """A foreign key reference segment."""
@@ -1504,7 +1494,8 @@ class ForeignKeyReferenceSegment(BaseSegment):
         "REFERENCES",
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar"),
-        Ref("NotEnforcedSegment"),
+        "NOT",
+        "ENFORCED",
     )
 
 
@@ -1519,7 +1510,8 @@ class TableConstraintSegment(BaseSegment):
         Sequence(
             Ref("PrimaryKeyGrammar"),
             Ref("BracketedColumnReferenceListGrammar"),
-            Ref("NotEnforcedSegment"),
+            "NOT",
+            "ENFORCED",
         ),
         Sequence(
             Ref("ForeignKeyGrammar"),
