@@ -1,0 +1,21 @@
+CREATE TABLE t_table1
+(
+    x INT64,
+    PRIMARY KEY (x) NOT ENFORCED
+)
+;
+CREATE TABLE t_table1
+(
+    y STRING,
+    FOREIGN KEY (y) REFERENCES t_table2(y) NOT ENFORCED,
+)
+;
+CREATE TABLE t_table1
+(
+    x INT64,
+    PRIMARY KEY (x) NOT ENFORCED,
+    y STRING,
+    FOREIGN KEY (y) REFERENCES t_table2(y) NOT ENFORCED,
+    _other STRING
+)
+;
