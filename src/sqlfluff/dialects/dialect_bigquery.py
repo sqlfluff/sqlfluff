@@ -1485,21 +1485,7 @@ class OptionsSegment(BaseSegment):
     )
 
 
-# ReferenceDefinitionGrammar
-class ForeignKeyReferenceSegment(BaseSegment):
-    """A foreign key reference segment."""
-
-    type = "foreign_key_reference_segment"
-    match_grammar = Sequence(
-        "REFERENCES",
-        Ref("TableReferenceSegment"),
-        Ref("BracketedColumnReferenceListGrammar"),
-        "NOT",
-        "ENFORCED",
-    )
-
-
-class TableConstraintSegment(BaseSegment):
+class TableConstraintSegment(ansi.TableConstraintSegment):
     """A table constraint segment.
 
     https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#table_constraints
@@ -1516,7 +1502,11 @@ class TableConstraintSegment(BaseSegment):
         Sequence(
             Ref("ForeignKeyGrammar"),
             Ref("BracketedColumnReferenceListGrammar"),
-            Ref("ForeignKeyReferenceSegment"),
+            "REFERENCES",
+            Ref("TableReferenceSegment"),
+            Ref("BracketedColumnReferenceListGrammar"),
+            "NOT",
+            "ENFORCED",
         ),
     )
 

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e5a4acedc31072dba4c7fc9505afdd094e44811da212e721a7b4399397ae785e
+_hash: 2e318327637f8ff0d1e4cbbe1c338b2d39724e040ffffd39dde1aa208cd310ea
 file:
 - statement:
     create_table_statement:
@@ -51,17 +51,16 @@ file:
             column_reference:
               naked_identifier: y
             end_bracket: )
-        - foreign_key_reference_segment:
-          - keyword: REFERENCES
-          - table_reference:
-              naked_identifier: t_table2
-          - bracketed:
-              start_bracket: (
-              column_reference:
-                naked_identifier: y
-              end_bracket: )
-          - keyword: NOT
-          - keyword: ENFORCED
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: t_table2
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: y
+            end_bracket: )
+        - keyword: NOT
+        - keyword: ENFORCED
       - comma: ','
       - end_bracket: )
 - statement_terminator: ;
@@ -102,17 +101,16 @@ file:
             column_reference:
               naked_identifier: y
             end_bracket: )
-        - foreign_key_reference_segment:
-          - keyword: REFERENCES
-          - table_reference:
-              naked_identifier: t_table2
-          - bracketed:
-              start_bracket: (
-              column_reference:
-                naked_identifier: y
-              end_bracket: )
-          - keyword: NOT
-          - keyword: ENFORCED
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: t_table2
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: y
+            end_bracket: )
+        - keyword: NOT
+        - keyword: ENFORCED
       - comma: ','
       - column_definition:
           naked_identifier: _other
