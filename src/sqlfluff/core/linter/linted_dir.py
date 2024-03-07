@@ -12,7 +12,17 @@ from sqlfluff.core.errors import CheckTuple, SQLLintError
 from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES, LintedFile
 from sqlfluff.core.parser.segments.base import BaseSegment
 
-LintingRecord = TypedDict("LintingRecord", {"filepath": str, "violations": List[dict]})
+LintingRecord = TypedDict(
+    "LintingRecord",
+    {
+        "filepath": str,
+        "violations": List[dict],
+        # Things like file length
+        "statistics": Dict[str, int],
+        # Raw timings, in seconds, for both rules and steps
+        "timings": Dict[str, float],
+    },
+)
 
 
 class LintedDir:
@@ -61,14 +71,37 @@ class LintedDir:
             key=lambda v: (v["start_line_no"], v["start_line_pos"], v["code"]),
         )
 
-        # Persist the records if there are violations.
-        if violation_records:
-            self._records.append(
-                {
-                    "filepath": file.path,
-                    "violations": violation_records,
-                }
-            )
+        record: LintingRecord = {
+            "filepath": file.path,
+            "violations": violation_records,
+            "statistics": {
+                "source_chars": (
+                    len(file.templated_file.source_str) if file.templated_file else 0
+                ),
+                "templated_chars": (
+                    len(file.templated_file.templated_str) if file.templated_file else 0
+                ),
+                # These are all the segments in the tree
+                "segments": (
+                    file.tree.count_segments(raw_only=False) if file.tree else 0
+                ),
+                # These are just the "leaf" nodes of the tree
+                "raw_segments": (
+                    file.tree.count_segments(raw_only=True) if file.tree else 0
+                ),
+            },
+            "timings": {},
+        }
+
+        if file.timings:
+            record["timings"] = {
+                # linting, parsing, templating etc...
+                **file.timings.step_timings,
+                # individual rule timings, by code.
+                **file.timings.get_rule_timing_dict(),
+            }
+
+        self._records.append(record)
 
         # Update the stats
         self._num_files += 1

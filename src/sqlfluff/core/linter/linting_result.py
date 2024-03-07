@@ -140,50 +140,31 @@ class LintingResult:
         # Iterate through all the files to get rule timing information so
         # we know what headings we're going to need.
         rule_codes: Set[str] = set()
-        file_timing_dicts: Dict[str, dict] = {}
-        for dir in self.paths:
-            for file in dir.files:
-                if not file.timings:  # pragma: no cover
+        for path in self.paths:
+            for record in path.as_records():
+                if "timings" not in record:  # pragma: no cover
                     continue
-                file_timing_dicts[file.path] = file.timings.get_rule_timing_dict()
-                rule_codes.update(file_timing_dicts[file.path].keys())
+                rule_codes.update(record["timings"].keys())
 
         with open(filename, "w", newline="") as f:
             writer = csv.DictWriter(
+                # Metadata first, then step timings and then _sorted_ rule codes.
                 f, fieldnames=meta_fields + timing_fields + sorted(rule_codes)
             )
 
+            # Write the header
             writer.writeheader()
 
-            for dir in self.paths:
-                for file in dir.files:
-                    if not file.timings:  # pragma: no cover
+            for path in self.paths:
+                for record in path.as_records():
+                    if "timings" not in record:  # pragma: no cover
                         continue
+
                     writer.writerow(
                         {
-                            "path": file.path,
-                            "source_chars": (
-                                len(file.templated_file.source_str)
-                                if file.templated_file
-                                else ""
-                            ),
-                            "templated_chars": (
-                                len(file.templated_file.templated_str)
-                                if file.templated_file
-                                else ""
-                            ),
-                            "segments": (
-                                file.tree.count_segments(raw_only=False)
-                                if file.tree
-                                else ""
-                            ),
-                            "raw_segments": (
-                                file.tree.count_segments(raw_only=True)
-                                if file.tree
-                                else ""
-                            ),
-                            **file.timings.step_timings,
-                            **file_timing_dicts[file.path],
+                            "path": record["filepath"],
+                            **record["statistics"], # character and segment lengths.
+                            **record["timings"], # step and rule timings.
                         }
                     )
 
