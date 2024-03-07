@@ -347,6 +347,7 @@ postgres_dialect.add(
         "USER", "CURRENT_ROLE", "CURRENT_USER", "SESSION_USER"
     ),
     ImportForeignSchemaGrammar=Sequence("IMPORT", "FOREIGN", "SCHEMA"),
+    CreateForeignTableGrammar=Sequence("CREATE", "FOREIGN", "TABLE"),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
     WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
 )
@@ -4374,6 +4375,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateServerStatementSegment"),
             Ref("CreateUserMappingStatementSegment"),
             Ref("ImportForeignSchemaStatementSegment"),
+            Ref("CreateForeignTableStatementSegment"),
             Ref("DropAggregateStatementSegment"),
             Ref("CreateAggregateStatementSegment"),
             Ref("CreateStatisticsStatementSegment"),
@@ -5751,6 +5753,84 @@ class ImportForeignSchemaStatementSegment(BaseSegment):
         "INTO",
         Ref("SchemaReferenceSegment"),
         Ref("OptionsGrammar", optional=True),
+    )
+
+
+class CreateForeignTableStatementSegment(BaseSegment):
+    """Create foreign table statement.
+
+    https://www.postgresql.org/docs/current/sql-createforeigntable.html
+    """
+
+    type = "create_foreign_table_statement"
+
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            Ref("CreateForeignTableGrammar"),
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("TableReferenceSegment"),
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        Sequence(
+                            Ref("ColumnReferenceSegment"),
+                            Ref("DatatypeSegment"),
+                            Ref("OptionsGrammar", optional=True),
+                            Sequence(
+                                "COLLATE",
+                                Ref("CollationReferenceSegment"),
+                                optional=True,
+                            ),
+                            AnyNumberOf(Ref("ColumnConstraintSegment")),
+                        ),
+                        Ref("TableConstraintSegment"),
+                    ),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "INHERITS",
+                Bracketed(Delimited(Ref("TableReferenceSegment"))),
+                optional=True,
+            ),
+            Sequence(
+                "SERVER",
+                Ref("ServerReferenceSegment"),
+            ),
+            Ref("OptionsGrammar", optional=True),
+        ),
+        Sequence(
+            Ref("CreateForeignTableGrammar"),
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("TableReferenceSegment"),
+            Sequence(
+                "PARTITION",
+                "OF",
+                Ref("TableReferenceSegment"),
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Sequence(
+                                Ref("ColumnReferenceSegment"),
+                                Sequence("WITH", "OPTIONS", optional=True),
+                                AnyNumberOf(Ref("ColumnConstraintSegment")),
+                            ),
+                            Ref("TableConstraintSegment"),
+                        )
+                    ),
+                    optional=True,
+                ),
+                OneOf(
+                    Sequence("FOR", "VALUES", Ref("PartitionBoundSpecSegment")),
+                    "DEFAULT",
+                ),
+            ),
+            Sequence(
+                "SERVER",
+                Ref("ServerReferenceSegment"),
+            ),
+            Ref("OptionsGrammar", optional=True),
+        ),
     )
 
 

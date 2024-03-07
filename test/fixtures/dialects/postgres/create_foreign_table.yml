@@ -1,0 +1,106 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ac839af9d970e1525f098e77f7b59e6c039edd63489f3ca9715fff5c63fb4c35
+file:
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: films
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: code
+      - data_type:
+          keyword: char
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          naked_identifier: title
+      - data_type:
+          keyword: varchar
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '40'
+              end_bracket: )
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          naked_identifier: did
+      - data_type:
+          keyword: integer
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          naked_identifier: date_prod
+      - data_type:
+          datetime_type_identifier:
+            keyword: date
+      - comma: ','
+      - column_reference:
+          naked_identifier: kind
+      - data_type:
+          keyword: varchar
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '10'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: len
+      - data_type:
+          datetime_type_identifier:
+            keyword: interval
+      - end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: film_server
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: measurement_y2016m07
+    - keyword: PARTITION
+    - keyword: OF
+    - table_reference:
+        naked_identifier: measurement
+    - keyword: FOR
+    - keyword: VALUES
+    - partition_bound_spec:
+      - keyword: FROM
+      - bracketed:
+          start_bracket: (
+          expression:
+            quoted_literal: "'2016-07-01'"
+          end_bracket: )
+      - keyword: TO
+      - bracketed:
+          start_bracket: (
+          expression:
+            quoted_literal: "'2016-08-01'"
+          end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: server_07
+- statement_terminator: ;
