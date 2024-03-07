@@ -253,8 +253,6 @@ bigquery_dialect.replace(
         # Add in semi structured expressions
         Ref("SemiStructuredAccessorSegment"),
     ),
-    PrimaryKeyGrammar=Nothing(),
-    ForeignKeyGrammar=Nothing(),
     BracketedSetExpressionGrammar=Bracketed(Ref("SetExpressionSegment")),
 )
 
@@ -1487,6 +1485,32 @@ class OptionsSegment(BaseSegment):
     )
 
 
+class TableConstraintSegment(ansi.TableConstraintSegment):
+    """A table constraint segment.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#table_constraints
+    """
+
+    type = "table_constraint"
+    match_grammar = OneOf(
+        Sequence(
+            Ref("PrimaryKeyGrammar"),
+            Ref("BracketedColumnReferenceListGrammar"),
+            "NOT",
+            "ENFORCED",
+        ),
+        Sequence(
+            Ref("ForeignKeyGrammar"),
+            Ref("BracketedColumnReferenceListGrammar"),
+            "REFERENCES",
+            Ref("TableReferenceSegment"),
+            Ref("BracketedColumnReferenceListGrammar"),
+            "NOT",
+            "ENFORCED",
+        ),
+    )
+
+
 class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
     """A column definition, e.g. for CREATE TABLE or ALTER TABLE.
 
@@ -1502,9 +1526,11 @@ class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
 
 
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
-    """A `CREATE TABLE` statement."""
+    """`CREATE TABLE` statement.
 
-    # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_table_statement
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_table_statement
+    """
+
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
@@ -1521,7 +1547,10 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Sequence(
             Bracketed(
                 Delimited(
-                    Ref("ColumnDefinitionSegment"),
+                    OneOf(
+                        Ref("ColumnDefinitionSegment"),
+                        Ref("TableConstraintSegment"),
+                    ),
                     allow_trailing=True,
                 )
             ),
