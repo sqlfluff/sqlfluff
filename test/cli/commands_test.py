@@ -1232,10 +1232,10 @@ def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_pat
                         "templated_chars": 17,
                     },
                     # Empty list because no violations.
-                    "violations": []
+                    "violations": [],
                 }
             ],
-            0
+            0,
         ),
         (
             "SElect * from tbl",

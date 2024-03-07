@@ -149,7 +149,8 @@ class LintingResult:
         with open(filename, "w", newline="") as f:
             writer = csv.DictWriter(
                 # Metadata first, then step timings and then _sorted_ rule codes.
-                f, fieldnames=meta_fields + timing_fields + sorted(rule_codes)
+                f,
+                fieldnames=meta_fields + timing_fields + sorted(rule_codes),
             )
 
             # Write the header
@@ -163,8 +164,8 @@ class LintingResult:
                     writer.writerow(
                         {
                             "path": record["filepath"],
-                            **record["statistics"], # character and segment lengths.
-                            **record["timings"], # step and rule timings.
+                            **record["statistics"],  # character and segment lengths.
+                            **record["timings"],  # step and rule timings.
                         }
                     )
 
