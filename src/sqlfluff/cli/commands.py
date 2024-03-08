@@ -128,7 +128,7 @@ def set_logging_level(
 class PathAndUserErrorHandler:
     """Make an API call but with error handling for the CLI."""
 
-    def __init__(self, formatter) -> None:
+    def __init__(self, formatter: OutputStreamFormatter) -> None:
         self.formatter = formatter
 
     def __enter__(self) -> "PathAndUserErrorHandler":
@@ -773,7 +773,7 @@ def _handle_unparsable(
     fix_even_unparsable: bool,
     initial_exit_code: int,
     linting_result: LintingResult,
-    formatter,
+    formatter: OutputStreamFormatter,
 ):
     """Handles the treatment of files with templating and parsing issues.
 
@@ -798,7 +798,9 @@ def _handle_unparsable(
     return EXIT_FAIL if num_filtered_errors else EXIT_SUCCESS
 
 
-def _stdin_fix(linter: Linter, formatter, fix_even_unparsable: bool) -> None:
+def _stdin_fix(
+    linter: Linter, formatter: OutputStreamFormatter, fix_even_unparsable: bool
+) -> None:
     """Handle fixing from stdin."""
     exit_code = EXIT_SUCCESS
     stdin = sys.stdin.read()
@@ -842,7 +844,7 @@ def _stdin_fix(linter: Linter, formatter, fix_even_unparsable: bool) -> None:
 
 def _paths_fix(
     linter: Linter,
-    formatter,
+    formatter: OutputStreamFormatter,
     paths,
     processes,
     fix_even_unparsable,
