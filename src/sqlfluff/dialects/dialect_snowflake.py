@@ -7325,6 +7325,9 @@ class ShorthandCastSegment(BaseSegment):
                     AnyNumberOf(
                         Ref("ArrayAccessorSegment"),
                     ),
+                    AnyNumberOf(
+                        Ref("SemiStructuredAccessorSegment"),
+                    ),
                     optional=True,
                 ),
             ),
