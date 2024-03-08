@@ -1219,7 +1219,24 @@ def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_pat
 @pytest.mark.parametrize(
     "sql,rules,expected,exit_code",
     [
-        ("select * from tbl", "CP01", [], 0),  # empty list if no violations
+        (
+            "select * from tbl",
+            "CP01",
+            [
+                {
+                    "filepath": "stdin",
+                    "statistics": {
+                        "raw_segments": 12,
+                        "segments": 24,
+                        "source_chars": 17,
+                        "templated_chars": 17,
+                    },
+                    # Empty list because no violations.
+                    "violations": [],
+                }
+            ],
+            0,
+        ),
         (
             "SElect * from tbl",
             "CP01",
@@ -1276,6 +1293,14 @@ def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_pat
                             ],
                         },
                     ],
+                    "statistics": {
+                        "raw_segments": 12,
+                        "segments": 24,
+                        "source_chars": 17,
+                        "templated_chars": 17,
+                    },
+                    # NOTE: There will be a timings section too, but we're not
+                    # going to test that.
                 }
             ],
             1,
@@ -1316,6 +1341,14 @@ def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_pat
                             ],
                         },
                     ],
+                    "statistics": {
+                        "raw_segments": 6,
+                        "segments": 11,
+                        "source_chars": 12,
+                        "templated_chars": 8,
+                    },
+                    # NOTE: There will be a timings section too, but we're not
+                    # going to test that.
                 }
             ],
             1,
@@ -1344,9 +1377,19 @@ def test__cli__command_lint_serialize_from_stdin(
     )
 
     if serialize == "json":
-        assert json.loads(result.output) == expected
+        result = json.loads(result.output)
+        # Drop any timing section (because it's less determinate)
+        for record in result:
+            if "timings" in record:
+                del record["timings"]
+        assert result == expected
     elif serialize == "yaml":
-        assert yaml.safe_load(result.output) == expected
+        result = yaml.safe_load(result.output)
+        # Drop any timing section (because it's less determinate)
+        for record in result:
+            if "timings" in record:
+                del record["timings"]
+        assert result == expected
     elif serialize == "none":
         assert result.output == ""
     else:

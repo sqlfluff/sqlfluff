@@ -18,7 +18,7 @@ from sqlfluff.cli.helpers import (
 from sqlfluff.cli.outputstream import OutputStream
 from sqlfluff.core import FluffConfig, Linter, SQLBaseError, TimingSummary
 from sqlfluff.core.enums import Color
-from sqlfluff.core.linter import LintedFile, LintingResult, ParsedString
+from sqlfluff.core.linter import LintedFile, ParsedString
 
 
 def split_string_on_spaces(s: str, line_length: int = 100) -> List[str]:
@@ -410,42 +410,52 @@ class OutputStreamFormatter:
         return f"== [{self.colorize(filename, Color.lightgrey)}] {status_string}"
 
     def format_violation(
-        self, violation: SQLBaseError, max_line_length: int = 90
+        self,
+        violation: Union[SQLBaseError, dict],
+        max_line_length: int = 90,
     ) -> str:
-        """Format a violation."""
-        if not isinstance(violation, SQLBaseError):  # pragma: no cover
+        """Format a violation.
+
+        NOTE: This method accepts both SQLBaseError objects and the serialised
+        dict representation. If the former is passed, then the conversion is
+        done within the method so we can work with a common representation.
+        """
+        if isinstance(violation, dict):
+            v_dict: dict = violation
+        elif isinstance(violation, SQLBaseError):
+            v_dict = violation.to_dict()
+        elif not isinstance(violation, dict):  # pragma: no cover
             raise ValueError(f"Unexpected violation format: {violation}")
 
-        desc: str = violation.desc()
-        line_elem = "   -" if violation.line_no is None else f"{violation.line_no:4d}"
-        pos_elem = "   -" if violation.line_pos is None else f"{violation.line_pos:4d}"
+        desc: str = v_dict["description"]
+        code: str = v_dict["code"]
+        name: str = v_dict["name"]
+        line_no: int = v_dict["start_line_no"]
+        line_pos: int = v_dict["start_line_pos"]
+        warning: bool = v_dict["warning"]
+        line_elem = "   -" if line_no is None else f"{line_no:4d}"
+        pos_elem = "   -" if line_pos is None else f"{line_pos:4d}"
 
-        if violation.ignore:
-            desc = "IGNORE: " + desc  # pragma: no cover
-        elif violation.warning:
+        if warning:
             desc = "WARNING: " + desc  # pragma: no cover
 
         # If the rule has a name, add that the description.
-        if hasattr(violation, "rule"):
-            rule = getattr(violation, "rule", None)
-            if rule and rule.name:
-                desc += f" [{self.colorize(rule.name, Color.lightgrey)}]"
+        if name:
+            desc += f" [{self.colorize(name, Color.lightgrey)}]"
 
         split_desc = split_string_on_spaces(desc, line_length=max_line_length - 25)
 
         out_buff = ""
         # Grey out the violation if we're ignoring or warning it.
         section_color: Color
-        if violation.ignore or violation.warning:
-            # For now keep warnings and ignores the same colour. The additional
-            # text in the description allows distinction.
+        if warning:
             section_color = Color.lightgrey
         else:
             section_color = Color.blue
 
         for idx, line in enumerate(split_desc):
             if idx == 0:
-                rule_code = violation.rule_code().rjust(4)
+                rule_code = code.rjust(4)
                 if "PRS" in rule_code:
                     section_color = Color.red
                 out_buff += self.colorize(
@@ -586,16 +596,18 @@ class OutputStreamFormatter:
             Color.lightgrey,
         )
 
-    def handle_files_with_tmp_or_prs_errors(
-        self, lint_result: LintingResult, force_stderr=False
-    ) -> int:
-        """Discard lint fixes for files with templating or parse errors.
+    def print_out_residual_error_counts(
+        self, total_errors: int, num_filtered_errors: int, force_stderr: bool = False
+    ) -> None:
+        """Output the residual error totals for the file.
 
-        Returns 1 if there are any files with templating or parse errors after
-        filtering, else 0. (Intended as a process exit code.)
+        Args:
+            total_errors (int): The total number of templating & parsing errors.
+            num_filtered_errors (int): The number of templating & parsing errors
+                which remain after any noqa and filters applied.
+            force_stderr (bool): Whether to force the output onto stderr. By default
+                the output is on stdout if there are no errors, otherwise stderr.
         """
-        total_errors, num_filtered_errors = lint_result.count_tmp_prs_errors()
-        lint_result.discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors()
         if total_errors:
             click.echo(
                 message=self.colorize(
@@ -615,7 +627,6 @@ class OutputStreamFormatter:
                     color=not self.plain_output,
                     err=force_stderr or num_filtered_errors > 0,
                 )
-        return EXIT_FAIL if num_filtered_errors else EXIT_SUCCESS
 
     def print_out_violations_and_timing(
         self,

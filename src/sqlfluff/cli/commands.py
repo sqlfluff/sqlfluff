@@ -128,7 +128,7 @@ def set_logging_level(
 class PathAndUserErrorHandler:
     """Make an API call but with error handling for the CLI."""
 
-    def __init__(self, formatter) -> None:
+    def __init__(self, formatter: OutputStreamFormatter) -> None:
         self.formatter = formatter
 
     def __enter__(self) -> "PathAndUserErrorHandler":
@@ -769,7 +769,38 @@ def do_fixes(
     return False  # pragma: no cover
 
 
-def _stdin_fix(linter: Linter, formatter, fix_even_unparsable: bool) -> None:
+def _handle_unparsable(
+    fix_even_unparsable: bool,
+    initial_exit_code: int,
+    linting_result: LintingResult,
+    formatter: OutputStreamFormatter,
+):
+    """Handles the treatment of files with templating and parsing issues.
+
+    By default, any files with templating or parsing errors shouldn't have
+    fixes attempted - because we can't guarantee the validity of the fixes.
+
+    This method returns 1 if there are any files with templating or parse errors after
+    filtering, else 0 (Intended as a process exit code). If `fix_even_unparsable` is
+    set then it just returns whatever the pre-existing exit code was.
+
+    NOTE: This method mutates the LintingResult so that future use of the object
+    has updated violation counts which can be used for other exit code calcs.
+    """
+    if fix_even_unparsable:
+        # If we're fixing even when unparsable, don't perform any filtering.
+        return initial_exit_code
+    total_errors, num_filtered_errors = linting_result.count_tmp_prs_errors()
+    linting_result.discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors()
+    formatter.print_out_residual_error_counts(
+        total_errors, num_filtered_errors, force_stderr=True
+    )
+    return EXIT_FAIL if num_filtered_errors else EXIT_SUCCESS
+
+
+def _stdin_fix(
+    linter: Linter, formatter: OutputStreamFormatter, fix_even_unparsable: bool
+) -> None:
     """Handle fixing from stdin."""
     exit_code = EXIT_SUCCESS
     stdin = sys.stdin.read()
@@ -777,10 +808,8 @@ def _stdin_fix(linter: Linter, formatter, fix_even_unparsable: bool) -> None:
     result = linter.lint_string_wrapped(stdin, fname="stdin", fix=True)
     templater_error = result.num_violations(types=SQLTemplaterError) > 0
     unfixable_error = result.num_violations(types=SQLLintError, fixable=False) > 0
-    if not fix_even_unparsable:
-        exit_code = formatter.handle_files_with_tmp_or_prs_errors(
-            result, force_stderr=True
-        )
+
+    exit_code = _handle_unparsable(fix_even_unparsable, exit_code, result, formatter)
 
     if result.num_violations(types=SQLLintError, fixable=True) > 0:
         stdout = result.paths[0].files[0].fix_string()[0]
@@ -815,7 +844,7 @@ def _stdin_fix(linter: Linter, formatter, fix_even_unparsable: bool) -> None:
 
 def _paths_fix(
     linter: Linter,
-    formatter,
+    formatter: OutputStreamFormatter,
     paths,
     processes,
     fix_even_unparsable,
@@ -841,10 +870,13 @@ def _paths_fix(
             apply_fixes=not check,
             fixed_file_suffix=fixed_suffix,
             fix_even_unparsable=fix_even_unparsable,
+            # If --check is not set, then don't apply any fixes until the end.
+            # NOTE: This should enable us to limit the memory overhead of keeping
+            # a large parsed project in memory unless necessary.
+            retain_files=check,
         )
 
-    if not fix_even_unparsable:
-        exit_code = formatter.handle_files_with_tmp_or_prs_errors(result)
+    exit_code = _handle_unparsable(fix_even_unparsable, exit_code, result, formatter)
 
     # NB: We filter to linting violations here, because they're
     # the only ones which can be potentially fixed.
@@ -892,10 +924,9 @@ def _paths_fix(
             click.echo("==== no fixable linting violations found ====")
             formatter.completion_message()
 
-    num_violations_kwargs = {"types": SQLLintError, "fixable": False}
-    num_violations = result.num_violations(**num_violations_kwargs)
-    if num_violations > 0 and formatter.verbosity >= 0:
-        click.echo("  [{} unfixable linting violations found]".format(num_violations))
+    num_unfixable = sum(p.num_unfixable_lint_errors for p in result.paths)
+    if num_unfixable > 0 and formatter.verbosity >= 0:
+        click.echo("  [{} unfixable linting violations found]".format(num_unfixable))
         exit_code = max(exit_code, EXIT_FAIL)
 
     if bench:
@@ -910,12 +941,15 @@ def _paths_fix(
 
     if show_lint_violations:
         click.echo("==== lint for unfixable violations ====")
-        all_results = result.violation_dict(**num_violations_kwargs)
-        sorted_files = sorted(all_results.keys())
-        for file in sorted_files:
-            violations = all_results.get(file, [])
-            click.echo(formatter.format_filename(file, success=(not violations)))
-            for violation in violations:
+        for record in result.as_records():
+            # Non fixable linting errors _have_ a `fixes` value, but it's an empty list.
+            non_fixable = [
+                v for v in record["violations"] if v.get("fixes", None) == []
+            ]
+            click.echo(
+                formatter.format_filename(record["filepath"], success=(not non_fixable))
+            )
+            for violation in non_fixable:
                 click.echo(formatter.format_violation(violation))
 
     if persist_timing:

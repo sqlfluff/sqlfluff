@@ -39,19 +39,19 @@ def test__rules__fix_utf8(project_dir):  # noqa
     """Verify that non-ASCII characters are preserved by 'fix'."""
     rule = "CP01"
     path = "models/my_new_project/utf8/test.sql"
-    lntr = Linter(
+    linter = Linter(
         config=FluffConfig(configs=DBT_FLUFF_CONFIG, overrides=dict(rules=rule))
     )
-    lnt = lntr.lint_path(os.path.join(project_dir, path), fix=True)
+    result = linter.lint_path(os.path.join(project_dir, path), fix=True)
     # Check that we did actually find issues.
     # NOTE: This test is mostly useful to distinguish between whether there's
     # a problem with the rule - or a problem with the file.
-    violations_dict = lnt.violation_dict()
-    print("Violations Dict: ", violations_dict)
+    record_map = {record["filepath"]: record for record in result.as_records()}
+    print("Result Map: ", record_map)
     qual_path = os.path.normpath(Path(project_dir) / path)
-    assert qual_path in violations_dict, f"{path} not in violations dict."
-    assert violations_dict[qual_path], f"No issues found for {qual_path}."
-    lnt.persist_changes(fixed_file_suffix="FIXED")
+    assert qual_path in record_map, f"{path} not in result."
+    assert record_map[qual_path]["violations"], f"No issues found for {qual_path}."
+    result.persist_changes(fixed_file_suffix="FIXED")
     # TODO: Check contents of file:
     # ./plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/models/
     # my_new_project/utf8/testFIXED.sql
