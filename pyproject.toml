@@ -217,7 +217,7 @@ module = "tblib.*"
 ignore_missing_imports = true
 
 
-[tool.ruff.lint]
+[tool.ruff]
 extend-select = ["I", "D"]
 
 # D105: Missing docstring in magic method
@@ -225,7 +225,7 @@ extend-select = ["I", "D"]
 # D418: Function/ Method decorated with @overload shouldn’t contain a docstring
 ignore = ["D107", "D105", "D418"]
 
-[tool.ruff.lint.isort]
+[tool.ruff.isort]
 # Mark sqlfluff, test and it's plugins as known first party
 known-first-party = [
     "sqlfluff",
@@ -234,7 +234,7 @@ known-first-party = [
     "test",
 ]
 
-[tool.ruff.lint.pydocstyle]
+[tool.ruff.pydocstyle]
 convention = "google"
 
 
