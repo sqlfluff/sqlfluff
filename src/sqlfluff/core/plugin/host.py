@@ -65,6 +65,9 @@ def get_plugin_manager() -> pluggy.PluginManager:
     # If any fail, log the issue and carry on.
     for module, plugin_name, plugin_version in _discover_plugins():
         plugin_logger.info(f"Loading plugin {plugin_name} version {plugin_version}.")
+        if plugin_manager.get_plugin(plugin_name):
+            plugin_logger.info("...already loaded")
+            continue
         try:
             plugin = module.load()
         except Exception as err:
