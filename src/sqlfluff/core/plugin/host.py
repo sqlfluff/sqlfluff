@@ -43,6 +43,32 @@ def _discover_plugins() -> Iterator[Tuple[importlib.metadata.EntryPoint, str, st
             yield ep, ep.name, dist.version
 
 
+def _load_plugin(
+    plugin_manager: pluggy.PluginManager,
+    entry_point: importlib.metadata.EntryPoint,
+    plugin_name: str,
+    plugin_version: str,
+) -> None:
+    """Loads a single plugin with a bit of error handling."""
+    # NOTE: If the plugin is already loaded, then .register() will fail,
+    # so it's important that we check whether it's loaded at this point.
+    if plugin_manager.get_plugin(plugin_name):  # pragma: no cover
+        plugin_logger.info("...already loaded")
+        return None
+    try:
+        plugin = entry_point.load()
+    except Exception as err:
+        plugin_logger.error(
+            "ERROR: Failed to load SQLFluff plugin "
+            f"{plugin_name} version {plugin_version}. "
+            "Check your packages are compatible with the current SQLFluff version."
+            f"\n\n    {err!r}\n"
+        )
+        return None
+    plugin_manager.register(plugin, name=plugin_name)
+    return None
+
+
 def get_plugin_manager() -> pluggy.PluginManager:
     """Initializes the PluginManager.
 
@@ -63,27 +89,9 @@ def get_plugin_manager() -> pluggy.PluginManager:
 
     # Discover available plugins and load them individually.
     # If any fail, log the issue and carry on.
-    for module, plugin_name, plugin_version in _discover_plugins():
+    for entry_point, plugin_name, plugin_version in _discover_plugins():
         plugin_logger.info(f"Loading plugin {plugin_name} version {plugin_version}.")
-        # NOTE: If the plugin is already loaded, then .register() will fail,
-        # so it's important that we check whether it's loaded at this point.
-        if plugin_manager.get_plugin(plugin_name):  # pragma: no cover
-            plugin_logger.info("...already loaded")
-            continue
-        try:
-            plugin = module.load()
-        except Exception as err:  # pragma: no cover
-            # NOTE: Getting test coverage here is tricky given the need
-            # to have a plugin registered with setuptools to reach this
-            # point.
-            plugin_logger.error(
-                "ERROR: Failed to load SQLFluff plugin "
-                f"{plugin_name} version {plugin_version}. "
-                "Check your packages are compatible with the current SQLFluff version."
-                f"\n\n    {err!r}\n"
-            )
-            continue
-        plugin_manager.register(plugin, name=plugin_name)
+        _load_plugin(plugin_manager, entry_point, plugin_name, plugin_version)
 
     # Once plugins are loaded we set a second context var
     # to indicate that loading is complete. Other parts of
