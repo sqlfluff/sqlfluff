@@ -73,7 +73,9 @@ def get_plugin_manager() -> pluggy.PluginManager:
         try:
             plugin = module.load()
         except Exception as err:  # pragma: no cover
-            # TODO: Work out a way of getting test coverage here.
+            # NOTE: Getting test coverage here is tricky given the need
+            # to have a plugin registered with setuptools to reach this
+            # point.
             plugin_logger.error(
                 "ERROR: Failed to load SQLFluff plugin "
                 f"{plugin_name} version {plugin_version}. "
