@@ -14,7 +14,6 @@ from typing import Iterator, Optional, Tuple
 
 import pluggy
 
-from sqlfluff import __version__ as pkg_version
 from sqlfluff.core.plugin import plugin_base_name, project_name
 from sqlfluff.core.plugin.hookspecs import PluginSpec
 
@@ -28,6 +27,15 @@ plugins_loaded: ContextVar[bool] = ContextVar("plugins_loaded", default=False)
 # we rely on each parallel runner (found in `runner.py`) to
 # maintain the value of this variable.
 is_main_process: ContextVar[bool] = ContextVar("is_main_process", default=True)
+
+
+def _get_sqlfluff_version() -> str:
+    """Get the SQLFluff package version from importlib.
+
+    NOTE: At the stage of loading plugins, SQLFluff isn't fully
+    initialised and so we can't use the normal methods.
+    """
+    return importlib.metadata.version("sqlfluff")
 
 
 def _discover_plugins() -> Iterator[Tuple[importlib.metadata.EntryPoint, str, str]]:
@@ -63,7 +71,7 @@ def _load_plugin(
             "ERROR: Failed to load SQLFluff plugin "
             f"{plugin_name} version {plugin_version}. "
             "Check your packages are compatible with the current SQLFluff version "
-            f"({pkg_version})."
+            f"({_get_sqlfluff_version()})."
             f"\n\n    {err!r}\n\n"
         )
         return None

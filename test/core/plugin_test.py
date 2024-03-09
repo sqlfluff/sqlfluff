@@ -6,8 +6,10 @@ import sys
 
 import pytest
 
+from sqlfluff import __version__ as pkg_version
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.plugin.host import (
+    _get_sqlfluff_version,
     _load_plugin,
     get_plugin_manager,
     purge_plugin_manager,
@@ -117,3 +119,8 @@ def test__plugin_handle_bad_load():
     assert "ERROR: Failed to load SQLFluff plugin" in caplog.text
     assert "plugin_name" in caplog.text
     assert "TEST ERROR" in caplog.text
+
+
+def test__plugin_get_version():
+    """Test the plugin method of getting the version gets the right version."""
+    assert _get_sqlfluff_version() == pkg_version
