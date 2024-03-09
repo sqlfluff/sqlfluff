@@ -14,6 +14,7 @@ from typing import Iterator, Optional, Tuple
 
 import pluggy
 
+from sqlfluff import __version__ as pkg_version
 from sqlfluff.core.plugin import plugin_base_name, project_name
 from sqlfluff.core.plugin.hookspecs import PluginSpec
 
@@ -61,8 +62,9 @@ def _load_plugin(
         plugin_logger.error(
             "ERROR: Failed to load SQLFluff plugin "
             f"{plugin_name} version {plugin_version}. "
-            "Check your packages are compatible with the current SQLFluff version."
-            f"\n\n    {err!r}\n"
+            "Check your packages are compatible with the current SQLFluff version "
+            f"({pkg_version})."
+            f"\n\n    {err!r}\n\n"
         )
         return None
     plugin_manager.register(plugin, name=plugin_name)
