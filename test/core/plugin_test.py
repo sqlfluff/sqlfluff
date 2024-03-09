@@ -105,13 +105,13 @@ class MockEntryPoint(importlib.metadata.EntryPoint):
         raise ValueError("TEST ERROR")
 
 
-def test__plugin_handle_bad_load(caplog):
+def test__plugin_handle_bad_load():
     """Test that we can safely survive a plugin which fails to load."""
     # Mock fake plugin
     ep = MockEntryPoint("test_name", "test_value", "sqlfluff")
 
     plugin_manager = get_plugin_manager()
-    with caplog.at_level(logging.INFO, logger="sqlfluff.plugin"):
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.plugin") as caplog:
         _load_plugin(plugin_manager, ep, "plugin_name", "v1.2.3")
     # Assert that there was a warning
     assert "ERROR: Failed to load SQLFluff plugin" in caplog.text
