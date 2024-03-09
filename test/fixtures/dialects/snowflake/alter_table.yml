@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4cdcd554c3c9d62db721f6935b10f04ed3aaf8c746e293f8dc557b28e3669e75
+_hash: b66f843d0133bfe7a04efcc239117af11a71bf239d49a6014709c260d448769d
 file:
 - statement:
     alter_table_statement:
@@ -328,15 +328,6 @@ file:
       - function_name:
           function_name_identifier: my_masking_policy
       - keyword: FORCE
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: table1
-    - keyword: UNSET
-    - parameter: COMMENT
 - statement_terminator: ;
 - statement:
     alter_table_statement:
