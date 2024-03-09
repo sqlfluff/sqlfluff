@@ -10,9 +10,56 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [3.0.0] - 2024-03-08
+## [3.0.0] - 2024-03-09
 
 ## Highlights
+
+This release brings several breaking changes to previous releases. Most notably:
+
+* It drops support for python 3.7, which reached end of life in June 2023.
+
+* It migrates to `pyproject.toml` rather than `setup.cfg` as the python
+  packaging configuration file (although keeping `setuptools` as the default backend).
+
+* The serialised output for `sqlfluff lint` (and the corresponding API methods)
+  now contains more information about the span of linting issues, initial
+  proposed fixes and several statistics which were previously only accessible via
+  csv export. Beside the *new* fields, the original fields of `line_pos` and
+  `line_no` have been renamed to `start_line_pos` and `start_line_no`, to
+  distinguish them from the new fields starting `end_*`.
+
+* The default `annotation_level` set by the `--annotation-level`
+  option on the `sqlfluff lint` command has been changed from `notice`
+  to `warning`, to better distinguish linting errors from warnings, which
+  always now have the level of `notice`. This is only relevant when using
+  the `github-annotation` or `github-annotation-native` formats.
+
+* A change in the default behaviour for `convention.not_equals`. The new default
+  is to be `consistent`, which is slightly more relaxed than the original
+  behaviour.
+
+* The `--force` option has been deprecated on `sqlfluff fix` as that option is
+  now the default behaviour. This is to enable significant reductions in memory
+  overhead when linting large projects.
+
+* The long since deprecated `--disable_progress_bar` option has been removed
+  (which was replaced by the kabab-case `--disable-progress-bar` more than a
+  year ago).
+
+On top of these changes, there have a been a whole host of dialect improvements
+and additions, in particular the inclusion of a`vertica` dialect for the
+first time. There's also:
+
+* A new rule (`aliasing.self_alias.column`) which prevents aliasing a column as itself.
+
+* A change to disables AL01 (`aliasing.table`) by default for Oracle.
+
+For more specifics please take a look at the
+[release notes](https://docs.sqlfluff.com/en/latest/releasenotes.html).
+
+Thanks to the community for patience during the release cycle for 3.0.0, which
+has taken a little longer than expected. Thanks also to the **TWENTY SIX** new
+contributors whose changes are included in this release. 🎉🎉🏆🎉🎉
 
 ## What’s Changed
 
@@ -131,7 +178,32 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## New Contributors
 
-
+* [@maoxingda](https://github.com/maoxingda) made their first contribution in [#5594](https://github.com/sqlfluff/sqlfluff/pull/5594)
+* [@Jefffrey](https://github.com/Jefffrey) made their first contribution in [#5613](https://github.com/sqlfluff/sqlfluff/pull/5613)
+* [@kkozhakin](https://github.com/kkozhakin) made their first contribution in [#5546](https://github.com/sqlfluff/sqlfluff/pull/5546)
+* [@gshen7](https://github.com/gshen7) made their first contribution in [#5621](https://github.com/sqlfluff/sqlfluff/pull/5621)
+* [@PolitePp](https://github.com/PolitePp) made their first contribution in [#5640](https://github.com/sqlfluff/sqlfluff/pull/5640)
+* [@DannyMor](https://github.com/DannyMor) made their first contribution in [#5635](https://github.com/sqlfluff/sqlfluff/pull/5635)
+* [@mitchellvanrijkom](https://github.com/mitchellvanrijkom) made their first contribution in [#5615](https://github.com/sqlfluff/sqlfluff/pull/5615)
+* [@ryaminal](https://github.com/ryaminal) made their first contribution in [#5458](https://github.com/sqlfluff/sqlfluff/pull/5458)
+* [@sfc-gh-dgupta](https://github.com/sfc-gh-dgupta) made their first contribution in [#5475](https://github.com/sqlfluff/sqlfluff/pull/5475)
+* [@archer62](https://github.com/archer62) made their first contribution in [#5473](https://github.com/sqlfluff/sqlfluff/pull/5473)
+* [@keraion](https://github.com/keraion) made their first contribution in [#5485](https://github.com/sqlfluff/sqlfluff/pull/5485)
+* [@Koyaani](https://github.com/Koyaani) made their first contribution in [#5505](https://github.com/sqlfluff/sqlfluff/pull/5505)
+* [@snkekorfus](https://github.com/snkekorfus) made their first contribution in [#5493](https://github.com/sqlfluff/sqlfluff/pull/5493)
+* [@remy-gohiring](https://github.com/remy-gohiring) made their first contribution in [#5527](https://github.com/sqlfluff/sqlfluff/pull/5527)
+* [@aayushr7](https://github.com/aayushr7) made their first contribution in [#5528](https://github.com/sqlfluff/sqlfluff/pull/5528)
+* [@k1drobot](https://github.com/k1drobot) made their first contribution in [#5559](https://github.com/sqlfluff/sqlfluff/pull/5559)
+* [@alangner](https://github.com/alangner) made their first contribution in [#5574](https://github.com/sqlfluff/sqlfluff/pull/5574)
+* [@fnimick](https://github.com/fnimick) made their first contribution in [#5577](https://github.com/sqlfluff/sqlfluff/pull/5577)
+* [@jongracecox](https://github.com/jongracecox) made their first contribution in [#5412](https://github.com/sqlfluff/sqlfluff/pull/5412)
+* [@markbaas](https://github.com/markbaas) made their first contribution in [#5431](https://github.com/sqlfluff/sqlfluff/pull/5431)
+* [@rocwang](https://github.com/rocwang) made their first contribution in [#5438](https://github.com/sqlfluff/sqlfluff/pull/5438)
+* [@gvozdvmozgu](https://github.com/gvozdvmozgu) made their first contribution in [#5437](https://github.com/sqlfluff/sqlfluff/pull/5437)
+* [@wjhrdy](https://github.com/wjhrdy) made their first contribution in [#5368](https://github.com/sqlfluff/sqlfluff/pull/5368)
+* [@golergka](https://github.com/golergka) made their first contribution in [#5369](https://github.com/sqlfluff/sqlfluff/pull/5369)
+* [@65278](https://github.com/65278) made their first contribution in [#5376](https://github.com/sqlfluff/sqlfluff/pull/5376)
+* [@ishiis](https://github.com/ishiis) made their first contribution in [#5378](https://github.com/sqlfluff/sqlfluff/pull/5378)
 
 ## [3.0.0a6] - 2024-03-05
 
