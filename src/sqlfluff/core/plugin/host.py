@@ -61,7 +61,7 @@ def get_plugin_manager() -> pluggy.PluginManager:
     # want to load the entry points once!
     _plugin_manager.set(plugin_manager)
 
-    # Discover available plugins an load them individually.
+    # Discover available plugins and load them individually.
     # If any fail, log the issue and carry on.
     for module, plugin_name, plugin_version in _discover_plugins():
         plugin_logger.info(f"Loading plugin {plugin_name} version {plugin_version}.")
