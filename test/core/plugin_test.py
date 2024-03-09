@@ -111,7 +111,7 @@ def test__plugin_handle_bad_load(caplog):
     ep = MockEntryPoint("test_name", "test_value", "sqlfluff")
 
     plugin_manager = get_plugin_manager()
-    with caplog.at_level(logging.INFO):
+    with caplog.at_level(logging.INFO, logger="sqlfluff.plugin"):
         _load_plugin(plugin_manager, ep, "plugin_name", "v1.2.3")
     # Assert that there was a warning
     assert "ERROR: Failed to load SQLFluff plugin" in caplog.text
