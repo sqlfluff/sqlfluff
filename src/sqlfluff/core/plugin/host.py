@@ -29,7 +29,7 @@ plugins_loaded: ContextVar[bool] = ContextVar("plugins_loaded", default=False)
 is_main_process: ContextVar[bool] = ContextVar("is_main_process", default=True)
 
 
-def _discover_plugins() -> Iterator[Tuple[str, str]]:
+def _discover_plugins() -> Iterator[Tuple[importlib.metadata.EntryPoint, str, str]]:
     """Uses the same mechanism as pluggy to introspect available plugins.
 
     This method is then intended to allow loading of plugins individually,
@@ -40,7 +40,7 @@ def _discover_plugins() -> Iterator[Tuple[str, str]]:
             # Check it's a SQLFluff one
             if ep.group != project_name:
                 continue
-            yield ep.name, dist.version
+            yield ep, ep.name, dist.version
 
 
 def get_plugin_manager() -> pluggy.PluginManager:
@@ -63,12 +63,10 @@ def get_plugin_manager() -> pluggy.PluginManager:
 
     # Discover available plugins an load them individually.
     # If any fail, log the issue and carry on.
-    for plugin_name, plugin_version in _discover_plugins():
+    for module, plugin_name, plugin_version in _discover_plugins():
         plugin_logger.info(f"Loading plugin {plugin_name} version {plugin_version}.")
-        ep = importlib.metadata.entry_points(group=project_name, name=plugin_name)
-        assert ep
         try:
-            plugin = ep[0].load()
+            plugin = module.load()
         except Exception as err:
             plugin_logger.error(
                 "ERROR: Failed to load SQLFluff plugin "
