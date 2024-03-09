@@ -65,12 +65,15 @@ def get_plugin_manager() -> pluggy.PluginManager:
     # If any fail, log the issue and carry on.
     for module, plugin_name, plugin_version in _discover_plugins():
         plugin_logger.info(f"Loading plugin {plugin_name} version {plugin_version}.")
-        if plugin_manager.get_plugin(plugin_name):
+        # NOTE: If the plugin is already loaded, then .register() will fail,
+        # so it's important that we check whether it's loaded at this point.
+        if plugin_manager.get_plugin(plugin_name):  # pragma: no cover
             plugin_logger.info("...already loaded")
             continue
         try:
             plugin = module.load()
-        except Exception as err:
+        except Exception as err:  # pragma: no cover
+            # TODO: Work out a way of getting test coverage here.
             plugin_logger.error(
                 "ERROR: Failed to load SQLFluff plugin "
                 f"{plugin_name} version {plugin_version}. "
