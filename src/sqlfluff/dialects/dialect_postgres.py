@@ -5842,9 +5842,9 @@ class CreateForeignTableStatementSegment(BaseSegment):
                                 Ref("CollationReferenceSegment"),
                                 optional=True,
                             ),
-                            AnyNumberOf(Ref("ColumnConstraintSegment")),
+                            AnyNumberOf(Ref("ForeignTableColumnConstraintSegment")),
                         ),
-                        Ref("TableConstraintSegment"),
+                        Ref("ForeignTableTableConstraintSegment"),
                     ),
                 ),
                 optional=True,
@@ -5874,9 +5874,9 @@ class CreateForeignTableStatementSegment(BaseSegment):
                             Sequence(
                                 Ref("ColumnReferenceSegment"),
                                 Sequence("WITH", "OPTIONS", optional=True),
-                                AnyNumberOf(Ref("ColumnConstraintSegment")),
+                            AnyNumberOf(Ref("ForeignTableColumnConstraintSegment")),
                             ),
-                            Ref("TableConstraintSegment"),
+                            Ref("ForeignTableTableConstraintSegment"),
                         )
                     ),
                     optional=True,
