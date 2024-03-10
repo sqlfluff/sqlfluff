@@ -3360,7 +3360,7 @@ class ForeignTableColumnConstraintSegment(ansi.ColumnConstraintSegment):
             optional=True,
         ),
         OneOf(
-            # NOT NULL | NULL 
+            # NOT NULL | NULL
             Sequence(Ref.keyword("NOT", optional=True), "NULL"),
             # CHECK ( expression ) [ NO INHERIT ]
             Sequence(
@@ -3496,7 +3496,7 @@ class ForeignTableTableConstraintSegment(ansi.TableConstraintSegment):
 
     match_grammar = Sequence(
         # [ CONSTRAINT constraint_name ]
-        Sequence(  
+        Sequence(
             "CONSTRAINT",
             Ref("ObjectReferenceSegment"),
             optional=True,
@@ -5874,7 +5874,7 @@ class CreateForeignTableStatementSegment(BaseSegment):
                             Sequence(
                                 Ref("ColumnReferenceSegment"),
                                 Sequence("WITH", "OPTIONS", optional=True),
-                            AnyNumberOf(Ref("ForeignTableColumnConstraintSegment")),
+                                AnyNumberOf(Ref("ForeignTableColumnConstraintSegment")),
                             ),
                             Ref("ForeignTableTableConstraintSegment"),
                         )
