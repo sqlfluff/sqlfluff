@@ -3347,7 +3347,9 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
 
 
 class ForeignTableColumnConstraintSegment(ansi.ColumnConstraintSegment):
-    """A column option for a foreign table; each CREATE FOREIGN TABLE column can have 0 or more.
+    """A column option for a foreign table.
+
+    Each CREATE FOREIGN TABLE column can have 0 or more.
 
     https://www.postgresql.org/docs/16/sql-createforeigntable.html
     """
