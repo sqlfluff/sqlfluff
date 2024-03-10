@@ -3346,6 +3346,45 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
     )
 
 
+class ForeignTableColumnConstraintSegment(ansi.ColumnConstraintSegment):
+    """A column option for a foreign table; each CREATE FOREIGN TABLE column can have 0 or more.
+
+    https://www.postgresql.org/docs/16/sql-createforeigntable.html
+    """
+
+    match_grammar = Sequence(
+        # [ CONSTRAINT constraint_name ]
+        Sequence(
+            "CONSTRAINT",
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        OneOf(
+            # NOT NULL | NULL 
+            Sequence(Ref.keyword("NOT", optional=True), "NULL"),
+            # CHECK ( expression ) [ NO INHERIT ]
+            Sequence(
+                "CHECK",
+                Bracketed(Ref("ExpressionSegment")),
+                Sequence("NO", "INHERIT", optional=True),
+            ),
+            # DEFAULT default_expr
+            Sequence(
+                "DEFAULT",
+                OneOf(
+                    Ref("ShorthandCastSegment"),
+                    Ref("LiteralGrammar"),
+                    Ref("FunctionSegment"),
+                    Ref("BareFunctionSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            # GENERATED ALWAYS AS ( generation_expr ) STORED
+            Sequence("GENERATED", "ALWAYS", "AS", Ref("ExpressionSegment"), "STORED"),
+        ),
+    )
+
+
 class PartitionBoundSpecSegment(BaseSegment):
     """Partition bound spec.
 
