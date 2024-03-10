@@ -3488,6 +3488,28 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
     )
 
 
+class ForeignTableTableConstraintSegment(ansi.TableConstraintSegment):
+    """A table constraint on a foreign table, e.g. for CREATE FOREIGN TABLE.
+
+    As specified in https://www.postgresql.org/docs/16/sql-createforeigntable.html
+    """
+
+    match_grammar = Sequence(
+        # [ CONSTRAINT constraint_name ]
+        Sequence(  
+            "CONSTRAINT",
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        # CHECK ( expression ) [ NO INHERIT ]
+        Sequence(
+            "CHECK",
+            Bracketed(Ref("ExpressionSegment")),
+            Sequence("NO", "INHERIT", optional=True),
+        ),
+    )
+
+
 class TableConstraintUsingIndexSegment(BaseSegment):
     """table_constraint_using_index.
 
