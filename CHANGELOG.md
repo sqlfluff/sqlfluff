@@ -10,6 +10,68 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [3.0.0a6] - 2024-03-05
+
+## Highlights
+
+This introduces some memory optimisations in the linting operation which
+prevent a major cause of crashes when linting large projects. As part of that
+we've also deprecated the `--force` option on `sqlfluff fix` and made that
+the default behaviour (the associated memory optimisations will come shortly).
+
+This also removes the long since deprecated `--disable_progress_bar` option
+(which was replaced by the kabab-case `--disable-progress-bar` more than a
+year ago).
+
+On top of that this release also introduces the `vertica` dialect for the
+first time, and a whole host of bugfixes and improvements to other dialects.
+
+This release should be considered a release candidate for the final `3.0.0`
+release which will follow shortly in the next few days unless any other
+major issues are found.
+
+Thanks particularly to the **seven** new contributors we saw in this release 🏆🎉.
+
+## What’s Changed
+
+* Add Support for Databricks `CREATE FUNCTION` Syntax in SparkSQL Parser [#5615](https://github.com/sqlfluff/sqlfluff/pull/5615) [@mitchellvanrijkom](https://github.com/mitchellvanrijkom)
+* Swap fix `--force` for `--check` [#5650](https://github.com/sqlfluff/sqlfluff/pull/5650) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Remove `DeprecatedOption` [#5649](https://github.com/sqlfluff/sqlfluff/pull/5649) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Resolve broken loop limit test [#5651](https://github.com/sqlfluff/sqlfluff/pull/5651) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Snowflake: Move NOTIFY to non-reserved words [#5645](https://github.com/sqlfluff/sqlfluff/pull/5645) [@greg-finley](https://github.com/greg-finley)
+* BigQuery: GROUP BY ALL [#5646](https://github.com/sqlfluff/sqlfluff/pull/5646) [@greg-finley](https://github.com/greg-finley)
+* chore: use pre-calculated `_code_indices` in `BaseSegment::raw_segmen… [#5644](https://github.com/sqlfluff/sqlfluff/pull/5644) [@gvozdvmozgu](https://github.com/gvozdvmozgu)
+* Fix Snowflake Semistructured identifier parsing regex-expression [#5635](https://github.com/sqlfluff/sqlfluff/pull/5635) [@DannyMor](https://github.com/DannyMor)
+* Postgres: Update ReferentialActionGrammar to support sets of columns [#5628](https://github.com/sqlfluff/sqlfluff/pull/5628) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Snowflake: Add syntax for masking policy force [#5629](https://github.com/sqlfluff/sqlfluff/pull/5629) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Postgres: Allow nested block comments [#5630](https://github.com/sqlfluff/sqlfluff/pull/5630) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Postgres: Add Create, Alter, Drop Statistics [#5631](https://github.com/sqlfluff/sqlfluff/pull/5631) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* T-SQL Fix relative sql filepath lexer [#5632](https://github.com/sqlfluff/sqlfluff/pull/5632) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Tech Debt: Replace some sequences with their Ref equivalents [#5633](https://github.com/sqlfluff/sqlfluff/pull/5633) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* ANSI/MYSQL: Support Create Role If Not Exists [#5634](https://github.com/sqlfluff/sqlfluff/pull/5634) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Add Vertica dialect [#5640](https://github.com/sqlfluff/sqlfluff/pull/5640) [@PolitePp](https://github.com/PolitePp)
+* Add Support for Snowflake Materialised View and Column Masking Policy [#5637](https://github.com/sqlfluff/sqlfluff/pull/5637) [@ulixius9](https://github.com/ulixius9)
+* [snowflake dialect] support ALTER TABLE ... ADD COLUMN IF NOT EXISTS [#5621](https://github.com/sqlfluff/sqlfluff/pull/5621) [@gshen7](https://github.com/gshen7)
+* SQLite: Make `DISTINCT FROM` optional; SQLite/TSQL/Exasol: Nothing'd `NanLiteralSegment` [#5620](https://github.com/sqlfluff/sqlfluff/pull/5620) [@keraion](https://github.com/keraion)
+* Upgrade greenplum dialect [#5546](https://github.com/sqlfluff/sqlfluff/pull/5546) [@kkozhakin](https://github.com/kkozhakin)
+* Oracle: parse length qualifier in types [#5613](https://github.com/sqlfluff/sqlfluff/pull/5613) [@Jefffrey](https://github.com/Jefffrey)
+* Multiple Dialects: Fix handling of nested sets expressions [#5606](https://github.com/sqlfluff/sqlfluff/pull/5606) [@keraion](https://github.com/keraion)
+* DB2: Add labeled durations and special registers [#5612](https://github.com/sqlfluff/sqlfluff/pull/5612) [@keraion](https://github.com/keraion)
+* Sparksql: Fix `LATERAL VIEW` following `JOIN`; `CLUSTER|SORT|DISTRIBUTE BY` or `QUALIFY` without `FROM` [#5602](https://github.com/sqlfluff/sqlfluff/pull/5602) [@keraion](https://github.com/keraion)
+* File helpers and config test parameterisation. [#5579](https://github.com/sqlfluff/sqlfluff/pull/5579) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Memory overhead optimisations during linting [#5585](https://github.com/sqlfluff/sqlfluff/pull/5585) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* fix: multiple columns foreign key constraint (#5592) [#5594](https://github.com/sqlfluff/sqlfluff/pull/5594) [@maoxingda](https://github.com/maoxingda)
+* [CI] Add `no_implicit_reexport` mypy check [#5509](https://github.com/sqlfluff/sqlfluff/pull/5509) [@Koyaani](https://github.com/Koyaani)
+
+## New Contributors
+* [@maoxingda](https://github.com/maoxingda) made their first contribution in [#5594](https://github.com/sqlfluff/sqlfluff/pull/5594)
+* [@Jefffrey](https://github.com/Jefffrey) made their first contribution in [#5613](https://github.com/sqlfluff/sqlfluff/pull/5613)
+* [@kkozhakin](https://github.com/kkozhakin) made their first contribution in [#5546](https://github.com/sqlfluff/sqlfluff/pull/5546)
+* [@gshen7](https://github.com/gshen7) made their first contribution in [#5621](https://github.com/sqlfluff/sqlfluff/pull/5621)
+* [@PolitePp](https://github.com/PolitePp) made their first contribution in [#5640](https://github.com/sqlfluff/sqlfluff/pull/5640)
+* [@DannyMor](https://github.com/DannyMor) made their first contribution in [#5635](https://github.com/sqlfluff/sqlfluff/pull/5635)
+* [@mitchellvanrijkom](https://github.com/mitchellvanrijkom) made their first contribution in [#5615](https://github.com/sqlfluff/sqlfluff/pull/5615)
+
 ## [3.0.0a5] - 2024-01-30
 
 ## Highlights

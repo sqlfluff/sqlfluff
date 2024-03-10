@@ -392,20 +392,6 @@ class LintedFile(NamedTuple):
 
         return success
 
-    def discard_fixes_if_tmp_or_prs_errors(self) -> None:
-        """Discard lint fixes for files with templating or parse errors."""
-        num_errors = self.num_violations(
-            types=TMP_PRS_ERROR_TYPES,
-            filter_ignore=False,
-            filter_warning=False,
-        )
-        if num_errors:
-            # File has errors. Discard all the SQLLintError fixes:
-            # they are potentially unsafe.
-            for violation in self.violations:
-                if isinstance(violation, SQLLintError):
-                    violation.fixes = []
-
     @staticmethod
     def _safe_create_replace_file(
         input_path: str, output_path: str, write_buff: str, encoding: str

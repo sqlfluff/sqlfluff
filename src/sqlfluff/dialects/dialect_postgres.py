@@ -29,6 +29,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
+    WhitespaceSegment,
     WordSegment,
 )
 from sqlfluff.core.parser.grammar.anyof import AnySetOf
@@ -186,6 +187,44 @@ postgres_dialect.patch_lexer_matchers(
             "double_quote",
             r'(?s)".+?"',
             CodeSegment,
+        ),
+        # Patching block comments to account for nested blocks.
+        # N.B. this syntax is only possible via the non-standard-library
+        # (but still backwards compatible) `regex` package.
+        # https://pypi.org/project/regex/
+        # Pattern breakdown:
+        # /\*                    Match opening slash.
+        #   (?>                  Atomic grouping
+        #                        (https://www.regular-expressions.info/atomic.html).
+        #       [^*/]+           Non forward-slash or asterisk characters.
+        #       |\*(?!\/)        Negative lookahead assertion to match
+        #                        asterisks not followed by a forward-slash.
+        #       |/[^*]           Match lone forward-slashes not followed by an asterisk.
+        #   )*                   Match any number of the atomic group contents.
+        #   (?>
+        #       (?R)             Recursively match the block comment pattern
+        #                        to match nested block comments.
+        #       (?>
+        #           [^*/]+
+        #           |\*(?!\/)
+        #           |/[^*]
+        #       )*
+        #   )*
+        # \*/                    Match closing slash.
+        RegexLexer(
+            "block_comment",
+            r"/\*(?>[^*/]+|\*(?!\/)|/[^*])*(?>(?R)(?>[^*/]+|\*(?!\/)|/[^*])*)*\*/",
+            CommentSegment,
+            subdivider=RegexLexer(
+                "newline",
+                r"\r\n|\n",
+                NewlineSegment,
+            ),
+            trim_post_subdivide=RegexLexer(
+                "whitespace",
+                r"[^\S\r\n]+",
+                WhitespaceSegment,
+            ),
         ),
         RegexLexer("word", r"[a-zA-Z_][0-9a-zA-Z_$]*", WordSegment),
     ]
@@ -603,6 +642,19 @@ postgres_dialect.replace(
         ),
     ),
     BracketedSetExpressionGrammar=Bracketed(Ref("SetExpressionSegment")),
+    ReferentialActionGrammar=OneOf(
+        "CASCADE",
+        Sequence(
+            "SET",
+            OneOf("DEFAULT", "NULL"),
+            Bracketed(
+                Delimited(Ref("ColumnReferenceSegment")),
+                optional=True,
+            ),
+        ),
+        "RESTRICT",
+        Sequence("NO", "ACTION"),
+    ),
 )
 
 
@@ -928,7 +980,7 @@ class DropCastStatementSegment(ansi.DropCastStatementSegment):
     match_grammar: Matchable = Sequence(
         "DROP",
         "CAST",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Bracketed(
             Ref("DatatypeSegment"),
             "AS",
@@ -948,7 +1000,7 @@ class DropAggregateStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "DROP",
         "AGGREGATE",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Delimited(
             Sequence(
                 Ref("ObjectReferenceSegment"),
@@ -973,7 +1025,7 @@ class CreateAggregateStatementSegment(BaseSegment):
     type = "create_aggregate_statement"
     match_grammar: Matchable = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "AGGREGATE",
         Ref("ObjectReferenceSegment"),
         Bracketed(
@@ -1034,7 +1086,7 @@ class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         Ref("TemporaryGrammar", optional=True),
         "FUNCTION",
         Ref("IfNotExistsGrammar", optional=True),
@@ -1288,7 +1340,7 @@ class CreateProcedureStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "PROCEDURE",
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
@@ -3443,23 +3495,6 @@ class IndexParametersSegment(BaseSegment):
     )
 
 
-class ReferentialActionSegment(BaseSegment):
-    """Foreign Key constraints.
-
-    https://www.postgresql.org/docs/13/infoschema-referential-constraints.html
-    """
-
-    type = "referential_action"
-
-    match_grammar = OneOf(
-        "CASCADE",
-        Sequence("SET", "NULL"),
-        Sequence("SET", "DEFAULT"),
-        "RESTRICT",
-        Sequence("NO", "ACTION"),
-    )
-
-
 class IndexElementOptionsSegment(BaseSegment):
     """Index element options segment.
 
@@ -4149,6 +4184,112 @@ class DropSequenceStatementSegment(ansi.DropSequenceStatementSegment):
     )
 
 
+class StatisticsReferenceSegment(ansi.ObjectReferenceSegment):
+    """Statics Reference."""
+
+    type = "statistics_reference"
+
+
+class CreateStatisticsStatementSegment(BaseSegment):
+    """Create Statistics Segment.
+
+    As specified in https://www.postgresql.org/docs/16/sql-createstatistics.html
+    """
+
+    type = "create_statistics_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "STATISTICS",
+        Sequence(
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("StatisticsReferenceSegment"),
+            optional=True,
+        ),
+        Bracketed(
+            Delimited(
+                "DEPENDENCIES",
+                "MCV",
+                "NDISTINCT",
+            ),
+            optional=True,
+        ),
+        "ON",
+        Delimited(
+            Ref("ColumnReferenceSegment"),
+            Ref("ExpressionSegment"),
+        ),
+        "FROM",
+        Ref("TableReferenceSegment"),
+    )
+
+
+class AlterStatisticsStatementSegment(BaseSegment):
+    """Alter Statistics Segment.
+
+    As specified in https://www.postgresql.org/docs/16/sql-alterstatistics.html
+    """
+
+    type = "alter_statistics_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "STATISTICS",
+        Ref("StatisticsReferenceSegment"),
+        OneOf(
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("StatisticsReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                OneOf(
+                    Sequence(
+                        "SCHEMA",
+                        Ref("SchemaReferenceSegment"),
+                    ),
+                    Sequence(
+                        "STATISTICS",
+                        Ref("NumericLiteralSegment"),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class DropStatisticsStatementSegment(BaseSegment):
+    """Alter Statistics Segment.
+
+    As specified in https://www.postgresql.org/docs/16/sql-dropstatistics.html
+    """
+
+    type = "drop_statistics_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "STATISTICS",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("StatisticsReferenceSegment")),
+        OneOf(
+            "CASCADE",
+            "RESTRICT",
+            optional=True,
+        ),
+    )
+
+
 class AnalyzeStatementSegment(BaseSegment):
     """Analyze Statement Segment.
 
@@ -4235,6 +4376,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ImportForeignSchemaStatementSegment"),
             Ref("DropAggregateStatementSegment"),
             Ref("CreateAggregateStatementSegment"),
+            Ref("CreateStatisticsStatementSegment"),
+            Ref("AlterStatisticsStatementSegment"),
+            Ref("DropStatisticsStatementSegment"),
         ],
     )
 
@@ -4247,7 +4391,7 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         Ref.keyword("CONSTRAINT", optional=True),
         "TRIGGER",
         Ref("TriggerReferenceSegment"),

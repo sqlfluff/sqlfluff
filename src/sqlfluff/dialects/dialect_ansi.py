@@ -2446,6 +2446,7 @@ class GroupByClauseSegment(BaseSegment):
         "BY",
         Indent,
         OneOf(
+            "ALL",
             Ref("CubeRollupClauseSegment"),
             # We could replace this next bit with a GroupingExpressionList
             # reference (renaming that to a more generic name), to avoid
@@ -3870,6 +3871,7 @@ class CreateRoleStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "CREATE",
         "ROLE",
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("RoleReferenceSegment"),
     )
 
