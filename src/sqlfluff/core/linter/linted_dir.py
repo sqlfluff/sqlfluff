@@ -8,11 +8,21 @@ from typing import Any, Dict, List, Optional, Tuple, Union, overload
 
 from typing_extensions import Literal, TypedDict
 
-from sqlfluff.core.errors import CheckTuple
-from sqlfluff.core.linter.linted_file import LintedFile
+from sqlfluff.core.errors import CheckTuple, SQLLintError
+from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES, LintedFile
 from sqlfluff.core.parser.segments.base import BaseSegment
 
-LintingRecord = TypedDict("LintingRecord", {"filepath": str, "violations": List[dict]})
+LintingRecord = TypedDict(
+    "LintingRecord",
+    {
+        "filepath": str,
+        "violations": List[dict],
+        # Things like file length
+        "statistics": Dict[str, int],
+        # Raw timings, in seconds, for both rules and steps
+        "timings": Dict[str, float],
+    },
+)
 
 
 class LintedDir:
@@ -38,6 +48,10 @@ class LintedDir:
         self._num_clean: int = 0
         self._num_unclean: int = 0
         self._num_violations: int = 0
+        self.num_unfiltered_tmp_prs_errors: int = 0
+        self._unfiltered_tmp_prs_errors_map: Dict[str, int] = {}
+        self.num_tmp_prs_errors: int = 0
+        self.num_unfixable_lint_errors: int = 0
         # Timing
         self.step_timings: List[Dict[str, float]] = []
         self.rule_timings: List[Tuple[str, str, float]] = []
@@ -57,14 +71,37 @@ class LintedDir:
             key=lambda v: (v["start_line_no"], v["start_line_pos"], v["code"]),
         )
 
-        # Persist the records if there are violations.
-        if violation_records:
-            self._records.append(
-                {
-                    "filepath": file.path,
-                    "violations": violation_records,
-                }
-            )
+        record: LintingRecord = {
+            "filepath": file.path,
+            "violations": violation_records,
+            "statistics": {
+                "source_chars": (
+                    len(file.templated_file.source_str) if file.templated_file else 0
+                ),
+                "templated_chars": (
+                    len(file.templated_file.templated_str) if file.templated_file else 0
+                ),
+                # These are all the segments in the tree
+                "segments": (
+                    file.tree.count_segments(raw_only=False) if file.tree else 0
+                ),
+                # These are just the "leaf" nodes of the tree
+                "raw_segments": (
+                    file.tree.count_segments(raw_only=True) if file.tree else 0
+                ),
+            },
+            "timings": {},
+        }
+
+        if file.timings:
+            record["timings"] = {
+                # linting, parsing, templating etc...
+                **file.timings.step_timings,
+                # individual rule timings, by code.
+                **file.timings.get_rule_timing_dict(),
+            }
+
+        self._records.append(record)
 
         # Update the stats
         self._num_files += 1
@@ -73,6 +110,20 @@ class LintedDir:
         else:
             self._num_unclean += 1
         self._num_violations = file.num_violations()
+        _unfiltered_tmp_prs_errors = file.num_violations(
+            types=TMP_PRS_ERROR_TYPES,
+            filter_ignore=False,
+            filter_warning=False,
+        )
+        self.num_unfiltered_tmp_prs_errors += _unfiltered_tmp_prs_errors
+        self._unfiltered_tmp_prs_errors_map[file.path] = _unfiltered_tmp_prs_errors
+        self.num_tmp_prs_errors += file.num_violations(
+            types=TMP_PRS_ERROR_TYPES,
+        )
+        self.num_unfixable_lint_errors += file.num_violations(
+            types=SQLLintError,
+            fixable=False,
+        )
 
         # Append timings if present
         if file.timings:
@@ -131,10 +182,6 @@ class LintedDir:
             buff += file.get_violations(**kwargs)
         return buff
 
-    def violation_dict(self, **kwargs) -> Dict[str, list]:
-        """Return a dict of violations by file path."""
-        return {file.path: file.get_violations(**kwargs) for file in self.files}
-
     def as_records(self) -> List[LintingRecord]:
         """Return the result as a list of dictionaries.
 
@@ -168,6 +215,25 @@ class LintedDir:
                 suffix=fixed_file_suffix, formatter=formatter
             )
         return buffer
+
+    def discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors(self) -> None:
+        """Discard lint fixes for files with templating or parse errors."""
+        if self.num_unfiltered_tmp_prs_errors:
+            # Filter serialised versions if present.
+            for record in self._records:
+                if self._unfiltered_tmp_prs_errors_map[record["filepath"]]:
+                    for v_dict in record["violations"]:
+                        if v_dict.get("fixes", []):
+                            # We're changing a violating with fixes, to one without,
+                            # so we need to increment the cache value.
+                            self.num_unfixable_lint_errors += 1
+                            v_dict["fixes"] = []
+            # Filter the full versions if present.
+            for linted_file in self.files:
+                if self._unfiltered_tmp_prs_errors_map[linted_file.path]:
+                    for violation in linted_file.violations:
+                        if isinstance(violation, SQLLintError):
+                            violation.fixes = []
 
     @property
     def tree(self) -> Optional[BaseSegment]:
