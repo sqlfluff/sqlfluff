@@ -694,27 +694,9 @@ class PartitionByClauseSegment(BaseSegment):
                     ),
                 ),
             ),
+            terminators=[Sequence("GROUP", "BY"), "REORGANIZE"]
         ),
-        Sequence(
-            "GROUP",
-            "BY",
-            OneOf(
-                Ref("FunctionSegment"),
-                Bracketed(
-                    Delimited(
-                        Sequence(
-                            OneOf(
-                                Ref("ColumnReferenceSegment"),
-                                Ref("NumericLiteralSegment"),
-                                Ref("ExpressionSegment"),
-                                Ref("ShorthandCastSegment"),
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-            optional=True,
-        ),
+        Ref("GroupByClauseSegment", optional=True),
         Ref.keyword("REORGANIZE", optional=True),
     )
 
@@ -1591,11 +1573,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
             "TINYINT",
             Sequence(
                 OneOf("DECIMAL", "NUMERIC", "NUMBER", "MONEY"),
-                Bracketed(
-                    Ref("IntegerSegment"),
-                    Sequence(Ref("CommaSegment"), Ref("IntegerSegment"), optional=True),
-                    optional=True,
-                ),
+                Ref("BracketedArguments", optional=True),
             ),
             # Spatial
             Sequence(
