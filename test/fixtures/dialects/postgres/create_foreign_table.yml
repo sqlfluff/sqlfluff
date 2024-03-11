@@ -1,0 +1,983 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1a77ba691273e82850de69e674c4a421055fffbbfc4ddaca19236297d117c9b7
+file:
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foreign_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: simple_column
+      - data_type:
+          keyword: integer
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_options
+      - data_type:
+          keyword: char
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier_all: a
+        - quoted_literal: "'foo'"
+        - comma: ','
+        - naked_identifier_all: b
+        - quoted_literal: "'bar'"
+        - end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_collate
+      - data_type:
+          keyword: text
+      - keyword: COLLATE
+      - collation_reference:
+          quoted_identifier: '"de_DE"'
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_not_null_constraint
+      - data_type:
+          datetime_type_identifier:
+            keyword: date
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_null_constraint
+      - data_type:
+          keyword: varchar
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '50'
+              end_bracket: )
+      - column_constraint_segment:
+          keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_check_constraint
+      - data_type:
+          keyword: float
+      - column_constraint_segment:
+          keyword: CHECK
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: column_with_check_constraint
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0.0'
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_default_constraint
+      - data_type:
+          datetime_type_identifier:
+            keyword: timestamp
+      - column_constraint_segment:
+          keyword: DEFAULT
+          bare_function: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_generated_constraint
+      - data_type:
+          keyword: bigint
+      - column_constraint_segment:
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: simple_column
+                binary_operator: '*'
+                numeric_literal: '2'
+              end_bracket: )
+        - keyword: STORED
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_more_than_one_constraint
+      - data_type:
+          keyword: int
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - column_constraint_segment:
+          keyword: CHECK
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: column_with_more_than_one_constraint
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0'
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_options_and_collate
+      - data_type:
+          keyword: char
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier_all: a
+        - quoted_literal: "'foo'"
+        - comma: ','
+        - naked_identifier_all: b
+        - quoted_literal: "'bar'"
+        - end_bracket: )
+      - keyword: COLLATE
+      - collation_reference:
+          quoted_identifier: '"es_ES"'
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_options_and_constraint
+      - data_type:
+          keyword: char
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier_all: a
+        - quoted_literal: "'foo'"
+        - comma: ','
+        - naked_identifier_all: b
+        - quoted_literal: "'bar'"
+        - end_bracket: )
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_collate_and_constraint
+      - data_type:
+          keyword: char
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
+      - keyword: COLLATE
+      - collation_reference:
+          quoted_identifier: '"de_DE"'
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_options_collate_and_constraint
+      - data_type:
+          keyword: char
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier_all: a
+        - quoted_literal: "'foo'"
+        - comma: ','
+        - naked_identifier_all: b
+        - quoted_literal: "'bar'"
+        - end_bracket: )
+      - keyword: COLLATE
+      - collation_reference:
+          quoted_identifier: '"de_DE"'
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - table_constraint:
+          keyword: CHECK
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: simple_column
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0'
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: simple_column
+              comparison_operator:
+                raw_comparison_operator: <
+              numeric_literal: '10'
+            end_bracket: )
+        - keyword: 'NO'
+        - keyword: INHERIT
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: named_table_constraint
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: column_with_options
+              comparison_operator:
+              - raw_comparison_operator: <
+              - raw_comparison_operator: '>'
+              quoted_literal: "''"
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: named_table_constraint_no_inherit
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: column_with_collate
+              comparison_operator:
+              - raw_comparison_operator: <
+              - raw_comparison_operator: '>'
+              quoted_literal: "''"
+            end_bracket: )
+        - keyword: 'NO'
+        - keyword: INHERIT
+      - end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: a_server
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: foreign_table_that_might_already_exist
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: simple_column
+        data_type:
+          keyword: integer
+        end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: a_server
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foreign_table_that_inherits
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: simple_column
+        data_type:
+          keyword: integer
+        end_bracket: )
+    - keyword: INHERITS
+    - bracketed:
+        start_bracket: (
+        table_reference:
+          naked_identifier: another_table
+        end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: a_server
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: foreign_table_that_inherits_that_might_already_exist
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: simple_column
+        data_type:
+          keyword: integer
+        end_bracket: )
+    - keyword: INHERITS
+    - bracketed:
+        start_bracket: (
+        table_reference:
+          naked_identifier: another_table
+        end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: a_server
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foreign_table_with_options
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: simple_column
+        data_type:
+          keyword: integer
+        end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: a_server
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        naked_identifier_all: c
+        quoted_literal: "'baz'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: foreign_table_with_options_that_might_already_exist
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: simple_column
+        data_type:
+          keyword: integer
+        end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: a_server
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        naked_identifier_all: c
+        quoted_literal: "'baz'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foreign_table_that_inherits_and_has_options
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: simple_column
+        data_type:
+          keyword: integer
+        end_bracket: )
+    - keyword: INHERITS
+    - bracketed:
+        start_bracket: (
+        table_reference:
+          naked_identifier: another_table
+        end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: a_server
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        naked_identifier_all: c
+        quoted_literal: "'baz'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: foreign_table_that_inherits_and_has_options_that_might_already_exist
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: simple_column
+        data_type:
+          keyword: integer
+        end_bracket: )
+    - keyword: INHERITS
+    - bracketed:
+        start_bracket: (
+        table_reference:
+          naked_identifier: another_table
+        end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: a_server
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        naked_identifier_all: c
+        quoted_literal: "'baz'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foreign_table_partition_in
+    - keyword: PARTITION
+    - keyword: OF
+    - table_reference:
+        naked_identifier: another_table
+    - keyword: FOR
+    - keyword: VALUES
+    - partition_bound_spec:
+        keyword: IN
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'2016-07-01'"
+        - comma: ','
+        - expression:
+            quoted_literal: "'2016-08-01'"
+        - end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: a_server
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foreign_table_partition_from_min_to_max
+    - keyword: PARTITION
+    - keyword: OF
+    - table_reference:
+        naked_identifier: another_table
+    - keyword: FOR
+    - keyword: VALUES
+    - partition_bound_spec:
+      - keyword: FROM
+      - bracketed:
+          start_bracket: (
+          expression:
+            quoted_literal: "'2016-07-01'"
+          end_bracket: )
+      - keyword: TO
+      - bracketed:
+          start_bracket: (
+          expression:
+            quoted_literal: "'2016-08-01'"
+          end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: a_server
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foreign_table_partition_with
+    - keyword: PARTITION
+    - keyword: OF
+    - table_reference:
+        naked_identifier: another_table
+    - keyword: FOR
+    - keyword: VALUES
+    - partition_bound_spec:
+        keyword: WITH
+        bracketed:
+        - start_bracket: (
+        - keyword: MODULUS
+        - numeric_literal: '2'
+        - comma: ','
+        - keyword: REMAINDER
+        - numeric_literal: '0'
+        - end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: a_server
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: foreign_table_partition_in_that_might_already_exist
+    - keyword: PARTITION
+    - keyword: OF
+    - table_reference:
+        naked_identifier: another_table
+    - keyword: FOR
+    - keyword: VALUES
+    - partition_bound_spec:
+        keyword: IN
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'2016-07-01'"
+        - comma: ','
+        - expression:
+            quoted_literal: "'2016-08-01'"
+        - end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: a_server
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: foreign_table_partition_from_min_to_max_that_might_already_exist
+    - keyword: PARTITION
+    - keyword: OF
+    - table_reference:
+        naked_identifier: another_table
+    - keyword: FOR
+    - keyword: VALUES
+    - partition_bound_spec:
+      - keyword: FROM
+      - bracketed:
+          start_bracket: (
+          expression:
+            quoted_literal: "'2016-07-01'"
+          end_bracket: )
+      - keyword: TO
+      - bracketed:
+          start_bracket: (
+          expression:
+            quoted_literal: "'2016-08-01'"
+          end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: a_server
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: foreign_table_partition_with_that_might_already_exist
+    - keyword: PARTITION
+    - keyword: OF
+    - table_reference:
+        naked_identifier: another_table
+    - keyword: FOR
+    - keyword: VALUES
+    - partition_bound_spec:
+        keyword: WITH
+        bracketed:
+        - start_bracket: (
+        - keyword: MODULUS
+        - numeric_literal: '2'
+        - comma: ','
+        - keyword: REMAINDER
+        - numeric_literal: '0'
+        - end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: a_server
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foreign_table_partition_in_with_options
+    - keyword: PARTITION
+    - keyword: OF
+    - table_reference:
+        naked_identifier: another_table
+    - keyword: FOR
+    - keyword: VALUES
+    - partition_bound_spec:
+        keyword: IN
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'2016-07-01'"
+        - comma: ','
+        - expression:
+            quoted_literal: "'2016-08-01'"
+        - end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: a_server
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        naked_identifier_all: foo
+        quoted_literal: "'bar'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foreign_table_partition_from_min_to_max_with_options
+    - keyword: PARTITION
+    - keyword: OF
+    - table_reference:
+        naked_identifier: another_table
+    - keyword: FOR
+    - keyword: VALUES
+    - partition_bound_spec:
+      - keyword: FROM
+      - bracketed:
+          start_bracket: (
+          expression:
+            quoted_literal: "'2016-07-01'"
+          end_bracket: )
+      - keyword: TO
+      - bracketed:
+          start_bracket: (
+          expression:
+            quoted_literal: "'2016-08-01'"
+          end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: a_server
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        naked_identifier_all: foo
+        quoted_literal: "'bar'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foreign_table_partition_with_with_options
+    - keyword: PARTITION
+    - keyword: OF
+    - table_reference:
+        naked_identifier: another_table
+    - keyword: FOR
+    - keyword: VALUES
+    - partition_bound_spec:
+        keyword: WITH
+        bracketed:
+        - start_bracket: (
+        - keyword: MODULUS
+        - numeric_literal: '2'
+        - comma: ','
+        - keyword: REMAINDER
+        - numeric_literal: '0'
+        - end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: a_server
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        naked_identifier_all: foo
+        quoted_literal: "'bar'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foreign_table_partition_in_with_columns
+    - keyword: PARTITION
+    - keyword: OF
+    - table_reference:
+        naked_identifier: another_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: simple_column
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_options
+      - keyword: WITH
+      - keyword: OPTIONS
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_not_null_constraint
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_null_constraint
+      - column_constraint_segment:
+          keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_check_constraint
+      - column_constraint_segment:
+          keyword: CHECK
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: column_with_check_constraint
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0.0'
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_default_constraint
+      - column_constraint_segment:
+          keyword: DEFAULT
+          bare_function: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_generated_constraint
+      - column_constraint_segment:
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: simple_column
+                binary_operator: '*'
+                numeric_literal: '2'
+              end_bracket: )
+        - keyword: STORED
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_more_than_one_constraint
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - column_constraint_segment:
+          keyword: CHECK
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: column_with_more_than_one_constraint
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0'
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_with_options_and_not_null_constraint
+      - keyword: WITH
+      - keyword: OPTIONS
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - table_constraint:
+          keyword: CHECK
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: simple_column
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0'
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: simple_column
+              comparison_operator:
+                raw_comparison_operator: <
+              numeric_literal: '10'
+            end_bracket: )
+        - keyword: 'NO'
+        - keyword: INHERIT
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: named_table_constraint
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: column_with_options
+              comparison_operator:
+              - raw_comparison_operator: <
+              - raw_comparison_operator: '>'
+              quoted_literal: "''"
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: named_table_constraint_no_inherit
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: column_with_options_and_not_null_constraint
+              comparison_operator:
+              - raw_comparison_operator: <
+              - raw_comparison_operator: '>'
+              quoted_literal: "''"
+            end_bracket: )
+        - keyword: 'NO'
+        - keyword: INHERIT
+      - end_bracket: )
+    - keyword: FOR
+    - keyword: VALUES
+    - partition_bound_spec:
+        keyword: IN
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'2016-07-01'"
+        - comma: ','
+        - expression:
+            quoted_literal: "'2016-08-01'"
+        - end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: a_server
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foreign_table_partition_with_from_min_to_max_with_columns
+    - keyword: PARTITION
+    - keyword: OF
+    - table_reference:
+        naked_identifier: another_table
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: simple_column
+        end_bracket: )
+    - keyword: FOR
+    - keyword: VALUES
+    - partition_bound_spec:
+      - keyword: FROM
+      - bracketed:
+          start_bracket: (
+          expression:
+            quoted_literal: "'2016-07-01'"
+          end_bracket: )
+      - keyword: TO
+      - bracketed:
+          start_bracket: (
+          expression:
+            quoted_literal: "'2016-08-01'"
+          end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: a_server
+- statement_terminator: ;
+- statement:
+    create_foreign_table_statement:
+    - keyword: CREATE
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foreign_table_partition_with_with_columns
+    - keyword: PARTITION
+    - keyword: OF
+    - table_reference:
+        naked_identifier: another_table
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: simple_column
+        end_bracket: )
+    - keyword: FOR
+    - keyword: VALUES
+    - partition_bound_spec:
+        keyword: WITH
+        bracketed:
+        - start_bracket: (
+        - keyword: MODULUS
+        - numeric_literal: '2'
+        - comma: ','
+        - keyword: REMAINDER
+        - numeric_literal: '0'
+        - end_bracket: )
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: a_server
+- statement_terminator: ;
