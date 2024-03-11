@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 65477a88f18df870c1702d0adf4cfbfa3099efc7918c700e40dfab54507abc2e
+_hash: 9161ddb2a56e8fd5cc2ada0f788444a01cfb93ed8c26b6487310667e95c9702e
 file:
 - statement:
     create_table_statement:
@@ -194,10 +194,21 @@ file:
           naked_identifier: bb
       - data_type:
           keyword: float
-          bracketed:
-            start_bracket: (
-            numeric_literal: '7'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '7'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: bbb
+      - data_type:
+          keyword: float
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '7'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: c
@@ -292,21 +303,23 @@ file:
           naked_identifier: gg
       - data_type:
           keyword: DECIMAL
-          bracketed:
-            start_bracket: (
-            integer_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: ggg
       - data_type:
           keyword: DECIMAL
-          bracketed:
-          - start_bracket: (
-          - integer_literal: '5'
-          - comma: ','
-          - integer_literal: '2'
-          - end_bracket: )
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '5'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: h
@@ -317,21 +330,35 @@ file:
           naked_identifier: hh
       - data_type:
           keyword: NUMERIC
-          bracketed:
-            start_bracket: (
-            integer_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: hhh
       - data_type:
           keyword: NUMERIC
-          bracketed:
-          - start_bracket: (
-          - integer_literal: '5'
-          - comma: ','
-          - integer_literal: '2'
-          - end_bracket: )
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '5'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: hhhh
+      - data_type:
+          keyword: NUMERIC
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '5'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: i
@@ -342,21 +369,23 @@ file:
           naked_identifier: ii
       - data_type:
           keyword: NUMBER
-          bracketed:
-            start_bracket: (
-            integer_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: iii
       - data_type:
           keyword: NUMBER
-          bracketed:
-          - start_bracket: (
-          - integer_literal: '5'
-          - comma: ','
-          - integer_literal: '2'
-          - end_bracket: )
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '5'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: j
@@ -367,21 +396,23 @@ file:
           naked_identifier: jj
       - data_type:
           keyword: MONEY
-          bracketed:
-            start_bracket: (
-            integer_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: jjj
       - data_type:
           keyword: MONEY
-          bracketed:
-          - start_bracket: (
-          - integer_literal: '5'
-          - comma: ','
-          - integer_literal: '2'
-          - end_bracket: )
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '5'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -446,33 +477,26 @@ file:
       - column_reference:
           naked_identifier: a
       - data_type:
-          sized_array_type:
-            array_type:
-              keyword: array
-            array_accessor:
-              start_square_bracket: '['
-              expression:
-                column_reference:
-                  naked_identifier: integer
-              end_square_bracket: ']'
+          array_type:
+            keyword: array
+            start_square_bracket: '['
+            data_type:
+              keyword: integer
+            end_square_bracket: ']'
       - comma: ','
       - column_reference:
           naked_identifier: b
       - data_type:
-          sized_array_type:
-            array_type:
-              keyword: array
-            array_accessor:
-              start_square_bracket: '['
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: varchar
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      numeric_literal: '50'
-                    end_bracket: )
-              end_square_bracket: ']'
+          array_type:
+            keyword: array
+            start_square_bracket: '['
+            data_type:
+              keyword: varchar
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '50'
+                  end_bracket: )
+            end_square_bracket: ']'
       - end_bracket: )
 - statement_terminator: ;
