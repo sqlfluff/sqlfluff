@@ -642,7 +642,7 @@ def _iter_segments(
                             )
                         continue
 
-            elif tfs.slice_type in ("templated", "block_start"):
+            elif tfs.slice_type in ("templated", "block_start", "escaped"):
                 # Found a templated slice. Does it have length in the templated file?
                 # If it doesn't, then we'll pick it up next.
                 if not is_zero_slice(tfs.templated_slice):

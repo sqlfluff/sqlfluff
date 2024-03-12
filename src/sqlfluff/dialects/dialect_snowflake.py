@@ -1701,7 +1701,16 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
             ),
             Ref("AlterTableTableColumnActionSegment"),
             # @TODO: Set/unset TAG
-            # @TODO: Unset table options
+            # UNSET Table options
+            Sequence(
+                Ref.keyword("UNSET"),
+                Delimited(
+                    OneOf(
+                        Ref("ParameterNameSegment"),
+                        Ref.keyword("COMMENT"),
+                    ),
+                ),
+            ),
             # @TODO: Add/drop row access policies
         ),
     )
