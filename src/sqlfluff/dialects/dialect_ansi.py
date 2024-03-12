@@ -1551,9 +1551,10 @@ class FromExpressionElementSegment(BaseSegment):
         if alias_expression:
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
+            is_quoted = alias_expression.get_child("quoted_identifier") is not None
             if segment:
                 return AliasInfo(
-                    segment.raw, segment, True, self, alias_expression, ref
+                    segment.raw, segment, True, self, alias_expression, ref, is_quoted
                 )
 
         # If not return the object name (or None if there isn't one)
@@ -1571,6 +1572,7 @@ class FromExpressionElementSegment(BaseSegment):
                     self,
                     None,
                     ref,
+                    penultimate_ref.segments[0].is_type("quoted_identifier"),
                 )
         # No references or alias
         return AliasInfo(
@@ -1580,6 +1582,7 @@ class FromExpressionElementSegment(BaseSegment):
             self,
             None,
             ref,
+            False,
         )
 
 

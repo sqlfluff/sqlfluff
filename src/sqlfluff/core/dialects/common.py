@@ -14,6 +14,7 @@ class AliasInfo(NamedTuple):
     from_expression_element: BaseSegment
     alias_expression: Optional[BaseSegment]
     object_reference: Optional[BaseSegment]
+    quoted: Optional[bool]
 
 
 class ColumnAliasInfo(NamedTuple):

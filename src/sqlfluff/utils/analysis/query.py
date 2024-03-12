@@ -98,6 +98,7 @@ class Selectable:
             name = alias_expression.children().first(
                 sp.is_type("naked_identifier", "quoted_identifier")
             )
+            is_quoted = name.any(sp.is_type("quoted_identifier"))
             alias_info = AliasInfo(
                 name[0].raw if name else "",
                 name[0] if name else None,
@@ -105,6 +106,7 @@ class Selectable:
                 self.selectable,
                 alias_expression[0] if alias_expression else None,
                 None,
+                is_quoted,
             )
 
             return SelectStatementColumnsAndTables(
