@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d23a6b69e9eaddca4f8e9da7c9dcd187194f97dcae0ac36c4180fc5e993271ae
+_hash: 0627a99e1a32fac2e1868101021259bf8016ecc28ab53a98a5b42e4d98f0cc46
 file:
-  statement:
+- statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
@@ -108,4 +108,72 @@ file:
         - keyword: BY
         - column_reference:
             naked_identifier: region
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: percentile_cont
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '0.9'
+              end_bracket: )
+            within_group_clause_statement:
+            - keyword: within
+            - keyword: group
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: order
+                - keyword: by
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: extract
+                      bracketed:
+                        start_bracket: (
+                        date_part: millisecond
+                        keyword: from
+                        expression:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                            - column_reference:
+                                naked_identifier: col1
+                            - binary_operator: '-'
+                            - column_reference:
+                                naked_identifier: col2
+                            end_bracket: )
+                        end_bracket: )
+                end_bracket: )
+            over_clause:
+              keyword: over
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: partition
+                  - keyword: by
+                  - expression:
+                      column_reference:
+                        naked_identifier: col3
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: col4
+                end_bracket: )
+          alias_expression:
+            keyword: as
+            naked_identifier: result_column
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tab_name
+- statement_terminator: ;

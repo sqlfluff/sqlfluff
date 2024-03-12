@@ -298,7 +298,7 @@ vertica_dialect.replace(
         Ref("JoinLikeClauseGrammar"),
         BracketedSegment,
     ),
-    PostFunctionGrammar=OneOf(
+    PostFunctionGrammar=AnySetOf(
         # Optional OVER suffix for window functions.
         # This is supported in bigquery & postgres (and its derivatives)
         # and so is included here for now.
