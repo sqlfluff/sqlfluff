@@ -66,6 +66,7 @@ create table g(
     h NUMERIC,
     hh NUMERIC(5),
     hhh NUMERIC(5, 2),
+    hhh NUMERIC (5, 2),
     i NUMBER,
     ii NUMBER(5),
     iii NUMBER(5, 2),

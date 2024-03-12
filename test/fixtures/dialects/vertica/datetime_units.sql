@@ -159,3 +159,8 @@ SELECT
     t1.field,
     TIMESTAMP WITH TIME ZONE '2005-04-02 12:00:00-07' + INTERVAL '24 HOURS' + t1.data AS a
 FROM t1;
+
+SELECT
+    t1.field,
+    cast(to_char(t1.data) || ' sec' as interval hour to second(6)) as a
+FROM t1;

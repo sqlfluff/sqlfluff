@@ -189,7 +189,7 @@ vertica_dialect.add(
             "TO",
             Sequence(
                 Ref("IntervalUnitsGrammar"),
-                Bracketed(Ref("IntegerSegment"), optional=True),
+                Ref("BracketedArguments", optional=True),
             ),
             optional=True,
         ),
@@ -1799,7 +1799,7 @@ class FunctionSegment(ansi.FunctionSegment):
                     parse_mode=ParseMode.GREEDY,
                 ),
             ),
-            AnyNumberOf(Ref("PostFunctionGrammar")),
+            AnySetOf(Ref("PostFunctionGrammar")),
             # Allow AS clause for some functions at the end
             Sequence(
                 "AS", Bracketed(Delimited(Ref("ColumnReferenceSegment"))), optional=True

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ad55f82910330ea3d8f36247165b3d321c7092e74221ea2dc42398e41a18c036
+_hash: a36b209d51f2f2d52d9dc625b45aed1b822b2af794cec1f59ae43716f11dcd4d
 file:
 - statement:
     select_statement:
@@ -1101,6 +1101,61 @@ file:
             - naked_identifier: data
           alias_expression:
             keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: cast
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: to_char
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                      - naked_identifier: t1
+                      - dot: .
+                      - naked_identifier: data
+                    end_bracket: )
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                quoted_literal: "' sec'"
+              keyword: as
+              data_type:
+              - keyword: interval
+              - keyword: hour
+              - keyword: to
+              - keyword: second
+              - bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '6'
+                    end_bracket: )
+              end_bracket: )
+          alias_expression:
+            keyword: as
             naked_identifier: a
       from_clause:
         keyword: FROM

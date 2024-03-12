@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 65477a88f18df870c1702d0adf4cfbfa3099efc7918c700e40dfab54507abc2e
+_hash: 51346f6abee0bcc3c972c1887ada9cb8698a40730f3fdf9ca20591638b2e6a9f
 file:
 - statement:
     create_table_statement:
@@ -292,21 +292,23 @@ file:
           naked_identifier: gg
       - data_type:
           keyword: DECIMAL
-          bracketed:
-            start_bracket: (
-            integer_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: ggg
       - data_type:
           keyword: DECIMAL
-          bracketed:
-          - start_bracket: (
-          - integer_literal: '5'
-          - comma: ','
-          - integer_literal: '2'
-          - end_bracket: )
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '5'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: h
@@ -317,21 +319,35 @@ file:
           naked_identifier: hh
       - data_type:
           keyword: NUMERIC
-          bracketed:
-            start_bracket: (
-            integer_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: hhh
       - data_type:
           keyword: NUMERIC
-          bracketed:
-          - start_bracket: (
-          - integer_literal: '5'
-          - comma: ','
-          - integer_literal: '2'
-          - end_bracket: )
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '5'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: hhh
+      - data_type:
+          keyword: NUMERIC
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '5'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: i
@@ -342,21 +358,23 @@ file:
           naked_identifier: ii
       - data_type:
           keyword: NUMBER
-          bracketed:
-            start_bracket: (
-            integer_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: iii
       - data_type:
           keyword: NUMBER
-          bracketed:
-          - start_bracket: (
-          - integer_literal: '5'
-          - comma: ','
-          - integer_literal: '2'
-          - end_bracket: )
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '5'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: j
@@ -367,21 +385,23 @@ file:
           naked_identifier: jj
       - data_type:
           keyword: MONEY
-          bracketed:
-            start_bracket: (
-            integer_literal: '5'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
       - comma: ','
       - column_reference:
           naked_identifier: jjj
       - data_type:
           keyword: MONEY
-          bracketed:
-          - start_bracket: (
-          - integer_literal: '5'
-          - comma: ','
-          - integer_literal: '2'
-          - end_bracket: )
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '5'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:

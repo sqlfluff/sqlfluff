@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 855e770a3fa82995ce0c7499fd6eb45e9f1720cd797690e4297217d4166120d2
+_hash: df7bbf0fdf748ec0d5d198da8452454bbced657331d02bc99698392544668adf
 file:
 - statement:
     create_table_statement:
@@ -157,4 +157,483 @@ file:
     - keyword: COMMIT
     - keyword: PRESERVE
     - keyword: ROWS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: orderkey
+      - data_type:
+          keyword: INT
+      - column_encoding:
+          keyword: ENCODING
+          encoding_type: AUTO
+      - comma: ','
+      - column_reference:
+          naked_identifier: custkey
+      - data_type:
+          keyword: INT
+      - comma: ','
+      - column_reference:
+          naked_identifier: prodkey
+      - data_type:
+          sized_array_type:
+            array_type:
+              keyword: ARRAY
+            array_accessor:
+              start_square_bracket: '['
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: VARCHAR
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '10'
+                    end_bracket: )
+              end_square_bracket: ']'
+      - comma: ','
+      - column_reference:
+          naked_identifier: orderprices
+      - data_type:
+          sized_array_type:
+            array_type:
+              keyword: ARRAY
+            array_accessor:
+              start_square_bracket: '['
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: DECIMAL
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '12'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '2'
+                  - end_bracket: )
+              end_square_bracket: ']'
+      - comma: ','
+      - column_reference:
+          naked_identifier: orderdate
+      - data_type:
+          keyword: DATE
+      - end_bracket: )
+    - partitionby_clause:
+      - keyword: partition
+      - keyword: by
+      - expression:
+          cast_expression:
+            column_reference:
+              naked_identifier: orderdate
+            casting_operator: '::'
+            data_type:
+              keyword: date
+      - groupby_clause:
+        - keyword: group
+        - keyword: by
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: CALENDAR_HIERARCHY_DAY
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: orderdate
+                    casting_operator: '::'
+                    data_type:
+                      keyword: date
+              - comma: ','
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: orderkey
+      - data_type:
+          keyword: INT
+      - column_encoding:
+          keyword: ENCODING
+          encoding_type: AUTO
+      - comma: ','
+      - column_reference:
+          naked_identifier: custkey
+      - data_type:
+          keyword: INT
+      - comma: ','
+      - column_reference:
+          naked_identifier: prodkey
+      - data_type:
+          sized_array_type:
+            array_type:
+              keyword: ARRAY
+            array_accessor:
+              start_square_bracket: '['
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: VARCHAR
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '10'
+                    end_bracket: )
+              end_square_bracket: ']'
+      - comma: ','
+      - column_reference:
+          naked_identifier: orderprices
+      - data_type:
+          sized_array_type:
+            array_type:
+              keyword: ARRAY
+            array_accessor:
+              start_square_bracket: '['
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: DECIMAL
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '12'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '2'
+                  - end_bracket: )
+              end_square_bracket: ']'
+      - comma: ','
+      - column_reference:
+          naked_identifier: orderdate
+      - data_type:
+          keyword: DATE
+      - end_bracket: )
+    - partitionby_clause:
+      - keyword: partition
+      - keyword: by
+      - expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: concat
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    cast_expression:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          cast_expression:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                function:
+                                  function_name:
+                                    function_name_identifier: date_part
+                                  bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                      quoted_literal: "'year'"
+                                  - comma: ','
+                                  - expression:
+                                      cast_expression:
+                                        bracketed:
+                                          start_bracket: (
+                                          expression:
+                                            column_reference:
+                                              naked_identifier: orderdate
+                                          end_bracket: )
+                                        casting_operator: '::'
+                                        data_type:
+                                          keyword: timestamp
+                                  - end_bracket: )
+                              end_bracket: )
+                            casting_operator: '::'
+                            data_type:
+                              keyword: int
+                        end_bracket: )
+                      casting_operator: '::'
+                      data_type:
+                        keyword: varchar
+                - comma: ','
+                - expression:
+                    cast_expression:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          cast_expression:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                function:
+                                  function_name:
+                                    function_name_identifier: date_part
+                                  bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                      quoted_literal: "'month'"
+                                  - comma: ','
+                                  - expression:
+                                      cast_expression:
+                                        bracketed:
+                                          start_bracket: (
+                                          expression:
+                                            column_reference:
+                                              naked_identifier: orderdate
+                                          end_bracket: )
+                                        casting_operator: '::'
+                                        data_type:
+                                          keyword: timestamp
+                                  - end_bracket: )
+                              end_bracket: )
+                            casting_operator: '::'
+                            data_type:
+                              keyword: int
+                        end_bracket: )
+                      casting_operator: '::'
+                      data_type:
+                        keyword: varchar
+                - end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: orderkey
+      - data_type:
+          keyword: INT
+      - column_encoding:
+          keyword: ENCODING
+          encoding_type: AUTO
+      - comma: ','
+      - column_reference:
+          naked_identifier: custkey
+      - data_type:
+          keyword: INT
+      - comma: ','
+      - column_reference:
+          naked_identifier: orderdate
+      - data_type:
+          keyword: DATE
+      - end_bracket: )
+    - partitionby_clause:
+      - keyword: partition
+      - keyword: by
+      - expression:
+          cast_expression:
+            column_reference:
+              naked_identifier: orderdate
+            casting_operator: '::'
+            data_type:
+              keyword: date
+      - groupby_clause:
+        - keyword: group
+        - keyword: by
+        - expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                case_expression:
+                - keyword: case
+                - when_clause:
+                  - keyword: when
+                  - expression:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          function:
+                            function_name:
+                              function_name_identifier: datediff
+                            bracketed:
+                            - start_bracket: (
+                            - expression:
+                                quoted_literal: "'year'"
+                            - comma: ','
+                            - expression:
+                                cast_expression:
+                                  column_reference:
+                                    naked_identifier: orderdate
+                                  casting_operator: '::'
+                                  data_type:
+                                    keyword: date
+                            - comma: ','
+                            - expression:
+                                cast_expression:
+                                  bracketed:
+                                    start_bracket: (
+                                    expression:
+                                      cast_expression:
+                                        bracketed:
+                                          start_bracket: (
+                                          expression:
+                                            function:
+                                              function_name:
+                                                function_name_identifier: now
+                                              bracketed:
+                                                start_bracket: (
+                                                end_bracket: )
+                                          end_bracket: )
+                                        casting_operator: '::'
+                                        data_type:
+                                          data_type_identifier: timestamptz
+                                          bracketed_arguments:
+                                            bracketed:
+                                              start_bracket: (
+                                              numeric_literal: '6'
+                                              end_bracket: )
+                                    end_bracket: )
+                                  casting_operator: '::'
+                                  data_type:
+                                    keyword: date
+                            - end_bracket: )
+                          comparison_operator:
+                          - raw_comparison_operator: '>'
+                          - raw_comparison_operator: '='
+                          numeric_literal: '2'
+                        end_bracket: )
+                  - keyword: then
+                  - expression:
+                      cast_expression:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            function:
+                              function_name:
+                                function_name_identifier: date_trunc
+                              bracketed:
+                              - start_bracket: (
+                              - expression:
+                                  quoted_literal: "'year'"
+                              - comma: ','
+                              - expression:
+                                  cast_expression:
+                                    column_reference:
+                                      naked_identifier: orderdate
+                                    casting_operator: '::'
+                                    data_type:
+                                      keyword: date
+                              - end_bracket: )
+                          end_bracket: )
+                        casting_operator: '::'
+                        data_type:
+                          keyword: date
+                - when_clause:
+                  - keyword: when
+                  - expression:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          function:
+                            function_name:
+                              function_name_identifier: datediff
+                            bracketed:
+                            - start_bracket: (
+                            - expression:
+                                quoted_literal: "'month'"
+                            - comma: ','
+                            - expression:
+                                cast_expression:
+                                  column_reference:
+                                    naked_identifier: orderdate
+                                  casting_operator: '::'
+                                  data_type:
+                                    keyword: date
+                            - comma: ','
+                            - expression:
+                                cast_expression:
+                                  bracketed:
+                                    start_bracket: (
+                                    expression:
+                                      cast_expression:
+                                        bracketed:
+                                          start_bracket: (
+                                          expression:
+                                            function:
+                                              function_name:
+                                                function_name_identifier: now
+                                              bracketed:
+                                                start_bracket: (
+                                                end_bracket: )
+                                          end_bracket: )
+                                        casting_operator: '::'
+                                        data_type:
+                                          data_type_identifier: timestamptz
+                                          bracketed_arguments:
+                                            bracketed:
+                                              start_bracket: (
+                                              numeric_literal: '6'
+                                              end_bracket: )
+                                    end_bracket: )
+                                  casting_operator: '::'
+                                  data_type:
+                                    keyword: date
+                            - end_bracket: )
+                          comparison_operator:
+                          - raw_comparison_operator: '>'
+                          - raw_comparison_operator: '='
+                          numeric_literal: '2'
+                        end_bracket: )
+                  - keyword: then
+                  - expression:
+                      cast_expression:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            function:
+                              function_name:
+                                function_name_identifier: date_trunc
+                              bracketed:
+                              - start_bracket: (
+                              - expression:
+                                  quoted_literal: "'month'"
+                              - comma: ','
+                              - expression:
+                                  cast_expression:
+                                    column_reference:
+                                      naked_identifier: orderdate
+                                    casting_operator: '::'
+                                    data_type:
+                                      keyword: date
+                              - end_bracket: )
+                          end_bracket: )
+                        casting_operator: '::'
+                        data_type:
+                          keyword: date
+                - else_clause:
+                    keyword: else
+                    expression:
+                      cast_expression:
+                        column_reference:
+                          naked_identifier: orderdate
+                        casting_operator: '::'
+                        data_type:
+                          keyword: date
+                - keyword: end
+              end_bracket: )
 - statement_terminator: ;
