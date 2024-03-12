@@ -11,6 +11,7 @@ from sqlfluff.core.parser import (
     Bracketed,
     CommentSegment,
     Delimited,
+    IdentifierSegment,
     LiteralSegment,
     Matchable,
     NewlineSegment,
@@ -60,6 +61,14 @@ sqlite_dialect.patch_lexer_matchers(
     ]
 )
 
+sqlite_dialect.add(
+    BackQuotedIdentifierSegment=TypedParser(
+        "back_quote",
+        IdentifierSegment,
+        type="quoted_identifier",
+    ),
+)
+
 sqlite_dialect.replace(
     BooleanBinaryOperatorGrammar=OneOf(
         Ref("AndOperatorGrammar"), Ref("OrOperatorGrammar"), "REGEXP"
@@ -82,6 +91,10 @@ sqlite_dialect.replace(
             Ref("DatatypeSegment"),
             Ref("LiteralGrammar"),
         ),
+        terminators=[
+            Ref("CommaSegment"),
+            Ref.keyword("AS"),
+        ],
     ),
     AutoIncrementGrammar=Nothing(),
     CommentClauseSegment=Nothing(),
@@ -194,6 +207,12 @@ sqlite_dialect.replace(
         Sequence("DISTINCT", "FROM", optional=True),
     ),
     NanLiteralSegment=Nothing(),
+    SingleIdentifierGrammar=OneOf(
+        Ref("NakedIdentifierSegment"),
+        Ref("QuotedIdentifierSegment"),
+        Ref("BackQuotedIdentifierSegment"),
+        terminators=[Ref("DotSegment")],
+    ),
 )
 
 
