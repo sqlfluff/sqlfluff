@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [3.0.0] - 2024-03-09
+## [3.0.0] - 2024-03-12
 
 ## Highlights
 
@@ -46,6 +46,10 @@ This release brings several breaking changes to previous releases. Most notably:
   (which was replaced by the kabab-case `--disable-progress-bar` more than a
   year ago).
 
+* Plugins are now loaded progressively, and with error handling. If a plugin
+  fails to load, SQLFluff will now continue onward and try to run regardless
+  while also showing a more helpful error message.
+
 On top of these changes, there have a been a whole host of dialect improvements
 and additions, in particular the inclusion of a`vertica` dialect for the
 first time. There's also:
@@ -54,15 +58,24 @@ first time. There's also:
 
 * A change to disables AL01 (`aliasing.table`) by default for Oracle.
 
+* A change to allow AL05 to allow aliasing for a `VALUES` clause.
+
 For more specifics please take a look at the
 [release notes](https://docs.sqlfluff.com/en/latest/releasenotes.html).
 
 Thanks to the community for patience during the release cycle for 3.0.0, which
-has taken a little longer than expected. Thanks also to the **TWENTY SIX** new
+has taken a little longer than expected. Thanks also to the **TWENTY SEVEN** new
 contributors whose changes are included in this release. 🎉🎉🏆🎉🎉
 
 ## What’s Changed
 
+* Progressively load plugins [#5661](https://github.com/sqlfluff/sqlfluff/pull/5661) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Postgres: AL05, ignore aliases in values clause [#5669](https://github.com/sqlfluff/sqlfluff/pull/5669) [@keraion](https://github.com/keraion)
+* Add Postgres CREATE FOREIGN TABLE statement [#5657](https://github.com/sqlfluff/sqlfluff/pull/5657) [@edpft](https://github.com/edpft)
+* Lexer: Handle escaped curly brace slices from the python templater [#5666](https://github.com/sqlfluff/sqlfluff/pull/5666) [@keraion](https://github.com/keraion)
+* [CI]: Update pre-commit hook versions [#5665](https://github.com/sqlfluff/sqlfluff/pull/5665) [@keraion](https://github.com/keraion)
+* Resolves #5624: Snowflake unparsable unset table options [#5664](https://github.com/sqlfluff/sqlfluff/pull/5664) [@andychannery](https://github.com/andychannery)
+* Revert Ruff Changes [#5662](https://github.com/sqlfluff/sqlfluff/pull/5662) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Complete the memory overhead work on cli fix [#5653](https://github.com/sqlfluff/sqlfluff/pull/5653) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Resolve #5647: Snowflake unparsable variant access after cast [#5658](https://github.com/sqlfluff/sqlfluff/pull/5658) [@andychannery](https://github.com/andychannery)
 * BQ PK and FK [#5654](https://github.com/sqlfluff/sqlfluff/pull/5654) [@OTooleMichael](https://github.com/OTooleMichael)
@@ -178,6 +191,7 @@ contributors whose changes are included in this release. 🎉🎉🏆🎉🎉
 
 ## New Contributors
 
+* [@edpft](https://github.com/edpft) made their first contribution in [#5657](https://github.com/sqlfluff/sqlfluff/pull/5657)
 * [@maoxingda](https://github.com/maoxingda) made their first contribution in [#5594](https://github.com/sqlfluff/sqlfluff/pull/5594)
 * [@Jefffrey](https://github.com/Jefffrey) made their first contribution in [#5613](https://github.com/sqlfluff/sqlfluff/pull/5613)
 * [@kkozhakin](https://github.com/kkozhakin) made their first contribution in [#5546](https://github.com/sqlfluff/sqlfluff/pull/5546)
