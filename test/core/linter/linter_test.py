@@ -252,6 +252,52 @@ def test__linter__linting_result_check_tuples_by_path(by_path, result_type):
     isinstance(check_tuples, result_type)
 
 
+@pytest.mark.parametrize(
+    "path,stats",
+    [
+        (
+            "multifile_a",
+            {
+                "avg per file": 2.5,
+                "clean": 0,
+                "clean files": 0,
+                "exit code": 111,
+                "files": 2,
+                "status": "FAIL",
+                "unclean": 2,
+                "unclean files": 2,
+                "unclean rate": 1.0,
+                "violations": 5,
+            },
+        ),
+        (
+            "multifile_b",
+            {
+                "avg per file": 2.0,
+                "clean": 0,
+                "clean files": 0,
+                "exit code": 111,
+                "files": 2,
+                "status": "FAIL",
+                "unclean": 2,
+                "unclean files": 2,
+                "unclean rate": 1.0,
+                "violations": 4,
+            },
+        ),
+    ],
+)
+def test__linter__linting_result_stats(path, stats):
+    """Test that a LintingResult can get the right stats with multiple files.
+
+    https://github.com/sqlfluff/sqlfluff/issues/5673
+    """
+    lntr = Linter()
+    result = lntr.lint_paths([f"test/fixtures/linter/exit_codes/{path}"])
+    # NOTE: We're using fake return codes for testing purposes.
+    assert result.stats(111, 222) == stats
+
+
 @pytest.mark.parametrize("processes", [1, 2])
 def test__linter__linting_result_get_violations(processes):
     """Test that we can get violations from a LintingResult."""
