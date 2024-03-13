@@ -2020,7 +2020,6 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
 
     match_grammar: Matchable = OneOf(
         Sequence(
-            Indent,
             Ref.keyword("AS", optional=True),
             OneOf(
                 Sequence(
@@ -2031,7 +2030,6 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
                 Sequence(Bracketed(Ref("SingleIdentifierListSegment"), optional=True)),
                 Ref("SingleQuotedIdentifierSegment"),
             ),
-            Dedent,
         ),
         # Some functions alias several columns in brackets () like mapkeys or explode
         Sequence(
