@@ -14,13 +14,12 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This minor release is a hotfix to resolve a bug introduced affecting CLI exit codes
+in the 3.0.0 release.
+
 ## What’s Changed
 
 * Fix 5673 [#5676](https://github.com/sqlfluff/sqlfluff/pull/5676) [@alanmcruickshank](https://github.com/alanmcruickshank)
-
-## New Contributors
-
-
 
 ## [3.0.0] - 2024-03-12
 
