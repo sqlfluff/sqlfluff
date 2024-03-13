@@ -465,7 +465,15 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
     """Prefix for array literals specifying the type."""
 
     type = "array_type"
-    match_grammar = Ref.keyword("ARRAY")
+    match_grammar = Sequence(
+            Ref.keyword("ARRAY"),
+            Bracketed(
+                Ref("DatatypeSegment"),
+                bracket_type="square",
+                bracket_pairs_set="bracket_pairs",
+                optional=True,
+            ),
+        )
 
 
 class LimitClauseSegment(ansi.LimitClauseSegment):
@@ -1607,7 +1615,6 @@ class DatatypeSegment(ansi.DatatypeSegment):
                 ),
                 Ref("ArrayTypeSegment"),
                 Ref("SizedArrayTypeSegment"),
-                optional=True,
             ),
             # TODO: add row data type support
             Sequence(

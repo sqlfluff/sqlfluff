@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: df7bbf0fdf748ec0d5d198da8452454bbced657331d02bc99698392544668adf
+_hash: ee2c4fcadd544b142c4ad5c3d7823c76086db7a588685dcdbeb31d9a3354e1b2
 file:
 - statement:
     create_table_statement:
@@ -70,43 +70,34 @@ file:
       - column_reference:
           naked_identifier: prodkey
       - data_type:
-          sized_array_type:
-            array_type:
-              keyword: ARRAY
-            array_accessor:
-              start_square_bracket: '['
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: VARCHAR
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      numeric_literal: '10'
-                    end_bracket: )
-              end_square_bracket: ']'
+          array_type:
+            keyword: ARRAY
+            start_square_bracket: '['
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            end_square_bracket: ']'
       - comma: ','
       - column_reference:
           naked_identifier: orderprices
       - data_type:
-          sized_array_type:
-            array_type:
-              keyword: ARRAY
-            array_accessor:
-              start_square_bracket: '['
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: DECIMAL
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      numeric_literal: '12'
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '2'
-                  - end_bracket: )
-              end_square_bracket: ']'
+          array_type:
+            keyword: ARRAY
+            start_square_bracket: '['
+            data_type:
+              keyword: DECIMAL
+              bracketed_arguments:
+                bracketed:
+                - start_bracket: (
+                - numeric_literal: '12'
+                - comma: ','
+                - numeric_literal: '2'
+                - end_bracket: )
+            end_square_bracket: ']'
       - comma: ','
       - column_reference:
           naked_identifier: orderdate
@@ -182,43 +173,34 @@ file:
       - column_reference:
           naked_identifier: prodkey
       - data_type:
-          sized_array_type:
-            array_type:
-              keyword: ARRAY
-            array_accessor:
-              start_square_bracket: '['
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: VARCHAR
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      numeric_literal: '10'
-                    end_bracket: )
-              end_square_bracket: ']'
+          array_type:
+            keyword: ARRAY
+            start_square_bracket: '['
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            end_square_bracket: ']'
       - comma: ','
       - column_reference:
           naked_identifier: orderprices
       - data_type:
-          sized_array_type:
-            array_type:
-              keyword: ARRAY
-            array_accessor:
-              start_square_bracket: '['
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: DECIMAL
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      numeric_literal: '12'
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '2'
-                  - end_bracket: )
-              end_square_bracket: ']'
+          array_type:
+            keyword: ARRAY
+            start_square_bracket: '['
+            data_type:
+              keyword: DECIMAL
+              bracketed_arguments:
+                bracketed:
+                - start_bracket: (
+                - numeric_literal: '12'
+                - comma: ','
+                - numeric_literal: '2'
+                - end_bracket: )
+            end_square_bracket: ']'
       - comma: ','
       - column_reference:
           naked_identifier: orderdate
@@ -283,43 +265,34 @@ file:
       - column_reference:
           naked_identifier: prodkey
       - data_type:
-          sized_array_type:
-            array_type:
-              keyword: ARRAY
-            array_accessor:
-              start_square_bracket: '['
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: VARCHAR
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      numeric_literal: '10'
-                    end_bracket: )
-              end_square_bracket: ']'
+          array_type:
+            keyword: ARRAY
+            start_square_bracket: '['
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '10'
+                  end_bracket: )
+            end_square_bracket: ']'
       - comma: ','
       - column_reference:
           naked_identifier: orderprices
       - data_type:
-          sized_array_type:
-            array_type:
-              keyword: ARRAY
-            array_accessor:
-              start_square_bracket: '['
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: DECIMAL
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      numeric_literal: '12'
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '2'
-                  - end_bracket: )
-              end_square_bracket: ']'
+          array_type:
+            keyword: ARRAY
+            start_square_bracket: '['
+            data_type:
+              keyword: DECIMAL
+              bracketed_arguments:
+                bracketed:
+                - start_bracket: (
+                - numeric_literal: '12'
+                - comma: ','
+                - numeric_literal: '2'
+                - end_bracket: )
+            end_square_bracket: ']'
       - comma: ','
       - column_reference:
           naked_identifier: orderdate
