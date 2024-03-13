@@ -1807,10 +1807,6 @@ class FunctionSegment(ansi.FunctionSegment):
                 ),
             ),
             AnySetOf(Ref("PostFunctionGrammar")),
-            # Allow AS clause for some functions at the end
-            Sequence(
-                "AS", Bracketed(Delimited(Ref("ColumnReferenceSegment"))), optional=True
-            ),
         ),
     )
 
@@ -2012,5 +2008,36 @@ class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
             Sequence("AUTHORIZATION", Ref("RoleReferenceSegment")),
             Sequence("DEFAULT", Ref("SchemaPrivilegesSegment")),
             Ref("DiskQuotaSegment"),
+        ),
+    )
+
+
+class AliasExpressionSegment(ansi.AliasExpressionSegment):
+    """A reference to an object with an `AS` clause.
+
+    The optional AS keyword allows both implicit and explicit aliasing.
+    """
+
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            Indent,
+            Ref.keyword("AS", optional=True),
+            OneOf(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    # Column alias in VALUES clause
+                    Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
+                ),
+                Sequence(Bracketed(Ref("SingleIdentifierListSegment"), optional=True)),
+                Ref("SingleQuotedIdentifierSegment"),
+            ),
+            Dedent,
+        ),
+        # Some functions alias several columns in brackets () like mapkeys or explode
+        Sequence(
+            Indent,
+            Ref.keyword("AS"),
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            Dedent,
         ),
     )
