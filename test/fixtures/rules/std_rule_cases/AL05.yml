@@ -351,6 +351,18 @@ test_pass_redshift_semi_structured_op:
     core:
       dialect: redshift
 
+test_pass_postgres_values_clause:
+  pass_str: |
+    SELECT *
+    FROM (
+        VALUES
+        (1, 2),
+        (3, 4)
+    ) AS t (x, y)
+  configs:
+    core:
+      dialect: postgres
+
 # double quote identifiers
 test_pass_naked_select_quoted_table:
   pass_str: |

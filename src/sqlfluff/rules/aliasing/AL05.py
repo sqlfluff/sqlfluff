@@ -67,6 +67,7 @@ class Rule_AL05(BaseRule):
     _dialects_requiring_alias_for_values_clause = [
         "snowflake",
         "tsql",
+        "postgres",
     ]
     is_fix_compatible = True
 

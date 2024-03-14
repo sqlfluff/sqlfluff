@@ -109,7 +109,7 @@ class LintedDir:
             self._num_clean += 1
         else:
             self._num_unclean += 1
-        self._num_violations = file.num_violations()
+        self._num_violations += file.num_violations()
         _unfiltered_tmp_prs_errors = file.num_violations(
             types=TMP_PRS_ERROR_TYPES,
             filter_ignore=False,
