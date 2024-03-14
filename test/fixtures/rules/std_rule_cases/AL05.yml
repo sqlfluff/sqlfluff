@@ -350,3 +350,218 @@ test_pass_redshift_semi_structured_op:
   configs:
     core:
       dialect: redshift
+
+# double quote identifiers
+test_pass_naked_select_quoted_table:
+  pass_str: |
+    SELECT a.col1
+    FROM tab1 as "a"
+
+test_pass_quoted_select_naked_table:
+  pass_str: |
+    SELECT "a".col1
+    FROM tab1 as a
+
+test_pass_naked_select_quoted_table_subquery:
+  pass_str: |
+    SELECT col_1
+    FROM table_a AS "a"
+    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE a.col_4 = b.col_1)
+
+test_pass_quoted_select_naked_table_subquery:
+  pass_str: |
+    SELECT col_1
+    FROM table_a AS a
+    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE "a".col_4 = b.col_1)
+
+# bracket quote identifiers
+test_pass_tsql_naked_select_quoted_table:
+  pass_str: |
+    SELECT a.col1
+    FROM tab1 as [a]
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_quoted_select_naked_table:
+  pass_str: |
+    SELECT [a].col1
+    FROM tab1 as a
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_naked_select_quoted_table_subquery:
+  pass_str: |
+    SELECT col_1
+    FROM table_a AS [a]
+    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE a.col_4 = b.col_1)
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_quoted_select_naked_table_subquery:
+  pass_str: |
+    SELECT col_1
+    FROM table_a AS a
+    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE [a].col_4 = b.col_1)
+  configs:
+    core:
+      dialect: tsql
+
+# backtick quote identifiers
+test_pass_sqlite_naked_select_quoted_table:
+  pass_str: |
+    SELECT a.col1
+    FROM tab1 as `a`
+  configs:
+    core:
+      dialect: sqlite
+
+test_pass_sqlite_quoted_select_naked_table:
+  pass_str: |
+    SELECT `a`.col1
+    FROM tab1 as a
+  configs:
+    core:
+      dialect: sqlite
+
+test_pass_sqlite_naked_select_quoted_table_subquery:
+  pass_str: |
+    SELECT col_1
+    FROM table_a AS `a`
+    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE a.col_4 = b.col_1)
+  configs:
+    core:
+      dialect: sqlite
+
+test_pass_sqlite_quoted_select_naked_table_subquery:
+  pass_str: |
+    SELECT col_1
+    FROM table_a AS a
+    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE `a`.col_4 = b.col_1)
+  configs:
+    core:
+      dialect: sqlite
+
+# single quote identifiers
+test_pass_duckdb_naked_select_quoted_table:
+  pass_str: |
+    SELECT a.col1
+    FROM tab1 as 'a'
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_quoted_select_naked_table:
+  pass_str: |
+    SELECT 'a'.col1
+    FROM tab1 as a
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_naked_select_quoted_table_subquery:
+  pass_str: |
+    SELECT col_1
+    FROM table_a AS 'a'
+    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE a.col_4 = b.col_1)
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_quoted_select_naked_table_subquery:
+  pass_str: |
+    SELECT col_1
+    FROM table_a AS a
+    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE 'a'.col_4 = b.col_1)
+  configs:
+    core:
+      dialect: duckdb
+
+# Tables referenced multiple times without a select reference
+test_pass_repeat_referenced_table:
+  pass_str: |
+    SELECT ROW_NUMBER() OVER(PARTITION BY a.object_id ORDER BY a.object_id)
+    FROM sys.objects a
+    CROSS JOIN sys.objects b
+    CROSS JOIN sys.objects c
+
+test_pass_case_insensitive:
+  pass_str: |
+    SELECT
+      a.foo
+      , b.bar
+    FROM foo.baz a
+    INNER JOIN foo.baz B
+      ON a.thing = b.thing
+    ;
+
+test_pass_snowflake_flatten_lateral:
+  pass_str: |
+    SELECT
+      a.test1,
+      a.test2,
+      b.test3,
+      f.test4
+    FROM table1 AS a,
+      LATERAL flatten(input => some_field) AS b,
+      LATERAL flatten(input => b.value) AS c,
+      LATERAL flatten(input => c.value) AS d,
+      LATERAL flatten(input => d.value) AS e,
+      LATERAL flatten(input => e.value) AS f;
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_flatten_lateral:
+  fail_str: |
+    SELECT
+      a.test1,
+      a.test2,
+      b.test3
+    FROM table1 AS a,
+      LATERAL flatten(input => some_field) AS b,
+      LATERAL flatten(input => b.value) AS c,
+      LATERAL flatten(input => c.value) AS d,
+      LATERAL flatten(input => d.value) AS e,
+      LATERAL flatten(input => e.value) AS f;
+  fix_str: |
+    SELECT
+      a.test1,
+      a.test2,
+      b.test3
+    FROM table1 AS a,
+      LATERAL flatten(input => some_field) AS b,
+      LATERAL flatten(input => b.value) AS c,
+      LATERAL flatten(input => c.value) AS d,
+      LATERAL flatten(input => d.value) AS e,
+      LATERAL flatten(input => e.value);
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_bigquery_cross_join_unnest:
+  pass_str: |
+    with
+    sequences as (
+      select [0, 1, 1, 2] as some_numbers
+      union all
+      select [2, 4, 8]
+    )
+    select
+      num
+    from sequences as s
+    cross join unnest(s.some_numbers) as num
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_cross_join_array:
+  pass_str: |
+    with table_arr as (select [1,2,4,2] as arr)
+    SELECT arr
+    FROM table_arr t, t.arr
+  configs:
+    core:
+      dialect: bigquery

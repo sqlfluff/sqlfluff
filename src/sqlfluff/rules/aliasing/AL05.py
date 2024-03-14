@@ -83,7 +83,7 @@ class Rule_AL05(BaseRule):
         query = AL05Query.from_segment(context.segment, dialect=context.dialect)
         self._analyze_table_aliases(query, context.dialect)
 
-        if context.dialect.name == "redshift":
+        if context.dialect.name in ("redshift", "bigquery"):
             # Redshift supports un-nesting using aliases.
             # Detect that situation and ignore.
             # https://docs.aws.amazon.com/redshift/latest/dg/query-super.html#unnest

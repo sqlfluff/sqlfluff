@@ -80,6 +80,17 @@ def get_select_statement_info(
     using_cols = []
     fc = segment.get_child("from_clause")
     if fc:
+        for table_expression in fc.recursive_crawl(
+            "table_expression", no_recursive_seg_type="select_statement"
+        ):
+            for seg in table_expression.iter_segments():
+                # table references can get tricky with what is a schema, table,
+                # project, or column. It may be best for now to use the redshift
+                # unnest logic for dialects that support arrays or objects/structs
+                # in AL05. However, this solves finding other types of references
+                # in functions such as LATERAL FLATTEN.
+                if not seg.is_type("table_reference"):
+                    reference_buffer += _get_object_references(seg)
         for join_clause in fc.recursive_crawl(
             "join_clause", no_recursive_seg_type="select_statement"
         ):
