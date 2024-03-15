@@ -1078,7 +1078,8 @@ def fix(
                 "The -f/--force option is deprecated as it is now the "
                 "default behaviour.",
                 Color.red,
-            )
+            ),
+            err=True,
         )
 
     # handle stdin case. should output formatted sql to stdout and nothing else.
