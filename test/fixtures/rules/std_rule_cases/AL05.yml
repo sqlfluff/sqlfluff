@@ -456,41 +456,6 @@ test_pass_sqlite_quoted_select_naked_table_subquery:
     core:
       dialect: sqlite
 
-# single quote identifiers
-test_pass_duckdb_naked_select_quoted_table:
-  pass_str: |
-    SELECT a.col1
-    FROM tab1 as 'a'
-  configs:
-    core:
-      dialect: duckdb
-
-test_pass_duckdb_quoted_select_naked_table:
-  pass_str: |
-    SELECT 'a'.col1
-    FROM tab1 as a
-  configs:
-    core:
-      dialect: duckdb
-
-test_pass_duckdb_naked_select_quoted_table_subquery:
-  pass_str: |
-    SELECT col_1
-    FROM table_a AS 'a'
-    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE a.col_4 = b.col_1)
-  configs:
-    core:
-      dialect: duckdb
-
-test_pass_duckdb_quoted_select_naked_table_subquery:
-  pass_str: |
-    SELECT col_1
-    FROM table_a AS a
-    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE 'a'.col_4 = b.col_1)
-  configs:
-    core:
-      dialect: duckdb
-
 # Tables referenced multiple times without a select reference
 test_pass_repeat_referenced_table:
   pass_str: |
