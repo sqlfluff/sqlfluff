@@ -21,6 +21,7 @@ class SelectStatementColumnsAndTables(NamedTuple):
     select_targets: List[SelectClauseElementSegment]
     col_aliases: List[ColumnAliasInfo]
     using_cols: List[str]
+    table_reference_buffer: List[ObjectReferenceSegment]
 
 
 def _get_object_references(segment: BaseSegment) -> List[ObjectReferenceSegment]:
@@ -52,6 +53,7 @@ def get_select_statement_info(
     # NOTE: In this first crawl, don't crawl inside any sub-selects, that's very
     # important for both isolation and performance reasons.
     reference_buffer = _get_object_references(sc)
+    table_reference_buffer = []
     for potential_clause in (
         "where_clause",
         "groupby_clause",
@@ -91,6 +93,8 @@ def get_select_statement_info(
                 # in functions such as LATERAL FLATTEN.
                 if not seg.is_type("table_reference"):
                     reference_buffer += _get_object_references(seg)
+                elif cast(ObjectReferenceSegment, seg).is_qualified():
+                    table_reference_buffer += _get_object_references(seg)
         for join_clause in fc.recursive_crawl(
             "join_clause", no_recursive_seg_type="select_statement"
         ):
@@ -117,6 +121,7 @@ def get_select_statement_info(
         select_targets=select_targets,
         col_aliases=col_aliases,
         using_cols=using_cols,
+        table_reference_buffer=table_reference_buffer,
     )
 
 

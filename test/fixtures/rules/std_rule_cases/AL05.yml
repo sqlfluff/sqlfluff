@@ -542,3 +542,27 @@ test_pass_bigquery_cross_join_array:
   configs:
     core:
       dialect: bigquery
+
+test_pass_redshift_qualify_follows_from:
+  pass_str: |
+    SELECT *
+    FROM #store_sales AS ss
+    QUALIFY row_number() OVER (PARTITION BY ss_sold_date ORDER BY ss_sales_price DESC) <= 2
+  configs:
+    core:
+      dialect: redshift
+
+test_fail_redshift_qualify_follows_from:
+  fail_str: |
+    SELECT *
+    FROM #store as s
+    INNER JOIN #store_sales AS ss
+    QUALIFY row_number() OVER (PARTITION BY ss_sold_date ORDER BY ss_sales_price DESC) <= 2
+  fix_str: |
+    SELECT *
+    FROM #store
+    INNER JOIN #store_sales AS ss
+    QUALIFY row_number() OVER (PARTITION BY ss_sold_date ORDER BY ss_sales_price DESC) <= 2
+  configs:
+    core:
+      dialect: redshift

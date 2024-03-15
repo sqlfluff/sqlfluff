@@ -135,6 +135,15 @@ class Rule_AL05(BaseRule):
                 > 1
             ):
                 continue
+            # Redshift requires an alias when a `QUALIFY` statement immediately follows
+            # the `FROM` clause.
+            # https://docs.aws.amazon.com/redshift/latest/dg/r_QUALIFY_clause.html
+            if (
+                context.dialect.name == "redshift"
+                and alias.alias_expression
+                and self._followed_by_qualify(context, alias)
+            ):
+                continue
 
             naked_ref_str = (
                 self._drop_quoted(alias.ref_str) if alias.quoted else alias.ref_str
@@ -143,6 +152,21 @@ class Rule_AL05(BaseRule):
                 # Unused alias. Report and fix.
                 violations.append(self._report_unused_alias(alias))
         return violations or None
+
+    @classmethod
+    def _followed_by_qualify(cls, context: RuleContext, alias: AliasInfo) -> bool:
+        curr_from_seen = False
+        assert alias.alias_expression
+        for seg in context.segment.segments:
+            if alias.alias_expression.get_end_loc() == seg.get_end_loc():
+                curr_from_seen = True
+            elif curr_from_seen and not seg.is_code:
+                continue
+            elif curr_from_seen and seg.is_type("qualify_clause"):
+                return True
+            elif curr_from_seen:
+                return False
+        return False
 
     @classmethod
     def _is_alias_required(
@@ -197,7 +221,9 @@ class Rule_AL05(BaseRule):
                 # Look at each table reference; if it's an alias reference,
                 # resolve the alias: could be an alias defined in "query"
                 # itself or an "ancestor" query.
-                for r in select_info.reference_buffer:
+                for r in (
+                    select_info.reference_buffer + select_info.table_reference_buffer
+                ):
                     for tr in r.extract_possible_references(
                         level=r.ObjectReferenceLevel.TABLE
                     ):
