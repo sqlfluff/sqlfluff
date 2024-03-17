@@ -649,6 +649,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CopyIntoTableStatementSegment"),
             Ref("CreateFullTextIndexStatementSegment"),
             Ref("AtomicBeginEndSegment"),
+            Ref("ReconfigureStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -1880,6 +1881,24 @@ class UpdateStatisticsStatementSegment(BaseSegment):
         ),
         Ref("DelimiterGrammar", optional=True),
         Sequence("WITH", OneOf("FULLSCAN", "RESAMPLE"), optional=True),
+    )
+
+
+class ReconfigureStatementSegment(BaseSegment):
+    """Reconfigure statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/reconfigure-transact-sql?view=sql-server-ver16
+    """
+
+    type = "reconfigure_statement"
+
+    match_grammar = Sequence(
+        "RECONFIGURE",
+        Sequence(
+            "WITH",
+            "OVERRIDE",
+            optional=True,
+        ),
     )
 
 
