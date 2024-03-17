@@ -10,6 +10,20 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [3.0.2] - 2024-03-17
+
+## Highlights
+
+## What’s Changed
+
+* Snowflake: Support External Volumes [#5684](https://github.com/sqlfluff/sqlfluff/pull/5684) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* T-SQL: Support Reconfigure [#5685](https://github.com/sqlfluff/sqlfluff/pull/5685) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* CLI: Make `--force` deprecation print on stderr [#5681](https://github.com/sqlfluff/sqlfluff/pull/5681) [@keraion](https://github.com/keraion)
+
+## New Contributors
+
+
+
 ## [3.0.1] - 2024-03-13
 
 ## Highlights
