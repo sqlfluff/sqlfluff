@@ -114,3 +114,5 @@ DESC PROCEDURE my_pi();
 
 DESCRIBE PROCEDURE area_of_circle(FLOAT);
 DESC PROCEDURE area_of_circle(FLOAT);
+
+DESCRIBE EXTERNAL VOLUME my_volume;

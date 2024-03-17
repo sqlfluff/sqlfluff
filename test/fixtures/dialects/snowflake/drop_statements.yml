@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 18990817d9700a4630edc7caf16f00fcaee62f490269d80f93ed1084f69d9f33
+_hash: ee59160357e520ae2cbc07ceb0bd13ba13e3575cc0ce56e0bb819f30f2b1635b
 file:
 - statement:
     drop_object_statement:
@@ -547,4 +547,22 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - naked_identifier: MY_WAREHOUSE
+- statement_terminator: ;
+- statement:
+    drop_external_volume_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - external_volume_reference:
+        naked_identifier: my_volume
+- statement_terminator: ;
+- statement:
+    drop_external_volume_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - keyword: IF
+    - keyword: EXISTS
+    - external_volume_reference:
+        naked_identifier: foo
 - statement_terminator: ;

@@ -366,12 +366,12 @@ snowflake_dialect.add(
         type="stage_encryption_option",
     ),
     S3EncryptionOption=MultiStringParser(
-        ["'AWS_CSE'", "'AWS_SSE_S3'", "'AWS_SSE_KMS'"],
+        ["'AWS_CSE'", "'AWS_SSE_S3'", "'AWS_SSE_KMS'", "'NONE'"],
         CodeSegment,
         type="stage_encryption_option",
     ),
-    GCSEncryptionOption=StringParser(
-        "'GCS_SSE_KMS'",
+    GCSEncryptionOption=MultiStringParser(
+        ["'GCS_SSE_KMS'", "'NONE'"],
         CodeSegment,
         type="stage_encryption_option",
     ),
@@ -864,6 +864,205 @@ class DatabaseRoleReferenceSegment(ansi.ObjectReferenceSegment):
     )
 
 
+class ExternalVolumeReferenceSegment(ansi.ObjectReferenceSegment):
+    """External Volume reference."""
+
+    type = "external_volume_reference"
+
+
+class DropExternalVolumeStatementSegment(BaseSegment):
+    """Drop External Volume Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/drop-external-volume
+    """
+
+    type = "drop_external_volume_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "EXTERNAL",
+        "VOLUME",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ExternalVolumeReferenceSegment"),
+    )
+
+
+class CreateExternalVolumeStatementSegment(BaseSegment):
+    """Create External Volume Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/create-external-volume
+    """
+
+    type = "create_external_volume_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "EXTERNAL",
+        "VOLUME",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ExternalVolumeReferenceSegment"),
+        "STORAGE_LOCATIONS",
+        Ref("EqualsSegment"),
+        Bracketed(
+            Delimited(
+                Bracketed(
+                    "NAME",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    AnySetOf(
+                        Sequence(
+                            "STORAGE_PROVIDER",
+                            Ref("EqualsSegment"),
+                            OneOf("S3", "AZURE", "GCS", Ref("QuotedLiteralSegment")),
+                        ),
+                        Sequence(
+                            "STORAGE_AWS_ROLE_ARN",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "STORAGE_BASE_URL",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "STORAGE_AWS_EXTERNAL_ID",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "AZURE_TENANT_ID",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "ENCRYPTION",
+                            Ref("EqualsSegment"),
+                            Bracketed(
+                                "TYPE",
+                                Ref("EqualsSegment"),
+                                OneOf(
+                                    Ref("S3EncryptionOption"),
+                                    Ref("GCSEncryptionOption"),
+                                ),
+                                Sequence(
+                                    "KMS_KEY_ID",
+                                    Ref("EqualsSegment"),
+                                    Ref("QuotedLiteralSegment"),
+                                    optional=True,
+                                ),
+                            ),
+                        ),
+                    ),
+                )
+            ),
+        ),
+        AnySetOf(
+            Sequence(
+                "ALLOW_WRITES", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+            ),
+            Sequence(
+                "COMMENT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class AlterExternalVolumeStatementSegment(BaseSegment):
+    """Alter External Volume Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/alter-external-volume
+    """
+
+    type = "alter_external_volume_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "EXTERNAL",
+        "VOLUME",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ExternalVolumeReferenceSegment"),
+        OneOf(
+            Sequence(
+                "ADD",
+                "STORAGE_LOCATION",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    "NAME",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    AnySetOf(
+                        Sequence(
+                            "STORAGE_PROVIDER",
+                            Ref("EqualsSegment"),
+                            OneOf("S3", "AZURE", "GCS", Ref("QuotedLiteralSegment")),
+                        ),
+                        Sequence(
+                            "STORAGE_AWS_ROLE_ARN",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "STORAGE_BASE_URL",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "STORAGE_AWS_EXTERNAL_ID",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "AZURE_TENANT_ID",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "ENCRYPTION",
+                            Ref("EqualsSegment"),
+                            Bracketed(
+                                "TYPE",
+                                Ref("EqualsSegment"),
+                                OneOf(
+                                    Ref("S3EncryptionOption"),
+                                    Ref("GCSEncryptionOption"),
+                                ),
+                                Sequence(
+                                    "KMS_KEY_ID",
+                                    Ref("EqualsSegment"),
+                                    Ref("QuotedLiteralSegment"),
+                                    optional=True,
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            Sequence(
+                "REMOVE",
+                "STORAGE_LOCATION",
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "SET",
+                "ALLOW_WRITES",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "SET",
+                "COMMENT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+    )
+
+
 class ConnectByClauseSegment(BaseSegment):
     """A `CONNECT BY` clause.
 
@@ -1090,6 +1289,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterDatabaseSegment"),
             Ref("AlterMaskingPolicySegment"),
             Ref("AlterNetworkPolicyStatementSegment"),
+            Ref("CreateExternalVolumeStatementSegment"),
+            Ref("DropExternalVolumeStatementSegment"),
+            Ref("AlterExternalVolumeStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -5891,6 +6093,7 @@ class ShowStatementSegment(BaseSegment):
         Sequence("EXTERNAL", "FUNCTIONS"),
         "PROCEDURES",
         Sequence("FUTURE", "GRANTS"),
+        Sequence("EXTERNAL", "VOLUMES"),
     )
 
     _object_scope_types = OneOf(
@@ -6646,6 +6849,11 @@ class DescribeStatementSegment(BaseSegment):
                     optional=True,
                 ),
             ),
+            Sequence(
+                "EXTERNAL",
+                "VOLUME",
+                Ref("ExternalVolumeReferenceSegment"),
+            ),
             # https://docs.snowflake.com/en/sql-reference/sql/desc-view.html
             Sequence(
                 "VIEW",
@@ -6814,6 +7022,11 @@ class UndropStatementSegment(BaseSegment):
             Sequence(
                 "TABLE",
                 Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "EXTERNAL",
+                "VOLUME",
+                Ref("ExternalVolumeReferenceSegment"),
             ),
         ),
     )
