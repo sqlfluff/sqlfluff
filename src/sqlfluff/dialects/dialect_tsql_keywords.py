@@ -466,6 +466,7 @@ UNRESERVED_KEYWORDS = [
     "OUT",
     "OUTBOUND",
     "OUTPUT",
+    "OVERRIDE",
     "OWNER",
     "PAD_INDEX",
     "PAGE",
