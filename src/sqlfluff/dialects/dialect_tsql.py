@@ -1887,7 +1887,7 @@ class UpdateStatisticsStatementSegment(BaseSegment):
 class ReconfigureStatementSegment(BaseSegment):
     """Reconfigure statement.
 
-    As per https://learn.microsoft.com/en-us/sql/t-sql/language-elements/reconfigure-transact-sql?view=sql-server-ver16
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/reconfigure-transact-sql?view=sql-server-ver16
     """
 
     type = "reconfigure_statement"
