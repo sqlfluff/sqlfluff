@@ -14,15 +14,15 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This is primarily another hotfix release for 3.0.0. Specifically making sure the
+deprecation warnings for `-f/--force` go to `stderr` rather than `stdout`. It also
+includes two dialect improvements, one for Snowflake and one for T-SQL.
+
 ## What’s Changed
 
 * Snowflake: Support External Volumes [#5684](https://github.com/sqlfluff/sqlfluff/pull/5684) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * T-SQL: Support Reconfigure [#5685](https://github.com/sqlfluff/sqlfluff/pull/5685) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * CLI: Make `--force` deprecation print on stderr [#5681](https://github.com/sqlfluff/sqlfluff/pull/5681) [@keraion](https://github.com/keraion)
-
-## New Contributors
-
-
 
 ## [3.0.1] - 2024-03-13
 
