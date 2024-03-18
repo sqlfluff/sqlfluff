@@ -1537,7 +1537,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                 "DOUBLE",
                 "PRECISION",
             ),
-            Sequence("FLOAT", Bracketed(Ref("NumericLiteralSegment"), optional=True)),
+            Sequence("FLOAT", Ref("BracketedArguments", optional=True)),
             "FLOAT8",
             "REAL",
             # Exact Numeric
