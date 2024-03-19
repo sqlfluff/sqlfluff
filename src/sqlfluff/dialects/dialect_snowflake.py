@@ -6033,7 +6033,10 @@ class CreateStreamlitStatementSegment(BaseSegment):
         Sequence(
             "QUERY_WAREHOUSE",
             Ref("EqualsSegment"),
-            Ref("ObjectReferenceSegment"),
+            OneOf(
+                Ref("ObjectReferenceSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
             optional=True,
         ),
         Ref("CommentEqualsClauseSegment", optional=True),
@@ -6111,7 +6114,10 @@ class AlterStreamlitStatementSegment(BaseSegment):
                 Sequence(
                     "QUERY_WAREHOUSE",
                     Ref("EqualsSegment"),
-                    Ref("ObjectReferenceSegment"),
+                    OneOf(
+                        Ref("ObjectReferenceSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
                     optional=True,
                 ),
                 Ref("CommentEqualsClauseSegment", optional=True),
