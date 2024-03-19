@@ -29,6 +29,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     TypedParser,
+    RegexLexer,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_vertica_keywords import (
@@ -65,6 +66,27 @@ vertica_dialect.insert_lexer_matchers(
         StringLexer("integer_division", "//", CodeSegment),
     ],
     before="divide",
+)
+
+vertica_dialect.insert_lexer_matchers(
+    [
+        # This is similar to the Unicode regex, the key differences being:
+        # - E - must start with E
+        # - The final quote character must be preceded by:
+        # (?<!\\)(?:\\\\)*(?<!')(?:'')     An even/zero number of \ followed by an
+        # even/zero number of '
+        # OR
+        # (?<!\\)(?:\\\\)*\\(?<!')(?:'')*' An odd number of \ followed by an odd number
+        # of '
+        # There is no UESCAPE block
+        RegexLexer(
+            "escaped_single_quote",
+            r"(?s)E(('')+?(?!')|'.*?((?<!\\)(?:\\\\)*(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\"
+            r"(?<!')(?:'')*')'(?!'))",
+            CodeSegment,
+        ),
+    ],
+    before="like_operator",
 )
 
 # Set Keywords
@@ -416,6 +438,28 @@ vertica_dialect.replace(
     # https://docs.vertica.com/latest/en/sql-reference/language-elements/operators/null-operators/
     IsNullGrammar=Ref.keyword("ISNULL"),
     NotNullGrammar=Ref.keyword("NOTNULL"),
+    QuotedLiteralSegment=OneOf(
+        # Postgres allows newline-concatenated string literals (#1488).
+        # Since these string literals can have comments between them,
+        # we use grammar to handle this.
+        # Note we CANNOT use Delimited as it's greedy and swallows the
+        # last Newline - see #2495
+        Sequence(
+            TypedParser(
+                "single_quote",
+                LiteralSegment,
+                type="quoted_literal",
+            ),
+        ),
+        # Support Extended string literals
+        Sequence(
+            TypedParser(
+                "escaped_single_quote",
+                LiteralSegment,
+                type="quoted_literal",
+            ),
+        ),
+    ),
 )
 
 
@@ -1233,9 +1277,15 @@ class AlterDefaultPrivilegesGrantSegment(BaseSegment):
         Ref("AlterDefaultPrivilegesObjectPrivilegesSegment"),
         "ON",
         OneOf(
-            Delimited(Sequence(Ref.keyword("TABLE", optional=True), Ref("TableReferenceSegment"))),
             Delimited(
-                Sequence("ALL", "TABLES", "IN", "SCHEMA", Ref("SchemaReferenceSegment")),
+                Sequence(
+                    Ref.keyword("TABLE", optional=True), Ref("TableReferenceSegment")
+                )
+            ),
+            Delimited(
+                Sequence(
+                    "ALL", "TABLES", "IN", "SCHEMA", Ref("SchemaReferenceSegment")
+                ),
             ),
             terminators=["WITH"],
         ),
