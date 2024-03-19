@@ -2619,6 +2619,7 @@ class AccessStatementSegment(BaseSegment):
         "ROUTINE",
         "SEQUENCE",
         "STREAM",
+        "STREAMLIT",
         "TASK",
         "PIPE",
     ]
