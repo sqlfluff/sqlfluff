@@ -175,8 +175,12 @@ vertica_dialect.add(
         LiteralSegment,
         type="integer_literal",
     ),
-    NullCastOperatorSegment=StringParser("::!", SymbolSegment, type="null_casting_operator"),
-    NullEqualsOperatorSegment=StringParser("<=>", SymbolSegment, type="null_equals_operator"),
+    NullCastOperatorSegment=StringParser(
+        "::!", SymbolSegment, type="null_casting_operator"
+    ),
+    NullEqualsOperatorSegment=StringParser(
+        "<=>", SymbolSegment, type="null_equals_operator"
+    ),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
     InterpolateGrammar=Sequence("INTERPOLATE", OneOf("PREVIOUS", "NEXT"), "VALUE"),
     IntervalLiteralGrammar=Sequence(
