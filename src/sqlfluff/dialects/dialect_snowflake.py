@@ -1258,6 +1258,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateStageSegment"),
             Ref("AlterStageSegment"),
             Ref("CreateStreamStatementSegment"),
+            Ref("CreateStreamlitStatementSegment"),
             Ref("AlterStreamStatementSegment"),
             Ref("UnsetStatementSegment"),
             Ref("UndropStatementSegment"),
@@ -6004,6 +6005,40 @@ class CreateStreamStatementSegment(BaseSegment):
     )
 
 
+class CreateStreamlitStatementSegment(BaseSegment):
+    """A Snowflake `CREATE STREAMLIT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-streamlit.html
+    """
+
+    type = "create_streamlit_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "STREAMLIT",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "ROOT_LOCATION",
+            Ref("EqualsSegment"),
+            Ref("StagePath"),
+        ),
+        Sequence(
+            "MAIN_FILE",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "QUERY_WAREHOUSE",
+            Ref("EqualsSegment"),
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        Ref("CommentEqualsClauseSegment", optional=True),
+    )
+
+
 class AlterStreamStatementSegment(BaseSegment):
     """A Snowflake `ALTER STREAM` statement.
 
@@ -6904,6 +6939,10 @@ class DescribeStatementSegment(BaseSegment):
                 "STREAM",
                 Ref("ObjectReferenceSegment"),
             ),
+            Sequence(
+                "STREAMLIT",
+                Ref("ObjectReferenceSegment"),
+            ),
             # https://docs.snowflake.com/en/sql-reference/sql/desc-task.html
             Sequence(
                 "TASK",
@@ -7061,6 +7100,7 @@ class CommentStatementSegment(BaseSegment):
             "SHARE",
             "PIPE",
             "STREAM",
+            "STREAMLIT",
             "TASK",
             Sequence(
                 "NETWORK",
@@ -7363,6 +7403,7 @@ class DropObjectStatementSegment(BaseSegment):
                     Sequence("ROW", "ACCESS", "POLICY"),
                     "STAGE",
                     "STREAM",
+                    "STREAMLIT",
                     "TAG",
                     "TASK",
                 ),
