@@ -1260,6 +1260,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateStreamStatementSegment"),
             Ref("CreateStreamlitStatementSegment"),
             Ref("AlterStreamStatementSegment"),
+            Ref("AlterStreamlitStatementSegment"),
             Ref("UnsetStatementSegment"),
             Ref("UndropStatementSegment"),
             Ref("CommentStatementSegment"),
@@ -6081,6 +6082,45 @@ class AlterStreamStatementSegment(BaseSegment):
     )
 
 
+class AlterStreamlitStatementSegment(BaseSegment):
+    """A Snowflake `ALTER STREAMLIT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-streamlit.html
+    """
+
+    type = "alter_streamlit_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "STREAMLIT",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                Sequence(
+                    "ROOT_LOCATION",
+                    Ref("EqualsSegment"),
+                    Ref("StagePath"),
+                ),
+                Sequence(
+                    "MAIN_FILE",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                Sequence(
+                    "QUERY_WAREHOUSE",
+                    Ref("EqualsSegment"),
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+                Ref("CommentEqualsClauseSegment", optional=True),
+            ),
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+        ),
+    )
+
+
 class ShowStatementSegment(BaseSegment):
     """A snowflake `SHOW` statement.
 
@@ -6123,6 +6163,7 @@ class ShowStatementSegment(BaseSegment):
         "STAGES",
         "PIPES",
         "STREAMS",
+        "STREAMLITS",
         "TASKS",
         Sequence("USER", "FUNCTIONS"),
         Sequence("EXTERNAL", "FUNCTIONS"),
