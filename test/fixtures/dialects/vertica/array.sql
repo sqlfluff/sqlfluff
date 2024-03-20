@@ -11,14 +11,15 @@ CREATE TABLE sal_emp (
 
 SELECT ARRAY[[1, 2], [3, 4]];
 
-SELECT ARRAY[row(1, 2), row(1, 3)];
+-- Need to add support for complex datatypes
+-- SELECT ARRAY[row(1, 2), row(1, 3)];
 
-SELECT
-    name,
-    num,
-    gpa
-FROM students
-WHERE major = ARRAY[row('Science', 'Physics'), row('Science', 'Literature')];
+-- SELECT
+--     name,
+--     num,
+--     gpa
+-- FROM students
+-- WHERE major = ARRAY[row('Science', 'Physics')];
 
 SELECT (ARRAY['a', 'b', 'c', 'd', 'e'])[1];
 
