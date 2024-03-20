@@ -71,7 +71,7 @@ vertica_dialect.insert_lexer_matchers(
 vertica_dialect.insert_lexer_matchers(
     [
         # This is similar to the Unicode regex, the key differences being:
-        # - E - must start with E
+        # - [eE] - must start with e or E
         # - The final quote character must be preceded by:
         # (?<!\\)(?:\\\\)*(?<!')(?:'')     An even/zero number of \ followed by an
         # even/zero number of '
@@ -81,7 +81,7 @@ vertica_dialect.insert_lexer_matchers(
         # There is no UESCAPE block
         RegexLexer(
             "escaped_single_quote",
-            r"(?s)E(('')+?(?!')|'.*?((?<!\\)(?:\\\\)*(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\"
+            r"(?s)[eE](('')+?(?!')|'.*?((?<!\\)(?:\\\\)*(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\"
             r"(?<!')(?:'')*')'(?!'))",
             CodeSegment,
         ),
@@ -439,11 +439,6 @@ vertica_dialect.replace(
     IsNullGrammar=Ref.keyword("ISNULL"),
     NotNullGrammar=Ref.keyword("NOTNULL"),
     QuotedLiteralSegment=OneOf(
-        # Postgres allows newline-concatenated string literals (#1488).
-        # Since these string literals can have comments between them,
-        # we use grammar to handle this.
-        # Note we CANNOT use Delimited as it's greedy and swallows the
-        # last Newline - see #2495
         Sequence(
             TypedParser(
                 "single_quote",
