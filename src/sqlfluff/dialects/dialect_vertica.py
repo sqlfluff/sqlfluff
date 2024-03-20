@@ -23,13 +23,13 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     ParseMode,
     Ref,
+    RegexLexer,
     RegexParser,
     Sequence,
     StringLexer,
     StringParser,
     SymbolSegment,
     TypedParser,
-    RegexLexer,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_vertica_keywords import (
@@ -81,7 +81,8 @@ vertica_dialect.insert_lexer_matchers(
         # There is no UESCAPE block
         RegexLexer(
             "escaped_single_quote",
-            r"(?s)[eE](('')+?(?!')|'.*?((?<!\\)(?:\\\\)*(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\"
+            r"(?s)[eE](('')+?(?!')|'.*?((?<!\\)(?:\\\\)*"
+            r"(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\"
             r"(?<!')(?:'')*')'(?!'))",
             CodeSegment,
         ),
