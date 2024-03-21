@@ -4,11 +4,9 @@ from collections import Counter
 from dataclasses import dataclass, field
 from typing import List, Set, cast
 
-import regex as re
-
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
-from sqlfluff.core.parser.segments import BaseSegment
+from sqlfluff.core.parser.segments import BaseSegment, RawSegment
 from sqlfluff.core.rules import (
     BaseRule,
     EvalResultType,
@@ -99,7 +97,7 @@ class Rule_AL05(BaseRule):
                     continue  # pragma: no cover
                 for seg in alias.object_reference.segments:
                     if seg.is_type("identifier"):
-                        references.add(seg.raw)
+                        references.add(cast(RawSegment, seg).raw_normalized())
 
             # If there's any overlap between aliases and reference
             if aliases.intersection(references):
@@ -114,10 +112,11 @@ class Rule_AL05(BaseRule):
         # the base table name instead of the fully qualified one to determine naming
         # collisions.
         ref_counter = Counter(
-            self._drop_quoted(a.object_reference.segments[-1].raw_upper)
+            a.object_reference.segments[-1].raw_normalized()
             for a in query.aliases
             if a.object_reference and a.object_reference.segments
         )
+        print(query)
         for alias in query.aliases:
             # Skip alias if it's required (some dialects require aliases for
             # VALUES clauses).
@@ -131,7 +130,12 @@ class Rule_AL05(BaseRule):
             if (
                 alias.object_reference
                 and alias.object_reference.segments
-                and ref_counter.get(alias.object_reference.segments[-1].raw_upper, 0)
+                and ref_counter.get(
+                    cast(
+                        RawSegment, alias.object_reference.segments[-1]
+                    ).raw_normalized(),
+                    0,
+                )
                 > 1
             ):
                 continue
@@ -145,10 +149,8 @@ class Rule_AL05(BaseRule):
             ):
                 continue
 
-            naked_ref_str = (
-                self._drop_quoted(alias.ref_str) if alias.quoted else alias.ref_str
-            )
-            if alias.aliased and naked_ref_str not in query.tbl_refs:
+            print(alias.ref_str, query.tbl_refs)
+            if alias.aliased and alias.ref_str not in query.tbl_refs:
                 # Unused alias. Report and fix.
                 violations.append(self._report_unused_alias(alias))
         return violations or None
@@ -228,27 +230,17 @@ class Rule_AL05(BaseRule):
                         level=r.ObjectReferenceLevel.TABLE
                     ):
                         # This function walks up the query's parent stack if necessary.
-                        is_quoted = any(
-                            seg.is_type("quoted_identifier") for seg in tr.segments
-                        )
-                        part = cls._drop_quoted(tr.part) if is_quoted else tr.part
-                        cls._resolve_and_mark_reference(query, part)
+                        cls._resolve_and_mark_reference(query, tr.part)
 
         # Visit children.
         for child in query.children:
             cls._analyze_table_aliases(cast(AL05Query, child), dialect)
 
     @classmethod
-    def _drop_quoted(cls, identifier: str):
-        return re.sub(r"""^(['"`[])(.+)(\1|\])$""", r"\2", identifier)
-
-    @classmethod
     def _resolve_and_mark_reference(cls, query: AL05Query, ref: str) -> None:
         # Does this query define the referenced alias?
-        if any(
-            ref == (cls._drop_quoted(a.ref_str) if a.quoted else a.ref_str)
-            for a in query.aliases
-        ):
+        print("mark:", ref, [a.ref_str for a in query.aliases])
+        if any(ref == a.ref_str for a in query.aliases):
             # Yes. Record the reference.
             query.tbl_refs.add(ref)
         elif query.parent:

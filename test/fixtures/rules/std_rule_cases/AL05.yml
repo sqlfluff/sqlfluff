@@ -363,6 +363,18 @@ test_pass_postgres_values_clause:
     core:
       dialect: postgres
 
+# single quote identifiers
+test_pass_naked_select_single_quoted_table:
+  pass_str: |
+    SELECT a.col1
+    FROM tab1 as 'a'
+
+test_pass_naked_select_single_quoted_table_subquery:
+  pass_str: |
+    SELECT col_1
+    FROM table_a AS 'a'
+    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE a.col_4 = b.col_1)
+
 # double quote identifiers
 test_pass_naked_select_quoted_table:
   pass_str: |
@@ -470,8 +482,28 @@ test_pass_case_insensitive:
       a.foo
       , b.bar
     FROM foo.baz a
-    INNER JOIN foo.baz B
+    INNER JOIN foo.qux B
       ON a.thing = b.thing
+    ;
+
+test_pass_quoted_case_insensitive:
+  pass_str: |
+    SELECT
+      a.foo
+      , b.bar
+    FROM foo.bar a
+    INNER JOIN foo.qux 'B'
+      ON a.thing = b.thing
+    ;
+
+test_pass_different_quoted_case_insensitive:
+  pass_str: |
+    SELECT
+      a.foo
+      , "b".bar
+    FROM foo.bar a
+    INNER JOIN foo.qux 'B'
+      ON a.thing = "b".thing
     ;
 
 test_pass_snowflake_flatten_lateral:

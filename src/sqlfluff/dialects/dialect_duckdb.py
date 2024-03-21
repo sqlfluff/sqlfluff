@@ -19,6 +19,7 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     ParseMode,
     Ref,
+    RegexLexer,
     Sequence,
     StringLexer,
     StringParser,
@@ -121,6 +122,31 @@ duckdb_dialect.insert_lexer_matchers(
         StringLexer("double_divide", "//", CodeSegment),
     ],
     before="divide",
+)
+
+duckdb_dialect.patch_lexer_matchers(
+    [
+        # In DuckDB, a double single/double quote resolves as a single/double quote in
+        # the string.
+        RegexLexer(
+            "single_quote",
+            r"'([^']|'')*'",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"'((?:[^']|'')*)'", 1),
+                "escape_replacements": [("''", "'")],
+            },
+        ),
+        RegexLexer(
+            "double_quote",
+            r'"([^"]|"")*"',
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"]|"")*)"', 1),
+                "escape_replacements": [('""', '"')],
+            },
+        ),
+    ]
 )
 
 

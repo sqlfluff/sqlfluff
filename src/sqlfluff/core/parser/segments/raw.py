@@ -4,8 +4,10 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
-from typing import Any, FrozenSet, List, Optional, Tuple
+from typing import Any, FrozenSet, List, Optional, Tuple, Union
 from uuid import uuid4
+
+import regex as re
 
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
@@ -35,6 +37,8 @@ class RawSegment(BaseSegment):
         trim_chars: Optional[Tuple[str, ...]] = None,
         source_fixes: Optional[List[SourceFix]] = None,
         uuid: Optional[int] = None,
+        quoted_value: Optional[Tuple[str, Union[int, str]]] = None,
+        escape_replacements: Optional[List[Tuple[str, str]]] = None,
     ):
         """Initialise raw segment.
 
@@ -69,6 +73,8 @@ class RawSegment(BaseSegment):
         self.representation = "<{}: ({}) {!r}>".format(
             self.__class__.__name__, self.pos_marker, self.raw
         )
+        self.quoted_value = quoted_value
+        self.escape_replacements = escape_replacements
 
     def __repr__(self) -> str:
         # This is calculated at __init__, because all elements are immutable
@@ -171,6 +177,24 @@ class RawSegment(BaseSegment):
             return raw_buff
         return raw_buff
 
+    def raw_normalized(self) -> str:
+        """Returns a normalized string of the raw content.
+
+        E.g. This removes leading and trailing quote characters, removes escapes
+
+        Return:
+        str: The normalized version of the raw content
+        """
+        raw_buff = self.raw
+        if self.quoted_value:
+            _match = re.match(self.quoted_value[0], raw_buff)
+            if _match:
+                raw_buff = _match.group(self.quoted_value[1])
+        if self.escape_replacements:
+            for old, new in self.escape_replacements:
+                raw_buff = re.sub(old, new, raw_buff)
+        return raw_buff
+
     def stringify(
         self, ident: int = 0, tabsize: int = 4, code_only: bool = False
     ) -> str:
@@ -223,6 +247,8 @@ class RawSegment(BaseSegment):
             instance_types=self.instance_types,
             trim_start=self.trim_start,
             trim_chars=self.trim_chars,
+            quoted_value=self.quoted_value,
+            escape_replacements=self.escape_replacements,
             source_fixes=source_fixes or self.source_fixes,
         )
 

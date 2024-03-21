@@ -93,11 +93,42 @@ ansi_dialect.set_lexer_matchers(
                 WhitespaceSegment,
             ),
         ),
-        RegexLexer("single_quote", r"'([^'\\]|\\.|'')*'", CodeSegment),
-        RegexLexer("double_quote", r'"([^"\\]|\\.)*"', CodeSegment),
-        RegexLexer("back_quote", r"`[^`]*`", CodeSegment),
+        RegexLexer(
+            "single_quote",
+            r"'([^'\\]|\\.|'')*'",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"'((?:[^'\\]|\\.|'')*)'", 1),
+                "escape_replacements": [("\\'", "'")],
+            },
+        ),
+        RegexLexer(
+            "double_quote",
+            r'"([^"\\]|\\.)*"',
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"\\]|\\.)*)"', 1),
+                "escape_replacements": [('\\"', '"')],
+            },
+        ),
+        RegexLexer(
+            "back_quote",
+            r"`[^`]*`",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"`([^`]*)`", 1),
+                "escape_replacements": [("\\`", "`")],
+            },
+        ),
         # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
-        RegexLexer("dollar_quote", r"\$(\w*)\$[^\1]*?\$\1\$", CodeSegment),
+        RegexLexer(
+            "dollar_quote",
+            r"\$(\w*)\$(.*?)\$\1\$",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"\$(\w*)\$(.*?)\$\1\$", 2),
+            },
+        ),
         # Numeric literal matches integers, decimals, and exponential formats,
         # Pattern breakdown:
         # (?>                      Atomic grouping
@@ -967,7 +998,7 @@ class ObjectReferenceSegment(BaseSegment):
     def _iter_reference_parts(cls, elem) -> Generator[ObjectReferencePart, None, None]:
         """Extract the elements of a reference and yield."""
         # trim on quotes and split out any dots.
-        for part in elem.raw_trimmed().split("."):
+        for part in elem.raw_normalized().split("."):
             yield cls.ObjectReferencePart(part, [elem])
 
     def iter_raw_references(self) -> Generator[ObjectReferencePart, None, None]:
@@ -1553,8 +1584,16 @@ class FromExpressionElementSegment(BaseSegment):
             segment = alias_expression.get_child("identifier")
             is_quoted = alias_expression.get_child("quoted_identifier") is not None
             if segment:
+                segment = cast(IdentifierSegment, segment)
+                print("here", segment.raw_normalized())
                 return AliasInfo(
-                    segment.raw, segment, True, self, alias_expression, ref, is_quoted
+                    segment.raw_normalized(),
+                    segment,
+                    True,
+                    self,
+                    alias_expression,
+                    ref,
+                    is_quoted,
                 )
 
         # If not return the object name (or None if there isn't one)
@@ -1566,7 +1605,9 @@ class FromExpressionElementSegment(BaseSegment):
                     references[-1]
                 )
                 return AliasInfo(
-                    penultimate_ref.part,
+                    cast(
+                        IdentifierSegment, penultimate_ref.segments[0]
+                    ).raw_normalized(),
                     penultimate_ref.segments[0],
                     False,
                     self,

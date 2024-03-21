@@ -293,10 +293,20 @@ class MatchResult:
             assert len(result_segments) == 1
             # TODO: Should this be a generic method on BaseSegment and RawSegment?
             # It feels a little strange to be this specific here.
+            segment_kwargs: dict[str, Any] = {}
+            if self.matched_class.class_is_type("identifier"):
+                _raw_seg = cast("RawSegment", result_segments[0])
+                segment_kwargs.update(
+                    {
+                        "quoted_value": _raw_seg.quoted_value,
+                        "escape_replacements": _raw_seg.escape_replacements,
+                    }
+                )
+            segment_kwargs.update(self.segment_kwargs)
             new_seg = _raw_type(
                 raw=result_segments[0].raw,
                 pos_marker=result_segments[0].pos_marker,
-                **self.segment_kwargs,
+                **segment_kwargs,
             )
         else:
             new_seg = self.matched_class(

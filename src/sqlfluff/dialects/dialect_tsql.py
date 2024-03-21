@@ -165,12 +165,18 @@ tsql_dialect.insert_lexer_matchers(
             "square_quote",
             r"\[([^\[\]]*)*\]",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"\[([^\[\]]*)\]", 1),
+            },
         ),
         # T-SQL unicode strings
         RegexLexer(
             "single_quote_with_n",
             r"N'([^']|'')*'",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"N'((?:[^']|'')*)'", 1),
+            },
         ),
         RegexLexer(
             "hash_prefix",

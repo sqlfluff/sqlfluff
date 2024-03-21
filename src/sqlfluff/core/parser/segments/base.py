@@ -175,6 +175,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
     # Can we allow it to be empty? Usually used in combination
     # with the can_start_end_non_code.
     allow_empty = False
+    is_case_sensitive = False
     # What other kwargs need to be copied when applying fixes.
     additional_kwargs: List[str] = []
     pos_marker: Optional[PositionMarker]

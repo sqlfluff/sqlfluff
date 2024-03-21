@@ -4,7 +4,7 @@ from typing import List, NamedTuple, Optional, cast
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
-from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.segments import BaseSegment, RawSegment
 from sqlfluff.dialects.dialect_ansi import (
     ObjectReferenceSegment,
     SelectClauseElementSegment,
@@ -110,7 +110,8 @@ def get_select_statement_info(
                 elif seen_using and seg.is_type("bracketed"):
                     for subseg in seg.segments:
                         if subseg.is_type("identifier"):
-                            using_cols.append(subseg.raw)
+                            assert isinstance(subseg, RawSegment)
+                            using_cols.append(subseg.raw_normalized())
                     seen_using = False
 
     return SelectStatementColumnsAndTables(
@@ -185,8 +186,8 @@ def _get_pivot_table_columns(segment, dialect) -> list:
     pivot_table_column_aliases = []
 
     for pivot_table_column_alias in segment.recursive_crawl("pivot_column_reference"):
-        if pivot_table_column_alias.raw not in pivot_table_column_aliases:
-            pivot_table_column_aliases.append(pivot_table_column_alias.raw)
+        if pivot_table_column_alias.raw_normalized() not in pivot_table_column_aliases:
+            pivot_table_column_aliases.append(pivot_table_column_alias.raw_normalized())
 
     return pivot_table_column_aliases
 
@@ -230,10 +231,15 @@ def _get_lambda_argument_columns(
                 assert start_bracket
                 if start_bracket.raw == "(":
                     bracketed_arguments = child_segment.get_children("column_reference")
-                    raw_arguments = [argument.raw for argument in bracketed_arguments]
+                    raw_arguments = [
+                        argument.raw_normalized()
+                        for argument in bracketed_arguments
+                        if isinstance(argument, RawSegment)
+                    ]
                     lambda_argument_columns += raw_arguments
 
             elif child_segment.is_type("column_reference"):
-                lambda_argument_columns.append(child_segment.raw)
+                assert isinstance(child_segment, RawSegment)
+                lambda_argument_columns.append(child_segment.raw_normalized())
 
     return lambda_argument_columns
