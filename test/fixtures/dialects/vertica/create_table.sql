@@ -17,6 +17,15 @@ CREATE TABLE orders(
     orderdate   DATE
 );
 
+CREATE TABLE orders(
+    orderkey    INT ENCODING AUTO,
+    custkey     INT,
+    prodkey     ARRAY[VARCHAR(10)],
+    orderprices ARRAY[DECIMAL(12,2)],
+    orderdate   DATE
+)
+partition by orderdate::date group by CALENDAR_HIERARCHY_DAY(orderdate::DATE, 3, 2) REORGANIZE;
+
 -- CREATE TABLE inventory
 -- (store INT, products ROW(name VARCHAR, code VARCHAR));
 

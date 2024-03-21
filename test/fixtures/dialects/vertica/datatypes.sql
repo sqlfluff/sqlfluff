@@ -39,6 +39,7 @@ create table e(
     a double precision,
     b float,
     bb float(7),
+    bbb float (7),
     c float8,
     d real
 );
@@ -66,6 +67,7 @@ create table g(
     h NUMERIC,
     hh NUMERIC(5),
     hhh NUMERIC(5, 2),
+    hhhh NUMERIC (5, 2),
     i NUMBER,
     ii NUMBER(5),
     iii NUMBER(5, 2),
