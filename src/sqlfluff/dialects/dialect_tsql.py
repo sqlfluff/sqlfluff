@@ -650,6 +650,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateFullTextIndexStatementSegment"),
             Ref("AtomicBeginEndSegment"),
             Ref("ReconfigureStatementSegment"),
+            Ref("CreateColumnstoreIndexStatementSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -1013,6 +1014,97 @@ class CreateIndexStatementSegment(BaseSegment):
         Ref("FilestreamOnOptionSegment", optional=True),
         Ref("DelimiterGrammar", optional=True),
         Dedent,
+    )
+
+
+class CreateColumnstoreIndexStatementSegment(BaseSegment):
+    """A `CREATE COLUMNSTORE INDEX` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-columnstore-index-transact-sql?view=sql-server-ver15
+    """
+
+    type = "create_columnstore_index_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
+        "COLUMNSTORE",
+        "INDEX",
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Ref("BracketedIndexColumnListGrammar", optional=True),
+        Sequence(
+            "ORDER",
+            Bracketed(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Ref("WhereClauseSegment", optional=True),
+        Sequence(
+            "WITH",
+            Bracketed(
+                OneOf(
+                    Sequence(
+                        "DROP_EXISTING",
+                        Ref("EqualsSegment", optional=True),
+                        OneOf(
+                            "ON",
+                            "OFF",
+                        ),
+                    ),
+                    Sequence(
+                        "MAXDOP",
+                        Ref("EqualsSegment", optional=True),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        "ONLINE",
+                        Ref("EqualsSegment", optional=True),
+                        OneOf(
+                            "ON",
+                            "OFF",
+                        ),
+                    ),
+                    Sequence(
+                        "COMPRESSION_DELAY",
+                        Ref("EqualsSegment", optional=True),
+                        Ref("NumericLiteralSegment"),
+                        "MINUTES",
+                    ),
+                    Sequence(
+                        "DATA_COMPRESSION",
+                        Ref("EqualsSegment", optional=True),
+                        OneOf(
+                            "COLUMNSTORE",
+                            "COLUMNSTORE_ARCHIVE",
+                        ),
+                        Sequence(
+                            Sequence(
+                                "ON",
+                                "PARTITIONS",
+                            ),
+                            Bracketed(
+                                Delimited(
+                                    Ref("NumericLiteralSegment"),
+                                ),
+                                Sequence(
+                                    "TO",
+                                    Ref("NumericLiteralSegment"),
+                                    optional=True,
+                                ),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
     )
 
 
