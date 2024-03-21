@@ -10,6 +10,25 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [3.0.3] - 2024-03-21
+
+## Highlights
+
+## What’s Changed
+
+* [Vertica] fix gaps for some datatypes, complex alias support, fix group by for DDL [#5691](https://github.com/sqlfluff/sqlfluff/pull/5691) [@PolitePp](https://github.com/PolitePp)
+* BigQuery: Unreserve KEY keyword [#5703](https://github.com/sqlfluff/sqlfluff/pull/5703) [@greg-finley](https://github.com/greg-finley)
+* Trino: Add INTEGER synonym of INT [#5702](https://github.com/sqlfluff/sqlfluff/pull/5702) [@rileymcdowell](https://github.com/rileymcdowell)
+* Snowflake shouldn't reserve DO as a keyword. [#5699](https://github.com/sqlfluff/sqlfluff/pull/5699) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Allow use of STREAM in snowflake CHANGES clause [#5698](https://github.com/sqlfluff/sqlfluff/pull/5698) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Trino: Parse regexp_replace with lambda func [#5683](https://github.com/sqlfluff/sqlfluff/pull/5683) [@rileymcdowell](https://github.com/rileymcdowell)
+* Documentation update: Remove reference to alias' default config being "consistent" [#5689](https://github.com/sqlfluff/sqlfluff/pull/5689) [@maegan-canva](https://github.com/maegan-canva)
+
+## New Contributors
+
+* [@maegan-canva](https://github.com/maegan-canva) made their first contribution in [#5689](https://github.com/sqlfluff/sqlfluff/pull/5689)
+* [@rileymcdowell](https://github.com/rileymcdowell) made their first contribution in [#5683](https://github.com/sqlfluff/sqlfluff/pull/5683)
+
 ## [3.0.2] - 2024-03-17
 
 ## Highlights
