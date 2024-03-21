@@ -211,6 +211,7 @@ class DatatypeSegment(BaseSegment):
         "TINYINT",
         "SMALLINT",
         "INTEGER",
+        "INT",
         "BIGINT",
         # Floating-point
         "REAL",
