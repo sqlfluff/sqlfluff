@@ -18,3 +18,8 @@ select *
 from t1
   changes(information => default)
   before(statement => '8e5d0ca9-005e-44e6-b858-a8f5b37c5726');
+
+select *
+from st.test
+  changes (information => append_only)
+  at (stream => 'ppr.str_test');

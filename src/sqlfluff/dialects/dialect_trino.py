@@ -9,6 +9,7 @@ from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
     Bracketed,
+    CodeSegment,
     Delimited,
     LiteralSegment,
     Matchable,
@@ -16,6 +17,9 @@ from sqlfluff.core.parser import (
     OneOf,
     Ref,
     Sequence,
+    StringLexer,
+    StringParser,
+    SymbolSegment,
     TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -41,6 +45,18 @@ trino_dialect.update_keywords_set_from_multiline_string(
 trino_dialect.sets("reserved_keywords").clear()
 trino_dialect.update_keywords_set_from_multiline_string(
     "reserved_keywords", trino_reserved_keywords
+)
+
+trino_dialect.insert_lexer_matchers(
+    # Regexp Replace w/ Lambda: https://trino.io/docs/422/functions/regexp.html
+    [
+        StringLexer("right_arrow", "->", CodeSegment),
+    ],
+    before="like_operator",
+)
+
+trino_dialect.add(
+    RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
 )
 
 trino_dialect.replace(
@@ -170,6 +186,14 @@ trino_dialect.replace(
         Ref("EmptyStructLiteralSegment"),
         Ref("ListaggOverflowClauseSegment"),
     ),
+    BinaryOperatorGrammar=OneOf(
+        Ref("ArithmeticBinaryOperatorGrammar"),
+        Ref("StringBinaryOperatorGrammar"),
+        Ref("BooleanBinaryOperatorGrammar"),
+        Ref("ComparisonOperatorGrammar"),
+        # Add arrow operators for functions (e.g. regexp_replace)
+        Ref("RightArrowOperator"),
+    ),
 )
 
 
@@ -187,6 +211,7 @@ class DatatypeSegment(BaseSegment):
         "TINYINT",
         "SMALLINT",
         "INTEGER",
+        "INT",
         "BIGINT",
         # Floating-point
         "REAL",
