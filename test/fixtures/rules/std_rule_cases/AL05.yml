@@ -496,15 +496,18 @@ test_pass_quoted_case_insensitive:
       ON a.thing = b.thing
     ;
 
-test_pass_different_quoted_case_insensitive:
+test_pass_postgres_different_quoted_case_insensitive:
   pass_str: |
     SELECT
-      a.foo
-      , "b".bar
-    FROM foo.bar a
-    INNER JOIN foo.qux 'B'
-      ON a.thing = "b".thing
+      a.col1
+      , B.id
+    FROM prd.tbl1 a
+    INNER JOIN tbl1 "b"
+      ON a.col1 = B.id
     ;
+  configs:
+    core:
+      dialect: postgres
 
 test_pass_snowflake_flatten_lateral:
   pass_str: |
