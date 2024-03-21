@@ -1526,14 +1526,16 @@ class ChangesClauseSegment(BaseSegment):
             "INFORMATION",
             Ref("ParameterAssignerSegment"),
             OneOf("DEFAULT", "APPEND_ONLY"),
+            parse_mode=ParseMode.GREEDY,
         ),
         OneOf(
             Sequence(
                 "AT",
                 Bracketed(
-                    OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
+                    OneOf("TIMESTAMP", "OFFSET", "STATEMENT", "STREAM"),
                     Ref("ParameterAssignerSegment"),
                     Ref("ExpressionSegment"),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
             Sequence(
@@ -1542,6 +1544,7 @@ class ChangesClauseSegment(BaseSegment):
                     "STATEMENT",
                     Ref("ParameterAssignerSegment"),
                     Ref("ExpressionSegment"),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
         ),
@@ -1551,6 +1554,7 @@ class ChangesClauseSegment(BaseSegment):
                 OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
                 Ref("ParameterAssignerSegment"),
                 Ref("ExpressionSegment"),
+                parse_mode=ParseMode.GREEDY,
             ),
             optional=True,
         ),
