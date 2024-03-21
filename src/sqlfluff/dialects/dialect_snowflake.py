@@ -1245,6 +1245,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("MergeStatementSegment"),
             Ref("CopyIntoTableStatementSegment"),
             Ref("CopyIntoLocationStatementSegment"),
+            Ref("CopyFilesIntoLocationStatementSegment"),
             Ref("FormatTypeOptions"),
             Ref("AlterWarehouseStatementSegment"),
             Ref("AlterShareStatementSegment"),
@@ -5487,6 +5488,41 @@ class CopyIntoTableStatementSegment(BaseSegment):
             Ref("EqualsSegment"),
             Ref("ValidationModeOptionSegment"),
             optional=True,
+        ),
+    )
+
+
+class CopyFilesIntoLocationStatementSegment(BaseSegment):
+    """A Snowflake `COPY FILE INTO <location> FROM <location>` statement.
+
+    # https://docs.snowflake.com/en/sql-reference/sql/copy-files.html
+    """
+
+    type = "copy_files_into_location_statement"
+
+    match_grammar = Sequence(
+        "COPY",
+        "FILES",
+        "INTO",
+        Ref("StorageLocation"),
+        "FROM",
+        Ref("StorageLocation"),
+        AnySetOf(
+            Sequence(
+                "FILES",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            ),
+            Sequence(
+                "PATTERN",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "DETAILED_OUTPUT",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
         ),
     )
 
