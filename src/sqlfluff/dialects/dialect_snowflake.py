@@ -5527,6 +5527,7 @@ class CopyFilesIntoLocationStatementSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 Ref("BooleanLiteralGrammar"),
             ),
+            optional=True,
         ),
     )
 
