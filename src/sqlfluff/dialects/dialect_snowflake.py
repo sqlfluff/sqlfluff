@@ -3864,6 +3864,18 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             optional=True,
         ),
         Sequence(
+            "REFRESH_MODE",
+            Ref("EqualsSegment"),
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "INITIALIZE",
+            Ref("EqualsSegment"),
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),             
+        Sequence(
             "WAREHOUSE",
             Ref("EqualsSegment"),
             Ref("ObjectReferenceSegment"),
@@ -5680,7 +5692,9 @@ class AzureBlobStorageExternalStageParameters(BaseSegment):
                 Bracketed(
                     Sequence("AZURE_SAS_TOKEN"),
                     Ref("EqualsSegment"),
-                    Ref("QuotedLiteralSegment"),
+                    OneOf(
+                        Ref("QuotedLiteralSegment"), Ref("ReferencedVariableNameSegment")
+                    ),
                 ),
             ),
             optional=True,
@@ -5805,7 +5819,10 @@ class CreateStageSegment(BaseSegment):
                     ),
                     # External Azure Blob Storage stage
                     Sequence(
-                        Ref("AzureBlobStoragePath"),
+                        OneOf(
+                            Ref("AzureBlobStoragePath"), Ref("ReferencedVariableNameSegment")
+                        ),                        
+                        # Ref("AzureBlobStoragePath"),
                         Ref("AzureBlobStorageExternalStageParameters", optional=True),
                         Sequence(
                             "DIRECTORY",
