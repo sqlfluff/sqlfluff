@@ -1,0 +1,201 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4e0508f9f5cf5774f0e80700de25b87366f6c2cddc77a309e1a0f29b429fdfb8
+file:
+  batch:
+  - statement:
+      create_columnstore_index_statement:
+      - keyword: CREATE
+      - keyword: CLUSTERED
+      - keyword: COLUMNSTORE
+      - keyword: INDEX
+      - index_reference:
+          naked_identifier: cci
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Orders
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          keyword: MAXDOP
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '2'
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_columnstore_index_statement:
+      - keyword: CREATE
+      - keyword: CLUSTERED
+      - keyword: COLUMNSTORE
+      - keyword: INDEX
+      - index_reference:
+          naked_identifier: cci_comp
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Compression
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: COMPRESSION_DELAY
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '10'
+        - keyword: MINUTES
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_columnstore_index_statement:
+      - keyword: CREATE
+      - keyword: CLUSTERED
+      - keyword: COLUMNSTORE
+      - keyword: INDEX
+      - index_reference:
+          naked_identifier: cci_data
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: DataColumns
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: DATA_COMPRESSION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: COLUMNSTORE_ARCHIVE
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_columnstore_index_statement:
+      - keyword: CREATE
+      - keyword: CLUSTERED
+      - keyword: COLUMNSTORE
+      - keyword: INDEX
+      - index_reference:
+          naked_identifier: cci_online
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: OnlineTable
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: ONLINE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_columnstore_index_statement:
+      - keyword: CREATE
+      - keyword: NONCLUSTERED
+      - keyword: COLUMNSTORE
+      - keyword: INDEX
+      - index_reference:
+          naked_identifier: ncci
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Orders
+      - bracketed_index_column_list_grammar:
+          bracketed:
+          - start_bracket: (
+          - index_column_definition:
+              naked_identifier: StockItemID
+          - comma: ','
+          - index_column_definition:
+              naked_identifier: Quantity
+          - comma: ','
+          - index_column_definition:
+              naked_identifier: UnitPrice
+          - comma: ','
+          - index_column_definition:
+              naked_identifier: TaxRate
+          - end_bracket: )
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: ONLINE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_columnstore_index_statement:
+      - keyword: CREATE
+      - keyword: COLUMNSTORE
+      - keyword: INDEX
+      - index_reference:
+          naked_identifier: ncci2
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Orders2
+      - bracketed_index_column_list_grammar:
+          bracketed:
+          - start_bracket: (
+          - index_column_definition:
+              naked_identifier: StockItemID
+          - comma: ','
+          - index_column_definition:
+              naked_identifier: Quantity
+          - comma: ','
+          - index_column_definition:
+              naked_identifier: UnitPrice
+          - comma: ','
+          - index_column_definition:
+              naked_identifier: TaxRate
+          - end_bracket: )
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: ONLINE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_columnstore_index_statement:
+      - keyword: CREATE
+      - keyword: NONCLUSTERED
+      - keyword: COLUMNSTORE
+      - keyword: INDEX
+      - index_reference:
+          naked_identifier: FIBillOfMaterialsWithEndDate
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Materials
+      - bracketed_index_column_list_grammar:
+          bracketed:
+          - start_bracket: (
+          - index_column_definition:
+              naked_identifier: ComponentID
+          - comma: ','
+          - index_column_definition:
+              naked_identifier: StartDate
+          - end_bracket: )
+      - where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              naked_identifier: EndDate
+          - keyword: IS
+          - keyword: NOT
+          - null_literal: 'NULL'
+  - statement_terminator: ;
