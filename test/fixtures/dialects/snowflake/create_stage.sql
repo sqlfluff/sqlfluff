@@ -86,3 +86,11 @@ CREATE OR REPLACE STAGE your_stage_name
 
 CREATE OR REPLACE STAGE your_stage_name
   URL = 's3://your-s3-bucket/your-path-in-s3';
+
+CREATE STAGE mystage
+  URL=$your_variable
+  CREDENTIALS=(AZURE_SAS_TOKEN=$your_variable);
+
+CREATE STAGE mystage
+  URL=$your_variable
+  STORAGE_INTEGRATION=$your_variable;

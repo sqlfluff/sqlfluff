@@ -3862,18 +3862,6 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             Ref("EqualsSegment"),
             Ref("QuotedLiteralSegment"),
             optional=True,
-        ),
-        Sequence(
-            "REFRESH_MODE",
-            Ref("EqualsSegment"),
-            Ref("ObjectReferenceSegment"),
-            optional=True,
-        ),
-        Sequence(
-            "INITIALIZE",
-            Ref("EqualsSegment"),
-            Ref("ObjectReferenceSegment"),
-            optional=True,
         ),             
         Sequence(
             "WAREHOUSE",
@@ -5684,7 +5672,10 @@ class AzureBlobStorageExternalStageParameters(BaseSegment):
             Sequence(
                 "STORAGE_INTEGRATION",
                 Ref("EqualsSegment"),
-                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("ReferencedVariableNameSegment")
+                ),
             ),
             Sequence(
                 "CREDENTIALS",
@@ -5693,7 +5684,8 @@ class AzureBlobStorageExternalStageParameters(BaseSegment):
                     Sequence("AZURE_SAS_TOKEN"),
                     Ref("EqualsSegment"),
                     OneOf(
-                        Ref("QuotedLiteralSegment"), Ref("ReferencedVariableNameSegment")
+                        Ref("QuotedLiteralSegment"), 
+                        Ref("ReferencedVariableNameSegment")
                     ),
                 ),
             ),
@@ -5820,9 +5812,9 @@ class CreateStageSegment(BaseSegment):
                     # External Azure Blob Storage stage
                     Sequence(
                         OneOf(
-                            Ref("AzureBlobStoragePath"), Ref("ReferencedVariableNameSegment")
-                        ),                        
-                        # Ref("AzureBlobStoragePath"),
+                            Ref("AzureBlobStoragePath"), 
+                            Ref("ReferencedVariableNameSegment")
+                        ),                       
                         Ref("AzureBlobStorageExternalStageParameters", optional=True),
                         Sequence(
                             "DIRECTORY",
