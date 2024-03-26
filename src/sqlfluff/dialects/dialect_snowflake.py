@@ -366,12 +366,12 @@ snowflake_dialect.add(
         type="stage_encryption_option",
     ),
     S3EncryptionOption=MultiStringParser(
-        ["'AWS_CSE'", "'AWS_SSE_S3'", "'AWS_SSE_KMS'"],
+        ["'AWS_CSE'", "'AWS_SSE_S3'", "'AWS_SSE_KMS'", "'NONE'"],
         CodeSegment,
         type="stage_encryption_option",
     ),
-    GCSEncryptionOption=StringParser(
-        "'GCS_SSE_KMS'",
+    GCSEncryptionOption=MultiStringParser(
+        ["'GCS_SSE_KMS'", "'NONE'"],
         CodeSegment,
         type="stage_encryption_option",
     ),
@@ -865,6 +865,205 @@ class DatabaseRoleReferenceSegment(ansi.ObjectReferenceSegment):
     )
 
 
+class ExternalVolumeReferenceSegment(ansi.ObjectReferenceSegment):
+    """External Volume reference."""
+
+    type = "external_volume_reference"
+
+
+class DropExternalVolumeStatementSegment(BaseSegment):
+    """Drop External Volume Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/drop-external-volume
+    """
+
+    type = "drop_external_volume_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "EXTERNAL",
+        "VOLUME",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ExternalVolumeReferenceSegment"),
+    )
+
+
+class CreateExternalVolumeStatementSegment(BaseSegment):
+    """Create External Volume Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/create-external-volume
+    """
+
+    type = "create_external_volume_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "EXTERNAL",
+        "VOLUME",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ExternalVolumeReferenceSegment"),
+        "STORAGE_LOCATIONS",
+        Ref("EqualsSegment"),
+        Bracketed(
+            Delimited(
+                Bracketed(
+                    "NAME",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    AnySetOf(
+                        Sequence(
+                            "STORAGE_PROVIDER",
+                            Ref("EqualsSegment"),
+                            OneOf("S3", "AZURE", "GCS", Ref("QuotedLiteralSegment")),
+                        ),
+                        Sequence(
+                            "STORAGE_AWS_ROLE_ARN",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "STORAGE_BASE_URL",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "STORAGE_AWS_EXTERNAL_ID",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "AZURE_TENANT_ID",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "ENCRYPTION",
+                            Ref("EqualsSegment"),
+                            Bracketed(
+                                "TYPE",
+                                Ref("EqualsSegment"),
+                                OneOf(
+                                    Ref("S3EncryptionOption"),
+                                    Ref("GCSEncryptionOption"),
+                                ),
+                                Sequence(
+                                    "KMS_KEY_ID",
+                                    Ref("EqualsSegment"),
+                                    Ref("QuotedLiteralSegment"),
+                                    optional=True,
+                                ),
+                            ),
+                        ),
+                    ),
+                )
+            ),
+        ),
+        AnySetOf(
+            Sequence(
+                "ALLOW_WRITES", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+            ),
+            Sequence(
+                "COMMENT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class AlterExternalVolumeStatementSegment(BaseSegment):
+    """Alter External Volume Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/alter-external-volume
+    """
+
+    type = "alter_external_volume_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "EXTERNAL",
+        "VOLUME",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ExternalVolumeReferenceSegment"),
+        OneOf(
+            Sequence(
+                "ADD",
+                "STORAGE_LOCATION",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    "NAME",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    AnySetOf(
+                        Sequence(
+                            "STORAGE_PROVIDER",
+                            Ref("EqualsSegment"),
+                            OneOf("S3", "AZURE", "GCS", Ref("QuotedLiteralSegment")),
+                        ),
+                        Sequence(
+                            "STORAGE_AWS_ROLE_ARN",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "STORAGE_BASE_URL",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "STORAGE_AWS_EXTERNAL_ID",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "AZURE_TENANT_ID",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "ENCRYPTION",
+                            Ref("EqualsSegment"),
+                            Bracketed(
+                                "TYPE",
+                                Ref("EqualsSegment"),
+                                OneOf(
+                                    Ref("S3EncryptionOption"),
+                                    Ref("GCSEncryptionOption"),
+                                ),
+                                Sequence(
+                                    "KMS_KEY_ID",
+                                    Ref("EqualsSegment"),
+                                    Ref("QuotedLiteralSegment"),
+                                    optional=True,
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            Sequence(
+                "REMOVE",
+                "STORAGE_LOCATION",
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "SET",
+                "ALLOW_WRITES",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "SET",
+                "COMMENT",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+    )
+
+
 class ConnectByClauseSegment(BaseSegment):
     """A `CONNECT BY` clause.
 
@@ -1047,6 +1246,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("MergeStatementSegment"),
             Ref("CopyIntoTableStatementSegment"),
             Ref("CopyIntoLocationStatementSegment"),
+            Ref("CopyFilesIntoLocationStatementSegment"),
             Ref("FormatTypeOptions"),
             Ref("AlterWarehouseStatementSegment"),
             Ref("AlterShareStatementSegment"),
@@ -1060,7 +1260,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateStageSegment"),
             Ref("AlterStageSegment"),
             Ref("CreateStreamStatementSegment"),
+            Ref("CreateStreamlitStatementSegment"),
             Ref("AlterStreamStatementSegment"),
+            Ref("AlterStreamlitStatementSegment"),
             Ref("UnsetStatementSegment"),
             Ref("UndropStatementSegment"),
             Ref("CommentStatementSegment"),
@@ -1091,6 +1293,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterDatabaseSegment"),
             Ref("AlterMaskingPolicySegment"),
             Ref("AlterNetworkPolicyStatementSegment"),
+            Ref("CreateExternalVolumeStatementSegment"),
+            Ref("DropExternalVolumeStatementSegment"),
+            Ref("AlterExternalVolumeStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -1322,14 +1527,16 @@ class ChangesClauseSegment(BaseSegment):
             "INFORMATION",
             Ref("ParameterAssignerSegment"),
             OneOf("DEFAULT", "APPEND_ONLY"),
+            parse_mode=ParseMode.GREEDY,
         ),
         OneOf(
             Sequence(
                 "AT",
                 Bracketed(
-                    OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
+                    OneOf("TIMESTAMP", "OFFSET", "STATEMENT", "STREAM"),
                     Ref("ParameterAssignerSegment"),
                     Ref("ExpressionSegment"),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
             Sequence(
@@ -1338,6 +1545,7 @@ class ChangesClauseSegment(BaseSegment):
                     "STATEMENT",
                     Ref("ParameterAssignerSegment"),
                     Ref("ExpressionSegment"),
+                    parse_mode=ParseMode.GREEDY,
                 ),
             ),
         ),
@@ -1347,6 +1555,7 @@ class ChangesClauseSegment(BaseSegment):
                 OneOf("TIMESTAMP", "OFFSET", "STATEMENT"),
                 Ref("ParameterAssignerSegment"),
                 Ref("ExpressionSegment"),
+                parse_mode=ParseMode.GREEDY,
             ),
             optional=True,
         ),
@@ -2416,6 +2625,7 @@ class AccessStatementSegment(BaseSegment):
         "ROUTINE",
         "SEQUENCE",
         "STREAM",
+        "STREAMLIT",
         "TASK",
         "PIPE",
     ]
@@ -2669,6 +2879,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         Ref("OrReplaceGrammar", optional=True),
         Sequence("SECURE", optional=True),
         "PROCEDURE",
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
         Sequence("COPY", "GRANTS", optional=True),
@@ -5287,6 +5498,42 @@ class CopyIntoTableStatementSegment(BaseSegment):
     )
 
 
+class CopyFilesIntoLocationStatementSegment(BaseSegment):
+    """A Snowflake `COPY FILE INTO <location> FROM <location>` statement.
+
+    # https://docs.snowflake.com/en/sql-reference/sql/copy-files.html
+    """
+
+    type = "copy_files_into_location_statement"
+
+    match_grammar = Sequence(
+        "COPY",
+        "FILES",
+        "INTO",
+        Ref("StorageLocation"),
+        "FROM",
+        Ref("StorageLocation"),
+        AnySetOf(
+            Sequence(
+                "FILES",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            ),
+            Sequence(
+                "PATTERN",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "DETAILED_OUTPUT",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            optional=True,
+        ),
+    )
+
+
 class StorageLocation(BaseSegment):
     """A Snowflake storage location.
 
@@ -5803,6 +6050,43 @@ class CreateStreamStatementSegment(BaseSegment):
     )
 
 
+class CreateStreamlitStatementSegment(BaseSegment):
+    """A Snowflake `CREATE STREAMLIT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-streamlit.html
+    """
+
+    type = "create_streamlit_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "STREAMLIT",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "ROOT_LOCATION",
+            Ref("EqualsSegment"),
+            Ref("StagePath"),
+        ),
+        Sequence(
+            "MAIN_FILE",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "QUERY_WAREHOUSE",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("ObjectReferenceSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            optional=True,
+        ),
+        Ref("CommentEqualsClauseSegment", optional=True),
+    )
+
+
 class AlterStreamStatementSegment(BaseSegment):
     """A Snowflake `ALTER STREAM` statement.
 
@@ -5841,6 +6125,48 @@ class AlterStreamStatementSegment(BaseSegment):
                     "COMMENT",
                 ),
             ),
+        ),
+    )
+
+
+class AlterStreamlitStatementSegment(BaseSegment):
+    """A Snowflake `ALTER STREAMLIT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-streamlit.html
+    """
+
+    type = "alter_streamlit_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "STREAMLIT",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                Sequence(
+                    "ROOT_LOCATION",
+                    Ref("EqualsSegment"),
+                    Ref("StagePath"),
+                ),
+                Sequence(
+                    "MAIN_FILE",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                Sequence(
+                    "QUERY_WAREHOUSE",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("ObjectReferenceSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    optional=True,
+                ),
+                Ref("CommentEqualsClauseSegment", optional=True),
+            ),
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
         ),
     )
 
@@ -5887,11 +6213,13 @@ class ShowStatementSegment(BaseSegment):
         "STAGES",
         "PIPES",
         "STREAMS",
+        "STREAMLITS",
         "TASKS",
         Sequence("USER", "FUNCTIONS"),
         Sequence("EXTERNAL", "FUNCTIONS"),
         "PROCEDURES",
         Sequence("FUTURE", "GRANTS"),
+        Sequence("EXTERNAL", "VOLUMES"),
     )
 
     _object_scope_types = OneOf(
@@ -6647,6 +6975,11 @@ class DescribeStatementSegment(BaseSegment):
                     optional=True,
                 ),
             ),
+            Sequence(
+                "EXTERNAL",
+                "VOLUME",
+                Ref("ExternalVolumeReferenceSegment"),
+            ),
             # https://docs.snowflake.com/en/sql-reference/sql/desc-view.html
             Sequence(
                 "VIEW",
@@ -6695,6 +7028,10 @@ class DescribeStatementSegment(BaseSegment):
             # https://docs.snowflake.com/en/sql-reference/sql/desc-stream.html
             Sequence(
                 "STREAM",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "STREAMLIT",
                 Ref("ObjectReferenceSegment"),
             ),
             # https://docs.snowflake.com/en/sql-reference/sql/desc-task.html
@@ -6816,6 +7153,11 @@ class UndropStatementSegment(BaseSegment):
                 "TABLE",
                 Ref("TableReferenceSegment"),
             ),
+            Sequence(
+                "EXTERNAL",
+                "VOLUME",
+                Ref("ExternalVolumeReferenceSegment"),
+            ),
         ),
     )
 
@@ -6849,6 +7191,7 @@ class CommentStatementSegment(BaseSegment):
             "SHARE",
             "PIPE",
             "STREAM",
+            "STREAMLIT",
             "TASK",
             Sequence(
                 "NETWORK",
@@ -7151,6 +7494,7 @@ class DropObjectStatementSegment(BaseSegment):
                     Sequence("ROW", "ACCESS", "POLICY"),
                     "STAGE",
                     "STREAM",
+                    "STREAMLIT",
                     "TAG",
                     "TASK",
                 ),
