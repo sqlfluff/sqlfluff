@@ -142,8 +142,7 @@ mysql_dialect.replace(
     QuotedIdentifierSegment=TypedParser(
         "back_quote",
         IdentifierSegment,
-        type="quoted_identifier",
-        trim_chars=("`",),
+        type="quoted_identifier"
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
