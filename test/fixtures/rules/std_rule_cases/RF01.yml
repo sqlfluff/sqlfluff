@@ -305,3 +305,10 @@ test_pass_postgres_merge_with_alias:
   configs:
     core:
       dialect: tsql
+
+test_mysql_identifier_with_backticks_should_not_except:
+  pass_str: |
+    SELECT `f`.`bar` FROM `foo` AS `f`;
+  configs:
+    core:
+      dialect: mysql

@@ -362,3 +362,10 @@ test_pass_postgres_values_clause:
   configs:
     core:
       dialect: postgres
+
+test_mysql_identifier_with_backticks_should_not_except:
+  pass_str: |
+    SELECT f.bar FROM `foo` AS `f`;
+  configs:
+    core:
+      dialect: mysql
