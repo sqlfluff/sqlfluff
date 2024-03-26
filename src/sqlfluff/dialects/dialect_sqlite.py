@@ -9,6 +9,7 @@ from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
     Bracketed,
+    CodeSegment,
     CommentSegment,
     Delimited,
     IdentifierSegment,
@@ -58,6 +59,33 @@ sqlite_dialect.patch_lexer_matchers(
                 WhitespaceSegment,
             ),
         ),
+        RegexLexer(
+            "single_quote",
+            r"'([^']|'')*'",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"'((?:[^']|'')*)'", 1),
+                "escape_replacements": [("''", "'")],
+            },
+        ),
+        RegexLexer(
+            "double_quote",
+            r'"([^"]|"")*"',
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"]|"")*)"', 1),
+                "escape_replacements": [('""', '"')],
+            },
+        ),
+        RegexLexer(
+            "back_quote",
+            r"`([^`]|``)*`",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"`((?:[^`]|``)*)`", 1),
+                "escape_replacements": [("``", "`")],
+            },
+        ),
     ]
 )
 
@@ -66,6 +94,8 @@ sqlite_dialect.add(
         "back_quote",
         IdentifierSegment,
         type="quoted_identifier",
+        # match ANSI's naked identifier casefold, sqlite is case-insensitive.
+        casefold=str.upper,
     ),
 )
 
@@ -209,9 +239,17 @@ sqlite_dialect.replace(
     NanLiteralSegment=Nothing(),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
+        Ref("SingleQuotedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
         Ref("BackQuotedIdentifierSegment"),
         terminators=[Ref("DotSegment")],
+    ),
+    # match ANSI's naked identifier casefold, sqlite is case-insensitive.
+    QuotedIdentifierSegment=TypedParser(
+        "double_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
+    ),
+    SingleQuotedIdentifierSegment=TypedParser(
+        "single_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
     ),
 )
 

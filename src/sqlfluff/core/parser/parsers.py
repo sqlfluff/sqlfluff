@@ -4,7 +4,7 @@ Matchable objects which return individual segments.
 """
 
 from abc import abstractmethod
-from typing import Any, Collection, Dict, Optional, Sequence, Tuple, Type
+from typing import Any, Callable, Collection, Dict, Optional, Sequence, Tuple, Type
 from uuid import uuid4
 
 import regex
@@ -31,6 +31,7 @@ class BaseParser(Matchable):
         optional: bool = False,
         # The following kwargs are passed on to the segment:
         trim_chars: Optional[Tuple[str, ...]] = None,
+        casefold: Optional[Callable[[str], str]] = None,
     ) -> None:
         self.raw_class = raw_class
         # Store instance_types rather than just type to allow
@@ -39,6 +40,7 @@ class BaseParser(Matchable):
         self._instance_types: Tuple[str, ...] = (type or raw_class.type,)
         self.optional = optional
         self._trim_chars = trim_chars
+        self._casefold = casefold
         # Generate a cache key
         self._cache_key = uuid4().hex
 
@@ -63,6 +65,8 @@ class BaseParser(Matchable):
             segment_kwargs["instance_types"] = self._instance_types
         if self._trim_chars:
             segment_kwargs["trim_chars"] = self._trim_chars
+        if self._casefold:
+            segment_kwargs["casefold"] = self._casefold
         return MatchResult(
             matched_slice=slice(idx, idx + 1),
             matched_class=self.raw_class,
@@ -80,6 +84,7 @@ class TypedParser(BaseParser):
         type: Optional[str] = None,
         optional: bool = False,
         trim_chars: Optional[Tuple[str, ...]] = None,
+        casefold: Optional[Callable[[str], str]] = None,
     ) -> None:
         """Initialize a new instance of the class.
 
@@ -89,6 +94,7 @@ class TypedParser(BaseParser):
             type (Optional[str]): The type of the instance.
             optional (bool): Whether the instance is optional.
             trim_chars (Optional[Tuple[str, ...]]): The characters to trim.
+            casefold: (Optional[Callable[[str],str]]): The default casing used.
 
         Returns:
             None
@@ -102,6 +108,7 @@ class TypedParser(BaseParser):
             raw_class=raw_class,
             optional=optional,
             trim_chars=trim_chars,
+            casefold=casefold,
         )
         # NOTE: We override the instance types after initialising the base
         # class. We want to ensure that re-matching is possible by ensuring that
@@ -167,6 +174,7 @@ class StringParser(BaseParser):
         type: Optional[str] = None,
         optional: bool = False,
         trim_chars: Optional[Tuple[str, ...]] = None,
+        casefold: Optional[Callable[[str], str]] = None,
     ):
         self.template = template.upper()
         # Create list version upfront to avoid recreating it multiple times.
@@ -176,6 +184,7 @@ class StringParser(BaseParser):
             type=type,
             optional=optional,
             trim_chars=trim_chars,
+            casefold=casefold,
         )
 
     def __repr__(self) -> str:
@@ -217,6 +226,7 @@ class MultiStringParser(BaseParser):
         type: Optional[str] = None,
         optional: bool = False,
         trim_chars: Optional[Tuple[str, ...]] = None,
+        casefold: Optional[Callable[[str], str]] = None,
     ):
         self.templates = {template.upper() for template in templates}
         # Create list version upfront to avoid recreating it multiple times.
@@ -226,6 +236,7 @@ class MultiStringParser(BaseParser):
             type=type,
             optional=optional,
             trim_chars=trim_chars,
+            casefold=casefold,
         )
 
     def __repr__(self) -> str:
@@ -268,6 +279,7 @@ class RegexParser(BaseParser):
         optional: bool = False,
         anti_template: Optional[str] = None,
         trim_chars: Optional[Tuple[str, ...]] = None,
+        casefold: Optional[Callable[[str], str]] = None,
     ):
         # Store the optional anti-template
         self.template = template
@@ -280,13 +292,14 @@ class RegexParser(BaseParser):
             type=type,
             optional=optional,
             trim_chars=trim_chars,
+            casefold=casefold,
         )
 
     def __repr__(self) -> str:
         return f"<RegexParser: {self.template!r}>"
 
     def simple(
-        cls, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
+        self, parse_context: ParseContext, crumbs: Optional[Tuple[str, ...]] = None
     ) -> None:
         """Does this matcher support a uppercase hash matching route?
 

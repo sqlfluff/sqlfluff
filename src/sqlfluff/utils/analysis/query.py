@@ -19,7 +19,7 @@ from typing import (
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
-from sqlfluff.core.parser import BaseSegment, RawSegment
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.utils.analysis.select import (
     SelectStatementColumnsAndTables,
@@ -98,17 +98,14 @@ class Selectable:
             name = alias_expression.children().first(
                 sp.is_type("naked_identifier", "quoted_identifier")
             )
-            assert isinstance(name, RawSegment)
-            is_quoted = name.any(sp.is_type("quoted_identifier"))
             print("query:", name)
             alias_info = AliasInfo(
-                name[0].raw_normalized() if name else "",
+                name[0].raw if name else "",
                 name[0] if name else None,
                 bool(name),
                 self.selectable,
                 alias_expression[0] if alias_expression else None,
                 None,
-                is_quoted,
             )
 
             return SelectStatementColumnsAndTables(
@@ -152,9 +149,6 @@ class Selectable:
                                 )
                                 for alias_info in self.select_info.table_aliases
                                 if alias_info.ref_str
-                                and isinstance(
-                                    alias_info.from_expression_element, RawSegment
-                                )
                             ],
                         )
                     )

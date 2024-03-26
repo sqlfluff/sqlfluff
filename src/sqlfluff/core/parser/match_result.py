@@ -300,6 +300,7 @@ class MatchResult:
                     {
                         "quoted_value": _raw_seg.quoted_value,
                         "escape_replacements": _raw_seg.escape_replacements,
+                        "casefold": _raw_seg.casefold,
                     }
                 )
             segment_kwargs.update(self.segment_kwargs)

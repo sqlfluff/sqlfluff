@@ -76,6 +76,10 @@ sparksql_dialect.patch_lexer_matchers(
             "back_quote",
             r"`([^`]|``)*`",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"`((?:[^`]|``)*)`", 1),
+                "escape_replacements": [("``", "`")],
+            },
         ),
         # Numeric literal matches integers, decimals, and exponential formats.
         # https://spark.apache.org/docs/latest/sql-ref-literals.html#numeric-literal
@@ -409,6 +413,8 @@ sparksql_dialect.add(
         IdentifierSegment,
         type="quoted_identifier",
         trim_chars=("`",),
+        # match ANSI's naked identifier casefold, sparksql is case-insensitive.
+        casefold=str.upper,
     ),
     NakedSemiStructuredElementSegment=RegexParser(
         r"[A-Z0-9_]*",

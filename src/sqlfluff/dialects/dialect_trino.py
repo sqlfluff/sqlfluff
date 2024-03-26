@@ -9,12 +9,15 @@ from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
     Bracketed,
+    CodeSegment,
     Delimited,
+    IdentifierSegment,
     LiteralSegment,
     Matchable,
     Nothing,
     OneOf,
     Ref,
+    RegexLexer,
     Sequence,
     TypedParser,
 )
@@ -41,6 +44,20 @@ trino_dialect.update_keywords_set_from_multiline_string(
 trino_dialect.sets("reserved_keywords").clear()
 trino_dialect.update_keywords_set_from_multiline_string(
     "reserved_keywords", trino_reserved_keywords
+)
+
+trino_dialect.patch_lexer_matchers(
+    [
+        RegexLexer(
+            "double_quote",
+            r'"([^"]|"")*"',
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"]|"")*)"', 1),
+                "escape_replacements": [('""', '"')],
+            },
+        ),
+    ]
 )
 
 trino_dialect.replace(
@@ -169,6 +186,10 @@ trino_dialect.replace(
         Ref("IndexColumnDefinitionSegment"),
         Ref("EmptyStructLiteralSegment"),
         Ref("ListaggOverflowClauseSegment"),
+    ),
+    # match ANSI's naked identifier casefold, trino is case-insensitive.
+    QuotedIdentifierSegment=TypedParser(
+        "double_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
     ),
 )
 

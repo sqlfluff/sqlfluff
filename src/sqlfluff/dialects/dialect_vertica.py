@@ -14,6 +14,7 @@ from sqlfluff.core.parser import (
     CompositeComparisonOperatorSegment,
     Dedent,
     Delimited,
+    IdentifierSegment,
     Indent,
     KeywordSegment,
     LiteralSegment,
@@ -23,6 +24,7 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     ParseMode,
     Ref,
+    RegexLexer,
     RegexParser,
     Sequence,
     StringLexer,
@@ -65,6 +67,20 @@ vertica_dialect.insert_lexer_matchers(
         StringLexer("integer_division", "//", CodeSegment),
     ],
     before="divide",
+)
+
+vertica_dialect.patch_lexer_matchers(
+    [
+        RegexLexer(
+            "double_quote",
+            r'"([^"]|"")*"',
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"]|"")*)"', 1),
+                "escape_replacements": [('""', '"')],
+            },
+        ),
+    ]
 )
 
 # Set Keywords
@@ -416,6 +432,9 @@ vertica_dialect.replace(
     # https://docs.vertica.com/latest/en/sql-reference/language-elements/operators/null-operators/
     IsNullGrammar=Ref.keyword("ISNULL"),
     NotNullGrammar=Ref.keyword("NOTNULL"),
+    QuotedIdentifierSegment=TypedParser(
+        "double_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
+    ),
 )
 
 

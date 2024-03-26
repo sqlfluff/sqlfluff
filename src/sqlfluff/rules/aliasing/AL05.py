@@ -61,6 +61,7 @@ class Rule_AL05(BaseRule):
     name = "aliasing.unused"
     aliases = ("L025",)
     groups = ("all", "core", "aliasing")
+    config_keywords = ["alias_case_check"]
     crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
     _dialects_requiring_alias_for_values_clause = [
         "snowflake",
@@ -68,8 +69,9 @@ class Rule_AL05(BaseRule):
         "postgres",
     ]
     is_fix_compatible = True
-    _dialects_ci_quoted_ids = ["duckdb"]
-    _dialects_cs_other_ids = ["bigquery"]
+
+    # config
+    alias_case_check: str
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         violations: List[LintResult] = []
@@ -81,7 +83,9 @@ class Rule_AL05(BaseRule):
 
         # Analyze the SELECT.
         alias: AliasInfo
-        query = AL05Query.from_segment(context.segment, dialect=context.dialect)
+        query = cast(
+            AL05Query, AL05Query.from_segment(context.segment, dialect=context.dialect)
+        )
         self._analyze_table_aliases(query, context.dialect)
 
         if context.dialect.name in ("redshift", "bigquery"):
@@ -95,14 +99,13 @@ class Rule_AL05(BaseRule):
 
             for alias in query.aliases:
                 aliases.add(alias.ref_str)
-                aliases.add(self._cs_str_id(alias.segment, context.dialect.name))
+                if alias.segment:
+                    aliases.add(self._cs_str_id(alias.segment))
                 if not alias.object_reference:
                     continue  # pragma: no cover
                 for seg in alias.object_reference.segments:
                     if seg.is_type("identifier"):
-                        references.add(
-                            self._cs_str_id(cast(RawSegment, seg), context.dialect.name)
-                        )
+                        references.add(self._cs_str_id(seg))
 
             # If there's any overlap between aliases and reference
             if aliases.intersection(references):
@@ -118,17 +121,9 @@ class Rule_AL05(BaseRule):
         # the base table name instead of the fully qualified one to determine naming
         # collisions.
         ref_counter = Counter(
-            dist_a
+            self._cs_str_id(a.object_reference.segments[-1])
             for a in query.aliases
             if a.object_reference and a.object_reference.segments
-            for dist_a in list(
-                {
-                    self._cs_str_id(
-                        a.object_reference.segments[-1], context.dialect.name
-                    ),
-                    a.object_reference.segments[-1].raw_normalized(),
-                }
-            )
         )
         for alias in query.aliases:
             # Skip alias if it's required (some dialects require aliases for
@@ -144,9 +139,7 @@ class Rule_AL05(BaseRule):
                 alias.object_reference
                 and alias.object_reference.segments
                 and ref_counter.get(
-                    self._cs_str_id(
-                        alias.object_reference.segments[-1], context.dialect.name
-                    ),
+                    self._cs_str_id(alias.object_reference.segments[-1]),
                     0,
                 )
                 > 1
@@ -165,33 +158,25 @@ class Rule_AL05(BaseRule):
             if (
                 alias.aliased
                 and alias.segment
-                and not {
-                    self._cs_str_id(alias.segment, context.dialect.name),
-                    cast(RawSegment, alias.segment).raw_normalized(),
-                }.intersection(query.tbl_refs)
+                and self._cs_str_id(alias.segment) not in query.tbl_refs
             ):
                 # Unused alias. Report and fix.
                 violations.append(self._report_unused_alias(alias))
         return violations or None
 
-    @classmethod
-    def _cs_str_id(cls, identifier, dialect_name: str):
-        _normal_val = identifier.raw_normalized()
-        return (
-            _normal_val
-            if (
-                (
-                    identifier.is_type("quoted_identifier")
-                    and identifier.is_type("double_quote", "back_quote")
-                    and dialect_name not in cls._dialects_ci_quoted_ids
-                )
-                or dialect_name in cls._dialects_cs_other_ids
-            )
-            else _normal_val.upper()
-        )
+    def _cs_str_id(self, identifier: BaseSegment):
+        _normal_val = identifier.raw_normalized(self.alias_case_check == "dialect")
+        if self.alias_case_check == "case_insensitive":
+            _normal_val = _normal_val.upper()
+        elif self.alias_case_check == "quoted_cs_naked_upper":
+            if identifier.is_type("naked_identifier"):
+                _normal_val = _normal_val.upper()
+        elif self.alias_case_check == "quoted_cs_naked_lower":
+            if identifier.is_type("naked_identifier"):
+                _normal_val = _normal_val.lower()
+        return _normal_val
 
-    @classmethod
-    def _followed_by_qualify(cls, context: RuleContext, alias: AliasInfo) -> bool:
+    def _followed_by_qualify(self, context: RuleContext, alias: AliasInfo) -> bool:
         curr_from_seen = False
         assert alias.alias_expression
         for seg in context.segment.segments:
@@ -205,9 +190,8 @@ class Rule_AL05(BaseRule):
                 return False
         return False
 
-    @classmethod
     def _is_alias_required(
-        cls, from_expression_element: BaseSegment, dialect_name: str
+        self, from_expression_element: BaseSegment, dialect_name: str
     ) -> bool:
         """Given an alias, is it REQUIRED to be present?
 
@@ -225,7 +209,7 @@ class Rule_AL05(BaseRule):
                     # Found a VALUES clause. Is this a dialect that requires
                     # VALUE clauses to be aliased?
                     return (
-                        dialect_name in cls._dialects_requiring_alias_for_values_clause
+                        dialect_name in self._dialects_requiring_alias_for_values_clause
                     )
                 elif any(
                     seg.is_type(
@@ -246,8 +230,7 @@ class Rule_AL05(BaseRule):
         # This should never happen. Return False just to be safe.
         return False  # pragma: no cover
 
-    @classmethod
-    def _analyze_table_aliases(cls, query: AL05Query, dialect: Dialect) -> None:
+    def _analyze_table_aliases(self, query: AL05Query, dialect: Dialect) -> None:
         # Get table aliases defined in query.
         for selectable in query.selectables:
             select_info = selectable.select_info
@@ -265,39 +248,29 @@ class Rule_AL05(BaseRule):
                         level=r.ObjectReferenceLevel.TABLE
                     ):
                         # This function walks up the query's parent stack if necessary.
-                        cls._resolve_and_mark_reference(
+                        self._resolve_and_mark_reference(
                             query, cast(RawSegment, tr.segments[0]), dialect
                         )
 
         # Visit children.
         for child in query.children:
-            cls._analyze_table_aliases(cast(AL05Query, child), dialect)
+            self._analyze_table_aliases(cast(AL05Query, child), dialect)
 
-    @classmethod
     def _resolve_and_mark_reference(
-        cls, query: AL05Query, ref: RawSegment, dialect: Dialect
+        self, query: AL05Query, ref: RawSegment, dialect: Dialect
     ) -> None:
         # Does this query define the referenced alias?
-        _ref = cls._cs_str_id(ref, dialect.name)
-        if any(
-            {_ref, ref.raw_normalized()}.intersection(
-                {
-                    cls._cs_str_id(a.segment, dialect.name),
-                    cast(RawSegment, a.segment).raw_normalized(),
-                }
-            )
-            for a in query.aliases
-            if a.segment
-        ):
+        _ref = self._cs_str_id(ref)
+        if any(_ref == self._cs_str_id(a.segment) for a in query.aliases if a.segment):
             # Yes. Record the reference.
             query.tbl_refs.add(_ref)
-            query.tbl_refs.add(ref.raw_normalized())
         elif query.parent:
             # No. Recursively check the query's parent hierarchy.
-            cls._resolve_and_mark_reference(cast(AL05Query, query.parent), ref, dialect)
+            self._resolve_and_mark_reference(
+                cast(AL05Query, query.parent), ref, dialect
+            )
 
-    @classmethod
-    def _report_unused_alias(cls, alias: AliasInfo) -> LintResult:
+    def _report_unused_alias(self, alias: AliasInfo) -> LintResult:
         fixes = [LintFix.delete(alias.alias_expression)]  # type: ignore
         # Walk back to remove indents/whitespaces
         to_delete = (

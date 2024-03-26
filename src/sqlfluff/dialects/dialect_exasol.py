@@ -27,13 +27,13 @@ from sqlfluff.core.parser import (
     Ref,
     RegexLexer,
     RegexParser,
+    SegmentGenerator,
     Sequence,
     StringLexer,
     StringParser,
     SymbolSegment,
     TypedParser,
 )
-from sqlfluff.core.parser.segments.generator import SegmentGenerator
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_exasol_keywords import (
     BARE_FUNCTIONS,
@@ -121,11 +121,19 @@ exasol_dialect.patch_lexer_matchers(
             "single_quote",
             r"'([^']|'')*'",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"'((?:[^']|'')*)'", 1),
+                "escape_replacements": [("''", "'")],
+            },
         ),
         RegexLexer(
             "double_quote",
             r'"([^"]|"")*"',
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"]|"")*)"', 1),
+                "escape_replacements": [('""', '"')],
+            },
         ),
         RegexLexer(
             "inline_comment",

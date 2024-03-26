@@ -46,10 +46,10 @@ class Rule_RF02(Rule_AL04):
     def _lint_references_and_aliases(
         self,
         table_aliases: List[AliasInfo],
-        standalone_aliases: List[str],
+        standalone_aliases: List[BaseSegment],
         references,
         col_aliases: List[ColumnAliasInfo],
-        using_cols: List[str],
+        using_cols: List[BaseSegment],
         parent_select: Optional[BaseSegment],
     ) -> Optional[List[LintResult]]:
         # Config type hints
@@ -94,10 +94,10 @@ class Rule_RF02(Rule_AL04):
                 # in a different select clause element.
                 and r.raw not in col_alias_names
                 # Allow columns defined in a USING expression.
-                and r.raw not in using_cols
+                and r.raw not in [using_col.raw for using_col in using_cols]
                 # Allow columns defined as standalone aliases
                 # (e.g. value table functions from bigquery)
-                and r.raw not in standalone_aliases
+                and r.raw not in [a.raw for a in standalone_aliases]
             ):
                 violation_buff.append(
                     LintResult(

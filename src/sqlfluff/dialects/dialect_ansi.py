@@ -113,10 +113,10 @@ ansi_dialect.set_lexer_matchers(
         ),
         RegexLexer(
             "back_quote",
-            r"`[^`]*`",
+            r"`(?:[^`\\]|\\.)*`",
             CodeSegment,
             segment_kwargs={
-                "quoted_value": (r"`([^`]*)`", 1),
+                "quoted_value": (r"`((?:[^`\\]|\\.)*)`", 1),
                 "escape_replacements": [("\\`", "`")],
             },
         ),
@@ -303,6 +303,7 @@ ansi_dialect.add(
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.upper,
         )
     ),
     ParameterNameSegment=RegexParser(
@@ -998,7 +999,7 @@ class ObjectReferenceSegment(BaseSegment):
     def _iter_reference_parts(cls, elem) -> Generator[ObjectReferencePart, None, None]:
         """Extract the elements of a reference and yield."""
         # trim on quotes and split out any dots.
-        for part in elem.raw_normalized().split("."):
+        for part in elem.raw_trimmed().split("."):
             yield cls.ObjectReferencePart(part, [elem])
 
     def iter_raw_references(self) -> Generator[ObjectReferencePart, None, None]:
@@ -1582,18 +1583,15 @@ class FromExpressionElementSegment(BaseSegment):
         if alias_expression:
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
-            is_quoted = alias_expression.get_child("quoted_identifier") is not None
             if segment:
                 segment = cast(IdentifierSegment, segment)
-                print("here", segment.raw_normalized())
                 return AliasInfo(
-                    segment.raw_normalized(),
+                    segment.raw,
                     segment,
                     True,
                     self,
                     alias_expression,
                     ref,
-                    is_quoted,
                 )
 
         # If not return the object name (or None if there isn't one)
@@ -1605,15 +1603,12 @@ class FromExpressionElementSegment(BaseSegment):
                     references[-1]
                 )
                 return AliasInfo(
-                    cast(
-                        IdentifierSegment, penultimate_ref.segments[0]
-                    ).raw_normalized(),
+                    penultimate_ref.segments[0].raw,
                     penultimate_ref.segments[0],
                     False,
                     self,
                     None,
                     ref,
-                    penultimate_ref.segments[0].is_type("quoted_identifier"),
                 )
         # No references or alias
         return AliasInfo(
@@ -1623,7 +1618,6 @@ class FromExpressionElementSegment(BaseSegment):
             self,
             None,
             ref,
-            False,
         )
 
 

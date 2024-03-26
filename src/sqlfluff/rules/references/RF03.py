@@ -77,6 +77,7 @@ class Rule_RF03(BaseRule):
     # This could be turned into an option
     _fix_inconsistent_to = "qualified"
     is_fix_compatible = True
+    single_table_references: str
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         """Override base class for dialects that use structs, or SELECT aliases."""
@@ -133,7 +134,7 @@ class Rule_RF03(BaseRule):
                     select_info.standalone_aliases,
                     select_info.reference_buffer,
                     select_info.col_aliases,
-                    self.single_table_references,  # type: ignore
+                    self.single_table_references,
                     self._is_struct_dialect,
                     self._fix_inconsistent_to,
                     fixable,
@@ -160,7 +161,7 @@ class Rule_RF03(BaseRule):
 
 def _check_references(
     table_aliases: List[AliasInfo],
-    standalone_aliases: List[str],
+    standalone_aliases: List[BaseSegment],
     references: List[ObjectReferenceSegment],
     col_aliases: List[ColumnAliasInfo],
     single_table_references: str,
@@ -220,7 +221,7 @@ def _validate_one_reference(
     single_table_references: str,
     ref: BaseSegment,
     this_ref_type: str,
-    standalone_aliases: List[str],
+    standalone_aliases: List[BaseSegment],
     table_ref_str: str,
     table_ref_str_source: Optional[BaseSegment],
     col_alias_names: List[str],
@@ -236,7 +237,7 @@ def _validate_one_reference(
     # Note there could be a table with a column by the same name as
     # this alias, so avoid bogus warnings by just skipping them
     # entirely rather than trying to enforce anything.
-    if ref.raw in standalone_aliases:
+    if ref.raw in [a.raw for a in standalone_aliases]:
         return None
 
     # Oddball case: tsql table variables can't be used to qualify references.

@@ -367,36 +367,256 @@ test_pass_postgres_values_clause:
 test_pass_naked_select_single_quoted_table:
   pass_str: |
     SELECT a.col1
-    FROM tab1 as 'a'
+    FROM tab1 as 'A'
 
-test_pass_naked_select_single_quoted_table_subquery:
+test_fail_naked_select_single_quoted_table_wrong_case:
+  fail_str: |
+    SELECT a.col1
+    FROM tab1 as 'a'
+  fix_str: |
+    SELECT a.col1
+    FROM tab1
+
+test_pass_naked_select_single_quoted_table_ci:
   pass_str: |
-    SELECT col_1
+    SELECT a.col1
+    FROM tab1 as 'a'
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: case_insensitive
+
+test_pass_naked_select_single_quoted_table_qcs_nup:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS 'A'
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: quoted_cs_naked_upper
+
+test_fail_naked_select_single_quoted_table_wrong_case_qcs_nup:
+  fail_str: |
+    SELECT a.col_1
     FROM table_a AS 'a'
-    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE a.col_4 = b.col_1)
+  fix_str: |
+    SELECT a.col_1
+    FROM table_a
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: quoted_cs_naked_upper
+
+test_pass_naked_select_single_quoted_table_qcs_nlow:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS 'a'
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: quoted_cs_naked_lower
+
+test_fail_naked_select_single_quoted_table_wrong_case_qcs_nlow:
+  fail_str: |
+    SELECT a.col_1
+    FROM table_a AS 'A'
+  fix_str: |
+    SELECT a.col_1
+    FROM table_a
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: quoted_cs_naked_lower
+
+test_pass_naked_select_single_quoted_table_lower_cs:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS 'a'
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: case_sensitive
+
+test_pass_naked_select_single_quoted_table_upper_cs:
+  pass_str: |
+    SELECT A.col_1
+    FROM table_a AS 'A'
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: case_sensitive
+
+test_fail_naked_select_single_quoted_table_wrong_case_cs:
+  fail_str: |
+    SELECT a.col_1
+    FROM table_a AS 'A'
+  fix_str: |
+    SELECT a.col_1
+    FROM table_a
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: case_sensitive
 
 # double quote identifiers
 test_pass_naked_select_quoted_table:
   pass_str: |
     SELECT a.col1
-    FROM tab1 as "a"
+    FROM tab1 as "A"
 
 test_pass_quoted_select_naked_table:
   pass_str: |
-    SELECT "a".col1
+    SELECT "A".col1
     FROM tab1 as a
 
 test_pass_naked_select_quoted_table_subquery:
   pass_str: |
     SELECT col_1
-    FROM table_a AS "a"
+    FROM table_a AS "A"
     WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE a.col_4 = b.col_1)
 
 test_pass_quoted_select_naked_table_subquery:
   pass_str: |
     SELECT col_1
     FROM table_a AS a
-    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE "a".col_4 = b.col_1)
+    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE "A".col_4 = b.col_1)
+
+test_pass_naked_select_double_quoted_table_ci:
+  pass_str: |
+    SELECT a.col1
+    FROM tab1 as "a"
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: case_insensitive
+
+test_pass_naked_select_double_quoted_table_qcs_nup:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS "A"
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: quoted_cs_naked_upper
+
+test_fail_naked_select_double_quoted_table_wrong_case_qcs_nup:
+  fail_str: |
+    SELECT a.col_1
+    FROM table_a AS "a"
+  fix_str: |
+    SELECT a.col_1
+    FROM table_a
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: quoted_cs_naked_upper
+
+test_pass_naked_select_double_quoted_table_qcs_nlow:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS "a"
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: quoted_cs_naked_lower
+
+test_fail_naked_select_double_quoted_table_wrong_case_qcs_nlow:
+  fail_str: |
+    SELECT a.col_1
+    FROM table_a AS "A"
+  fix_str: |
+    SELECT a.col_1
+    FROM table_a
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: quoted_cs_naked_lower
+
+test_pass_naked_select_double_quoted_table_lower_cs:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS "a"
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: case_sensitive
+
+test_pass_naked_select_double_quoted_table_upper_cs:
+  pass_str: |
+    SELECT A.col_1
+    FROM table_a AS "A"
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: case_sensitive
+
+test_fail_naked_select_double_quoted_table_wrong_case_cs:
+  fail_str: |
+    SELECT a.col_1
+    FROM table_a AS "A"
+  fix_str: |
+    SELECT a.col_1
+    FROM table_a
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: case_sensitive
+
+test_pass_athena_naked_select_quoted_table:
+  pass_str: |
+    SELECT a.col1
+    FROM tab1 as "A"
+  configs:
+    core:
+      dialect: athena
+
+test_pass_athena_quoted_select_naked_table:
+  pass_str: |
+    SELECT "A".col1
+    FROM tab1 as a
+  configs:
+    core:
+      dialect: athena
+
+test_pass_athena_naked_select_back_quoted_table:
+  pass_str: |
+    SELECT a.col1
+    FROM tab1 as `A`
+  configs:
+    core:
+      dialect: athena
+
+test_pass_athena_back_quoted_select_naked_table:
+  pass_str: |
+    SELECT `A`.col1
+    FROM tab1 as a
+  configs:
+    core:
+      dialect: athena
+
+test_pass_bigquery_naked_select_quoted_table:
+  pass_str: |
+    SELECT a.col1
+    FROM tab1 as `A`
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_quoted_select_naked_table:
+  pass_str: |
+    SELECT `A`.col1
+    FROM tab1 as a
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_quoted_escapes:
+  pass_str: |
+    SELECT `\`a`.col1
+    FROM tab1 as `\`A`
+  configs:
+    core:
+      dialect: bigquery
 
 # bracket quote identifiers
 test_pass_tsql_naked_select_quoted_table:
@@ -411,24 +631,6 @@ test_pass_tsql_quoted_select_naked_table:
   pass_str: |
     SELECT [a].col1
     FROM tab1 as a
-  configs:
-    core:
-      dialect: tsql
-
-test_pass_tsql_naked_select_quoted_table_subquery:
-  pass_str: |
-    SELECT col_1
-    FROM table_a AS [a]
-    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE a.col_4 = b.col_1)
-  configs:
-    core:
-      dialect: tsql
-
-test_pass_tsql_quoted_select_naked_table_subquery:
-  pass_str: |
-    SELECT col_1
-    FROM table_a AS a
-    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE [a].col_4 = b.col_1)
   configs:
     core:
       dialect: tsql
@@ -464,6 +666,16 @@ test_pass_sqlite_quoted_select_naked_table_subquery:
     SELECT col_1
     FROM table_a AS a
     WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE `a`.col_4 = b.col_1)
+  configs:
+    core:
+      dialect: sqlite
+
+test_pass_sqlite_different_escaped_quotes:
+  pass_str: |
+    SELECT
+    "`'a""".id,
+    '`''a"'.id
+    FROM table_a AS ```'A"`
   configs:
     core:
       dialect: sqlite

@@ -254,13 +254,22 @@ tsql_dialect.patch_lexer_matchers(
 
 tsql_dialect.add(
     BracketedIdentifierSegment=TypedParser(
-        "square_quote", IdentifierSegment, type="quoted_identifier"
+        "square_quote",
+        IdentifierSegment,
+        type="quoted_identifier",
+        casefold=str.upper,
     ),
     HashIdentifierSegment=TypedParser(
-        "hash_prefix", IdentifierSegment, type="hash_identifier"
+        "hash_prefix",
+        IdentifierSegment,
+        type="hash_identifier",
+        casefold=str.upper,
     ),
     VariableIdentifierSegment=TypedParser(
-        "var_prefix", IdentifierSegment, type="variable_identifier"
+        "var_prefix",
+        IdentifierSegment,
+        type="variable_identifier",
+        casefold=str.upper,
     ),
     BatchDelimiterGrammar=Ref("GoStatementSegment"),
     QuotedLiteralSegmentWithN=TypedParser(
@@ -382,7 +391,14 @@ tsql_dialect.replace(
                 | dialect.sets("future_reserved_keywords")
             )
             + r")$",
+            casefold=str.upper,
         )
+    ),
+    QuotedIdentifierSegment=TypedParser(
+        "double_quote",
+        IdentifierSegment,
+        type="quoted_identifier",
+        casefold=str.upper,
     ),
     # Overring ANSI BaseExpressionElement to remove Interval Expression Segment
     BaseExpressionElementGrammar=ansi_dialect.get_grammar(
@@ -3938,7 +3954,7 @@ class DeleteStatementSegment(BaseSegment):
     )
 
 
-class FromClauseSegment(BaseSegment):
+class FromClauseSegment(ansi.FromClauseSegment):
     """A `FROM` clause like in `SELECT`.
 
     NOTE: this is a delimited set of table expressions, with a variable
@@ -3961,8 +3977,6 @@ class FromClauseSegment(BaseSegment):
         Delimited(Ref("FromExpressionSegment")),
         Ref("DelimiterGrammar", optional=True),
     )
-
-    get_eventual_aliases = ansi.FromClauseSegment.get_eventual_aliases
 
 
 class FromExpressionElementSegment(ansi.FromExpressionElementSegment):

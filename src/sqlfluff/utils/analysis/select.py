@@ -4,8 +4,10 @@ from typing import List, NamedTuple, Optional, cast
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
-from sqlfluff.core.parser.segments import BaseSegment, RawSegment
+from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.dialects.dialect_ansi import (
+    FromClauseSegment,
+    JoinClauseSegment,
     ObjectReferenceSegment,
     SelectClauseElementSegment,
 )
@@ -16,11 +18,11 @@ class SelectStatementColumnsAndTables(NamedTuple):
 
     select_statement: BaseSegment
     table_aliases: List[AliasInfo]
-    standalone_aliases: List[str]  # value table function aliases
+    standalone_aliases: List[BaseSegment]  # value table function aliases
     reference_buffer: List[ObjectReferenceSegment]
     select_targets: List[SelectClauseElementSegment]
     col_aliases: List[ColumnAliasInfo]
-    using_cols: List[str]
+    using_cols: List[BaseSegment]
     table_reference_buffer: List[ObjectReferenceSegment]
 
 
@@ -110,8 +112,7 @@ def get_select_statement_info(
                 elif seen_using and seg.is_type("bracketed"):
                     for subseg in seg.segments:
                         if subseg.is_type("identifier"):
-                            assert isinstance(subseg, RawSegment)
-                            using_cols.append(subseg.raw_normalized())
+                            using_cols.append(subseg)
                     seen_using = False
 
     return SelectStatementColumnsAndTables(
@@ -126,7 +127,9 @@ def get_select_statement_info(
     )
 
 
-def get_aliases_from_select(segment, dialect=None):
+def get_aliases_from_select(
+    segment: BaseSegment, dialect: Optional[Dialect] = None
+) -> tuple[Optional[list], Optional[list]]:
     """Gets the aliases referred to in the FROM clause.
 
     Returns a tuple of two lists:
@@ -137,19 +140,20 @@ def get_aliases_from_select(segment, dialect=None):
     if not fc:
         # If there's no from clause then just abort.
         return None, None
+    assert isinstance(fc, (FromClauseSegment, JoinClauseSegment))
     aliases = fc.get_eventual_aliases()
 
     # We only want table aliases, so filter out aliases for value table
     # functions, lambda parameters and pivot columns.
-    standalone_aliases = []
+    standalone_aliases: list[BaseSegment] = []
     standalone_aliases += _get_pivot_table_columns(segment, dialect)
     standalone_aliases += _get_lambda_argument_columns(segment, dialect)
 
     table_aliases = []
     for table_expr, alias_info in aliases:
         if _has_value_table_function(table_expr, dialect):
-            if alias_info[0] not in standalone_aliases:
-                standalone_aliases.append(alias_info[0])
+            if alias_info.segment and alias_info.segment not in standalone_aliases:
+                standalone_aliases.append(alias_info.segment)
         elif alias_info not in table_aliases:
             table_aliases.append(alias_info)
 
@@ -172,7 +176,9 @@ def _has_value_table_function(table_expr, dialect) -> bool:
     return False
 
 
-def _get_pivot_table_columns(segment, dialect) -> list:
+def _get_pivot_table_columns(
+    segment: BaseSegment, dialect: Optional[Dialect]
+) -> list[BaseSegment]:
     if not dialect:
         # We need the dialect to get the pivot table column names. If
         # we don't have it, assume the clause does not have a pivot table
@@ -183,11 +189,13 @@ def _get_pivot_table_columns(segment, dialect) -> list:
         # If there's no pivot clause then just abort.
         return []  # pragma: no cover
 
-    pivot_table_column_aliases = []
+    pivot_table_column_aliases: list[BaseSegment] = []
 
     for pivot_table_column_alias in segment.recursive_crawl("pivot_column_reference"):
-        if pivot_table_column_alias.raw_normalized() not in pivot_table_column_aliases:
-            pivot_table_column_aliases.append(pivot_table_column_alias.raw_normalized())
+        if pivot_table_column_alias.raw not in [
+            a.raw for a in pivot_table_column_aliases
+        ]:
+            pivot_table_column_aliases.append(pivot_table_column_alias)
 
     return pivot_table_column_aliases
 
@@ -199,14 +207,14 @@ def _get_pivot_table_columns(segment, dialect) -> list:
 # These columns are interesting to identify since they can get special
 # treatment in some rules.
 def _get_lambda_argument_columns(
-    segment: BaseSegment, dialect: Dialect
-) -> Optional[List[str]]:
+    segment: BaseSegment, dialect: Optional[Dialect]
+) -> List[BaseSegment]:
     if not dialect or dialect.name not in ["athena", "sparksql"]:
         # Only athena and sparksql are known to have lambda expressions,
         # so all other dialects will have zero lambda columns
         return []
 
-    lambda_argument_columns = []
+    lambda_argument_columns: list[BaseSegment] = []
     for potential_lambda in segment.recursive_crawl("expression"):
         potential_arrow = potential_lambda.get_child("binary_operator")
         if potential_arrow and potential_arrow.raw == "->":
@@ -217,9 +225,7 @@ def _get_lambda_argument_columns(
             # more, this doesn't cleanly match a lambda expression
             argument_segments = potential_lambda.select_children(
                 stop_seg=arrow_operator,
-                select_if=(
-                    lambda x: x.is_type("bracketed") or x.is_type("column_reference")
-                ),
+                select_if=(lambda x: x.is_type("bracketed", "column_reference")),
             )
 
             assert len(argument_segments) == 1
@@ -231,15 +237,10 @@ def _get_lambda_argument_columns(
                 assert start_bracket
                 if start_bracket.raw == "(":
                     bracketed_arguments = child_segment.get_children("column_reference")
-                    raw_arguments = [
-                        argument.raw_normalized()
-                        for argument in bracketed_arguments
-                        if isinstance(argument, RawSegment)
-                    ]
+                    raw_arguments = [argument for argument in bracketed_arguments]
                     lambda_argument_columns += raw_arguments
 
             elif child_segment.is_type("column_reference"):
-                assert isinstance(child_segment, RawSegment)
-                lambda_argument_columns.append(child_segment.raw_normalized())
+                lambda_argument_columns.append(child_segment)
 
     return lambda_argument_columns

@@ -4,7 +4,7 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
-from typing import Any, FrozenSet, List, Optional, Tuple, Union
+from typing import Any, Callable, FrozenSet, List, Optional, Tuple, Union
 from uuid import uuid4
 
 import regex as re
@@ -39,6 +39,7 @@ class RawSegment(BaseSegment):
         uuid: Optional[int] = None,
         quoted_value: Optional[Tuple[str, Union[int, str]]] = None,
         escape_replacements: Optional[List[Tuple[str, str]]] = None,
+        casefold: Optional[Callable[[str], str]] = None,
     ):
         """Initialise raw segment.
 
@@ -75,6 +76,8 @@ class RawSegment(BaseSegment):
         )
         self.quoted_value = quoted_value
         self.escape_replacements = escape_replacements
+        self.casefold = casefold
+        self._raw_value = self._raw_normalized()
 
     def __repr__(self) -> str:
         # This is calculated at __init__, because all elements are immutable
@@ -112,6 +115,11 @@ class RawSegment(BaseSegment):
     def raw_upper(self) -> str:
         """Returns the raw segment in uppercase."""
         return self._raw_upper
+
+    @property
+    def raw_value(self) -> str:
+        """Returns the raw segment's value."""
+        return self._raw_value
 
     @property
     def raw_segments(self) -> List["RawSegment"]:
@@ -177,13 +185,13 @@ class RawSegment(BaseSegment):
             return raw_buff
         return raw_buff
 
-    def raw_normalized(self) -> str:
-        """Returns a normalized string of the raw content.
+    def _raw_normalized(self):
+        """Returns the string of the raw content's value.
 
         E.g. This removes leading and trailing quote characters, removes escapes
 
         Return:
-        str: The normalized version of the raw content
+        str: The raw content's value
         """
         raw_buff = self.raw
         if self.quoted_value:
@@ -193,6 +201,20 @@ class RawSegment(BaseSegment):
         if self.escape_replacements:
             for old, new in self.escape_replacements:
                 raw_buff = re.sub(old, new, raw_buff)
+        return raw_buff
+
+    def raw_normalized(self, casefold: bool = True) -> str:
+        """Returns a normalized string of the raw content.
+
+        E.g. This removes leading and trailing quote characters, removes escapes,
+        optionally casefolds to the dialect's casing
+
+        Return:
+        str: The normalized version of the raw content
+        """
+        raw_buff = self._raw_value
+        if self.casefold and casefold:
+            raw_buff = self.casefold(raw_buff)
         return raw_buff
 
     def stringify(
@@ -249,6 +271,7 @@ class RawSegment(BaseSegment):
             trim_chars=self.trim_chars,
             quoted_value=self.quoted_value,
             escape_replacements=self.escape_replacements,
+            casefold=self.casefold,
             source_fixes=source_fixes or self.source_fixes,
         )
 
