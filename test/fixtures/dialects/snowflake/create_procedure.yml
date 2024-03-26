@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e18d36bd3cb56aadfae7dff8b253d22092e599a678492d30024a71ccdfe03b30
+_hash: 8aaa4f8d66b88d7e19428bb0d8ce519633edb5d3a938e3fe4b0919bddff27708
 file:
 - statement:
     create_procedure_statement:
@@ -103,6 +103,33 @@ file:
         \    return \"Succeeded.\";\n}\ncatch (err) {\n   return \"Failed: execute\
         \ \"+ sql_command +\". Error : \"+ err;   // Return a success/error indicator.\n\
         }\n$$"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - function_name:
+      - naked_identifier: UTIL_DB
+      - dot: .
+      - naked_identifier: PUBLIC
+      - dot: .
+      - function_name_identifier: PROCEDURE_IF_NOT_EXISTS
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - keyword: LANGUAGE
+    - keyword: JAVASCRIPT
+    - keyword: AS
+    - udf_body: "$$\n    return 1;\n$$"
 - statement_terminator: ;
 - statement:
     create_procedure_statement:

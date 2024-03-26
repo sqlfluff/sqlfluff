@@ -1245,6 +1245,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("MergeStatementSegment"),
             Ref("CopyIntoTableStatementSegment"),
             Ref("CopyIntoLocationStatementSegment"),
+            Ref("CopyFilesIntoLocationStatementSegment"),
             Ref("FormatTypeOptions"),
             Ref("AlterWarehouseStatementSegment"),
             Ref("AlterShareStatementSegment"),
@@ -1258,7 +1259,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateStageSegment"),
             Ref("AlterStageSegment"),
             Ref("CreateStreamStatementSegment"),
+            Ref("CreateStreamlitStatementSegment"),
             Ref("AlterStreamStatementSegment"),
+            Ref("AlterStreamlitStatementSegment"),
             Ref("UnsetStatementSegment"),
             Ref("UndropStatementSegment"),
             Ref("CommentStatementSegment"),
@@ -2621,6 +2624,7 @@ class AccessStatementSegment(BaseSegment):
         "ROUTINE",
         "SEQUENCE",
         "STREAM",
+        "STREAMLIT",
         "TASK",
         "PIPE",
     ]
@@ -2874,6 +2878,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         Ref("OrReplaceGrammar", optional=True),
         Sequence("SECURE", optional=True),
         "PROCEDURE",
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
         Sequence("COPY", "GRANTS", optional=True),
@@ -5492,6 +5497,42 @@ class CopyIntoTableStatementSegment(BaseSegment):
     )
 
 
+class CopyFilesIntoLocationStatementSegment(BaseSegment):
+    """A Snowflake `COPY FILE INTO <location> FROM <location>` statement.
+
+    # https://docs.snowflake.com/en/sql-reference/sql/copy-files.html
+    """
+
+    type = "copy_files_into_location_statement"
+
+    match_grammar = Sequence(
+        "COPY",
+        "FILES",
+        "INTO",
+        Ref("StorageLocation"),
+        "FROM",
+        Ref("StorageLocation"),
+        AnySetOf(
+            Sequence(
+                "FILES",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+            ),
+            Sequence(
+                "PATTERN",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "DETAILED_OUTPUT",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            optional=True,
+        ),
+    )
+
+
 class StorageLocation(BaseSegment):
     """A Snowflake storage location.
 
@@ -6017,6 +6058,43 @@ class CreateStreamStatementSegment(BaseSegment):
     )
 
 
+class CreateStreamlitStatementSegment(BaseSegment):
+    """A Snowflake `CREATE STREAMLIT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-streamlit.html
+    """
+
+    type = "create_streamlit_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "STREAMLIT",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "ROOT_LOCATION",
+            Ref("EqualsSegment"),
+            Ref("StagePath"),
+        ),
+        Sequence(
+            "MAIN_FILE",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "QUERY_WAREHOUSE",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("ObjectReferenceSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            optional=True,
+        ),
+        Ref("CommentEqualsClauseSegment", optional=True),
+    )
+
+
 class AlterStreamStatementSegment(BaseSegment):
     """A Snowflake `ALTER STREAM` statement.
 
@@ -6055,6 +6133,48 @@ class AlterStreamStatementSegment(BaseSegment):
                     "COMMENT",
                 ),
             ),
+        ),
+    )
+
+
+class AlterStreamlitStatementSegment(BaseSegment):
+    """A Snowflake `ALTER STREAMLIT` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-streamlit.html
+    """
+
+    type = "alter_streamlit_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "STREAMLIT",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                Sequence(
+                    "ROOT_LOCATION",
+                    Ref("EqualsSegment"),
+                    Ref("StagePath"),
+                ),
+                Sequence(
+                    "MAIN_FILE",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                Sequence(
+                    "QUERY_WAREHOUSE",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("ObjectReferenceSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    optional=True,
+                ),
+                Ref("CommentEqualsClauseSegment", optional=True),
+            ),
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
         ),
     )
 
@@ -6101,6 +6221,7 @@ class ShowStatementSegment(BaseSegment):
         "STAGES",
         "PIPES",
         "STREAMS",
+        "STREAMLITS",
         "TASKS",
         Sequence("USER", "FUNCTIONS"),
         Sequence("EXTERNAL", "FUNCTIONS"),
@@ -6917,6 +7038,10 @@ class DescribeStatementSegment(BaseSegment):
                 "STREAM",
                 Ref("ObjectReferenceSegment"),
             ),
+            Sequence(
+                "STREAMLIT",
+                Ref("ObjectReferenceSegment"),
+            ),
             # https://docs.snowflake.com/en/sql-reference/sql/desc-task.html
             Sequence(
                 "TASK",
@@ -7074,6 +7199,7 @@ class CommentStatementSegment(BaseSegment):
             "SHARE",
             "PIPE",
             "STREAM",
+            "STREAMLIT",
             "TASK",
             Sequence(
                 "NETWORK",
@@ -7376,6 +7502,7 @@ class DropObjectStatementSegment(BaseSegment):
                     Sequence("ROW", "ACCESS", "POLICY"),
                     "STAGE",
                     "STREAM",
+                    "STREAMLIT",
                     "TAG",
                     "TASK",
                 ),

@@ -23,6 +23,7 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     ParseMode,
     Ref,
+    RegexLexer,
     RegexParser,
     Sequence,
     StringLexer,
@@ -65,6 +66,28 @@ vertica_dialect.insert_lexer_matchers(
         StringLexer("integer_division", "//", CodeSegment),
     ],
     before="divide",
+)
+
+vertica_dialect.insert_lexer_matchers(
+    [
+        # This is similar to the Unicode regex, the key differences being:
+        # - [eE] - must start with e or E
+        # - The final quote character must be preceded by:
+        # (?<!\\)(?:\\\\)*(?<!')(?:'')     An even/zero number of \ followed by an
+        # even/zero number of '
+        # OR
+        # (?<!\\)(?:\\\\)*\\(?<!')(?:'')*' An odd number of \ followed by an odd number
+        # of '
+        # There is no UESCAPE block
+        RegexLexer(
+            "escaped_single_quote",
+            r"(?s)[eE](('')+?(?!')|'.*?((?<!\\)(?:\\\\)*"
+            r"(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\"
+            r"(?<!')(?:'')*')'(?!'))",
+            CodeSegment,
+        ),
+    ],
+    before="like_operator",
 )
 
 # Set Keywords
@@ -189,7 +212,7 @@ vertica_dialect.add(
             "TO",
             Sequence(
                 Ref("IntervalUnitsGrammar"),
-                Bracketed(Ref("IntegerSegment"), optional=True),
+                Ref("BracketedArguments", optional=True),
             ),
             optional=True,
         ),
@@ -298,7 +321,7 @@ vertica_dialect.replace(
         Ref("JoinLikeClauseGrammar"),
         BracketedSegment,
     ),
-    PostFunctionGrammar=OneOf(
+    PostFunctionGrammar=AnySetOf(
         # Optional OVER suffix for window functions.
         # This is supported in bigquery & postgres (and its derivatives)
         # and so is included here for now.
@@ -416,6 +439,23 @@ vertica_dialect.replace(
     # https://docs.vertica.com/latest/en/sql-reference/language-elements/operators/null-operators/
     IsNullGrammar=Ref.keyword("ISNULL"),
     NotNullGrammar=Ref.keyword("NOTNULL"),
+    QuotedLiteralSegment=OneOf(
+        Sequence(
+            TypedParser(
+                "single_quote",
+                LiteralSegment,
+                type="quoted_literal",
+            ),
+        ),
+        # Support Extended string literals
+        Sequence(
+            TypedParser(
+                "escaped_single_quote",
+                LiteralSegment,
+                type="quoted_literal",
+            ),
+        ),
+    ),
 )
 
 
@@ -465,7 +505,15 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
     """Prefix for array literals specifying the type."""
 
     type = "array_type"
-    match_grammar = Ref.keyword("ARRAY")
+    match_grammar = Sequence(
+        Ref.keyword("ARRAY"),
+        Bracketed(
+            Ref("DatatypeSegment"),
+            bracket_type="square",
+            bracket_pairs_set="bracket_pairs",
+            optional=True,
+        ),
+    )
 
 
 class LimitClauseSegment(ansi.LimitClauseSegment):
@@ -694,27 +742,9 @@ class PartitionByClauseSegment(BaseSegment):
                     ),
                 ),
             ),
+            terminators=[Sequence("GROUP", "BY"), "REORGANIZE"],
         ),
-        Sequence(
-            "GROUP",
-            "BY",
-            OneOf(
-                Ref("FunctionSegment"),
-                Bracketed(
-                    Delimited(
-                        Sequence(
-                            OneOf(
-                                Ref("ColumnReferenceSegment"),
-                                Ref("NumericLiteralSegment"),
-                                Ref("ExpressionSegment"),
-                                Ref("ShorthandCastSegment"),
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-            optional=True,
-        ),
+        Ref("GroupByClauseSegment", optional=True),
         Ref.keyword("REORGANIZE", optional=True),
     )
 
@@ -1579,7 +1609,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
                 "DOUBLE",
                 "PRECISION",
             ),
-            Sequence("FLOAT", Bracketed(Ref("NumericLiteralSegment"), optional=True)),
+            Sequence("FLOAT", Ref("BracketedArguments", optional=True)),
             "FLOAT8",
             "REAL",
             # Exact Numeric
@@ -1591,11 +1621,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
             "TINYINT",
             Sequence(
                 OneOf("DECIMAL", "NUMERIC", "NUMBER", "MONEY"),
-                Bracketed(
-                    Ref("IntegerSegment"),
-                    Sequence(Ref("CommaSegment"), Ref("IntegerSegment"), optional=True),
-                    optional=True,
-                ),
+                Ref("BracketedArguments", optional=True),
             ),
             # Spatial
             Sequence(
@@ -1629,7 +1655,6 @@ class DatatypeSegment(ansi.DatatypeSegment):
                 ),
                 Ref("ArrayTypeSegment"),
                 Ref("SizedArrayTypeSegment"),
-                optional=True,
             ),
             # TODO: add row data type support
             Sequence(
@@ -1821,11 +1846,7 @@ class FunctionSegment(ansi.FunctionSegment):
                     parse_mode=ParseMode.GREEDY,
                 ),
             ),
-            AnyNumberOf(Ref("PostFunctionGrammar")),
-            # Allow AS clause for some functions at the end
-            Sequence(
-                "AS", Bracketed(Delimited(Ref("ColumnReferenceSegment"))), optional=True
-            ),
+            AnySetOf(Ref("PostFunctionGrammar")),
         ),
     )
 
@@ -2027,5 +2048,34 @@ class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
             Sequence("AUTHORIZATION", Ref("RoleReferenceSegment")),
             Sequence("DEFAULT", Ref("SchemaPrivilegesSegment")),
             Ref("DiskQuotaSegment"),
+        ),
+    )
+
+
+class AliasExpressionSegment(ansi.AliasExpressionSegment):
+    """A reference to an object with an `AS` clause.
+
+    The optional AS keyword allows both implicit and explicit aliasing.
+    """
+
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            Ref.keyword("AS", optional=True),
+            OneOf(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    # Column alias in VALUES clause
+                    Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
+                ),
+                Sequence(Bracketed(Ref("SingleIdentifierListSegment"), optional=True)),
+                Ref("SingleQuotedIdentifierSegment"),
+            ),
+        ),
+        # Some functions alias several columns in brackets () like mapkeys or explode
+        Sequence(
+            Indent,
+            Ref.keyword("AS"),
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            Dedent,
         ),
     )

@@ -211,6 +211,7 @@ class DatatypeSegment(BaseSegment):
         "TINYINT",
         "SMALLINT",
         "INTEGER",
+        "INT",
         "BIGINT",
         # Floating-point
         "REAL",
@@ -231,7 +232,7 @@ class DatatypeSegment(BaseSegment):
         "DATE",
         Sequence(
             OneOf("TIME", "TIMESTAMP"),
-            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            Ref("BracketedArguments", optional=True),
             Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
         ),
         # Structural
