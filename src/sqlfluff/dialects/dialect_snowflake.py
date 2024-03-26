@@ -286,7 +286,6 @@ snowflake_dialect.add(
         MultiStringParser(
             snowflake_dialect.sets("refreshmode_types"),
             KeywordSegment,
-            type="refreshmode_type",
         )
     ),
     InitializeType=OneOf(
