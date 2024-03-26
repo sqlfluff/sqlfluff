@@ -3862,7 +3862,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             Ref("EqualsSegment"),
             Ref("QuotedLiteralSegment"),
             optional=True,
-        ),             
+        ),
         Sequence(
             "WAREHOUSE",
             Ref("EqualsSegment"),
