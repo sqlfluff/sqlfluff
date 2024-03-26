@@ -58,6 +58,7 @@ UNRESERVED_KEYWORDS = [
     "ENGINE",
     "EPHEMERAL",
     "EVENTS",
+    "EXCEPT",
     "EXISTS",
     "EXPLAIN",
     "EXPRESSION",
