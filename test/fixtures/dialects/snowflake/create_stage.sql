@@ -94,3 +94,4 @@ CREATE STAGE mystage
 CREATE STAGE mystage
   URL=$your_variable
   STORAGE_INTEGRATION=$your_variable;
+  
