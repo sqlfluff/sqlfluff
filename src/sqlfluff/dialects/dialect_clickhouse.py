@@ -277,6 +277,26 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
     )
 
 
+class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
+    """Things that come after SELECT but before the columns.
+
+    Overridden from ANSI to allow DISTINCT ON ()
+    https://clickhouse.com/docs/en/sql-reference/statements/select/distinct
+    """
+
+    match_grammar = OneOf(
+        Sequence(
+            "DISTINCT",
+            Sequence(
+                "ON",
+                Bracketed(Delimited(Ref("ExpressionSegment"))),
+                optional=True,
+            ),
+        ),
+        "ALL",
+    )
+
+
 class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     """A table expression.
 
