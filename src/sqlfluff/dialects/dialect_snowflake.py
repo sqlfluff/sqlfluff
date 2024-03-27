@@ -4504,6 +4504,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                             ),
                             optional=True,
                         ),
+                        Ref("TagBracketedEqualsSegment", optional=True),
                         Ref("CommentClauseSegment", optional=True),
                     ),
                 ),
