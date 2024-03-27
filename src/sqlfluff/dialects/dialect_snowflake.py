@@ -5714,8 +5714,7 @@ class AzureBlobStorageExternalStageParameters(BaseSegment):
                 "STORAGE_INTEGRATION",
                 Ref("EqualsSegment"),
                 OneOf(
-                    Ref("ObjectReferenceSegment"),
-                    Ref("ReferencedVariableNameSegment")
+                    Ref("ObjectReferenceSegment"), Ref("ReferencedVariableNameSegment")
                 ),
             ),
             Sequence(
@@ -5725,8 +5724,8 @@ class AzureBlobStorageExternalStageParameters(BaseSegment):
                     Sequence("AZURE_SAS_TOKEN"),
                     Ref("EqualsSegment"),
                     OneOf(
-                        Ref("QuotedLiteralSegment"), 
-                        Ref("ReferencedVariableNameSegment")
+                        Ref("QuotedLiteralSegment"),
+                        Ref("ReferencedVariableNameSegment"),
                     ),
                 ),
             ),
@@ -5853,9 +5852,9 @@ class CreateStageSegment(BaseSegment):
                     # External Azure Blob Storage stage
                     Sequence(
                         OneOf(
-                            Ref("AzureBlobStoragePath"), 
-                            Ref("ReferencedVariableNameSegment")
-                        ),                       
+                            Ref("AzureBlobStoragePath"),
+                            Ref("ReferencedVariableNameSegment"),
+                        ),
                         Ref("AzureBlobStorageExternalStageParameters", optional=True),
                         Sequence(
                             "DIRECTORY",
