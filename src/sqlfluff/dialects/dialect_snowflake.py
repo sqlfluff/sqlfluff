@@ -4545,6 +4545,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                             ),
                             optional=True,
                         ),
+                        Ref("TagBracketedEqualsSegment", optional=True),
                         Ref("CommentClauseSegment", optional=True),
                     ),
                 ),
@@ -4563,7 +4564,6 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
             Ref("TagBracketedEqualsSegment"),
             Sequence("COPY", "GRANTS"),
             Ref("CommentEqualsClauseSegment"),
-            # @TODO: Support column-level masking policy & tagging.
         ),
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
