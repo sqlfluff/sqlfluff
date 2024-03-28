@@ -222,10 +222,8 @@ snowflake_dialect.add(
         CodeSegment,
         type="semi_structured_element",
     ),
-    DoubleQuotedLiteralSegment=TypedParser( 
-        "double_quote", 
-        LiteralSegment, 
-        type="quoted_literal"
+    DoubleQuotedLiteralSegment=TypedParser(
+        "double_quote", LiteralSegment, type="quoted_literal"
     ),
     ColumnIndexIdentifierSegment=RegexParser(
         r"\$[0-9]+",
@@ -2533,8 +2531,7 @@ class TagBracketedEqualsSegment(BaseSegment):
                     Ref("TagReferenceSegment"),
                     Ref("EqualsSegment"),
                     OneOf(
-                        Ref("QuotedLiteralSegment"),
-                        Ref("DoubleQuotedLiteralSegment")
+                        Ref("QuotedLiteralSegment"), Ref("DoubleQuotedLiteralSegment")
                     ),
                 )
             ),
@@ -2555,10 +2552,7 @@ class TagEqualsSegment(BaseSegment):
             Sequence(
                 Ref("TagReferenceSegment"),
                 Ref("EqualsSegment"),
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("DoubleQuotedLiteralSegment")
-                ),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("DoubleQuotedLiteralSegment")),
             )
         ),
     )
@@ -4546,9 +4540,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
 
 
 class ColumnQuoteSegment(BaseSegment):
-    """"Snowflake column segment 
-    overriding default ColumnReferenceSegment
-    """
+    """Double quotes column segment overriding default ColumnReferenceSegment."""
 
     type = "column_reference"
     match_grammar = OneOf(
@@ -4556,7 +4548,7 @@ class ColumnQuoteSegment(BaseSegment):
         Ref("ColumnReferenceSegment"),
         Ref("NakedIdentifierSegment"),
     )
-    
+
 
 class AlterViewStatementSegment(BaseSegment):
     """An `ALTER VIEW` statement, specifically for Snowflake's dialect.
