@@ -81,6 +81,9 @@ exasol_dialect.insert_lexer_matchers(
             "escaped_identifier",
             r"\[\w+\]",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"\[(\w+)\]", 1),
+            },
         ),
         RegexLexer(
             "udf_param_dot_syntax",
@@ -123,7 +126,7 @@ exasol_dialect.patch_lexer_matchers(
             CodeSegment,
             segment_kwargs={
                 "quoted_value": (r"'((?:[^']|'')*)'", 1),
-                "escape_replacements": [("''", "'")],
+                "escape_replacements": [(r"''", "'")],
             },
         ),
         RegexLexer(
@@ -132,7 +135,7 @@ exasol_dialect.patch_lexer_matchers(
             CodeSegment,
             segment_kwargs={
                 "quoted_value": (r'"((?:[^"]|"")*)"', 1),
-                "escape_replacements": [('""', '"')],
+                "escape_replacements": [(r'""', '"')],
             },
         ),
         RegexLexer(

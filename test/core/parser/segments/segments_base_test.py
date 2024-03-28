@@ -327,3 +327,18 @@ def test__parser__base_segments_parent_ref(DummySegment, raw_segments):
     assert not seg_0.get_parent()
     # Check the other still works.
     assert seg.segments[0].get_parent()[0]
+
+
+def test__parser__base_segments_raw_normalized():
+    """Test comparison of raw segments."""
+    template = TemplatedFile.from_string('"a"""')
+    rs1 = RawSegment(
+        '"a"""',
+        PositionMarker(slice(0, 5), slice(0, 5), template),
+        quoted_value=(r'"((?:[^"]|"")*)"', 1),
+        escape_replacements=[('""', '"')],
+        casefold=str.upper,
+    )
+    assert rs1.raw == '"a"""'
+    assert rs1.raw_value == 'a"'
+    assert rs1.raw_normalized() == 'A"'

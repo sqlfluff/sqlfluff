@@ -78,7 +78,7 @@ sparksql_dialect.patch_lexer_matchers(
             CodeSegment,
             segment_kwargs={
                 "quoted_value": (r"`((?:[^`]|``)*)`", 1),
-                "escape_replacements": [("``", "`")],
+                "escape_replacements": [(r"``", "`")],
             },
         ),
         # Numeric literal matches integers, decimals, and exponential formats.

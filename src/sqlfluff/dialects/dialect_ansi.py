@@ -99,7 +99,7 @@ ansi_dialect.set_lexer_matchers(
             CodeSegment,
             segment_kwargs={
                 "quoted_value": (r"'((?:[^'\\]|\\.|'')*)'", 1),
-                "escape_replacements": [("\\'", "'")],
+                "escape_replacements": [(r"\\'|''", "'")],
             },
         ),
         RegexLexer(
@@ -108,7 +108,7 @@ ansi_dialect.set_lexer_matchers(
             CodeSegment,
             segment_kwargs={
                 "quoted_value": (r'"((?:[^"\\]|\\.)*)"', 1),
-                "escape_replacements": [('\\"', '"')],
+                "escape_replacements": [(r'\\"|""', '"')],
             },
         ),
         RegexLexer(
@@ -117,7 +117,7 @@ ansi_dialect.set_lexer_matchers(
             CodeSegment,
             segment_kwargs={
                 "quoted_value": (r"`((?:[^`\\]|\\.)*)`", 1),
-                "escape_replacements": [("\\`", "`")],
+                "escape_replacements": [(r"\\`", "`")],
             },
         ),
         # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/

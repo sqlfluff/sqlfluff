@@ -70,7 +70,7 @@ mysql_dialect.patch_lexer_matchers(
             CodeSegment,
             segment_kwargs={
                 "quoted_value": (r"(?s)('((?:\\'|''|\\\\|[^'])*)'(?!'))", 2),
-                "escape_replacements": [("\\'|''", "'")],
+                "escape_replacements": [(r"\\'|''", "'")],
             },
         ),
         RegexLexer(
@@ -79,7 +79,7 @@ mysql_dialect.patch_lexer_matchers(
             CodeSegment,
             segment_kwargs={
                 "quoted_value": (r'(?s)("((?:\\"|""|\\\\|[^"])*)"(?!"))', 2),
-                "escape_replacements": [('\\"|""', '"')],
+                "escape_replacements": [(r'\\"|""', '"')],
             },
         ),
     ]

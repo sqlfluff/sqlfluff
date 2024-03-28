@@ -183,7 +183,7 @@ postgres_dialect.patch_lexer_matchers(
             CodeSegment,
             segment_kwargs={
                 "quoted_value": (r"'((?:[^']|'')*)'", 1),
-                "escape_replacements": [("''", "'")],
+                "escape_replacements": [(r"''", "'")],
             },
         ),
         # In Postgres, the escape character is "" for double quote strings
@@ -193,7 +193,7 @@ postgres_dialect.patch_lexer_matchers(
             CodeSegment,
             segment_kwargs={
                 "quoted_value": (r'"((?:[^"]|"")*)"', 1),
-                "escape_replacements": [('""', '"')],
+                "escape_replacements": [(r'""', '"')],
             },
         ),
         # Patching block comments to account for nested blocks.

@@ -930,7 +930,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """Iterate raw segments, mostly for searching."""
         return [item for s in self.segments for item in s.raw_segments]
 
-    def raw_normalized(self, casefold: bool = True):
+    def raw_normalized(self, casefold: bool = True) -> str:
         """Iterate raw segments, return normalized value."""
         return "".join(seg.raw_normalized(casefold) for seg in self.get_raw_segments())
 

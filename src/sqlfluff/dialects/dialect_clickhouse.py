@@ -48,30 +48,21 @@ clickhouse_dialect.insert_lexer_matchers(
 clickhouse_dialect.patch_lexer_matchers(
     [
         RegexLexer(
-            "single_quote",
-            r"'([^']|'')*'",
-            CodeSegment,
-            segment_kwargs={
-                "quoted_value": (r"'((?:[^']|'')*)'", 1),
-                "escape_replacements": [("''", "'")],
-            },
-        ),
-        RegexLexer(
             "double_quote",
-            r'"([^"]|"")*"',
+            r'"([^"\\]|""|\\.)*"',
             CodeSegment,
             segment_kwargs={
-                "quoted_value": (r'"((?:[^"]|"")*)"', 1),
-                "escape_replacements": [('""', '"')],
+                "quoted_value": (r'"((?:[^"\\]|""|\\.)*)"', 1),
+                "escape_replacements": [(r'(""|\\")', '"')],
             },
         ),
         RegexLexer(
             "back_quote",
-            r"`(?:[^`]|``)*`",
+            r"`(?:[^`\\]|``|\\.)*`",
             CodeSegment,
             segment_kwargs={
-                "quoted_value": (r"`((?:[^`]|``)*)`", 1),
-                "escape_replacements": [("``", "`")],
+                "quoted_value": (r"`((?:[^`\\]|``|\\.)*)`", 1),
+                "escape_replacements": [(r"(``|\\`)", "`")],
             },
         ),
     ]

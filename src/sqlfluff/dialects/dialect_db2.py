@@ -126,7 +126,7 @@ db2_dialect.patch_lexer_matchers(
             CodeSegment,
             segment_kwargs={
                 "quoted_value": (r"'((?:[^']|'')*)'", 1),
-                "escape_replacements": [("''", "'")],
+                "escape_replacements": [(r"''", "'")],
             },
         ),
         # In Db2, the escape character is "" for double quote strings
@@ -136,7 +136,7 @@ db2_dialect.patch_lexer_matchers(
             CodeSegment,
             segment_kwargs={
                 "quoted_value": (r'"((?:[^"]|"")*)"', 1),
-                "escape_replacements": [('""', '"')],
+                "escape_replacements": [(r'""', '"')],
             },
         ),
         # In Db2, a field could have a # pound/hash sign
