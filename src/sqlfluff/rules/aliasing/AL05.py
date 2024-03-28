@@ -63,6 +63,7 @@ class Rule_AL05(BaseRule):
     config_keywords = ["alias_case_check"]
     crawl_behaviour = SegmentSeekerCrawler({"select_statement"})
     _dialects_requiring_alias_for_values_clause = [
+        "athena",
         "snowflake",
         "tsql",
         "postgres",

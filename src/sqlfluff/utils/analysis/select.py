@@ -1,6 +1,6 @@
 """Basic code analysis tools for SELECT statements."""
 
-from typing import List, NamedTuple, Optional, cast
+from typing import List, NamedTuple, Optional, Tuple, cast
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
@@ -129,7 +129,7 @@ def get_select_statement_info(
 
 def get_aliases_from_select(
     segment: BaseSegment, dialect: Optional[Dialect] = None
-) -> tuple[Optional[list], Optional[list]]:
+) -> Tuple[Optional[list], Optional[list]]:
     """Gets the aliases referred to in the FROM clause.
 
     Returns a tuple of two lists:
@@ -145,7 +145,7 @@ def get_aliases_from_select(
 
     # We only want table aliases, so filter out aliases for value table
     # functions, lambda parameters and pivot columns.
-    standalone_aliases: list[BaseSegment] = []
+    standalone_aliases: List[BaseSegment] = []
     standalone_aliases += _get_pivot_table_columns(segment, dialect)
     standalone_aliases += _get_lambda_argument_columns(segment, dialect)
 
@@ -178,7 +178,7 @@ def _has_value_table_function(table_expr, dialect) -> bool:
 
 def _get_pivot_table_columns(
     segment: BaseSegment, dialect: Optional[Dialect]
-) -> list[BaseSegment]:
+) -> List[BaseSegment]:
     if not dialect:
         # We need the dialect to get the pivot table column names. If
         # we don't have it, assume the clause does not have a pivot table
