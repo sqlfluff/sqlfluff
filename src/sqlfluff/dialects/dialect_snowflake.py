@@ -232,6 +232,9 @@ snowflake_dialect.add(
         CodeSegment,
         type="semi_structured_element",
     ),
+    DoubleQuotedLiteralSegment=TypedParser(
+        "double_quote", LiteralSegment, type="quoted_literal"
+    ),
     ColumnIndexIdentifierSegment=RegexParser(
         r"\$[0-9]+",
         IdentifierSegment,
@@ -2550,7 +2553,9 @@ class TagBracketedEqualsSegment(BaseSegment):
                 Sequence(
                     Ref("TagReferenceSegment"),
                     Ref("EqualsSegment"),
-                    Ref("QuotedLiteralSegment"),
+                    OneOf(
+                        Ref("QuotedLiteralSegment"), Ref("DoubleQuotedLiteralSegment")
+                    ),
                 )
             ),
         ),
@@ -2570,7 +2575,7 @@ class TagEqualsSegment(BaseSegment):
             Sequence(
                 Ref("TagReferenceSegment"),
                 Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("DoubleQuotedLiteralSegment")),
             )
         ),
     )
@@ -4570,6 +4575,17 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
     )
 
 
+class ColumnQuoteSegment(BaseSegment):
+    """Double quotes column segment overriding default ColumnReferenceSegment."""
+
+    type = "column_reference"
+    match_grammar = OneOf(
+        Ref("SingleQuotedIdentifierSegment"),
+        Ref("ColumnReferenceSegment"),
+        Ref("NakedIdentifierSegment"),
+    )
+
+
 class AlterViewStatementSegment(BaseSegment):
     """An `ALTER VIEW` statement, specifically for Snowflake's dialect.
 
@@ -4612,7 +4628,7 @@ class AlterViewStatementSegment(BaseSegment):
                     "POLICY",
                     Ref("FunctionNameSegment"),
                     "ON",
-                    Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                    Bracketed(Delimited(Ref("ColumnQuoteSegment"))),
                 ),
                 Sequence(
                     "DROP",
@@ -4827,7 +4843,7 @@ class CsvFileFormatTypeParameters(BaseSegment):
         Sequence(
             "NULL_IF",
             Ref("EqualsSegment"),
-            Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
+            OptionallyBracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
         ),
         Sequence(
             OneOf(
