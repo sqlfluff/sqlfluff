@@ -1586,12 +1586,7 @@ class FromExpressionElementSegment(BaseSegment):
             if segment:
                 segment = cast(IdentifierSegment, segment)
                 return AliasInfo(
-                    segment.raw,
-                    segment,
-                    True,
-                    self,
-                    alias_expression,
-                    ref,
+                    segment.raw, segment, True, self, alias_expression, ref
                 )
 
         # If not return the object name (or None if there isn't one)
@@ -1603,7 +1598,7 @@ class FromExpressionElementSegment(BaseSegment):
                     references[-1]
                 )
                 return AliasInfo(
-                    penultimate_ref.segments[0].raw,
+                    penultimate_ref.part,
                     penultimate_ref.segments[0],
                     False,
                     self,

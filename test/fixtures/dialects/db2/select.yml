@@ -3,25 +3,27 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f5ef95e7f5892f7be1608f713a78b120b965d9de34b758d7b38dcc3f319ada0c
+_hash: aedcd7d402c17253903e926ae0ffcab203629d52c5324b7706a81c63f400e350
 file:
   statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          column_reference:
-          - quoted_identifier: '`nih`'
-          - dot: .
-          - quoted_identifier: '`userID`'
+          wildcard_expression:
+            wildcard_identifier:
+              quoted_identifier: '"""t"'
+              dot: .
+              star: '*'
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                quoted_identifier: '`flight_notification_item_history`'
+              - naked_identifier: MYSCHEMA
+              - dot: .
+              - naked_identifier: MYTABLE
             alias_expression:
-              keyword: AS
-              quoted_identifier: '`nih`'
+              quoted_identifier: '"""t"'
   statement_terminator: ;
