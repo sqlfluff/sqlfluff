@@ -4,7 +4,6 @@ from collections import Counter
 from dataclasses import dataclass, field
 from typing import List, Set, cast
 
-from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser.segments import BaseSegment, RawSegment
 from sqlfluff.core.rules import (
@@ -86,7 +85,7 @@ class Rule_AL05(BaseRule):
         query = cast(
             AL05Query, AL05Query.from_segment(context.segment, dialect=context.dialect)
         )
-        self._analyze_table_aliases(query, context.dialect)
+        self._analyze_table_aliases(query)
 
         if context.dialect.name in ("redshift", "bigquery"):
             # Redshift supports un-nesting using aliases.
@@ -230,7 +229,7 @@ class Rule_AL05(BaseRule):
         # This should never happen. Return False just to be safe.
         return False  # pragma: no cover
 
-    def _analyze_table_aliases(self, query: AL05Query, dialect: Dialect) -> None:
+    def _analyze_table_aliases(self, query: AL05Query) -> None:
         # Get table aliases defined in query.
         for selectable in query.selectables:
             select_info = selectable.select_info
@@ -249,16 +248,14 @@ class Rule_AL05(BaseRule):
                     ):
                         # This function walks up the query's parent stack if necessary.
                         self._resolve_and_mark_reference(
-                            query, cast(RawSegment, tr.segments[0]), dialect
+                            query, cast(RawSegment, tr.segments[0])
                         )
 
         # Visit children.
         for child in query.children:
-            self._analyze_table_aliases(cast(AL05Query, child), dialect)
+            self._analyze_table_aliases(cast(AL05Query, child))
 
-    def _resolve_and_mark_reference(
-        self, query: AL05Query, ref: RawSegment, dialect: Dialect
-    ) -> None:
+    def _resolve_and_mark_reference(self, query: AL05Query, ref: RawSegment) -> None:
         # Does this query define the referenced alias?
         _ref = self._cs_str_id(ref)
         if any(_ref == self._cs_str_id(a.segment) for a in query.aliases if a.segment):
@@ -266,9 +263,7 @@ class Rule_AL05(BaseRule):
             query.tbl_refs.add(_ref)
         elif query.parent:
             # No. Recursively check the query's parent hierarchy.
-            self._resolve_and_mark_reference(
-                cast(AL05Query, query.parent), ref, dialect
-            )
+            self._resolve_and_mark_reference(query.parent, ref)
 
     def _report_unused_alias(self, alias: AliasInfo) -> LintResult:
         fixes = [LintFix.delete(alias.alias_expression)]  # type: ignore
