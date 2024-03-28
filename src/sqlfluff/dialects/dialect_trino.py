@@ -11,11 +11,13 @@ from sqlfluff.core.parser import (
     Bracketed,
     CodeSegment,
     Delimited,
+    IdentifierSegment,
     LiteralSegment,
     Matchable,
     Nothing,
     OneOf,
     Ref,
+    RegexLexer,
     Sequence,
     StringLexer,
     StringParser,
@@ -57,6 +59,20 @@ trino_dialect.insert_lexer_matchers(
 
 trino_dialect.add(
     RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
+)
+
+trino_dialect.patch_lexer_matchers(
+    [
+        RegexLexer(
+            "double_quote",
+            r'"([^"]|"")*"',
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"]|"")*)"', 1),
+                "escape_replacements": [(r'""', '"')],
+            },
+        ),
+    ]
 )
 
 trino_dialect.replace(
@@ -193,6 +209,10 @@ trino_dialect.replace(
         Ref("ComparisonOperatorGrammar"),
         # Add arrow operators for functions (e.g. regexp_replace)
         Ref("RightArrowOperator"),
+    ),
+    # match ANSI's naked identifier casefold, trino is case-insensitive.
+    QuotedIdentifierSegment=TypedParser(
+        "double_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
     ),
 )
 

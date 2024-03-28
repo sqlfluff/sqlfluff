@@ -98,6 +98,7 @@ class Selectable:
             name = alias_expression.children().first(
                 sp.is_type("naked_identifier", "quoted_identifier")
             )
+            print("query:", name)
             alias_info = AliasInfo(
                 name[0].raw if name else "",
                 name[0] if name else None,
@@ -115,6 +116,7 @@ class Selectable:
                 select_targets=[],
                 col_aliases=[],
                 using_cols=[],
+                table_reference_buffer=[],
             )
 
     def get_wildcard_info(self) -> List[WildcardInfo]:

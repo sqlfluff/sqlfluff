@@ -179,14 +179,22 @@ postgres_dialect.patch_lexer_matchers(
         # In Postgres, the only escape character is ' for single quote strings
         RegexLexer(
             "single_quote",
-            r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))",
+            r"'([^']|'')*'",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"'((?:[^']|'')*)'", 1),
+                "escape_replacements": [(r"''", "'")],
+            },
         ),
-        # In Postgres, there is no escape character for double quote strings
+        # In Postgres, the escape character is "" for double quote strings
         RegexLexer(
             "double_quote",
-            r'(?s)".+?"',
+            r'"([^"]|"")*"',
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"]|"")*)"', 1),
+                "escape_replacements": [(r'""', '"')],
+            },
         ),
         # Patching block comments to account for nested blocks.
         # N.B. this syntax is only possible via the non-standard-library
@@ -379,6 +387,7 @@ postgres_dialect.replace(
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.lower,
         )
     ),
     Expression_C_Grammar=Sequence(

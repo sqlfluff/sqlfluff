@@ -289,7 +289,7 @@ test_fail_table_plus_flatten_snowflake_1:
     SELECT
         r.rec:foo::string AS foo,
         value:bar::string AS bar
-    FROM foo.bar AS r, LATERAL FLATTEN(input => rec:result) AS x
+    FROM foo.bar AS r, LATERAL FLATTEN(input => r.rec:result) AS x
   configs:
     core:
       dialect: snowflake
@@ -301,7 +301,7 @@ test_fail_table_plus_flatten_snowflake_2:
     SELECT
         r.rec:foo::string AS foo,
         value:bar::string AS bar
-    FROM foo.bar AS r, LATERAL FLATTEN(input => rec:result)
+    FROM foo.bar AS r, LATERAL FLATTEN(input => r.rec:result)
   configs:
     core:
       dialect: snowflake
@@ -313,7 +313,7 @@ test_pass_table_plus_flatten_snowflake_1:
     SELECT
         r.rec:foo::string AS foo,
         x.value:bar::string AS bar
-    FROM foo.bar AS r, LATERAL FLATTEN(input => rec:result) AS x
+    FROM foo.bar AS r, LATERAL FLATTEN(input => r.rec:result) AS x
   configs:
     core:
       dialect: snowflake
