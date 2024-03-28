@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4361c5c82c826c9b24f76d43c62df3483ec1391011b1ed61d1889262e9ba407d
+_hash: 9435f3b7c4ac7404c442e88f86bf0bddc5a9973c87771327e67acfa99fb69f57
 file:
 - statement:
     create_view_statement:
@@ -634,6 +634,62 @@ file:
         column_reference:
           naked_identifier: COL1
         end_bracket: )
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: COL1
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: COL2
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: view_with_column_tags
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: COL1
+      - tag_bracketed_equals:
+        - keyword: WITH
+        - keyword: TAG
+        - bracketed:
+            start_bracket: (
+            tag_reference:
+            - naked_identifier: my_db
+            - dot: .
+            - naked_identifier: my_schema
+            - dot: .
+            - naked_identifier: my_policy
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'MY_TAG'"
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: COL2
+      - end_bracket: )
     - keyword: AS
     - bracketed:
         start_bracket: (

@@ -193,6 +193,16 @@ snowflake_dialect.sets("warehouse_scaling_policies").update(
     ],
 )
 
+snowflake_dialect.sets("refreshmode_types").clear()
+snowflake_dialect.sets("refreshmode_types").update(
+    ["AUTO", "FULL", "INCREMENTAL"],
+)
+
+snowflake_dialect.sets("initialize_types").clear()
+snowflake_dialect.sets("initialize_types").update(
+    ["ON_CREATE", "ON_SCHEDULE"],
+)
+
 snowflake_dialect.add(
     # In snowflake, these are case sensitive even though they're not quoted
     # so they need a different `name` and `type` so they're not picked up
@@ -274,6 +284,19 @@ snowflake_dialect.add(
             CodeSegment,
             type="warehouse_size",
         ),
+    ),
+    RefreshModeType=OneOf(
+        MultiStringParser(
+            snowflake_dialect.sets("refreshmode_types"),
+            KeywordSegment,
+        )
+    ),
+    InitializeType=OneOf(
+        MultiStringParser(
+            snowflake_dialect.sets("initialize_types"),
+            KeywordSegment,
+            type="initialize_type",
+        )
     ),
     CompressionType=OneOf(
         MultiStringParser(
@@ -3857,6 +3880,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
 
     A lot more options than ANSI
     https://docs.snowflake.com/en/sql-reference/sql/create-table.html
+    https://docs.snowflake.com/en/sql-reference/sql/create-dynamic-table
     """
 
     match_grammar = Sequence(
@@ -3871,6 +3895,18 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             "TARGET_LAG",
             Ref("EqualsSegment"),
             Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "REFRESH_MODE",
+            Ref("EqualsSegment"),
+            Ref("RefreshModeType"),
+            optional=True,
+        ),
+        Sequence(
+            "INITIALIZE",
+            Ref("EqualsSegment"),
+            Ref("InitializeType"),
             optional=True,
         ),
         Sequence(
@@ -4514,6 +4550,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                             ),
                             optional=True,
                         ),
+                        Ref("TagBracketedEqualsSegment", optional=True),
                         Ref("CommentClauseSegment", optional=True),
                     ),
                 ),
@@ -4532,7 +4569,6 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
             Ref("TagBracketedEqualsSegment"),
             Sequence("COPY", "GRANTS"),
             Ref("CommentEqualsClauseSegment"),
-            # @TODO: Support column-level masking policy & tagging.
         ),
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
@@ -5729,7 +5765,9 @@ class AzureBlobStorageExternalStageParameters(BaseSegment):
             Sequence(
                 "STORAGE_INTEGRATION",
                 Ref("EqualsSegment"),
-                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    Ref("ObjectReferenceSegment"), Ref("ReferencedVariableNameSegment")
+                ),
             ),
             Sequence(
                 "CREDENTIALS",
@@ -5737,7 +5775,10 @@ class AzureBlobStorageExternalStageParameters(BaseSegment):
                 Bracketed(
                     Sequence("AZURE_SAS_TOKEN"),
                     Ref("EqualsSegment"),
-                    Ref("QuotedLiteralSegment"),
+                    OneOf(
+                        Ref("QuotedLiteralSegment"),
+                        Ref("ReferencedVariableNameSegment"),
+                    ),
                 ),
             ),
             optional=True,
@@ -5862,7 +5903,10 @@ class CreateStageSegment(BaseSegment):
                     ),
                     # External Azure Blob Storage stage
                     Sequence(
-                        Ref("AzureBlobStoragePath"),
+                        OneOf(
+                            Ref("AzureBlobStoragePath"),
+                            Ref("ReferencedVariableNameSegment"),
+                        ),
                         Ref("AzureBlobStorageExternalStageParameters", optional=True),
                         Sequence(
                             "DIRECTORY",
