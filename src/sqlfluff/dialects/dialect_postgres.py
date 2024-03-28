@@ -5146,6 +5146,90 @@ class CopyStatementSegment(BaseSegment):
         optional=True,
     )
 
+    postgres9_compatible_stdin = Sequence(
+        Ref.keyword("WITH", optional=True),
+        AnySetOf(
+            Sequence("BINARY"),
+            Sequence(
+                "DELIMITER",
+                Ref.keyword("AS", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "NULL", Ref.keyword("AS", optional=True), Ref("QuotedLiteralSegment")
+            ),
+            Sequence(
+                "CSV",
+                OneOf(
+                    "HEADER",
+                    Sequence(
+                        "QUOTE",
+                        Ref.keyword("AS", optional=True),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "ESCAPE",
+                        Ref.keyword("AS", optional=True),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "FORCE",
+                        "NOT",
+                        "NULL",
+                        Delimited(Ref("ColumnReferenceSegment")),
+                    ),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+        optional=True,
+    )
+
+    postgres9_compatible_stdout = Sequence(
+        Ref.keyword("WITH", optional=True),
+        AnySetOf(
+            Sequence("BINARY"),
+            Sequence(
+                "DELIMITER",
+                Ref.keyword("AS", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "NULL", Ref.keyword("AS", optional=True), Ref("QuotedLiteralSegment")
+            ),
+            Sequence(
+                "CSV",
+                OneOf(
+                    "HEADER",
+                    Sequence(
+                        "QUOTE",
+                        Ref.keyword("AS", optional=True),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "ESCAPE",
+                        Ref.keyword("AS", optional=True),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "FORCE",
+                        "QUOTE",
+                        OneOf(
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            Ref("StarSegment"),
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+        optional=True,
+    )
+
+    # Add the compatibility code to see if it fixes the issue before refactoring.
+
     match_grammar = Sequence(
         "COPY",
         OneOf(
@@ -5160,6 +5244,15 @@ class CopyStatementSegment(BaseSegment):
                 Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
             ),
             Sequence(
+                _table_definition,
+                "FROM",
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Sequence("STDIN"),
+                ),
+                postgres9_compatible_stdin,
+            ),
+            Sequence(
                 OneOf(
                     _table_definition, Bracketed(Ref("UnorderedSelectStatementSegment"))
                 ),
@@ -5169,6 +5262,17 @@ class CopyStatementSegment(BaseSegment):
                     Sequence("STDOUT"),
                 ),
                 _option,
+            ),
+            Sequence(
+                OneOf(
+                    _table_definition, Bracketed(Ref("UnorderedSelectStatementSegment"))
+                ),
+                "TO",
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Sequence("STDOUT"),
+                ),
+                postgres9_compatible_stdout,
             ),
         ),
     )
