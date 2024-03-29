@@ -871,7 +871,7 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
             Ref("QuotedIdentifierSegment"),
             terminators=[Ref("BracketedSegment")],
         ),
-        # BigQuery allows whitespaces between the `.` of a function refrence or
+        # BigQuery allows whitespaces between the `.` of a function reference or
         # SAFE prefix. Keeping the explicit `allow_gaps=True` here to
         # make the distinction from `ansi.FunctionNameSegment` clear.
         allow_gaps=True,
@@ -1990,7 +1990,7 @@ class MergeNotMatchedBySourceClauseSegment(ansi.MergeMatchedClauseSegment):
 
     It inherits from `ansi.MergeMatchedClauseSegment` because NotMatchedBySource clause
     is conceptionally more close to a Matched clause than to NotMatched clause, i.e.
-    it get's combined with an UPDATE or DELETE, not with an INSERT.
+    it gets combined with an UPDATE or DELETE, not with an INSERT.
     """
 
     type = "merge_when_matched_clause"

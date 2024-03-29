@@ -161,7 +161,7 @@ configuration.
 
 To use these, the syntax must start as an *inline sql comment* beginning
 with :code:`sqlfluff` (i.e. :code:`-- sqlfluff`). The line is then interpreted
-as a colon-seperated address of the configuation value you wish to set.
+as a colon-separated address of the configuration value you wish to set.
 A few common examples are shown below:
 
 .. code-block:: sql

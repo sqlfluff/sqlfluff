@@ -376,7 +376,7 @@ UNRESERVED_KEYWORDS = [
     "STARTING",
     "STATEMENT",
     "STATIC",
-    "STATMENT",
+    "STATEMENT",
     "STAY",
     "STOGROUP",
     "STORES",

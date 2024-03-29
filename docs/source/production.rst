@@ -39,7 +39,7 @@ tool functions in a secure environment.
 #. *Users may have access to change how SQLFluff is invoked*. SQLFluff can
    be invoked either as a command line too or via the python API. Typically
    the method is fixed for a given application. When thinking about how to
-   restrict the ability of users to call unsecure code, SQLFluff aims to
+   restrict the ability of users to call insecure code, SQLFluff aims to
    provide options at the point of invocation. In particular, as described
    above, the primary risk vector for SQLFluff is the macro environment
    as described in :ref:`templateconfig`. To restrict users being able to
