@@ -401,3 +401,13 @@ class ListaggOverflowClauseSegment(BaseSegment):
             ),
         ),
     )
+
+
+class ArrayTypeSegment(ansi.ArrayTypeSegment):
+    """Prefix for array literals.
+
+    Trino supports "ARRAY"
+    """
+
+    type = "array_type"
+    match_grammar = Ref.keyword("ARRAY")
