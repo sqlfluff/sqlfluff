@@ -2001,10 +2001,8 @@ class CaseExpressionSegment(BaseSegment):
             "END",
         ),
         terminators=[
-            OneOf(
-                Ref("GreaterThanOrEqualToSegment"),
-                Ref("LessThanOrEqualToSegment"),
-            ),
+            Ref("GreaterThanOrEqualToSegment"),
+            Ref("LessThanOrEqualToSegment"),
             Ref("CommaSegment"),
             Ref("BinaryOperatorGrammar"),
         ],
