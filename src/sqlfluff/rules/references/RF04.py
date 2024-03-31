@@ -6,7 +6,7 @@ import regex
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.identifiers import identifiers_policy_applicable
+from sqlfluff.utils.identifers import identifiers_policy_applicable
 
 
 class Rule_RF04(BaseRule):
