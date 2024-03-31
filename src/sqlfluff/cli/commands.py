@@ -141,7 +141,8 @@ class PathAndUserErrorHandler:
                 + self.formatter.colorize(
                     str(exc_val),
                     Color.red,
-                )
+                ),
+                err=True,
             )
             sys.exit(EXIT_ERROR)
 
@@ -1082,22 +1083,23 @@ def fix(
             err=True,
         )
 
-    # handle stdin case. should output formatted sql to stdout and nothing else.
-    if fixing_stdin:
-        _stdin_fix(lnt, formatter, fix_even_unparsable)
-    else:
-        _paths_fix(
-            lnt,
-            formatter,
-            paths,
-            processes,
-            fix_even_unparsable,
-            fixed_suffix,
-            bench,
-            show_lint_violations,
-            check=check,
-            persist_timing=persist_timing,
-        )
+    with PathAndUserErrorHandler(formatter):
+        # handle stdin case. should output formatted sql to stdout and nothing else.
+        if fixing_stdin:
+            _stdin_fix(lnt, formatter, fix_even_unparsable)
+        else:
+            _paths_fix(
+                lnt,
+                formatter,
+                paths,
+                processes,
+                fix_even_unparsable,
+                fixed_suffix,
+                bench,
+                show_lint_violations,
+                check=check,
+                persist_timing=persist_timing,
+            )
 
 
 @cli.command(name="format")
@@ -1180,21 +1182,22 @@ def cli_format(
         stderr_output=fixing_stdin,
     )
 
-    # handle stdin case. should output formatted sql to stdout and nothing else.
-    if fixing_stdin:
-        _stdin_fix(lnt, formatter, fix_even_unparsable=False)
-    else:
-        _paths_fix(
-            lnt,
-            formatter,
-            paths,
-            processes,
-            fix_even_unparsable=False,
-            fixed_suffix=fixed_suffix,
-            bench=bench,
-            show_lint_violations=False,
-            persist_timing=persist_timing,
-        )
+    with PathAndUserErrorHandler(formatter):
+        # handle stdin case. should output formatted sql to stdout and nothing else.
+        if fixing_stdin:
+            _stdin_fix(lnt, formatter, fix_even_unparsable=False)
+        else:
+            _paths_fix(
+                lnt,
+                formatter,
+                paths,
+                processes,
+                fix_even_unparsable=False,
+                fixed_suffix=fixed_suffix,
+                bench=bench,
+                show_lint_violations=False,
+                persist_timing=persist_timing,
+            )
 
 
 def quoted_presenter(dumper, data):
@@ -1419,17 +1422,17 @@ def render(
             raw_sql, file_config, _ = lnt.load_raw_file_and_config(path, lnt.config)
             fname = path
 
-    # Get file specific config
-    file_config.process_raw_file_for_config(raw_sql, fname)
-    rendered = lnt.render_string(raw_sql, fname, file_config, "utf8")
+        # Get file specific config
+        file_config.process_raw_file_for_config(raw_sql, fname)
+        rendered = lnt.render_string(raw_sql, fname, file_config, "utf8")
 
-    if rendered.templater_violations:
-        for v in rendered.templater_violations:
-            click.echo(formatter.format_violation(v))
-        sys.exit(EXIT_FAIL)
-    else:
-        click.echo(rendered.templated_file.templated_str)
-        sys.exit(EXIT_SUCCESS)
+        if rendered.templater_violations:
+            for v in rendered.templater_violations:
+                click.echo(formatter.format_violation(v))
+            sys.exit(EXIT_FAIL)
+        else:
+            click.echo(rendered.templated_file.templated_str)
+            sys.exit(EXIT_SUCCESS)
 
 
 # This "__main__" handler allows invoking SQLFluff using "python -m", which
