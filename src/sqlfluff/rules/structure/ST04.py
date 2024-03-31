@@ -52,11 +52,20 @@ class Rule_ST04(BaseRule):
         segment = FunctionalContext(context).segment
         assert segment.select(sp.is_type("case_expression"))
         case1_children = segment.children()
+        case1_first_case = case1_children.first(sp.is_keyword("CASE")).get()
+        case1_first_when = case1_children.first(
+            sp.is_type("when_clause", "else_clause")
+        ).get()
         case1_last_when = case1_children.last(sp.is_type("when_clause")).get()
         case1_else_clause = case1_children.select(sp.is_type("else_clause"))
         case1_else_expressions = case1_else_clause.children(sp.is_type("expression"))
         expression_children = case1_else_expressions.children()
         case2 = expression_children.select(sp.is_type("case_expression"))
+        case2_children = case2.children()
+        case2_first_case = case2_children.first(sp.is_keyword("CASE")).get()
+        case2_first_when = case2_children.first(
+            sp.is_type("when_clause", "else_clause")
+        ).get()
         # The len() checks below are for safety, to ensure the CASE inside
         # the ELSE is not part of a larger expression. In that case, it's
         # not safe to simplify in this way -- we'd be deleting other code.
@@ -66,6 +75,22 @@ class Rule_ST04(BaseRule):
             or len(expression_children) > 1
             or not case2
         ):
+            return LintResult()
+
+        # Determine if we can combine the else case statement, the first and
+        # second case expressions should be the same. If they aren't, that
+        # case currently isn't handled.
+        if [
+            x.raw_upper
+            for x in segment.children(sp.is_code())
+            .select(start_seg=case1_first_case, stop_seg=case1_first_when)
+            .raw_segments
+        ] != [
+            x.raw_upper
+            for x in case2.children(sp.is_code())
+            .select(start_seg=case2_first_case, stop_seg=case2_first_when)
+            .raw_segments
+        ]:
             return LintResult()
 
         # We can assert that this exists because of the previous check.
@@ -92,7 +117,7 @@ class Rule_ST04(BaseRule):
         indent = (
             case1_children.select(stop_seg=case1_last_when)
             .reversed()
-            .select(sp.is_type("whitespace"))
+            .first(sp.is_type("whitespace"))
         )
         indent_str = (
             "".join(seg.raw for seg in indent)
