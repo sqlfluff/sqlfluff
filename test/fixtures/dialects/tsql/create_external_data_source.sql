@@ -14,7 +14,7 @@ WITH (
 
 CREATE EXTERNAL DATA SOURCE [external_data_source_name]
 WITH (
-  LOCATION = N'oracle://XE', 
-  CREDENTIAL = [OracleCredentialTest], 
+  LOCATION = N'oracle://XE',
+  CREDENTIAL = [OracleCredentialTest],
   CONNECTION_OPTIONS = N'TNSNamesFile=C:\Temp\tnsnames.ora;ServerName=XE'
 );
