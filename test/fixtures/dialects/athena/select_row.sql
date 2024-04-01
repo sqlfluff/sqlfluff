@@ -18,4 +18,3 @@ SELECT
             approvalStatus varchar
         )
     ) as test;
-

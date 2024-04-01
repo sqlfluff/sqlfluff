@@ -75,7 +75,7 @@ ALTER TABLE prod.db.sample ADD PARTITION FIELD truncate(4, data);
 
 ALTER TABLE prod.db.sample ADD PARTITION FIELD years(ts);
 
--- use optional AS keyword to specify a custom name for the partition field 
+-- use optional AS keyword to specify a custom name for the partition field
 ALTER TABLE prod.db.sample ADD PARTITION FIELD bucket(16, id) AS shard;
 
 ALTER TABLE prod.db.sample DROP PARTITION FIELD catalog;
@@ -90,7 +90,7 @@ ALTER TABLE prod.db.sample DROP PARTITION FIELD shard;
 
 ALTER TABLE prod.db.sample REPLACE PARTITION FIELD ts_day WITH days(ts);
 
--- use optional AS keyword to specify a custom name for the new partition field 
+-- use optional AS keyword to specify a custom name for the new partition field
 ALTER TABLE prod.db.sample REPLACE PARTITION FIELD ts_day WITH days(ts) AS day_of_ts;
 
 ALTER TABLE prod.db.sample WRITE ORDERED BY category, id;
@@ -118,6 +118,3 @@ ALTER TABLE prod.db.sample DROP IDENTIFIER FIELDS id;
 
 -- multiple columns
 ALTER TABLE prod.db.sample DROP IDENTIFIER FIELDS id, data
-
-
-

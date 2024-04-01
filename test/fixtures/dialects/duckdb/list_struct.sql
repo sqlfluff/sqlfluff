@@ -14,4 +14,3 @@ SELECT
     planet."Amount of sand"
 FROM (SELECT {name: 'Tatooine', 'Amount of sand': 'High'} as planet)
 ;
-

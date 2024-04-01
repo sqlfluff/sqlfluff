@@ -1,0 +1,53 @@
+---
+name: pre-commit
+on:
+  pull_request:
+  push:
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    env:
+      RAW_LOG: pre-commit.log
+      CS_XML: pre-commit.xml
+      SKIP: no-commit-to-branch
+    steps:
+      - run: sudo apt-get update && sudo apt-get install cppcheck
+        if: false
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        if: false
+        with:
+          cache: pip
+          python-version: 3.12.1
+      - run: python -m pip install pre-commit
+      - uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/pre-commit/
+          key: pre-commit-4|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml')
+            }}
+      - name: Run pre-commit hooks
+        run: |
+          set -o pipefail
+          pre-commit gc
+          pre-commit run --show-diff-on-failure --color=always --all-files | tee ${RAW_LOG}
+      - name: Convert Raw Log to Checkstyle format (launch action)
+        uses: mdeweerd/logToCheckStyle@v2024.3.5
+        if: ${{ failure() }}
+        with:
+          in: ${{ env.RAW_LOG }}
+          out: ${{ env.CS_XML }}
+      - uses: actions/cache/save@v4
+        if: ${{ ! cancelled() }}
+        with:
+          path: ~/.cache/pre-commit/
+          key: pre-commit-4|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml')
+            }}
+      - name: Provide log as artifact
+        uses: actions/upload-artifact@v4
+        if: ${{ ! cancelled() }}
+        with:
+          name: precommit-logs
+          path: |
+            ${{ env.RAW_LOG }}
+            ${{ env.CS_XML }}
+          retention-days: 2

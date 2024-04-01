@@ -242,7 +242,7 @@ There are two way to utilize SQLFluff to annotate Github PRs.
    :code:`github-annotation-native`) is used. This is a not something that SQLFluff
    can control itself and so we currently recommend using the the second option
    above and the `action from yuzutech`_.
-   
+
    There is an `open feature request <https://github.com/orgs/community/discussions/68471>`_
    for GitHub Actions which you can track to follow this issue.
 
