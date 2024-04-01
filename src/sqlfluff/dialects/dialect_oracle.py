@@ -776,7 +776,7 @@ class StartWithClauseSegment(BaseSegment):
 
 
 class HierarchicalQueryClauseSegment(BaseSegment):
-    """Hiearchical Query.
+    """Hierarchical Query.
 
     https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Hierarchical-Queries.html
     """

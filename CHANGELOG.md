@@ -191,7 +191,7 @@ contributors whose changes are included in this release. 🎉🎉🏆🎉🎉
 * SparkSQL: exclamation mark as logical not [#5500](https://github.com/sqlfluff/sqlfluff/pull/5500) [@reata](https://github.com/reata)
 * SparkSQL: allow value in set_statement to be Java class name [#5504](https://github.com/sqlfluff/sqlfluff/pull/5504) [@reata](https://github.com/reata)
 * SparkSQL: allow distribute/sort/cluster by at end of set operation [#5502](https://github.com/sqlfluff/sqlfluff/pull/5502) [@reata](https://github.com/reata)
-* [CI] Add a few more mypy ckecks [#5505](https://github.com/sqlfluff/sqlfluff/pull/5505) [@Koyaani](https://github.com/Koyaani)
+* [CI] Add a few more mypy checks [#5505](https://github.com/sqlfluff/sqlfluff/pull/5505) [@Koyaani](https://github.com/Koyaani)
 * Snowflake dialect: Add support for DATABASE ROLE in GRANT/REVOKE [#5490](https://github.com/sqlfluff/sqlfluff/pull/5490) [@sfc-gh-dgupta](https://github.com/sfc-gh-dgupta)
 * DuckDB: Qualify and From-First [#5485](https://github.com/sqlfluff/sqlfluff/pull/5485) [@keraion](https://github.com/keraion)
 * MySql: create table: allow null/not null in any position [#5473](https://github.com/sqlfluff/sqlfluff/pull/5473) [@archer62](https://github.com/archer62)
@@ -382,7 +382,7 @@ Great to see so many new people getting involved with the project. Thank You �
 * SparkSQL: exclamation mark as logical not [#5500](https://github.com/sqlfluff/sqlfluff/pull/5500) [@reata](https://github.com/reata)
 * SparkSQL: allow value in set_statement to be Java class name [#5504](https://github.com/sqlfluff/sqlfluff/pull/5504) [@reata](https://github.com/reata)
 * SparkSQL: allow distribute/sort/cluster by at end of set operation [#5502](https://github.com/sqlfluff/sqlfluff/pull/5502) [@reata](https://github.com/reata)
-* [CI] Add a few more mypy ckecks [#5505](https://github.com/sqlfluff/sqlfluff/pull/5505) [@Koyaani](https://github.com/Koyaani)
+* [CI] Add a few more mypy checks [#5505](https://github.com/sqlfluff/sqlfluff/pull/5505) [@Koyaani](https://github.com/Koyaani)
 * Snowflake dialect: Add support for DATABASE ROLE in GRANT/REVOKE [#5490](https://github.com/sqlfluff/sqlfluff/pull/5490) [@sfc-gh-dgupta](https://github.com/sfc-gh-dgupta)
 * DuckDB: Qualify and From-First [#5485](https://github.com/sqlfluff/sqlfluff/pull/5485) [@keraion](https://github.com/keraion)
 * MySql: create table: allow null/not null in any position [#5473](https://github.com/sqlfluff/sqlfluff/pull/5473) [@archer62](https://github.com/archer62)
@@ -616,7 +616,7 @@ This release also sees a bumper crop of new contributors, thanks to
 [@Kylea650](https://github.com/Kylea650), [@robin-alphasophia](https://github.com/robin-alphasophia),
 [@jtbg](https://github.com/jtbg), [@r-petit](https://github.com/r-petit),
 [@bpfaust](https://github.com/bpfaust) & [@freewaydev](https://github.com/freewaydev)
-who all made the first contibutions in this release! 🎉🎉🎉
+who all made the first contributions in this release! 🎉🎉🎉
 
 ## What’s Changed
 
@@ -1103,7 +1103,7 @@ and also contains various dialect improvements.
 
 ## Highlights
 
-This releases fixes a compatability issue with the latest version of dbt. It also ships various dialect improvements.
+This releases fixes a compatibility issue with the latest version of dbt. It also ships various dialect improvements.
 
 ## What’s Changed
 
@@ -1446,7 +1446,7 @@ many users. 🚀
 
 This is mostly a bugfix release addressing some of the issues from the recent
 2.0 release. Notable fixes are:
-- Spacing for (as applied by `LT01`) for datatypes, hypenated identifiers and
+- Spacing for (as applied by `LT01`) for datatypes, hyphenated identifiers and
   casting operators.
 - Several bugs in the indentation routines (`LT02`), in particular with implicit
   indents.
@@ -3397,7 +3397,7 @@ Major changes include:
 * Align line length in Python code to 88 characters [#2264](https://github.com/sqlfluff/sqlfluff/pull/2264) [@chwiese](https://github.com/chwiese)
 * Jinja templater: Allow "load_macros_from_path" to be a comma-separated list of paths [#2387](https://github.com/sqlfluff/sqlfluff/pull/2387) [@barrywhart](https://github.com/barrywhart)
 * Add "TRANS" keyword for T-SQL [#2399](https://github.com/sqlfluff/sqlfluff/pull/2399) [@fdw](https://github.com/fdw)
-* Docstrings: Replace double backtics with single quote for lint results. [#2386](https://github.com/sqlfluff/sqlfluff/pull/2386) [@jpy-git](https://github.com/jpy-git)
+* Docstrings: Replace double backticks with single quote for lint results. [#2386](https://github.com/sqlfluff/sqlfluff/pull/2386) [@jpy-git](https://github.com/jpy-git)
 * Spark3: Support for `INSERT OVERWRITE DIRECTORY` statements [#2385](https://github.com/sqlfluff/sqlfluff/pull/2385) [@R7L208](https://github.com/R7L208)
 * Fix unnecessary white underline in doc site [#2383](https://github.com/sqlfluff/sqlfluff/pull/2383) [@tunetheweb](https://github.com/tunetheweb)
 * Rolls back some code cleanup that caused coverage report to show gaps [#2384](https://github.com/sqlfluff/sqlfluff/pull/2384) [@barrywhart](https://github.com/barrywhart)
@@ -3685,7 +3685,7 @@ There have also been many bug fixes and improvements to the CI and development p
 * Fix L009 FileSegment child + new create_before/create_after edit types [#1979](https://github.com/sqlfluff/sqlfluff/pull/1979) [@jpy-git](https://github.com/jpy-git)
 * Adds extra check to L054 to avoid weird error messages [#1988](https://github.com/sqlfluff/sqlfluff/pull/1988) [@tunetheweb](https://github.com/tunetheweb)
 * BigQuery: Allow keywords in column reference components [#1987](https://github.com/sqlfluff/sqlfluff/pull/1987) [@tunetheweb](https://github.com/tunetheweb)
-* L027: Remove unnessary crawl in get_select_statement_info [#1974](https://github.com/sqlfluff/sqlfluff/pull/1974) [@jpy-git](https://github.com/jpy-git)
+* L027: Remove unnecessary crawl in get_select_statement_info [#1974](https://github.com/sqlfluff/sqlfluff/pull/1974) [@jpy-git](https://github.com/jpy-git)
 * Add __all__ attributes to __init__.py files to resolve F401 [#1949](https://github.com/sqlfluff/sqlfluff/pull/1949) [@jpy-git](https://github.com/jpy-git)
 * Fix incorrect comment on L055 [#1967](https://github.com/sqlfluff/sqlfluff/pull/1967) [@jpy-git](https://github.com/jpy-git)
 * Docs: fix docker hub link to public URL [#1964](https://github.com/sqlfluff/sqlfluff/pull/1964) [@kevinmarsh](https://github.com/kevinmarsh)
@@ -4810,7 +4810,7 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 
 ### Changed
 
-- Tweek rule L005 to report more sensibly with newlines.
+- Tweak rule L005 to report more sensibly with newlines.
 - Rework testing of rules to be more modular.
 - Fix a config file bug if no root config file was present for some
   values. Thanks [@barrywhart](https://github.com/barrywhart).
