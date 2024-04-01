@@ -242,7 +242,7 @@ test_pass_snowflake_values:
       dialect: snowflake
 
 test_pass_tsql_values_clause_in_parentheses:
-  # Tests a fix for issue 3522. In tsql, the parentheses surrouding "values" are
+  # Tests a fix for issue 3522. In tsql, the parentheses surrounding "values" are
   # required (otherwise syntax error). SQLFluff was incorrectly complaining that
   # the alias 't' was unused.
   pass_str: |

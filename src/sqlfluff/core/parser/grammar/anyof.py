@@ -148,7 +148,7 @@ class AnyNumberOf(BaseGrammar):
         matched_idx = idx
         # The working index is to cover non-code elements which aren't
         # claimed yet, but we should conditionally claim if the next
-        # match is succesful.
+        # match is successful.
         working_idx = idx
         matched = MatchResult.empty_at(idx)
         max_idx = len(segments)  # What is the limit

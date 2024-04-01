@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5866457289782a3325bf4d8bcd5ca7d6159222350cb8339923133c5ca619730c
+_hash: d3a855aae54d0929279b15283759ecd93120ab909cafbf7ce1080fe9fbfd3a0d
 file:
 - statement:
     create_view_statement:
@@ -98,6 +98,71 @@ file:
               wildcard_expression:
                 wildcard_identifier:
                   star: '*'
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: bar
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: x
+          options_segment:
+            keyword: OPTIONS
+            bracketed:
+              start_bracket: (
+              parameter: description
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'x'"
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: y
+          options_segment:
+            keyword: OPTIONS
+            bracketed:
+              start_bracket: (
+              parameter: description
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'y'"
+              end_bracket: )
+      - end_bracket: )
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+          start_bracket: (
+          parameter: description
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'view_column_name_list'"
+          end_bracket: )
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: x
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: y
           from_clause:
             keyword: from
             from_expression:

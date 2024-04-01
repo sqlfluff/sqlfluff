@@ -202,7 +202,7 @@ class RawTemplatedTestCase(NamedTuple):
                 " ",
                 "{%- set x = 42 %}",
                 " 1",
-                # This whitespace is a seperate from the 1 because it's consumed.
+                # This whitespace is a separate from the 1 because it's consumed.
                 " ",
                 "{%- if true -%}",
                 " ",

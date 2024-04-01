@@ -34,7 +34,7 @@ test_fail_implicit_alias_space:
   fix_str: select foo.bar from (select 1 as bar) AS foo
 
 test_fail_implicit_alias_explicit:
-  # Test when explicitly setting explict
+  # Test when explicitly setting explicit
   fail_str: select foo.bar from (select 1 as bar) foo
   fix_str: select foo.bar from (select 1 as bar) AS foo
   configs:
