@@ -145,6 +145,7 @@ class Rule_CP01(BaseRule):
             first_letter_is_lowercase = False
 
         if first_letter_is_lowercase:
+            # snake added here as it cannot be inferred (presents as lower)
             refuted_cases.update(["upper", "capitalise", "pascal", "snake"])
             if segment.raw != segment.raw.lower():
                 refuted_cases.update(["lower"])
