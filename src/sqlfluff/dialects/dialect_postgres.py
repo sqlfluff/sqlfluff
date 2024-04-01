@@ -2577,7 +2577,7 @@ class PublicationObjectsSegment(BaseSegment):
     so requires one to track the previous object type if it's a "continuation object
     type", this grammar groups together the continuation objects, e.g.
     "TABLE a, b, TABLE c, d" results in two segments: one containing references
-    "a, b", and the other contianing "c, d".
+    "a, b", and the other containing "c, d".
 
     https://www.postgresql.org/docs/15/sql-createpublication.html
     https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L10435-L10530
@@ -4249,7 +4249,7 @@ class DropSequenceStatementSegment(ansi.DropSequenceStatementSegment):
 
 
 class StatisticsReferenceSegment(ansi.ObjectReferenceSegment):
-    """Statics Reference."""
+    """Statistics Reference."""
 
     type = "statistics_reference"
 

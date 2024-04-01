@@ -373,7 +373,7 @@ described above.
 - [ ] Comment in #contributing slack channel about release candidate.
 - [ ] Update the draft PR as more changes get merged.
 - [ ] Get another contributor to approve the PR.
-- [ ] Merge the PR when looks like we've got all we’re gonna get for this release.
+- [ ] Merge the PR when looks like we've got all we’re going to get for this release.
 - [ ] Go to the [releases page](https://github.com/sqlfluff/sqlfluff/releases), edit
       the release to be same as [CHANGELOG.md](CHANGELOG.md) (remember to remove your
       release PR which doesn’t need to go in this). Add version tag and a title and

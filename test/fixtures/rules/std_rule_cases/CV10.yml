@@ -169,7 +169,7 @@ test_fail_tripple_quoted_strings_dont_remove_escapes_double_quotes:
         preferred_quoted_literal_style: double_quotes
 
 test_fail_edge_case_tripple_quoted_string_ending_with_double_quote:
-  # Test that a trailing preferred quote in tripple quote scenario doesn't break
+  # Test that a trailing preferred quote in triple quote scenario doesn't break
   fail_str: |
     SELECT
         '''Here's a "''',
@@ -229,7 +229,7 @@ test_fail_quote_replace_in_raw_strings:
         preferred_quoted_literal_style: double_quotes
 
 test_pass_dollar_quoted_strings_are_ignored:
-  # Test that we dont interfere with dollar quoted strings
+  # Test that we don't interfere with dollar quoted strings
   pass_str: |
     SELECT
         'some string',
@@ -243,14 +243,14 @@ test_pass_dollar_quoted_strings_are_ignored:
         preferred_quoted_literal_style: single_quotes
 
 test_pass_date_constructor_strings_are_ignored_1:
-  # Test that we dont interfere with date constructor strings
+  # Test that we don't interfere with date constructor strings
   pass_str: |
     SELECT
         "quoted string",
         DATE'some string'
 
 test_pass_date_constructor_strings_are_ignored_2:
-  # Test that we dont interfere with date constructor strings
+  # Test that we don't interfere with date constructor strings
   pass_str: |
     SELECT
         DATE'some string'
