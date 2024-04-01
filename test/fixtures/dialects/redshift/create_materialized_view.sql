@@ -22,9 +22,9 @@ select salesid, qtysold, pricepaid, commission, saletime from spectrum.sales
 ;
 
 
-CREATE MATERIALIZED VIEW mv_baseball 
-DISTSTYLE ALL 
-AUTO REFRESH YES 
-AS 
-SELECT ball  AS baseball 
+CREATE MATERIALIZED VIEW mv_baseball
+DISTSTYLE ALL
+AUTO REFRESH YES
+AS
+SELECT ball  AS baseball
 FROM baseball_table;
