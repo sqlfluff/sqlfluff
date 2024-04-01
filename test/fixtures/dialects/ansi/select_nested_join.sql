@@ -1,4 +1,4 @@
--- query with no brackets 
+-- query with no brackets
 select
     orders.order_id AS order_id,
     customers.email AS email
