@@ -227,3 +227,60 @@ test_fail_no_copy_code_out_of_template:
       jinja:
         context:
           inner_when: "WHEN species = 'Dog' THEN 'Woof'"
+
+test_pass_different_case_expressions1:
+  pass_str: |
+    SELECT
+        CASE
+            WHEN DayOfMonth IN (11, 12, 13) THEN 'TH'
+            ELSE
+                CASE MOD(DayOfMonth, 10)
+                    WHEN 1 THEN 'ST'
+                    WHEN 2 THEN 'ND'
+                    WHEN 3 THEN 'RD'
+                    ELSE 'TH'
+                END
+        END AS OrdinalSuffix
+    FROM Calendar;
+
+test_pass_different_case_expressions2:
+  pass_str: |
+    SELECT
+        CASE DayOfMonth
+            WHEN 11 THEN 'TH'
+            WHEN 12 THEN 'TH'
+            WHEN 13 THEN 'TH'
+            ELSE
+                CASE MOD(DayOfMonth, 10)
+                    WHEN 1 THEN 'ST'
+                    WHEN 2 THEN 'ND'
+                    WHEN 3 THEN 'RD'
+                    ELSE 'TH'
+                END
+        END AS OrdinalSuffix
+    FROM Calendar;
+
+test_fail_nested_same_case:
+  fail_str: |
+    SELECT
+        CASE x
+            WHEN 0 THEN 'zero'
+            WHEN 5 THEN 'five'
+            ELSE
+                CASE x
+                    WHEN 10 THEN 'ten'
+                    WHEN 20 THEN 'twenty'
+                    ELSE 'other'
+                END
+        END
+    FROM tab_a;
+  fix_str: |
+    SELECT
+        CASE x
+            WHEN 0 THEN 'zero'
+            WHEN 5 THEN 'five'
+            WHEN 10 THEN 'ten'
+            WHEN 20 THEN 'twenty'
+            ELSE 'other'
+        END
+    FROM tab_a;
