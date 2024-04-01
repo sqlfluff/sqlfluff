@@ -1525,6 +1525,15 @@ class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
     )
 
 
+class ViewColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
+    """A column definition, for view_column_name_list of CREATE VIEW statement."""
+
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        Ref("OptionsSegment", optional=True),
+    )
+
+
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """`CREATE TABLE` statement.
 
@@ -1711,7 +1720,12 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         # Optional list of column names
-        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Bracketed(
+            Delimited(
+                Ref("ViewColumnDefinitionSegment"),
+            ),
+            optional=True,
+        ),
         Ref("OptionsSegment", optional=True),
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
