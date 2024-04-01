@@ -9,9 +9,11 @@ repos:
         exclude: |
           (?x)^
           (
+            test/fixtures/templater/jinja_l_metas/0(0[134578]|11).sql|
             test/fixtures/linter/sqlfluffignore/[^/]*/[^/]*.sql|
             test/fixtures/config/inheritance_b/(nested/)?example.sql|
             (.*)/trailing_newlines.sql|
+            plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/models/my_new_project/multiple_trailing_newline.sql|
             plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/macro_in_macro.sql|
             plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/(dbt_utils_0.8.0/)?last_day.sql|
             test/fixtures/linter/indentation_errors.sql|
@@ -24,7 +26,7 @@ repos:
             test/fixtures/templater/jinja_d_roundtrip/test.sql|
             test/fixtures/config/inheritance_b/example.sql|
             test/fixtures/config/inheritance_b/nested/example.sql|
-            plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/macro_in_macro.sq|
+            plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/macro_in_macro.sql|
             plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/last_day.sql|
             plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/dbt_utils_0.8.0/last_day.sql|
             test/fixtures/linter/sqlfluffignore/
