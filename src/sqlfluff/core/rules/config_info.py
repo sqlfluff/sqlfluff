@@ -60,9 +60,10 @@ STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
         "definition": "The capitalisation policy to enforce.",
     },
     "extended_capitalisation_policy": {
-        "validation": ["consistent", "upper", "lower", "pascal", "capitalise"],
+        "validation": ["consistent", "upper", "lower", "pascal", "capitalise", "snake"],
         "definition": (
-            "The capitalisation policy to enforce, extended with PascalCase. "
+            "The capitalisation policy to enforce, extended with PascalCase "
+            "and snake_case. "
             "This is separate from ``capitalisation_policy`` as it should not be "
             "applied to keywords."
         ),

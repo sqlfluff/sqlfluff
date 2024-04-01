@@ -111,3 +111,11 @@ test_pass_ignore_words_regex_bigquery_complex:
     rules:
       capitalisation.functions:
         ignore_words_regex: (^_f_|\._f_)
+
+test_bare_functions_4:
+  fail_str: SELECT Current_Timestamp, Min(a) from table
+  fix_str: SELECT current_timestamp, min(a) from table
+  configs:
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: snake

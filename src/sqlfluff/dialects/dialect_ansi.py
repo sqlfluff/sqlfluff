@@ -1228,7 +1228,7 @@ class QualifiedNumericLiteralSegment(BaseSegment):
 
 
 class AggregateOrderByClause(BaseSegment):
-    """An order by clause for an aggregate fucntion.
+    """An order by clause for an aggregate function.
 
     Defined as a class to allow a specific type for rule AM06
     """

@@ -145,7 +145,8 @@ class Rule_CP01(BaseRule):
             first_letter_is_lowercase = False
 
         if first_letter_is_lowercase:
-            refuted_cases.update(["upper", "capitalise", "pascal"])
+            # snake added here as it cannot be inferred (presents as lower)
+            refuted_cases.update(["upper", "capitalise", "pascal", "snake"])
             if segment.raw != segment.raw.lower():
                 refuted_cases.update(["lower"])
         else:
@@ -155,7 +156,7 @@ class Rule_CP01(BaseRule):
             if segment.raw != segment.raw.capitalize():
                 refuted_cases.update(["capitalise"])
             if not segment.raw.isalnum():
-                refuted_cases.update(["pascal"])
+                refuted_cases.update(["pascal", "snake"])
 
         # Update the memory
         memory["refuted_cases"] = refuted_cases
@@ -218,6 +219,15 @@ class Rule_CP01(BaseRule):
                 lambda match: match.group(1) + match.group(2).upper() + match.group(3),
                 segment.raw,
             )
+        elif concrete_policy == "snake":
+            if segment.raw.isupper():
+                fixed_raw = segment.raw.lower()
+            else:
+                fixed_raw = regex.sub(
+                    r"(?<=[a-z0-9])([A-Z])|(?<=[A-Za-z])([0-9])|(?<=[0-9])([A-Za-z])",
+                    lambda match: "_" + match.group(),
+                    segment.raw,
+                ).lower()
 
         if fixed_raw == segment.raw:
             # No need to fix
@@ -236,6 +246,8 @@ class Rule_CP01(BaseRule):
                 policy = "capitalised."
             elif concrete_policy == "pascal":
                 policy = "pascal case."
+            elif concrete_policy == "snake":
+                policy = "snake case."
 
             # Return the fixed segment
             self.logger.debug(

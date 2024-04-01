@@ -34,7 +34,7 @@ OPTIONS (
   hive_partition_uri_prefix='gs://bucket/path'
 );
 
--- Test arbritary ordering of optional arguments
+-- Test arbitary ordering of optional arguments
 CREATE EXTERNAL TABLE dataset.CustomHivePartitionedTable
 OPTIONS (
   uris=['gs://bucket/path/*'],

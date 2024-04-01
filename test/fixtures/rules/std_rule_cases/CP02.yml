@@ -253,3 +253,31 @@ test_pass_databricks_case_sensitive_property:
   configs:
     core:
       dialect: databricks
+
+test_fail_snake_aliases:
+  # Test for issue #5470
+  # similar to PascalCase, case logic defined in CP01, but tested in CP02
+  fail_str: |
+    SELECT
+    test1,
+    test_2,
+    testColumn3,
+    TestColumn4,
+    TESTCOLUMN5,
+    TEST_COLUMN6,
+    test_column_7_
+  fix_str: |
+    SELECT
+    test_1,
+    test_2,
+    test_column_3,
+    test_column_4,
+    testcolumn_5,
+    test_column_6,
+    test_column_7_
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: snake

@@ -101,7 +101,7 @@ class CreateTableStatementSegment(postgres.CreateTableStatementSegment):
 
     As specified in
     https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE.html
-    This is overriden from Postgres to add the `DISTRIBUTED` clause.
+    This is overridden from Postgres to add the `DISTRIBUTED` clause.
     """
 
     match_grammar = Sequence(
@@ -259,7 +259,7 @@ class CreateTableAsStatementSegment(postgres.CreateTableAsStatementSegment):
 
     As specified in
     https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE_AS.html
-    This is overriden from Postgres to add the `DISTRIBUTED` clause.
+    This is overridden from Postgres to add the `DISTRIBUTED` clause.
     """
 
     match_grammar = Sequence(
