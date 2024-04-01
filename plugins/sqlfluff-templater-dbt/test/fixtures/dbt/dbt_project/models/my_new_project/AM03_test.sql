@@ -5,4 +5,3 @@ from cows
 order by
     birth_date asc,
     name desc
-
