@@ -61,9 +61,6 @@ sqlite_dialect.patch_lexer_matchers(
 )
 
 sqlite_dialect.replace(
-    BooleanBinaryOperatorGrammar=OneOf(
-        Ref("AndOperatorGrammar"), Ref("OrOperatorGrammar"), "REGEXP"
-    ),
     PrimaryKeyGrammar=Sequence(
         "PRIMARY", "KEY", Sequence("AUTOINCREMENT", optional=True)
     ),
@@ -194,6 +191,10 @@ sqlite_dialect.replace(
         Sequence("DISTINCT", "FROM", optional=True),
     ),
     NanLiteralSegment=Nothing(),
+    PatternMatchingGrammar=Sequence(
+        Ref.keyword("NOT", optional=True),
+        OneOf("GLOB", "REGEXP", "MATCH"),
+    ),
 )
 
 
