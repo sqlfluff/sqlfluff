@@ -1779,22 +1779,7 @@ class CallStoredProcedureSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CALL",
-        OneOf(
-            Ref("SingleIdentifierGrammar"),
-            Ref("QuotedIdentifierSegment"),
-        ),
-        Bracketed(
-            AnyNumberOf(
-                Delimited(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("NumericLiteralSegment"),
-                    Ref("DoubleQuotedLiteralSegment"),
-                    Ref("SessionVariableNameSegment"),
-                    Ref("LocalVariableNameSegment"),
-                    Ref("FunctionSegment"),
-                ),
-            ),
-        ),
+        Ref("FunctionSegment"),
     )
 
 
