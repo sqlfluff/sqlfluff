@@ -1811,7 +1811,7 @@ class JoinClauseSegment(BaseSegment):
             Ref("JoinKeywordsGrammar"),
             Indent,
             Ref("FromExpressionElementSegment"),
-            Ref("MatchConditionSegment"),
+            Ref("MatchConditionSegment", optional=True),
             Dedent,
         ),
         # Sometimes, a natural join might already include the keyword
