@@ -1,5 +1,7 @@
 """Implementation of Rule ST04."""
 
+from typing import List
+
 from sqlfluff.core.parser import BaseSegment, Indent, NewlineSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
@@ -164,7 +166,7 @@ class Rule_ST04(BaseRule):
         segment: BaseSegment,
         tab_space_size: int,
         indent_unit: str,
-    ):
+    ) -> str:
         """Calculate the indentation level for rebuilding nested struct.
 
         This is only a best attempt as the input may not be equally indented. The layout
@@ -198,7 +200,7 @@ class Rule_ST04(BaseRule):
         case1_children: Segments,
         case1_else_clause_seg: BaseSegment,
         end_indent_str: str,
-    ):
+    ) -> List[LintFix]:
         """Prepend newline spacing to comments on the final nested `END` line."""
         trailing_end = case1_children.select(
             start_seg=case1_else_clause_seg,
@@ -213,7 +215,9 @@ class Rule_ST04(BaseRule):
             fixes.append(LintFix.create_before(first_comment, segments, segments))
         return fixes
 
-    def _rebuild_spacing(self, indent_str: str, nested_clauses: Segments):
+    def _rebuild_spacing(
+        self, indent_str: str, nested_clauses: Segments
+    ) -> List[BaseSegment]:
         buff = []
         # If the first segment is a comment, add a newline
         prior_newline = nested_clauses.first(sp.not_(sp.is_whitespace())).any(
