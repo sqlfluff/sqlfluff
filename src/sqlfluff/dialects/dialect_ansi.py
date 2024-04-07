@@ -1771,7 +1771,7 @@ class MatchConditionSegment(BaseSegment):
 
     type = "match_condition"
 
-    match_grammar = Nothing()
+    match_grammar: Matchable = Nothing()
 
 
 class JoinClauseSegment(BaseSegment):
