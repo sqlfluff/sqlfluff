@@ -14,6 +14,14 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This is a standard bugfix release bringing a bunch of dialect improvements and
+bugfixes. Almost every dialect sees some improvements and it also includes
+quality of life improvements to the CLI, pre-commit hooks, docs and several
+rules.
+
+Thanks also to the **eight** new contributors whose first contributions are
+included in this release. 🎉🎉🏆🎉🎉
+
 ## What’s Changed
 
 * TSQL: Move PROPERTY to unreserved [#5759](https://github.com/sqlfluff/sqlfluff/pull/5759) [@WittierDinosaur](https://github.com/WittierDinosaur)
