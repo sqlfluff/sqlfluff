@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d4ddb2e6e7c37d2270c3b4da1083779a7f7c8217fadb6566c35021d6eb462f2c
+_hash: 431013731d192f9465ca485ddb5f93ddc3a29408c569dc8a50bf5458a745e4c7
 file:
 - statement:
     create_database_statement:
@@ -87,4 +87,22 @@ file:
       - keyword: DEFAULT
       - keyword: ENCRYPTION
       - quoted_literal: "'N'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: xxx
+    - create_option_segment:
+      - keyword: CHARACTER
+      - keyword: SET
+      - quoted_literal: '"utf8mb4"'
+    - create_option_segment:
+        keyword: COLLATE
+        collation_reference:
+          quoted_literal: '"utf8mb4_bin"'
 - statement_terminator: ;
