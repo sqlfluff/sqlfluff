@@ -867,6 +867,11 @@ class DatatypeSegment(ansi.DatatypeSegment):
                     "DATERANGE",
                     # pg_lsn type
                     "PG_LSN",
+                    # pgvector types
+                    Sequence(
+                        "VECTOR",
+                        Ref("BracketedArguments", optional=True),
+                    ),
                 ),
             ),
             # user defined data types
