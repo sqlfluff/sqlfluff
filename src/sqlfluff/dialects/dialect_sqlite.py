@@ -303,8 +303,8 @@ class ReturningClauseSegment(BaseSegment):
             Sequence(
                 Ref("ExpressionSegment"),
                 Ref("AliasExpressionSegment", optional=True),
-            )
-        )
+            ),
+        ),
     )
 
 
