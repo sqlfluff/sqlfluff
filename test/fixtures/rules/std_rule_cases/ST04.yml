@@ -284,3 +284,87 @@ test_fail_nested_same_case:
             ELSE 'other'
         END
     FROM tab_a;
+
+test_fail_retain_comments:
+  fail_str: |
+    SELECT
+      CASE
+          WHEN FALSE
+            THEN "value1"  -- a comment
+          ELSE
+            CASE
+                -- another comment
+              WHEN TRUE   -- and here
+                THEN "value2" -- but also here
+            END
+        END
+    FROM table;
+  fix_str: |
+    SELECT
+      CASE
+          WHEN FALSE
+            THEN "value1"  -- a comment
+          -- another comment
+          WHEN TRUE   -- and here
+                THEN "value2" -- but also here
+        END
+    FROM table;
+
+test_fail_retain_comments_after_end:
+  fail_str: |
+    SELECT
+    CASE -- no spaces here
+        WHEN FALSE
+          THEN "value1"  -- a comment
+        ELSE
+          CASE -- after case
+              -- another comment
+        /* before the when */   WHEN TRUE   -- and here
+              THEN "value2" -- but also here
+        END /* after the end */    /* but wait there's more! */
+       -- but here too
+      END
+    FROM table;
+  fix_str: |
+    SELECT
+    CASE -- no spaces here
+        WHEN FALSE
+          THEN "value1"  -- a comment
+        -- after case
+        -- another comment
+        /* before the when */
+        WHEN TRUE   -- and here
+              THEN "value2" -- but also here
+        /* after the end */    /* but wait there's more! */
+       -- but here too
+      END
+    FROM table;
+
+test_fail_retain_comments_after_else:
+  fail_str: |
+    SELECT
+      CASE
+          WHEN FALSE
+            THEN "value1"  -- a comment
+          /* before else*/ ELSE --after else
+            /*before case*/ CASE -- else case
+                -- another comment
+              WHEN TRUE   -- and here
+                THEN "value2" -- but also here
+            END
+        END
+    FROM table;
+  fix_str: |
+    SELECT
+      CASE
+          WHEN FALSE
+            THEN "value1"  -- a comment
+          /* before else*/
+          --after else
+          /*before case*/
+          -- else case
+          -- another comment
+          WHEN TRUE   -- and here
+                THEN "value2" -- but also here
+        END
+    FROM table;
