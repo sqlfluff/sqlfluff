@@ -10,6 +10,54 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [3.0.4] - 2024-04-07
+
+## Highlights
+
+## What’s Changed
+
+* TSQL: Move PROPERTY to unreserved [#5759](https://github.com/sqlfluff/sqlfluff/pull/5759) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Mysql: Add Character Set Literals [#5755](https://github.com/sqlfluff/sqlfluff/pull/5755) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Snowflake: Support ASOF Joins [#5756](https://github.com/sqlfluff/sqlfluff/pull/5756) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Mysql: Support scoped function calls [#5757](https://github.com/sqlfluff/sqlfluff/pull/5757) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Postgres: Support pgvector vector type [#5758](https://github.com/sqlfluff/sqlfluff/pull/5758) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* SQLite: Support RETURNING Clause [#5760](https://github.com/sqlfluff/sqlfluff/pull/5760) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Postgres: Allow return control structures in atomic functions [#5761](https://github.com/sqlfluff/sqlfluff/pull/5761) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* ST04: Retain comments when flattening `CASE` [#5753](https://github.com/sqlfluff/sqlfluff/pull/5753) [@keraion](https://github.com/keraion)
+* dbt templater: Raise UserError when using stdin [#5752](https://github.com/sqlfluff/sqlfluff/pull/5752) [@keraion](https://github.com/keraion)
+* SQLite: Add `GLOB`, `MATCH`. Improved `REGEXP` [#5745](https://github.com/sqlfluff/sqlfluff/pull/5745) [@keraion](https://github.com/keraion)
+* Databricks: Fix Aliases for Join-like objects [#5748](https://github.com/sqlfluff/sqlfluff/pull/5748) [@keraion](https://github.com/keraion)
+* Add missing README ref, and issues labels [#5741](https://github.com/sqlfluff/sqlfluff/pull/5741) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Qual: Add pre-commit to CI [#5730](https://github.com/sqlfluff/sqlfluff/pull/5730) [@mdeweerd](https://github.com/mdeweerd)
+* Added support for 'greater/less than or equal' on ANSI CASE statement [#5728](https://github.com/sqlfluff/sqlfluff/pull/5728) [@IliyanKostov9](https://github.com/IliyanKostov9)
+* Remove `--force` flag from pre-commit hook definition [#5739](https://github.com/sqlfluff/sqlfluff/pull/5739) [@borchero](https://github.com/borchero)
+* adding snake_case to CP01 extended_capitalisation_policy [#5736](https://github.com/sqlfluff/sqlfluff/pull/5736) [@alecsgonz](https://github.com/alecsgonz)
+* ST04: Ignore simplifying `CASE`s with different expressions [#5735](https://github.com/sqlfluff/sqlfluff/pull/5735) [@keraion](https://github.com/keraion)
+* Fix #5724 mysql: Allow Line comments without space after -- [#5731](https://github.com/sqlfluff/sqlfluff/pull/5731) [@mdeweerd](https://github.com/mdeweerd)
+* Fix spelling [#5729](https://github.com/sqlfluff/sqlfluff/pull/5729) [@mdeweerd](https://github.com/mdeweerd)
+* Fix implementation for view_column_name_list in BigQuery's CREATE VIEW [#5738](https://github.com/sqlfluff/sqlfluff/pull/5738) [@kzosabe](https://github.com/kzosabe)
+* CLI: Suppress tracebacks on render/fix/format [#5734](https://github.com/sqlfluff/sqlfluff/pull/5734) [@keraion](https://github.com/keraion)
+* Clickhouse: add parsing for select except clause [#5725](https://github.com/sqlfluff/sqlfluff/pull/5725) [@tojahech](https://github.com/tojahech)
+* Add array type support to Trino dialect [#5722](https://github.com/sqlfluff/sqlfluff/pull/5722) [@kirkhansen](https://github.com/kirkhansen)
+* Fix/snowflake unparsable tag in create stmt [#5720](https://github.com/sqlfluff/sqlfluff/pull/5720) [@mariq41](https://github.com/mariq41)
+* Fix/snowflake ext storage [#5714](https://github.com/sqlfluff/sqlfluff/pull/5714) [@mariq41](https://github.com/mariq41)
+* Clickhouse: add parsing for "distinct on" syntax [#5716](https://github.com/sqlfluff/sqlfluff/pull/5716) [@tojahech](https://github.com/tojahech)
+* added refresh mode init on create table statement [#5715](https://github.com/sqlfluff/sqlfluff/pull/5715) [@IliyanKostov9](https://github.com/IliyanKostov9)
+* added `ifNotExistsGrammar` to Snowflake procedure [#5709](https://github.com/sqlfluff/sqlfluff/pull/5709) [@IliyanKostov9](https://github.com/IliyanKostov9)
+* Trino: 'TIMESTAMP(p)' no longer triggers LT01 [#5711](https://github.com/sqlfluff/sqlfluff/pull/5711) [@rileymcdowell](https://github.com/rileymcdowell)
+* Snowflake: add support for streamlit [#5692](https://github.com/sqlfluff/sqlfluff/pull/5692) [@vgw-chriskruger](https://github.com/vgw-chriskruger)
+
+## New Contributors
+
+* [@vgw-chriskruger](https://github.com/vgw-chriskruger) made their first contribution in [#5692](https://github.com/sqlfluff/sqlfluff/pull/5692)
+* [@IliyanKostov9](https://github.com/IliyanKostov9) made their first contribution in [#5709](https://github.com/sqlfluff/sqlfluff/pull/5709)
+* [@tojahech](https://github.com/tojahech) made their first contribution in [#5716](https://github.com/sqlfluff/sqlfluff/pull/5716)
+* [@mariq41](https://github.com/mariq41) made their first contribution in [#5714](https://github.com/sqlfluff/sqlfluff/pull/5714)
+* [@kirkhansen](https://github.com/kirkhansen) made their first contribution in [#5722](https://github.com/sqlfluff/sqlfluff/pull/5722)
+* [@kzosabe](https://github.com/kzosabe) made their first contribution in [#5738](https://github.com/sqlfluff/sqlfluff/pull/5738)
+* [@mdeweerd](https://github.com/mdeweerd) made their first contribution in [#5729](https://github.com/sqlfluff/sqlfluff/pull/5729)
+* [@alecsgonz](https://github.com/alecsgonz) made their first contribution in [#5736](https://github.com/sqlfluff/sqlfluff/pull/5736)
+
 ## [3.0.3] - 2024-03-22
 
 ## Highlights
