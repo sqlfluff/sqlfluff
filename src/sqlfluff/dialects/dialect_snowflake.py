@@ -720,9 +720,7 @@ snowflake_dialect.replace(
         "FETCH",
         "OFFSET",
     ),
-    NonStandardJoinTypeKeywordsGrammar=OneOf(
-        "ASOF"
-    ),
+    NonStandardJoinTypeKeywordsGrammar=OneOf("ASOF"),
     UnconditionalJoinKeywordsGrammar=OneOf(
         Ref("NaturalJoinKeywordsGrammar"),
         Ref("UnconditionalCrossJoinKeywordsGrammar"),
@@ -1425,12 +1423,7 @@ class MatchConditionSegment(ansi.MatchConditionSegment):
 
     type = "match_condition"
 
-    match_grammar = Sequence(
-        "MATCH_CONDITION",
-        Bracketed(
-            Ref("ExpressionSegment")
-        )
-    )
+    match_grammar = Sequence("MATCH_CONDITION", Bracketed(Ref("ExpressionSegment")))
 
 
 class PatternSegment(BaseSegment):

@@ -1769,7 +1769,7 @@ class SelectClauseSegment(BaseSegment):
 class MatchConditionSegment(BaseSegment):
     """A stub segment to be used in Snowflake ASOF joins."""
 
-    type ="match_condition"
+    type = "match_condition"
 
     match_grammar = Nothing()
 
