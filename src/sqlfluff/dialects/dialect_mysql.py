@@ -1775,26 +1775,11 @@ class CallStoredProcedureSegment(BaseSegment):
     https://dev.mysql.com/doc/refman/8.0/en/call.html
     """
 
-    type = "call_segment"
+    type = "call_statement"
 
     match_grammar = Sequence(
         "CALL",
-        OneOf(
-            Ref("SingleIdentifierGrammar"),
-            Ref("QuotedIdentifierSegment"),
-        ),
-        Bracketed(
-            AnyNumberOf(
-                Delimited(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("NumericLiteralSegment"),
-                    Ref("DoubleQuotedLiteralSegment"),
-                    Ref("SessionVariableNameSegment"),
-                    Ref("LocalVariableNameSegment"),
-                    Ref("FunctionSegment"),
-                ),
-            ),
-        ),
+        Ref("FunctionSegment"),
     )
 
 
