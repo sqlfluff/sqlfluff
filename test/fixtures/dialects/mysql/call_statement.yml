@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3a34dce305cf69f8bfc69aa686cf81d774ccb54661604bde6cf464ed6e740e1d
+_hash: a11cc392fec28fb4460d4da8a14fab9bd4c712a5875e482371d32f38255b29bf
 file:
 - statement:
-    call_segment:
+    call_statement:
       keyword: CALL
       function:
         function_name:
@@ -18,7 +18,7 @@ file:
           end_bracket: )
 - statement_terminator: ;
 - statement:
-    call_segment:
+    call_statement:
       keyword: CALL
       function:
         function_name:
@@ -37,7 +37,7 @@ file:
           end_bracket: )
 - statement_terminator: ;
 - statement:
-    call_segment:
+    call_statement:
       keyword: CALL
       function:
         function_name:
@@ -70,7 +70,7 @@ file:
         - end_bracket: )
 - statement_terminator: ;
 - statement:
-    call_segment:
+    call_statement:
       keyword: CALL
       function:
         function_name:
@@ -80,7 +80,7 @@ file:
           end_bracket: )
 - statement_terminator: ;
 - statement:
-    call_segment:
+    call_statement:
       keyword: CALL
       function:
         function_name:
@@ -92,7 +92,7 @@ file:
           end_bracket: )
 - statement_terminator: ;
 - statement:
-    call_segment:
+    call_statement:
       keyword: CALL
       function:
         function_name:
