@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e8085ca8c143b2a4f92c5c649fa42732ec82fcabe04ecdea94558c31676e63d6
+_hash: b8cce2e6e71f4d2d693d7a311eec703e89110cf36469087da79207952438d20e
 file:
 - statement:
     create_function_statement:
@@ -992,6 +992,446 @@ file:
             - end_bracket: )
         - keyword: RETURNING
         - star: '*'
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: time_bucket
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: _time
+        - data_type:
+            datetime_type_identifier:
+            - keyword: timestamp
+            - keyword: without
+            - keyword: time
+            - keyword: zone
+        - comma: ','
+        - parameter: _from
+        - data_type:
+            datetime_type_identifier:
+            - keyword: timestamp
+            - keyword: without
+            - keyword: time
+            - keyword: zone
+        - comma: ','
+        - parameter: _to
+        - data_type:
+            datetime_type_identifier:
+            - keyword: timestamp
+            - keyword: without
+            - keyword: time
+            - keyword: zone
+        - comma: ','
+        - parameter: _buckets
+        - data_type:
+            keyword: integer
+        - keyword: DEFAULT
+        - expression:
+            numeric_literal: '200'
+        - comma: ','
+        - parameter: _offset
+        - data_type:
+            keyword: integer
+        - keyword: DEFAULT
+        - expression:
+            numeric_literal: '0'
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        datetime_type_identifier:
+        - keyword: timestamp
+        - keyword: without
+        - keyword: time
+        - keyword: zone
+    - function_definition:
+      - keyword: IMMUTABLE
+      - keyword: PARALLEL
+      - keyword: SAFE
+      - keyword: BEGIN
+      - keyword: ATOMIC
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              expression:
+              - function:
+                  function_name:
+                    function_name_identifier: date_bin
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                            - column_reference:
+                                naked_identifier: _to
+                            - binary_operator: '-'
+                            - column_reference:
+                                naked_identifier: _from
+                            end_bracket: )
+                          binary_operator: /
+                          function:
+                            function_name:
+                              function_name_identifier: greatest
+                            bracketed:
+                            - start_bracket: (
+                            - expression:
+                                bracketed:
+                                  start_bracket: (
+                                  expression:
+                                    column_reference:
+                                      naked_identifier: _buckets
+                                    binary_operator: '-'
+                                    numeric_literal: '1'
+                                  end_bracket: )
+                            - comma: ','
+                            - expression:
+                                numeric_literal: '1'
+                            - end_bracket: )
+                        end_bracket: )
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: _time
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: _from
+                  - end_bracket: )
+              - binary_operator: +
+              - bracketed:
+                  start_bracket: (
+                  expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                      - column_reference:
+                          naked_identifier: _to
+                      - binary_operator: '-'
+                      - column_reference:
+                          naked_identifier: _from
+                      end_bracket: )
+                    binary_operator: /
+                    function:
+                      function_name:
+                        function_name_identifier: greatest
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: _buckets
+                              binary_operator: '-'
+                              numeric_literal: '1'
+                            end_bracket: )
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '1'
+                      - end_bracket: )
+                  end_bracket: )
+              - binary_operator: '*'
+              - bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: _offset
+                    binary_operator: +
+                    numeric_literal: '1'
+                  end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: time_bucket_limited
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: _time
+        - data_type:
+            datetime_type_identifier:
+              keyword: timestamp
+        - comma: ','
+        - parameter: _from
+        - data_type:
+            datetime_type_identifier:
+              keyword: timestamp
+        - comma: ','
+        - parameter: _to
+        - data_type:
+            datetime_type_identifier:
+              keyword: timestamp
+        - comma: ','
+        - parameter: _buckets
+        - data_type:
+            keyword: int
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - expression:
+            numeric_literal: '200'
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        datetime_type_identifier:
+          keyword: timestamp
+    - function_definition:
+      - keyword: IMMUTABLE
+      - keyword: PARALLEL
+      - keyword: SAFE
+      - keyword: BEGIN
+      - keyword: ATOMIC
+      - keyword: RETURN
+      - expression:
+          case_expression:
+          - keyword: CASE
+          - when_clause:
+            - keyword: WHEN
+            - expression:
+              - column_reference:
+                  naked_identifier: _time
+              - comparison_operator:
+                - raw_comparison_operator: <
+                - raw_comparison_operator: '='
+              - column_reference:
+                  naked_identifier: _from
+            - keyword: THEN
+            - expression:
+                column_reference:
+                  naked_identifier: _from
+          - when_clause:
+            - keyword: WHEN
+            - expression:
+              - column_reference:
+                  naked_identifier: _time
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+                - raw_comparison_operator: '='
+              - column_reference:
+                  naked_identifier: _to
+            - keyword: THEN
+            - expression:
+                column_reference:
+                  naked_identifier: _to
+          - else_clause:
+              keyword: ELSE
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: DATE_BIN
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                        - column_reference:
+                            naked_identifier: _to
+                        - binary_operator: '-'
+                        - column_reference:
+                            naked_identifier: _from
+                        end_bracket: )
+                      binary_operator: /
+                      function:
+                        function_name:
+                          function_name_identifier: GREATEST
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                              naked_identifier: _buckets
+                            binary_operator: '-'
+                            numeric_literal: '1'
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '1'
+                        - end_bracket: )
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: _time
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: _from
+                  - end_bracket: )
+                binary_operator: +
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                      - column_reference:
+                          naked_identifier: _to
+                      - binary_operator: '-'
+                      - column_reference:
+                          naked_identifier: _from
+                      end_bracket: )
+                    binary_operator: /
+                    function:
+                      function_name:
+                        function_name_identifier: GREATEST
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: _buckets
+                          binary_operator: '-'
+                          numeric_literal: '1'
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '1'
+                      - end_bracket: )
+                  end_bracket: )
+          - keyword: end
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: time_series
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: _from
+        - data_type:
+            datetime_type_identifier:
+            - keyword: timestamp
+            - keyword: without
+            - keyword: time
+            - keyword: zone
+        - comma: ','
+        - parameter: _to
+        - data_type:
+            datetime_type_identifier:
+            - keyword: timestamp
+            - keyword: without
+            - keyword: time
+            - keyword: zone
+        - comma: ','
+        - parameter: _buckets
+        - data_type:
+            keyword: integer
+        - keyword: DEFAULT
+        - expression:
+            numeric_literal: '200'
+        - end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          quoted_identifier: '"time"'
+        data_type:
+          datetime_type_identifier:
+          - keyword: timestamp
+          - keyword: without
+          - keyword: time
+          - keyword: zone
+        end_bracket: )
+    - function_definition:
+      - keyword: IMMUTABLE
+      - keyword: PARALLEL
+      - keyword: SAFE
+      - keyword: BEGIN
+      - keyword: ATOMIC
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: time_bucket
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: _from
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: _from
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: _to
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: _buckets
+                - comma: ','
+                - expression:
+                    column_reference:
+                    - naked_identifier: g
+                    - dot: .
+                    - naked_identifier: ofs
+                    binary_operator: '-'
+                    numeric_literal: '1'
+                - end_bracket: )
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  function:
+                    function_name:
+                      function_name_identifier: generate_series
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        numeric_literal: '0'
+                    - comma: ','
+                    - expression:
+                        function:
+                          function_name:
+                            function_name_identifier: greatest
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              bracketed:
+                                start_bracket: (
+                                expression:
+                                  column_reference:
+                                    naked_identifier: _buckets
+                                  binary_operator: '-'
+                                  numeric_literal: '1'
+                                end_bracket: )
+                          - comma: ','
+                          - expression:
+                              numeric_literal: '1'
+                          - end_bracket: )
+                    - end_bracket: )
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: g
+                  bracketed:
+                    start_bracket: (
+                    identifier_list:
+                      naked_identifier: ofs
+                    end_bracket: )
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;

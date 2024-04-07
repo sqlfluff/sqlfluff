@@ -1510,6 +1510,11 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                         Ref("SelectStatementSegment"),
                         Ref("SemicolonSegment"),
                     ),
+                    Sequence(
+                        "RETURN",
+                        Ref("ExpressionSegment"),
+                        Ref("SemicolonSegment"),
+                    ),
                 ),
                 "END",
             ),
