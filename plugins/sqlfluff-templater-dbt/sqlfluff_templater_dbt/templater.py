@@ -453,7 +453,7 @@ class DbtTemplater(JinjaTemplater):
         self.sqlfluff_config = config
         self.project_dir = self._get_project_dir()
         self.profiles_dir = self._get_profiles_dir()
-        fname_absolute_path = os.path.abspath(fname)
+        fname_absolute_path = os.path.abspath(fname) if fname != "stdin" else fname
 
         try:
             # These are the names in dbt-core 1.4.1+
@@ -516,7 +516,7 @@ class DbtTemplater(JinjaTemplater):
                 "For the dbt templater, the `process()` method requires a file name"
             )
         elif fname == "stdin":  # pragma: no cover
-            raise ValueError(
+            raise SQLFluffUserError(
                 "The dbt templater does not support stdin input, provide a path instead"
             )
         selected = self.dbt_selector_method.search(
