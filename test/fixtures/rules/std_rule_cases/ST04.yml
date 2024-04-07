@@ -227,3 +227,144 @@ test_fail_no_copy_code_out_of_template:
       jinja:
         context:
           inner_when: "WHEN species = 'Dog' THEN 'Woof'"
+
+test_pass_different_case_expressions1:
+  pass_str: |
+    SELECT
+        CASE
+            WHEN DayOfMonth IN (11, 12, 13) THEN 'TH'
+            ELSE
+                CASE MOD(DayOfMonth, 10)
+                    WHEN 1 THEN 'ST'
+                    WHEN 2 THEN 'ND'
+                    WHEN 3 THEN 'RD'
+                    ELSE 'TH'
+                END
+        END AS OrdinalSuffix
+    FROM Calendar;
+
+test_pass_different_case_expressions2:
+  pass_str: |
+    SELECT
+        CASE DayOfMonth
+            WHEN 11 THEN 'TH'
+            WHEN 12 THEN 'TH'
+            WHEN 13 THEN 'TH'
+            ELSE
+                CASE MOD(DayOfMonth, 10)
+                    WHEN 1 THEN 'ST'
+                    WHEN 2 THEN 'ND'
+                    WHEN 3 THEN 'RD'
+                    ELSE 'TH'
+                END
+        END AS OrdinalSuffix
+    FROM Calendar;
+
+test_fail_nested_same_case:
+  fail_str: |
+    SELECT
+        CASE x
+            WHEN 0 THEN 'zero'
+            WHEN 5 THEN 'five'
+            ELSE
+                CASE x
+                    WHEN 10 THEN 'ten'
+                    WHEN 20 THEN 'twenty'
+                    ELSE 'other'
+                END
+        END
+    FROM tab_a;
+  fix_str: |
+    SELECT
+        CASE x
+            WHEN 0 THEN 'zero'
+            WHEN 5 THEN 'five'
+            WHEN 10 THEN 'ten'
+            WHEN 20 THEN 'twenty'
+            ELSE 'other'
+        END
+    FROM tab_a;
+
+test_fail_retain_comments:
+  fail_str: |
+    SELECT
+      CASE
+          WHEN FALSE
+            THEN "value1"  -- a comment
+          ELSE
+            CASE
+                -- another comment
+              WHEN TRUE   -- and here
+                THEN "value2" -- but also here
+            END
+        END
+    FROM table;
+  fix_str: |
+    SELECT
+      CASE
+          WHEN FALSE
+            THEN "value1"  -- a comment
+          -- another comment
+          WHEN TRUE   -- and here
+                THEN "value2" -- but also here
+        END
+    FROM table;
+
+test_fail_retain_comments_after_end:
+  fail_str: |
+    SELECT
+    CASE -- no spaces here
+        WHEN FALSE
+          THEN "value1"  -- a comment
+        ELSE
+          CASE -- after case
+              -- another comment
+        /* before the when */   WHEN TRUE   -- and here
+              THEN "value2" -- but also here
+        END /* after the end */    /* but wait there's more! */
+       -- but here too
+      END
+    FROM table;
+  fix_str: |
+    SELECT
+    CASE -- no spaces here
+        WHEN FALSE
+          THEN "value1"  -- a comment
+        -- after case
+        -- another comment
+        /* before the when */
+        WHEN TRUE   -- and here
+              THEN "value2" -- but also here
+        /* after the end */    /* but wait there's more! */
+       -- but here too
+      END
+    FROM table;
+
+test_fail_retain_comments_after_else:
+  fail_str: |
+    SELECT
+      CASE
+          WHEN FALSE
+            THEN "value1"  -- a comment
+          /* before else*/ ELSE --after else
+            /*before case*/ CASE -- else case
+                -- another comment
+              WHEN TRUE   -- and here
+                THEN "value2" -- but also here
+            END
+        END
+    FROM table;
+  fix_str: |
+    SELECT
+      CASE
+          WHEN FALSE
+            THEN "value1"  -- a comment
+          /* before else*/
+          --after else
+          /*before case*/
+          -- else case
+          -- another comment
+          WHEN TRUE   -- and here
+                THEN "value2" -- but also here
+        END
+    FROM table;

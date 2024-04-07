@@ -3129,7 +3129,7 @@ class ScriptingLetStatementSegment(BaseSegment):
             "LET",
             Ref("LocalVariableNameSegment"),
             OneOf(
-                # Variable assigment
+                # Variable assignment
                 OneOf(
                     Sequence(
                         Ref("DatatypeSegment"),

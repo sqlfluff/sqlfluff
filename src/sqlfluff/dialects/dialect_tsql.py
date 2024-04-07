@@ -2261,7 +2261,7 @@ class DatatypeSegment(BaseSegment):
             Ref("DatatypeIdentifierSegment"),
             Bracketed(Ref("DatatypeIdentifierSegment"), bracket_type="square"),
         ),
-        # Stop Gap until explicit Data Types as only relevent for character
+        # Stop Gap until explicit Data Types as only relevant for character
         Ref.keyword("VARYING", optional=True),
         Ref("BracketedArguments", optional=True),
         Ref("CharCharacterSetGrammar", optional=True),
@@ -5070,7 +5070,7 @@ class CreateTriggerStatementSegment(BaseSegment):
         Sequence(
             "WITH",
             AnySetOf(
-                # NOTE: Techincally, ENCRYPTION can't be combined with the other two,
+                # NOTE: Technically, ENCRYPTION can't be combined with the other two,
                 # but this slightly more generous parsing is ok for SQLFluff.
                 Ref.keyword("ENCRYPTION"),
                 Ref.keyword("NATIVE_COMPILATION"),
@@ -5618,7 +5618,7 @@ class SqlcmdCommandSegment(BaseSegment):
 
     Microsoft allows professional CI/CD deployment through so called 'SQL Database
     Projects'.
-    There are propietary `sqlcmd Commands` that can be part of an SQL file.
+    There are proprietary `sqlcmd Commands` that can be part of an SQL file.
     https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver16#sqlcmd-commands
     """
 

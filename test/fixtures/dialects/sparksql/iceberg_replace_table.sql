@@ -10,4 +10,3 @@ TBLPROPERTIES ('key'='value');
 
 CREATE OR REPLACE TABLE prod.db.sample
 USING iceberg;
-

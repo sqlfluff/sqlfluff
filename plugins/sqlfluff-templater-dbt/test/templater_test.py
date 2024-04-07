@@ -13,7 +13,7 @@ import pytest
 
 from sqlfluff.cli.commands import lint
 from sqlfluff.core import FluffConfig, Lexer, Linter
-from sqlfluff.core.errors import SQLFluffSkipFile
+from sqlfluff.core.errors import SQLFluffSkipFile, SQLFluffUserError
 from sqlfluff.utils.testing.cli import invoke_assert_code
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 from sqlfluff_templater_dbt.templater import DbtTemplater
@@ -298,6 +298,16 @@ def test__templater_dbt_skips_file(
         dbt_templater.process(
             in_str="",
             fname=os.path.join(project_dir, path),
+            config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+        )
+
+
+def test_dbt_fails_stdin(dbt_templater):  # noqa: F811
+    """Reading from stdin is not supported with dbt templater."""
+    with pytest.raises(SQLFluffUserError):
+        dbt_templater.process(
+            in_str="",
+            fname="stdin",
             config=FluffConfig(configs=DBT_FLUFF_CONFIG),
         )
 

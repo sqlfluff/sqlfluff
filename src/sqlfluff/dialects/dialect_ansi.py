@@ -446,6 +446,7 @@ ansi_dialect.add(
     IfExistsGrammar=Sequence("IF", "EXISTS"),
     IfNotExistsGrammar=Sequence("IF", "NOT", "EXISTS"),
     LikeGrammar=OneOf("LIKE", "RLIKE", "ILIKE"),
+    PatternMatchingGrammar=Nothing(),
     UnionGrammar=Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
     IsClauseGrammar=OneOf(
         Ref("NullLiteralSegment"),
@@ -1260,7 +1261,7 @@ class QualifiedNumericLiteralSegment(BaseSegment):
 
 
 class AggregateOrderByClause(BaseSegment):
-    """An order by clause for an aggregate fucntion.
+    """An order by clause for an aggregate function.
 
     Defined as a class to allow a specific type for rule AM06
     """
@@ -2033,7 +2034,11 @@ class CaseExpressionSegment(BaseSegment):
             Dedent,
             "END",
         ),
-        terminators=[Ref("CommaSegment"), Ref("BinaryOperatorGrammar")],
+        terminators=[
+            Ref("ComparisonOperatorGrammar"),
+            Ref("CommaSegment"),
+            Ref("BinaryOperatorGrammar"),
+        ],
     )
 
 
@@ -2116,6 +2121,10 @@ ansi_dialect.add(
                     Ref("Expression_B_Grammar"),
                     "AND",
                     Ref("Tail_Recurse_Expression_A_Grammar"),
+                ),
+                Sequence(
+                    Ref("PatternMatchingGrammar"),
+                    Ref("Expression_A_Grammar"),
                 ),
             )
         ),

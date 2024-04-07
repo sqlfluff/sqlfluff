@@ -100,9 +100,6 @@ sqlite_dialect.add(
 )
 
 sqlite_dialect.replace(
-    BooleanBinaryOperatorGrammar=OneOf(
-        Ref("AndOperatorGrammar"), Ref("OrOperatorGrammar"), "REGEXP"
-    ),
     PrimaryKeyGrammar=Sequence(
         "PRIMARY", "KEY", Sequence("AUTOINCREMENT", optional=True)
     ),
@@ -237,6 +234,10 @@ sqlite_dialect.replace(
         Sequence("DISTINCT", "FROM", optional=True),
     ),
     NanLiteralSegment=Nothing(),
+    PatternMatchingGrammar=Sequence(
+        Ref.keyword("NOT", optional=True),
+        OneOf("GLOB", "REGEXP", "MATCH"),
+    ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("SingleQuotedIdentifierSegment"),
@@ -344,6 +345,26 @@ class IndexColumnDefinitionSegment(BaseSegment):
     )
 
 
+class ReturningClauseSegment(BaseSegment):
+    """A returning clause.
+
+    Per docs https://www.sqlite.org/lang_returning.html
+    """
+
+    type = "returning_clause"
+
+    match_grammar = Sequence(
+        "RETURNING",
+        Delimited(
+            Ref("WildcardExpressionSegment"),
+            Sequence(
+                Ref("ExpressionSegment"),
+                Ref("AliasExpressionSegment", optional=True),
+            ),
+        ),
+    )
+
+
 class InsertStatementSegment(BaseSegment):
     """An`INSERT` statement.
 
@@ -378,6 +399,7 @@ class InsertStatementSegment(BaseSegment):
             OptionallyBracketed(Ref("SelectableGrammar")),
             Ref("DefaultValuesGrammar"),
         ),
+        Ref("ReturningClauseSegment", optional=True),
     )
 
 
@@ -563,6 +585,43 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Ref("HavingClauseSegment", optional=True),
         Ref("OverlapsClauseSegment", optional=True),
         Ref("NamedWindowSegment", optional=True),
+    )
+
+
+class DeleteStatementSegment(ansi.DeleteStatementSegment):
+    """A `DELETE` statement.
+
+    DELETE FROM <table name> [ WHERE <search condition> ]
+    """
+
+    type = "delete_statement"
+    # match grammar. This one makes sense in the context of knowing that it's
+    # definitely a statement, we just don't know what type yet.
+    match_grammar: Matchable = Sequence(
+        "DELETE",
+        Ref("FromClauseSegment"),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("ReturningClauseSegment", optional=True),
+    )
+
+
+class UpdateStatementSegment(ansi.UpdateStatementSegment):
+    """An `Update` statement.
+
+    UPDATE <table name> SET <set clause list> [ WHERE <search condition> ]
+    """
+
+    type = "update_statement"
+    match_grammar: Matchable = Sequence(
+        "UPDATE",
+        Ref("TableReferenceSegment"),
+        # SET is not a reserved word in all dialects (e.g. RedShift)
+        # So specifically exclude as an allowed implicit alias to avoid parsing errors
+        Ref("AliasExpressionSegment", exclude=Ref.keyword("SET"), optional=True),
+        Ref("SetClauseListSegment"),
+        Ref("FromClauseSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("ReturningClauseSegment", optional=True),
     )
 
 

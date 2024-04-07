@@ -47,9 +47,9 @@ mysql_dialect.patch_lexer_matchers(
     [
         RegexLexer(
             "inline_comment",
-            r"(-- |#)[^\n]*",
+            r"(^--|-- |#)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("-- ", "#")},
+            segment_kwargs={"trim_start": ("--", "#")},
         ),
         # Pattern breakdown:
         # (?s)                     DOTALL (dot matches newline)

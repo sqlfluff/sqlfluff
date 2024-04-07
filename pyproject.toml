@@ -164,7 +164,7 @@ forbidden_modules = [
 ]
 
 [[tool.importlinter.contracts]]
-name = "Helper methods must be internally indepentent"
+name = "Helper methods must be internally independent"
 type = "independence"
 modules = [
     "sqlfluff.core.helpers.string",
@@ -253,3 +253,28 @@ markers = [
 [tool.doc8]
 # Ignore auto-generated docs
 ignore-path = "docs/source/partials/"
+
+
+[tool.codespell]
+# The configuration must be kept here to ensure that
+# `codespell` can be run as a standalone program from the CLI
+# with the appropriate default options.
+
+skip = "*/test/fixtures/*,*/.*,*/pyproject.toml"
+
+check-hidden = true
+quiet-level=2
+# ignore-regex = '\\[fnrstv]'
+builtin = "clear,rare,informal,names"
+
+ignore-words-list = "fo,ws,falsy,coo,inout,deque,crate,trough,ro,mange,identifers,statment"
+
+# ignore-words = "dev/tools/codespell/codespell-ignore.txt"
+# exclude-file = "dev/tools/codespell/codespell-lines-ignore.txt"
+uri-ignore-words-list="crate"
+
+# For future reference: it is not currently possible to specify
+# the standard dictionary and the custom dictionary in the configuration
+# file
+#  D = "-"
+#  dictionary = "dev/tools/codespell/codespell-dict.txt"

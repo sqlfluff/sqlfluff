@@ -124,19 +124,31 @@ def test__cli__command_dialect():
     )
 
 
-def test__cli__command_no_dialect():
+@pytest.mark.parametrize(
+    "command",
+    [
+        render,
+        parse,
+        lint,
+        cli_format,
+        fix,
+    ],
+)
+def test__cli__command_no_dialect(command):
     """Check the script raises the right exception no dialect."""
     # The dialect is unknown should be a non-zero exit code
     result = invoke_assert_code(
         ret_code=2,
         args=[
-            lint,
+            command,
             ["-"],
         ],
         cli_input="SELECT 1",
     )
     assert "User Error" in result.stdout
     assert "No dialect was specified" in result.stdout
+    # No traceback should be in the output
+    assert "Traceback (most recent call last)" not in result.stdout
 
 
 def test__cli__command_parse_error_dialect_explicit_warning():

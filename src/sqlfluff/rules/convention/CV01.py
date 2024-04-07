@@ -51,7 +51,7 @@ class Rule_CV01(BaseRule):
             return None
 
         memory = context.memory
-        # If style is consistent, add the style of the first occurence to memory
+        # If style is consistent, add the style of the first occurrence to memory
         if self.preferred_not_equal_style == "consistent":
             preferred_not_equal_style = context.memory.get("preferred_not_equal_style")
             if not preferred_not_equal_style:

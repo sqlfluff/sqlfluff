@@ -299,7 +299,7 @@ def test_reflow__deduce_line_indent(
                     untaken_indents=(1,),
                 ),
                 # After ON. Default is indented_on_contents = True, so there is
-                # an indent here. We *SHOULDNT* have an untaken indent here,
+                # an indent here. We *SHOULDN'T* have an untaken indent here,
                 # because while there was one at the last point, the trough
                 # of the last point should have cleared it.
                 _IndentPoint(

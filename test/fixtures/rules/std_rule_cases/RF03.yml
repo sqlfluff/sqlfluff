@@ -75,8 +75,8 @@ test_value_table_functions_do_not_require_qualification:
         force_enable: true
 
 test_object_references_1a:
-  # This should fail as "a" is an unreference object
-  # We dont try to be smart.
+  # This should fail as "a" is an unreferenced object
+  # We don't try to be smart.
   fail_str: SELECT a.bar, b FROM my_tbl
   fix_str: SELECT a.bar, my_tbl.b FROM my_tbl
 

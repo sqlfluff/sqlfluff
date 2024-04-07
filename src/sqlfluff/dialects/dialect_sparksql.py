@@ -285,7 +285,14 @@ sparksql_dialect.replace(
             Ref("UnpivotClauseSegment"),
             Ref("LateralViewClauseSegment"),
         ),
-        Ref("AliasExpressionSegment", optional=True),
+        Ref(
+            "AliasExpressionSegment",
+            exclude=OneOf(
+                Ref("FromClauseTerminatorGrammar"),
+                Ref("JoinLikeClauseGrammar"),
+            ),
+            optional=True,
+        ),
     ),
     LikeGrammar=OneOf(
         # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-like.html

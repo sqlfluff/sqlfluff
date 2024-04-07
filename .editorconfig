@@ -20,6 +20,9 @@ indent_style = unset
 
 # Some specific tests with trailing newlines
 # If adding any exceptions here, make sure to add them to .pre-commit-config.yaml as well
+[test/fixtures/templater/jinja_l_metas/0{01,03,04,05,07,08,11}.sql]
+indent_style = unset
+insert_final_newline = unset
 [test/fixtures/linter/sqlfluffignore/*/*.sql]
 indent_style = unset
 trim_trailing_whitespace = unset
@@ -31,6 +34,9 @@ insert_final_newline = unset
 [trailing_newlines.sql]
 indent_style = unset
 trim_trailing_whitespace = unset
+insert_final_newline = unset
+[plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/models/my_new_project/multiple_trailing_newline.sql]
+indent_style = unset
 insert_final_newline = unset
 [plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/macro_in_macro.sql]
 indent_style = unset

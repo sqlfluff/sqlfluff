@@ -48,6 +48,7 @@ currently supports the following SQL dialects (though perhaps not in full):
 - [SQLite](https://www.sqlite.org/)
 - [Teradata](https://www.teradata.com/)
 - [Transact-SQL](https://docs.microsoft.com/en-us/sql/t-sql/language-reference) (aka T-SQL)
+- [Trino](https://trino.io/)
 - [Vertica](https://www.vertica.com/)
 
 We aim to make it easy to expand on the support of these dialects and also

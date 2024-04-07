@@ -920,7 +920,7 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
             Ref("QuotedIdentifierSegment"),
             terminators=[Ref("BracketedSegment")],
         ),
-        # BigQuery allows whitespaces between the `.` of a function refrence or
+        # BigQuery allows whitespaces between the `.` of a function reference or
         # SAFE prefix. Keeping the explicit `allow_gaps=True` here to
         # make the distinction from `ansi.FunctionNameSegment` clear.
         allow_gaps=True,
@@ -1574,6 +1574,15 @@ class ColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
     )
 
 
+class ViewColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
+    """A column definition, for view_column_name_list of CREATE VIEW statement."""
+
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        Ref("OptionsSegment", optional=True),
+    )
+
+
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """`CREATE TABLE` statement.
 
@@ -1760,7 +1769,12 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         # Optional list of column names
-        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Bracketed(
+            Delimited(
+                Ref("ViewColumnDefinitionSegment"),
+            ),
+            optional=True,
+        ),
         Ref("OptionsSegment", optional=True),
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
@@ -2039,7 +2053,7 @@ class MergeNotMatchedBySourceClauseSegment(ansi.MergeMatchedClauseSegment):
 
     It inherits from `ansi.MergeMatchedClauseSegment` because NotMatchedBySource clause
     is conceptionally more close to a Matched clause than to NotMatched clause, i.e.
-    it get's combined with an UPDATE or DELETE, not with an INSERT.
+    it gets combined with an UPDATE or DELETE, not with an INSERT.
     """
 
     type = "merge_when_matched_clause"

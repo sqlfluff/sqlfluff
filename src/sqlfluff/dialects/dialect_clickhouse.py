@@ -314,6 +314,32 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
     )
 
 
+class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
+    """An extension of the star expression for Clickhouse."""
+
+    match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
+        insert=[
+            Ref("ExceptClauseSegment", optional=True),
+        ]
+    )
+
+
+class ExceptClauseSegment(BaseSegment):
+    """A Clickhouse SELECT EXCEPT clause.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/select#except
+    """
+
+    type = "select_except_clause"
+    match_grammar = Sequence(
+        "EXCEPT",
+        OneOf(
+            Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+            Ref("SingleIdentifierGrammar"),
+        ),
+    )
+
+
 class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
     """Things that come after SELECT but before the columns.
 
