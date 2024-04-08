@@ -4,7 +4,7 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
-from typing import Any, Callable, FrozenSet, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, FrozenSet, List, Optional, Tuple, Union, cast
 from uuid import uuid4
 
 import regex as re
@@ -115,11 +115,6 @@ class RawSegment(BaseSegment):
     def raw_upper(self) -> str:
         """Returns the raw segment in uppercase."""
         return self._raw_upper
-
-    @property
-    def raw_value(self) -> str:
-        """Returns the raw segment's value."""
-        return self._raw_value
 
     @property
     def raw_segments(self) -> List["RawSegment"]:
@@ -275,6 +270,32 @@ class RawSegment(BaseSegment):
             escape_replacements=self.escape_replacements,
             casefold=self.casefold,
             source_fixes=source_fixes or self.source_fixes,
+        )
+
+    def _get_raw_segment_kwargs(self) -> Dict[str, Any]:
+        return {
+            "quoted_value": self.quoted_value,
+            "escape_replacements": self.escape_replacements,
+            "casefold": self.casefold,
+        }
+
+    # ################ CLASS METHODS
+
+    @classmethod
+    def from_result_segments(
+        cls,
+        result_segments: Tuple[BaseSegment, ...],
+        segment_kwargs: Dict[str, Any],
+    ) -> "RawSegment":
+        """Create a RawSegment from result segments."""
+        assert len(result_segments) == 1
+        raw_seg = cast("RawSegment", result_segments[0])
+        new_segment_kwargs = raw_seg._get_raw_segment_kwargs()
+        new_segment_kwargs.update(segment_kwargs)
+        return cls(
+            raw=raw_seg.raw,
+            pos_marker=raw_seg.pos_marker,
+            **new_segment_kwargs,
         )
 
 

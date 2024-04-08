@@ -359,13 +359,13 @@ def test__parser__raw_segment_raw_normalized():
         PositionMarker(slice(0, 10), slice(0, 10), template),
     )
     assert rs1.raw == '"a"""'
-    assert rs1.raw_value == 'a"'
+    assert rs1.raw_normalized(False) == 'a"'
     assert rs1.raw_normalized() == 'A"'
     assert rs2.raw == "."
-    assert rs2.raw_value == "."
+    assert rs2.raw_normalized(False) == "."
     assert rs2.raw_normalized() == "."
     assert rs3.raw == '"e"'
-    assert rs3.raw_value == "e"
+    assert rs3.raw_normalized(False) == "e"
     assert rs3.raw_normalized() == "E"
     assert bs1.raw == '"a"""."e"'
     assert bs1.raw_normalized() == 'A".E'

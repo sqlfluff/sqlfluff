@@ -1233,6 +1233,15 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """Stub."""
         raise NotImplementedError()
 
+    @classmethod
+    def from_result_segments(
+        cls,
+        result_segments: Tuple[BaseSegment, ...],
+        segment_kwargs: Dict[str, Any],
+    ) -> "BaseSegment":
+        """Create a BaseSegment from result segments."""
+        return cls(segments=result_segments, **segment_kwargs)
+
 
 class UnparsableSegment(BaseSegment):
     """This is a segment which can't be parsed. It indicates a error during parsing."""
