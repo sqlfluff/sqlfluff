@@ -36,6 +36,8 @@ databricks_dialect.sets("unreserved_keywords").difference_update(RESERVED_KEYWOR
 databricks_dialect.sets("reserved_keywords").clear()
 databricks_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
+databricks_dialect.sets("date_part_function_name").update(["TIMEDIFF"])
+
 
 databricks_dialect.add(
     DoubleQuotedUDFBody=TypedParser(

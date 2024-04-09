@@ -175,6 +175,19 @@ sparksql_dialect.sets("bare_functions").update(
     ]
 )
 
+# Set the date part functions
+sparksql_dialect.sets("date_part_function_name").clear()
+sparksql_dialect.sets("date_part_function_name").update(
+    [
+        "DATE_ADD",
+        "DATE_DIFF",
+        "DATEADD",
+        "DATEDIFF",
+        "TIMESTAMPADD",
+        "TIMESTAMPDIFF",
+    ]
+)
+
 # Set the datetime units
 sparksql_dialect.sets("datetime_units").clear()
 sparksql_dialect.sets("datetime_units").update(
@@ -194,6 +207,7 @@ sparksql_dialect.sets("datetime_units").update(
         "DAY",
         "DAYS",
         "DD",
+        "DAYOFYEAR",
         "HOUR",
         "HOURS",
         "MINUTE",
