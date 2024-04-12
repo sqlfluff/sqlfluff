@@ -721,6 +721,13 @@ snowflake_dialect.replace(
         "FETCH",
         "OFFSET",
     ),
+    NonStandardJoinTypeKeywordsGrammar=OneOf("ASOF"),
+    UnconditionalJoinKeywordsGrammar=OneOf(
+        Ref("NaturalJoinKeywordsGrammar"),
+        Ref("UnconditionalCrossJoinKeywordsGrammar"),
+        Ref("HorizontalJoinKeywordsGrammar"),
+        Ref("NonStandardJoinTypeKeywordsGrammar"),
+    ),
 )
 
 # Add all Snowflake keywords
@@ -1410,6 +1417,14 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
         Ref("SamplingExpressionSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
     )
+
+
+class MatchConditionSegment(ansi.MatchConditionSegment):
+    """A match condition for an ASOF join."""
+
+    type = "match_condition"
+
+    match_grammar = Sequence("MATCH_CONDITION", Bracketed(Ref("ExpressionSegment")))
 
 
 class PatternSegment(BaseSegment):

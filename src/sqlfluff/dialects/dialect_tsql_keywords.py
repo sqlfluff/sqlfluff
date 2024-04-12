@@ -169,7 +169,6 @@ RESERVED_KEYWORDS = [
     "PRINT",
     "PROC",
     "PROCEDURE",
-    "PROPERTY",
     "PUBLIC",
     "RAISERROR",
     "READ",
@@ -493,6 +492,7 @@ UNRESERVED_KEYWORDS = [
     "PRECISION",  # listed as reserved but functionally unreserved
     "PRIOR",
     "PROFILE",
+    "PROPERTY",
     "PUSHDOWN",
     "QUERY_GOVERNOR_COST_LIMIT",
     "QUERYTRACEON",

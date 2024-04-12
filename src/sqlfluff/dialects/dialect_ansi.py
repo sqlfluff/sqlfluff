@@ -1799,6 +1799,14 @@ class SelectClauseSegment(BaseSegment):
     )
 
 
+class MatchConditionSegment(BaseSegment):
+    """A stub segment to be used in Snowflake ASOF joins."""
+
+    type = "match_condition"
+
+    match_grammar: Matchable = Nothing()
+
+
 class JoinClauseSegment(BaseSegment):
     """Any number of join clauses, including the `JOIN` keyword."""
 
@@ -1817,6 +1825,7 @@ class JoinClauseSegment(BaseSegment):
                 # if we also have content.
                 Conditional(Indent, indented_using_on=True),
                 # NB: this is optional
+                Ref("MatchConditionSegment", optional=True),
                 OneOf(
                     # ON clause
                     Ref("JoinOnConditionSegment"),
@@ -1835,6 +1844,7 @@ class JoinClauseSegment(BaseSegment):
             Ref("JoinKeywordsGrammar"),
             Indent,
             Ref("FromExpressionElementSegment"),
+            Ref("MatchConditionSegment", optional=True),
             Dedent,
         ),
         # Sometimes, a natural join might already include the keyword

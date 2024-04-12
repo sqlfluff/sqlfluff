@@ -3,14 +3,105 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 90c6e7a8d3e7df9cc440d3a47ba3420af408d660fad2e96c0d473ac4c284bfec
+_hash: a11cc392fec28fb4460d4da8a14fab9bd4c712a5875e482371d32f38255b29bf
 file:
-  statement:
-    call_segment:
+- statement:
+    call_statement:
       keyword: CALL
-      naked_identifier: somefunction
-      bracketed:
-        start_bracket: (
-        quoted_literal: "'a'"
-        end_bracket: )
-  statement_terminator: ;
+      function:
+        function_name:
+          function_name_identifier: somefunction
+        bracketed:
+          start_bracket: (
+          expression:
+            quoted_literal: "'a'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: somefunction
+        bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: test
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'something'"
+                end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: somefunction
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'test'"
+        - comma: ','
+        - expression:
+            column_reference:
+              variable: '@test1'
+        - comma: ','
+        - expression:
+            column_reference:
+              naked_identifier: test2
+        - comma: ','
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: test3
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'test'"
+                end_bracket: )
+        - comma: ','
+        - expression:
+            quoted_literal: '"test4"'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: somefunction
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          quoted_identifier: '`somefunction`'
+        bracketed:
+          start_bracket: (
+          expression:
+            quoted_literal: "'a'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          naked_identifier: testdb
+          dot: .
+          function_name_identifier: testfunc
+        bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '123'
+          end_bracket: )
+- statement_terminator: ;
