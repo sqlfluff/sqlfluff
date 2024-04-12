@@ -1239,7 +1239,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         result_segments: Tuple[BaseSegment, ...],
         segment_kwargs: Dict[str, Any],
     ) -> "BaseSegment":
-        """Create a BaseSegment from result segments."""
+        """Create an instance of this specific segment from a tuple of matched segments."""
         return cls(segments=result_segments, **segment_kwargs)
 
 
