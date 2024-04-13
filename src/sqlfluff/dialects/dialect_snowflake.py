@@ -7858,7 +7858,7 @@ class ForInLoopSegment(BaseSegment):
 class BindVariableSegment(BaseSegment):
     """A :VARIABLE_NAME expression."""
 
-    type = "semi_structured_expression"
+    type = "bind_variable"
 
     match_grammar = Sequence(
         Ref("ColonSegment"),
