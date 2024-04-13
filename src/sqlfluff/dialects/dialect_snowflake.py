@@ -617,6 +617,7 @@ snowflake_dialect.replace(
                 OneOf(
                     Ref("SingleQuotedIdentifierSegment"),
                     Ref("ReferencedVariableNameSegment"),
+                    Ref("BindVariableSegment"),
                 ),
             ),
         ),
@@ -1325,6 +1326,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateExternalVolumeStatementSegment"),
             Ref("DropExternalVolumeStatementSegment"),
             Ref("AlterExternalVolumeStatementSegment"),
+            Ref("ForInLoopSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -7826,4 +7828,39 @@ class AlterMaskingPolicySegment(BaseSegment):
             ),
             Sequence("UNSET", "COMMENT"),
         ),
+    )
+
+
+class ForInLoopSegment(BaseSegment):
+    """FOR...IN...DO...END FOR statement.
+
+    https://docs.snowflake.com/en/developer-guide/snowflake-scripting/loops#for-loop
+    """
+
+    type = "for_in_statement"
+
+    match_grammar = OneOf(
+        Sequence(
+            "FOR",
+            Ref("LocalVariableNameSegment"),
+            "IN",
+            Ref("LocalVariableNameSegment"),
+            "DO",
+            Indent,
+            Delimited(
+                Ref("StatementSegment"),
+            ),
+        ),
+        Sequence(Dedent, "END", "FOR"),
+    )
+
+
+class BindVariableSegment(BaseSegment):
+    """A :VARIABLE_NAME expression."""
+
+    type = "semi_structured_expression"
+
+    match_grammar = Sequence(
+        Ref("ColonSegment"),
+        Ref("LocalVariableNameSegment"),
     )

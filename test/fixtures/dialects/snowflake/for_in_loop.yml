@@ -1,0 +1,63 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 23bc6aa993bcd448f6a18b17cb0d56cd425853e03b9b6d338320c414fc6f405b
+file:
+- statement:
+    scripting_block_statement:
+      keyword: BEGIN
+      statement:
+        scripting_let_statement:
+        - keyword: LET
+        - variable: CUR_TABLE
+        - keyword: CURSOR
+        - keyword: FOR
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: THE_TABLE
+- statement_terminator: ;
+- statement:
+    for_in_statement:
+    - keyword: FOR
+    - variable: THE_ROW
+    - keyword: IN
+    - variable: CUR_TABLE
+    - keyword: DO
+    - statement:
+        scripting_let_statement:
+          keyword: LET
+          variable: NEW_VAR
+          assignment_operator: :=
+          expression:
+          - column_reference:
+            - naked_identifier: THE_ROW
+            - dot: .
+            - naked_identifier: COL1
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - column_reference:
+              quoted_identifier: '"_SUFFIX"'
+- statement_terminator: ;
+- statement:
+    for_in_statement:
+    - keyword: END
+    - keyword: FOR
+- statement_terminator: ;
+- statement:
+    scripting_block_statement:
+      keyword: END
+- statement_terminator: ;
