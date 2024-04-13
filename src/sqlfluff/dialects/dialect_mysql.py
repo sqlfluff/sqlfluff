@@ -338,6 +338,7 @@ class ColumnDefinitionSegment(BaseSegment):
                             ),
                             Ref("NumericLiteralSegment"),
                             Ref("QuotedLiteralSegment"),
+                            "NULL",
                         ),
                         optional=True,
                     ),
