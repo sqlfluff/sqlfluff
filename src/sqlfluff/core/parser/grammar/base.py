@@ -219,7 +219,7 @@ class BaseGrammar(Matchable):
         self: T,
         insert: Optional[List[Matchable]] = None,
         at: Optional[int] = None,
-        before: Optional[Any] = None,
+        before: Optional[Union[str, Matchable]] = None,
         remove: Optional[List[Matchable]] = None,
         terminators: List[Union[str, Matchable]] = [],
         replace_terminators: bool = False,
