@@ -5039,6 +5039,7 @@ class CreateTriggerStatementSegment(BaseSegment):
 
     match_grammar: Matchable = Sequence(
         "CREATE",
+        Sequence("OR", "ALTER", optional=True),
         "TRIGGER",
         Ref("TriggerReferenceSegment"),
         "ON",
