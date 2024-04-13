@@ -2435,6 +2435,7 @@ class ColumnConstraintSegment(BaseSegment):
                 OptionallyBracketed(
                     OneOf(
                         OptionallyBracketed(Ref("LiteralGrammar")),  # ((-1))
+                        Ref("BareFunctionSegment"),
                         Ref("FunctionSegment"),
                         Ref("NextValueSequenceSegment"),
                     ),
