@@ -327,3 +327,45 @@ def test__parser__base_segments_parent_ref(DummySegment, raw_segments):
     assert not seg_0.get_parent()
     # Check the other still works.
     assert seg.segments[0].get_parent()[0]
+
+
+def test__parser__raw_segment_raw_normalized():
+    """Test comparison of raw segments."""
+    template = TemplatedFile.from_string('"a"""."e"')
+    rs1 = RawSegment(
+        '"a"""',
+        PositionMarker(slice(0, 5), slice(0, 5), template),
+        quoted_value=(r'"((?:[^"]|"")*)"', 1),
+        escape_replacements=[('""', '"')],
+        casefold=str.upper,
+    )
+    rs2 = RawSegment(
+        ".",
+        PositionMarker(slice(6, 7), slice(6, 7), template),
+    )
+    rs3 = RawSegment(
+        '"e"',
+        PositionMarker(slice(8, 10), slice(8, 10), template),
+        quoted_value=(r'"((?:[^"]|"")*)"', 1),
+        escape_replacements=[('""', '"')],
+        casefold=str.upper,
+    )
+    bs1 = BaseSegment(
+        (
+            rs1,
+            rs2,
+            rs3,
+        ),
+        PositionMarker(slice(0, 10), slice(0, 10), template),
+    )
+    assert rs1.raw == '"a"""'
+    assert rs1.raw_normalized(False) == 'a"'
+    assert rs1.raw_normalized() == 'A"'
+    assert rs2.raw == "."
+    assert rs2.raw_normalized(False) == "."
+    assert rs2.raw_normalized() == "."
+    assert rs3.raw == '"e"'
+    assert rs3.raw_normalized(False) == "e"
+    assert rs3.raw_normalized() == "E"
+    assert bs1.raw == '"a"""."e"'
+    assert bs1.raw_normalized() == 'A".E'

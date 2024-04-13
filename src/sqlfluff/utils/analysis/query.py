@@ -115,6 +115,7 @@ class Selectable:
                 select_targets=[],
                 col_aliases=[],
                 using_cols=[],
+                table_reference_buffer=[],
             )
 
     def get_wildcard_info(self) -> List[WildcardInfo]:

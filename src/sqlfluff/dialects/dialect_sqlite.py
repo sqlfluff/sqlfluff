@@ -9,8 +9,10 @@ from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
     Bracketed,
+    CodeSegment,
     CommentSegment,
     Delimited,
+    IdentifierSegment,
     LiteralSegment,
     Matchable,
     NewlineSegment,
@@ -57,7 +59,44 @@ sqlite_dialect.patch_lexer_matchers(
                 WhitespaceSegment,
             ),
         ),
+        RegexLexer(
+            "single_quote",
+            r"'([^']|'')*'",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"'((?:[^']|'')*)'", 1),
+                "escape_replacements": [(r"''", "'")],
+            },
+        ),
+        RegexLexer(
+            "double_quote",
+            r'"([^"]|"")*"',
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"]|"")*)"', 1),
+                "escape_replacements": [(r'""', '"')],
+            },
+        ),
+        RegexLexer(
+            "back_quote",
+            r"`([^`]|``)*`",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"`((?:[^`]|``)*)`", 1),
+                "escape_replacements": [(r"``", "`")],
+            },
+        ),
     ]
+)
+
+sqlite_dialect.add(
+    BackQuotedIdentifierSegment=TypedParser(
+        "back_quote",
+        IdentifierSegment,
+        type="quoted_identifier",
+        # match ANSI's naked identifier casefold, sqlite is case-insensitive.
+        casefold=str.upper,
+    ),
 )
 
 sqlite_dialect.replace(
@@ -79,6 +118,10 @@ sqlite_dialect.replace(
             Ref("DatatypeSegment"),
             Ref("LiteralGrammar"),
         ),
+        terminators=[
+            Ref("CommaSegment"),
+            Ref.keyword("AS"),
+        ],
     ),
     AutoIncrementGrammar=Nothing(),
     CommentClauseSegment=Nothing(),
@@ -194,6 +237,20 @@ sqlite_dialect.replace(
     PatternMatchingGrammar=Sequence(
         Ref.keyword("NOT", optional=True),
         OneOf("GLOB", "REGEXP", "MATCH"),
+    ),
+    SingleIdentifierGrammar=OneOf(
+        Ref("NakedIdentifierSegment"),
+        Ref("SingleQuotedIdentifierSegment"),
+        Ref("QuotedIdentifierSegment"),
+        Ref("BackQuotedIdentifierSegment"),
+        terminators=[Ref("DotSegment")],
+    ),
+    # match ANSI's naked identifier casefold, sqlite is case-insensitive.
+    QuotedIdentifierSegment=TypedParser(
+        "double_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
+    ),
+    SingleQuotedIdentifierSegment=TypedParser(
+        "single_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
     ),
 )
 

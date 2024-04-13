@@ -79,6 +79,16 @@ bigquery_dialect.patch_lexer_matchers(
             r"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])"
             r"*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (
+                    r"(?:[rR]?[bB]?|[bB]?[rR]?)?"
+                    r"(?:'''(?<value>(?:(?<!\\)(?:\\{2})*\\'|'{,2}(?!')|[^'])*"
+                    r"(?<!\\)(?:\\{2})*)'''|'(?<value>(?:(?<!\\)(?:\\{2})*\\'"
+                    r"|[^'])*(?<!\\)(?:\\{2})*)')",
+                    "value",
+                ),
+                "escape_replacements": [(r"\\([\\`\"'?])", "\1")],
+            },
         ),
         RegexLexer(
             "double_quote",
@@ -86,6 +96,16 @@ bigquery_dialect.patch_lexer_matchers(
             r'|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)'
             r'(\\{2})*")',
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (
+                    r"([rR]?[bB]?|[bB]?[rR]?)?"
+                    r"(\"\"\"(?<value>((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")"
+                    r'|[^\"])*(?<!\\)(\\{2})*)\"\"\"|"(?<value>((?<!\\)'
+                    r'(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*)")',
+                    "value",
+                ),
+                "escape_replacements": [(r"\\([\\`\"'?])", "\1")],
+            },
         ),
     ]
 )
@@ -149,6 +169,33 @@ bigquery_dialect.add(
         r"[A-Z0-9_]+",
         IdentifierSegment,
         type="naked_identifier",
+        casefold=str.upper,
+    ),
+    NakedCSIdentifierPart=RegexParser(
+        # Same as NakedIdentifierPart, but case-sensitive.
+        r"[A-Z0-9_]+",
+        IdentifierSegment,
+        type="naked_identifier",
+    ),
+    NakedCSIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"[A-Z_][A-Z0-9_]*",
+            IdentifierSegment,
+            type="naked_identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
+    ),
+    QuotedCSIdentifierSegment=TypedParser(
+        "back_quote",
+        IdentifierSegment,
+        type="quoted_identifier",
+        trim_chars=("`",),
+    ),
+    SingleCSIdentifierGrammar=OneOf(
+        Ref("NakedCSIdentifierSegment"),
+        Ref("QuotedCSIdentifierSegment"),
+        terminators=[Ref("DotSegment")],
     ),
     SingleIdentifierFullGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -213,6 +260,7 @@ bigquery_dialect.replace(
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.upper,
         )
     ),
     FunctionContentsExpressionGrammar=OneOf(
@@ -718,6 +766,7 @@ bigquery_dialect.replace(
         IdentifierSegment,
         type="quoted_identifier",
         trim_chars=("`",),
+        casefold=str.upper,
     ),
     # Add ParameterizedSegment to the ansi NumericLiteralSegment
     NumericLiteralSegment=OneOf(
@@ -1298,11 +1347,11 @@ class TableReferenceSegment(ansi.ObjectReferenceSegment):
 
     match_grammar: Matchable = Delimited(
         Sequence(
-            Ref("SingleIdentifierGrammar"),
+            Ref("SingleCSIdentifierGrammar"),
             AnyNumberOf(
                 Sequence(
                     Ref("DashSegment"),
-                    Ref("NakedIdentifierPart"),
+                    Ref("NakedCSIdentifierPart"),
                     allow_gaps=False,
                 ),
                 optional=True,
