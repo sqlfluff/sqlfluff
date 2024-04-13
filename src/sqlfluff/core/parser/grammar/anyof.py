@@ -157,7 +157,11 @@ class AnyNumberOf(BaseGrammar):
             max_idx = trim_to_terminator(
                 segments,
                 idx,
-                terminators=[*self.terminators, *parse_context.terminators],
+                terminators=(
+                    self.terminators
+                    if self.reset_terminators
+                    else [*self.terminators, *parse_context.terminators]
+                ),
                 parse_context=parse_context,
             )
 
