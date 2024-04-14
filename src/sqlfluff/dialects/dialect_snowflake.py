@@ -1255,6 +1255,14 @@ class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
+        # NOTE: The Scripting Block segment must be tried before
+        # we get to the transaction statement (from the ansi dialect)
+        # because they both start with BEGIN.
+        insert=[
+            Ref("ScriptingBlockStatementSegment"),
+        ],
+        before=Ref("TransactionStatementSegment"),
+    ).copy(
         insert=[
             Ref("AccessStatementSegment"),
             Ref("CreateStatementSegment"),
@@ -1263,7 +1271,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateCloneStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
             Ref("AlterProcedureStatementSegment"),
-            Ref("ScriptingBlockStatementSegment"),
             Ref("ScriptingLetStatementSegment"),
             Ref("ReturnStatementSegment"),
             Ref("ShowStatementSegment"),
@@ -3120,14 +3127,25 @@ class ScriptingBlockStatementSegment(BaseSegment):
     """
 
     type = "scripting_block_statement"
-    match_grammar = OneOf(
+    match_grammar = Sequence(
         Sequence(
             "BEGIN",
-            Delimited(
+            Indent,
+            Ref("StatementSegment"),
+        ),
+        AnyNumberOf(
+            Sequence(
+                Ref("DelimiterGrammar"),
                 Ref("StatementSegment"),
             ),
+            terminators=[Sequence(Ref("DelimiterGrammar"), "END")],
+            parse_mode=ParseMode.GREEDY,
+            reset_terminators=True,
         ),
-        Sequence("END"),
+        Ref("DelimiterGrammar"),
+        Dedent,
+        "END",
+        reset_terminators=True,
     )
 
 
