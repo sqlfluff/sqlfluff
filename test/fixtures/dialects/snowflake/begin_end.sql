@@ -1,5 +1,5 @@
 -- NOTE: This is a loop BEGIN, and not a transaction BEGIN,
--- because BEING is  NOT followed immediately by a ";"
+-- because BEGIN is  NOT followed immediately by a ";"
 -- See: https://docs.snowflake.com/en/sql-reference/sql/begin
 -- See: https://docs.snowflake.com/en/sql-reference/snowflake-scripting/begin
 begin
