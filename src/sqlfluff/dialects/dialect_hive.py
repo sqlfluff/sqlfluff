@@ -19,6 +19,7 @@ from sqlfluff.core.parser import (
     ParseMode,
     Ref,
     RegexParser,
+    SegmentGenerator,
     Sequence,
     StringParser,
     SymbolSegment,
@@ -137,6 +138,7 @@ hive_dialect.add(
         "back_quote",
         IdentifierSegment,
         type="quoted_identifier",
+        casefold=str.lower,
     ),
 )
 
@@ -144,11 +146,28 @@ hive_dialect.add(
 hive_dialect.replace(
     JoinKeywordsGrammar=Sequence(Sequence("SEMI", optional=True), "JOIN"),
     QuotedLiteralSegment=OneOf(
-        TypedParser("single_quote", LiteralSegment, type="quoted_literal"),
-        TypedParser("double_quote", LiteralSegment, type="quoted_literal"),
-        TypedParser("back_quote", LiteralSegment, type="quoted_literal"),
+        TypedParser(
+            "single_quote", LiteralSegment, type="quoted_literal", casefold=str.lower
+        ),
+        TypedParser(
+            "double_quote", LiteralSegment, type="quoted_literal", casefold=str.lower
+        ),
+        TypedParser(
+            "back_quote", LiteralSegment, type="quoted_literal", casefold=str.lower
+        ),
     ),
     TrimParametersGrammar=Nothing(),
+    # ANSI with lower casefold
+    NakedIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"[A-Z0-9_]*[A-Z][A-Z0-9_]*",
+            IdentifierSegment,
+            type="naked_identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.lower,
+        )
+    ),
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
         insert=[
             Ref("BackQuotedIdentifierSegment"),

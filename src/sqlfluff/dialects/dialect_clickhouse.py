@@ -9,6 +9,7 @@ from sqlfluff.core.parser import (
     AnySetOf,
     BaseSegment,
     Bracketed,
+    CodeSegment,
     Conditional,
     Dedent,
     Delimited,
@@ -21,6 +22,9 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     ParseMode,
     Ref,
+    RegexLexer,
+    RegexParser,
+    SegmentGenerator,
     Sequence,
     StringLexer,
     SymbolSegment,
@@ -39,6 +43,29 @@ clickhouse_dialect.insert_lexer_matchers(
     # https://clickhouse.com/docs/en/sql-reference/functions#higher-order-functions---operator-and-lambdaparams-expr-function
     [StringLexer("lambda", r"->", SymbolSegment)],
     before="newline",
+)
+
+clickhouse_dialect.patch_lexer_matchers(
+    [
+        RegexLexer(
+            "double_quote",
+            r'"([^"\\]|""|\\.)*"',
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"\\]|""|\\.)*)"', 1),
+                "escape_replacements": [(r'(""|\\")', '"')],
+            },
+        ),
+        RegexLexer(
+            "back_quote",
+            r"`(?:[^`\\]|``|\\.)*`",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"`((?:[^`\\]|``|\\.)*)`", 1),
+                "escape_replacements": [(r"(``|\\`)", "`")],
+            },
+        ),
+    ]
 )
 
 clickhouse_dialect.add(
@@ -173,6 +200,16 @@ clickhouse_dialect.replace(
             LiteralSegment,
             type="quoted_literal",
         ),
+    ),
+    # Drop casefold from ANSI
+    NakedIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"[A-Z0-9_]*[A-Z][A-Z0-9_]*",
+            IdentifierSegment,
+            type="naked_identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
     ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),

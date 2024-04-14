@@ -193,8 +193,9 @@ athena_dialect.add(
     ),
     BackQuotedIdentifierSegment=TypedParser(
         "back_quote",
-        LiteralSegment,
+        IdentifierSegment,
         type="quoted_identifier",
+        casefold=str.lower,
     ),
     DatetimeWithTZSegment=Sequence(OneOf("TIMESTAMP", "TIME"), "WITH", "TIME", "ZONE"),
 )
@@ -231,7 +232,11 @@ athena_dialect.replace(
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.lower,
         )
+    ),
+    QuotedIdentifierSegment=TypedParser(
+        "double_quote", IdentifierSegment, type="quoted_identifier", casefold=str.lower
     ),
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
         insert=[
