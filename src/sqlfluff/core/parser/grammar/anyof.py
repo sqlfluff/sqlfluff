@@ -158,6 +158,7 @@ class AnyNumberOf(BaseGrammar):
                 segments,
                 idx,
                 terminators=(
+                    # Only pass through the context terminators if not resetting.
                     self.terminators
                     if self.reset_terminators
                     else [*self.terminators, *parse_context.terminators]
