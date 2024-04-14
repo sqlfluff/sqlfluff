@@ -3138,9 +3138,17 @@ class ScriptingBlockStatementSegment(BaseSegment):
                 Ref("DelimiterGrammar"),
                 Ref("StatementSegment"),
             ),
-            terminators=[Sequence(Ref("DelimiterGrammar"), "END")],
-            parse_mode=ParseMode.GREEDY,
-            reset_terminators=True,
+            terminators=[
+                OneOf(
+                    Sequence(Ref("DelimiterGrammar"), "END"),
+                    # Don't terminate on an "END FOR", because that's a different
+                    # expression.
+                    exclude=Sequence(Ref("DelimiterGrammar"), "END", "FOR"),
+                ),
+            ],
+            # NOTE: We can't be greedy because there may be nested loops. This
+            # does make understanding any failed parsing loops difficult but I
+            # don't think there's an easy way around that.
         ),
         Ref("DelimiterGrammar"),
         Dedent,
@@ -7151,6 +7159,8 @@ class TransactionStatementSegment(ansi.TransactionStatementSegment):
     https://docs.snowflake.com/en/sql-reference/sql/begin.html
     https://docs.snowflake.com/en/sql-reference/sql/commit.html
     https://docs.snowflake.com/en/sql-reference/sql/rollback.html
+
+    NOTE: "END" is not currently a supported keyword here.
     """
 
     match_grammar = OneOf(
@@ -7857,19 +7867,29 @@ class ForInLoopSegment(BaseSegment):
 
     type = "for_in_statement"
 
-    match_grammar = OneOf(
+    match_grammar = Sequence(
         Sequence(
-            "FOR",
-            Ref("LocalVariableNameSegment"),
-            "IN",
-            Ref("LocalVariableNameSegment"),
-            "DO",
-            Indent,
+            Sequence(
+                "FOR",
+                Ref("LocalVariableNameSegment"),
+                "IN",
+                Ref("LocalVariableNameSegment"),
+                "DO",
+                Indent,
+            ),
             Delimited(
                 Ref("StatementSegment"),
+                delimiter=Ref("DelimiterGrammar"),
             ),
+            parse_mode=ParseMode.GREEDY_ONCE_STARTED,
+            reset_terminators=True,
+            terminators=[Sequence(Ref("DelimiterGrammar"), "END", "FOR")],
         ),
-        Sequence(Dedent, "END", "FOR"),
+        # There must be a trailing semicolon
+        Ref("DelimiterGrammar"),
+        Dedent,
+        "END",
+        "FOR",
     )
 
 
