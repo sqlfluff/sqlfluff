@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8aaa4f8d66b88d7e19428bb0d8ce519633edb5d3a938e3fe4b0919bddff27708
+_hash: a1e78aed2e96871f7bea75234bcc4cf6d20cb79dacfcbc8df61eed5f658719a7
 file:
 - statement:
     create_procedure_statement:
@@ -374,42 +374,40 @@ file:
     - keyword: SQL
     - keyword: AS
     - scripting_block_statement:
-        keyword: BEGIN
-        statement:
+      - keyword: BEGIN
+      - statement:
           select_statement:
             select_clause:
               keyword: select
               select_clause_element:
                 numeric_literal: '1'
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          numeric_literal: '2'
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          numeric_literal: '3'
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          numeric_literal: '4'
-- statement_terminator: ;
-- statement:
-    return_statement:
-      keyword: return
-      expression:
-        numeric_literal: '5'
-- statement_terminator: ;
-- statement:
-    scripting_block_statement:
-      keyword: END
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                numeric_literal: '2'
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                numeric_literal: '3'
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                numeric_literal: '4'
+      - statement_terminator: ;
+      - statement:
+          return_statement:
+            keyword: return
+            expression:
+              numeric_literal: '5'
+      - statement_terminator: ;
+      - keyword: END
 - statement_terminator: ;
