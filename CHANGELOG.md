@@ -10,6 +10,26 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [3.0.5] - 2024-04-15
+
+## Highlights
+
+## What’s Changed
+
+* Upgrades to release actions. [#5774](https://github.com/sqlfluff/sqlfluff/pull/5774) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Improve Snowflake syntax support [#5770](https://github.com/sqlfluff/sqlfluff/pull/5770) [@kawashiro](https://github.com/kawashiro)
+* TSQL: allow 'OR ALTER' on 'CREATE TRIGGER' [#5772](https://github.com/sqlfluff/sqlfluff/pull/5772) [@mhoogendoorn](https://github.com/mhoogendoorn)
+* Enhancement: Improved Identifiers - casefolding, quoted values, and basic escaping [#5726](https://github.com/sqlfluff/sqlfluff/pull/5726) [@keraion](https://github.com/keraion)
+* TSQL: Fix bare functions in default constraints [#5771](https://github.com/sqlfluff/sqlfluff/pull/5771) [@MarkPaulin](https://github.com/MarkPaulin)
+* MySQL: Fix parsing 'ALTER TABLE ts ADD COLUMN modified_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP;' (#5766) [#5767](https://github.com/sqlfluff/sqlfluff/pull/5767) [@olshak](https://github.com/olshak)
+
+## New Contributors
+
+* [@olshak](https://github.com/olshak) made their first contribution in [#5767](https://github.com/sqlfluff/sqlfluff/pull/5767)
+* [@MarkPaulin](https://github.com/MarkPaulin) made their first contribution in [#5771](https://github.com/sqlfluff/sqlfluff/pull/5771)
+* [@mhoogendoorn](https://github.com/mhoogendoorn) made their first contribution in [#5772](https://github.com/sqlfluff/sqlfluff/pull/5772)
+* [@kawashiro](https://github.com/kawashiro) made their first contribution in [#5770](https://github.com/sqlfluff/sqlfluff/pull/5770)
+
 ## [3.0.4] - 2024-04-07
 
 ## Highlights
