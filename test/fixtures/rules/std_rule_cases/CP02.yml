@@ -15,8 +15,8 @@ test_pass_consistent_capitalisation_with_single_letter_upper:
   pass_str: SELECT A, Boo
 
 test_pass_consistent_capitalisation_with_single_word_snake:
-  # Single-word ambiguity: Pascal vs Capitalise
-  pass_str: SELECT Apple, Banana_split
+  # Snake is refuted as ambiguous
+  pass_str: SELECT apple, banana_split
 
 test_pass_consistent_capitalisation_with_single_word_pascal:
   # Single-word ambiguity: Pascal vs Capitalise
@@ -133,6 +133,32 @@ test_fail_inconsistent_capitalisation_pascal_v_capitalise:
   # Pascal vs Capitalise
   fail_str: SELECT AppleFritter, Banana_split
   fix_str: SELECT AppleFritter, Banana_Split
+
+test_fail_inconsistent_capitalisation_policy_camel_1:
+  fail_str: SELECT Camelcase
+  fix_str: SELECT camelcase
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: camel
+
+test_fail_inconsistent_capitalisation_policy_camel_2:
+  fail_str: SELECT Camel_Case
+  fix_str: SELECT camel_case
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: camel
+
+test_fail_inconsistent_capitalisation_policy_camel_3:
+  # Similar to above, you could argue the fixed string is
+  # Not really Pascal Case, but it's closer than it was!
+  fail_str: SELECT cAMEL_CASE
+  fix_str: SELECT cAMEL_cASE
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: camel
 
 test_pass_policy_unquoted_identifiers_aliases_1:
   pass_str: SELECT a,   B
@@ -281,3 +307,31 @@ test_fail_snake_aliases:
     rules:
       capitalisation.identifiers:
         extended_capitalisation_policy: snake
+
+test_fail_camel_aliases:
+  # Test for issue #5470
+  # similar to PascalCase, case logic defined in CP01, but tested in CP02
+  fail_str: |
+    SELECT
+    test1,
+    test_2,
+    testColumn3,
+    TestColumn4,
+    TESTCOLUMN5,
+    TEST_COLUMN6,
+    test_colUmn_7
+  fix_str: |
+    SELECT
+    test1,
+    test_2,
+    testcolumn3,
+    testcolumn4,
+    testcolumn5,
+    test_column_6,
+    test_colUmn_7
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: camel
