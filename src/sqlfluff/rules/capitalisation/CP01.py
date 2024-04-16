@@ -143,8 +143,10 @@ class Rule_CP01(BaseRule):
                 break
 
         # We refute inference of camel, pascal, and snake case.
-        # snake, if not explicitly set, can be destructive to variable names, adding underscores
-        # camel and Pascal could allow poorly linted code in, so must be explicitly chosen.
+        # snake, if not explicitly set, can be destructive to
+        # variable names, adding underscores.
+        # camel and Pascal could allow poorly linted code in,
+        # so must be explicitly chosen.
         refuted_cases.update("camel", "pascal", "snake")
         if first_letter_is_lowercase:
             refuted_cases.update(["upper", "capitalise"])
