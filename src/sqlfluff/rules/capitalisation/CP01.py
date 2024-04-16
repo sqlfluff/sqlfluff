@@ -142,19 +142,20 @@ class Rule_CP01(BaseRule):
                 first_letter_is_lowercase = character != character.upper()
                 break
 
+        # We refute inference of camel, pascal, and snake case.
+        # snake, if not explicitly set, can be destructive to variable names, adding underscores
+        # camel and Pascal could allow poorly linted code in, so must be explicitly chosen.
+        refuted_cases.update("camel", "pascal", "snake")
         if first_letter_is_lowercase:
-            # snake added here as it cannot be inferred (presents as lower)
-            refuted_cases.update(["upper", "capitalise", "pascal", "snake"])
+            refuted_cases.update(["upper", "capitalise"])
             if segment.raw != segment.raw.lower():
                 refuted_cases.update(["lower"])
         else:
-            refuted_cases.update(["lower", "snake", "camel"])
+            refuted_cases.update(["lower"])
             if segment.raw != segment.raw.upper():
                 refuted_cases.update(["upper"])
             if segment.raw != segment.raw.capitalize():
                 refuted_cases.update(["capitalise"])
-            if not segment.raw.isalnum():
-                refuted_cases.update(["pascal", "snake", "camel"])
 
         # Update the memory
         memory["refuted_cases"] = refuted_cases
