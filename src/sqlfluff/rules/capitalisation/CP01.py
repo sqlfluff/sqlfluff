@@ -249,14 +249,10 @@ class Rule_CP01(BaseRule):
             # build description based on the policy in use
             consistency = "consistently " if cap_policy == "consistent" else ""
 
-            if concrete_policy in ["upper", "lower"]:
+            if concrete_policy in ["upper", "lower", "pascal", "camel", "snake"]:
                 policy = f"{concrete_policy} case."
             elif concrete_policy == "capitalise":
                 policy = "capitalised."
-            elif concrete_policy == "pascal":
-                policy = "pascal case."
-            elif concrete_policy == "snake":
-                policy = "snake case."
 
             # Return the fixed segment
             self.logger.debug(
