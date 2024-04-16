@@ -147,7 +147,7 @@ class Rule_CP01(BaseRule):
         # variable names, adding underscores.
         # camel and Pascal could allow poorly linted code in,
         # so must be explicitly chosen.
-        refuted_cases.update("camel", "pascal", "snake")
+        refuted_cases.update(["camel", "pascal", "snake"])
         if first_letter_is_lowercase:
             refuted_cases.update(["upper", "capitalise"])
             if segment.raw != segment.raw.lower():
