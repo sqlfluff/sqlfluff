@@ -28,7 +28,7 @@ test_pass_default_consistent_capitalised:
     );
 
 test_fail_default_consistent_pascal:
-  # Test that we don't have the "inconsistent" bug
+  # Attempting Pascal without config defaults to capitalize
   fail_str: |
     CREATE TABLE distributors (
         did Integer,
@@ -37,9 +37,9 @@ test_fail_default_consistent_pascal:
     );
   fix_str: |
     CREATE TABLE distributors (
-        did INTEGER,
-        name VARCHAR(40),
-        ts TIME WITH TIME ZONE
+        did Integer,
+        name Varchar(40),
+        ts Time With Time Zone
     );
 
 test_fail_data_type_inconsistent_capitalisation_1:
