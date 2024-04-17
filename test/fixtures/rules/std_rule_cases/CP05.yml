@@ -27,13 +27,19 @@ test_pass_default_consistent_capitalised:
         ts Time With Time Zone
     );
 
-test_pass_default_consistent_pascal:
+test_fail_default_consistent_pascal:
   # Test that we don't have the "inconsistent" bug
-  pass_str: |
+  fail_str: |
     CREATE TABLE distributors (
         did Integer,
         name VarChar(40),
         ts Time With Time Zone
+    );
+  fix_str: |
+    CREATE TABLE distributors (
+        did INTEGER,
+        name VARCHAR(40),
+        ts TIME WITH TIME ZONE
     );
 
 test_fail_data_type_inconsistent_capitalisation_1:

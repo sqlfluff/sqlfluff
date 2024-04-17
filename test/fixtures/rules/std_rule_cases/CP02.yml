@@ -330,8 +330,8 @@ test_fail_camel_aliases:
     SELECT
     test1,
     test_2,
-    testcolumn3,
-    testcolumn4,
+    testColumn3,
+    testColumn4,
     tESTCOLUMN5,
     tEST_cOLUMN6,
     test_colUmn_7
