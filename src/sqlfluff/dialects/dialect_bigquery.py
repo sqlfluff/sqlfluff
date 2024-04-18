@@ -387,6 +387,22 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
     )
 
 
+class ForSystemTimeAsOfSegment(BaseSegment):
+    """A `FOR SYSTEM_TIME AS OF` syntax.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#for_system_time_as_of
+    """
+
+    type = "for_system_time_as_of_segment"
+    match_grammar = Sequence(
+        "FOR",
+        OneOf("SYSTEM_TIME", Sequence("SYSTEM", "TIME")),
+        "AS",
+        "OF",
+        Ref("ExpressionSegment"),
+    )
+
+
 class QualifyClauseSegment(BaseSegment):
     """A `QUALIFY` clause like in `SELECT`."""
 
@@ -483,6 +499,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SetStatementSegment"),
             Ref("ExportStatementSegment"),
             Ref("CreateExternalTableStatementSegment"),
+            Ref("CreateSnapshotTableStatementSegment"),
             Ref("AssertStatementSegment"),
             Ref("CallStatementSegment"),
             Ref("ReturnStatementSegment"),
@@ -785,14 +802,7 @@ bigquery_dialect.replace(
         ]
     ),
     PostTableExpressionGrammar=Sequence(
-        Sequence(
-            "FOR",
-            OneOf("SYSTEM_TIME", Sequence("SYSTEM", "TIME")),
-            "AS",
-            "OF",
-            Ref("ExpressionSegment"),
-            optional=True,
-        ),
+        Ref("ForSystemTimeAsOfSegment", optional=True),
         Sequence(
             "WITH",
             "OFFSET",
@@ -1753,6 +1763,27 @@ class CreateExternalTableStatementSegment(BaseSegment):
             ),
             Ref("OptionsSegment", optional=True),
         ),
+    )
+
+
+class CreateSnapshotTableStatementSegment(BaseSegment):
+    """A `CREATE SNAPSHOT TABLE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_snapshot_table_statement
+    """
+
+    type = "create_snapshot_table_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "SNAPSHOT",
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        "CLONE",
+        Ref("TableReferenceSegment"),
+        Ref("ForSystemTimeAsOfSegment", optional=True),
+        Ref("OptionsSegment", optional=True),
     )
 
 
