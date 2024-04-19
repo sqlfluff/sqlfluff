@@ -527,7 +527,7 @@ class JinjaTemplater(PythonTemplater):
         undefined_variables: Set[str],
     ) -> List[SQLBaseError]:
         """Generates violations for any undefined variables."""
-        violations = []
+        violations: List[SQLBaseError] = []
         if undefined_variables:
             # Lets go through and find out where they are:
             for template_err_val in self._crawl_tree(
