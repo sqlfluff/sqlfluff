@@ -694,7 +694,7 @@ class Linter:
         self, in_str: str, fname: str, config: FluffConfig, encoding: str
     ) -> RenderedFile:
         """Template the file."""
-        linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
+        linter_logger.info("Rendering String [%s] (%s)", self.templater.name, fname)
 
         # Start the templating timer
         t0 = time.monotonic()
@@ -720,23 +720,48 @@ class Linter:
                     "details."
                 )
             )
+
+        supports_variants = hasattr(self.templater, "process_with_variants")
+        templated_variants = []
+        templater_violations = []
+
         try:
-            templated_file, templater_violations = self.templater.process(
-                in_str=in_str, fname=fname, config=config, formatter=self.formatter
-            )
+            if supports_variants:
+                # TODO: This should be driven by config eventually.
+                # NOTE: Setting that config to 1 (which will be the initial
+                # default), will effectively disable it.
+                variant_limit = 3  # Set the limit low while we're testing
+                for variant, vs in self.templater.process_with_variants(
+                    in_str=in_str, fname=fname, config=config, formatter=self.formatter
+                ):
+                    templated_variants.append(variant)
+                    templater_violations += vs
+                    if len(templated_variants) >= variant_limit:
+                        # Stop if we hit the limit.
+                        break
+            else:
+                # TODO: I think having more than one method to call is strange.
+                # Eventually the .process method should just be an iterator,
+                # and we should remove the `process_with_variants` option.
+                templated_file, templater_violations = self.templater.process(
+                    in_str=in_str, fname=fname, config=config, formatter=self.formatter
+                )
+                templated_variants.append(templated_file)
+
         except SQLFluffSkipFile as s:  # pragma: no cover
             linter_logger.warning(str(s))
-            templated_file = None
-            templater_violations = []
 
-        if templated_file is None:
+        if not templated_variants:
             linter_logger.info("TEMPLATING FAILED: %s", templater_violations)
+
+        linter_logger.info("Rendered %s variants", len(templated_variants))
 
         # Record time
         time_dict = {"templating": time.monotonic() - t0}
 
         return RenderedFile(
-            templated_file,
+            # For now, only pass through the first variant.
+            templated_variants[0],
             templater_violations,
             config,
             time_dict,
