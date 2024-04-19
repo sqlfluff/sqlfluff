@@ -722,15 +722,12 @@ class Linter:
             )
 
         supports_variants = hasattr(self.templater, "process_with_variants")
+        variant_limit = config.get("render_variant_limit")
         templated_variants = []
         templater_violations = []
 
         try:
             if supports_variants:
-                # TODO: This should be driven by config eventually.
-                # NOTE: Setting that config to 1 (which will be the initial
-                # default), will effectively disable it.
-                variant_limit = 3  # Set the limit low while we're testing
                 for variant, vs in self.templater.process_with_variants(
                     in_str=in_str, fname=fname, config=config, formatter=self.formatter
                 ):
