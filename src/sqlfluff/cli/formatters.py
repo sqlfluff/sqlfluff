@@ -516,9 +516,7 @@ class OutputStreamFormatter:
             val = "" if v is None else str(v)
             text_buffer.write(
                 ("    " * i)
-                + self.colorize(
-                    pad_line(str(k) + ":", 20, "left"), color=Color.light
-                )
+                + self.colorize(pad_line(str(k) + ":", 20, "left"), color=Color.light)
                 + pad_line(val, 20, "left")
                 + "\n"
             )
