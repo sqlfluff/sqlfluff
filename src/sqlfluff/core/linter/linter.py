@@ -309,12 +309,17 @@ class Linter:
         t0 = time.monotonic()
         violations = cast(List[SQLBaseError], rendered.templater_violations)
         tokens: Optional[Sequence[BaseSegment]]
-        if rendered.templated_file is not None:
+        # TODO: We're limiting ourselves to only the first variant for now.
+        # We'll eventually parse more variants here.
+        if rendered.templated_variants:
+            _root_variant = rendered.templated_variants[0]
+            # TODO: Check use of `config` return value here.
             tokens, lvs, config = cls._lex_templated_file(
-                rendered.templated_file, rendered.config
+                _root_variant, rendered.config
             )
             violations += lvs
         else:
+            _root_variant = None
             tokens = None
 
         t1 = time.monotonic()
@@ -340,7 +345,7 @@ class Linter:
             parsed,
             violations,
             time_dict,
-            rendered.templated_file,
+            _root_variant,
             rendered.config,
             rendered.fname,
             rendered.source_str,
@@ -757,8 +762,7 @@ class Linter:
         time_dict = {"templating": time.monotonic() - t0}
 
         return RenderedFile(
-            # For now, only pass through the first variant.
-            templated_variants[0] if templated_variants else None,
+            templated_variants,
             templater_violations,
             config,
             time_dict,

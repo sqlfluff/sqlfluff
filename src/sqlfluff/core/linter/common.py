@@ -25,7 +25,7 @@ class RenderedFile(NamedTuple):
     in the main process and the child processes when running in parallel mode.
     """
 
-    templated_file: TemplatedFile
+    templated_variants: List[TemplatedFile]
     templater_violations: List[SQLTemplaterError]
     config: FluffConfig
     time_dict: Dict[str, float]
