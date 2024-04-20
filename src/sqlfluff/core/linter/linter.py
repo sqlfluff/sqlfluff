@@ -758,7 +758,7 @@ class Linter:
 
         return RenderedFile(
             # For now, only pass through the first variant.
-            templated_variants[0],
+            templated_variants[0] if templated_variants else None,
             templater_violations,
             config,
             time_dict,
