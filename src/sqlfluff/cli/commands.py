@@ -1431,7 +1431,9 @@ def render(
                 click.echo(formatter.format_violation(v))
             sys.exit(EXIT_FAIL)
         else:
-            click.echo(rendered.templated_file.templated_str)
+            # TODO: Update this command to allow multiple variants.
+            _root_variant = rendered.templated_variants[0]
+            click.echo(_root_variant.templated_str)
             sys.exit(EXIT_SUCCESS)
 
 

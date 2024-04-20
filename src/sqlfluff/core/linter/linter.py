@@ -311,16 +311,11 @@ class Linter:
         tokens: Optional[Sequence[BaseSegment]]
         # TODO: We're limiting ourselves to only the first variant for now.
         # We'll eventually parse more variants here.
-        if rendered.templated_variants:
-            _root_variant = rendered.templated_variants[0]
-            # TODO: Check use of `config` return value here.
-            tokens, lvs, config = cls._lex_templated_file(
-                _root_variant, rendered.config
-            )
-            violations += lvs
-        else:
-            _root_variant = None
-            tokens = None
+        assert rendered.templated_variants, "NOT HANDLED. TODO. I DON'T UNDERSTAND WHY!"
+        _root_variant = rendered.templated_variants[0]
+        # TODO: Check use of `config` return value here.
+        tokens, lvs, config = cls._lex_templated_file(_root_variant, rendered.config)
+        violations += lvs
 
         t1 = time.monotonic()
         linter_logger.info("PARSING (%s)", rendered.fname)
