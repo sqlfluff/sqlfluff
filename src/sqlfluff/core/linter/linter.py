@@ -147,31 +147,25 @@ class Linter:
     @staticmethod
     def _lex_templated_file(
         templated_file: "TemplatedFile", config: FluffConfig
-    ) -> Tuple[Optional[Sequence[BaseSegment]], List[SQLLexError], FluffConfig]:
-        """Lex a templated file.
-
-        NOTE: This potentially mutates the config, so make sure to
-        use the returned one.
-        """
+    ) -> Tuple[Optional[Sequence[BaseSegment]], List[SQLLexError]]:
+        """Lex a templated file."""
         violations = []
         linter_logger.info("LEXING RAW (%s)", templated_file.fname)
         # Get the lexer
         lexer = Lexer(config=config)
         # Lex the file and log any problems
         try:
-            tokens, lex_vs = lexer.lex(templated_file)
+            segments, lex_vs = lexer.lex(templated_file)
+            # NOTE: There will always be segments, even if it's
+            # just an end of file marker.
+            assert segments, "The token sequence should never be empty."
             # We might just get the violations as a list
             violations += lex_vs
-            linter_logger.info(
-                "Lexed tokens: %s", [seg.raw for seg in tokens] if tokens else None
-            )
+            linter_logger.info("Lexed segments: %s", [seg.raw for seg in segments])
         except SQLLexError as err:  # pragma: no cover
             linter_logger.info("LEXING FAILED! (%s): %s", templated_file.fname, err)
             violations.append(err)
-            return None, violations, config
-
-        if not tokens:  # pragma: no cover TODO?
-            return None, violations, config
+            return None, violations
 
         # Check that we've got sensible indentation from the lexer.
         # We might need to suppress if it's a complicated file.
@@ -183,7 +177,7 @@ class Linter:
         templating_blocks_indent = bool(templating_blocks_indent)
         # If we're forcing it through we don't check.
         if templating_blocks_indent and not force_block_indent:
-            indent_balance = sum(getattr(elem, "indent_val", 0) for elem in tokens)
+            indent_balance = sum(getattr(elem, "indent_val", 0) for elem in segments)
             if indent_balance != 0:  # pragma: no cover
                 linter_logger.debug(
                     "Indent balance test failed for %r. Template indents will not be "
@@ -195,18 +189,18 @@ class Linter:
 
         # The file will have been lexed without config, so check all indents
         # are enabled.
-        new_tokens = []
-        for token in tokens:
-            if token.is_meta:
-                token = cast("MetaSegment", token)
-                if token.indent_val != 0:
+        new_segments = []
+        for segment in segments:
+            if segment.is_meta:
+                meta_segment = cast("MetaSegment", segment)
+                if meta_segment.indent_val != 0:
                     # Don't allow it if we're not linting templating block indents.
                     if not templating_blocks_indent:
                         continue  # pragma: no cover
-            new_tokens.append(token)
+            new_segments.append(segment)
 
         # Return new buffer
-        return new_tokens, violations, config
+        return new_segments, violations
 
     @staticmethod
     def _parse_tokens(
@@ -310,7 +304,7 @@ class Linter:
         violations = cast(List[SQLBaseError], rendered.templater_violations)
         tokens: Optional[Sequence[BaseSegment]]
         if rendered.templated_file is not None:
-            tokens, lvs, config = cls._lex_templated_file(
+            tokens, lvs = cls._lex_templated_file(
                 rendered.templated_file, rendered.config
             )
             violations += lvs
