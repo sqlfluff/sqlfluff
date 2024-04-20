@@ -545,8 +545,13 @@ class RawTemplater:
     def process_with_variants(
         self, *, in_str: str, fname: str, config=None, formatter=None
     ) -> Iterator[Tuple[Optional[TemplatedFile], List]]:
-        """Extended version of `process` which returns multiple variants."""
-        raise NotImplementedError  # pragma: no cover
+        """Extended version of `process` which returns multiple variants.
+
+        Unless explicitly defined, this simply yields the result of .process().
+        """
+        yield self.process(
+            in_str=in_str, fname=fname, config=config, formatter=formatter
+        )
 
     def __eq__(self, other: Any) -> bool:
         """Return true if `other` is of the same class as this one.
