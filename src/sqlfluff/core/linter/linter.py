@@ -724,32 +724,20 @@ class Linter:
                 )
             )
 
-        supports_variants = hasattr(self.templater, "process_with_variants")
         variant_limit = config.get("render_variant_limit")
         templated_variants: List[TemplatedFile] = []
         templater_violations: List[SQLTemplaterError] = []
 
         try:
-            if supports_variants:
-                for variant, vs in self.templater.process_with_variants(
-                    in_str=in_str, fname=fname, config=config, formatter=self.formatter
-                ):
-                    if variant:
-                        templated_variants.append(variant)
-                    templater_violations += vs
-                    if len(templated_variants) >= variant_limit:
-                        # Stop if we hit the limit.
-                        break
-            else:
-                # TODO: I think having more than one method to call is strange.
-                # Eventually the .process method should just be an iterator,
-                # and we should remove the `process_with_variants` option.
-                templated_file, templater_violations = self.templater.process(
-                    in_str=in_str, fname=fname, config=config, formatter=self.formatter
-                )
-                if templated_file:
-                    templated_variants.append(templated_file)
-
+            for variant, vs in self.templater.process_with_variants(
+                in_str=in_str, fname=fname, config=config, formatter=self.formatter
+            ):
+                if variant:
+                    templated_variants.append(variant)
+                templater_violations += vs
+                if len(templated_variants) >= variant_limit:
+                    # Stop if we hit the limit.
+                    break
         except SQLFluffSkipFile as s:  # pragma: no cover
             linter_logger.warning(str(s))
 
