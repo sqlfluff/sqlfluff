@@ -1431,9 +1431,25 @@ def render(
                 click.echo(formatter.format_violation(v))
             sys.exit(EXIT_FAIL)
         else:
-            # TODO: Update this command to allow multiple variants.
-            _root_variant = rendered.templated_variants[0]
-            click.echo(_root_variant.templated_str)
+            _num_variants = len(rendered.templated_variants)
+            if _num_variants > 1:
+                click.echo(
+                    formatter.colorize(
+                        f"SQLFluff rendered {_num_variants} variants of this file",
+                        Color.blue,
+                    )
+                )
+                for idx, variant in enumerate(rendered.templated_variants):
+                    click.echo(
+                        formatter.colorize(
+                            f"Variant {idx + 1}:",
+                            Color.blue,
+                        )
+                    )
+                    click.echo(variant)
+            else:
+                # No preamble if there's only one.
+                click.echo(rendered.templated_variants[0])
             sys.exit(EXIT_SUCCESS)
 
 
