@@ -46,13 +46,13 @@ class ParsedString(NamedTuple):
         `time_dict` is a :obj:`dict` containing timings for how long each step
             took in the process.
         `templated_file` is a :obj:`TemplatedFile` containing the details
-            of the templated file.
+            of the templated file. If templating fails, this will return None.
     """
 
     tree: Optional[BaseSegment]
     violations: List[SQLBaseError]
     time_dict: Dict[str, Any]
-    templated_file: TemplatedFile
+    templated_file: Optional[TemplatedFile]
     config: FluffConfig
     fname: str
     source_str: str

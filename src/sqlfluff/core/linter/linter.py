@@ -29,6 +29,7 @@ from sqlfluff.core.errors import (
     SQLLexError,
     SQLLintError,
     SQLParseError,
+    SQLTemplaterError,
 )
 from sqlfluff.core.helpers.file import get_encoding
 from sqlfluff.core.linter.common import ParsedString, RenderedFile, RuleTuple
@@ -46,8 +47,9 @@ from sqlfluff.core.rules import BaseRule, RulePack, get_ruleset
 from sqlfluff.core.rules.noqa import IgnoreMask
 
 if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.dialects import Dialect
     from sqlfluff.core.parser.segments.meta import MetaSegment
-    from sqlfluff.core.templaters import TemplatedFile
+    from sqlfluff.core.templaters import RawTemplater, TemplatedFile
 
 
 WalkableType = Iterable[Tuple[str, Optional[List[str]], List[str]]]
@@ -84,8 +86,10 @@ class Linter:
             require_dialect=False,
         )
         # Get the dialect and templater
-        self.dialect = self.config.get("dialect_obj")
-        self.templater = self.config.get("templater_obj")
+        self.dialect: "Dialect" = cast("Dialect", self.config.get("dialect_obj"))
+        self.templater: "RawTemplater" = cast(
+            "RawTemplater", self.config.get("templater_obj")
+        )
         # Store the formatter for output
         self.formatter = formatter
         # Store references to user rule classes
@@ -305,10 +309,16 @@ class Linter:
         tokens: Optional[Sequence[BaseSegment]]
         # TODO: We're limiting ourselves to only the first variant for now.
         # We'll eventually parse more variants here.
-        assert rendered.templated_variants, "NOT HANDLED. TODO. I DON'T UNDERSTAND WHY!"
-        _root_variant = rendered.templated_variants[0]
-        tokens, lvs = cls._lex_templated_file(_root_variant, rendered.config)
-        violations += lvs
+        if rendered.templated_variants:
+            _root_variant = rendered.templated_variants[0]
+            tokens, lvs = cls._lex_templated_file(_root_variant, rendered.config)
+            violations += lvs
+        else:
+            # Having no TemplatedFile to parse implies that templating failed.
+            # There will be no file or tokens to parse, but we'll still return
+            # a ParsedFile object and associated timings.
+            _root_variant = None
+            tokens = None
 
         t1 = time.monotonic()
         linter_logger.info("PARSING (%s)", rendered.fname)
@@ -716,15 +726,16 @@ class Linter:
 
         supports_variants = hasattr(self.templater, "process_with_variants")
         variant_limit = config.get("render_variant_limit")
-        templated_variants = []
-        templater_violations = []
+        templated_variants: List[TemplatedFile] = []
+        templater_violations: List[SQLTemplaterError] = []
 
         try:
             if supports_variants:
                 for variant, vs in self.templater.process_with_variants(
                     in_str=in_str, fname=fname, config=config, formatter=self.formatter
                 ):
-                    templated_variants.append(variant)
+                    if variant:
+                        templated_variants.append(variant)
                     templater_violations += vs
                     if len(templated_variants) >= variant_limit:
                         # Stop if we hit the limit.
@@ -736,7 +747,8 @@ class Linter:
                 templated_file, templater_violations = self.templater.process(
                     in_str=in_str, fname=fname, config=config, formatter=self.formatter
                 )
-                templated_variants.append(templated_file)
+                if templated_file:
+                    templated_variants.append(templated_file)
 
         except SQLFluffSkipFile as s:  # pragma: no cover
             linter_logger.warning(str(s))
