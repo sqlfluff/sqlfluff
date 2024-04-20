@@ -224,6 +224,12 @@ sparksql_dialect.bracket_sets("angle_bracket_pairs").update(
 
 # Real Segments
 sparksql_dialect.replace(
+    DateTimeLiteralGrammar=Sequence(
+        OneOf(
+            "DATE", "TIME", "TIMESTAMP", "INTERVAL", "TIMESTAMP_LTZ", "TIMESTAMP_NTZ"
+        ),
+        TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
+    ),
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
         Ref("EqualsSegment_a"),
@@ -878,6 +884,8 @@ class PrimitiveTypeSegment(BaseSegment):
         "DOUBLE",
         "DATE",
         "TIMESTAMP",
+        "TIMESTAMP_LTZ",
+        "TIMESTAMP_NTZ",
         "STRING",
         Sequence(
             OneOf("CHAR", "CHARACTER", "VARCHAR", "DECIMAL", "DEC", "NUMERIC"),
