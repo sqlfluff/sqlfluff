@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 90b4f0e729152b36cf695b13e01f089f0dad802a27c3c411cd26ec736997b8e5
+_hash: 47c08845b29014f2f961466e6eae00ad8b76269b473e425980669e16af02a36a
 file:
   batch:
   - statement:
@@ -24,7 +24,7 @@ file:
             naked_identifier: test1fg
         - comma: ','
         - object_reference:
-            naked_identifier: test2fg
+            quoted_identifier: '[test2fg]'
         - comma: ','
         - object_reference:
             naked_identifier: test3fg
@@ -58,7 +58,7 @@ file:
       - keyword: PARTITION
       - keyword: SCHEME
       - object_reference:
-          naked_identifier: myRangePS1
+          quoted_identifier: '[myRangePS1]'
       - keyword: AS
       - keyword: PARTITION
       - object_reference:
@@ -70,4 +70,16 @@ file:
           object_reference:
             quoted_identifier: '[PRIMARY]'
           end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_partition_scheme_statement:
+      - keyword: ALTER
+      - keyword: PARTITION
+      - keyword: SCHEME
+      - object_reference:
+          naked_identifier: MyRangePS1
+      - keyword: NEXT
+      - keyword: USED
+      - object_reference:
+          naked_identifier: test5fg
   - statement_terminator: ;

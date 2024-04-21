@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cd0aeb264447f3ac56f2a2d81566f6c8724f8bbccacd9ced9edc6d83cc5df84f
+_hash: d2bfd55429113da6ab8ecdb1eacbc9cf384ef373b9e36a657a63a1fb4e916234
 file:
   batch:
   - statement:
@@ -38,7 +38,7 @@ file:
       - keyword: PARTITION
       - keyword: FUNCTION
       - object_reference:
-          naked_identifier: myIntRangePF2
+          naked_identifier: myCharRangePF2
       - bracketed:
           start_bracket: (
           data_type:
@@ -105,4 +105,38 @@ file:
         - comma: ','
         - quoted_literal: "'20031201'"
         - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_partition_function_statement:
+      - keyword: ALTER
+      - keyword: PARTITION
+      - keyword: FUNCTION
+      - object_reference:
+          naked_identifier: myIntRangePF1
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
+      - keyword: SPLIT
+      - keyword: RANGE
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '500'
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_partition_function_statement:
+      - keyword: ALTER
+      - keyword: PARTITION
+      - keyword: FUNCTION
+      - object_reference:
+          naked_identifier: myCharRangePF2
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
+      - keyword: MERGE
+      - keyword: RANGE
+      - bracketed:
+          start_bracket: (
+          quoted_literal: "'D'"
+          end_bracket: )
   - statement_terminator: ;

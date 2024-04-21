@@ -2,13 +2,16 @@
 
 CREATE PARTITION SCHEME myRangePS1
 AS PARTITION myRangePF1
-TO (test1fg, test2fg, test3fg, test4fg);
+TO (test1fg, [test2fg], test3fg, test4fg);
 
 
 CREATE PARTITION SCHEME myRangePS3
 AS PARTITION myRangePF3
 ALL TO ( test1fg );
 
-CREATE PARTITION SCHEME myRangePS1
+CREATE PARTITION SCHEME [myRangePS1]
 AS PARTITION myRangePF1
 ALL TO ( [PRIMARY] );
+
+ALTER PARTITION SCHEME MyRangePS1  
+NEXT USED test5fg;

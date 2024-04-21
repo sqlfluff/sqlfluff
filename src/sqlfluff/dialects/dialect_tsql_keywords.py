@@ -580,6 +580,7 @@ UNRESERVED_KEYWORDS = [
     "SOURCE",
     "SPARSE",
     "SPATIAL_WINDOW_MAX_CELLS",
+    "SPLIT",
     "START",
     "STATISTICAL_SEMANTICS",
     "STATISTICS_INCREMENTAL",
@@ -612,6 +613,7 @@ UNRESERVED_KEYWORDS = [
     "UNKNOWN",
     "UPDLOCK",
     "USE_TYPE_DEFAULT",
+    "USED",
     "USER_DB",  # Azure Synapse Analytics specific, deprecated
     "USING",
     "VALUE",

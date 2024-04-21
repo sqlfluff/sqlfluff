@@ -674,7 +674,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ReconfigureStatementSegment"),
             Ref("CreateColumnstoreIndexStatementSegment"),
             Ref("CreatePartitionFunctionSegment"),
+            Ref("AlterPartitionSchemeSegment"),
             Ref("CreatePartitionSchemeSegment"),
+            Ref("AlterPartitionFunctionSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -6184,6 +6186,27 @@ class CreatePartitionFunctionSegment(BaseSegment):
     )
 
 
+class AlterPartitionFunctionSegment(BaseSegment):
+    """A `ALTER PARTITION FUNCTION` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-partition-function-transact-sql
+    # https://learn.microsoft.com/en-us/sql/relational-databases/partitions/modify-a-partition-function
+
+    type = "alter_partition_function_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "PARTITION",
+        "FUNCTION",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(),
+        OneOf(
+            Sequence("SPLIT", "RANGE", Bracketed(Ref("LiteralGrammar"))),
+            Sequence("MERGE", "RANGE", Bracketed(Ref("LiteralGrammar"))),
+        ),
+    )
+
+
 class CreatePartitionSchemeSegment(BaseSegment):
     """A `CREATE PARTITION SCHEME` statement."""
 
@@ -6206,4 +6229,22 @@ class CreatePartitionSchemeSegment(BaseSegment):
                 OneOf(Ref("ObjectReferenceSegment"), "PRIMARY"),
             ),
         ),
+    )
+
+class AlterPartitionSchemeSegment(BaseSegment):
+    """A `ALTER PARTITION SCHEME` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-partition-scheme-transact-sql
+    # https://learn.microsoft.com/en-us/sql/relational-databases/partitions/modify-a-partition-scheme
+
+    type = "alter_partition_scheme_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "PARTITION",
+        "SCHEME",
+        Ref("ObjectReferenceSegment"),
+        "NEXT",
+        "USED",
+        Ref("ObjectReferenceSegment", optional=True),
     )
