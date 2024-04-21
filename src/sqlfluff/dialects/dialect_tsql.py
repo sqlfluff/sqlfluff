@@ -6155,8 +6155,10 @@ class ComputedColumnDefinitionSegment(BaseSegment):
         ),
     )
 
+
 class CreatePartitionFunctionSegment(BaseSegment):
     """A `CREATE PARTITION FUNCTION` statement."""
+
     # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-partition-function-transact-sql
 
     type = "create_partition_function_statement"
@@ -6178,12 +6180,13 @@ class CreatePartitionFunctionSegment(BaseSegment):
         "FOR",
         "VALUES",
         Bracketed(Delimited(Ref("LiteralGrammar"))),
-        #Bracketed(Delimited("LEFT")),
+        # Bracketed(Delimited("LEFT")),
     )
 
 
 class CreatePartitionSchemeSegment(BaseSegment):
     """A `CREATE PARTITION SCHEME` statement."""
+
     # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-partition-scheme-transact-sql
 
     type = "create_partition_scheme_statement"
@@ -6200,10 +6203,7 @@ class CreatePartitionSchemeSegment(BaseSegment):
         "TO",
         Bracketed(
             Delimited(
-                OneOf(
-                    Ref("ObjectReferenceSegment"),
-                    "PRIMARY"
-                ),
+                OneOf(Ref("ObjectReferenceSegment"), "PRIMARY"),
             ),
         ),
     )
