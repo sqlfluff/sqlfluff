@@ -6231,6 +6231,7 @@ class CreatePartitionSchemeSegment(BaseSegment):
         ),
     )
 
+
 class AlterPartitionSchemeSegment(BaseSegment):
     """A `ALTER PARTITION SCHEME` statement."""
 
