@@ -304,46 +304,55 @@ class Linter:
         parse_statistics: bool = False,
     ) -> ParsedString:
         """Parse a rendered file."""
-        t0 = time.monotonic()
         violations = cast(List[SQLBaseError], rendered.templater_violations)
         tokens: Optional[Sequence[BaseSegment]]
-        # TODO: We're limiting ourselves to only the first variant for now.
-        # We'll eventually parse more variants here.
-        if rendered.templated_variants:
-            _root_variant = rendered.templated_variants[0]
-            tokens, lex_errors = cls._lex_templated_file(_root_variant, rendered.config)
-            violations += lex_errors
-        else:
-            # Having no TemplatedFile to parse implies that templating failed.
-            # There will be no file or tokens to parse, but we'll still return
-            # a ParsedFile object and associated timings.
-            _root_variant = None
-            tokens = None
+        parsed_variants: List[
+            Tuple[TemplatedFile, Optional[BaseSegment], List[SQLBaseError]]
+        ] = []
+        _lexing_time = 0.0
+        _parsing_time = 0.0
 
-        t1 = time.monotonic()
-        linter_logger.info("PARSING (%s)", rendered.fname)
-
-        if tokens:
-            parsed, parse_errors = cls._parse_tokens(
-                tokens,
-                rendered.config,
-                fname=rendered.fname,
-                parse_statistics=parse_statistics,
+        for idx, variant in enumerate(rendered.templated_variants):
+            t0 = time.monotonic()
+            linter_logger.info("Parse Rendered. Lexing Variant %s", idx)
+            tokens, lex_errors = cls._lex_templated_file(variant, rendered.config)
+            t1 = time.monotonic()
+            linter_logger.info("Parse Rendered. Parsing Variant %s", idx)
+            if tokens:
+                parsed, parse_errors = cls._parse_tokens(
+                    tokens,
+                    rendered.config,
+                    fname=rendered.fname,
+                    parse_statistics=parse_statistics,
+                )
+            else:
+                parsed = None
+                pvs = []
+            _lt = t1 - t0
+            _pt = time.monotonic() - t1
+            linter_logger.info(
+                "Parse Rendered. Variant %s. Lex in %s. Parse in %s.", idx, _lt, _pt
             )
-            violations += parse_errors
-        else:
-            parsed = None
+            parsed_variants.append(
+                (
+                    variant,
+                    parsed,
+                    cast(List[SQLBaseError], lex_errors) + cast(List[SQLBaseError], parse_errors),
+                )
+            )
+            _lexing_time += _lt
+            _parsing_time += _pt
 
         time_dict = {
             **rendered.time_dict,
-            "lexing": t1 - t0,
-            "parsing": time.monotonic() - t1,
+            "lexing": _lexing_time,
+            "parsing": _parsing_time,
         }
         return ParsedString(
-            parsed,
-            violations,
+            parsed_variants[0][1] if parsed_variants else None,
+            violations + (parsed_variants[0][2] if parsed_variants else []),
             time_dict,
-            _root_variant,
+            parsed_variants[0][0] if parsed_variants else None,
             rendered.config,
             rendered.fname,
             rendered.source_str,
