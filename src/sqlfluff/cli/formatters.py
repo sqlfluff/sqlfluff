@@ -635,7 +635,7 @@ class OutputStreamFormatter:
         verbose: int,
         parsed_strings: List[ParsedString],
     ) -> int:
-        """Used by human formatting during the parse."""
+        """Used by human formatting during the `sqlfluff parse` command."""
         violations_count = 0
         timing = TimingSummary()
 
@@ -643,6 +643,7 @@ class OutputStreamFormatter:
             timing.add(parsed_string.time_dict)
 
             if parsed_string.tree:
+                # TODO: Print out all the parsed versions.
                 output_stream.write(parsed_string.tree.stringify(code_only=code_only))
             else:
                 # TODO: Make this prettier

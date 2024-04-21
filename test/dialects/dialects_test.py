@@ -67,17 +67,19 @@ def test__dialect__base_file_parse(dialect, file):
     parsed: Optional[ParsedString] = lex_and_parse(config_overrides, raw)
     if not parsed:  # Empty file case
         return
-    print(f"Post-parse structure: {parsed.tree.to_tuple(show_raw=True)}")
-    print(f"Post-parse structure: {parsed.tree.stringify()}")
+    assert parsed.parsed_variants
+    tree = parsed.parsed_variants[0].tree
+    print(f"Post-parse structure: {tree.to_tuple(show_raw=True)}")
+    print(f"Post-parse structure: {tree.stringify()}")
     # Check we're all there.
-    assert parsed.tree.raw == raw
+    assert tree.raw == raw
     # Check that there's nothing unparsable
-    typs = parsed.tree.type_set()
-    assert "unparsable" not in typs
+    types = tree.type_set()
+    assert "unparsable" not in types
     # When testing the validity of fixes we re-parse sections of the file.
     # To ensure this is safe - here we re-parse the unfixed file to ensure
     # it's still valid even in the case that no fixes have been applied.
-    assert parsed.tree.validate_segment_with_reparse(parsed.config.get("dialect_obj"))
+    assert tree.validate_segment_with_reparse(parsed.config.get("dialect_obj"))
 
 
 @pytest.mark.integration
@@ -107,8 +109,9 @@ def test__dialect__base_broad_fix(
     parsed: Optional[ParsedString] = lex_and_parse(config_overrides, raw)
     if not parsed:  # Empty file case
         return
-    else:
-        print(parsed.tree.stringify())
+    assert parsed.parsed_variants
+    tree = parsed.parsed_variants[0].tree
+    print(tree.stringify())
 
     config = FluffConfig(overrides=config_overrides)
     linter = Linter(config=config)

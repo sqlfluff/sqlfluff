@@ -43,14 +43,15 @@ class ParsedVariant(NamedTuple):
     """An object to store the result of parsing a single TemplatedFile.
 
     Args:
-        `templated_file` is a :obj:`TemplatedFile` containing the details
-            of the templated file. If templating fails, this will return None.
-        `tree` is a segment structure representing the parsed file. If
-            parsing fails due to an unrecoverable violation then we will
-            return None.
-        `violations` is a :obj:`list` of violations so far, which will either be
-            lexing or parsing violations at this stage. Templated violations
-            are stored in the ParsedString object.
+        templated_file (:obj:`TemplatedFile`): Containing the details
+            of the templated file. If templating fails, this will be `None`.
+        tree (:obj:`BaseSegment`): The segment structure representing the
+            parsed file. If parsing fails due to an unrecoverable
+            violation then we will be None.
+        lexing_violations (:obj:`list` of :obj:`SQLLexError`): Any violations
+            raised during the lexing phase.
+        parsing_violations (:obj:`list` of :obj:`SQLParseError`): Any violations
+            raised during the lexing phase.
     """
 
     templated_file: Optional[TemplatedFile]
@@ -67,21 +68,31 @@ class ParsedString(NamedTuple):
     """An object to store the result of parsing a string.
 
     Args:
-        `tree` is a segment structure representing the parsed file. If
-            parsing fails due to an unrecoverable violation then we will
-            return None.
-        `violations` is a :obj:`list` of violations so far, which will either be
-            templating, lexing or parsing violations at this stage.
-        `time_dict` is a :obj:`dict` containing timings for how long each step
+        parsed_variants (:obj:`list` of :obj:`ParsedVariant`): The parsed
+            variants of this file. Empty if parsing or templating failed.
+        templating_violations (:obj:`list` of :obj:`SQLTemplaterError`):
+            Any violations raised during the templating phase. Any violations
+            raised during lexing or parsing can be found in the
+            `parsed_variants`, or accessed using the `.violations()` method
+            which combines all the violations.
+        time_dict (:obj:`dict`): Contains timings for how long each step
             took in the process.
-        `templated_file` is a :obj:`TemplatedFile` containing the details
-            of the templated file. If templating fails, this will return None.
+        config (:obj:`FluffConfig`): The active config for this file,
+            including any parsed in-file directives.
+        fname (str): The name of the file. Used mostly for user feedback.
+        source_str (str): The raw content of the source file.
     """
 
-    tree: Optional[BaseSegment]
-    violations: List[SQLBaseError]
+    parsed_variants: List[ParsedVariant]
+    templating_violations: List[SQLTemplaterError]
     time_dict: Dict[str, Any]
-    templated_file: Optional[TemplatedFile]
     config: FluffConfig
     fname: str
     source_str: str
+
+    def violations(self) -> List[SQLBaseError]:
+        """Returns the combined set of violations for this variant."""
+        return [
+            *self.templating_violations,
+            *(v for variant in self.parsed_variants for v in variant.violations()),
+        ]
