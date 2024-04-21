@@ -1525,6 +1525,20 @@ class ClusterBySegment(BaseSegment):
     )
 
 
+class DefaultCollateSegment(BaseSegment):
+    """DEFAULT COLLATE clause for a table or a dataset.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/collation-concepts#default_collation
+    """
+
+    type = "default_collate"
+    match_grammar: Matchable = Sequence(
+        "DEFAULT",
+        "COLLATE",
+        Ref("LiteralGrammar"),
+    )
+
+
 class OptionsSegment(BaseSegment):
     """OPTIONS clause for a table."""
 
@@ -1593,6 +1607,22 @@ class ViewColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
     )
 
 
+class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
+    """A `CREATE SCHEMA` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_schema_statement
+    """
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("DefaultCollateSegment", optional=True),
+        Ref("OptionsSegment", optional=True),
+    )
+
+
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """`CREATE TABLE` statement.
 
@@ -1624,6 +1654,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             ),
             optional=True,
         ),
+        Ref("DefaultCollateSegment", optional=True),
         Ref("PartitionBySegment", optional=True),
         Ref("ClusterBySegment", optional=True),
         Ref("OptionsSegment", optional=True),
