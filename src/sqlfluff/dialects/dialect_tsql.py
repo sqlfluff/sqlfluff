@@ -673,6 +673,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AtomicBeginEndSegment"),
             Ref("ReconfigureStatementSegment"),
             Ref("CreateColumnstoreIndexStatementSegment"),
+            Ref("CreatePartitionFunctionSegment"),
+            Ref("CreatePartitionSchemeSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -6150,5 +6152,58 @@ class ComputedColumnDefinitionSegment(BaseSegment):
         ),
         AnyNumberOf(
             Ref("ColumnConstraintSegment", optional=True),
+        ),
+    )
+
+class CreatePartitionFunctionSegment(BaseSegment):
+    """A `CREATE PARTITION FUNCTION` statement."""
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-partition-function-transact-sql
+
+    type = "create_partition_function_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "PARTITION",
+        "FUNCTION",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(
+            Ref("DatatypeSegment"),
+        ),
+        "AS",
+        "RANGE",
+        OneOf(
+            "LEFT",
+            "RIGHT",
+        ),
+        "FOR",
+        "VALUES",
+        Bracketed(Delimited(Ref("LiteralGrammar"))),
+        #Bracketed(Delimited("LEFT")),
+    )
+
+
+class CreatePartitionSchemeSegment(BaseSegment):
+    """A `CREATE PARTITION SCHEME` statement."""
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-partition-scheme-transact-sql
+
+    type = "create_partition_scheme_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "PARTITION",
+        "SCHEME",
+        Ref("ObjectReferenceSegment"),
+        "AS",
+        "PARTITION",
+        Ref("ObjectReferenceSegment"),
+        Ref.keyword("ALL", optional=True),
+        "TO",
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    "PRIMARY"
+                ),
+            ),
         ),
     )

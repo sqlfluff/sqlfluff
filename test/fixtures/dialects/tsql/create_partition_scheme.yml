@@ -1,0 +1,73 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 90b4f0e729152b36cf695b13e01f089f0dad802a27c3c411cd26ec736997b8e5
+file:
+  batch:
+  - statement:
+      create_partition_scheme_statement:
+      - keyword: CREATE
+      - keyword: PARTITION
+      - keyword: SCHEME
+      - object_reference:
+          naked_identifier: myRangePS1
+      - keyword: AS
+      - keyword: PARTITION
+      - object_reference:
+          naked_identifier: myRangePF1
+      - keyword: TO
+      - bracketed:
+        - start_bracket: (
+        - object_reference:
+            naked_identifier: test1fg
+        - comma: ','
+        - object_reference:
+            naked_identifier: test2fg
+        - comma: ','
+        - object_reference:
+            naked_identifier: test3fg
+        - comma: ','
+        - object_reference:
+            naked_identifier: test4fg
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_partition_scheme_statement:
+      - keyword: CREATE
+      - keyword: PARTITION
+      - keyword: SCHEME
+      - object_reference:
+          naked_identifier: myRangePS3
+      - keyword: AS
+      - keyword: PARTITION
+      - object_reference:
+          naked_identifier: myRangePF3
+      - keyword: ALL
+      - keyword: TO
+      - bracketed:
+          start_bracket: (
+          object_reference:
+            naked_identifier: test1fg
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_partition_scheme_statement:
+      - keyword: CREATE
+      - keyword: PARTITION
+      - keyword: SCHEME
+      - object_reference:
+          naked_identifier: myRangePS1
+      - keyword: AS
+      - keyword: PARTITION
+      - object_reference:
+          naked_identifier: myRangePF1
+      - keyword: ALL
+      - keyword: TO
+      - bracketed:
+          start_bracket: (
+          object_reference:
+            quoted_identifier: '[PRIMARY]'
+          end_bracket: )
+  - statement_terminator: ;

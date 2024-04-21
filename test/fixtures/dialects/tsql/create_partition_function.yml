@@ -1,0 +1,108 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: cd0aeb264447f3ac56f2a2d81566f6c8724f8bbccacd9ced9edc6d83cc5df84f
+file:
+  batch:
+  - statement:
+      create_partition_function_statement:
+      - keyword: CREATE
+      - keyword: PARTITION
+      - keyword: FUNCTION
+      - object_reference:
+          naked_identifier: myIntRangePF1
+      - bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: INT
+          end_bracket: )
+      - keyword: AS
+      - keyword: RANGE
+      - keyword: LEFT
+      - keyword: FOR
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '1'
+        - comma: ','
+        - numeric_literal: '100'
+        - comma: ','
+        - numeric_literal: '1000'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_partition_function_statement:
+      - keyword: CREATE
+      - keyword: PARTITION
+      - keyword: FUNCTION
+      - object_reference:
+          naked_identifier: myIntRangePF2
+      - bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '1'
+                end_bracket: )
+          end_bracket: )
+      - keyword: AS
+      - keyword: RANGE
+      - keyword: RIGHT
+      - keyword: FOR
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: "'A'"
+        - comma: ','
+        - quoted_literal: "'B'"
+        - comma: ','
+        - quoted_literal: "'C'"
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_partition_function_statement:
+      - keyword: CREATE
+      - keyword: PARTITION
+      - keyword: FUNCTION
+      - object_reference:
+          quoted_identifier: '[myDateRangePF1]'
+      - bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: date
+          end_bracket: )
+      - keyword: AS
+      - keyword: RANGE
+      - keyword: RIGHT
+      - keyword: FOR
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: "'20030201'"
+        - comma: ','
+        - quoted_literal: "'20030301'"
+        - comma: ','
+        - quoted_literal: "'20030401'"
+        - comma: ','
+        - quoted_literal: "'20030501'"
+        - comma: ','
+        - quoted_literal: "'20030601'"
+        - comma: ','
+        - quoted_literal: "'20030701'"
+        - comma: ','
+        - quoted_literal: "'20030801'"
+        - comma: ','
+        - quoted_literal: "'20030901'"
+        - comma: ','
+        - quoted_literal: "'20031001'"
+        - comma: ','
+        - quoted_literal: "'20031101'"
+        - comma: ','
+        - quoted_literal: "'20031201'"
+        - end_bracket: )
+  - statement_terminator: ;
