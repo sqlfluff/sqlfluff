@@ -32,7 +32,12 @@ from sqlfluff.core.errors import (
     SQLTemplaterError,
 )
 from sqlfluff.core.helpers.file import get_encoding
-from sqlfluff.core.linter.common import ParsedString, RenderedFile, RuleTuple
+from sqlfluff.core.linter.common import (
+    ParsedString,
+    ParsedVariant,
+    RenderedFile,
+    RuleTuple,
+)
 from sqlfluff.core.linter.fix import apply_fixes, compute_anchor_edit_info
 from sqlfluff.core.linter.linted_dir import LintedDir
 from sqlfluff.core.linter.linted_file import (
@@ -306,9 +311,7 @@ class Linter:
         """Parse a rendered file."""
         violations = cast(List[SQLBaseError], rendered.templater_violations)
         tokens: Optional[Sequence[BaseSegment]]
-        parsed_variants: List[
-            Tuple[TemplatedFile, Optional[BaseSegment], List[SQLBaseError]]
-        ] = []
+        parsed_variants: List[ParsedVariant] = []
         _lexing_time = 0.0
         _parsing_time = 0.0
 
@@ -334,10 +337,11 @@ class Linter:
                 "Parse Rendered. Variant %s. Lex in %s. Parse in %s.", idx, _lt, _pt
             )
             parsed_variants.append(
-                (
+                ParsedVariant(
                     variant,
                     parsed,
-                    cast(List[SQLBaseError], lex_errors) + cast(List[SQLBaseError], parse_errors),
+                    lex_errors,
+                    parse_errors,
                 )
             )
             _lexing_time += _lt
@@ -349,10 +353,14 @@ class Linter:
             "parsing": _parsing_time,
         }
         return ParsedString(
-            parsed_variants[0][1] if parsed_variants else None,
-            violations + (parsed_variants[0][2] if parsed_variants else []),
+            parsed_variants[0].tree if parsed_variants else None,
+            violations
+            + cast(
+                List[SQLBaseError],
+                parsed_variants[0].violations() if parsed_variants else [],
+            ),
             time_dict,
-            parsed_variants[0][0] if parsed_variants else None,
+            parsed_variants[0].templated_file if parsed_variants else None,
             rendered.config,
             rendered.fname,
             rendered.source_str,
