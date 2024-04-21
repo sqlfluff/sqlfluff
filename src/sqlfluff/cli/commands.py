@@ -1341,13 +1341,15 @@ def parse(
         )
     else:
         parsed_strings_dict = [
+            # NOTE: This version of the command only uses the first parsed
+            # variant for now.
             dict(
                 filepath=linted_result.fname,
                 segments=(
-                    linted_result.tree.as_record(
+                    linted_result.parsed_variants[0].tree.as_record(
                         code_only=code_only, show_raw=True, include_meta=include_meta
                     )
-                    if linted_result.tree
+                    if linted_result.parsed_variants
                     else None
                 ),
             )

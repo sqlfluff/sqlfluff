@@ -642,19 +642,39 @@ class OutputStreamFormatter:
         for parsed_string in parsed_strings:
             timing.add(parsed_string.time_dict)
 
-            if parsed_string.tree:
-                # TODO: Print out all the parsed versions.
-                output_stream.write(parsed_string.tree.stringify(code_only=code_only))
-            else:
+            _num_variants = len(parsed_string.parsed_variants)
+            if not parsed_string.parsed_variants:
                 # TODO: Make this prettier
                 output_stream.write("...Failed to Parse...")  # pragma: no cover
+            elif _num_variants == 1:
+                # Backward compatible single parse
+                output_stream.write(
+                    parsed_string.parsed_variants[0].tree.stringify(code_only=code_only)
+                )
+            else:
+                # Multi variant parse setup.
+                output_stream.write(
+                    self.colorize(
+                        f"SQLFluff parsed {_num_variants} variants of this file",
+                        Color.blue,
+                    )
+                )
+                for idx, variant in enumerate(parsed_string.parsed_variants):
+                    click.echo(
+                        self.colorize(
+                            f"Variant {idx + 1}:",
+                            Color.blue,
+                        )
+                    )
+                    click.echo(variant.tree.stringify(code_only=code_only))
 
-            violations_count += len(parsed_string.violations)
-            if parsed_string.violations:
+            violations = parsed_string.violations()
+            violations_count += len(violations)
+            if violations:
                 output_stream.write("==== parsing violations ====")  # pragma: no cover
-            for v in parsed_string.violations:
+            for v in violations:
                 output_stream.write(self.format_violation(v))  # pragma: no cover
-            if parsed_string.violations:
+            if violations:
                 output_stream.write(
                     self.format_dialect_warning(parsed_string.config.get("dialect"))
                 )
