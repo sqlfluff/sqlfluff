@@ -6143,19 +6143,12 @@ class ComputedColumnDefinitionSegment(BaseSegment):
                 Ref("ExpressionSegment"),
             ),
         ),
-        #OneOf(
-        #    Sequence("PERSISTED", "NOT", "NULL"),
-        #    Sequence("PERSISTED"),
-        #    optional=True,
-        #),
         Sequence(
             "PERSISTED",
-            Sequence( "NOT", "NULL", optional=True),
+            Sequence("NOT", "NULL", optional=True),
             optional=True,
         ),
-        # Sequence(Ref.keyword("PERSISTED", optional=True), "NOT", "NULL", optional=True),
         AnyNumberOf(
             Ref("ColumnConstraintSegment", optional=True),
         ),
     )
-
