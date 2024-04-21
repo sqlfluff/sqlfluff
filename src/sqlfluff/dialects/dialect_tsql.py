@@ -3282,6 +3282,7 @@ class AlterTableStatementSegment(BaseSegment):
                 Sequence(
                     "ADD",
                     Delimited(
+                        Ref("ComputedColumnDefinitionSegment"),
                         Ref("ColumnDefinitionSegment"),
                     ),
                 ),
@@ -6142,8 +6143,17 @@ class ComputedColumnDefinitionSegment(BaseSegment):
                 Ref("ExpressionSegment"),
             ),
         ),
-        OptionallyBracketed("PERSISTED", optional=True),  # For types like VARCHAR(100)
-        Ref.keyword("PERSISTED", optional=True),
+        #OneOf(
+        #    Sequence("PERSISTED", "NOT", "NULL"),
+        #    Sequence("PERSISTED"),
+        #    optional=True,
+        #),
+        Sequence(
+            "PERSISTED",
+            Sequence( "NOT", "NULL", optional=True),
+            optional=True,
+        ),
+        # Sequence(Ref.keyword("PERSISTED", optional=True), "NOT", "NULL", optional=True),
         AnyNumberOf(
             Ref("ColumnConstraintSegment", optional=True),
         ),

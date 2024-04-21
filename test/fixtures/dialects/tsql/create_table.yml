@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 65d54fa08f6406ab6dc5bdd1e55b8210e10ed76df6170ddce299d7e27a8267e8
+_hash: 79da78c613cc371329828508a62c84ef826111bc98cd7e8b884f337a29bc91cc
 file:
   batch:
   - statement:
@@ -156,7 +156,31 @@ file:
               data_type_identifier: money
         - comma: ','
         - computed_column_definition:
-            naked_identifier: InventoryValue
+          - naked_identifier: InventoryValue1
+          - keyword: AS
+          - expression:
+            - column_reference:
+                naked_identifier: QtyAvailable
+            - binary_operator: '*'
+            - column_reference:
+                naked_identifier: UnitPrice
+          - keyword: PERSISTED
+        - comma: ','
+        - computed_column_definition:
+          - naked_identifier: InventoryValue2
+          - keyword: AS
+          - expression:
+            - column_reference:
+                naked_identifier: QtyAvailable
+            - binary_operator: '*'
+            - column_reference:
+                naked_identifier: UnitPrice
+          - keyword: PERSISTED
+          - keyword: NOT
+          - keyword: 'NULL'
+        - comma: ','
+        - computed_column_definition:
+            naked_identifier: InventoryValue3
             keyword: AS
             expression:
             - column_reference:
@@ -164,6 +188,19 @@ file:
             - binary_operator: '*'
             - column_reference:
                 naked_identifier: UnitPrice
+        - comma: ','
+        - computed_column_definition:
+            naked_identifier: InventoryValue4
+            keyword: AS
+            expression:
+            - column_reference:
+                naked_identifier: QtyAvailable
+            - binary_operator: '*'
+            - column_reference:
+                naked_identifier: UnitPrice
+            column_constraint_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
         - comma: ','
         - computed_column_definition:
             quoted_identifier: '[SoldValue]'
@@ -175,7 +212,7 @@ file:
                   naked_identifier: QtySold
               - binary_operator: '*'
               - column_reference:
-                  quoted_identifier: '[UnitPrice]'
+                  naked_identifier: UnitPrice
               end_bracket: )
         - comma: ','
         - computed_column_definition:
