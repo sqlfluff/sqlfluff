@@ -25,7 +25,7 @@ CREATE TABLE dbo.Products (
     , UnitPrice money
     , InventoryValue1 AS QtyAvailable * UnitPrice PERSISTED
     , InventoryValue2 AS QtyAvailable * UnitPrice PERSISTED NOT NULL
-    , InventoryValue3 AS QtyAvailable * UnitPrice 
+    , InventoryValue3 AS QtyAvailable * UnitPrice
     , InventoryValue4 AS QtyAvailable * UnitPrice PRIMARY KEY
     , [SoldValue] AS (QtySold * UnitPrice)
     , InventoyDate AS CAST(InventoryTs AS date)
