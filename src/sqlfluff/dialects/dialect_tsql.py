@@ -2490,9 +2490,6 @@ class ColumnConstraintSegment(BaseSegment):
                 # other optional blocks (RelationalIndexOptionsSegment,
                 # OnIndexOptionSegment,FilestreamOnOptionSegment) are mentioned above
             ),
-            # computed_column_definition
-            Sequence("AS", Ref("ExpressionSegment")),
-            Sequence("PERSISTED", Sequence("NOT", "NULL", optional=True)),
             # other optional blocks (RelationalIndexOptionsSegment,
             # OnIndexOptionSegment, ReferencesConstraintGrammar, CheckConstraintGrammar)
             # are mentioned above
@@ -3228,6 +3225,7 @@ class CreateTableStatementSegment(BaseSegment):
                     Delimited(
                         OneOf(
                             Ref("TableConstraintSegment"),
+                            Ref("ComputedColumnDefinitionSegment"),
                             Ref("ColumnDefinitionSegment"),
                             Ref("TableIndexSegment"),
                             Ref("PeriodSegment"),
@@ -3284,6 +3282,7 @@ class AlterTableStatementSegment(BaseSegment):
                 Sequence(
                     "ADD",
                     Delimited(
+                        Ref("ComputedColumnDefinitionSegment"),
                         Ref("ColumnDefinitionSegment"),
                     ),
                 ),
@@ -6122,5 +6121,34 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
             "LOGIN",
             Ref("ObjectReferenceSegment"),
             optional=True,
+        ),
+    )
+
+
+class ComputedColumnDefinitionSegment(BaseSegment):
+    """A computed column definition, e.g. for CREATE TABLE or ALTER TABLE.
+
+    https://learn.microsoft.com/en-us/sql/relational-databases/tables/specify-computed-columns-in-a-table?view=sql-server-ver16
+    """
+
+    type = "computed_column_definition"
+
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        "AS",
+        OptionallyBracketed(
+            OneOf(
+                Ref("FunctionSegment"),
+                Ref("BareFunctionSegment"),
+                Ref("ExpressionSegment"),
+            ),
+        ),
+        Sequence(
+            "PERSISTED",
+            Sequence("NOT", "NULL", optional=True),
+            optional=True,
+        ),
+        AnyNumberOf(
+            Ref("ColumnConstraintSegment", optional=True),
         ),
     )

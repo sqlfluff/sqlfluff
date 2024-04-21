@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bc7ad7040e8454374ad40070f2b85fdb9ddb06ffcabe49cd8111153db4f39862
+_hash: 08e12e9160d43c99db40005772eb315a945b74782b70b08564e2a9c837ce4b7b
 file:
 - batch:
     statement:
@@ -815,6 +815,89 @@ file:
           - date_part: DAYS
           - end_bracket: )
         - end_bracket: )
+    statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Products
+      - keyword: ADD
+      - computed_column_definition:
+        - naked_identifier: RetailValue
+        - keyword: AS
+        - expression:
+          - column_reference:
+              quoted_identifier: '[QtyAvailable]'
+          - binary_operator: '*'
+          - column_reference:
+              naked_identifier: UnitPrice
+          - binary_operator: '*'
+          - numeric_literal: '1.5'
+        - keyword: PERSISTED
+    statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Products
+      - keyword: ADD
+      - computed_column_definition:
+        - naked_identifier: RetailValue
+        - keyword: AS
+        - bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: QtyAvailable
+            - binary_operator: '*'
+            - column_reference:
+                quoted_identifier: '[UnitPrice]'
+            - binary_operator: '*'
+            - numeric_literal: '1.5'
+            end_bracket: )
+        - keyword: PERSISTED
+        - keyword: NOT
+        - keyword: 'NULL'
+    statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Products
+      - keyword: ADD
+      - computed_column_definition:
+          naked_identifier: InventoyDate
+          keyword: AS
+          function:
+            function_name:
+              keyword: CAST
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  quoted_identifier: '[InventoryTs]'
+              keyword: AS
+              data_type:
+                data_type_identifier: date
+              end_bracket: )
     statement_terminator: ;
 - go_statement:
     keyword: GO
