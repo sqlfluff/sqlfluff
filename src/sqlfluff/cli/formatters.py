@@ -643,9 +643,14 @@ class OutputStreamFormatter:
             timing.add(parsed_string.time_dict)
 
             _num_variants = len(parsed_string.parsed_variants)
-            if not parsed_string.parsed_variants:
+            if (
+                not parsed_string.parsed_variants
+                or not parsed_string.parsed_variants[0].tree
+            ):
                 # TODO: Make this prettier
-                output_stream.write("...Failed to Parse...")  # pragma: no cover
+                output_stream.write(
+                    self.colorize("...Failed to Parse...", Color.red)
+                )  # pragma: no cover
             elif _num_variants == 1:
                 # Backward compatible single parse
                 output_stream.write(
@@ -660,13 +665,18 @@ class OutputStreamFormatter:
                     )
                 )
                 for idx, variant in enumerate(parsed_string.parsed_variants):
-                    click.echo(
+                    output_stream.write(
                         self.colorize(
                             f"Variant {idx + 1}:",
                             Color.blue,
                         )
                     )
-                    click.echo(variant.tree.stringify(code_only=code_only))
+                    if variant.tree:
+                        output_stream.write(variant.tree.stringify(code_only=code_only))
+                    else:  # pragma: no cover
+                        output_stream.write(
+                            self.colorize("...Failed to Parse...", Color.red)
+                        )
 
             violations = parsed_string.violations()
             violations_count += len(violations)

@@ -1349,7 +1349,10 @@ def parse(
                     linted_result.parsed_variants[0].tree.as_record(
                         code_only=code_only, show_raw=True, include_meta=include_meta
                     )
+                    # if there are variants
                     if linted_result.parsed_variants
+                    # ...and the root variant successfully parsed
+                    and linted_result.parsed_variants[0].tree
                     else None
                 ),
             )

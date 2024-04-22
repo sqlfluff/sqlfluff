@@ -329,7 +329,7 @@ class Linter:
                 )
             else:
                 parsed = None
-                pvs = []
+                parse_errors = []
             _lt = t1 - t0
             _pt = time.monotonic() - t1
             linter_logger.info(
