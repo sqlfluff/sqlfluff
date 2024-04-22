@@ -1639,6 +1639,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Sequence(
             OneOf("COPY", "LIKE", "CLONE"),
             Ref("TableReferenceSegment"),
+            Ref("ForSystemTimeAsOfSegment", optional=True),
             optional=True,
         ),
         # Column list
