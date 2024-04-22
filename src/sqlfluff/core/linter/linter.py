@@ -311,8 +311,8 @@ class Linter:
         # We'll eventually parse more variants here.
         if rendered.templated_variants:
             _root_variant = rendered.templated_variants[0]
-            tokens, lvs = cls._lex_templated_file(_root_variant, rendered.config)
-            violations += lvs
+            tokens, lex_errors = cls._lex_templated_file(_root_variant, rendered.config)
+            violations += lex_errors
         else:
             # Having no TemplatedFile to parse implies that templating failed.
             # There will be no file or tokens to parse, but we'll still return
@@ -324,13 +324,13 @@ class Linter:
         linter_logger.info("PARSING (%s)", rendered.fname)
 
         if tokens:
-            parsed, pvs = cls._parse_tokens(
+            parsed, parse_errors = cls._parse_tokens(
                 tokens,
                 rendered.config,
                 fname=rendered.fname,
                 parse_statistics=parse_statistics,
             )
-            violations += pvs
+            violations += parse_errors
         else:
             parsed = None
 

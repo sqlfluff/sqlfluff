@@ -10,7 +10,6 @@ from functools import reduce
 from typing import (
     Callable,
     Dict,
-    Generator,
     Iterable,
     Iterator,
     List,
@@ -554,9 +553,9 @@ class JinjaTemplater(PythonTemplater):
         in_str: str,
         syntax_tree: jinja2.nodes.Template,
         undefined_variables: Set[str],
-    ) -> List[SQLBaseError]:
+    ) -> List[SQLTemplaterError]:
         """Generates violations for any undefined variables."""
-        violations: List[SQLBaseError] = []
+        violations: List[SQLTemplaterError] = []
         if undefined_variables:
             # Lets go through and find out where they are:
             for template_err_val in self._crawl_tree(
