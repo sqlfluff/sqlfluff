@@ -48,11 +48,14 @@ def lex_and_parse(config_overrides: Dict[str, Any], raw: str) -> Optional[Parsed
         # We're just checking there aren't exceptions in this case.
         return None
     # Check we managed to parse
-    assert parsed_file.tree
+    assert parsed_file.parsed_variants
+    root_variant = parsed_file.root_variant()
+    assert root_variant
+    assert root_variant.tree
     # From just the initial parse, check we're all there
-    assert "".join(token.raw for token in parsed_file.tree.raw_segments) == raw
+    assert "".join(token.raw for token in root_variant.tree.raw_segments) == raw
     # Check we don't have lexing or parsing issues
-    assert not parsed_file.violations
+    assert not parsed_file.violations()
     return parsed_file
 
 
@@ -67,8 +70,7 @@ def test__dialect__base_file_parse(dialect, file):
     parsed: Optional[ParsedString] = lex_and_parse(config_overrides, raw)
     if not parsed:  # Empty file case
         return
-    assert parsed.parsed_variants
-    tree = parsed.parsed_variants[0].tree
+    tree = parsed.root_variant().tree
     print(f"Post-parse structure: {tree.to_tuple(show_raw=True)}")
     print(f"Post-parse structure: {tree.stringify()}")
     # Check we're all there.
@@ -109,8 +111,7 @@ def test__dialect__base_broad_fix(
     parsed: Optional[ParsedString] = lex_and_parse(config_overrides, raw)
     if not parsed:  # Empty file case
         return
-    assert parsed.parsed_variants
-    tree = parsed.parsed_variants[0].tree
+    tree = parsed.root_variant().tree
     print(tree.stringify())
 
     config = FluffConfig(overrides=config_overrides)
