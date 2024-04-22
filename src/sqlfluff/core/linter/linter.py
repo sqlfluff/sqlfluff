@@ -729,17 +729,23 @@ class Linter:
         templater_violations: List[SQLTemplaterError] = []
 
         try:
-            for variant, vs in self.templater.process_with_variants(
+            for variant, templater_errs in self.templater.process_with_variants(
                 in_str=in_str, fname=fname, config=config, formatter=self.formatter
             ):
                 if variant:
                     templated_variants.append(variant)
-                templater_violations += vs
+                # NOTE: We could very easily end up with duplicate errors between
+                # different variants and this code doesn't currently do any
+                # deduplication between them. That will be resolved in further
+                # testing.
+                # TODO: Resolve potential duplicate templater violations between
+                # variants before we enable jinja variant linting by default.
+                templater_violations += templater_errs
                 if len(templated_variants) >= variant_limit:
                     # Stop if we hit the limit.
                     break
-        except SQLFluffSkipFile as s:  # pragma: no cover
-            linter_logger.warning(str(s))
+        except SQLFluffSkipFile as skip_file_err:  # pragma: no cover
+            linter_logger.warning(str(skip_file_err))
 
         if not templated_variants:
             linter_logger.info("TEMPLATING FAILED: %s", templater_violations)

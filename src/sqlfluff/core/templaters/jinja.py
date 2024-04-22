@@ -7,7 +7,7 @@ import os.path
 import pkgutil
 import sys
 from functools import reduce
-from typing import Callable, Dict, Generator, Iterator, List, Optional, Set, Tuple, cast
+from typing import Callable, Dict, Iterator, List, Optional, Set, Tuple, cast
 
 import jinja2.nodes
 from jinja2 import (
@@ -22,7 +22,7 @@ from jinja2.ext import Extension
 from jinja2.sandbox import SandboxedEnvironment
 
 from sqlfluff.core.config import FluffConfig
-from sqlfluff.core.errors import SQLBaseError, SQLFluffUserError, SQLTemplaterError
+from sqlfluff.core.errors import SQLFluffUserError, SQLTemplaterError
 from sqlfluff.core.helpers.slice import is_zero_slice, slice_length
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
@@ -271,9 +271,7 @@ class JinjaTemplater(PythonTemplater):
         return dbt_builtins
 
     @classmethod
-    def _crawl_tree(
-        cls, tree, variable_names, raw
-    ) -> Generator[SQLTemplaterError, None, None]:
+    def _crawl_tree(cls, tree, variable_names, raw) -> Iterator[SQLTemplaterError]:
         """Crawl the tree looking for occurrences of the undeclared values."""
         # First iterate through children
         for elem in tree.iter_child_nodes():
@@ -517,7 +515,7 @@ class JinjaTemplater(PythonTemplater):
         fname: str,
         config: Optional[FluffConfig] = None,
         formatter=None,
-    ) -> Tuple[Optional[TemplatedFile], list]:
+    ) -> Tuple[Optional[TemplatedFile], List[SQLTemplaterError]]:
         """Process a string and return the new string.
 
         Note that the arguments are enforced as keywords
@@ -555,7 +553,7 @@ class JinjaTemplater(PythonTemplater):
         except SQLTemplaterError as err:
             return None, [err]
 
-        violations: List[SQLBaseError] = []
+        violations: List[SQLTemplaterError] = []
 
         # Attempt to identify any undeclared variables or syntax errors.
         # The majority of variables will be found during the _crawl_tree
@@ -644,7 +642,7 @@ class JinjaTemplater(PythonTemplater):
             )
         except (TemplateError, TypeError) as err:
             templater_logger.info("Unrecoverable Jinja Error: %s", err, exc_info=True)
-            template_err: SQLBaseError = SQLTemplaterError(
+            template_err = SQLTemplaterError(
                 (
                     "Unrecoverable failure in Jinja templating: {}. Have you "
                     "configured your variables? "
@@ -826,7 +824,7 @@ class JinjaTemplater(PythonTemplater):
     @large_file_check
     def process_with_variants(
         self, *, in_str: str, fname: str, config=None, formatter=None
-    ) -> Iterator[Tuple[Optional[TemplatedFile], List]]:
+    ) -> Iterator[Tuple[Optional[TemplatedFile], List[SQLTemplaterError]]]:
         """Process a string and return one or more variant renderings.
 
         Note that the arguments are enforced as keywords
