@@ -46,9 +46,9 @@ RESERVED_KEYWORDS = [
     "BY",
     "CASCADE",
     "CASE",
+    "CHECK_CONSTRAINTS",
     "CHECK",
     "CHECKPOINT",
-    "CHECK_CONSTRAINTS",
     "CLOSE",
     "CLUSTERED",
     "COALESCE",
@@ -63,7 +63,6 @@ RESERVED_KEYWORDS = [
     "CONVERT",
     "CREATE",
     "CROSS",
-    "CURRENT",
     "CURRENT_CATALOG",  # *future*
     "CURRENT_DATE",
     "CURRENT_DEFAULT_TRANSFORM_GROUP",  # *future*
@@ -74,6 +73,7 @@ RESERVED_KEYWORDS = [
     "CURRENT_TIMESTAMP",
     "CURRENT_TRANSFORM_GROUP_FOR_TYPE",  # *future*
     "CURRENT_USER",
+    "CURRENT",
     "CURSOR",
     "DATABASE",
     "DBCC",
@@ -103,8 +103,8 @@ RESERVED_KEYWORDS = [
     "FILE",
     "FILLFACTOR",
     "FOR",
-    "FORWARD_ONLY",
     "FOREIGN",
+    "FORWARD_ONLY",
     "FREETEXT",
     "FREETEXTTABLE",
     "FROM",
@@ -171,8 +171,8 @@ RESERVED_KEYWORDS = [
     "PROCEDURE",
     "PUBLIC",
     "RAISERROR",
-    "READ",
     "READ_ONLY",
+    "READ",
     "READTEXT",
     "RECONFIGURE",
     "REFERENCES",
@@ -190,8 +190,8 @@ RESERVED_KEYWORDS = [
     "RULE",
     "SAVE",
     "SCHEMA",
-    "SCROLL",
     "SCROLL_LOCKS",
+    "SCROLL",
     "SELECT",
     "SEMANTICKEYPHRASETABLE",
     "SEMANTICSIMILARITYDETAILSTABLE",
@@ -211,8 +211,8 @@ RESERVED_KEYWORDS = [
     "TO",
     "TOP",
     "TRAN",
-    "TRANSACTION",
     "TRAN",
+    "TRANSACTION",
     "TRIGGER",
     "TRUNCATE",
     "TRY_CONVERT",
@@ -248,16 +248,15 @@ FUTURE_RESERVED_KEYWORDS = [
 ]
 
 UNRESERVED_KEYWORDS = [
-    "ABORT",
     "ABORT_AFTER_WAIT",
+    "ABORT",
     "ABSENT",
     "ACTION",
-    "ATOMIC",
     "AFTER",
     "ALGORITHM",
-    "ALLOWED",
     "ALLOW_PAGE_LOCKS",
     "ALLOW_ROW_LOCKS",
+    "ALLOWED",
     "ALWAYS",
     "ANSI_DEFAULTS",
     "ANSI_NULL_DFLT_OFF",
@@ -270,6 +269,7 @@ UNRESERVED_KEYWORDS = [
     "ARITHABORT",
     "ARITHIGNORE",
     "AT",
+    "ATOMIC",
     "AUTO_CREATE_TABLE",
     "AUTO",
     "BEFORE",  # *future*
@@ -297,8 +297,8 @@ UNRESERVED_KEYWORDS = [
     "CONTAINED",
     "CONTINUE",
     "CONTROL",
-    "CREDENTIAL",
     "COPY",
+    "CREDENTIAL",
     "CURSOR_CLOSE_ON_COMMIT",
     "CYCLE",
     "DATA_COMPRESSION",
@@ -345,11 +345,11 @@ UNRESERVED_KEYWORDS = [
     "FIELDQUOTE",
     "FIELDTERMINATOR",
     "FILE_FORMAT",
+    "FILE_TYPE",
     "FILEGROUP",
-    "FILESTREAM",
     "FILESTREAM_ON",
     "FILESTREAM",
-    "FILE_TYPE",
+    "FILESTREAM",
     "FILETABLE_COLLATE_FILENAME",
     "FILETABLE_DIRECTORY",
     "FILETABLE_FULLPATH_UNIQUE_CONSTRAINT_NAME",
@@ -411,8 +411,8 @@ UNRESERVED_KEYWORDS = [
     "LANGUAGE",
     "LAST",
     "LASTROW",
-    "LEDGER",
     "LEDGER_VIEW",
+    "LEDGER",
     "LEGACY_CARDINALITY_ESTIMATION",
     "LEVEL",
     "LOAD",  # listed as reserved but functionally unreserved
@@ -423,9 +423,9 @@ UNRESERVED_KEYWORDS = [
     "LOGIN",
     "LOOP",
     "LOW",
-    "MASTER",
     "MANUAL",
     "MASKED",
+    "MASTER",
     "MATCHED",
     "MAX_DURATION",
     "MAX_GRANT_PERCENT",
@@ -472,8 +472,8 @@ UNRESERVED_KEYWORDS = [
     "PAGE",
     "PAGLOCK",
     "PARAMETER",
-    "PARAMETERS",  # *future*
     "PARAMETERIZATION",
+    "PARAMETERS",  # *future*
     "PARQUET",
     "PARSEONLY",
     "PARSER_VERSION",
@@ -524,10 +524,10 @@ UNRESERVED_KEYWORDS = [
     "REGR_SXX",  # *future*
     "REGR_SXY",  # *future*
     "REGR_SYY",  # *future*
-    "REJECTED_ROW_LOCATION",
     "REJECT_SAMPLE_VALUE",
     "REJECT_TYPE",
     "REJECT_VALUE",
+    "REJECTED_ROW_LOCATION",
     "REMOTE_DATA_ARCHIVE",
     "REMOTE_PROC_TRANSACTIONS",
     "RENAME",  # Azure Synapse Analytics specific
@@ -632,6 +632,7 @@ UNRESERVED_KEYWORDS = [
     "WORK",
     "XACT_ABORT",
     "XLOCK",
+    "XML_COMPRESSION",
     "XML",
     "XMLAGG",  # *future*
     "XMLATTRIBUTES",  # *future*
@@ -654,7 +655,6 @@ UNRESERVED_KEYWORDS = [
     "XMLTABLE",  # *future*
     "XMLTEXT",  # *future*
     "XMLVALIDATE",  # *future*
-    "XML_COMPRESSION",
     "XSINIL",
     "YEAR",
     "YEARS",
