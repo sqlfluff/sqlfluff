@@ -423,6 +423,7 @@ UNRESERVED_KEYWORDS = [
     "LOGIN",
     "LOOP",
     "LOW",
+    "MASTER",
     "MANUAL",
     "MASKED",
     "MATCHED",
@@ -479,6 +480,7 @@ UNRESERVED_KEYWORDS = [
     "PARTIAL",  # *future*
     "PARTITION",
     "PARTITIONS",
+    "PASSWORD",
     "PATH",
     "PAUSE",
     "PAUSED",
@@ -512,6 +514,7 @@ UNRESERVED_KEYWORDS = [
     "RECEIVE",
     "RECOMPILE",
     "RECURSIVE",
+    "REGENERATE",
     "REGR_AVGX",  # *future*
     "REGR_AVGY",  # *future*
     "REGR_COUNT",  # *future*
@@ -567,6 +570,7 @@ UNRESERVED_KEYWORDS = [
     "SERDE_METHOD",
     "SERIALIZABLE",
     "SERVER",
+    "SERVICE",
     "SETERROR",
     "SETVAR",  # sqlcmd command
     "SHOWPLAN_ALL",

@@ -677,6 +677,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterPartitionSchemeSegment"),
             Ref("CreatePartitionSchemeSegment"),
             Ref("AlterPartitionFunctionSegment"),
+            Ref("CreateMasterKeySegment"),
+            Ref("AlterMasterKeySegment"),
+            Ref("DropMasterKeySegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -6248,4 +6251,85 @@ class AlterPartitionSchemeSegment(BaseSegment):
         "NEXT",
         "USED",
         Ref("ObjectReferenceSegment", optional=True),
+    )
+
+
+class CreateMasterKeySegment(BaseSegment):
+    """A `CREATE MASTER KEY` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-master-key-transact-sql
+
+    type = "create_master_key_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "MASTER",
+        "KEY",
+        Sequence(
+            "ENCRYPTION",
+            "BY",
+            "PASSWORD",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    )
+
+
+class MasterKeyEncryptionSegment(BaseSegment):
+    """Master key encryptopn option."""
+
+    type = "master_key_encryption_option"
+
+    match_grammar: Matchable = OneOf(
+        Sequence("SERVICE", "MASTER", "KEY"),
+        Sequence(
+            "PASSWORD",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+    )
+
+
+class AlterMasterKeySegment(BaseSegment):
+    """A `ALTER MASTER KEY` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-master-key-transact-sql
+
+    type = "alter_master_key_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "MASTER",
+        "KEY",
+        OneOf(
+            Sequence(
+                Ref.keyword("FORCE", optional=True),
+                "REGENERATE",
+                "WITH",
+                "ENCRYPTION",
+                "BY",
+                Ref("MasterKeyEncryptionSegment"),
+            ),
+            Sequence(
+                OneOf("ADD", "DROP"),
+                "ENCRYPTION",
+                "BY",
+                Ref("MasterKeyEncryptionSegment"),
+            ),
+        ),
+    )
+
+
+class DropMasterKeySegment(BaseSegment):
+    """A `DROP MASTER KEY` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-master-key-transact-sql
+
+    type = "drop_master_key_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "MASTER",
+        "KEY",
     )
