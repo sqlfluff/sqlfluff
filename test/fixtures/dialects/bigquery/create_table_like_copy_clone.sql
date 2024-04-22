@@ -14,3 +14,8 @@ COPY mydataset.sourcetable
 CREATE TABLE mydataset.newtable_clone
 CLONE mydataset.sourcetable
 ;
+
+CREATE TABLE IF NOT EXISTS mydataset.newtable_clone
+CLONE mydataset.sourcetable FOR SYSTEM_TIME AS OF CURRENT_TIMESTAMP()
+OPTIONS(description="example")
+;
