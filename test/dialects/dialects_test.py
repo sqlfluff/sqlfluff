@@ -33,7 +33,7 @@ def lex_and_parse(config_overrides: Dict[str, Any], raw: str) -> Optional[Parsed
     # Construct rendered file (to skip the templater)
     templated_file = TemplatedFile.from_string(raw)
     rendered_file = RenderedFile(
-        templated_file,
+        [templated_file],
         [],
         config,
         {},

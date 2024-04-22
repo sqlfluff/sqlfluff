@@ -29,6 +29,7 @@ from sqlfluff.core.errors import (
     SQLLexError,
     SQLLintError,
     SQLParseError,
+    SQLTemplaterError,
 )
 from sqlfluff.core.helpers.file import get_encoding
 from sqlfluff.core.linter.common import ParsedString, RenderedFile, RuleTuple
@@ -46,8 +47,9 @@ from sqlfluff.core.rules import BaseRule, RulePack, get_ruleset
 from sqlfluff.core.rules.noqa import IgnoreMask
 
 if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.dialects import Dialect
     from sqlfluff.core.parser.segments.meta import MetaSegment
-    from sqlfluff.core.templaters import TemplatedFile
+    from sqlfluff.core.templaters import RawTemplater, TemplatedFile
 
 
 WalkableType = Iterable[Tuple[str, Optional[List[str]], List[str]]]
@@ -84,8 +86,10 @@ class Linter:
             require_dialect=False,
         )
         # Get the dialect and templater
-        self.dialect = self.config.get("dialect_obj")
-        self.templater = self.config.get("templater_obj")
+        self.dialect: "Dialect" = cast("Dialect", self.config.get("dialect_obj"))
+        self.templater: "RawTemplater" = cast(
+            "RawTemplater", self.config.get("templater_obj")
+        )
         # Store the formatter for output
         self.formatter = formatter
         # Store references to user rule classes
@@ -303,25 +307,30 @@ class Linter:
         t0 = time.monotonic()
         violations = cast(List[SQLBaseError], rendered.templater_violations)
         tokens: Optional[Sequence[BaseSegment]]
-        if rendered.templated_file is not None:
-            tokens, lvs = cls._lex_templated_file(
-                rendered.templated_file, rendered.config
-            )
-            violations += lvs
+        # TODO: We're limiting ourselves to only the first variant for now.
+        # We'll eventually parse more variants here.
+        if rendered.templated_variants:
+            _root_variant = rendered.templated_variants[0]
+            tokens, lex_errors = cls._lex_templated_file(_root_variant, rendered.config)
+            violations += lex_errors
         else:
+            # Having no TemplatedFile to parse implies that templating failed.
+            # There will be no file or tokens to parse, but we'll still return
+            # a ParsedFile object and associated timings.
+            _root_variant = None
             tokens = None
 
         t1 = time.monotonic()
         linter_logger.info("PARSING (%s)", rendered.fname)
 
         if tokens:
-            parsed, pvs = cls._parse_tokens(
+            parsed, parse_errors = cls._parse_tokens(
                 tokens,
                 rendered.config,
                 fname=rendered.fname,
                 parse_statistics=parse_statistics,
             )
-            violations += pvs
+            violations += parse_errors
         else:
             parsed = None
 
@@ -334,7 +343,7 @@ class Linter:
             parsed,
             violations,
             time_dict,
-            rendered.templated_file,
+            _root_variant,
             rendered.config,
             rendered.fname,
             rendered.source_str,
@@ -688,7 +697,7 @@ class Linter:
         self, in_str: str, fname: str, config: FluffConfig, encoding: str
     ) -> RenderedFile:
         """Template the file."""
-        linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
+        linter_logger.info("Rendering String [%s] (%s)", self.templater.name, fname)
 
         # Start the templating timer
         t0 = time.monotonic()
@@ -714,23 +723,40 @@ class Linter:
                     "details."
                 )
             )
-        try:
-            templated_file, templater_violations = self.templater.process(
-                in_str=in_str, fname=fname, config=config, formatter=self.formatter
-            )
-        except SQLFluffSkipFile as s:  # pragma: no cover
-            linter_logger.warning(str(s))
-            templated_file = None
-            templater_violations = []
 
-        if templated_file is None:
+        variant_limit = config.get("render_variant_limit")
+        templated_variants: List[TemplatedFile] = []
+        templater_violations: List[SQLTemplaterError] = []
+
+        try:
+            for variant, templater_errs in self.templater.process_with_variants(
+                in_str=in_str, fname=fname, config=config, formatter=self.formatter
+            ):
+                if variant:
+                    templated_variants.append(variant)
+                # NOTE: We could very easily end up with duplicate errors between
+                # different variants and this code doesn't currently do any
+                # deduplication between them. That will be resolved in further
+                # testing.
+                # TODO: Resolve potential duplicate templater violations between
+                # variants before we enable jinja variant linting by default.
+                templater_violations += templater_errs
+                if len(templated_variants) >= variant_limit:
+                    # Stop if we hit the limit.
+                    break
+        except SQLFluffSkipFile as skip_file_err:  # pragma: no cover
+            linter_logger.warning(str(skip_file_err))
+
+        if not templated_variants:
             linter_logger.info("TEMPLATING FAILED: %s", templater_violations)
+
+        linter_logger.info("Rendered %s variants", len(templated_variants))
 
         # Record time
         time_dict = {"templating": time.monotonic() - t0}
 
         return RenderedFile(
-            templated_file,
+            templated_variants,
             templater_violations,
             config,
             time_dict,

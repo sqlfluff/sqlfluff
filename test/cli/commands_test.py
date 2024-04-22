@@ -308,6 +308,13 @@ def test__cli__command_render_stdin():
                 "test/fixtures/cli/passing_b.sql",
             ],
         ),
+        # Render with variants
+        (
+            render,
+            [
+                "test/fixtures/cli/jinja_variants.sql",
+            ],
+        ),
         # Original tests from test__cli__command_lint
         (lint, ["-n", "test/fixtures/cli/passing_a.sql"]),
         (lint, ["-n", "-v", "test/fixtures/cli/passing_a.sql"]),
