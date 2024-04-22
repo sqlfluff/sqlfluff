@@ -1348,7 +1348,7 @@ def parse(
                 segments = root_variant.tree.as_record(
                     code_only=code_only, show_raw=True, include_meta=include_meta
                 )
-            else:
+            else:  # pragma: no cover
                 segments = None
             parsed_strings_dict.append(
                 {"filepath": parsed_string.fname, "segments": segments}

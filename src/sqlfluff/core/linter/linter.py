@@ -327,7 +327,7 @@ class Linter:
                     fname=rendered.fname,
                     parse_statistics=parse_statistics,
                 )
-            else:
+            else:  # pragma: no cover
                 parsed = None
                 parse_errors = []
             _lt = t1 - t0

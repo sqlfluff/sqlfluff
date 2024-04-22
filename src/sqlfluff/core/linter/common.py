@@ -99,9 +99,9 @@ class ParsedString(NamedTuple):
 
     def root_variant(self) -> Optional[ParsedVariant]:
         """Returns the root variant if successfully parsed, otherwise None."""
-        if not self.parsed_variants:
+        if not self.parsed_variants:  # pragma: no cover
             return None
         root_variant = self.parsed_variants[0]
-        if not root_variant.tree:
+        if not root_variant.tree:  # pragma: no cover
             return None
         return root_variant

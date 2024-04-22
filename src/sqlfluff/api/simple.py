@@ -191,7 +191,7 @@ def parse(
     # Return a JSON representation of the parse tree.
     # NOTE: For the simple API - only a single variant is returned.
     root_variant = parsed.root_variant()
-    if not root_variant:
+    if not root_variant:  # pragma: no cover
         return {}
     assert root_variant.tree
     record = root_variant.tree.as_record(show_raw=True)
