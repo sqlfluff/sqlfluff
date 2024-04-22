@@ -601,7 +601,7 @@ class Linter:
         encoding: str = "utf8",
     ) -> LintedFile:
         """Lint a ParsedString and return a LintedFile."""
-        violations = parsed.violations()
+        violations = parsed.violations
         time_dict = parsed.time_dict
         tree: Optional[BaseSegment] = None
         # TODO: Eventually enable linting of more than just the first variant.

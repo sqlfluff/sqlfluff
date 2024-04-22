@@ -185,7 +185,7 @@ def parse(
 
     parsed = linter.parse_string(sql)
     # If we encounter any parsing errors, raise them in a combined issue.
-    violations = parsed.violations()
+    violations = parsed.violations
     if violations:
         raise APIParsingError(violations)
     # Return a JSON representation of the parse tree.

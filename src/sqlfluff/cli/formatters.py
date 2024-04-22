@@ -675,7 +675,7 @@ class OutputStreamFormatter:
                             self.colorize("...Failed to Parse...", Color.red)
                         )
 
-            violations = parsed_string.violations()
+            violations = parsed_string.violations
             violations_count += len(violations)
             if violations:
                 output_stream.write("==== parsing violations ====")  # pragma: no cover
