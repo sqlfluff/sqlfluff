@@ -193,6 +193,7 @@ def parse(
     root_variant = parsed.root_variant()
     if not root_variant:
         return {}
+    assert root_variant.tree
     record = root_variant.tree.as_record(show_raw=True)
     assert record
     return record

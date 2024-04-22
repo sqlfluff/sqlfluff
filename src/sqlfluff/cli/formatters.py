@@ -642,23 +642,22 @@ class OutputStreamFormatter:
         for parsed_string in parsed_strings:
             timing.add(parsed_string.time_dict)
 
-            _num_variants = len(parsed_string.parsed_variants)
-            _root_variant = parsed_string.root_variant()
-            if not _root_variant:
+            num_variants = len(parsed_string.parsed_variants)
+            root_variant = parsed_string.root_variant()
+            if not root_variant:
                 # TODO: Make this prettier
                 output_stream.write(
                     self.colorize("...Failed to Parse...", Color.red)
                 )  # pragma: no cover
-            elif _num_variants == 1:
+            elif num_variants == 1:
                 # Backward compatible single parse
-                output_stream.write(
-                    _root_variant.tree.stringify(code_only=code_only)
-                )
+                assert root_variant.tree
+                output_stream.write(root_variant.tree.stringify(code_only=code_only))
             else:
                 # Multi variant parse setup.
                 output_stream.write(
                     self.colorize(
-                        f"SQLFluff parsed {_num_variants} variants of this file",
+                        f"SQLFluff parsed {num_variants} variants of this file",
                         Color.blue,
                     )
                 )

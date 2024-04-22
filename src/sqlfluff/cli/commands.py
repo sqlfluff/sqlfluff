@@ -1340,22 +1340,19 @@ def parse(
             output_stream, bench, code_only, total_time, verbose, parsed_strings
         )
     else:
-        parsed_strings_dict = [
-            # NOTE: This version of the command only uses the first parsed
-            # variant for now.
-            dict(
-                filepath=linted_result.fname,
-                segments=(
-                    linted_result.root_variant().tree.as_record(
-                        code_only=code_only, show_raw=True, include_meta=include_meta
-                    )
-                    # if there is a successfully parsed root variant
-                    if linted_result.root_variant()
-                    else None
-                ),
+        parsed_strings_dict = []
+        for parsed_string in parsed_strings:
+            root_variant = parsed_string.root_variant()
+            if root_variant:
+                assert root_variant.tree
+                segments = root_variant.tree.as_record(
+                    code_only=code_only, show_raw=True, include_meta=include_meta
+                )
+            else:
+                segments = None
+            parsed_strings_dict.append(
+                {"filepath": parsed_string.fname, "segments": segments}
             )
-            for linted_result in parsed_strings
-        ]
 
         if format == FormatType.yaml.value:
             # For yaml dumping always dump double quoted strings if they contain
