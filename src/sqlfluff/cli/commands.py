@@ -1342,6 +1342,8 @@ def parse(
     else:
         parsed_strings_dict = []
         for parsed_string in parsed_strings:
+            # TODO: Multiple variants aren't yet supported here in the non-human
+            # output of the parse command.
             root_variant = parsed_string.root_variant()
             if root_variant:
                 assert root_variant.tree
