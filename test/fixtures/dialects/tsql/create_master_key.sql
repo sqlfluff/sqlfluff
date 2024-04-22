@@ -2,10 +2,6 @@
 -- https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-master-key-transact-sql
 -- https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-master-key-transact-sql
 
---CREATE ROLE testuser AUTHORIZATION dbo;
-
-
-
 CREATE MASTER KEY ENCRYPTION BY PASSWORD = '<strong password>';
 
 CREATE MASTER KEY;
