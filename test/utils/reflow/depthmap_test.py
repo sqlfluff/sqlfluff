@@ -7,7 +7,7 @@ from sqlfluff.utils.reflow.depthmap import DepthMap, StackPosition
 def parse_ansi_string(sql, config):
     """Parse an ansi sql string for testing."""
     linter = Linter(config=config)
-    return linter.parse_string(sql).root_variant().tree
+    return linter.parse_string(sql).tree
 
 
 def test_reflow_depthmap_from_parent(default_config):

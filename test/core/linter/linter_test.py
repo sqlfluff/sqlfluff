@@ -432,7 +432,7 @@ def test__linter__empty_file():
     lntr = Linter(dialect="ansi")
     # Make sure no exceptions raised and no violations found in empty file.
     parsed = lntr.parse_string("")
-    assert not parsed.violations()
+    assert not parsed.violations
 
 
 @pytest.mark.parametrize(
@@ -568,13 +568,11 @@ def test_advanced_api_methods():
     parsed = linter.parse_string(sql)
 
     # CTEDefinitionSegment.get_identifier
-    assert parsed.parsed_variants
-    tree = parsed.parsed_variants[0].tree
-    cte_segment = next(tree.recursive_crawl("common_table_expression"))
+    cte_segment = next(parsed.tree.recursive_crawl("common_table_expression"))
     assert cte_segment.get_identifier().raw == "cte"
 
     # BaseFileSegment.get_table_references & StatementSegment.get_table_references
-    assert tree.get_table_references() == {"tab_a", "tab_b"}
+    assert parsed.tree.get_table_references() == {"tab_a", "tab_b"}
 
 
 def test_normalise_newlines():

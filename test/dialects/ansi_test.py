@@ -173,9 +173,9 @@ def test__dialect__ansi_specific_segment_not_parse(raw, err_locations):
     """Test queries do not parse, with parsing errors raised properly."""
     lnt = Linter(dialect="ansi")
     parsed = lnt.parse_string(raw)
-    assert len(parsed.violations()) > 0
-    print(parsed.violations())
-    locs = [(v.line_no, v.line_pos) for v in parsed.violations()]
+    assert len(parsed.violations) > 0
+    print(parsed.violations)
+    locs = [(v.line_no, v.line_pos) for v in parsed.violations]
     assert locs == err_locations
 
 
@@ -185,7 +185,7 @@ def test__dialect__ansi_is_whitespace():
     with open("test/fixtures/dialects/ansi/select_in_multiline_comment.sql") as f:
         parsed = lnt.parse_string(f.read())
     # Check all the segments that *should* be whitespace, ARE
-    for raw_seg in parsed.root_variant().tree.get_raw_segments():
+    for raw_seg in parsed.tree.get_raw_segments():
         if raw_seg.is_type("whitespace", "newline"):
             assert raw_seg.is_whitespace
 
@@ -220,7 +220,7 @@ def test__dialect__ansi_parse_indented_joins(sql_string, indented_joins, meta_lo
         )
     )
     parsed = lnt.parse_string(sql_string)
-    tree = parsed.root_variant().tree
+    tree = parsed.tree
     # Check that there's nothing unparsable
     assert "unparsable" not in tree.type_set()
     # Check all the segments that *should* be metas, ARE.

@@ -16,7 +16,7 @@ from sqlfluff.utils.reflow.sequence import ReflowSequence
 def parse_ansi_string(sql, config):
     """Parse an ansi sql string for testing."""
     linter = Linter(config=config)
-    return linter.parse_string(sql).root_variant().tree
+    return linter.parse_string(sql).tree
 
 
 @pytest.mark.parametrize(

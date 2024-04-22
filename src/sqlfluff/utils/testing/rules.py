@@ -117,9 +117,8 @@ def assert_rule_pass_in_sql(code, sql, configs=None, msg=None):
     # This section is mainly for aid in debugging.
     rendered = linter.render_string(sql, fname="<STR>", config=cfg, encoding="utf-8")
     parsed = linter.parse_rendered(rendered)
-    tree = parsed.root_variant().tree
+    tree = parsed.tree  # Delegate assertions to the `.tree` property
     violations = parsed.violations()
-    assert tree
     if violations:
         if msg:
             print(msg)  # pragma: no cover

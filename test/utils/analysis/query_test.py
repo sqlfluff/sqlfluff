@@ -13,7 +13,7 @@ def _parse_and_crawl_outer(sql):
     a Query on the outer relevant segment.
     """
     linter = Linter(dialect="ansi")
-    parsed = linter.parse_string(sql).root_variant()
+    parsed = linter.parse_string(sql)
     # Make sure it's fully parsable.
     assert "unparsable" not in parsed.tree.descendant_type_set
     # Create a crawler from the root segment.

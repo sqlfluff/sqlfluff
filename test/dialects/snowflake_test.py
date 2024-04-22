@@ -57,16 +57,15 @@ def test_snowflake_queries(segment_cls, raw, caplog):
     """Test snowflake specific queries parse."""
     lnt = Linter(dialect="snowflake")
     parsed = lnt.parse_string(raw)
-    print(parsed.violations())
-    assert len(parsed.violations()) == 0
-    tree = parsed.root_variant().tree
+    print(parsed.violations)
+    assert len(parsed.violations) == 0
 
     # Find any unparsable statements
-    typs = tree.type_set()
+    typs = parsed.tree.type_set()
     assert "unparsable" not in typs
 
     # Find the expected type in the parsed segment
     seg_type = dialect_selector("snowflake").get_segment(segment_cls).type
-    child_segments = [seg for seg in tree.recursive_crawl(seg_type)]
+    child_segments = [seg for seg in parsed.tree.recursive_crawl(seg_type)]
     assert len(child_segments) > 0
     # If we get here the raw statement was parsed as expected

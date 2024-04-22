@@ -90,8 +90,12 @@ class ParsedString(NamedTuple):
     fname: str
     source_str: str
 
+    @property
     def violations(self) -> List[SQLBaseError]:
-        """Returns the combined set of violations for this variant."""
+        """Returns the combined set of violations for this variant.
+
+        NOTE: This is implemented as a property for backward compatibility.
+        """
         return [
             *self.templating_violations,
             *(v for variant in self.parsed_variants for v in variant.violations()),
@@ -105,3 +109,16 @@ class ParsedString(NamedTuple):
         if not root_variant.tree:  # pragma: no cover
             return None
         return root_variant
+
+    @property
+    def tree(self) -> BaseSegment:
+        """Return the main variant tree.
+
+        NOTE: This method is primarily for testing convenience and therefore
+        asserts that parsing has been successful. If this isn't appropriate
+        for the given use case, then don't use this property.
+        """
+        assert self.parsed_variants, "No successfully parsed variants."
+        root_variant = self.parsed_variants[0]
+        assert root_variant.tree, "Root variant not successfully parsed."
+        return root_variant.tree

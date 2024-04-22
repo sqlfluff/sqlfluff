@@ -48,11 +48,8 @@ def get_parsed(path: str) -> BaseSegment:
     linter = Linter()
     # Get the first file matching the path string
     first_path = next(linter.parse_path(path))
-    # Make sure it's parsed
-    assert first_path.parsed_variants, "No parsed variants found."
-    root_variant = first_path.parsed_variants[0]
-    assert root_variant.tree, "Root variant failed parsing."
-    return root_variant.tree
+    # Delegate parse assertions to the `.tree` property
+    return first_path.tree
 
 
 @pytest.mark.parametrize(

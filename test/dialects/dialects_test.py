@@ -48,14 +48,11 @@ def lex_and_parse(config_overrides: Dict[str, Any], raw: str) -> Optional[Parsed
         # We're just checking there aren't exceptions in this case.
         return None
     # Check we managed to parse
-    assert parsed_file.parsed_variants
-    root_variant = parsed_file.root_variant()
-    assert root_variant
-    assert root_variant.tree
+    assert parsed_file.tree
     # From just the initial parse, check we're all there
-    assert "".join(token.raw for token in root_variant.tree.raw_segments) == raw
+    assert "".join(token.raw for token in parsed_file.tree.raw_segments) == raw
     # Check we don't have lexing or parsing issues
-    assert not parsed_file.violations()
+    assert not parsed_file.violations
     return parsed_file
 
 
@@ -70,18 +67,17 @@ def test__dialect__base_file_parse(dialect, file):
     parsed: Optional[ParsedString] = lex_and_parse(config_overrides, raw)
     if not parsed:  # Empty file case
         return
-    tree = parsed.root_variant().tree
-    print(f"Post-parse structure: {tree.to_tuple(show_raw=True)}")
-    print(f"Post-parse structure: {tree.stringify()}")
+    print(f"Post-parse structure: {parsed.tree.to_tuple(show_raw=True)}")
+    print(f"Post-parse structure: {parsed.tree.stringify()}")
     # Check we're all there.
-    assert tree.raw == raw
+    assert parsed.tree.raw == raw
     # Check that there's nothing unparsable
-    types = tree.type_set()
+    types = parsed.tree.type_set()
     assert "unparsable" not in types
     # When testing the validity of fixes we re-parse sections of the file.
     # To ensure this is safe - here we re-parse the unfixed file to ensure
     # it's still valid even in the case that no fixes have been applied.
-    assert tree.validate_segment_with_reparse(parsed.config.get("dialect_obj"))
+    assert parsed.tree.validate_segment_with_reparse(parsed.config.get("dialect_obj"))
 
 
 @pytest.mark.integration
@@ -111,8 +107,7 @@ def test__dialect__base_broad_fix(
     parsed: Optional[ParsedString] = lex_and_parse(config_overrides, raw)
     if not parsed:  # Empty file case
         return
-    tree = parsed.root_variant().tree
-    print(tree.stringify())
+    print(parsed.tree.stringify())
 
     config = FluffConfig(overrides=config_overrides)
     linter = Linter(config=config)
