@@ -35,7 +35,7 @@ def test_rules_crawlers(CrawlerType, crawler_kwargs, raw_sql_in, target_raws_out
     """Test Crawlers."""
     cfg = FluffConfig(overrides={"dialect": "ansi"})
     linter = Linter(config=cfg)
-    root = linter.parse_string(raw_sql_in).tree
+    root = linter.parse_string(raw_sql_in).root_variant().tree
 
     root_context = RuleContext(
         dialect=cfg.get("dialect_obj"),

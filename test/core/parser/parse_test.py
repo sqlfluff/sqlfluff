@@ -34,8 +34,8 @@ def test__parser__parse_error():
     lnt = Linter(dialect="ansi")
     parsed = lnt.parse_string(in_str)
 
-    assert len(parsed.violations) == 1
-    violation = parsed.violations[0]
+    assert len(parsed.violations()) == 1
+    violation = parsed.violations()[0]
     assert isinstance(violation, SQLParseError)
     assert violation.desc() == "Line 1, Position 1: Found unparsable section: 'SELECT'"
 
@@ -47,4 +47,4 @@ def test__parser__parse_error():
         "[<Ref: 'SelectClauseElementSegment'>]> "
         "after <WordSegment: ([L:  1, P:  1]) 'SELECT'>. "
         "Found nothing."
-    ) in parsed.tree.stringify()
+    ) in parsed.root_variant().tree.stringify()
