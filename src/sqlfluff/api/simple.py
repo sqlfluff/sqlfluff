@@ -190,10 +190,8 @@ def parse(
         raise APIParsingError(violations)
     # Return a JSON representation of the parse tree.
     # NOTE: For the simple API - only a single variant is returned.
-    if not parsed.parsed_variants:
-        return {}
-    root_variant = parsed.parsed_variants[0]
-    if root_variant.tree is None:  # pragma: no cover
+    root_variant = parsed.root_variant()
+    if not root_variant:
         return {}
     record = root_variant.tree.as_record(show_raw=True)
     assert record

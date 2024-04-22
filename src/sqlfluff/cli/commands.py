@@ -1346,13 +1346,11 @@ def parse(
             dict(
                 filepath=linted_result.fname,
                 segments=(
-                    linted_result.parsed_variants[0].tree.as_record(
+                    linted_result.root_variant().tree.as_record(
                         code_only=code_only, show_raw=True, include_meta=include_meta
                     )
-                    # if there are variants
-                    if linted_result.parsed_variants
-                    # ...and the root variant successfully parsed
-                    and linted_result.parsed_variants[0].tree
+                    # if there is a successfully parsed root variant
+                    if linted_result.root_variant()
                     else None
                 ),
             )

@@ -96,3 +96,12 @@ class ParsedString(NamedTuple):
             *self.templating_violations,
             *(v for variant in self.parsed_variants for v in variant.violations()),
         ]
+
+    def root_variant(self) -> Optional[ParsedVariant]:
+        """Returns the root variant if successfully parsed, otherwise None."""
+        if not self.parsed_variants:
+            return None
+        root_variant = self.parsed_variants[0]
+        if not root_variant.tree:
+            return None
+        return root_variant
