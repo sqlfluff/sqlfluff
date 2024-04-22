@@ -673,6 +673,10 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AtomicBeginEndSegment"),
             Ref("ReconfigureStatementSegment"),
             Ref("CreateColumnstoreIndexStatementSegment"),
+            Ref("CreatePartitionFunctionSegment"),
+            Ref("AlterPartitionSchemeSegment"),
+            Ref("CreatePartitionSchemeSegment"),
+            Ref("AlterPartitionFunctionSegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -2490,9 +2494,6 @@ class ColumnConstraintSegment(BaseSegment):
                 # other optional blocks (RelationalIndexOptionsSegment,
                 # OnIndexOptionSegment,FilestreamOnOptionSegment) are mentioned above
             ),
-            # computed_column_definition
-            Sequence("AS", Ref("ExpressionSegment")),
-            Sequence("PERSISTED", Sequence("NOT", "NULL", optional=True)),
             # other optional blocks (RelationalIndexOptionsSegment,
             # OnIndexOptionSegment, ReferencesConstraintGrammar, CheckConstraintGrammar)
             # are mentioned above
@@ -3228,6 +3229,7 @@ class CreateTableStatementSegment(BaseSegment):
                     Delimited(
                         OneOf(
                             Ref("TableConstraintSegment"),
+                            Ref("ComputedColumnDefinitionSegment"),
                             Ref("ColumnDefinitionSegment"),
                             Ref("TableIndexSegment"),
                             Ref("PeriodSegment"),
@@ -3284,6 +3286,7 @@ class AlterTableStatementSegment(BaseSegment):
                 Sequence(
                     "ADD",
                     Delimited(
+                        Ref("ComputedColumnDefinitionSegment"),
                         Ref("ColumnDefinitionSegment"),
                     ),
                 ),
@@ -6123,4 +6126,126 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
             Ref("ObjectReferenceSegment"),
             optional=True,
         ),
+    )
+
+
+class ComputedColumnDefinitionSegment(BaseSegment):
+    """A computed column definition, e.g. for CREATE TABLE or ALTER TABLE.
+
+    https://learn.microsoft.com/en-us/sql/relational-databases/tables/specify-computed-columns-in-a-table?view=sql-server-ver16
+    """
+
+    type = "computed_column_definition"
+
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        "AS",
+        OptionallyBracketed(
+            OneOf(
+                Ref("FunctionSegment"),
+                Ref("BareFunctionSegment"),
+                Ref("ExpressionSegment"),
+            ),
+        ),
+        Sequence(
+            "PERSISTED",
+            Sequence("NOT", "NULL", optional=True),
+            optional=True,
+        ),
+        AnyNumberOf(
+            Ref("ColumnConstraintSegment", optional=True),
+        ),
+    )
+
+
+class CreatePartitionFunctionSegment(BaseSegment):
+    """A `CREATE PARTITION FUNCTION` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-partition-function-transact-sql
+
+    type = "create_partition_function_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "PARTITION",
+        "FUNCTION",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(
+            Ref("DatatypeSegment"),
+        ),
+        "AS",
+        "RANGE",
+        OneOf(
+            "LEFT",
+            "RIGHT",
+        ),
+        "FOR",
+        "VALUES",
+        Bracketed(Delimited(Ref("LiteralGrammar"))),
+        # Bracketed(Delimited("LEFT")),
+    )
+
+
+class AlterPartitionFunctionSegment(BaseSegment):
+    """A `ALTER PARTITION FUNCTION` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-partition-function-transact-sql
+    # https://learn.microsoft.com/en-us/sql/relational-databases/partitions/modify-a-partition-function
+
+    type = "alter_partition_function_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "PARTITION",
+        "FUNCTION",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(),
+        OneOf(
+            Sequence("SPLIT", "RANGE", Bracketed(Ref("LiteralGrammar"))),
+            Sequence("MERGE", "RANGE", Bracketed(Ref("LiteralGrammar"))),
+        ),
+    )
+
+
+class CreatePartitionSchemeSegment(BaseSegment):
+    """A `CREATE PARTITION SCHEME` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-partition-scheme-transact-sql
+
+    type = "create_partition_scheme_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "PARTITION",
+        "SCHEME",
+        Ref("ObjectReferenceSegment"),
+        "AS",
+        "PARTITION",
+        Ref("ObjectReferenceSegment"),
+        Ref.keyword("ALL", optional=True),
+        "TO",
+        Bracketed(
+            Delimited(
+                OneOf(Ref("ObjectReferenceSegment"), "PRIMARY"),
+            ),
+        ),
+    )
+
+
+class AlterPartitionSchemeSegment(BaseSegment):
+    """A `ALTER PARTITION SCHEME` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-partition-scheme-transact-sql
+    # https://learn.microsoft.com/en-us/sql/relational-databases/partitions/modify-a-partition-scheme
+
+    type = "alter_partition_scheme_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "PARTITION",
+        "SCHEME",
+        Ref("ObjectReferenceSegment"),
+        "NEXT",
+        "USED",
+        Ref("ObjectReferenceSegment", optional=True),
     )
