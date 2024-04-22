@@ -48,6 +48,37 @@ from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer, JinjaTrace
 templater_logger = logging.getLogger("sqlfluff.templater")
 
 
+class UndefinedRecorder:
+    """Similar to jinja2.StrictUndefined, but remembers, not fails."""
+
+    # Tell Jinja this object is safe to call and does not alter data.
+    # https://jinja.palletsprojects.com/en/2.9.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
+    unsafe_callable = False
+    # https://jinja.palletsprojects.com/en/3.0.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
+    alters_data = False
+
+    def __init__(self, name: str, undefined_set: set) -> None:
+        self.name = name
+        # Reference to undefined set to modify, it is assumed that the
+        # calling code keeps a reference to this variable to they can
+        # continue to access it after modification by this class.
+        self.undefined_set = undefined_set
+
+    def __str__(self) -> str:
+        """Treat undefined vars as empty, but remember for later."""
+        self.undefined_set.add(self.name)
+        return ""
+
+    def __getattr__(self, item) -> "UndefinedRecorder":
+        """Don't fail when called, remember instead."""
+        self.undefined_set.add(self.name)
+        return UndefinedRecorder(f"{self.name}.{item}", self.undefined_set)
+
+    def __call__(self, *args, **kwargs) -> "UndefinedRecorder":
+        """Don't fail when called unlike parent class."""
+        return UndefinedRecorder(f"{self.name}()", self.undefined_set)
+
+
 class JinjaTemplater(PythonTemplater):
     """A templater using the jinja2 library.
 
@@ -541,46 +572,21 @@ class JinjaTemplater(PythonTemplater):
         live_context: dict,
         potentially_undefined_variables: Iterable[str],
         ignore_templating: bool = False,
-    ):
+    ) -> Set[str]:
         """Sets up tracing of undefined template variables.
 
         NOTE: This works by mutating the `live_context` which
         is being used by the environment.
         """
-        undefined_variables = set()
+        # NOTE: This set is modified by the `UndefinedRecorder` when run.
+        undefined_variables: Set[str] = set()
 
-        class UndefinedRecorder:
-            """Similar to jinja2.StrictUndefined, but remembers, not fails."""
-
-            # Tell Jinja this object is safe to call and does not alter data.
-            # https://jinja.palletsprojects.com/en/2.9.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
-            unsafe_callable = False
-            # https://jinja.palletsprojects.com/en/3.0.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
-            alters_data = False
-
-            @classmethod
-            def create(cls, name: str) -> "UndefinedRecorder":
-                return UndefinedRecorder(name=name)
-
-            def __init__(self, name: str) -> None:
-                self.name = name
-
-            def __str__(self) -> str:
-                """Treat undefined vars as empty, but remember for later."""
-                undefined_variables.add(self.name)
-                return ""
-
-            def __getattr__(self, item) -> "UndefinedRecorder":
-                undefined_variables.add(self.name)
-                return UndefinedRecorder(f"{self.name}.{item}")
-
-            def __call__(self, *args, **kwargs) -> "UndefinedRecorder":
-                return UndefinedRecorder(f"{self.name}()")
-
-        Undefined = UndefinedRecorder if not ignore_templating else DummyUndefined
         for val in potentially_undefined_variables:
             if val not in live_context:
-                live_context[val] = Undefined.create(val)  # type: ignore
+                if ignore_templating:
+                    live_context[val] = DummyUndefined.create(val)
+                else:
+                    live_context[val] = UndefinedRecorder(val, undefined_variables)
 
         return undefined_variables
 
