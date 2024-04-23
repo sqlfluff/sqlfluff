@@ -3658,7 +3658,7 @@ class AlterTableSwitchStatementSegment(BaseSegment):
     """An `ALTER TABLE SWITCH` statement."""
 
     type = "alter_table_switch_statement"
-    # https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-transact-sql?view=sql-server-ver15
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-transact-sql
     # T-SQL's ALTER TABLE SWITCH grammar is different enough to core ALTER TABLE grammar
     # to merit its own definition
     match_grammar = Sequence(
@@ -3669,9 +3669,35 @@ class AlterTableSwitchStatementSegment(BaseSegment):
         Sequence("PARTITION", Ref("NumericLiteralSegment"), optional=True),
         "TO",
         Ref("ObjectReferenceSegment"),
-        Sequence(  # Azure Synapse Analytics specific
+        Sequence("PARTITION", Ref("NumericLiteralSegment"), optional=True),
+        Sequence(
             "WITH",
-            Bracketed("TRUNCATE_TARGET", Ref("EqualsSegment"), OneOf("ON", "OFF")),
+            OneOf(
+                Bracketed(
+                    "WAIT_AT_LOW_PRIORITY",
+                    Bracketed(
+                        Delimited(
+                            Sequence(
+                                "MAX_DURATION",
+                                Ref("EqualsSegment"),
+                                Ref("NumericLiteralSegment"),
+                                Ref.keyword("MINUTES", optional=True),
+                            ),
+                            Sequence(
+                                "ABORT_AFTER_WAIT",
+                                Ref("EqualsSegment"),
+                                OneOf("NONE", "SELF", "BLOCKERS"),
+                            ),
+                        ),
+                    ),
+                ),
+                # Azure Synapse Analytics specific:
+                Bracketed(
+                    "TRUNCATE_TARGET",
+                    Ref("EqualsSegment"),
+                    OneOf("ON", "OFF"),
+                ),
+            ),
             optional=True,
         ),
         Ref("DelimiterGrammar", optional=True),
