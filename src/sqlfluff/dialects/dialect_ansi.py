@@ -93,11 +93,42 @@ ansi_dialect.set_lexer_matchers(
                 WhitespaceSegment,
             ),
         ),
-        RegexLexer("single_quote", r"'([^'\\]|\\.|'')*'", CodeSegment),
-        RegexLexer("double_quote", r'"([^"\\]|\\.)*"', CodeSegment),
-        RegexLexer("back_quote", r"`[^`]*`", CodeSegment),
+        RegexLexer(
+            "single_quote",
+            r"'([^'\\]|\\.|'')*'",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"'((?:[^'\\]|\\.|'')*)'", 1),
+                "escape_replacements": [(r"\\'|''", "'")],
+            },
+        ),
+        RegexLexer(
+            "double_quote",
+            r'"([^"\\]|\\.)*"',
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"\\]|\\.)*)"', 1),
+                "escape_replacements": [(r'\\"|""', '"')],
+            },
+        ),
+        RegexLexer(
+            "back_quote",
+            r"`(?:[^`\\]|\\.)*`",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"`((?:[^`\\]|\\.)*)`", 1),
+                "escape_replacements": [(r"\\`", "`")],
+            },
+        ),
         # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
-        RegexLexer("dollar_quote", r"\$(\w*)\$[^\1]*?\$\1\$", CodeSegment),
+        RegexLexer(
+            "dollar_quote",
+            r"\$(\w*)\$(.*?)\$\1\$",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"\$(\w*)\$(.*?)\$\1\$", 2),
+            },
+        ),
         # Numeric literal matches integers, decimals, and exponential formats,
         # Pattern breakdown:
         # (?>                      Atomic grouping
@@ -272,6 +303,7 @@ ansi_dialect.add(
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.upper,
         )
     ),
     ParameterNameSegment=RegexParser(
@@ -1553,6 +1585,7 @@ class FromExpressionElementSegment(BaseSegment):
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
             if segment:
+                segment = cast(IdentifierSegment, segment)
                 return AliasInfo(
                     segment.raw, segment, True, self, alias_expression, ref
                 )

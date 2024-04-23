@@ -79,6 +79,16 @@ bigquery_dialect.patch_lexer_matchers(
             r"([rR]?[bB]?|[bB]?[rR]?)?('''((?<!\\)(\\{2})*\\'|'{,2}(?!')|[^'])"
             r"*(?<!\\)(\\{2})*'''|'((?<!\\)(\\{2})*\\'|[^'])*(?<!\\)(\\{2})*')",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (
+                    r"(?:[rR]?[bB]?|[bB]?[rR]?)?"
+                    r"(?:'''(?<value>(?:(?<!\\)(?:\\{2})*\\'|'{,2}(?!')|[^'])*"
+                    r"(?<!\\)(?:\\{2})*)'''|'(?<value>(?:(?<!\\)(?:\\{2})*\\'"
+                    r"|[^'])*(?<!\\)(?:\\{2})*)')",
+                    "value",
+                ),
+                "escape_replacements": [(r"\\([\\`\"'?])", "\1")],
+            },
         ),
         RegexLexer(
             "double_quote",
@@ -86,6 +96,16 @@ bigquery_dialect.patch_lexer_matchers(
             r'|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)'
             r'(\\{2})*")',
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (
+                    r"([rR]?[bB]?|[bB]?[rR]?)?"
+                    r"(\"\"\"(?<value>((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")"
+                    r'|[^\"])*(?<!\\)(\\{2})*)\"\"\"|"(?<value>((?<!\\)'
+                    r'(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*)")',
+                    "value",
+                ),
+                "escape_replacements": [(r"\\([\\`\"'?])", "\1")],
+            },
         ),
     ]
 )
@@ -149,6 +169,33 @@ bigquery_dialect.add(
         r"[A-Z0-9_]+",
         IdentifierSegment,
         type="naked_identifier",
+        casefold=str.upper,
+    ),
+    NakedCSIdentifierPart=RegexParser(
+        # Same as NakedIdentifierPart, but case-sensitive.
+        r"[A-Z0-9_]+",
+        IdentifierSegment,
+        type="naked_identifier",
+    ),
+    NakedCSIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"[A-Z_][A-Z0-9_]*",
+            IdentifierSegment,
+            type="naked_identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
+    ),
+    QuotedCSIdentifierSegment=TypedParser(
+        "back_quote",
+        IdentifierSegment,
+        type="quoted_identifier",
+        trim_chars=("`",),
+    ),
+    SingleCSIdentifierGrammar=OneOf(
+        Ref("NakedCSIdentifierSegment"),
+        Ref("QuotedCSIdentifierSegment"),
+        terminators=[Ref("DotSegment")],
     ),
     SingleIdentifierFullGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -213,6 +260,7 @@ bigquery_dialect.replace(
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.upper,
         )
     ),
     FunctionContentsExpressionGrammar=OneOf(
@@ -339,6 +387,22 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
     )
 
 
+class ForSystemTimeAsOfSegment(BaseSegment):
+    """A `FOR SYSTEM_TIME AS OF` syntax.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#for_system_time_as_of
+    """
+
+    type = "for_system_time_as_of_segment"
+    match_grammar = Sequence(
+        "FOR",
+        OneOf("SYSTEM_TIME", Sequence("SYSTEM", "TIME")),
+        "AS",
+        "OF",
+        Ref("ExpressionSegment"),
+    )
+
+
 class QualifyClauseSegment(BaseSegment):
     """A `QUALIFY` clause like in `SELECT`."""
 
@@ -435,6 +499,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SetStatementSegment"),
             Ref("ExportStatementSegment"),
             Ref("CreateExternalTableStatementSegment"),
+            Ref("CreateSnapshotTableStatementSegment"),
             Ref("AssertStatementSegment"),
             Ref("CallStatementSegment"),
             Ref("ReturnStatementSegment"),
@@ -718,6 +783,7 @@ bigquery_dialect.replace(
         IdentifierSegment,
         type="quoted_identifier",
         trim_chars=("`",),
+        casefold=str.upper,
     ),
     # Add ParameterizedSegment to the ansi NumericLiteralSegment
     NumericLiteralSegment=OneOf(
@@ -736,14 +802,7 @@ bigquery_dialect.replace(
         ]
     ),
     PostTableExpressionGrammar=Sequence(
-        Sequence(
-            "FOR",
-            OneOf("SYSTEM_TIME", Sequence("SYSTEM", "TIME")),
-            "AS",
-            "OF",
-            Ref("ExpressionSegment"),
-            optional=True,
-        ),
+        Ref("ForSystemTimeAsOfSegment", optional=True),
         Sequence(
             "WITH",
             "OFFSET",
@@ -1298,11 +1357,11 @@ class TableReferenceSegment(ansi.ObjectReferenceSegment):
 
     match_grammar: Matchable = Delimited(
         Sequence(
-            Ref("SingleIdentifierGrammar"),
+            Ref("SingleCSIdentifierGrammar"),
             AnyNumberOf(
                 Sequence(
                     Ref("DashSegment"),
-                    Ref("NakedIdentifierPart"),
+                    Ref("NakedCSIdentifierPart"),
                     allow_gaps=False,
                 ),
                 optional=True,
@@ -1466,6 +1525,20 @@ class ClusterBySegment(BaseSegment):
     )
 
 
+class DefaultCollateSegment(BaseSegment):
+    """DEFAULT COLLATE clause for a table or a dataset.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/collation-concepts#default_collation
+    """
+
+    type = "default_collate"
+    match_grammar: Matchable = Sequence(
+        "DEFAULT",
+        "COLLATE",
+        Ref("LiteralGrammar"),
+    )
+
+
 class OptionsSegment(BaseSegment):
     """OPTIONS clause for a table."""
 
@@ -1534,6 +1607,22 @@ class ViewColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
     )
 
 
+class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
+    """A `CREATE SCHEMA` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_schema_statement
+    """
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("DefaultCollateSegment", optional=True),
+        Ref("OptionsSegment", optional=True),
+    )
+
+
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """`CREATE TABLE` statement.
 
@@ -1550,6 +1639,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Sequence(
             OneOf("COPY", "LIKE", "CLONE"),
             Ref("TableReferenceSegment"),
+            Ref("ForSystemTimeAsOfSegment", optional=True),
             optional=True,
         ),
         # Column list
@@ -1565,6 +1655,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             ),
             optional=True,
         ),
+        Ref("DefaultCollateSegment", optional=True),
         Ref("PartitionBySegment", optional=True),
         Ref("ClusterBySegment", optional=True),
         Ref("OptionsSegment", optional=True),
@@ -1704,6 +1795,27 @@ class CreateExternalTableStatementSegment(BaseSegment):
             ),
             Ref("OptionsSegment", optional=True),
         ),
+    )
+
+
+class CreateSnapshotTableStatementSegment(BaseSegment):
+    """A `CREATE SNAPSHOT TABLE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_snapshot_table_statement
+    """
+
+    type = "create_snapshot_table_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "SNAPSHOT",
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        "CLONE",
+        Ref("TableReferenceSegment"),
+        Ref("ForSystemTimeAsOfSegment", optional=True),
+        Ref("OptionsSegment", optional=True),
     )
 
 

@@ -3,6 +3,7 @@ CREATE TABLE [dbo].[example](
     [Column B] [int] IDENTITY(1, 1) NOT NULL,
     [ColumnC] varchar(100) DEFAULT 'mydefault',
     [ColumnDecimal] DATE DEFAULT GETDATE(),
+    [ColumnUser] char(30) DEFAULT CURRENT_USER,
     [col1] int default ((-1)) not null,
     [col1] int default (-1) not null,
     [col1] int default -1 not null,

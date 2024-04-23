@@ -48,6 +48,7 @@ db2_dialect.replace(
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.upper,
         )
     ),
     FunctionContentsExpressionGrammar=OneOf(
@@ -121,14 +122,22 @@ db2_dialect.patch_lexer_matchers(
         # In Db2, the only escape character is ' for single quote strings
         RegexLexer(
             "single_quote",
-            r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))",
+            r"'((?:[^']|'')*)'",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"'((?:[^']|'')*)'", 1),
+                "escape_replacements": [(r"''", "'")],
+            },
         ),
-        # In Db2, there is no escape character for double quote strings
+        # In Db2, the escape character is "" for double quote strings
         RegexLexer(
             "double_quote",
-            r'(?s)".+?"',
+            r'"((?:[^"]|"")*)"',
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"]|"")*)"', 1),
+                "escape_replacements": [(r'""', '"')],
+            },
         ),
         # In Db2, a field could have a # pound/hash sign
         RegexLexer("word", r"[0-9a-zA-Z_#]+", WordSegment),

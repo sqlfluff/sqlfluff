@@ -195,6 +195,16 @@ STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
             "in the file."
         ),
     },
+    "alias_case_check": {
+        "validation": [
+            "dialect",
+            "case_insensitive",
+            "quoted_cs_naked_upper",
+            "quoted_cs_naked_lower",
+            "case_sensitive",
+        ],
+        "definition": "How to handle comparison casefolding in an alias.",
+    },
     "min_alias_length": {
         "validation": range(1000),
         "definition": (

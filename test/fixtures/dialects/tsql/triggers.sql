@@ -121,3 +121,9 @@ GO
 
 DISABLE TRIGGER safety ON DATABASE;
 GO
+
+CREATE OR ALTER TRIGGER reminder1
+ON Sales.Customer
+AFTER INSERT, UPDATE
+AS RAISERROR ('Notify Customer Relations', 16, 10);
+GO

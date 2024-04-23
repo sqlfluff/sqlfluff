@@ -165,12 +165,18 @@ tsql_dialect.insert_lexer_matchers(
             "square_quote",
             r"\[([^\[\]]*)*\]",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"\[([^\[\]]*)\]", 1),
+            },
         ),
         # T-SQL unicode strings
         RegexLexer(
             "single_quote_with_n",
             r"N'([^']|'')*'",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"N'((?:[^']|'')*)'", 1),
+            },
         ),
         RegexLexer(
             "hash_prefix",
@@ -248,13 +254,22 @@ tsql_dialect.patch_lexer_matchers(
 
 tsql_dialect.add(
     BracketedIdentifierSegment=TypedParser(
-        "square_quote", IdentifierSegment, type="quoted_identifier"
+        "square_quote",
+        IdentifierSegment,
+        type="quoted_identifier",
+        casefold=str.upper,
     ),
     HashIdentifierSegment=TypedParser(
-        "hash_prefix", IdentifierSegment, type="hash_identifier"
+        "hash_prefix",
+        IdentifierSegment,
+        type="hash_identifier",
+        casefold=str.upper,
     ),
     VariableIdentifierSegment=TypedParser(
-        "var_prefix", IdentifierSegment, type="variable_identifier"
+        "var_prefix",
+        IdentifierSegment,
+        type="variable_identifier",
+        casefold=str.upper,
     ),
     BatchDelimiterGrammar=Ref("GoStatementSegment"),
     QuotedLiteralSegmentWithN=TypedParser(
@@ -376,7 +391,14 @@ tsql_dialect.replace(
                 | dialect.sets("future_reserved_keywords")
             )
             + r")$",
+            casefold=str.upper,
         )
+    ),
+    QuotedIdentifierSegment=TypedParser(
+        "double_quote",
+        IdentifierSegment,
+        type="quoted_identifier",
+        casefold=str.upper,
     ),
     # Overring ANSI BaseExpressionElement to remove Interval Expression Segment
     BaseExpressionElementGrammar=ansi_dialect.get_grammar(
@@ -651,6 +673,13 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AtomicBeginEndSegment"),
             Ref("ReconfigureStatementSegment"),
             Ref("CreateColumnstoreIndexStatementSegment"),
+            Ref("CreatePartitionFunctionSegment"),
+            Ref("AlterPartitionSchemeSegment"),
+            Ref("CreatePartitionSchemeSegment"),
+            Ref("AlterPartitionFunctionSegment"),
+            Ref("CreateMasterKeySegment"),
+            Ref("AlterMasterKeySegment"),
+            Ref("DropMasterKeySegment"),
         ],
         remove=[
             Ref("CreateModelStatementSegment"),
@@ -2435,6 +2464,7 @@ class ColumnConstraintSegment(BaseSegment):
                 OptionallyBracketed(
                     OneOf(
                         OptionallyBracketed(Ref("LiteralGrammar")),  # ((-1))
+                        Ref("BareFunctionSegment"),
                         Ref("FunctionSegment"),
                         Ref("NextValueSequenceSegment"),
                     ),
@@ -2467,9 +2497,6 @@ class ColumnConstraintSegment(BaseSegment):
                 # other optional blocks (RelationalIndexOptionsSegment,
                 # OnIndexOptionSegment,FilestreamOnOptionSegment) are mentioned above
             ),
-            # computed_column_definition
-            Sequence("AS", Ref("ExpressionSegment")),
-            Sequence("PERSISTED", Sequence("NOT", "NULL", optional=True)),
             # other optional blocks (RelationalIndexOptionsSegment,
             # OnIndexOptionSegment, ReferencesConstraintGrammar, CheckConstraintGrammar)
             # are mentioned above
@@ -3205,6 +3232,7 @@ class CreateTableStatementSegment(BaseSegment):
                     Delimited(
                         OneOf(
                             Ref("TableConstraintSegment"),
+                            Ref("ComputedColumnDefinitionSegment"),
                             Ref("ColumnDefinitionSegment"),
                             Ref("TableIndexSegment"),
                             Ref("PeriodSegment"),
@@ -3261,6 +3289,7 @@ class AlterTableStatementSegment(BaseSegment):
                 Sequence(
                     "ADD",
                     Delimited(
+                        Ref("ComputedColumnDefinitionSegment"),
                         Ref("ColumnDefinitionSegment"),
                     ),
                 ),
@@ -4043,7 +4072,7 @@ class DeleteStatementSegment(BaseSegment):
     )
 
 
-class FromClauseSegment(BaseSegment):
+class FromClauseSegment(ansi.FromClauseSegment):
     """A `FROM` clause like in `SELECT`.
 
     NOTE: this is a delimited set of table expressions, with a variable
@@ -4066,8 +4095,6 @@ class FromClauseSegment(BaseSegment):
         Delimited(Ref("FromExpressionSegment")),
         Ref("DelimiterGrammar", optional=True),
     )
-
-    get_eventual_aliases = ansi.FromClauseSegment.get_eventual_aliases
 
 
 class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
@@ -5039,6 +5066,7 @@ class CreateTriggerStatementSegment(BaseSegment):
 
     match_grammar: Matchable = Sequence(
         "CREATE",
+        Sequence("OR", "ALTER", optional=True),
         "TRIGGER",
         Ref("TriggerReferenceSegment"),
         "ON",
@@ -6101,4 +6129,207 @@ class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
             Ref("ObjectReferenceSegment"),
             optional=True,
         ),
+    )
+
+
+class ComputedColumnDefinitionSegment(BaseSegment):
+    """A computed column definition, e.g. for CREATE TABLE or ALTER TABLE.
+
+    https://learn.microsoft.com/en-us/sql/relational-databases/tables/specify-computed-columns-in-a-table?view=sql-server-ver16
+    """
+
+    type = "computed_column_definition"
+
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        "AS",
+        OptionallyBracketed(
+            OneOf(
+                Ref("FunctionSegment"),
+                Ref("BareFunctionSegment"),
+                Ref("ExpressionSegment"),
+            ),
+        ),
+        Sequence(
+            "PERSISTED",
+            Sequence("NOT", "NULL", optional=True),
+            optional=True,
+        ),
+        AnyNumberOf(
+            Ref("ColumnConstraintSegment", optional=True),
+        ),
+    )
+
+
+class CreatePartitionFunctionSegment(BaseSegment):
+    """A `CREATE PARTITION FUNCTION` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-partition-function-transact-sql
+
+    type = "create_partition_function_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "PARTITION",
+        "FUNCTION",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(
+            Ref("DatatypeSegment"),
+        ),
+        "AS",
+        "RANGE",
+        OneOf(
+            "LEFT",
+            "RIGHT",
+        ),
+        "FOR",
+        "VALUES",
+        Bracketed(Delimited(Ref("LiteralGrammar"))),
+        # Bracketed(Delimited("LEFT")),
+    )
+
+
+class AlterPartitionFunctionSegment(BaseSegment):
+    """A `ALTER PARTITION FUNCTION` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-partition-function-transact-sql
+    # https://learn.microsoft.com/en-us/sql/relational-databases/partitions/modify-a-partition-function
+
+    type = "alter_partition_function_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "PARTITION",
+        "FUNCTION",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(),
+        OneOf(
+            Sequence("SPLIT", "RANGE", Bracketed(Ref("LiteralGrammar"))),
+            Sequence("MERGE", "RANGE", Bracketed(Ref("LiteralGrammar"))),
+        ),
+    )
+
+
+class CreatePartitionSchemeSegment(BaseSegment):
+    """A `CREATE PARTITION SCHEME` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-partition-scheme-transact-sql
+
+    type = "create_partition_scheme_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "PARTITION",
+        "SCHEME",
+        Ref("ObjectReferenceSegment"),
+        "AS",
+        "PARTITION",
+        Ref("ObjectReferenceSegment"),
+        Ref.keyword("ALL", optional=True),
+        "TO",
+        Bracketed(
+            Delimited(
+                OneOf(Ref("ObjectReferenceSegment"), "PRIMARY"),
+            ),
+        ),
+    )
+
+
+class AlterPartitionSchemeSegment(BaseSegment):
+    """A `ALTER PARTITION SCHEME` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-partition-scheme-transact-sql
+    # https://learn.microsoft.com/en-us/sql/relational-databases/partitions/modify-a-partition-scheme
+
+    type = "alter_partition_scheme_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "PARTITION",
+        "SCHEME",
+        Ref("ObjectReferenceSegment"),
+        "NEXT",
+        "USED",
+        Ref("ObjectReferenceSegment", optional=True),
+    )
+
+
+class CreateMasterKeySegment(BaseSegment):
+    """A `CREATE MASTER KEY` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/create-master-key-transact-sql
+
+    type = "create_master_key_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "MASTER",
+        "KEY",
+        Sequence(
+            "ENCRYPTION",
+            "BY",
+            "PASSWORD",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    )
+
+
+class MasterKeyEncryptionSegment(BaseSegment):
+    """Master key encryptopn option."""
+
+    type = "master_key_encryption_option"
+
+    match_grammar: Matchable = OneOf(
+        Sequence("SERVICE", "MASTER", "KEY"),
+        Sequence(
+            "PASSWORD",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+    )
+
+
+class AlterMasterKeySegment(BaseSegment):
+    """A `ALTER MASTER KEY` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-master-key-transact-sql
+
+    type = "alter_master_key_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "MASTER",
+        "KEY",
+        OneOf(
+            Sequence(
+                Ref.keyword("FORCE", optional=True),
+                "REGENERATE",
+                "WITH",
+                "ENCRYPTION",
+                "BY",
+                Ref("MasterKeyEncryptionSegment"),
+            ),
+            Sequence(
+                OneOf("ADD", "DROP"),
+                "ENCRYPTION",
+                "BY",
+                Ref("MasterKeyEncryptionSegment"),
+            ),
+        ),
+    )
+
+
+class DropMasterKeySegment(BaseSegment):
+    """A `DROP MASTER KEY` statement."""
+
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-master-key-transact-sql
+
+    type = "drop_master_key_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "MASTER",
+        "KEY",
     )

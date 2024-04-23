@@ -7,7 +7,17 @@ import os.path
 import pkgutil
 import sys
 from functools import reduce
-from typing import Callable, Dict, Generator, Iterator, List, Optional, Set, Tuple, cast
+from typing import (
+    Callable,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    cast,
+)
 
 import jinja2.nodes
 from jinja2 import (
@@ -22,7 +32,7 @@ from jinja2.ext import Extension
 from jinja2.sandbox import SandboxedEnvironment
 
 from sqlfluff.core.config import FluffConfig
-from sqlfluff.core.errors import SQLBaseError, SQLFluffUserError, SQLTemplaterError
+from sqlfluff.core.errors import SQLFluffUserError, SQLTemplaterError
 from sqlfluff.core.helpers.slice import is_zero_slice, slice_length
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
@@ -35,6 +45,37 @@ from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer, JinjaTrace
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
+
+
+class UndefinedRecorder:
+    """Similar to jinja2.StrictUndefined, but remembers, not fails."""
+
+    # Tell Jinja this object is safe to call and does not alter data.
+    # https://jinja.palletsprojects.com/en/2.9.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
+    unsafe_callable = False
+    # https://jinja.palletsprojects.com/en/3.0.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
+    alters_data = False
+
+    def __init__(self, name: str, undefined_set: set) -> None:
+        self.name = name
+        # Reference to undefined set to modify, it is assumed that the
+        # calling code keeps a reference to this variable to they can
+        # continue to access it after modification by this class.
+        self.undefined_set = undefined_set
+
+    def __str__(self) -> str:
+        """Treat undefined vars as empty, but remember for later."""
+        self.undefined_set.add(self.name)
+        return ""
+
+    def __getattr__(self, item) -> "UndefinedRecorder":
+        """Don't fail when called, remember instead."""
+        self.undefined_set.add(self.name)
+        return UndefinedRecorder(f"{self.name}.{item}", self.undefined_set)
+
+    def __call__(self, *args, **kwargs) -> "UndefinedRecorder":
+        """Don't fail when called unlike parent class."""
+        return UndefinedRecorder(f"{self.name}()", self.undefined_set)
 
 
 class JinjaTemplater(PythonTemplater):
@@ -271,9 +312,7 @@ class JinjaTemplater(PythonTemplater):
         return dbt_builtins
 
     @classmethod
-    def _crawl_tree(
-        cls, tree, variable_names, raw
-    ) -> Generator[SQLTemplaterError, None, None]:
+    def _crawl_tree(cls, tree, variable_names, raw) -> Iterator[SQLTemplaterError]:
         """Crawl the tree looking for occurrences of the undeclared values."""
         # First iterate through children
         for elem in tree.iter_child_nodes():
@@ -509,6 +548,45 @@ class JinjaTemplater(PythonTemplater):
 
         return env, live_context, render_func
 
+    def _generate_violations_for_undefined_variables(
+        self,
+        in_str: str,
+        syntax_tree: jinja2.nodes.Template,
+        undefined_variables: Set[str],
+    ) -> List[SQLTemplaterError]:
+        """Generates violations for any undefined variables."""
+        violations: List[SQLTemplaterError] = []
+        if undefined_variables:
+            # Lets go through and find out where they are:
+            for template_err_val in self._crawl_tree(
+                syntax_tree, undefined_variables, in_str
+            ):
+                violations.append(template_err_val)
+        return violations
+
+    @staticmethod
+    def _init_undefined_tracking(
+        live_context: dict,
+        potentially_undefined_variables: Iterable[str],
+        ignore_templating: bool = False,
+    ) -> Set[str]:
+        """Sets up tracing of undefined template variables.
+
+        NOTE: This works by mutating the `live_context` which
+        is being used by the environment.
+        """
+        # NOTE: This set is modified by the `UndefinedRecorder` when run.
+        undefined_variables: Set[str] = set()
+
+        for val in potentially_undefined_variables:
+            if val not in live_context:
+                if ignore_templating:
+                    live_context[val] = DummyUndefined.create(val)
+                else:
+                    live_context[val] = UndefinedRecorder(val, undefined_variables)
+
+        return undefined_variables
+
     @large_file_check
     def process(
         self,
@@ -517,7 +595,7 @@ class JinjaTemplater(PythonTemplater):
         fname: str,
         config: Optional[FluffConfig] = None,
         formatter=None,
-    ) -> Tuple[Optional[TemplatedFile], list]:
+    ) -> Tuple[Optional[TemplatedFile], List[SQLTemplaterError]]:
         """Process a string and return the new string.
 
         Note that the arguments are enforced as keywords
@@ -555,8 +633,6 @@ class JinjaTemplater(PythonTemplater):
         except SQLTemplaterError as err:
             return None, [err]
 
-        violations: List[SQLBaseError] = []
-
         # Attempt to identify any undeclared variables or syntax errors.
         # The majority of variables will be found during the _crawl_tree
         # step rather than this first Exception which serves only to catch
@@ -580,44 +656,13 @@ class JinjaTemplater(PythonTemplater):
                 templater_error.line_no = err.lineno
             return unrendered_out, [templater_error]
 
-        undefined_variables = set()
-
-        class UndefinedRecorder:
-            """Similar to jinja2.StrictUndefined, but remembers, not fails."""
-
-            # Tell Jinja this object is safe to call and does not alter data.
-            # https://jinja.palletsprojects.com/en/2.9.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
-            unsafe_callable = False
-            # https://jinja.palletsprojects.com/en/3.0.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
-            alters_data = False
-
-            @classmethod
-            def create(cls, name: str) -> "UndefinedRecorder":
-                return UndefinedRecorder(name=name)
-
-            def __init__(self, name: str) -> None:
-                self.name = name
-
-            def __str__(self) -> str:
-                """Treat undefined vars as empty, but remember for later."""
-                undefined_variables.add(self.name)
-                return ""
-
-            def __getattr__(self, item) -> "UndefinedRecorder":
-                undefined_variables.add(self.name)
-                return UndefinedRecorder(f"{self.name}.{item}")
-
-            def __call__(self, *args, **kwargs) -> "UndefinedRecorder":
-                return UndefinedRecorder(f"{self.name}()")
-
-        Undefined = (
-            UndefinedRecorder
-            if "templating" not in config.get("ignore")
-            else DummyUndefined
+        undefined_variables = self._init_undefined_tracking(
+            live_context,
+            potentially_undefined_variables,
+            ignore_templating=("templating" in config.get("ignore")),
         )
-        for val in potentially_undefined_variables:
-            if val not in live_context:
-                live_context[val] = Undefined.create(val)  # type: ignore
+
+        violations: List[SQLTemplaterError] = []
 
         try:
             # Slice the file once rendered.
@@ -626,12 +671,9 @@ class JinjaTemplater(PythonTemplater):
                 render_func=render_func,
                 config=config,
             )
-            if undefined_variables:
-                # Lets go through and find out where they are:
-                for template_err_val in self._crawl_tree(
-                    syntax_tree, undefined_variables, in_str
-                ):
-                    violations.append(template_err_val)
+            violations += self._generate_violations_for_undefined_variables(
+                in_str, syntax_tree, undefined_variables
+            )
             return (
                 TemplatedFile(
                     source_str=in_str,
@@ -644,7 +686,7 @@ class JinjaTemplater(PythonTemplater):
             )
         except (TemplateError, TypeError) as err:
             templater_logger.info("Unrecoverable Jinja Error: %s", err, exc_info=True)
-            template_err: SQLBaseError = SQLTemplaterError(
+            template_err = SQLTemplaterError(
                 (
                     "Unrecoverable failure in Jinja templating: {}. Have you "
                     "configured your variables? "
@@ -826,7 +868,7 @@ class JinjaTemplater(PythonTemplater):
     @large_file_check
     def process_with_variants(
         self, *, in_str: str, fname: str, config=None, formatter=None
-    ) -> Iterator[Tuple[Optional[TemplatedFile], List]]:
+    ) -> Iterator[Tuple[Optional[TemplatedFile], List[SQLTemplaterError]]]:
         """Process a string and return one or more variant renderings.
 
         Note that the arguments are enforced as keywords

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sqlfluff"
-version = "3.0.3"
+version = "3.0.5"
 description = "The SQL Linter for Humans"
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.8"
@@ -129,7 +129,7 @@ sqlfluff_rules_tsql = "sqlfluff.rules.tsql"
 
 [tool.sqlfluff_docs]
 # NOTE: Stable version is used by docs/conf.py
-stable_version = "3.0.3"
+stable_version = "3.0.5"
 
 
 [tool.setuptools.package-data]

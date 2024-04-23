@@ -570,6 +570,7 @@ snowflake_dialect.replace(
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.upper,
         )
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
@@ -617,6 +618,7 @@ snowflake_dialect.replace(
                 OneOf(
                     Ref("SingleQuotedIdentifierSegment"),
                     Ref("ReferencedVariableNameSegment"),
+                    Ref("BindVariableSegment"),
                 ),
             ),
         ),
@@ -1254,6 +1256,14 @@ class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
+        # NOTE: The Scripting Block segment must be tried before
+        # we get to the transaction statement (from the ansi dialect)
+        # because they both start with BEGIN.
+        insert=[
+            Ref("ScriptingBlockStatementSegment"),
+        ],
+        before=Ref("TransactionStatementSegment"),
+    ).copy(
         insert=[
             Ref("AccessStatementSegment"),
             Ref("CreateStatementSegment"),
@@ -1262,7 +1272,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateCloneStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
             Ref("AlterProcedureStatementSegment"),
-            Ref("ScriptingBlockStatementSegment"),
             Ref("ScriptingLetStatementSegment"),
             Ref("ReturnStatementSegment"),
             Ref("ShowStatementSegment"),
@@ -1325,6 +1334,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateExternalVolumeStatementSegment"),
             Ref("DropExternalVolumeStatementSegment"),
             Ref("AlterExternalVolumeStatementSegment"),
+            Ref("ForInLoopSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -3118,14 +3128,33 @@ class ScriptingBlockStatementSegment(BaseSegment):
     """
 
     type = "scripting_block_statement"
-    match_grammar = OneOf(
+    match_grammar = Sequence(
         Sequence(
             "BEGIN",
-            Delimited(
+            Indent,
+            Ref("StatementSegment"),
+        ),
+        AnyNumberOf(
+            Sequence(
+                Ref("DelimiterGrammar"),
                 Ref("StatementSegment"),
             ),
+            terminators=[
+                OneOf(
+                    Sequence(Ref("DelimiterGrammar"), "END"),
+                    # Don't terminate on an "END FOR", because that's a different
+                    # expression.
+                    exclude=Sequence(Ref("DelimiterGrammar"), "END", "FOR"),
+                ),
+            ],
+            # NOTE: We can't be greedy because there may be nested loops. This
+            # does make understanding any failed parsing loops difficult but I
+            # don't think there's an easy way around that.
         ),
-        Sequence("END"),
+        Ref("DelimiterGrammar"),
+        Dedent,
+        "END",
+        reset_terminators=True,
     )
 
 
@@ -7131,6 +7160,8 @@ class TransactionStatementSegment(ansi.TransactionStatementSegment):
     https://docs.snowflake.com/en/sql-reference/sql/begin.html
     https://docs.snowflake.com/en/sql-reference/sql/commit.html
     https://docs.snowflake.com/en/sql-reference/sql/rollback.html
+
+    NOTE: "END" is not currently a supported keyword here.
     """
 
     match_grammar = OneOf(
@@ -7826,4 +7857,49 @@ class AlterMaskingPolicySegment(BaseSegment):
             ),
             Sequence("UNSET", "COMMENT"),
         ),
+    )
+
+
+class ForInLoopSegment(BaseSegment):
+    """FOR...IN...DO...END FOR statement.
+
+    https://docs.snowflake.com/en/developer-guide/snowflake-scripting/loops#for-loop
+    """
+
+    type = "for_in_statement"
+
+    match_grammar = Sequence(
+        Sequence(
+            Sequence(
+                "FOR",
+                Ref("LocalVariableNameSegment"),
+                "IN",
+                Ref("LocalVariableNameSegment"),
+                "DO",
+                Indent,
+            ),
+            Delimited(
+                Ref("StatementSegment"),
+                delimiter=Ref("DelimiterGrammar"),
+            ),
+            parse_mode=ParseMode.GREEDY_ONCE_STARTED,
+            reset_terminators=True,
+            terminators=[Sequence(Ref("DelimiterGrammar"), "END", "FOR")],
+        ),
+        # There must be a trailing semicolon
+        Ref("DelimiterGrammar"),
+        Dedent,
+        "END",
+        "FOR",
+    )
+
+
+class BindVariableSegment(BaseSegment):
+    """A :VARIABLE_NAME expression."""
+
+    type = "bind_variable"
+
+    match_grammar = Sequence(
+        Ref("ColonSegment"),
+        Ref("LocalVariableNameSegment"),
     )

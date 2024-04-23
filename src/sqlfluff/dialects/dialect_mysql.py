@@ -68,11 +68,19 @@ mysql_dialect.patch_lexer_matchers(
             "single_quote",
             r"(?s)('(?:\\'|''|\\\\|[^'])*'(?!'))",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"(?s)('((?:\\'|''|\\\\|[^'])*)'(?!'))", 2),
+                "escape_replacements": [(r"\\'|''", "'")],
+            },
         ),
         RegexLexer(
             "double_quote",
             r'(?s)("(?:\\"|""|\\\\|[^"])*"(?!"))',
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'(?s)("((?:\\"|""|\\\\|[^"])*)"(?!"))', 2),
+                "escape_replacements": [(r'\\"|""', '"')],
+            },
         ),
     ]
 )
@@ -338,6 +346,7 @@ class ColumnDefinitionSegment(BaseSegment):
                             ),
                             Ref("NumericLiteralSegment"),
                             Ref("QuotedLiteralSegment"),
+                            "NULL",
                         ),
                         optional=True,
                     ),

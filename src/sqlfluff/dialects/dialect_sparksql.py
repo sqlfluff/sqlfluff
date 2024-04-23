@@ -76,6 +76,10 @@ sparksql_dialect.patch_lexer_matchers(
             "back_quote",
             r"`([^`]|``)*`",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"`((?:[^`]|``)*)`", 1),
+                "escape_replacements": [(r"``", "`")],
+            },
         ),
         # Numeric literal matches integers, decimals, and exponential formats.
         # https://spark.apache.org/docs/latest/sql-ref-literals.html#numeric-literal
@@ -234,6 +238,12 @@ sparksql_dialect.bracket_sets("angle_bracket_pairs").update(
 
 # Real Segments
 sparksql_dialect.replace(
+    DateTimeLiteralGrammar=Sequence(
+        OneOf(
+            "DATE", "TIME", "TIMESTAMP", "INTERVAL", "TIMESTAMP_LTZ", "TIMESTAMP_NTZ"
+        ),
+        TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
+    ),
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
         Ref("EqualsSegment_a"),
@@ -430,6 +440,8 @@ sparksql_dialect.add(
         IdentifierSegment,
         type="quoted_identifier",
         trim_chars=("`",),
+        # match ANSI's naked identifier casefold, sparksql is case-insensitive.
+        casefold=str.upper,
     ),
     NakedSemiStructuredElementSegment=RegexParser(
         r"[A-Z0-9_]*",
@@ -886,6 +898,8 @@ class PrimitiveTypeSegment(BaseSegment):
         "DOUBLE",
         "DATE",
         "TIMESTAMP",
+        "TIMESTAMP_LTZ",
+        "TIMESTAMP_NTZ",
         "STRING",
         Sequence(
             OneOf("CHAR", "CHARACTER", "VARCHAR", "DECIMAL", "DEC", "NUMERIC"),
