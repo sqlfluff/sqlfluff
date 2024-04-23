@@ -313,6 +313,17 @@ def core_options(f: Callable) -> Callable:
             " inline directives."
         ),
     )(f)
+    f = click.option(
+        "--stdin-filename",
+        default=None,
+        help=(
+            "When using stdin as an input, load the configuration as if the contents"
+            " of stdin was in a file in the listed location."
+            " This is useful for some editors that pass file contents from the editor"
+            " that might not match the content on disk."
+        ),
+        type=click.Path(allow_dash=False),
+    )(f)
     return f
 
 
@@ -576,6 +587,7 @@ def lint(
     persist_timing: Optional[str] = None,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
+    stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
     """Lint SQL files via passing a list of files or using stdin.
@@ -624,6 +636,8 @@ def lint(
     with PathAndUserErrorHandler(formatter):
         # add stdin if specified via lone '-'
         if ("-",) == paths:
+            if stdin_filename:
+                lnt.config = lnt.config.make_child_from_path(stdin_filename)
             result = lnt.lint_string_wrapped(sys.stdin.read(), fname="stdin")
         else:
             result = lnt.lint_paths(
@@ -1032,6 +1046,7 @@ def fix(
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
     show_lint_violations: bool = False,
+    stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
     """Fix SQL files.
@@ -1086,6 +1101,8 @@ def fix(
     with PathAndUserErrorHandler(formatter):
         # handle stdin case. should output formatted sql to stdout and nothing else.
         if fixing_stdin:
+            if stdin_filename:
+                lnt.config = lnt.config.make_child_from_path(stdin_filename)
             _stdin_fix(lnt, formatter, fix_even_unparsable)
         else:
             _paths_fix(
@@ -1123,6 +1140,7 @@ def cli_format(
     persist_timing: Optional[str] = None,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
+    stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
     """Autoformat SQL files.
@@ -1185,6 +1203,8 @@ def cli_format(
     with PathAndUserErrorHandler(formatter):
         # handle stdin case. should output formatted sql to stdout and nothing else.
         if fixing_stdin:
+            if stdin_filename:
+                lnt.config = lnt.config.make_child_from_path(stdin_filename)
             _stdin_fix(lnt, formatter, fix_even_unparsable=False)
         else:
             _paths_fix(
@@ -1278,6 +1298,7 @@ def parse(
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
     parse_statistics: bool = False,
+    stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
     """Parse SQL files and just spit out the result.
@@ -1314,11 +1335,14 @@ def parse(
     # handle stdin if specified via lone '-'
     with PathAndUserErrorHandler(formatter):
         if "-" == path:
+            file_config = lnt.config
+            if stdin_filename:
+                file_config = file_config.make_child_from_path(stdin_filename)
             parsed_strings = [
                 lnt.parse_string(
                     sys.stdin.read(),
                     "stdin",
-                    config=lnt.config,
+                    config=file_config,
                     parse_statistics=parse_statistics,
                 ),
             ]

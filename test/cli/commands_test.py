@@ -234,6 +234,103 @@ def test__cli__command_extra_config_fail():
     )
 
 
+stdin_cli_input = (
+    "SELECT\n    A.COL1,\n    B.COL2\nFROM TABA AS A\n" "POSITIONAL JOIN TABB AS B;\n"
+)
+
+
+@pytest.mark.parametrize(
+    ("command", "stdin_filepath", "ret_code", "output"),
+    [
+        (
+            parse,
+            "test/fixtures/cli/stdin_filename/without_config/stdin_filename.sql",
+            0,
+            (
+                "[L:  5, P:  1]      |                    join_clause:\n"
+                "[L:  5, P:  1]      |                        keyword:"
+                "                              'POSITIONAL'"
+            ),
+        ),
+        (
+            parse,
+            "test/fixtures/an_ansi_config_here.sql",
+            1,
+            "Parsing errors found and dialect is set to 'ansi'.",
+        ),
+        (
+            lint,
+            "test/fixtures/cli/stdin_filename/stdin_filename.sql",
+            0,
+            "All Finished!",
+        ),
+        (
+            lint,
+            "test/fixtures/cli/stdin_filename/without_config/stdin_filename.sql",
+            0,
+            "All Finished!",
+        ),
+        (
+            lint,
+            "test/fixtures/an_ansi_config_here.sql",
+            1,
+            "Parsing errors found and dialect is set to 'ansi'.",
+        ),
+        (
+            cli_format,
+            "test/fixtures/cli/stdin_filename/stdin_filename.sql",
+            0,
+            stdin_cli_input,
+        ),
+        (
+            cli_format,
+            "test/fixtures/cli/stdin_filename/without_config/stdin_filename.sql",
+            0,
+            stdin_cli_input,
+        ),
+        (
+            cli_format,
+            "test/fixtures/an_ansi_config_here.sql",
+            1,
+            "[1 templating/parsing errors found]",
+        ),
+        (
+            fix,
+            "test/fixtures/cli/stdin_filename/stdin_filename.sql",
+            0,
+            stdin_cli_input,
+        ),
+        (
+            fix,
+            "test/fixtures/cli/stdin_filename/without_config/stdin_filename.sql",
+            0,
+            stdin_cli_input,
+        ),
+        (
+            fix,
+            "test/fixtures/an_ansi_config_here.sql",
+            1,
+            "Unfixable violations detected.",
+        ),
+    ],
+)
+def test__cli__command_stdin_filename_config(command, stdin_filepath, ret_code, output):
+    """Check the script picks up the config from the indicated path."""
+    invoke_assert_code(
+        ret_code=ret_code,
+        args=[
+            command,
+            [
+                "--stdin-filename",
+                stdin_filepath,
+                "-",
+            ],
+        ],
+        cli_input=stdin_cli_input,
+        assert_output_contains=output,
+    )
+
+
 @pytest.mark.parametrize(
     "command",
     [
