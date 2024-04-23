@@ -5,7 +5,7 @@ from bisect import bisect_left
 from typing import Any, Dict, Iterable, Iterator, List, NamedTuple, Optional, Tuple
 
 from sqlfluff.core.config import FluffConfig
-from sqlfluff.core.errors import SQLFluffSkipFile
+from sqlfluff.core.errors import SQLFluffSkipFile, SQLTemplaterError
 from sqlfluff.core.helpers.slice import zero_slice
 
 # Instantiate the templater logger
@@ -519,7 +519,7 @@ class RawTemplater:
         fname: str,
         config: Optional[FluffConfig] = None,
         formatter=None,
-    ) -> Tuple[Optional[TemplatedFile], List]:
+    ) -> Tuple[Optional[TemplatedFile], List[SQLTemplaterError]]:
         """Process a string and return a TemplatedFile.
 
         Note that the arguments are enforced as keywords
@@ -544,9 +544,14 @@ class RawTemplater:
     @large_file_check
     def process_with_variants(
         self, *, in_str: str, fname: str, config=None, formatter=None
-    ) -> Iterator[Tuple[Optional[TemplatedFile], List]]:
-        """Extended version of `process` which returns multiple variants."""
-        raise NotImplementedError  # pragma: no cover
+    ) -> Iterator[Tuple[Optional[TemplatedFile], List[SQLTemplaterError]]]:
+        """Extended version of `process` which returns multiple variants.
+
+        Unless explicitly defined, this simply yields the result of .process().
+        """
+        yield self.process(
+            in_str=in_str, fname=fname, config=config, formatter=formatter
+        )
 
     def __eq__(self, other: Any) -> bool:
         """Return true if `other` is of the same class as this one.
