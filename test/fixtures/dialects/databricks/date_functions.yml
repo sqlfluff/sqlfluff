@@ -1,0 +1,267 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f25c5c88d3dfe331b64b43233fbabdfec00d719dcdd0a508b778cab2f8d94bf4
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: my_table
+          - dot: .
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: other_table
+          - dot: .
+          - naked_identifier: b
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_table
+          join_clause:
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: other_table
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: DATEDIFF
+                  bracketed:
+                  - start_bracket: (
+                  - date_part: SECOND
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                      - naked_identifier: my_table
+                      - dot: .
+                      - naked_identifier: timestamp_a
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                      - naked_identifier: other_table
+                      - dot: .
+                      - naked_identifier: timestamp_b
+                  - end_bracket: )
+                comparison_operator:
+                  raw_comparison_operator: '>'
+                numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATE_ADD
+            bracketed:
+            - start_bracket: (
+            - date_part: MICROSECOND
+            - comma: ','
+            - expression:
+                numeric_literal: '5'
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: start_dt
+            - end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: date_add_micro
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATE_DIFF
+            bracketed:
+            - start_bracket: (
+            - date_part: MILLISECOND
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: start_dt
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: end_dt
+            - end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: datediff_milli
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATEADD
+            bracketed:
+            - start_bracket: (
+            - date_part: MINUTE
+            - comma: ','
+            - expression:
+                numeric_literal: '5'
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: start_dt
+            - end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: dateadd_min
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATEDIFF
+            bracketed:
+            - start_bracket: (
+            - date_part: HOUR
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: start_dt
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: end_dt
+            - end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: datediff_hr
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TIMEDIFF
+            bracketed:
+            - start_bracket: (
+            - date_part: DAY
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: start_dt
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: end_dt
+            - end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: timediff_day
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TIMESTAMPADD
+            bracketed:
+            - start_bracket: (
+            - date_part: DAYOFYEAR
+            - comma: ','
+            - expression:
+                numeric_literal: '5'
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: start_dt
+            - end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: ts_add_day_of_yr
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TIMESTAMPDIFF
+            bracketed:
+            - start_bracket: (
+            - date_part: WEEK
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: start_dt
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: end_dt
+            - end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: ts_diff_week
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATE_ADD
+            bracketed:
+            - start_bracket: (
+            - date_part: MONTH
+            - comma: ','
+            - expression:
+                numeric_literal: '5'
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: start_dt
+            - end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: date_add_month
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATE_ADD
+            bracketed:
+            - start_bracket: (
+            - date_part: QUARTER
+            - comma: ','
+            - expression:
+                numeric_literal: '5'
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: start_dt
+            - end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: date_add_quarter
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATE_ADD
+            bracketed:
+            - start_bracket: (
+            - date_part: YEAR
+            - comma: ','
+            - expression:
+                numeric_literal: '5'
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: start_dt
+            - end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: date_add_year
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_table
+- statement_terminator: ;
