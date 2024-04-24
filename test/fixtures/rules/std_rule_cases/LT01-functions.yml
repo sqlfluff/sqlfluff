@@ -6,7 +6,7 @@ test_pass_bare_function:
     core:
       dialect: postgres
 
-test_fail_space_function:
+test_fail_spaced_function:
   fail_str: COMMENT ON FUNCTION x (foo) IS 'y';
   fix_str: COMMENT ON FUNCTION x (foo) IS 'y';
   configs:
