@@ -60,7 +60,7 @@ class ParsedVariant(NamedTuple):
     parsing_violations: List[SQLParseError]
 
     def violations(self) -> List[Union[SQLLexError, SQLParseError]]:
-        """Returns the combined set of violations for this variant."""
+        """Returns the combined lexing and parsing violations for this variant."""
         return [*self.lexing_violations, *self.parsing_violations]
 
 
