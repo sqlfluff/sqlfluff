@@ -730,14 +730,18 @@ def test__cli__command_lint_parse(command):
         (
             (
                 parse,
-                [
-                    "test/fixtures/linter/parse_lex_error.sql",
-                    "-f",
-                    "yaml"
-                ],
+                ["test/fixtures/linter/parse_lex_error.sql", "-f", "yaml"],
             ),
             1,
-        )
+        ),
+        # Test machine format parse command with a fatal templating error.
+        (
+            (
+                parse,
+                ["test/fixtures/cli/jinja_fatal_fail.sql", "-f", "yaml"],
+            ),
+            1,
+        ),
     ],
 )
 def test__cli__command_lint_parse_with_retcode(command, ret_code):
