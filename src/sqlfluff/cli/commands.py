@@ -1369,12 +1369,15 @@ def parse(
             # TODO: Multiple variants aren't yet supported here in the non-human
             # output of the parse command.
             root_variant = parsed_string.root_variant()
+            # Updating violation count ensures the correct return code below.
+            violations_count += len(parsed_string.violations)
             if root_variant:
                 assert root_variant.tree
                 segments = root_variant.tree.as_record(
                     code_only=code_only, show_raw=True, include_meta=include_meta
                 )
-            else:  # pragma: no cover
+            else:
+                # Parsing failed - return null for segments.
                 segments = None
             parsed_strings_dict.append(
                 {"filepath": parsed_string.fname, "segments": segments}

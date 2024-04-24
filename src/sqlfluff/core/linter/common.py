@@ -106,7 +106,10 @@ class ParsedString(NamedTuple):
         if not self.parsed_variants:  # pragma: no cover
             return None
         root_variant = self.parsed_variants[0]
-        if not root_variant.tree:  # pragma: no cover
+        if not root_variant.tree:
+            # In the case of a parsing fail, there will be a variant, but it will
+            # have failed to parse and so will have a null tree. Count this as
+            # an inappropriate variant to return, so return None.
             return None
         return root_variant
 
