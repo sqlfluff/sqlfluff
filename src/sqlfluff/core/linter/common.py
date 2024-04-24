@@ -54,7 +54,7 @@ class ParsedVariant(NamedTuple):
             raised during the lexing phase.
     """
 
-    templated_file: Optional[TemplatedFile]
+    templated_file: TemplatedFile
     tree: Optional[BaseSegment]
     lexing_violations: List[SQLLexError]
     parsing_violations: List[SQLParseError]
