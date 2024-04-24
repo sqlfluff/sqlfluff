@@ -92,7 +92,7 @@ class ParsedString(NamedTuple):
 
     @property
     def violations(self) -> List[SQLBaseError]:
-        """Returns the combined set of violations for this variant.
+        """Returns the combination of violations for this variant.
 
         NOTE: This is implemented as a property for backward compatibility.
         """
