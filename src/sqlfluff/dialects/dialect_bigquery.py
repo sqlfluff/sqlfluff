@@ -1063,6 +1063,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                     ),
                 ),
             ),
+            Ref("OptionsSegment", optional=True),
         )
     )
 
