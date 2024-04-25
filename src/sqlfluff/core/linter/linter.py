@@ -744,6 +744,9 @@ class Linter:
                 if len(templated_variants) >= variant_limit:
                     # Stop if we hit the limit.
                     break
+        except SQLTemplaterError as templater_err:
+            # Fatal templating error. Capture it and don't generate a variant.
+            templater_violations.append(templater_err)
         except SQLFluffSkipFile as skip_file_err:  # pragma: no cover
             linter_logger.warning(str(skip_file_err))
 

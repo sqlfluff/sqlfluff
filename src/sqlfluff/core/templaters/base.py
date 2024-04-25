@@ -519,12 +519,11 @@ class RawTemplater:
         fname: str,
         config: Optional[FluffConfig] = None,
         formatter=None,
-    ) -> Tuple[Optional[TemplatedFile], List[SQLTemplaterError]]:
+    ) -> Tuple[TemplatedFile, List[SQLTemplaterError]]:
         """Process a string and return a TemplatedFile.
 
-        Note that the arguments are enforced as keywords
-        because Templaters can have differences in their
-        `process` method signature.
+        Note that the arguments are enforced as keywords because Templaters
+        can have differences in their `process` method signature.
         A Templater that only supports reading from a file
         would need the following signature:
             process(*, fname, in_str=None, config=None)
@@ -538,13 +537,22 @@ class RawTemplater:
                 templating operation. Only necessary for some templaters.
             formatter (:obj:`CallbackFormatter`): Optional object for output.
 
+        Returns:
+            :obj:`tuple` of :obj:`TemplatedFile` and a list of SQLTemplaterError
+            if templating was successful enough that we may move to attempt parsing.
+
+        Raises:
+            SQLTemplaterError: If templating fails fatally, then this method
+                should raise a :obj:`SQLTemplaterError` instead which will be
+                caught and displayed appropriately.
+
         """
         return TemplatedFile(in_str, fname=fname), []
 
     @large_file_check
     def process_with_variants(
         self, *, in_str: str, fname: str, config=None, formatter=None
-    ) -> Iterator[Tuple[Optional[TemplatedFile], List[SQLTemplaterError]]]:
+    ) -> Iterator[Tuple[TemplatedFile, List[SQLTemplaterError]]]:
         """Extended version of `process` which returns multiple variants.
 
         Unless explicitly defined, this simply yields the result of .process().
