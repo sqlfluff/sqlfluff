@@ -531,17 +531,16 @@ class JinjaTemplater(PythonTemplater):
 
             https://www.programiz.com/python-programming/closure
             """
-            # Load the template, passing the global context.
             try:
                 template = env.from_string(in_str, globals=live_context)
             except TemplateSyntaxError as err:  # pragma: no cover
-                # Something in the template didn't parse, return the original
-                # and a violation around what happened.
-                # NOTE: Most parsing exceptions will be captured when we call
-                # env.parse() in the .process() method. Hence this exception
-                # handling should never be called.
+                # NOTE: If the template fails to parse, then this clause
+                # will be triggered. However in normal that should never
+                # happen because the template should already have been
+                # validated by the point this is called. Typically that
+                # happens when searching for undefined variables.
                 raise SQLTemplaterError(
-                    f"Failure to parse jinja template: {err}.",
+                    f"Late failure to parse jinja template: {err}.",
                     line_no=err.lineno,
                 )
             return template.render()
@@ -595,7 +594,7 @@ class JinjaTemplater(PythonTemplater):
         fname: str,
         config: Optional[FluffConfig] = None,
         formatter=None,
-    ) -> Tuple[Optional[TemplatedFile], List[SQLTemplaterError]]:
+    ) -> Tuple[TemplatedFile, List[SQLTemplaterError]]:
         """Process a string and return the new string.
 
         Note that the arguments are enforced as keywords
@@ -615,9 +614,12 @@ class JinjaTemplater(PythonTemplater):
 
         Raises:
             ValueError: If the 'config' argument is not provided.
+            SQLTemplaterError: If templating fails fatally, then this method
+                should raise a :obj:`SQLTemplaterError` instead which will be
+                caught and displayed appropriately.
 
         Returns:
-            Tuple[Optional[TemplatedFile], list]: A tuple containing the
+            Tuple[TemplatedFile, List[SQLTemplaterError]]: A tuple containing the
             templated file and a list of violations.
         """
         if not config:  # pragma: no cover
@@ -626,12 +628,9 @@ class JinjaTemplater(PythonTemplater):
                 "object."
             )
 
-        try:
-            env, live_context, render_func = self.construct_render_func(
-                fname=fname, config=config
-            )
-        except SQLTemplaterError as err:
-            return None, [err]
+        env, live_context, render_func = self.construct_render_func(
+            fname=fname, config=config
+        )
 
         # Attempt to identify any undeclared variables or syntax errors.
         # The majority of variables will be found during the _crawl_tree
@@ -643,18 +642,14 @@ class JinjaTemplater(PythonTemplater):
                 syntax_tree
             )
         except Exception as err:
-            unrendered_out = TemplatedFile(
-                source_str=in_str,
-                fname=fname,
-            )
             templater_error = SQLTemplaterError(
                 "Failed to parse Jinja syntax. Correct the syntax or select an "
-                "alternative templater."
+                "alternative templater. Error: " + str(err)
             )
             # Capture a line number if we can.
             if isinstance(err, TemplateSyntaxError):
                 templater_error.line_no = err.lineno
-            return unrendered_out, [templater_error]
+            raise templater_error
 
         undefined_variables = self._init_undefined_tracking(
             live_context,
@@ -662,17 +657,12 @@ class JinjaTemplater(PythonTemplater):
             ignore_templating=("templating" in config.get("ignore")),
         )
 
-        violations: List[SQLTemplaterError] = []
-
         try:
             # Slice the file once rendered.
             raw_sliced, sliced_file, out_str = self.slice_file(
                 in_str,
                 render_func=render_func,
                 config=config,
-            )
-            violations += self._generate_violations_for_undefined_variables(
-                in_str, syntax_tree, undefined_variables
             )
             return (
                 TemplatedFile(
@@ -682,14 +672,16 @@ class JinjaTemplater(PythonTemplater):
                     sliced_file=sliced_file,
                     raw_sliced=raw_sliced,
                 ),
-                violations,
+                self._generate_violations_for_undefined_variables(
+                    in_str, syntax_tree, undefined_variables
+                ),
             )
         except (TemplateError, TypeError) as err:
             templater_logger.info("Unrecoverable Jinja Error: %s", err, exc_info=True)
-            template_err = SQLTemplaterError(
+            raise SQLTemplaterError(
                 (
                     "Unrecoverable failure in Jinja templating: {}. Have you "
-                    "configured your variables? "
+                    "correctly configured your variables? "
                     "https://docs.sqlfluff.com/en/latest/configuration.html"
                 ).format(err),
                 # We don't have actual line number information, but specify
@@ -699,8 +691,6 @@ class JinjaTemplater(PythonTemplater):
                 line_no=1,
                 line_pos=1,
             )
-            violations.append(template_err)
-            return None, violations
 
     def slice_file(
         self, raw_str: str, render_func: Callable[[str], str], config=None, **kwargs

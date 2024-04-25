@@ -604,26 +604,32 @@ def test__templater_jinja_error_syntax():
     """Test syntax problems in the jinja templater."""
     t = JinjaTemplater()
     instr = "SELECT {{foo} FROM jinja_error\n"
-    outstr, vs = t.process(
-        in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
-    )
-    # Check we just skip templating.
-    assert str(outstr) == instr
-    # Check we have violations.
-    assert len(vs) > 0
-    # Check one of them is a templating error on line 1
-    assert any(v.rule_code() == "TMP" and v.line_no == 1 for v in vs)
+    with pytest.raises(SQLTemplaterError) as excinfo:
+        t.process(
+            in_str=instr,
+            fname="test",
+            config=FluffConfig(overrides={"dialect": "ansi"}),
+        )
+    templater_exception = excinfo.value
+    assert templater_exception.rule_code() == "TMP"
+    assert templater_exception.line_no == 1
+    assert "Failed to parse Jinja syntax" in str(templater_exception)
 
 
 def test__templater_jinja_error_catastrophic():
     """Test error handling in the jinja templater."""
     t = JinjaTemplater(override_context=dict(blah=7))
     instr = JINJA_STRING
-    outstr, vs = t.process(
-        in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
-    )
-    assert not outstr
-    assert len(vs) > 0
+    with pytest.raises(SQLTemplaterError) as excinfo:
+        t.process(
+            in_str=instr,
+            fname="test",
+            config=FluffConfig(overrides={"dialect": "ansi"}),
+        )
+    templater_exception = excinfo.value
+    assert templater_exception.rule_code() == "TMP"
+    assert templater_exception.line_no == 1
+    assert "Unrecoverable failure in Jinja templating" in str(templater_exception)
 
 
 def test__templater_jinja_error_macro_path_does_not_exist():
