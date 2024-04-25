@@ -1854,6 +1854,9 @@ def test__templater_lint_unreached_code(sql_path: str, expected_renderings):
         assert additional_slicing == root_slicing
     # Check that the final source slices also line up in the templated files.
     # NOTE: Clearly the `templated_slice` values _won't_ be the same.
+    # We're doing the _final_ slice, because it's very likely to be the same
+    # _type_ and if it's in the right place, we can assume that all of the
+    # others probably are.
     root_final_slice = final_source_slices[0]
     for additional_final_slice in final_source_slices[1:]:
         assert additional_final_slice == root_final_slice
