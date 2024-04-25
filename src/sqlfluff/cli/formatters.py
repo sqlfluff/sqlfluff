@@ -635,25 +635,53 @@ class OutputStreamFormatter:
         verbose: int,
         parsed_strings: List[ParsedString],
     ) -> int:
-        """Used by human formatting during the parse."""
+        """Used by human formatting during the `sqlfluff parse` command."""
         violations_count = 0
         timing = TimingSummary()
 
         for parsed_string in parsed_strings:
             timing.add(parsed_string.time_dict)
 
-            if parsed_string.tree:
-                output_stream.write(parsed_string.tree.stringify(code_only=code_only))
-            else:
+            num_variants = len(parsed_string.parsed_variants)
+            root_variant = parsed_string.root_variant()
+            if not root_variant:
                 # TODO: Make this prettier
-                output_stream.write("...Failed to Parse...")  # pragma: no cover
+                output_stream.write(
+                    self.colorize("...Failed to Parse...", Color.red)
+                )  # pragma: no cover
+            elif num_variants == 1:
+                # Backward compatible single parse
+                assert root_variant.tree
+                output_stream.write(root_variant.tree.stringify(code_only=code_only))
+            else:
+                # Multi variant parse setup.
+                output_stream.write(
+                    self.colorize(
+                        f"SQLFluff parsed {num_variants} variants of this file",
+                        Color.blue,
+                    )
+                )
+                for idx, variant in enumerate(parsed_string.parsed_variants):
+                    output_stream.write(
+                        self.colorize(
+                            f"Variant {idx + 1}:",
+                            Color.blue,
+                        )
+                    )
+                    if variant.tree:
+                        output_stream.write(variant.tree.stringify(code_only=code_only))
+                    else:  # pragma: no cover
+                        output_stream.write(
+                            self.colorize("...Failed to Parse...", Color.red)
+                        )
 
-            violations_count += len(parsed_string.violations)
-            if parsed_string.violations:
+            violations = parsed_string.violations
+            violations_count += len(violations)
+            if violations:
                 output_stream.write("==== parsing violations ====")  # pragma: no cover
-            for v in parsed_string.violations:
+            for v in violations:
                 output_stream.write(self.format_violation(v))  # pragma: no cover
-            if parsed_string.violations:
+            if violations:
                 output_stream.write(
                     self.format_dialect_warning(parsed_string.config.get("dialect"))
                 )

@@ -5,6 +5,7 @@ import json
 import pytest
 
 import sqlfluff
+from sqlfluff.api import APIParsingError
 from sqlfluff.core.errors import SQLFluffUserError
 
 my_bad_query = "SeLEct  *, 1, blah as  fOO  from myTable"
@@ -562,3 +563,16 @@ def test__api__invalid_dialect():
         )
 
     assert str(err.value) == "Error: Unknown dialect 'not_a_real_dialect'"
+
+
+def test__api__parse_exceptions():
+    """Test parse behaviour with errors."""
+    # Parsable content
+    result = sqlfluff.parse("SELECT 1")
+    assert result
+    # Templater fail
+    with pytest.raises(APIParsingError):
+        sqlfluff.parse('SELECT {{ 1 > "a"}}')
+    # Templater success but parsing fail
+    with pytest.raises(APIParsingError):
+        sqlfluff.parse("THIS IS NOT SQL")
