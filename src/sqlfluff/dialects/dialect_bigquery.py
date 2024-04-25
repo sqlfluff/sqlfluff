@@ -246,6 +246,14 @@ bigquery_dialect.add(
         ),
         OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
     ),
+    ProcedureOptionListGrammar=MultiStringParser(
+        [
+            "strict_mode",
+            "description",
+        ],
+        CodeSegment,
+        type="procedure_option",
+    ),
 )
 
 
@@ -549,7 +557,7 @@ class ForInStatementsSegment(BaseSegment):
             Ref("DelimiterGrammar"),
         ),
         terminators=[Sequence("END", "FOR")],
-        parse_mode=ParseMode.GREEDY,
+        reset_terminators=True,
     )
 
 
@@ -592,7 +600,7 @@ class RepeatStatementsSegment(BaseSegment):
             Ref("DelimiterGrammar"),
         ),
         terminators=["UNTIL"],
-        parse_mode=ParseMode.GREEDY,
+        reset_terminators=True,
     )
 
 
@@ -635,7 +643,7 @@ class IfStatementsSegment(BaseSegment):
             "ELSEIF",
             Sequence("END", "IF"),
         ],
-        parse_mode=ParseMode.GREEDY,
+        reset_terminators=True,
     )
 
 
@@ -691,7 +699,7 @@ class LoopStatementsSegment(BaseSegment):
             Ref("DelimiterGrammar"),
         ),
         terminators=[Sequence("END", "LOOP")],
-        parse_mode=ParseMode.GREEDY,
+        reset_terminators=True,
     )
 
 
@@ -725,7 +733,7 @@ class WhileStatementsSegment(BaseSegment):
             Ref("DelimiterGrammar"),
         ),
         terminators=[Sequence("END", "WHILE")],
-        parse_mode=ParseMode.GREEDY,
+        reset_terminators=True,
     )
 
 
@@ -1090,6 +1098,15 @@ class ExceptClauseSegment(BaseSegment):
     )
 
 
+class TransactionStatementSegment(ansi.TransactionStatementSegment):
+    """A `BEGIN`, `COMMIT`, or `ROLLBACK` statement."""
+
+    match_grammar = Sequence(
+        OneOf("BEGIN", "COMMIT", "ROLLBACK"),
+        Ref.keyword("TRANSACTION", optional=True),
+    )
+
+
 class BeginStatementSegment(BaseSegment):
     """A `BEGIN...EXCEPTION...END` statement.
 
@@ -1100,33 +1117,36 @@ class BeginStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "BEGIN",
-        Indent,
-        AnyNumberOf(
-            Sequence(
-                Ref("StatementSegment"),
-                Ref("DelimiterGrammar"),
-            ),
-            min_times=1,
-            terminators=["END", "EXCEPTION"],
-            parse_mode=ParseMode.GREEDY,
-        ),
-        Dedent,
         Sequence(
-            "EXCEPTION",
-            "WHEN",
-            "ERROR",
-            "THEN",
             Indent,
             AnyNumberOf(
                 Sequence(
-                    Ref("StatementSegment"),
+                    OneOf(Ref("StatementSegment"), Ref("MultiStatementSegment")),
                     Ref("DelimiterGrammar"),
                 ),
+                terminators=["END", "EXCEPTION"],
+                reset_terminators=True,
                 min_times=1,
-                terminators=["END"],
-                parse_mode=ParseMode.GREEDY,
             ),
             Dedent,
+            Sequence(
+                "EXCEPTION",
+                "WHEN",
+                "ERROR",
+                "THEN",
+                Indent,
+                AnyNumberOf(
+                    Sequence(
+                        OneOf(Ref("StatementSegment"), Ref("MultiStatementSegment")),
+                        Ref("DelimiterGrammar"),
+                    ),
+                    min_times=1,
+                    terminators=["END"],
+                    reset_terminators=True,
+                ),
+                Dedent,
+                optional=True,
+            ),
             optional=True,
         ),
         "END",
@@ -2283,23 +2303,6 @@ class ProcedureParameterListSegment(BaseSegment):
     )
 
 
-class ProcedureStatements(BaseSegment):
-    """Statements within a CREATE PROCEDURE statement.
-
-    https://cloud.google.com/bigquery/docs/procedures
-    """
-
-    type = "procedure_statements"
-    match_grammar = AnyNumberOf(
-        Sequence(
-            Ref("StatementSegment"),
-            Ref("DelimiterGrammar"),
-        ),
-        terminators=["END"],
-        parse_mode=ParseMode.GREEDY,
-    )
-
-
 class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE PROCEDURE` statement.
 
@@ -2317,17 +2320,16 @@ class CreateProcedureStatementSegment(BaseSegment):
         Ref("ProcedureParameterListSegment"),
         Sequence(
             "OPTIONS",
-            "strict_mode",
-            StringParser("strict_mode", CodeSegment, type="procedure_option"),
-            Ref("EqualsSegment"),
-            Ref("BooleanLiteralGrammar"),
+            Bracketed(
+                Delimited(
+                    Ref("ProcedureOptionListGrammar"),
+                    Ref("EqualsSegment"),
+                    Ref("BaseExpressionElementGrammar"),
+                ),
+            ),
             optional=True,
         ),
-        "BEGIN",
-        Indent,
-        Ref("ProcedureStatements"),
-        Dedent,
-        "END",
+        Ref("BeginStatementSegment", reset_terminators=True),
     )
 
 
