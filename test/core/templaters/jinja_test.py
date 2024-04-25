@@ -1819,6 +1819,15 @@ def test_undefined_magic_methods():
             ],
             id="if_true_elif_type_error_else",
         ),
+        # https://github.com/sqlfluff/sqlfluff/issues/5803
+        pytest.param(
+            "inline_select.sql",
+            [
+                "select 2\n",
+                "select 1\n",
+            ],
+            id="inline_select",
+        ),
     ],
 )
 def test__templater_lint_unreached_code(sql_path: str, expected_renderings):
@@ -1826,10 +1835,25 @@ def test__templater_lint_unreached_code(sql_path: str, expected_renderings):
     test_dir = Path("test/fixtures/templater/jinja_lint_unreached_code")
     t = JinjaTemplater()
     renderings = []
+    raw_slicings = []
+    final_source_slices = []
     for templated_file, _ in t.process_with_variants(
         in_str=(test_dir / sql_path).read_text(),
         fname=str(sql_path),
         config=FluffConfig.from_path(str(test_dir)),
     ):
         renderings.append(templated_file.templated_str)
+        raw_slicings.append(templated_file.raw_sliced)
+        # Capture the final slice for all of them.
+        final_source_slices.append(templated_file.sliced_file[-1].source_slice)
     assert renderings == expected_renderings
+    # Compare all of the additional raw slicings to make sure they're the
+    # same as the root.
+    root_slicing = raw_slicings[0]
+    for additional_slicing in raw_slicings[1:]:
+        assert additional_slicing == root_slicing
+    # Check that the final source slices also line up in the templated files.
+    # NOTE: Clearly the `templated_slice` values _won't_ be the same.
+    root_final_slice = final_source_slices[0]
+    for additional_final_slice in final_source_slices[1:]:
+        assert additional_final_slice == root_final_slice
