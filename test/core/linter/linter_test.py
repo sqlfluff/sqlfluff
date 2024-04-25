@@ -458,7 +458,7 @@ def test__linter__parse_fail():
     """
     lntr = Linter(dialect="ansi")
     # Try and parse something which obviously isn't SQL
-    parsed = lntr.parse_string("THIS ISNT SQL")
+    parsed = lntr.parse_string("THIS IS NOT SQL")
     # There should still be a parsed variant
     assert parsed.parsed_variants
     assert len(parsed.parsed_variants) == 1
