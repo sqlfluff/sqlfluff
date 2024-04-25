@@ -509,6 +509,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("RaiseStatementSegment"),
             Ref("AlterViewStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
+            Ref("CreateMaterializedViewAsReplicaOfStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
             Ref("DropMaterializedViewStatementSegment"),
         ],
@@ -1883,6 +1884,27 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
         Ref("OptionsSegment", optional=True),
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
+    )
+
+
+class CreateMaterializedViewAsReplicaOfStatementSegment(BaseSegment):
+    """A `CREATE MATERIALIZED VIEW AS REPLICA OF` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_materialized_view_as_replica_of_statement
+    """
+
+    type = "create_materialized_view_as_replica_of_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        Ref("OptionsSegment", optional=True),
+        "AS",
+        "REPLICA",
+        "OF",
+        Ref("TableReferenceSegment"),
     )
 
 
