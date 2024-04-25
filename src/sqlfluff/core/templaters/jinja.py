@@ -840,7 +840,7 @@ class JinjaTemplater(PythonTemplater):
                     variants[variant_raw_str] = (score, trace, length_deltas)
 
         # Return the top-scoring variants.
-        sorted_variants: List[Tuple[int, JinjaTrace]] = sorted(
+        sorted_variants: List[Tuple[int, JinjaTrace, Dict[int, int]]] = sorted(
             variants.values(), key=lambda v: v[0], reverse=True
         )
         for _, trace, deltas in sorted_variants[:max_variants_returned]:
