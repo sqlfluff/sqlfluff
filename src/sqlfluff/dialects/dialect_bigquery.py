@@ -1892,7 +1892,7 @@ class CreateMaterializedViewAsReplicaOfStatementSegment(BaseSegment):
     https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_materialized_view_as_replica_of_statement
     """
 
-    type = "create_materialized_view_a_replica_of_statement"
+    type = "create_materialized_view_as_replica_of_statement"
 
     match_grammar = Sequence(
         "CREATE",
