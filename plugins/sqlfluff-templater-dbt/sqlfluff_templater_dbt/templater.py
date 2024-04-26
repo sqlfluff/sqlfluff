@@ -438,7 +438,7 @@ class DbtTemplater(JinjaTemplater):
         in_str: Optional[str] = None,
         config: Optional["FluffConfig"] = None,
         formatter: Optional["OutputStreamFormatter"] = None,
-    ):
+    ) -> Tuple[TemplatedFile, List[SQLTemplaterError]]:
         """Compile a dbt model and return the compiled SQL.
 
         Args:
@@ -473,15 +473,13 @@ class DbtTemplater(JinjaTemplater):
             self._sequential_fails = 0
             return processed_result
         except FailedToConnectError as e:
-            return None, [
-                SQLTemplaterError(
-                    "dbt tried to connect to the database and failed: you could use "
-                    "'execute' to skip the database calls. See "
-                    "https://docs.getdbt.com/reference/dbt-jinja-functions/execute/ "
-                    f"Error: {e.msg}",
-                    fatal=True,
-                )
-            ]
+            raise SQLTemplaterError(
+                "dbt tried to connect to the database and failed: you could use "
+                "'execute' to skip the database calls. See "
+                "https://docs.getdbt.com/reference/dbt-jinja-functions/execute/ "
+                f"Error: {e.msg}",
+                fatal=True,
+            )
         except CompilationError as e:
             # Increment the counter
             self._sequential_fails += 1
@@ -492,16 +490,14 @@ class DbtTemplater(JinjaTemplater):
                 )
             else:
                 _msg = f"dbt compilation error: {e.msg}"
-            return None, [
-                SQLTemplaterError(
-                    _msg,
-                    # It's fatal if we're over the limit
-                    fatal=self._sequential_fails > self.sequential_fail_limit,
-                )
-            ]
-        # If a SQLFluff error is raised, just pass it through
-        except SQLTemplaterError as e:  # pragma: no cover
-            return None, [e]
+            raise SQLTemplaterError(
+                _msg,
+                # It's fatal if we're over the limit
+                fatal=self._sequential_fails > self.sequential_fail_limit,
+            )
+        except SQLTemplaterError:
+            # Templater errors are re-raised directly to be caught by the linter.
+            raise
         finally:
             os.chdir(self.working_dir)
 

@@ -13,7 +13,7 @@ import pytest
 
 from sqlfluff.cli.commands import lint
 from sqlfluff.core import FluffConfig, Lexer, Linter
-from sqlfluff.core.errors import SQLFluffSkipFile, SQLFluffUserError
+from sqlfluff.core.errors import SQLFluffSkipFile, SQLFluffUserError, SQLTemplaterError
 from sqlfluff.utils.testing.cli import invoke_assert_code
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 from sqlfluff_templater_dbt.templater import DbtTemplater
@@ -431,17 +431,19 @@ def test__templater_dbt_handle_exceptions(
     # as dbt throws an error if a node fails to parse while computing the DAG
     os.rename(src_fpath, target_fpath)
     try:
-        _, violations = dbt_templater.process(
-            in_str="",
-            fname=target_fpath,
-            config=FluffConfig(configs=DBT_FLUFF_CONFIG, overrides={"dialect": "ansi"}),
-        )
+        with pytest.raises(SQLTemplaterError) as excinfo:
+            dbt_templater.process(
+                in_str="",
+                fname=target_fpath,
+                config=FluffConfig(
+                    configs=DBT_FLUFF_CONFIG, overrides={"dialect": "ansi"}
+                ),
+            )
     finally:
         os.rename(target_fpath, src_fpath)
         get_adapter(dbt_templater.dbt_config).connections.release()
-    assert violations
     # NB: Replace slashes to deal with different platform paths being returned.
-    assert exception_msg in violations[0].desc().replace("\\", "/")
+    assert exception_msg in excinfo.value.desc().replace("\\", "/")
 
 
 @mock.patch("dbt.adapters.postgres.impl.PostgresAdapter.set_relations_cache")
@@ -482,19 +484,18 @@ def test__templater_dbt_handle_database_connection_failure(
     # as dbt throws an error if a node fails to parse while computing the DAG
     os.rename(src_fpath, target_fpath)
     try:
-        _, violations = dbt_templater.process(
-            in_str="",
-            fname=target_fpath,
-            config=FluffConfig(configs=DBT_FLUFF_CONFIG),
-        )
+        with pytest.raises(SQLTemplaterError) as excinfo:
+            dbt_templater.process(
+                in_str="",
+                fname=target_fpath,
+                config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+            )
     finally:
         os.rename(target_fpath, src_fpath)
         get_adapter(dbt_templater.dbt_config).connections.release()
-    assert violations
     # NB: Replace slashes to deal with different platform paths being returned.
     assert (
-        violations[0]
-        .desc()
+        excinfo.value.desc()
         .replace("\\", "/")
         .startswith("dbt tried to connect to the database")
     )

@@ -470,6 +470,13 @@ def test__cli__command_render_stdin():
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--format", "yaml"]),
         # Check parsing with no output (used mostly for testing)
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--format", "none"]),
+        # Parsing with variants
+        (
+            parse,
+            [
+                "test/fixtures/cli/jinja_variants.sql",
+            ],
+        ),
         # Check the benching commands
         (parse, ["-n", "test/fixtures/cli/passing_timing.sql", "--bench"]),
         (lint, ["-n", "test/fixtures/cli/passing_timing.sql", "--bench"]),
@@ -718,6 +725,22 @@ def test__cli__command_lint_parse(command):
                 ],
             ),
             2,
+        ),
+        # Test machine format parse command with an unparsable file.
+        (
+            (
+                parse,
+                ["test/fixtures/linter/parse_lex_error.sql", "-f", "yaml"],
+            ),
+            1,
+        ),
+        # Test machine format parse command with a fatal templating error.
+        (
+            (
+                parse,
+                ["test/fixtures/cli/jinja_fatal_fail.sql", "-f", "yaml"],
+            ),
+            1,
         ),
     ],
 )

@@ -13,7 +13,7 @@ file:
   - whitespace: '  '
   - placeholder: '{% if false %}'
   - indent: ""
-  - placeholder: '... [11 unused template characters] ...'
+  - placeholder: "\n    + 2\n  "
   - dedent: ""
   - placeholder: '{% endif %}'
   - end_of_file: ""
