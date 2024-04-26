@@ -246,14 +246,6 @@ bigquery_dialect.add(
         ),
         OneOf(Sequence("ANY", "TYPE"), Ref("DatatypeSegment")),
     ),
-    ProcedureOptionListGrammar=MultiStringParser(
-        [
-            "strict_mode",
-            "description",
-        ],
-        CodeSegment,
-        type="procedure_option",
-    ),
 )
 
 
@@ -1104,6 +1096,7 @@ class TransactionStatementSegment(ansi.TransactionStatementSegment):
     match_grammar = Sequence(
         OneOf("BEGIN", "COMMIT", "ROLLBACK"),
         Ref.keyword("TRANSACTION", optional=True),
+        terminators=[Ref("DelimiterGrammar")],
     )
 
 
@@ -1116,6 +1109,9 @@ class BeginStatementSegment(BaseSegment):
     type = "begin_statement"
 
     match_grammar = Sequence(
+        Sequence(
+            Ref("SingleIdentifierFullGrammar"), Ref("ColonSegment"), optional=True
+        ),
         "BEGIN",
         Sequence(
             Indent,
@@ -1124,7 +1120,7 @@ class BeginStatementSegment(BaseSegment):
                     OneOf(Ref("StatementSegment"), Ref("MultiStatementSegment")),
                     Ref("DelimiterGrammar"),
                 ),
-                terminators=["END", "EXCEPTION"],
+                terminators=["EXCEPTION"],
                 reset_terminators=True,
                 min_times=1,
             ),
@@ -1141,7 +1137,6 @@ class BeginStatementSegment(BaseSegment):
                         Ref("DelimiterGrammar"),
                     ),
                     min_times=1,
-                    terminators=["END"],
                     reset_terminators=True,
                 ),
                 Dedent,
@@ -1150,6 +1145,7 @@ class BeginStatementSegment(BaseSegment):
             optional=True,
         ),
         "END",
+        Ref("SingleIdentifierFullGrammar", optional=True),
     )
 
 
@@ -2318,17 +2314,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ProcedureNameSegment"),
         Ref("ProcedureParameterListSegment"),
-        Sequence(
-            "OPTIONS",
-            Bracketed(
-                Delimited(
-                    Ref("ProcedureOptionListGrammar"),
-                    Ref("EqualsSegment"),
-                    Ref("BaseExpressionElementGrammar"),
-                ),
-            ),
-            optional=True,
-        ),
+        Ref("OptionsSegment", optional=True),
         Ref("BeginStatementSegment", reset_terminators=True),
     )
 

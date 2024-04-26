@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 74770a836c6719386553e34a46af49d2ff9ae82267af13f1ff1521885a434166
+_hash: e4cd1865f3249c47d6563862d76c7c584880f4ec5c126ddb23fe3b471517dc9d
 file:
 - multi_statement_segment:
     create_procedure_statement:
@@ -842,23 +842,20 @@ file:
                   data_type_identifier: INT64
               - end_angle_bracket: '>'
           end_bracket: )
-    - keyword: OPTIONS
-    - bracketed:
-      - start_bracket: (
-      - expression:
-          column_reference:
-            naked_identifier: strict_mode
-          comparison_operator:
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+        - start_bracket: (
+        - parameter: strict_mode
+        - comparison_operator:
             raw_comparison_operator: '='
-          boolean_literal: 'TRUE'
-      - comma: ','
-      - expression:
-          column_reference:
-            naked_identifier: description
-          comparison_operator:
+        - boolean_literal: 'TRUE'
+        - comma: ','
+        - parameter: description
+        - comparison_operator:
             raw_comparison_operator: '='
-          quoted_literal: "'''\nAuthor:\n'''"
-      - end_bracket: )
+        - quoted_literal: "'''\nAuthor:\n'''"
+        - end_bracket: )
     - begin_statement:
       - keyword: BEGIN
       - statement:
