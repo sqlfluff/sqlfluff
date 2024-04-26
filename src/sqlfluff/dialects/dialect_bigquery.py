@@ -1122,6 +1122,7 @@ class BeginStatementSegment(BaseSegment):
                     OneOf(Ref("StatementSegment"), Ref("MultiStatementSegment")),
                     Ref("DelimiterGrammar"),
                 ),
+                # We can't terminate on `END` due to possible nesting
                 terminators=["EXCEPTION"],
                 reset_terminators=True,
                 min_times=1,
@@ -1139,6 +1140,7 @@ class BeginStatementSegment(BaseSegment):
                         Ref("DelimiterGrammar"),
                     ),
                     min_times=1,
+                    # We can't terminate on `END` due to possible nesting
                     reset_terminators=True,
                 ),
                 Dedent,
