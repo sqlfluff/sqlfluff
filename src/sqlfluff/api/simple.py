@@ -171,6 +171,11 @@ def parse(
 
     Returns:
         :obj:`Dict[str, Any]` JSON containing the parsed structure.
+
+    Note:
+        In the case of multiple potential variants from the raw source file
+        only the first variant is returned by the simple API. For access to
+        the other variants, use the underlying main API directly.
     """
     cfg = config or get_simple_config(
         dialect=dialect,
@@ -180,11 +185,14 @@ def parse(
 
     parsed = linter.parse_string(sql)
     # If we encounter any parsing errors, raise them in a combined issue.
-    if parsed.violations:
-        raise APIParsingError(parsed.violations)
+    violations = parsed.violations
+    if violations:
+        raise APIParsingError(violations)
     # Return a JSON representation of the parse tree.
-    if parsed.tree is None:  # pragma: no cover
-        return {}
-    record = parsed.tree.as_record(show_raw=True)
+    # NOTE: For the simple API - only a single variant is returned.
+    root_variant = parsed.root_variant()
+    assert root_variant, "Files parsed without violations must have a valid variant"
+    assert root_variant.tree, "Files parsed without violations must have a valid tree"
+    record = root_variant.tree.as_record(show_raw=True)
     assert record
     return record

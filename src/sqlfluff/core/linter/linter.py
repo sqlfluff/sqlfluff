@@ -32,7 +32,12 @@ from sqlfluff.core.errors import (
     SQLTemplaterError,
 )
 from sqlfluff.core.helpers.file import get_encoding
-from sqlfluff.core.linter.common import ParsedString, RenderedFile, RuleTuple
+from sqlfluff.core.linter.common import (
+    ParsedString,
+    ParsedVariant,
+    RenderedFile,
+    RuleTuple,
+)
 from sqlfluff.core.linter.fix import apply_fixes, compute_anchor_edit_info
 from sqlfluff.core.linter.linted_dir import LintedDir
 from sqlfluff.core.linter.linted_file import (
@@ -304,49 +309,55 @@ class Linter:
         parse_statistics: bool = False,
     ) -> ParsedString:
         """Parse a rendered file."""
-        t0 = time.monotonic()
-        violations = cast(List[SQLBaseError], rendered.templater_violations)
         tokens: Optional[Sequence[BaseSegment]]
-        # TODO: We're limiting ourselves to only the first variant for now.
-        # We'll eventually parse more variants here.
-        if rendered.templated_variants:
-            _root_variant = rendered.templated_variants[0]
-            tokens, lex_errors = cls._lex_templated_file(_root_variant, rendered.config)
-            violations += lex_errors
-        else:
-            # Having no TemplatedFile to parse implies that templating failed.
-            # There will be no file or tokens to parse, but we'll still return
-            # a ParsedFile object and associated timings.
-            _root_variant = None
-            tokens = None
+        parsed_variants: List[ParsedVariant] = []
+        _lexing_time = 0.0
+        _parsing_time = 0.0
 
-        t1 = time.monotonic()
-        linter_logger.info("PARSING (%s)", rendered.fname)
-
-        if tokens:
-            parsed, parse_errors = cls._parse_tokens(
-                tokens,
-                rendered.config,
-                fname=rendered.fname,
-                parse_statistics=parse_statistics,
+        for idx, variant in enumerate(rendered.templated_variants):
+            t0 = time.monotonic()
+            linter_logger.info("Parse Rendered. Lexing Variant %s", idx)
+            tokens, lex_errors = cls._lex_templated_file(variant, rendered.config)
+            t1 = time.monotonic()
+            linter_logger.info("Parse Rendered. Parsing Variant %s", idx)
+            if tokens:
+                parsed, parse_errors = cls._parse_tokens(
+                    tokens,
+                    rendered.config,
+                    fname=rendered.fname,
+                    parse_statistics=parse_statistics,
+                )
+            else:  # pragma: no cover
+                parsed = None
+                parse_errors = []
+            _lt = t1 - t0
+            _pt = time.monotonic() - t1
+            linter_logger.info(
+                "Parse Rendered. Variant %s. Lex in %s. Parse in %s.", idx, _lt, _pt
             )
-            violations += parse_errors
-        else:
-            parsed = None
+            parsed_variants.append(
+                ParsedVariant(
+                    variant,
+                    parsed,
+                    lex_errors,
+                    parse_errors,
+                )
+            )
+            _lexing_time += _lt
+            _parsing_time += _pt
 
         time_dict = {
             **rendered.time_dict,
-            "lexing": t1 - t0,
-            "parsing": time.monotonic() - t1,
+            "lexing": _lexing_time,
+            "parsing": _parsing_time,
         }
         return ParsedString(
-            parsed,
-            violations,
-            time_dict,
-            _root_variant,
-            rendered.config,
-            rendered.fname,
-            rendered.source_str,
+            parsed_variants=parsed_variants,
+            templating_violations=rendered.templater_violations,
+            time_dict=time_dict,
+            config=rendered.config,
+            fname=rendered.fname,
+            source_str=rendered.source_str,
         )
 
     @classmethod
@@ -592,8 +603,15 @@ class Linter:
         """Lint a ParsedString and return a LintedFile."""
         violations = parsed.violations
         time_dict = parsed.time_dict
-        tree: Optional[BaseSegment]
-        if parsed.tree:
+        tree: Optional[BaseSegment] = None
+        # TODO: Eventually enable linting of more than just the first variant.
+        if parsed.parsed_variants:
+            tree = parsed.parsed_variants[0].tree
+            variant = parsed.parsed_variants[0].templated_file
+        else:
+            variant = None
+
+        if tree:
             t0 = time.monotonic()
             linter_logger.info("LINTING (%s)", parsed.fname)
             (
@@ -602,12 +620,12 @@ class Linter:
                 ignore_mask,
                 rule_timings,
             ) = cls.lint_fix_parsed(
-                parsed.tree,
+                tree,
                 config=parsed.config,
                 rule_pack=rule_pack,
                 fix=fix,
                 fname=parsed.fname,
-                templated_file=parsed.templated_file,
+                templated_file=variant,
                 formatter=formatter,
             )
             # Update the timing dict
@@ -617,8 +635,6 @@ class Linter:
             # than any generated during the fixing cycle.
             violations += initial_linting_errors
         else:
-            # If no parsed tree, set to None
-            tree = None
             ignore_mask = None
             rule_timings = []
             if not parsed.config.get("disable_noqa"):
@@ -649,7 +665,7 @@ class Linter:
             FileTimings(time_dict, rule_timings),
             tree,
             ignore_mask=ignore_mask,
-            templated_file=parsed.templated_file,
+            templated_file=variant,
             encoding=encoding,
         )
 
