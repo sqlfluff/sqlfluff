@@ -718,6 +718,94 @@ class JinjaTemplater(PythonTemplater):
         trace = tracer.trace(append_to_templated=kwargs.pop("append_to_templated", ""))
         return trace.raw_sliced, trace.sliced_file, trace.templated_str
 
+    @staticmethod
+    def _rectify_templated_slices(
+        length_deltas: Dict[int, int], sliced_template: List[TemplatedFileSlice]
+    ):
+        """This method rectifies the source slices of a variant template.
+
+        :TRICKY: We want to yield variants that _look like_ they were
+        rendered from the original template. However, they were actually
+        rendered from a modified template, which means they have source
+        indices which won't line up with the source files. We correct that
+        here by using the length deltas generated earlier from the
+        modifications.
+
+        This should ensure that lint issues and fixes for the variants are
+        handled correctly and can be combined with those from the original
+        template.
+        """
+        # NOTE: We sort the stack because it's important that it's in order
+        # because we're going to be popping from one end of it. There's no
+        # guarantee that the items are in a particular order a) because it's
+        # a dict and b) because they may have been generated out of order.
+        delta_stack = sorted(length_deltas.items(), key=lambda t: t[0])
+
+        adjusted_slices: List[TemplatedFileSlice] = []
+        carried_delta = 0
+        for tfs in sliced_template:
+            if delta_stack:
+                idx, d = delta_stack[0]
+                if idx == tfs.source_slice.start + carried_delta:
+                    adjusted_slices.append(
+                        tfs._replace(
+                            # "stretch" the slice by adjusting the end more
+                            # than the start.
+                            source_slice=slice(
+                                tfs.source_slice.start + carried_delta,
+                                tfs.source_slice.stop + carried_delta - d,
+                            )
+                        )
+                    )
+                    carried_delta -= d
+                    delta_stack.pop(0)
+                    continue
+
+            # No delta match. Just shift evenly.
+            adjusted_slices.append(
+                tfs._replace(
+                    source_slice=slice(
+                        tfs.source_slice.start + carried_delta,
+                        tfs.source_slice.stop + carried_delta,
+                    )
+                )
+            )
+        return adjusted_slices
+
+    @staticmethod
+    def _calculate_variant_score(
+        raw_sliced: List[RawFileSlice],
+        sliced_file: List[TemplatedFileSlice],
+        uncovered_slices: Set[int],
+        original_source_slices: Dict[int, slice],
+    ) -> int:
+        """Compute a score for the variant based from size of covered slices.
+
+        NOTE: We need to map this back to the positions in the original
+        file, and only have the positions in the modified file here.
+        That means we go translate back via the slice index in raw file.
+        """
+        # First, work out the literal positions in the modified file which
+        # are now covered.
+        covered_source_positions = {
+            tfs.source_slice.start
+            for tfs in sliced_file
+            if tfs.slice_type == "literal" and not is_zero_slice(tfs.templated_slice)
+        }
+        # Second, convert these back into indices so we can use them to
+        # refer to the unmodified source file.
+        covered_raw_slice_idxs = [
+            idx
+            for idx, raw_slice in enumerate(raw_sliced)
+            if raw_slice.source_idx in covered_source_positions
+        ]
+
+        return sum(
+            slice_length(original_source_slices[idx])
+            for idx in covered_raw_slice_idxs
+            if idx in uncovered_slices
+        )
+
     def _handle_unreached_code(
         self,
         in_str: str,
@@ -811,30 +899,11 @@ class JinjaTemplater(PythonTemplater):
                 else:
                     # Compute a score for the variant based on the size of initially
                     # uncovered literal slices it hits.
-                    # NOTE: We need to map this back to the positions in the original
-                    # file, and only have the positions in the modified file here.
-                    # That means we go translate back via the slice index in raw file.
-
-                    # First, work out the literal positions in the modified file which
-                    # are now covered.
-                    _covered_source_positions = {
-                        tfs.source_slice.start
-                        for tfs in trace.sliced_file
-                        if tfs.slice_type == "literal"
-                        and not is_zero_slice(tfs.templated_slice)
-                    }
-                    # Second, convert these back into indices so we can use them to
-                    # refer to the unmodified source file.
-                    _covered_raw_slice_idxs = [
-                        idx
-                        for idx, raw_slice in enumerate(trace.raw_sliced)
-                        if raw_slice.source_idx in _covered_source_positions
-                    ]
-
-                    score = sum(
-                        slice_length(original_source_slices[idx])
-                        for idx in _covered_raw_slice_idxs
-                        if idx in uncovered_slices
+                    score = self._calculate_variant_score(
+                        raw_sliced=trace.raw_sliced,
+                        sliced_file=trace.sliced_file,
+                        uncovered_slices=uncovered_slices,
+                        original_source_slices=original_source_slices,
                     )
 
                     variants[variant_raw_str] = (score, trace, length_deltas)
@@ -844,46 +913,13 @@ class JinjaTemplater(PythonTemplater):
             variants.values(), key=lambda v: v[0], reverse=True
         )
         for _, trace, deltas in sorted_variants[:max_variants_returned]:
-            # :TRICKY: We want to yield variants that _look like_ they were
-            # rendered from the original template. However, they were actually
-            # rendered from a modified template, which means they have source
-            # indices which won't line up with the source files. We correct that
-            # here by using the length deltas generated earlier from the
-            # modifications.
-            # This should ensure that lint issues and fixes for the variants are
-            # handled correctly and can be combined with those from the original
-            # template.
-            delta_stack = sorted(deltas.items(), key=lambda t: t[0])
-            adjusted_slices: List[TemplatedFileSlice] = []
-            carried_delta = 0
-            for tfs in trace.sliced_file:
-                if delta_stack:
-                    idx, d = delta_stack[0]
-                    if idx == tfs.source_slice.start + carried_delta:
-                        adjusted_slices.append(
-                            tfs._replace(
-                                # "stretch" the slice by adjusting the end more
-                                # than the start.
-                                source_slice=slice(
-                                    tfs.source_slice.start + carried_delta,
-                                    tfs.source_slice.stop + carried_delta - d,
-                                )
-                            )
-                        )
-                        carried_delta -= d
-                        delta_stack.pop(0)
-                        continue
-
-                # No delta match. Just shift evenly.
-                adjusted_slices.append(
-                    tfs._replace(
-                        source_slice=slice(
-                            tfs.source_slice.start + carried_delta,
-                            tfs.source_slice.stop + carried_delta,
-                        )
-                    )
-                )
-
+            # Rectify the source slices of the generated template, which should
+            # ensure that lint issues and fixes for the variants are handled
+            # correctly and can be combined with those from the original template.
+            adjusted_slices = self._rectify_templated_slices(
+                deltas,
+                trace.sliced_file,
+            )
             yield (
                 tracer_copy.raw_sliced,
                 adjusted_slices,
