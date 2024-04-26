@@ -509,6 +509,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("RaiseStatementSegment"),
             Ref("AlterViewStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
+            Ref("CreateMaterializedViewAsReplicaOfStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
             Ref("DropMaterializedViewStatementSegment"),
         ],
@@ -549,7 +550,7 @@ class ForInStatementsSegment(BaseSegment):
             Ref("DelimiterGrammar"),
         ),
         terminators=[Sequence("END", "FOR")],
-        parse_mode=ParseMode.GREEDY,
+        reset_terminators=True,
     )
 
 
@@ -592,7 +593,7 @@ class RepeatStatementsSegment(BaseSegment):
             Ref("DelimiterGrammar"),
         ),
         terminators=["UNTIL"],
-        parse_mode=ParseMode.GREEDY,
+        reset_terminators=True,
     )
 
 
@@ -635,7 +636,7 @@ class IfStatementsSegment(BaseSegment):
             "ELSEIF",
             Sequence("END", "IF"),
         ],
-        parse_mode=ParseMode.GREEDY,
+        reset_terminators=True,
     )
 
 
@@ -691,7 +692,7 @@ class LoopStatementsSegment(BaseSegment):
             Ref("DelimiterGrammar"),
         ),
         terminators=[Sequence("END", "LOOP")],
-        parse_mode=ParseMode.GREEDY,
+        reset_terminators=True,
     )
 
 
@@ -725,7 +726,7 @@ class WhileStatementsSegment(BaseSegment):
             Ref("DelimiterGrammar"),
         ),
         terminators=[Sequence("END", "WHILE")],
-        parse_mode=ParseMode.GREEDY,
+        reset_terminators=True,
     )
 
 
@@ -1063,6 +1064,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                     ),
                 ),
             ),
+            Ref("OptionsSegment", optional=True),
         )
     )
 
@@ -1090,6 +1092,16 @@ class ExceptClauseSegment(BaseSegment):
     )
 
 
+class TransactionStatementSegment(ansi.TransactionStatementSegment):
+    """A `BEGIN`, `COMMIT`, or `ROLLBACK` statement."""
+
+    match_grammar = Sequence(
+        OneOf("BEGIN", "COMMIT", "ROLLBACK"),
+        Ref.keyword("TRANSACTION", optional=True),
+        terminators=[Ref("DelimiterGrammar")],
+    )
+
+
 class BeginStatementSegment(BaseSegment):
     """A `BEGIN...EXCEPTION...END` statement.
 
@@ -1099,37 +1111,45 @@ class BeginStatementSegment(BaseSegment):
     type = "begin_statement"
 
     match_grammar = Sequence(
-        "BEGIN",
-        Indent,
-        AnyNumberOf(
-            Sequence(
-                Ref("StatementSegment"),
-                Ref("DelimiterGrammar"),
-            ),
-            min_times=1,
-            terminators=["END", "EXCEPTION"],
-            parse_mode=ParseMode.GREEDY,
-        ),
-        Dedent,
         Sequence(
-            "EXCEPTION",
-            "WHEN",
-            "ERROR",
-            "THEN",
+            Ref("SingleIdentifierFullGrammar"), Ref("ColonSegment"), optional=True
+        ),
+        "BEGIN",
+        Sequence(
             Indent,
             AnyNumberOf(
                 Sequence(
-                    Ref("StatementSegment"),
+                    OneOf(Ref("StatementSegment"), Ref("MultiStatementSegment")),
                     Ref("DelimiterGrammar"),
                 ),
+                # We can't terminate on `END` due to possible nesting
+                terminators=["EXCEPTION"],
+                reset_terminators=True,
                 min_times=1,
-                terminators=["END"],
-                parse_mode=ParseMode.GREEDY,
             ),
             Dedent,
+            Sequence(
+                "EXCEPTION",
+                "WHEN",
+                "ERROR",
+                "THEN",
+                Indent,
+                AnyNumberOf(
+                    Sequence(
+                        OneOf(Ref("StatementSegment"), Ref("MultiStatementSegment")),
+                        Ref("DelimiterGrammar"),
+                    ),
+                    min_times=1,
+                    # We can't terminate on `END` due to possible nesting
+                    reset_terminators=True,
+                ),
+                Dedent,
+                optional=True,
+            ),
             optional=True,
         ),
         "END",
+        Ref("SingleIdentifierFullGrammar", optional=True),
     )
 
 
@@ -1525,6 +1545,20 @@ class ClusterBySegment(BaseSegment):
     )
 
 
+class DefaultCollateSegment(BaseSegment):
+    """DEFAULT COLLATE clause for a table or a dataset.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/collation-concepts#default_collation
+    """
+
+    type = "default_collate"
+    match_grammar: Matchable = Sequence(
+        "DEFAULT",
+        "COLLATE",
+        Ref("LiteralGrammar"),
+    )
+
+
 class OptionsSegment(BaseSegment):
     """OPTIONS clause for a table."""
 
@@ -1593,6 +1627,22 @@ class ViewColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
     )
 
 
+class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
+    """A `CREATE SCHEMA` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_schema_statement
+    """
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("DefaultCollateSegment", optional=True),
+        Ref("OptionsSegment", optional=True),
+    )
+
+
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """`CREATE TABLE` statement.
 
@@ -1609,6 +1659,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Sequence(
             OneOf("COPY", "LIKE", "CLONE"),
             Ref("TableReferenceSegment"),
+            Ref("ForSystemTimeAsOfSegment", optional=True),
             optional=True,
         ),
         # Column list
@@ -1624,6 +1675,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             ),
             optional=True,
         ),
+        Ref("DefaultCollateSegment", optional=True),
         Ref("PartitionBySegment", optional=True),
         Ref("ClusterBySegment", optional=True),
         Ref("OptionsSegment", optional=True),
@@ -1850,6 +1902,27 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
         Ref("OptionsSegment", optional=True),
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
+    )
+
+
+class CreateMaterializedViewAsReplicaOfStatementSegment(BaseSegment):
+    """A `CREATE MATERIALIZED VIEW AS REPLICA OF` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_materialized_view_as_replica_of_statement
+    """
+
+    type = "create_materialized_view_as_replica_of_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        Ref("OptionsSegment", optional=True),
+        "AS",
+        "REPLICA",
+        "OF",
+        Ref("TableReferenceSegment"),
     )
 
 
@@ -2251,23 +2324,6 @@ class ProcedureParameterListSegment(BaseSegment):
     )
 
 
-class ProcedureStatements(BaseSegment):
-    """Statements within a CREATE PROCEDURE statement.
-
-    https://cloud.google.com/bigquery/docs/procedures
-    """
-
-    type = "procedure_statements"
-    match_grammar = AnyNumberOf(
-        Sequence(
-            Ref("StatementSegment"),
-            Ref("DelimiterGrammar"),
-        ),
-        terminators=["END"],
-        parse_mode=ParseMode.GREEDY,
-    )
-
-
 class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE PROCEDURE` statement.
 
@@ -2283,19 +2339,8 @@ class CreateProcedureStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ProcedureNameSegment"),
         Ref("ProcedureParameterListSegment"),
-        Sequence(
-            "OPTIONS",
-            "strict_mode",
-            StringParser("strict_mode", CodeSegment, type="procedure_option"),
-            Ref("EqualsSegment"),
-            Ref("BooleanLiteralGrammar"),
-            optional=True,
-        ),
-        "BEGIN",
-        Indent,
-        Ref("ProcedureStatements"),
-        Dedent,
-        "END",
+        Ref("OptionsSegment", optional=True),
+        Ref("BeginStatementSegment", reset_terminators=True),
     )
 
 

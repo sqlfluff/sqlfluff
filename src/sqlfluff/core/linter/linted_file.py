@@ -69,7 +69,7 @@ class LintedFile(NamedTuple):
     timings: Optional[FileTimings]
     tree: Optional[BaseSegment]
     ignore_mask: Optional[IgnoreMask]
-    templated_file: TemplatedFile
+    templated_file: Optional[TemplatedFile]
     encoding: str
 
     def check_tuples(
@@ -194,8 +194,9 @@ class LintedFile(NamedTuple):
         completely dialect agnostic. A Segment is determined by the
         Lexer from portions of strings after templating.
         """
+        assert self.templated_file, "Fixing a string requires successful templating."
         linter_logger.debug("Original Tree: %r", self.templated_file.templated_str)
-        assert self.tree
+        assert self.tree, "Fixing a string requires successful parsing."
         linter_logger.debug("Fixed Tree: %r", self.tree.raw)
 
         # The sliced file is contiguous in the TEMPLATED space.

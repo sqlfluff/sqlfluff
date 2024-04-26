@@ -20,6 +20,7 @@ from jinja2.parser import Parser
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile, SQLFluffUserError, SQLTemplaterError
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters import JinjaTemplater
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 from sqlfluff.core.templaters.jinja import DummyUndefined
@@ -40,6 +41,15 @@ JINJA_MACRO_CALL_SQL = (
     "    {% endcall %}\n"
     "FROM baz\n"
 )
+
+
+def get_parsed(path: str) -> BaseSegment:
+    """Testing helper to parse paths."""
+    linter = Linter()
+    # Get the first file matching the path string
+    first_path = next(linter.parse_path(path))
+    # Delegate parse assertions to the `.tree` property
+    return first_path.tree
 
 
 @pytest.mark.parametrize(
@@ -594,26 +604,32 @@ def test__templater_jinja_error_syntax():
     """Test syntax problems in the jinja templater."""
     t = JinjaTemplater()
     instr = "SELECT {{foo} FROM jinja_error\n"
-    outstr, vs = t.process(
-        in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
-    )
-    # Check we just skip templating.
-    assert str(outstr) == instr
-    # Check we have violations.
-    assert len(vs) > 0
-    # Check one of them is a templating error on line 1
-    assert any(v.rule_code() == "TMP" and v.line_no == 1 for v in vs)
+    with pytest.raises(SQLTemplaterError) as excinfo:
+        t.process(
+            in_str=instr,
+            fname="test",
+            config=FluffConfig(overrides={"dialect": "ansi"}),
+        )
+    templater_exception = excinfo.value
+    assert templater_exception.rule_code() == "TMP"
+    assert templater_exception.line_no == 1
+    assert "Failed to parse Jinja syntax" in str(templater_exception)
 
 
 def test__templater_jinja_error_catastrophic():
     """Test error handling in the jinja templater."""
     t = JinjaTemplater(override_context=dict(blah=7))
     instr = JINJA_STRING
-    outstr, vs = t.process(
-        in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
-    )
-    assert not outstr
-    assert len(vs) > 0
+    with pytest.raises(SQLTemplaterError) as excinfo:
+        t.process(
+            in_str=instr,
+            fname="test",
+            config=FluffConfig(overrides={"dialect": "ansi"}),
+        )
+    templater_exception = excinfo.value
+    assert templater_exception.rule_code() == "TMP"
+    assert templater_exception.line_no == 1
+    assert "Unrecoverable failure in Jinja templating" in str(templater_exception)
 
 
 def test__templater_jinja_error_macro_path_does_not_exist():
@@ -651,29 +667,25 @@ def test__templater_jinja_lint_empty():
     """
     lntr = Linter(dialect="ansi")
     parsed = lntr.parse_string(in_str='{{ "" }}')
-    assert parsed.templated_file.source_str == '{{ "" }}'
-    assert parsed.templated_file.templated_str == ""
+    parsed_variant = parsed.parsed_variants[0]
+    assert parsed_variant.templated_file.source_str == '{{ "" }}'
+    assert parsed_variant.templated_file.templated_str == ""
     # Get the types of the segments
-    print(f"Segments: {parsed.tree.raw_segments}")
-    seg_types = [seg.get_type() for seg in parsed.tree.raw_segments]
+    print(f"Segments: {parsed_variant.tree.raw_segments}")
+    seg_types = [seg.get_type() for seg in parsed_variant.tree.raw_segments]
     assert seg_types == ["placeholder", "end_of_file"]
 
 
 def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
     """Check that a parsed sql file matches the yaml file with the same name."""
-    lntr = Linter()
-    p = list(lntr.parse_path(path + ".sql"))
-    parsed = p[0][0]
-    if parsed is None:
-        print(p)
-        raise RuntimeError(p[0][1])
+    parsed = get_parsed(path + ".sql")
     # Whitespace is important here to test how that's treated
     tpl = parsed.to_tuple(code_only=code_only, show_raw=True, include_meta=include_meta)
     # Check nothing unparsable
     if "unparsable" in parsed.type_set():
         print(parsed.stringify())
         raise ValueError("Input file is unparsable.")
-    _hash, expected = yaml_loader(path + ".yml")
+    _, expected = yaml_loader(path + ".yml")
     assert tpl == expected
 
 
@@ -749,9 +761,7 @@ def test__templater_jinja_block_matching(caplog):
     caplog.set_level(logging.DEBUG, logger="sqlfluff.lexer")
     path = "test/fixtures/templater/jinja_l_metas/002.sql"
     # Parse the file.
-    p = list(Linter().parse_path(path))
-    parsed = p[0][0]
-    assert parsed
+    parsed = get_parsed(path)
     # We only care about the template elements
     template_segments = [
         seg
