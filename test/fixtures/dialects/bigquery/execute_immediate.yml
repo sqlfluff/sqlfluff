@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0609926ee054a9766c98730f41fe5a39b36228650104e8dd33cdee7285501352
+_hash: 0073b11191c8a2fce82283d0cde9270748421d685bd50e315beebc4a37cd3cd8
 file:
 - statement:
     declare_segment:
@@ -25,9 +25,9 @@ file:
       naked_identifier: var_1
       comparison_operator:
         raw_comparison_operator: '='
-      quoted_literal: "'''\ninsert into project.data_set.table \nselect \n  \"%s\"\
-        \ as var_1, \n  count(*) as column_1 \nfrom (\n  select column_3 \n  from\
-        \ %s.column_2 \n  group by var_3 having count(var_3) > 1\n)\n'''"
+      quoted_literal: "'''\ninsert into project.data_set.table\nselect\n  \"%s\" as\
+        \ var_1,\n  count(*) as column_1\nfrom (\n  select column_3\n  from %s.column_2\n\
+        \  group by var_3 having count(var_3) > 1\n)\n'''"
 - statement_terminator: ;
 - statement:
     create_table_statement:
