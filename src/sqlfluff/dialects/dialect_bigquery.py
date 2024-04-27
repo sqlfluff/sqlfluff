@@ -512,6 +512,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateMaterializedViewAsReplicaOfStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
             Ref("DropMaterializedViewStatementSegment"),
+            Ref("CreateRowAccessPolicyStatementSegment"),
         ],
     )
 
@@ -1559,6 +1560,24 @@ class DefaultCollateSegment(BaseSegment):
     )
 
 
+class GrantToSegment(BaseSegment):
+    """GRANT TO (grantee_list).
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_row_access_policy_statement
+    """
+
+    type = "grant_to_segment"
+    match_grammar: Matchable = Sequence(
+        "GRANT",
+        "TO",
+        Bracketed(
+            Delimited(
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+    )
+
+
 class OptionsSegment(BaseSegment):
     """OPTIONS clause for a table."""
 
@@ -2433,5 +2452,32 @@ class RaiseStatementSegment(BaseSegment):
             Ref("EqualsSegment"),
             Ref("ExpressionSegment"),
             optional=True,
+        ),
+    )
+
+
+class CreateRowAccessPolicyStatementSegment(BaseSegment):
+    """A `CREATE ROW ACCESS POLICY` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_row_access_policy_statement
+    """
+
+    type = "create_row_access_policy_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "ROW",
+        "ACCESS",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("NakedIdentifierSegment"),  # row_access_policy_name
+        "ON",
+        Ref("TableReferenceSegment"),
+        Ref("GrantToSegment", optional=True),
+        "FILTER",
+        "USING",
+        Bracketed(
+            Ref("ExpressionSegment"),
         ),
     )
