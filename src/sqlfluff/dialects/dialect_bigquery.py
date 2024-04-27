@@ -500,6 +500,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ExportStatementSegment"),
             Ref("CreateExternalTableStatementSegment"),
             Ref("CreateSnapshotTableStatementSegment"),
+            Ref("ExecuteImmediateSegment"),
             Ref("AssertStatementSegment"),
             Ref("CallStatementSegment"),
             Ref("ReturnStatementSegment"),
@@ -1519,6 +1520,40 @@ class SetStatementSegment(BaseSegment):
                 Ref("ArrayLiteralSegment"),
                 Ref("ExpressionSegment"),
             ),
+        ),
+    )
+
+
+class ExecuteImmediateSegment(BaseSegment):
+    """An EXECUTE IMMEDIATE statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#execute_immediate
+    """
+
+    type = "execute_immediate"
+    match_grammar = Sequence(
+        "EXECUTE",
+        "IMMEDIATE",
+        OptionallyBracketed(
+            OneOf(
+                Ref("QuotedLiteralSegment"),  # String
+                Ref("SingleIdentifierFullGrammar"),  # Variable
+                Ref("FunctionSegment"),  # Function
+                Ref("CaseExpressionSegment"),  # Conditional Expression
+                Bracketed(Ref("SelectableGrammar")),  # Expression Subquery
+            )
+        ),
+        Sequence("INTO", Delimited(Ref("SingleIdentifierFullGrammar")), optional=True),
+        Sequence(
+            "USING",
+            Delimited(
+                Sequence(
+                    Ref("BaseExpressionElementGrammar"),
+                    # The `AS` is required when using an alias in this context
+                    Sequence("AS", Ref("SingleIdentifierFullGrammar"), optional=True),
+                ),
+            ),
+            optional=True,
         ),
     )
 
