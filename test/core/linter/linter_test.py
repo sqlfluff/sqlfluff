@@ -490,10 +490,17 @@ def test__linter__templating_fail():
 
 
 @pytest.mark.parametrize(
-    "ignore_templated_areas,check_tuples",
+    "path,rules,ignore_templated_areas,check_tuples",
     [
-        (True, [("LT01", 3, 39), ("LT01", 3, 40)]),
         (
+            "test/fixtures/templater/jinja_h_macros/jinja.sql",
+            "L006",
+            True,
+            [("LT01", 3, 39), ("LT01", 3, 40)],
+        ),
+        (
+            "test/fixtures/templater/jinja_h_macros/jinja.sql",
+            "L006",
             False,
             [
                 # there are still two of each because LT01 checks
@@ -505,9 +512,23 @@ def test__linter__templating_fail():
                 ("LT01", 3, 40),
             ],
         ),
+        (
+            "test/fixtures/linter/jinja_variants/simple_CP01.sql",
+            "CP01",
+            False,
+            [
+                # We should get violations from both sides of the if
+                # statement without doubling up on the one outside.
+                ("CP01", 2, 10),
+                ("CP01", 2, 34),
+                ("CP01", 2, 52),
+            ],
+        ),
     ],
 )
-def test__linter__mask_templated_violations(ignore_templated_areas, check_tuples):
+def test__linter__mask_templated_violations(
+    path, rules, ignore_templated_areas, check_tuples
+):
     """Test linter masks files properly around templated content.
 
     NOTE: this also tests deduplication of fixes which have the same
@@ -516,13 +537,13 @@ def test__linter__mask_templated_violations(ignore_templated_areas, check_tuples
     lntr = Linter(
         config=FluffConfig(
             overrides={
-                "rules": "L006",
+                "rules": rules,
                 "ignore_templated_areas": ignore_templated_areas,
                 "dialect": "ansi",
             }
         )
     )
-    linted = lntr.lint_path(path="test/fixtures/templater/jinja_h_macros/jinja.sql")
+    linted = lntr.lint_path(path=path)
     assert linted.check_tuples() == check_tuples
 
 
