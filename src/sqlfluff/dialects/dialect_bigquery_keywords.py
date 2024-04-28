@@ -102,7 +102,8 @@ WITHIN"""
 
 # Note BigQuery doesn't have a list of Unreserved Keywords
 # so these are just ones we need to allow parsing to work
-bigquery_unreserved_keywords = """ACCOUNT
+bigquery_unreserved_keywords = """ACCESS
+ACCOUNT
 ADD
 ADMIN
 AFTER
