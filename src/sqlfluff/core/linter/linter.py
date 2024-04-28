@@ -604,40 +604,55 @@ class Linter:
         violations = parsed.violations
         time_dict = parsed.time_dict
         tree: Optional[BaseSegment] = None
-        # TODO: Eventually enable linting of more than just the first variant.
-        if parsed.parsed_variants:
-            tree = parsed.parsed_variants[0].tree
-            variant = parsed.parsed_variants[0].templated_file
-        else:
-            variant = None
+        templated_file: Optional[TemplatedFile] = None
+        t0 = time.monotonic()
 
-        if tree:
-            t0 = time.monotonic()
-            linter_logger.info("LINTING (%s)", parsed.fname)
+        # First identify the root variant. That's the first variant
+        # that successfully parsed.
+        root_variant: Optional[ParsedVariant] = None
+        for variant in parsed.parsed_variants:
+            if variant.tree:
+                root_variant = variant
+                break
+        else:
+            linter_logger.info(
+                "lint_parsed found no valid root variant for %s", parsed.fname
+            )
+
+        # If there is a root variant, handle that first.
+        if root_variant:
+            linter_logger.info("lint_parsed - linting root variant (%s)", parsed.fname)
+            assert root_variant.tree  # We just checked this.
             (
-                tree,
+                fixed_tree,
                 initial_linting_errors,
                 ignore_mask,
                 rule_timings,
             ) = cls.lint_fix_parsed(
-                tree,
+                root_variant.tree,
                 config=parsed.config,
                 rule_pack=rule_pack,
                 fix=fix,
                 fname=parsed.fname,
-                templated_file=variant,
+                templated_file=variant.templated_file,
                 formatter=formatter,
             )
-            # Update the timing dict
-            time_dict["linting"] = time.monotonic() - t0
+
+            # Set legacy variables for now
+            # TODO: Revise this
+            templated_file = variant.templated_file
+            tree = fixed_tree
 
             # We're only going to return the *initial* errors, rather
             # than any generated during the fixing cycle.
             violations += initial_linting_errors
+        # If no root variant, we should still apply ignores to any parsing
+        # or templating fails.
         else:
-            ignore_mask = None
             rule_timings = []
-            if not parsed.config.get("disable_noqa"):
+            if parsed.config.get("disable_noqa"):
+                ignore_mask = None
+            else:
                 # Templating and/or parsing have failed. Look for "noqa"
                 # comments (the normal path for identifying these comments
                 # requires access to the parse tree, and because of the failure,
@@ -653,6 +668,9 @@ class Linter:
                 )
                 violations += ignore_violations
 
+        # Update the timing dict
+        time_dict["linting"] = time.monotonic() - t0
+
         # We process the ignore config here if appropriate
         for violation in violations:
             violation.ignore_if_in(parsed.config.get("ignore"))
@@ -665,7 +683,7 @@ class Linter:
             FileTimings(time_dict, rule_timings),
             tree,
             ignore_mask=ignore_mask,
-            templated_file=variant,
+            templated_file=templated_file,
             encoding=encoding,
         )
 
