@@ -674,6 +674,9 @@ class Linter:
         else:
             rule_timings = []
             if parsed.config.get("disable_noqa"):
+                # NOTE: This path is only accessible if there is no valid `tree`
+                # which implies that there was a fatal templating fail. Even an
+                # unparsable file will still have a valid tree.
                 ignore_mask = None
             else:
                 # Templating and/or parsing have failed. Look for "noqa"
