@@ -500,6 +500,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ExportStatementSegment"),
             Ref("CreateExternalTableStatementSegment"),
             Ref("CreateSnapshotTableStatementSegment"),
+            Ref("ExecuteImmediateSegment"),
             Ref("AssertStatementSegment"),
             Ref("CallStatementSegment"),
             Ref("ReturnStatementSegment"),
@@ -512,6 +513,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateMaterializedViewAsReplicaOfStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
             Ref("DropMaterializedViewStatementSegment"),
+            Ref("CreateRowAccessPolicyStatementSegment"),
         ],
     )
 
@@ -1523,6 +1525,40 @@ class SetStatementSegment(BaseSegment):
     )
 
 
+class ExecuteImmediateSegment(BaseSegment):
+    """An EXECUTE IMMEDIATE statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#execute_immediate
+    """
+
+    type = "execute_immediate"
+    match_grammar = Sequence(
+        "EXECUTE",
+        "IMMEDIATE",
+        OptionallyBracketed(
+            OneOf(
+                Ref("QuotedLiteralSegment"),  # String
+                Ref("SingleIdentifierFullGrammar"),  # Variable
+                Ref("FunctionSegment"),  # Function
+                Ref("CaseExpressionSegment"),  # Conditional Expression
+                Bracketed(Ref("SelectableGrammar")),  # Expression Subquery
+            )
+        ),
+        Sequence("INTO", Delimited(Ref("SingleIdentifierFullGrammar")), optional=True),
+        Sequence(
+            "USING",
+            Delimited(
+                Sequence(
+                    Ref("BaseExpressionElementGrammar"),
+                    # The `AS` is required when using an alias in this context
+                    Sequence("AS", Ref("SingleIdentifierFullGrammar"), optional=True),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
 class PartitionBySegment(BaseSegment):
     """PARTITION BY partition_expression."""
 
@@ -1556,6 +1592,24 @@ class DefaultCollateSegment(BaseSegment):
         "DEFAULT",
         "COLLATE",
         Ref("LiteralGrammar"),
+    )
+
+
+class GrantToSegment(BaseSegment):
+    """GRANT TO (grantee_list).
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_row_access_policy_statement
+    """
+
+    type = "grant_to_segment"
+    match_grammar: Matchable = Sequence(
+        "GRANT",
+        "TO",
+        Bracketed(
+            Delimited(
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
     )
 
 
@@ -2433,5 +2487,32 @@ class RaiseStatementSegment(BaseSegment):
             Ref("EqualsSegment"),
             Ref("ExpressionSegment"),
             optional=True,
+        ),
+    )
+
+
+class CreateRowAccessPolicyStatementSegment(BaseSegment):
+    """A `CREATE ROW ACCESS POLICY` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_row_access_policy_statement
+    """
+
+    type = "create_row_access_policy_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "ROW",
+        "ACCESS",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("NakedIdentifierSegment"),  # row_access_policy_name
+        "ON",
+        Ref("TableReferenceSegment"),
+        Ref("GrantToSegment", optional=True),
+        "FILTER",
+        "USING",
+        Bracketed(
+            Ref("ExpressionSegment"),
         ),
     )
