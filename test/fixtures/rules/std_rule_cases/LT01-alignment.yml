@@ -201,13 +201,13 @@ test_align_multiple_multiple_lines_b:
     CREATE TABLE foo (
         x INT NOT NULL PRIMARY KEY,
         y INT NULL,
-        z INT NULL,
+        z INT NULL
     );
   fix_str: |
     CREATE TABLE foo (
         x INT NOT NULL PRIMARY KEY,
         y INT NULL,
-        z INT NULL,
+        z INT NULL
     );
   configs:
     layout:
