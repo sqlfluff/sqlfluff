@@ -242,7 +242,7 @@ def _determine_aligned_inline_spacing(
         assert _pos
 
         # We should purge any siblings on the same line as the target. This requires
-        # line no to match and line position to mismatch.
+        # line number to match and line position to mismatch.
         if (
             _pos.working_line_no == next_pos.working_line_no
             and _pos.working_line_pos != next_pos.working_line_pos
