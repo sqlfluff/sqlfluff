@@ -240,6 +240,16 @@ def _determine_aligned_inline_spacing(
     for sibling in siblings[:]:
         _pos = sibling.pos_marker
         assert _pos
+
+        # We should purge any siblings on the same line as the target. This requires
+        # line no to match and line position to mismatch.
+        if (
+            _pos.working_line_no == next_pos.working_line_no
+            and _pos.working_line_pos != next_pos.working_line_pos
+        ):
+            siblings.remove(sibling)
+            continue
+
         _best_seen = _earliest_siblings.get(_pos.working_line_no, None)
         # If we've already seen an earlier sibling on this line, ignore the later one.
         if _best_seen is not None and _pos.working_line_pos > _best_seen:
@@ -247,12 +257,6 @@ def _determine_aligned_inline_spacing(
             continue
         # Update best seen
         _earliest_siblings[_pos.working_line_no] = _pos.working_line_pos
-
-        # We should also purge the sibling which matches the target.
-        if _pos.working_line_no == next_pos.working_line_no:
-            # Is it in the same position?
-            if _pos.working_line_pos != next_pos.working_line_pos:
-                siblings.remove(sibling)
 
     # If there's only one sibling, we have nothing to compare to. Default to a single
     # space.
