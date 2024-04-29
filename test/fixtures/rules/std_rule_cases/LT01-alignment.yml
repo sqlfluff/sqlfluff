@@ -169,7 +169,9 @@ test_align_multiple_b:
           spacing_before: align
           align_within: create_table_statement
 
-test_align_multiple_three_columns:
+test_align_multiple_multiple_lines_a:
+  # If there are multiple options on several lines, always choose the first
+  # to align with, related to https://github.com/sqlfluff/sqlfluff/pull/5823
   fail_str: |
     create table tab (
         foo    varchar(25)  not null,
@@ -182,6 +184,31 @@ test_align_multiple_three_columns:
         barbar  int         not null unique,
         barbara varchar(5)  not null primary key
     )
+  configs:
+    layout:
+      type:
+        data_type:
+          spacing_before: align
+          align_within: create_table_statement
+        column_constraint_segment:
+          spacing_before: align
+          align_within: create_table_statement
+
+test_align_multiple_multiple_lines_b:
+  # If there are multiple options only on one of several lines, still align
+  # correctly, related to https://github.com/sqlfluff/sqlfluff/pull/5823
+  fail_str: |
+    CREATE TABLE foo (
+        x INT NOT NULL PRIMARY KEY,
+        y INT NULL,
+        z INT NULL,
+    );
+  fix_str: |
+    CREATE TABLE foo (
+        x INT NOT NULL PRIMARY KEY,
+        y INT NULL,
+        z INT NULL,
+    );
   configs:
     layout:
       type:
