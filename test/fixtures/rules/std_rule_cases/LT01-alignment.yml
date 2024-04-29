@@ -2,11 +2,11 @@ rule: LT01
 
 test_excess_space_without_align_alias:
   fail_str: |
-    SELECT
-        a    AS first_column,
-        b      AS second_column,
-        (a + b) / 2 AS third_column
-    FROM foo
+        SELECT
+            a    AS first_column,
+            b      AS second_column,
+            (a + b) / 2 AS third_column
+        FROM foo
   fix_str: |
     SELECT
         a AS first_column,
@@ -24,11 +24,11 @@ test_excess_space_without_align_alias:
 test_excess_space_with_align_alias:
   # NOTE: The config here shouldn't move the table alias
   fail_str: |
-    SELECT
-        a    AS first_column,
-        b      AS second_column,
-        (a + b) / 2 AS third_column
-    FROM foo   AS bar
+        SELECT
+            a    AS first_column,
+            b      AS second_column,
+            (a + b) / 2 AS third_column
+        FROM foo   AS bar
   fix_str: |
     SELECT
         a           AS first_column,
@@ -45,11 +45,11 @@ test_excess_space_with_align_alias:
 
 test_missing_keyword_with_align_alias:
   fail_str: |
-    SELECT
-        a    first_column,
-        b      AS second_column,
-        (a + b) / 2 AS third_column
-    FROM foo
+        SELECT
+            a    first_column,
+            b      AS second_column,
+            (a + b) / 2 AS third_column
+        FROM foo
   fix_str: |
     SELECT
         a           first_column,
@@ -60,11 +60,11 @@ test_missing_keyword_with_align_alias:
 
 test_skip_alias_with_align_alias:
   fail_str: |
-    SELECT
-        a   ,
-        b   ,
-        (a   +   b) /   2
-    FROM foo
+        SELECT
+            a   ,
+            b   ,
+            (a   +   b) /   2
+        FROM foo
   fix_str: |
     SELECT
         a,
