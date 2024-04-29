@@ -235,3 +235,25 @@ test_align_multiple_all:
         column_constraint_segment:
           spacing_before: align
           align_within: create_table_statement
+
+test_align_multiple_operators:
+  # Unrealistic but more stretching with several lines which
+  # have different numbers of the same target.
+  fail_str: |
+    select
+        1+123+12345 as foo,
+        123456+1+12+56 as bar,
+        1234+123456789 as baz
+    from t
+  fix_str: |
+    select
+        1      + 123 + 12345 as foo,
+        123456 + 1   + 12 + 56 as bar,
+        1234   + 123456789 as baz
+    from t
+  configs:
+    layout:
+      type:
+        binary_operator:
+          spacing_before: align
+          align_within: select_statement
