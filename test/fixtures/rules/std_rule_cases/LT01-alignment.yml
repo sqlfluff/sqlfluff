@@ -212,3 +212,26 @@ test_align_multiple_multiple_lines_b:
         column_constraint_segment:
           spacing_before: align
           align_within: create_table_statement
+
+test_align_multiple_all:
+  fail_str: |
+    create table tab1 (
+        a    varchar(25)  not null,
+        b int not null unique references tab2(b),
+        c varchar(5) not null primary key references tab2(c)
+    )
+  fix_str: |
+    create table tab1 (
+        a varchar(25) not null,
+        b int         not null unique      references tab2 (b),
+        c varchar(5)  not null primary key references tab2 (c)
+    )
+  configs:
+    layout:
+      type:
+        data_type:
+          spacing_before: align
+          align_within: create_table_statement
+        column_constraint_segment:
+          spacing_before: align
+          align_within: create_table_statement
