@@ -197,13 +197,7 @@ test_align_multiple_multiple_lines_a:
 test_align_multiple_multiple_lines_b:
   # If there are multiple options only on one of several lines, still align
   # correctly, related to https://github.com/sqlfluff/sqlfluff/pull/5823
-  fail_str: |
-    CREATE TABLE foo (
-        x INT NOT NULL PRIMARY KEY,
-        y INT NULL,
-        z INT NULL
-    );
-  fix_str: |
+  pass_str: |
     CREATE TABLE foo (
         x INT NOT NULL PRIMARY KEY,
         y INT NULL,
