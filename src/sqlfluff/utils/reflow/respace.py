@@ -1,6 +1,7 @@
 """Static methods to support ReflowPoint.respace_point()."""
 
 import logging
+from collections import defaultdict
 from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, cast
 
 from sqlfluff.core.errors import SQLFluffUserError
@@ -235,24 +236,38 @@ def _determine_aligned_inline_spacing(
     if next_seg.pos_marker:
         next_pos = next_seg.pos_marker
 
-    # Purge any siblings which are either self, or on the same line but after it.
-    _earliest_siblings: Dict[int, int] = {}
-    for sibling in siblings[:]:
+    # Purge any siblings which are either on the same line or on another line and
+    # have another index
+    siblings_by_line: Dict[int, List[BaseSegment]] = defaultdict(list)
+    for sibling in siblings:
         _pos = sibling.pos_marker
         assert _pos
-        _best_seen = _earliest_siblings.get(_pos.working_line_no, None)
-        # If we've already seen an earlier sibling on this line, ignore the later one.
-        if _best_seen is not None and _pos.working_line_pos > _best_seen:
-            siblings.remove(sibling)
-            continue
-        # Update best seen
-        _earliest_siblings[_pos.working_line_no] = _pos.working_line_pos
+        siblings_by_line[_pos.working_line_no].append(sibling)
 
-        # We should also purge the sibling which matches the target.
-        if _pos.working_line_no == next_pos.working_line_no:
-            # Is it in the same position?
-            if _pos.working_line_pos != next_pos.working_line_pos:
-                siblings.remove(sibling)
+    # Sort all segments by position to easily access index information
+    for line_siblings in siblings_by_line.values():
+        line_siblings.sort(
+            key=lambda s: cast(PositionMarker, s.pos_marker).working_line_pos
+        )
+
+    target_index = next(
+        idx
+        for idx, segment in enumerate(siblings_by_line[next_pos.working_line_no])
+        if (
+            cast(PositionMarker, segment.pos_marker).working_line_pos
+            == next_pos.working_line_pos
+        )
+    )
+
+    # Now that we know the target index, we can extract the relevant segment from
+    # all lines
+    siblings = [
+        segment
+        for segments in siblings_by_line.values()
+        for segment in (
+            [segments[target_index]] if target_index < len(segments) else []
+        )
+    ]
 
     # If there's only one sibling, we have nothing to compare to. Default to a single
     # space.
