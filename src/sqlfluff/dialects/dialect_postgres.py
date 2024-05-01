@@ -2446,6 +2446,7 @@ class CreateExtensionStatementSegment(BaseSegment):
         Sequence("SCHEMA", Ref("SchemaReferenceSegment"), optional=True),
         Sequence("VERSION", Ref("VersionIdentifierSegment"), optional=True),
         Sequence("FROM", Ref("VersionIdentifierSegment"), optional=True),
+        Ref.keyword("CASCADE", optional=True),
     )
 
 
