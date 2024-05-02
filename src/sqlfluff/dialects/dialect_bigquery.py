@@ -1838,30 +1838,29 @@ class AlterSchemaStatementSegment(BaseSegment):
         "SCHEMA",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        Sequence(
-            "SET",
-            OneOf(
-                # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_schema_collate_statement
-                Ref("DefaultCollateSegment"),
-                # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_schema_set_options_statement
-                Ref("OptionsSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                OneOf(
+                    # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_schema_collate_statement
+                    Ref("DefaultCollateSegment"),
+                    # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_schema_set_options_statement
+                    Ref("OptionsSegment"),
+                ),
             ),
-            optional=True,
-        ),
-        # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_schema_add_replica_statement
-        Sequence(
-            "ADD",
-            "REPLICA",
-            Ref("BaseExpressionElementGrammar"),
-            Ref("OptionsSegment", optional=True),
-            optional=True,
-        ),
-        # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_schema_drop_replica_statement
-        Sequence(
-            "DROP",
-            "REPLICA",
-            Ref("BaseExpressionElementGrammar"),
-            optional=True,
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_schema_add_replica_statement
+            Sequence(
+                "ADD",
+                "REPLICA",
+                Ref("BaseExpressionElementGrammar"),
+                Ref("OptionsSegment", optional=True),
+            ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_schema_drop_replica_statement
+            Sequence(
+                "DROP",
+                "REPLICA",
+                Ref("BaseExpressionElementGrammar"),
+            ),
         ),
     )
 
