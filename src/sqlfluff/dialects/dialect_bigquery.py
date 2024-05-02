@@ -1838,10 +1838,10 @@ class AlterSchemaStatementSegment(BaseSegment):
         "SCHEMA",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_schema_collate_statement
         Sequence(
             "SET",
             OneOf(
+                # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_schema_collate_statement
                 Ref("DefaultCollateSegment"),
                 # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_schema_set_options_statement
                 Ref("OptionsSegment"),
