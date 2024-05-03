@@ -457,15 +457,21 @@ class DbtTemplater(JinjaTemplater):
         fname_absolute_path = os.path.abspath(fname) if fname != "stdin" else fname
 
         try:
-            # These are the names in dbt-core 1.4.1+
+            # These are the historic names in dbt-core 1.4.1+
             # https://github.com/dbt-labs/dbt-core/pull/6539
             from dbt.exceptions import CompilationError, FailedToConnectError
         except ImportError:
-            # These are the historic names for older dbt-core versions
-            from dbt.exceptions import CompilationException as CompilationError
-            from dbt.exceptions import (
-                FailedToConnectException as FailedToConnectError,
-            )
+            try:
+                # These are the historic names for even older dbt-core versions
+                from dbt.exceptions import CompilationException as CompilationError
+                from dbt.exceptions import (
+                    FailedToConnectException as FailedToConnectError,
+                )
+            except ImportError:
+                # These are the import paths in dbt-core 1.8.0+
+                # https://github.com/dbt-labs/dbt-core/pull/9368
+                from dbt.adapters.exceptions import FailedToConnectError
+                from dbt_common.exceptions import CompilationError
 
         try:
             os.chdir(self.project_dir)
@@ -626,12 +632,17 @@ class DbtTemplater(JinjaTemplater):
         )
 
         try:
-            # These are the names in dbt-core 1.4.1+
+            # These are the historic names in dbt-core 1.4.1+
             # https://github.com/dbt-labs/dbt-core/pull/6539
             from dbt.exceptions import UndefinedMacroError
         except ImportError:
-            # These are the historic names for older dbt-core versions
-            from dbt.exceptions import UndefinedMacroException as UndefinedMacroError
+            try:
+                # These are the historic names for even older dbt-core versions
+                from dbt.exceptions import UndefinedMacroException as UndefinedMacroError
+            except ImportError:
+                # These are the import paths in dbt-core 1.8.0+
+                # https://github.com/dbt-labs/dbt-core/pull/9368
+                from dbt_common.exceptions import UndefinedMacroError
 
         with self.connection():
             # Apply the monkeypatch.

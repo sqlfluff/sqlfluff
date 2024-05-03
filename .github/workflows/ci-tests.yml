@@ -71,8 +71,17 @@ jobs:
   dbt-tests:
     name: dbt Plugin Tests
     strategy:
+      fail-fast: false
       matrix:
-        dbt-version: [ dbt110, dbt120, dbt130, dbt140, dbt150, dbt160, dbt170 ]
+        dbt-version:
+          - dbt110
+          - dbt120
+          - dbt130
+          - dbt140
+          - dbt150
+          - dbt160
+          - dbt170
+          - dbt180
         include:
           # Default to python 3.11 for dbt tests. dbt doesn't support py 3.12 yet.
           - python-version: "3.11"
