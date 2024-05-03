@@ -515,6 +515,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterMaterializedViewStatementSegment"),
             Ref("DropMaterializedViewStatementSegment"),
             Ref("CreateRowAccessPolicyStatementSegment"),
+            Ref("CreateCapacityStatementSegment"),
+            Ref("CreateReservationStatementSegment"),
+            Ref("CreateAssignmentStatementSegment"),
         ],
     )
 
@@ -2553,4 +2556,52 @@ class CreateRowAccessPolicyStatementSegment(BaseSegment):
         Bracketed(
             Ref("ExpressionSegment"),
         ),
+    )
+
+
+class CreateCapacityStatementSegment(BaseSegment):
+    """A `CREATE CAPACITY` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_capacity_statement
+    """
+
+    type = "create_capacity_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "CAPACITY",
+        Ref("TableReferenceSegment"),
+        Ref("OptionsSegment"),
+    )
+
+
+class CreateReservationStatementSegment(BaseSegment):
+    """A `CREATE RESERVATION` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_reservation_statement
+    """
+
+    type = "create_reservation_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "RESERVATION",
+        Ref("TableReferenceSegment"),
+        Ref("OptionsSegment"),
+    )
+
+
+class CreateAssignmentStatementSegment(BaseSegment):
+    """A `CREATE ASSIGNMENT` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_assignment_statement
+    """
+
+    type = "create_assignment_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "ASSIGNMENT",
+        Ref("TableReferenceSegment"),
+        Ref("OptionsSegment"),
     )
