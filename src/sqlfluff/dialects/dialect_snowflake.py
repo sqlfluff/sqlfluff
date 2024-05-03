@@ -6869,9 +6869,13 @@ class ExecuteImmediateClauseSegment(BaseSegment):
 
     EXECUTE IMMEDIATE $<session_variable>
         [ USING ( <bind_variable> [ , <bind_variable> ... ] ) ]
+
+    EXECUTE IMMEDIATE
+        FROM { absoluteFilePath | relativeFilePath }
     ```
 
     https://docs.snowflake.com/en/sql-reference/sql/execute-immediate
+    https://docs.snowflake.com/en/sql-reference/sql/execute-immediate-from
     """
 
     type = "execute_immediate_clause"
@@ -6879,9 +6883,11 @@ class ExecuteImmediateClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "EXECUTE",
         "IMMEDIATE",
+        Ref.keyword("FROM", optional=True),
         OneOf(
             Ref("QuotedLiteralSegment"),
             Ref("ReferencedVariableNameSegment"),
+            Ref("StorageLocation"),
             Sequence(
                 Ref("ColonSegment"),
                 Ref("LocalVariableNameSegment"),
