@@ -163,6 +163,7 @@ class DbtTemplater(JinjaTemplater):
             # was suggested and described here:
             # https://github.com/sqlfluff/sqlfluff/issues/2253#issuecomment-1018722979
             from dbt.config import read_user_config
+
             user_config = read_user_config(flags.PROFILES_DIR)
             # Pre 1.5.x this is a string.
             cli_vars = str(self._get_cli_vars())
