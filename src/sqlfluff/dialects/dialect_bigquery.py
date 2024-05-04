@@ -514,6 +514,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateMaterializedViewAsReplicaOfStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
             Ref("DropMaterializedViewStatementSegment"),
+            Ref("DropProcedureStatementSegment"),
+            Ref("UndropSchemaStatementSegment"),
             Ref("CreateRowAccessPolicyStatementSegment"),
         ],
     )
@@ -2034,6 +2036,59 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         "SET",
         Ref("OptionsSegment"),
+    )
+
+
+class DropTableStatementSegment(BaseSegment):
+    """A `DROP TABLE` statement."""
+
+    type = "drop_table_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        OneOf("SNAPSHOT", "EXTERNAL", optional=True),
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("TableReferenceSegment")),
+    )
+
+
+class DropFunctionStatementSegment(BaseSegment):
+    """A `DROP FUNCTION` statement."""
+
+    type = "drop_function_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        Sequence("TABLE", optional=True),
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+    )
+
+
+class DropProcedureStatementSegment(BaseSegment):
+    """A `DROP PROCEDURE` statement."""
+
+    type = "drop_procedure_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "PROCEDURE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ProcedureNameSegment"),
+    )
+
+
+class UndropSchemaStatementSegment(BaseSegment):
+    """A `UNDROP SCHEMA` statement."""
+
+    type = "undrop_schema_statement"
+    match_grammar: Matchable = Sequence(
+        "UNDROP",
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SchemaReferenceSegment"),
     )
 
 
