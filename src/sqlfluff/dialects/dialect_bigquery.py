@@ -509,6 +509,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ContinueStatementSegment"),
             Ref("RaiseStatementSegment"),
             Ref("AlterViewStatementSegment"),
+            Ref("AlterSchemaStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
             Ref("CreateMaterializedViewAsReplicaOfStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
@@ -1822,6 +1823,43 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                         Sequence("DROP", OneOf("DEFAULT", Sequence("NOT", "NULL"))),
                     ),
                 ),
+            ),
+        ),
+    )
+
+
+class AlterSchemaStatementSegment(BaseSegment):
+    """A `ALTER SCHEMA` statement."""
+
+    type = "alter_schema_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                OneOf(
+                    # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_schema_collate_statement
+                    Ref("DefaultCollateSegment"),
+                    # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_schema_set_options_statement
+                    Ref("OptionsSegment"),
+                ),
+            ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_schema_add_replica_statement
+            Sequence(
+                "ADD",
+                "REPLICA",
+                Ref("BaseExpressionElementGrammar"),
+                Ref("OptionsSegment", optional=True),
+            ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_schema_drop_replica_statement
+            Sequence(
+                "DROP",
+                "REPLICA",
+                Ref("BaseExpressionElementGrammar"),
             ),
         ),
     )
