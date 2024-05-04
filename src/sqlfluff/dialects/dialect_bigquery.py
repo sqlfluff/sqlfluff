@@ -2040,7 +2040,12 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
 
 
 class DropTableStatementSegment(BaseSegment):
-    """A `DROP TABLE` statement."""
+    """A `DROP [SNAPSHOT | EXTERNAL] TABLE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_table_statement
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_snapshot_table_statement
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_external_table_statement
+    """
 
     type = "drop_table_statement"
 
@@ -2054,7 +2059,11 @@ class DropTableStatementSegment(BaseSegment):
 
 
 class DropFunctionStatementSegment(BaseSegment):
-    """A `DROP FUNCTION` statement."""
+    """A `DROP [TABLE] FUNCTION` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_function_statement
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_table_function
+    """
 
     type = "drop_function_statement"
 
@@ -2068,7 +2077,10 @@ class DropFunctionStatementSegment(BaseSegment):
 
 
 class DropProcedureStatementSegment(BaseSegment):
-    """A `DROP PROCEDURE` statement."""
+    """A `DROP PROCEDURE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_procedure_statement
+    """
 
     type = "drop_procedure_statement"
 
@@ -2081,7 +2093,10 @@ class DropProcedureStatementSegment(BaseSegment):
 
 
 class UndropSchemaStatementSegment(BaseSegment):
-    """A `UNDROP SCHEMA` statement."""
+    """A `UNDROP SCHEMA` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#undrop_schema_statement
+    """
 
     type = "undrop_schema_statement"
     match_grammar: Matchable = Sequence(
