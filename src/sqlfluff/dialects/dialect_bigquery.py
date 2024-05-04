@@ -514,6 +514,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateMaterializedViewAsReplicaOfStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
             Ref("DropMaterializedViewStatementSegment"),
+            Ref("DropProcedureStatementSegment"),
+            Ref("UndropSchemaStatementSegment"),
             Ref("CreateRowAccessPolicyStatementSegment"),
             Ref("CreateCapacityStatementSegment"),
             Ref("CreateReservationStatementSegment"),
@@ -2037,6 +2039,74 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         "SET",
         Ref("OptionsSegment"),
+    )
+
+
+class DropTableStatementSegment(BaseSegment):
+    """A `DROP [SNAPSHOT | EXTERNAL] TABLE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_table_statement
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_snapshot_table_statement
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_external_table_statement
+    """
+
+    type = "drop_table_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        OneOf("SNAPSHOT", "EXTERNAL", optional=True),
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("TableReferenceSegment")),
+    )
+
+
+class DropFunctionStatementSegment(BaseSegment):
+    """A `DROP [TABLE] FUNCTION` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_function_statement
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_table_function
+    """
+
+    type = "drop_function_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        Sequence("TABLE", optional=True),
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+    )
+
+
+class DropProcedureStatementSegment(BaseSegment):
+    """A `DROP PROCEDURE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_procedure_statement
+    """
+
+    type = "drop_procedure_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "PROCEDURE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ProcedureNameSegment"),
+    )
+
+
+class UndropSchemaStatementSegment(BaseSegment):
+    """A `UNDROP SCHEMA` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#undrop_schema_statement
+    """
+
+    type = "undrop_schema_statement"
+    match_grammar: Matchable = Sequence(
+        "UNDROP",
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SchemaReferenceSegment"),
     )
 
 
