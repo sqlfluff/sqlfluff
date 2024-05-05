@@ -74,8 +74,8 @@ jobs:
       matrix:
         dbt-version: [ dbt110, dbt120, dbt130, dbt140, dbt150, dbt160, dbt170 ]
         include:
-          # Default to python 3.11 for dbt tests. dbt doesn't support py 3.12 yet.
-          - python-version: "3.11"
+          # Default to python 3.12 for dbt tests.
+          - python-version: "3.12"
           # For the two oldest dbt versions, override to python 3.9.
           - dbt-version: dbt110
             python-version: "3.9"
@@ -217,7 +217,7 @@ jobs:
 
   python-windows-dbt-tests:
     runs-on: windows-latest
-    name: dbt Plugin Python 3.11 Windows tests
+    name: dbt Plugin Python 3.12 Windows tests
     steps:
     - name: Start PostgreSQL on Windows
       run: |
@@ -235,8 +235,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        # dbt doesn't support py 3.12 yet.
-        python-version: "3.11"
+        python-version: "3.12"
     - name: Install dependencies
       shell: bash
       run: pip install tox
