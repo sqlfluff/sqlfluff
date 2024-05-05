@@ -64,6 +64,7 @@ def distribute_work(work_items: List[S], work_fn: Callable[[S], None]) -> None:
                         print(f"  - {fname!r}")
 
     if errors:
+        print(errors)
         print("FAILED TO GENERATE ALL CASES")
         sys.exit(1)
 
