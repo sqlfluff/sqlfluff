@@ -205,14 +205,14 @@ class Rule_ST02(BaseRule):
                     # function.
                     if (
                         not is_not_prefix
-                        and column_reference_segment.raw_upper
+                        and condition_expression_segments_raw
                         == else_expression.raw_upper
                     ):
                         coalesce_arg_1 = else_expression
                         coalesce_arg_2 = then_expression
                     elif (
                         is_not_prefix
-                        and column_reference_segment.raw_upper
+                        and condition_expression_segments_raw
                         == then_expression.raw_upper
                     ):
                         coalesce_arg_1 = then_expression
