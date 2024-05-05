@@ -194,10 +194,25 @@ class Rule_ST02(BaseRule):
                     .children(sp.is_type("column_reference"))
                     .get()
                 )
+                array_accessor_segment = (
+                    Segments(condition_expression)
+                    .children(sp.is_type("array_accessor"))
+                    .get()
+                )
 
                 # Return None if none found (this condition does not apply to functions)
                 if not column_reference_segment:
                     return None
+
+                if array_accessor_segment:
+                    column_reference_segment_raw_upper = (
+                        column_reference_segment.raw_upper
+                        + array_accessor_segment.raw_upper
+                    )
+                else:
+                    column_reference_segment_raw_upper = (
+                        column_reference_segment.raw_upper
+                    )
 
                 if else_clauses:
                     else_expression = else_clauses.children(sp.is_type("expression"))[0]
@@ -205,13 +220,15 @@ class Rule_ST02(BaseRule):
                     # function.
                     if (
                         not is_not_prefix
-                        and condition_expression.raw_upper == else_expression.raw_upper
+                        and column_reference_segment_raw_upper
+                        == else_expression.raw_upper
                     ):
                         coalesce_arg_1 = else_expression
                         coalesce_arg_2 = then_expression
                     elif (
                         is_not_prefix
-                        and condition_expression.raw_upper == then_expression.raw_upper
+                        and column_reference_segment_raw_upper
+                        == then_expression.raw_upper
                     ):
                         coalesce_arg_1 = then_expression
                         coalesce_arg_2 = else_expression
