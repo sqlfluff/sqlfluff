@@ -1,0 +1,521 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 05f46a3017e1faedf744739775dca1f558debcd801def9827abd8848dca5185e
+file:
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: jeffrey
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - role_reference:
+        naked_identifier: jeffrey
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        quoted_identifier: "'prj_svc'"
+    - keyword: IDENTIFIED
+    - keyword: WITH
+    - object_reference:
+        naked_identifier: AWSAuthenticationPlugin
+    - keyword: AS
+    - quoted_literal: "'RDS'"
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: IDENTIFIED
+    - keyword: BY
+    - quoted_literal: "'password'"
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_literal: '"jeffrey"'
+      - at_sign_literal: '@'
+      - quoted_literal: '"localhost"'
+    - keyword: IDENTIFIED
+    - keyword: BY
+    - quoted_literal: '"password"'
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: '`jeffrey`'
+      - at_sign_literal: '@'
+      - quoted_identifier: '`localhost`'
+    - keyword: IDENTIFIED
+    - keyword: BY
+    - quoted_literal: '"password"'
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: IDENTIFIED
+    - keyword: BY
+    - quoted_literal: "'new_password'"
+    - keyword: PASSWORD
+    - keyword: EXPIRE
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: IDENTIFIED
+    - keyword: WITH
+    - object_reference:
+        naked_identifier: caching_sha2_password
+    - keyword: BY
+    - quoted_literal: "'new_password'"
+    - keyword: PASSWORD
+    - keyword: EXPIRE
+    - keyword: INTERVAL
+    - numeric_literal: '180'
+    - keyword: DAY
+    - keyword: FAILED_LOGIN_ATTEMPTS
+    - numeric_literal: '3'
+    - keyword: PASSWORD_LOCK_TIME
+    - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: IDENTIFIED
+    - keyword: WITH
+    - object_reference:
+        naked_identifier: mysql_native_password
+    - keyword: BY
+    - quoted_literal: "'new_password1'"
+    - comma: ','
+    - role_reference:
+      - quoted_identifier: "'jeanne'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: IDENTIFIED
+    - keyword: WITH
+    - object_reference:
+        naked_identifier: caching_sha2_password
+    - keyword: BY
+    - quoted_literal: "'new_password2'"
+    - keyword: REQUIRE
+    - keyword: X509
+    - keyword: WITH
+    - keyword: MAX_QUERIES_PER_HOUR
+    - numeric_literal: '60'
+    - keyword: PASSWORD
+    - keyword: HISTORY
+    - numeric_literal: '5'
+    - keyword: ACCOUNT
+    - keyword: LOCK
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: IDENTIFIED
+    - keyword: WITH
+    - object_reference:
+        naked_identifier: mysql_native_password
+    - keyword: BY
+    - quoted_literal: "'password'"
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'u1'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: IDENTIFIED
+    - keyword: WITH
+    - object_reference:
+        naked_identifier: caching_sha2_password
+    - keyword: BY
+    - quoted_literal: "'sha2_password'"
+    - keyword: AND
+    - keyword: IDENTIFIED
+    - keyword: WITH
+    - object_reference:
+        naked_identifier: authentication_ldap_sasl
+    - keyword: AS
+    - quoted_literal: "'uid=u1_ldap,ou=People,dc=example,dc=com'"
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'u1'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: IDENTIFIED
+    - keyword: WITH
+    - object_reference:
+        naked_identifier: caching_sha2_password
+    - keyword: BY
+    - quoted_literal: "'sha2_password'"
+    - keyword: AND
+    - keyword: IDENTIFIED
+    - keyword: WITH
+    - object_reference:
+        naked_identifier: authentication_ldap_sasl
+    - keyword: AS
+    - quoted_literal: "'uid=u1_ldap,ou=People,dc=example,dc=com'"
+    - keyword: AND
+    - keyword: IDENTIFIED
+    - keyword: WITH
+    - object_reference:
+        naked_identifier: authentication_fido
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: user
+    - keyword: IDENTIFIED
+    - keyword: WITH
+    - object_reference:
+        naked_identifier: authentication_fido
+    - keyword: INITIAL
+    - keyword: AUTHENTICATION
+    - keyword: IDENTIFIED
+    - keyword: BY
+    - keyword: RANDOM
+    - keyword: PASSWORD
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'joe'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'10.0.0.1'"
+    - keyword: DEFAULT
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: administrator
+    - comma: ','
+    - role_reference:
+        naked_identifier: developer
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: REQUIRE
+    - keyword: NONE
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: REQUIRE
+    - keyword: SSL
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: REQUIRE
+    - keyword: X509
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: REQUIRE
+    - keyword: ISSUER
+    - quoted_literal: "'/C=SE/ST=Stockholm/L=Stockholm/\n    O=MySQL/CN=CA/emailAddress=ca@example.com'"
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: REQUIRE
+    - keyword: SUBJECT
+    - quoted_literal: "'/C=SE/ST=Stockholm/L=Stockholm/\n    O=MySQL demo client certificate/\n\
+        \    CN=client/emailAddress=client@example.com'"
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: REQUIRE
+    - keyword: CIPHER
+    - quoted_literal: "'EDH-RSA-DES-CBC3-SHA'"
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: REQUIRE
+    - keyword: SUBJECT
+    - quoted_literal: "'/C=SE/ST=Stockholm/L=Stockholm/\n    O=MySQL demo client certificate/\n\
+        \    CN=client/emailAddress=client@example.com'"
+    - keyword: AND
+    - keyword: ISSUER
+    - quoted_literal: "'/C=SE/ST=Stockholm/L=Stockholm/\n    O=MySQL/CN=CA/emailAddress=ca@example.com'"
+    - keyword: AND
+    - keyword: CIPHER
+    - quoted_literal: "'EDH-RSA-DES-CBC3-SHA'"
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: WITH
+    - keyword: MAX_QUERIES_PER_HOUR
+    - numeric_literal: '500'
+    - keyword: MAX_UPDATES_PER_HOUR
+    - numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: PASSWORD
+    - keyword: EXPIRE
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: PASSWORD
+    - keyword: EXPIRE
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: PASSWORD
+    - keyword: EXPIRE
+    - keyword: NEVER
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: PASSWORD
+    - keyword: EXPIRE
+    - keyword: INTERVAL
+    - numeric_literal: '180'
+    - keyword: DAY
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: PASSWORD
+    - keyword: HISTORY
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: PASSWORD
+    - keyword: HISTORY
+    - numeric_literal: '6'
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: PASSWORD
+    - keyword: REUSE
+    - keyword: INTERVAL
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: PASSWORD
+    - keyword: REUSE
+    - keyword: INTERVAL
+    - numeric_literal: '360'
+    - keyword: DAY
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: PASSWORD
+    - keyword: REQUIRE
+    - keyword: CURRENT
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: PASSWORD
+    - keyword: REQUIRE
+    - keyword: CURRENT
+    - keyword: OPTIONAL
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: PASSWORD
+    - keyword: REQUIRE
+    - keyword: CURRENT
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jeffrey'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: FAILED_LOGIN_ATTEMPTS
+    - numeric_literal: '4'
+    - keyword: PASSWORD_LOCK_TIME
+    - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jon'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: COMMENT
+    - quoted_literal: "'Some information about Jon'"
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: "'jim'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+    - keyword: ATTRIBUTE
+    - quoted_literal: "'{\"fname\": \"James\", \"lname\": \"Scott\", \"phone\": \"\
+        123-456-7890\"}'"
+- statement_terminator: ;
