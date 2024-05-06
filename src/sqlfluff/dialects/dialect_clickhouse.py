@@ -14,6 +14,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     IdentifierSegment,
+    ImplicitIndent,
     Indent,
     LiteralSegment,
     Matchable,
@@ -221,7 +222,54 @@ clickhouse_dialect.replace(
         insert=[Ref.keyword("GLOBAL", optional=True)],
         before=Ref.keyword("NOT", optional=True),
     ),
+    SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "SelectClauseTerminatorGrammar"
+    ).copy(
+        insert=[Ref.keyword("PREWHERE")],
+        before=Ref.keyword("WHERE"),
+    ),
+    FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "FromClauseTerminatorGrammar"
+    ).copy(insert=[Ref.keyword("PREWHERE")], before=Ref.keyword("WHERE")),
 )
+
+
+class PreWhereClauseSegment(BaseSegment):
+    """A `PREWHERE` clause like in `SELECT` or `INSERT`."""
+
+    type = "prewhere_clause"
+    match_grammar: Matchable = Sequence(
+        "PREWHERE",
+        # NOTE: The indent here is implicit to allow
+        # constructions like:
+        #
+        #    PREWHERE a
+        #        AND b
+        #
+        # to be valid without forcing an indent between
+        # "PREWHERE" and "a".
+        ImplicitIndent,
+        OptionallyBracketed(Ref("ExpressionSegment")),
+        Dedent,
+    )
+
+
+class SelectStatementSegment(ansi.SelectStatementSegment):
+    """Enhance `SELECT` statement to include QUALIFY."""
+
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
+        insert=[Ref("PreWhereClauseSegment", optional=True)],
+        before=Ref("WhereClauseSegment", optional=True),
+    )
+
+
+class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
+    """Enhance unordered `SELECT` statement to include QUALIFY."""
+
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[Ref("PreWhereClauseSegment", optional=True)],
+        before=Ref("WhereClauseSegment", optional=True),
+    )
 
 
 class BracketedArguments(ansi.BracketedArguments):
