@@ -10,6 +10,53 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [3.0.6] - 2024-05-06
+
+## Highlights
+
+## What’s Changed
+
+* [fix_clickhouse] Temporary Table Create AS SELECT [#5843](https://github.com/sqlfluff/sqlfluff/pull/5843) [@konnectr](https://github.com/konnectr)
+* Bugfix: ST02 - Compare entire condition expression [#5850](https://github.com/sqlfluff/sqlfluff/pull/5850) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Clichouse prewhere [#5849](https://github.com/sqlfluff/sqlfluff/pull/5849) [@konnectr](https://github.com/konnectr)
+* BigQuery: Support missing DROP statements [#5848](https://github.com/sqlfluff/sqlfluff/pull/5848) [@kzosabe](https://github.com/kzosabe)
+* BigQuery: various CREATE statements [#5846](https://github.com/sqlfluff/sqlfluff/pull/5846) [@greg-finley](https://github.com/greg-finley)
+* BigQuery Alter Schema [#5835](https://github.com/sqlfluff/sqlfluff/pull/5835) [@greg-finley](https://github.com/greg-finley)
+* Snowflake execute immediate from [#5836](https://github.com/sqlfluff/sqlfluff/pull/5836) [@greg-finley](https://github.com/greg-finley)
+* Support dbt 1.7 [#5842](https://github.com/sqlfluff/sqlfluff/pull/5842) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Postgres: Create extension cascade [#5834](https://github.com/sqlfluff/sqlfluff/pull/5834) [@greg-finley](https://github.com/greg-finley)
+* Postgres: Add Support for PostGIS operators [#5830](https://github.com/sqlfluff/sqlfluff/pull/5830) [@burhanyasar](https://github.com/burhanyasar)
+* Db2: Support additional CREATE INDEX options [#5827](https://github.com/sqlfluff/sqlfluff/pull/5827) [@keraion](https://github.com/keraion)
+* Allow to align all siblings when respacing [#5826](https://github.com/sqlfluff/sqlfluff/pull/5826) [@borchero](https://github.com/borchero)
+* BigQuery: Support EXECUTE IMMEDIATE [#5820](https://github.com/sqlfluff/sqlfluff/pull/5820) [@keraion](https://github.com/keraion)
+* BigQuery: Support CREATE ROW ACCESS POLICY statement [#5821](https://github.com/sqlfluff/sqlfluff/pull/5821) [@kzosabe](https://github.com/kzosabe)
+* Fix Jinja variant location correction [#5814](https://github.com/sqlfluff/sqlfluff/pull/5814) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Test cases for linter fails. [#5815](https://github.com/sqlfluff/sqlfluff/pull/5815) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* BigQuery: Support nested BEGIN, Fix CREATE PROCEDURE OPTIONS [#5816](https://github.com/sqlfluff/sqlfluff/pull/5816) [@keraion](https://github.com/keraion)
+* Bring multiple jinja variants through to the parser. [#5794](https://github.com/sqlfluff/sqlfluff/pull/5794) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fix placeholder labelling [#5813](https://github.com/sqlfluff/sqlfluff/pull/5813) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Tighten up the return from .process() [#5810](https://github.com/sqlfluff/sqlfluff/pull/5810) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* BigQuery: Support CREATE MATERIALIZED VIEW AS REPLICA OF [#5811](https://github.com/sqlfluff/sqlfluff/pull/5811) [@kzosabe](https://github.com/kzosabe)
+* BigQuery: Support OPTIONS in CREATE FUNCTION statement [#5812](https://github.com/sqlfluff/sqlfluff/pull/5812) [@kzosabe](https://github.com/kzosabe)
+* TSQL: fix `ALTER TABLE ... SWITCH PARTITION` [#5807](https://github.com/sqlfluff/sqlfluff/pull/5807) [@keen85](https://github.com/keen85)
+* SparkSQL: Add functions that use UNIT keywords [#5806](https://github.com/sqlfluff/sqlfluff/pull/5806) [@keraion](https://github.com/keraion)
+* CLI: Add `--stdin-filename` option [#5805](https://github.com/sqlfluff/sqlfluff/pull/5805) [@keraion](https://github.com/keraion)
+* TSQL: parse `CREATE/ALTER/DROP MASTER KEY` [#5802](https://github.com/sqlfluff/sqlfluff/pull/5802) [@keen85](https://github.com/keen85)
+* Jinja Variant Configuration [#5785](https://github.com/sqlfluff/sqlfluff/pull/5785) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Small refactor in jinja templater [#5786](https://github.com/sqlfluff/sqlfluff/pull/5786) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* BigQuery: Support FOR SYSTEM_TIME AS OF in CREATE TABLE CLONE statement [#5798](https://github.com/sqlfluff/sqlfluff/pull/5798) [@kzosabe](https://github.com/kzosabe)
+* TSQL: support for `CREATE/ALTER PARTITION FUNCTION/SCHEME` [#5793](https://github.com/sqlfluff/sqlfluff/pull/5793) [@keen85](https://github.com/keen85)
+* BigQuery: Support DEFAULT COLLATE segment [#5790](https://github.com/sqlfluff/sqlfluff/pull/5790) [@kzosabe](https://github.com/kzosabe)
+* TSQL: support computed columns [#5792](https://github.com/sqlfluff/sqlfluff/pull/5792) [@keen85](https://github.com/keen85)
+* Simplify one of the lexer methods [#5788](https://github.com/sqlfluff/sqlfluff/pull/5788) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Improve light colour highlight [#5784](https://github.com/sqlfluff/sqlfluff/pull/5784) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* SparkSQL: Support TIMESTAMP_LTZ and TIMESTAMP_NTZ types [#5783](https://github.com/sqlfluff/sqlfluff/pull/5783) [@padraic00](https://github.com/padraic00)
+
+## New Contributors
+
+* [@padraic00](https://github.com/padraic00) made their first contribution in [#5783](https://github.com/sqlfluff/sqlfluff/pull/5783)
+* [@burhanyasar](https://github.com/burhanyasar) made their first contribution in [#5830](https://github.com/sqlfluff/sqlfluff/pull/5830)
+
 ## [3.0.5] - 2024-04-19
 
 ## Highlights
