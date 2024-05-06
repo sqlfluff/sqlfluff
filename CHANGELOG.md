@@ -14,6 +14,18 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This release primarily fixes an issue introduced by the recent dbt 1.7.14 release,
+and better support for dbt 1.7+. It also includes a range of dialect improvements
+and CLI refinements.
+
+This release also includes the groundwork for linting the unrendered sections of
+Jinja templates. More documentation on this will be released in due course when
+it's ready for beta testing.
+
+Thanks also to [@padraic00](https://github.com/padraic00) &
+[@burhanyasar](https://github.com/burhanyasar) who made their first contributions
+in this release. 🎉🎉🏆🎉🎉
+
 ## What’s Changed
 
 * [fix_clickhouse] Temporary Table Create AS SELECT [#5843](https://github.com/sqlfluff/sqlfluff/pull/5843) [@konnectr](https://github.com/konnectr)
