@@ -1,0 +1,23 @@
+CREATE OR REPLACE TABLE `db_name`.tbl_name AS
+    SELECT * FROM tbl;
+
+CREATE OR REPLACE TABLE `db_name`.tbl_name
+    SELECT * FROM tbl;
+
+CREATE OR REPLACE TABLE tbl_name AS
+    SELECT * FROM tbl;
+
+CREATE OR REPLACE TABLE tbl_name
+    SELECT * FROM tbl;
+
+CREATE OR REPLACE TABLE IF NOT EXISTS `db_name`.tbl_name AS
+    SELECT * FROM tbl;
+
+CREATE OR REPLACE TABLE IF NOT EXISTS `db_name`.tbl_name
+    SELECT * FROM tbl;
+
+CREATE OR REPLACE TABLE IF NOT EXISTS tbl_name AS
+    SELECT * FROM tbl;
+
+CREATE OR REPLACE TABLE IF NOT EXISTS tbl_name
+    SELECT * FROM tbl;
