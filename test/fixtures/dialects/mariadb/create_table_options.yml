@@ -3,9 +3,108 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dab1c13022d2cfb77901e25fca587830d76fa734de98790856e1761828746660
+_hash: d8b4d820058b33b2cf199bc7bebea3f367580db6212e60d743e6b4f1327ff79a
 file:
-  statement:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: year_col
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: some_data
+          data_type:
+            data_type_identifier: INT
+      - end_bracket: )
+    - keyword: PARTITION
+    - keyword: BY
+    - keyword: RANGE
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: year_col
+          end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - keyword: PARTITION
+      - column_reference:
+          naked_identifier: p0
+      - keyword: VALUES
+      - keyword: LESS
+      - keyword: THAN
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '1991'
+          end_bracket: )
+      - comma: ','
+      - keyword: PARTITION
+      - column_reference:
+          naked_identifier: p1
+      - keyword: VALUES
+      - keyword: LESS
+      - keyword: THAN
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '1995'
+          end_bracket: )
+      - comma: ','
+      - keyword: PARTITION
+      - column_reference:
+          naked_identifier: p2
+      - keyword: VALUES
+      - keyword: LESS
+      - keyword: THAN
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '1999'
+          end_bracket: )
+      - comma: ','
+      - keyword: PARTITION
+      - column_reference:
+          naked_identifier: p3
+      - keyword: VALUES
+      - keyword: LESS
+      - keyword: THAN
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '2002'
+          end_bracket: )
+      - comma: ','
+      - keyword: PARTITION
+      - column_reference:
+          naked_identifier: p4
+      - keyword: VALUES
+      - keyword: LESS
+      - keyword: THAN
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '2006'
+          end_bracket: )
+      - comma: ','
+      - keyword: PARTITION
+      - column_reference:
+          naked_identifier: p5
+      - keyword: VALUES
+      - keyword: LESS
+      - keyword: THAN
+      - keyword: MAXVALUE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -220,4 +319,4 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - quoted_literal: "'comment'"
-  statement_terminator: ;
+- statement_terminator: ;

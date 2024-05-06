@@ -385,9 +385,221 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             AnyNumberOf(
                 Sequence(
                     Ref.keyword("DEFAULT", optional=True),
-                    Ref("ParameterNameSegment"),
+                    OneOf(
+                        Ref("ParameterNameSegment"),
+                        Sequence("CHARACTER", "SET"),
+                        Sequence(OneOf("DATA", "INDEX"), "DIRECTORY"),
+                        Sequence("WITH", "SYSTEM"),
+                    ),
                     Ref("EqualsSegment", optional=True),
-                    OneOf(Ref("LiteralGrammar"), Ref("ParameterNameSegment")),
+                    OneOf(
+                        Ref("LiteralGrammar"),
+                        Ref("ParameterNameSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        Ref("SingleQuotedIdentifierSegment"),
+                        Ref("NumericLiteralSegment"),
+                        # Union option
+                        Bracketed(
+                            Delimited(Ref("TableReferenceSegment")),
+                        ),
+                    ),
+                ),
+                # Partition Options
+                # https://dev.mysql.com/doc/refman/8.0/en/create-table.html#create-table-partitioning
+                Sequence(
+                    "PARTITION",
+                    "BY",
+                    OneOf(
+                        Sequence(
+                            Ref.keyword("LINEAR", optional=True),
+                            OneOf(
+                                Sequence("HASH", Ref("ExpressionSegment")),
+                                Sequence(
+                                    "KEY",
+                                    Sequence(
+                                        "ALGORITHM",
+                                        Ref("EqualsSegment"),
+                                        Ref("NumericLiteralSegment"),
+                                        optional=True,
+                                    ),
+                                    Delimited(Ref("ColumnReferenceSegment")),
+                                ),
+                            ),
+                        ),
+                        Sequence(
+                            OneOf("RANGE", "LIST"),
+                            OneOf(
+                                Ref("ExpressionSegment"),
+                                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            ),
+                        ),
+                    ),
+                    Sequence("PARTITIONS", Ref("NumericLiteralSegment"), optional=True),
+                    Sequence(
+                        "SUBPARTITION",
+                        "BY",
+                        Sequence(
+                            Ref.keyword("LINEAR", optional=True),
+                            OneOf(
+                                Sequence("HASH", Ref("ExpressionSegment")),
+                                Sequence(
+                                    "KEY",
+                                    Sequence(
+                                        "ALGORITHM",
+                                        Ref("EqualsSegment"),
+                                        Ref("NumericLiteralSegment"),
+                                        optional=True,
+                                    ),
+                                    Bracketed(Ref("ColumnReferenceSegment")),
+                                ),
+                            ),
+                        ),
+                        Sequence(
+                            "SUBPARTITIONS",
+                            Ref("NumericLiteralSegment"),
+                            optional=True,
+                        ),
+                        optional=True,
+                    ),
+                    # optional partition_definition(s)
+                    AnyNumberOf(
+                        Bracketed(
+                            Delimited(
+                                Sequence(
+                                    "PARTITION",
+                                    Ref("ColumnReferenceSegment"),
+                                    AnyNumberOf(
+                                        Sequence(
+                                            "VALUES",
+                                            OneOf(
+                                                Sequence(
+                                                    "LESS",
+                                                    "THAN",
+                                                    OneOf(
+                                                        "MAXVALUE",
+                                                        Bracketed(
+                                                            OneOf(
+                                                                Ref(
+                                                                    "ExpressionSegment"
+                                                                ),
+                                                                Ref(
+                                                                    "ColumnReferenceSegment"
+                                                                ),
+                                                                Ref(
+                                                                    "NumericLiteralSegment"
+                                                                ),
+                                                                Ref("LiteralGrammar"),
+                                                            ),
+                                                        ),
+                                                    ),
+                                                ),
+                                                Sequence(
+                                                    "IN",
+                                                    Bracketed(
+                                                        Ref("ObjectReferenceSegment")
+                                                    ),
+                                                ),
+                                            ),
+                                        ),
+                                        Sequence(
+                                            OneOf(
+                                                Ref("ParameterNameSegment"),
+                                                Sequence("CHARACTER", "SET"),
+                                                Sequence(
+                                                    OneOf("DATA", "INDEX"),
+                                                    "DIRECTORY",
+                                                ),
+                                                Sequence("WITH", "SYSTEM"),
+                                            ),
+                                            Ref("EqualsSegment", optional=True),
+                                            OneOf(
+                                                Ref("LiteralGrammar"),
+                                                Ref("ParameterNameSegment"),
+                                                Ref("QuotedLiteralSegment"),
+                                                Ref("SingleQuotedIdentifierSegment"),
+                                                Ref("NumericLiteralSegment"),
+                                                # Union option
+                                                Bracketed(
+                                                    Delimited(
+                                                        Ref("TableReferenceSegment")
+                                                    ),
+                                                ),
+                                            ),
+                                        ),
+                                        # optional subpartition_definition(s)
+                                        Sequence(
+                                            Ref.keyword("SUBPARTITION", optional=True),
+                                            Ref("LiteralGrammar"),
+                                            AnyNumberOf(
+                                                Sequence(
+                                                    "VALUES",
+                                                    OneOf(
+                                                        Sequence(
+                                                            "LESS",
+                                                            "THAN",
+                                                            OneOf(
+                                                                "MAXVALUE",
+                                                                Bracketed(
+                                                                    Ref(
+                                                                        "ExpressionSegment"
+                                                                    )
+                                                                ),
+                                                                Bracketed(
+                                                                    Ref(
+                                                                        "ColumnReferenceSegment"
+                                                                    )
+                                                                ),
+                                                            ),
+                                                        ),
+                                                        Sequence(
+                                                            "IN",
+                                                            Bracketed(
+                                                                Ref(
+                                                                    "ObjectReferenceSegment"
+                                                                )
+                                                            ),
+                                                        ),
+                                                    ),
+                                                ),
+                                                Sequence(
+                                                    OneOf(
+                                                        Ref("ParameterNameSegment"),
+                                                        Sequence("CHARACTER", "SET"),
+                                                        Sequence(
+                                                            OneOf("DATA", "INDEX"),
+                                                            "DIRECTORY",
+                                                        ),
+                                                        Sequence("WITH", "SYSTEM"),
+                                                    ),
+                                                    Ref(
+                                                        "EqualsSegment",
+                                                        optional=True,
+                                                    ),
+                                                    OneOf(
+                                                        Ref("LiteralGrammar"),
+                                                        Ref("ParameterNameSegment"),
+                                                        Ref("QuotedLiteralSegment"),
+                                                        Ref(
+                                                            "SingleQuotedIdentifierSegment"
+                                                        ),
+                                                        Ref("NumericLiteralSegment"),
+                                                        # Union option
+                                                        Bracketed(
+                                                            Delimited(
+                                                                Ref(
+                                                                    "TableReferenceSegment"
+                                                                )
+                                                            ),
+                                                        ),
+                                                    ),
+                                                ),
+                                            ),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
                 ),
             ),
         ],

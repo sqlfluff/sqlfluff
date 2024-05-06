@@ -1,41 +1,15 @@
-"""MariaDB Dialect
-
-<url>
-"""
+"""MariaDB Dialect."""
 
 from sqlfluff.core.dialects import load_raw_dialect
-
 from sqlfluff.core.parser import (
-    AnyNumberOf,
-    AnySetOf,
-    Anything,
-    BaseSegment,
-    BinaryOperatorSegment,
     Bracketed,
-    CodeSegment,
-    CommentSegment,
-    Dedent,
     Delimited,
-    IdentifierSegment,
-    Indent,
-    KeywordSegment,
-    LiteralSegment,
-    Matchable,
+    Ref,
     OneOf,
     OptionallyBracketed,
-    ParseMode,
-    Ref,
-    RegexLexer,
-    RegexParser,
-    SegmentGenerator,
     Sequence,
-    StringLexer,
-    StringParser,
-    SymbolSegment,
-    TypedParser,
 )
-
-from sqlfluff.dialects import dialect_ansi as ansi, dialect_mysql as mysql
+from sqlfluff.dialects import dialect_mysql as mysql
 from sqlfluff.dialects.dialect_mariadb_keywords import (
     mariadb_reserved_keywords,
     mariadb_unreserved_keywords,
@@ -44,7 +18,25 @@ from sqlfluff.dialects.dialect_mariadb_keywords import (
 # ansi_dialect = load_raw_dialect("ansi")
 mysql_dialect = load_raw_dialect("mysql")
 mariadb_dialect = mysql_dialect.copy_as("mariadb")
-mariadb_dialect.add()
+mariadb_dialect.update_keywords_set_from_multiline_string(
+    "unreserved_keywords", mariadb_unreserved_keywords
+)
+mariadb_dialect.sets("reserved_keywords").clear()
+mariadb_dialect.update_keywords_set_from_multiline_string(
+    "reserved_keywords", mariadb_reserved_keywords
+)
+
+
+class CreateUserStatementSegment(mysql.CreateUserStatementSegment):
+    """`CREATE USER` statement.
+
+    TODO: https://mariadb.com/kb/en/create-user/
+    """
+
+    match_grammar = mysql.CreateUserStatementSegment.match_grammar.copy(
+        insert=[Ref("OrReplaceGrammar", optional=True)],
+        before=Ref.keyword("USER"),
+    )
 
 
 class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
@@ -53,208 +45,57 @@ class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
     https://mariadb.com/kb/en/create-table/
     """
 
-    match_grammar: Matchable = Sequence(
-        "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
-        Ref("TemporaryTransientGrammar", optional=True),
-        "TABLE",
-        Ref("IfNotExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
-        OneOf(
-            # Columns and comment syntax:
-            Sequence(
-                Bracketed(
-                    Delimited(
-                        OneOf(
-                            Ref("TableConstraintSegment"),
-                            Ref("ColumnDefinitionSegment"),
-                        ),
-                    )
+    match_grammar = mysql.CreateTableStatementSegment.match_grammar.copy(
+        insert=[Ref("OrReplaceGrammar", optional=True)],
+        before=Ref("TemporaryTransientGrammar", optional=True),
+    ).copy(
+        insert=[
+            OneOf(
+                # Columns and comment syntax:
+                Sequence(
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("TableConstraintSegment"),
+                                Ref("ColumnDefinitionSegment"),
+                            ),
+                        )
+                    ),
+                    Ref("CommentClauseSegment", optional=True),
+                    Sequence(
+                        Ref.keyword("AS", optional=True),
+                        OptionallyBracketed(Ref("SelectableGrammar")),
+                        optional=True,
+                    ),
                 ),
-                Ref("CommentClauseSegment", optional=True),
+                # Create AS syntax:
                 Sequence(
                     Ref.keyword("AS", optional=True),
                     OptionallyBracketed(Ref("SelectableGrammar")),
-                    optional=True,
                 ),
+                # Create like syntax
+                Sequence("LIKE", Ref("TableReferenceSegment")),
             ),
-            # Create AS syntax:
-            Sequence(
-                Ref.keyword("AS", optional=True),
-                OptionallyBracketed(Ref("SelectableGrammar")),
-            ),
-            # Create like syntax
-            Sequence("LIKE", Ref("TableReferenceSegment")),
-        ),
-        Ref("TableEndClauseSegment", optional=True),
-        # Table Options
-        # https://mariadb.com/kb/en/create-table/#table-options
-        AnyNumberOf(
-            Sequence(
-                Ref.keyword("DEFAULT", optional=True),
-                OneOf(
-                    Ref("ParameterNameSegment"),
-                    Sequence("CHARACTER", "SET"),
-                    Sequence("DATA", "DIRECTORY"),
-                    Sequence("INDEX", "DIRECTORY"),
-                    Sequence("WITH", "SYSTEM"),
-                ),
-                Ref("EqualsSegment", optional=True),
-                OneOf(
-                    Ref("LiteralGrammar"),
-                    Ref("ParameterNameSegment"),
-                    Ref("QuotedLiteralSegment"),
-                    Ref("SingleQuotedIdentifierSegment"),
-                    Ref("NumericLiteralSegment"),
-                    # Union option
-                    Bracketed(
-                        Delimited(Ref("TableReferenceSegment")),
-                    ),
-                ),
-            ),
-            # Partition Options
-            # https://mariadb.com/kb/en/create-table/#partitions
-            Sequence(
-                "PARTITION",
-                "BY",
+        ],
+        before=Ref("TableEndClauseSegment", optional=True),
+        remove=[
+            OneOf(
                 Sequence(
-                    OneOf(
-                        Sequence(
-                            Ref.keyword("LINEAR", optional=True),
+                    Bracketed(
+                        Delimited(
                             OneOf(
-                                Sequence("HASH", Ref("ExpressionSegment")),
-                                Sequence(
-                                    "KEY", Delimited(Ref("ColumnReferenceSegment"))
-                                ),
+                                Ref("TableConstraintSegment"),
+                                Ref("ColumnDefinitionSegment"),
                             ),
-                        ),
-                        Sequence(
-                            OneOf("RANGE", "LIST"),
-                            Ref("ExpressionSegment"),
-                        ),
-                        # FIXME: SYSTEM_TIME Sequence() inclusion causes failure
+                        )
                     ),
-                    Sequence("PARTITIONS", Ref("NumericLiteralSegment"), optional=True),
-                    Sequence(
-                        "SUBPARTITION",
-                        "BY",
-                        Sequence(
-                            Ref.keyword("LINEAR", optional=True),
-                            OneOf(
-                                Sequence("HASH", Ref("ExpressionSegment")),
-                                Sequence(
-                                    "KEY", Delimited(Ref("ColumnReferenceSegment"))
-                                ),
-                            ),
-                        ),
-                        Sequence(
-                            "SUBPARTITIONS", Ref("NumericLiteralSegment"), optional=True
-                        ),
-                        optional=True,
-                    ),
-                    # optional partition_definition(s)
-                    AnyNumberOf(
-                        Sequence(
-                            Ref.keyword("PARTITION", optional=True),
-                            Ref("LiteralGrammar"),
-                            AnyNumberOf(
-                                Sequence(
-                                    "VALUES",
-                                    OneOf(
-                                        Sequence(
-                                            "LESS",
-                                            "THAN",
-                                            OneOf(
-                                                "MAXVALUE",
-                                                Bracketed(Ref("ExpressionSegment")),
-                                            ),
-                                        ),
-                                        Sequence(
-                                            "IN",
-                                            Bracketed(Ref("ObjectReferenceSegment")),
-                                        ),
-                                    ),
-                                ),
-                                Sequence(
-                                    Ref.keyword("DEFAULT", optional=True),
-                                    OneOf(
-                                        Ref("ParameterNameSegment"),
-                                        Sequence("CHARACTER", "SET"),
-                                        Sequence("DATA", "DIRECTORY"),
-                                        Sequence("INDEX", "DIRECTORY"),
-                                        Sequence("WITH", "SYSTEM"),
-                                    ),
-                                    Ref("EqualsSegment", optional=True),
-                                    OneOf(
-                                        Ref("LiteralGrammar"),
-                                        Ref("ParameterNameSegment"),
-                                        Ref("QuotedLiteralSegment"),
-                                        Ref("SingleQuotedIdentifierSegment"),
-                                        Ref("NumericLiteralSegment"),
-                                        # Union option
-                                        Bracketed(
-                                            Delimited(Ref("TableReferenceSegment")),
-                                        ),
-                                    ),
-                                ),
-                                # optional subpartition_definition(s)
-                                Sequence(
-                                    Ref.keyword("SUBPARTITION", optional=True),
-                                    Ref("LiteralGrammar"),
-                                    AnyNumberOf(
-                                        Sequence(
-                                            "VALUES",
-                                            OneOf(
-                                                Sequence(
-                                                    "LESS",
-                                                    "THAN",
-                                                    OneOf(
-                                                        "MAXVALUE",
-                                                        Bracketed(
-                                                            Ref("ExpressionSegment")
-                                                        ),
-                                                    ),
-                                                ),
-                                                Sequence(
-                                                    "IN",
-                                                    Bracketed(
-                                                        Ref("ObjectReferenceSegment")
-                                                    ),
-                                                ),
-                                            ),
-                                        ),
-                                        Sequence(
-                                            Ref.keyword("DEFAULT", optional=True),
-                                            OneOf(
-                                                Ref("ParameterNameSegment"),
-                                                Sequence("CHARACTER", "SET"),
-                                                Sequence("DATA", "DIRECTORY"),
-                                                Sequence("INDEX", "DIRECTORY"),
-                                                Sequence("WITH", "SYSTEM"),
-                                            ),
-                                            Ref("EqualsSegment", optional=True),
-                                            OneOf(
-                                                Ref("LiteralGrammar"),
-                                                Ref("ParameterNameSegment"),
-                                                Ref("QuotedLiteralSegment"),
-                                                Ref("SingleQuotedIdentifierSegment"),
-                                                Ref("NumericLiteralSegment"),
-                                                # Union option
-                                                Bracketed(
-                                                    Delimited(
-                                                        Ref("TableReferenceSegment")
-                                                    ),
-                                                ),
-                                            ),
-                                        ),
-                                    ),
-                                ),
-                            ),
-                            optional=True,
-                        ),
-                    ),
+                    Ref("CommentClauseSegment", optional=True),
                 ),
-                optional=True,
+                Sequence(
+                    "AS",
+                    OptionallyBracketed(Ref("SelectableGrammar")),
+                ),
+                Sequence("LIKE", Ref("TableReferenceSegment")),
             ),
-        ),
+        ],
     )
