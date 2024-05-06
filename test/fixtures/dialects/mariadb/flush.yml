@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 19d48e39bc87b05358abcf06a2d2edd289d9e249da43532890fd301fe03d83df
+_hash: 8f22cb8fd34961fa5b7befb14683818ae9bf139e7d2c24e85db74c4a4731e714
 file:
 - statement:
     flush_statement:
@@ -32,19 +32,29 @@ file:
     flush_statement:
     - keyword: FLUSH
     - keyword: LOCAL
-    - keyword: PRIVILEGES
+    - keyword: HOSTS
     - comma: ','
-    - keyword: OPTIMIZER_COSTS
+    - keyword: QUERY
+    - keyword: CACHE
     - comma: ','
+    - keyword: TABLE_STATISTICS
+    - comma: ','
+    - keyword: INDEX_STATISTICS
+    - comma: ','
+    - keyword: USER_STATISTICS
+- statement_terminator: ;
+- statement:
+    flush_statement:
+    - keyword: FLUSH
+    - keyword: STATUS
+- statement_terminator: ;
+- statement:
+    flush_statement:
+    - keyword: FLUSH
     - keyword: RELAY
     - keyword: LOGS
-    - comma: ','
-    - keyword: SLOW
-    - keyword: LOGS
-    - comma: ','
-    - keyword: STATUS
-    - comma: ','
-    - keyword: USER_RESOURCES
+    - object_reference:
+        naked_identifier: my_channel
 - statement_terminator: ;
 - statement:
     flush_statement:
