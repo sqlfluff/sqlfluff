@@ -39,7 +39,6 @@ ansi_dialect = load_raw_dialect("ansi")
 clickhouse_dialect = ansi_dialect.copy_as("clickhouse")
 clickhouse_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
-
 clickhouse_dialect.insert_lexer_matchers(
     # https://clickhouse.com/docs/en/sql-reference/functions#higher-order-functions---operator-and-lambdaparams-expr-function
     [StringLexer("lambda", r"->", SymbolSegment)],
@@ -792,63 +791,121 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
 
     type = "create_table_statement"
 
-    match_grammar: Matchable = Sequence(
-        "CREATE",
-        OneOf(
-            Ref("OrReplaceGrammar"),
-            Ref.keyword("TEMPORARY"),
-            optional=True,
-        ),
-        "TABLE",
-        Ref("IfNotExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
-        Ref("OnClusterClauseSegment", optional=True),
-        OneOf(
-            # CREATE TABLE (...):
-            Sequence(
-                Bracketed(
-                    Delimited(
-                        OneOf(
-                            Ref("TableConstraintSegment"),
-                            Ref("ColumnDefinitionSegment"),
-                            Ref("ColumnConstraintSegment"),
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            "CREATE",
+            Ref("OrReplaceGrammar", optional=True),
+            "TABLE",
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("TableReferenceSegment"),
+            Ref("OnClusterClauseSegment", optional=True),
+            OneOf(
+                # CREATE TABLE (...):
+                Sequence(
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("TableConstraintSegment"),
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("ColumnConstraintSegment"),
+                            ),
                         ),
+                        # Column definition may be missing if using AS SELECT
+                        optional=True,
                     ),
-                    # Column definition may be missing if using AS SELECT
-                    optional=True,
+                    Ref("TableEngineSegment"),
+                    # CREATE TABLE (...) AS SELECT:
+                    Sequence(
+                        "AS",
+                        Ref("SelectableGrammar"),
+                        optional=True,
+                    ),
                 ),
-                Ref("TableEngineSegment"),
-                # CREATE TABLE (...) AS SELECT:
+                # CREATE TABLE AS other_table:
+                Sequence(
+                    "AS",
+                    Ref("TableReferenceSegment"),
+                    Ref("TableEngineSegment", optional=True),
+                ),
+                # CREATE TABLE AS table_function():
+                Sequence(
+                    "AS",
+                    Ref("FunctionSegment"),
+                ),
+            ),
+            AnySetOf(
+                Sequence(
+                    "COMMENT",
+                    OneOf(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("QuotedIdentifierSegment"),
+                    ),
+                ),
+                Ref("TableTTLSegment"),
+                optional=True,
+            ),
+            Ref("TableEndClauseSegment", optional=True),
+        ),
+        # CREATE TEMPORARY TABLE
+        Sequence(
+            "CREATE",
+            Ref.keyword("TEMPORARY"),
+            "TABLE",
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("TableReferenceSegment"),
+            OneOf(
+                # CREATE TEMPORARY TABLE (...):
+                Sequence(
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("TableConstraintSegment"),
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("ColumnConstraintSegment"),
+                            ),
+                        ),
+                        # Column definition may be missing if using AS SELECT
+                        optional=True,
+                    ),
+                    Ref("TableEngineSegment"),
+                    # CREATE TEMPORARY TABLE (...) AS SELECT:
+                    Sequence(
+                        "AS",
+                        Ref("SelectableGrammar"),
+                        optional=True,
+                    ),
+                ),
+                # CREATE TEMPORARY TABLE AS other_table:
+                Sequence(
+                    "AS",
+                    Ref("TableReferenceSegment"),
+                    Ref("TableEngineSegment", optional=True),
+                ),
+                # CREATE TEMPORARY TABLE AS table_function():
+                Sequence(
+                    "AS",
+                    Ref("FunctionSegment"),
+                ),
+                # CREATE TEMPORARY TABLE AS
                 Sequence(
                     "AS",
                     Ref("SelectableGrammar"),
                     optional=True,
                 ),
             ),
-            # CREATE TABLE AS other_table:
-            Sequence(
-                "AS",
-                Ref("TableReferenceSegment"),
-                Ref("TableEngineSegment", optional=True),
-            ),
-            # CREATE TABLE AS table_function():
-            Sequence(
-                "AS",
-                Ref("FunctionSegment"),
-            ),
-        ),
-        AnySetOf(
-            Sequence(
-                "COMMENT",
-                OneOf(
-                    Ref("SingleIdentifierGrammar"),
-                    Ref("QuotedIdentifierSegment"),
+            AnySetOf(
+                Sequence(
+                    "COMMENT",
+                    OneOf(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("QuotedIdentifierSegment"),
+                    ),
                 ),
+                Ref("TableTTLSegment"),
+                optional=True,
             ),
-            Ref("TableTTLSegment"),
-            optional=True,
+            Ref("TableEndClauseSegment", optional=True),
         ),
-        Ref("TableEndClauseSegment", optional=True),
     )
 
 
