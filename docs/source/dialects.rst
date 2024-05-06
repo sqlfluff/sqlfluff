@@ -143,6 +143,15 @@ The dialect for `Materialize`_.
 
 .. _`Materialize`: https://materialize.com/
 
+.. _mariadb_dialect_ref:
+
+MariaDB
+-----
+
+The dialect for `MariaDB`_.
+
+.. _`MariaDB`: https://www.mariadb.org/
+
 .. _mysql_dialect_ref:
 
 MySQL
