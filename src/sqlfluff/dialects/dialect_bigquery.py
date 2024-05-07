@@ -516,6 +516,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropMaterializedViewStatementSegment"),
             Ref("DropProcedureStatementSegment"),
             Ref("UndropSchemaStatementSegment"),
+            Ref("CreateSearchIndexStatementSegment"),
+            Ref("CreateVectorIndexStatementSegment"),
             Ref("CreateRowAccessPolicyStatementSegment"),
             Ref("CreateCapacityStatementSegment"),
             Ref("CreateReservationStatementSegment"),
@@ -2599,6 +2601,58 @@ class RaiseStatementSegment(BaseSegment):
             Ref("ExpressionSegment"),
             optional=True,
         ),
+    )
+
+
+class CreateSearchIndexStatementSegment(BaseSegment):
+    """A `CREATE SEARCH INDEX` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_search_index_statement
+    """
+
+    type = "create_search_index_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SEARCH",
+        "INDEX",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Bracketed(
+            OneOf(
+                Sequence("ALL", "COLUMNS"),
+                Delimited(
+                    Ref("IndexColumnDefinitionSegment"),
+                ),
+            )
+        ),
+        Ref("OptionsSegment", optional=True),
+    )
+
+
+class CreateVectorIndexStatementSegment(BaseSegment):
+    """A `CREATE VECTOR INDEX` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_vector_index_statement
+    """
+
+    type = "create_vector_index_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "VECTOR",
+        "INDEX",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Ref("IndexColumnDefinitionSegment"),
+            ),
+        ),
+        Ref("OptionsSegment"),
     )
 
 
