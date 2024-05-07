@@ -3,11 +3,29 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1247f4ff8e352edcb3de7913a509af396d6c2bdcdfad9481ebf698f8b319e7a4
+_hash: 92fc654926aea37fbb646fd0584c11a92986a27e489be3af95c8ecbe2e8954d4
 file:
-  statement:
+- statement:
     use_statement:
       keyword: USE
       database_reference:
         naked_identifier: db
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    use_statement:
+      keyword: USE
+      database_reference:
+        naked_identifier: db
+- statement_terminator: ;
+- statement:
+    use_statement:
+      keyword: USE
+      database_reference:
+        naked_identifier: db
+- statement_terminator: ;
+- statement:
+    use_statement:
+      keyword: USE
+      database_reference:
+        naked_identifier: db
+- statement_terminator: ;

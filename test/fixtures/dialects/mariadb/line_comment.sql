@@ -1,4 +1,9 @@
 -- Hello
 --Hello
 --From Curaçao
-USE db;
+# hashtag comment
+#hashtag comment without space
+USE db; #inline
+USE db; # inline w/ space
+USE db; --inline
+USE db; -- inline
