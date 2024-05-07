@@ -264,6 +264,7 @@ mysql_dialect.replace(
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
+    LikeGrammar=OneOf("LIKE", "RLIKE", "REGEXP"),
 )
 
 mysql_dialect.add(
