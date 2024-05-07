@@ -2417,13 +2417,28 @@ class ExportStatementSegment(BaseSegment):
                             type="export_option",
                         ),
                         StringParser(
+                            "header",
+                            CodeSegment,
+                            type="export_option",
+                        ),
+                        StringParser(
+                            "overwrite",
+                            CodeSegment,
+                            type="export_option",
+                        ),
+                        StringParser(
                             "uri",
+                            CodeSegment,
+                            type="export_option",
+                        ),
+                        StringParser(
+                            "use_avro_logical_types",
                             CodeSegment,
                             type="export_option",
                         ),
                     ),
                     Ref("EqualsSegment"),
-                    Ref("QuotedLiteralSegment"),
+                    Ref("BaseExpressionElementGrammar"),
                 ),
                 # Bool options
                 # Note: adding as own type, rather than keywords as convention with
