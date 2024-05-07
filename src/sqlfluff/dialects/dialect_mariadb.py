@@ -1,4 +1,7 @@
-"""MariaDB Dialect."""
+"""MariaDB Dialect.
+
+https://mariadb.com/kb/en/sql-statements-structure/
+"""
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
