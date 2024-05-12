@@ -315,6 +315,34 @@ class AliasExpressionSegment(BaseSegment):
         Dedent,
     )
 
+# Mainly adapted from the sparksql implementation
+class GeneratedColumnDefinitionSegment(BaseSegment):
+    """A generated column definition.
+
+    e.g. email_domain CHAR(100) AS (SUBSTRING_INDEX(email, '@', -1))
+    https://dev.mysql.com/doc/refman/8.0/en/create-table-generated-columns.html
+    """
+    type = "generated_column_definition"
+
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        Ref("DatatypeSegment"),  # Column type
+        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+        Sequence(
+            Sequence("GENERATED", "ALWAYS", optional=True),
+            "AS",
+            Bracketed(
+                OneOf(
+                    Ref("FunctionSegment"),
+                    Ref("BareFunctionSegment"),
+                ),
+            ),
+            OneOf("VIRTUAL", "STORED", optional=True)
+        ),
+        AnyNumberOf(
+            Ref("ColumnConstraintSegment", optional=True),
+        ),
+    )
 
 class ColumnDefinitionSegment(BaseSegment):
     """A column definition, e.g. for CREATE TABLE or ALTER TABLE."""
@@ -380,6 +408,8 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     https://dev.mysql.com/doc/refman/8.0/en/create-table.html
     """
 
+    # TODO check if here is the right place to add the new option of the
+    # generated column definition
     match_grammar = ansi.CreateTableStatementSegment.match_grammar.copy(
         insert=[
             AnyNumberOf(
