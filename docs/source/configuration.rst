@@ -951,7 +951,7 @@ If passed the following *.sql* file:
 Complex Python Variable Templating
 """"""""""""""""""""""""""""""""""""
 
-`Python string formatting`_ supports accessing object attributes and methods
+`Python string formatting`_ supports accessing object attributes
 via dot notation (e.g. :code:`{foo.bar}`).  However, since we cannot create Python
 objects within configuration files, we need a workaround in order to provide
 dummy values to render templates containing these values.  The SQLFluff
