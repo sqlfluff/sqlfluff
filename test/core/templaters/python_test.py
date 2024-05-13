@@ -496,3 +496,47 @@ def test__templater_python_large_file_check():
         )
 
     assert "Length of file" in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    "raw_str,result",
+    [
+        ("", ""),
+        (
+            "SELECT * FROM {foo.bar}",
+            "SELECT * FROM foobar",
+        ),
+        (
+            "SELECT {foo} FROM {foo.bar}",
+            "SELECT bar FROM foobar",
+        ),
+        (
+            "SELECT {num:.2f} FROM blah",
+            "SELECT 123.00 FROM blah",
+        ),
+        (
+            "SELECT {self.number:.1f} FROM blah",
+            "SELECT 42.0 FROM blah",
+        ),
+        (
+            "SELECT * FROM {obj.schema}.{obj.table}",
+            "SELECT * FROM my_schema.my_table",
+        ),
+    ],
+)
+def test__templater_python_dot_notation_variables(raw_str, result):
+    """Test template variables that contain a dot character (`.`)."""
+    context = {
+        "foo": "bar",
+        "num": 123,
+        "sqlfluff": {
+            "foo.bar": "foobar",
+            "self.number": 42,
+            "obj.schema": "my_schema",
+            "obj.table": "my_table",
+        },
+    }
+    t = PythonTemplater(override_context=context)
+    instr = raw_str
+    outstr, _ = t.process(in_str=instr, fname="test")
+    assert str(outstr) == result

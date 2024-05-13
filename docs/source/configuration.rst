@@ -948,6 +948,34 @@ If passed the following *.sql* file:
     SELECT * FROM my_table
 
 
+Complex Python Variable Templating
+""""""""""""""""""""""""""""""""""""
+
+`Python string formatting`_ supports accessing object attributes and methods
+via dot notation (e.g. :code:`{foo.bar}`).  However, since we cannot create Python
+objects within configuration files, we need a workaround in order to provide
+dummy values to render templates containing these values.  The SQLFluff
+python templater will temporarily convert any template variable
+containing a "." with a dictionary lookup using the fixed context key :code:`sqlfluff`:
+
+.. code-block:: sql
+
+    -- this SQL
+    SELECT * FROM {foo.bar}
+
+    -- becomes this
+    SELECT * FROM {sqlfluff[foo.bar]}
+
+..which can be populated using the following configuration:
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:python:context]
+    sqlfluff = {"foo.bar": "abc"}
+
+.. _`Python string formatting`: https://docs.python.org/3/library/string.html#format-string-syntax
+
+
 :code:`dbt` templater
 ^^^^^^^^^^^^^^^^^^^^^
 
