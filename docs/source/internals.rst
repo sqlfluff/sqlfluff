@@ -152,6 +152,7 @@ way this is achieved is through some centralised utilities in the
 `sqlfluff.utils.reflow` module.
 
 This module aims to achieve several things:
+
 * Less code duplication by implementing reflow logic in only one place.
 
 * Provide a streamlined interface for rules to easily utilise reflow logic.
