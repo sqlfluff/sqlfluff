@@ -145,6 +145,14 @@ mysql_dialect.sets("datetime_units").update(
     ]
 )
 
+mysql_dialect.sets("date_part_function_name").clear()
+mysql_dialect.sets("date_part_function_name").update(
+    [
+        "EXTRACT",
+        "TIMESTAMPADD",
+        "TIMESTAMPDIFF",
+    ]
+)
 
 mysql_dialect.replace(
     QuotedIdentifierSegment=TypedParser(
