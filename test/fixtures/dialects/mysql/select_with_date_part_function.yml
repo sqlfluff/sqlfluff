@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 780d2540254f231e0b9ee42faf0ef11849d753bdbfbdf8c487dd02823a52d9aa
+_hash: d9f761d3a5659de14e4bf567ce2169a8f122a46382ff037a617e88616c973d46
 file:
 - statement:
     select_statement:
@@ -58,4 +58,71 @@ file:
             - expression:
                 quoted_literal: "'2003-05-01'"
             - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TIMESTAMPDIFF
+            bracketed:
+            - start_bracket: (
+            - date_part: HOUR
+            - comma: ','
+            - expression:
+                column_reference:
+                - naked_identifier: x
+                - dot: .
+                - naked_identifier: time_created
+            - comma: ','
+            - expression:
+                column_reference:
+                - naked_identifier: x
+                - dot: .
+                - naked_identifier: time_updated
+            - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: example_table
+            alias_expression:
+              keyword: AS
+              naked_identifier: x
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TIMESTAMPADD
+            bracketed:
+            - start_bracket: (
+            - date_part: SECOND
+            - comma: ','
+            - expression:
+                numeric_literal: '1'
+            - comma: ','
+            - expression:
+                column_reference:
+                - naked_identifier: x
+                - dot: .
+                - naked_identifier: some_timestamp_field
+            - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: example_table
+            alias_expression:
+              keyword: AS
+              naked_identifier: x
 - statement_terminator: ;
