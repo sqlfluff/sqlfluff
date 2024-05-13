@@ -22,8 +22,8 @@ internal flow is largely the same.
 Stage 1, the templater
 ^^^^^^^^^^^^^^^^^^^^^^
 
-This stage only applies to templated SQL, most commonly Jinja and dbt. Vanilla
-SQL is sent straight to stage 2, the lexer.
+This stage only applies to templated SQL. Vanilla SQL is sent straight to
+stage 2, the lexer.
 
 In order to lint templated SQL, SQLFluff must first convert the 'raw' or
 pre-templated code into valid SQL, which can then be parsed. The templater
@@ -33,8 +33,14 @@ original line location for user feedback.
 
 .. _Jinja: https://jinja.palletsprojects.com/
 .. _dbt: https://docs.getdbt.com/
+.. _`Python format strings`: https://docs.python.org/3/library/string.html#format-string-syntax
 
-*SQLFluff* supports two templating engines: Jinja_ and dbt_.
+*SQLFluff* supports multiple templating engines:
+
+   * Jinja_
+   * SQL placeholders (e.g. SQLAlchemy parameters)
+   * `Python format strings`_
+   * dbt_ (via plugin)
 
 Under the hood dbt also uses Jinja, but in *SQLFluff* uses a separate
 mechanism which interfaces directly with the dbt python package.
