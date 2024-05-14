@@ -187,20 +187,13 @@ mysql_dialect.replace(
             Ref("VariableAssignmentSegment"),
         ]
     ),
-    ArithmeticBinaryOperatorGrammar=OneOf(
-        Ref("PlusSegment"),
-        Ref("MinusSegment"),
-        Ref("DivideSegment"),
-        Ref("MultiplySegment"),
-        Ref("ModuloSegment"),
-        Ref("BitwiseAndSegment"),
-        Ref("BitwiseOrSegment"),
-        Ref("BitwiseXorSegment"),
-        Ref("BitwiseLShiftSegment"),
-        Ref("BitwiseRShiftSegment"),
-        # Add MySQL's DIV and MOD segment
-        Ref("DivOperatorSegment"),
-        Ref("ModOperatorSegment"),
+    ArithmeticBinaryOperatorGrammar=ansi_dialect.get_grammar(
+        "ArithmeticBinaryOperatorGrammar"
+    ).copy(
+        insert=[
+            Ref("DivOperatorSegment"),
+            Ref("ModOperatorSegment"),
+        ],
     ),
     DateTimeLiteralGrammar=Sequence(
         # MySQL does not require the keyword to be specified:
