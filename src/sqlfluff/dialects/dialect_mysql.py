@@ -195,6 +195,14 @@ mysql_dialect.replace(
             Ref("VariableAssignmentSegment"),
         ]
     ),
+    ArithmeticBinaryOperatorGrammar=ansi_dialect.get_grammar(
+        "ArithmeticBinaryOperatorGrammar"
+    ).copy(
+        insert=[
+            Ref("DivOperatorSegment"),
+            Ref("ModOperatorSegment"),
+        ],
+    ),
     DateTimeLiteralGrammar=Sequence(
         # MySQL does not require the keyword to be specified:
         # https://dev.mysql.com/doc/refman/8.0/en/date-and-time-literals.html
@@ -291,6 +299,8 @@ mysql_dialect.add(
         CodeSegment,
         type="system_variable",
     ),
+    DivOperatorSegment=StringParser("DIV", KeywordSegment, type="binary_operator"),
+    ModOperatorSegment=StringParser("MOD", KeywordSegment, type="binary_operator"),
     DoubleQuotedJSONPath=TypedParser(
         "double_quote",
         CodeSegment,
