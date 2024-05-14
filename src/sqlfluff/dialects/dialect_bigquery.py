@@ -1774,6 +1774,50 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 ),
                 allow_trailing=True,
             ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_add_foreign_key_statement
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_add_primary_key_statement
+            Delimited(
+                OneOf(
+                    Sequence(
+                        "ADD",
+                        Sequence(
+                            "CONSTRAINT",
+                            Ref("IfNotExistsGrammar", optional=True),
+                            Ref("SingleIdentifierGrammar"),
+                            optional=True,
+                        ),
+                        "FOREIGN",
+                        "KEY",
+                        Bracketed(
+                            Delimited(
+                                Ref("SingleIdentifierGrammar"),
+                            ),
+                        ),
+                        "REFERENCES",
+                        Ref("TableReferenceSegment"),
+                        Bracketed(
+                            Delimited(
+                                Ref("SingleIdentifierGrammar"),
+                            ),
+                        ),
+                        "NOT",
+                        "ENFORCED",
+                    ),
+                    Sequence(
+                        "ADD",
+                        "PRIMARY",
+                        "KEY",
+                        Bracketed(
+                            Delimited(
+                                Ref("SingleIdentifierGrammar"),
+                            ),
+                        ),
+                        "NOT",
+                        "ENFORCED",
+                    ),
+                ),
+                allow_trailing=True,
+            ),
             # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_rename_to_statement
             Sequence(
                 "RENAME",

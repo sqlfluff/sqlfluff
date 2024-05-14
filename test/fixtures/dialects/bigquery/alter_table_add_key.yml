@@ -1,0 +1,116 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7e3f74ec53c1b37238306efed683b139d7a014b2d315032fb6aab8da8952f161
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: example_dataset
+      - dot: .
+      - naked_identifier: example_table2
+    - keyword: ADD
+    - keyword: CONSTRAINT
+    - naked_identifier: my_fk_name
+    - keyword: FOREIGN
+    - keyword: KEY
+    - bracketed:
+        start_bracket: (
+        naked_identifier: x
+        end_bracket: )
+    - keyword: REFERENCES
+    - table_reference:
+      - naked_identifier: example_dataset
+      - dot: .
+      - naked_identifier: example_table
+    - bracketed:
+        start_bracket: (
+        naked_identifier: x
+        end_bracket: )
+    - keyword: NOT
+    - keyword: ENFORCED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`example_dataset.example_table`'
+    - keyword: ADD
+    - keyword: PRIMARY
+    - keyword: KEY
+    - bracketed:
+        start_bracket: (
+        quoted_identifier: '`x`'
+        end_bracket: )
+    - keyword: NOT
+    - keyword: ENFORCED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: fk_table
+    - keyword: ADD
+    - keyword: PRIMARY
+    - keyword: KEY
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: x
+      - comma: ','
+      - naked_identifier: y
+      - end_bracket: )
+    - keyword: NOT
+    - keyword: ENFORCED
+    - comma: ','
+    - keyword: ADD
+    - keyword: CONSTRAINT
+    - naked_identifier: fk
+    - keyword: FOREIGN
+    - keyword: KEY
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: u
+      - comma: ','
+      - naked_identifier: v
+      - end_bracket: )
+    - keyword: REFERENCES
+    - table_reference:
+        naked_identifier: pk_table
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: x
+      - comma: ','
+      - naked_identifier: y
+      - end_bracket: )
+    - keyword: NOT
+    - keyword: ENFORCED
+    - comma: ','
+    - keyword: ADD
+    - keyword: CONSTRAINT
+    - quoted_identifier: '`fk2`'
+    - keyword: FOREIGN
+    - keyword: KEY
+    - bracketed:
+      - start_bracket: (
+      - quoted_identifier: '`i`'
+      - comma: ','
+      - quoted_identifier: '`j`'
+      - end_bracket: )
+    - keyword: REFERENCES
+    - table_reference:
+        quoted_identifier: '`pk_table`'
+    - bracketed:
+      - start_bracket: (
+      - quoted_identifier: '`x`'
+      - comma: ','
+      - quoted_identifier: '`y`'
+      - end_bracket: )
+    - keyword: NOT
+    - keyword: ENFORCED
+- statement_terminator: ;
