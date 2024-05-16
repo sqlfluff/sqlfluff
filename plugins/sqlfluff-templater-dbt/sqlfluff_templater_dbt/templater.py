@@ -188,7 +188,14 @@ class DbtTemplater(JinjaTemplater):
                 threads=1,
             )
         )
-        register_adapter(self.dbt_config)
+
+        if self.dbt_version_tuple >= (1, 8):
+            from dbt.mp_context import get_mp_context
+
+            register_adapter(self.dbt_config, get_mp_context())
+        else:
+            register_adapter(self.dbt_config)
+
         return self.dbt_config
 
     @cached_property
@@ -459,7 +466,12 @@ class DbtTemplater(JinjaTemplater):
         try:
             # These are the names in dbt-core 1.4.1+
             # https://github.com/dbt-labs/dbt-core/pull/6539
-            from dbt.exceptions import CompilationError, FailedToConnectError
+            from dbt.exceptions import CompilationError
+
+            if self.dbt_version_tuple >= (1, 8):
+                from dbt.adapters.exceptions import FailedToConnectError
+            else:
+                from dbt.exceptions import FailedToConnectError
         except ImportError:
             # These are the historic names for older dbt-core versions
             from dbt.exceptions import CompilationException as CompilationError
