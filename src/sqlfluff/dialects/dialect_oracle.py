@@ -492,7 +492,6 @@ class StatementSegment(ansi.StatementSegment):
     match_grammar = ansi.StatementSegment.match_grammar.copy(
         insert=[
             Ref("CommentStatementSegment"),
-            Ref("DropMaterializedViewStatementSegment")
         ],
     )
 
@@ -977,19 +976,4 @@ class FunctionNameSegment(BaseSegment):
             delimiter=Ref("AtSignSegment"),
         ),
         allow_gaps=False,
-    )
-
-class DropMaterializedViewStatementSegment(ansi.DropViewStatementSegment):
-    """A oracle `DROP MATERIALIZED VIEW ...` statement.
-
-    https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/DROP-MATERIALIZED-VIEW.html
-    """
-
-    type = "drop_materialized_view_statement"
-    match_grammar = Sequence(
-        "DROP",
-        Sequence("MATERIALIZED", optional=True),
-        "VIEW",
-        Ref("IfExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
     )
