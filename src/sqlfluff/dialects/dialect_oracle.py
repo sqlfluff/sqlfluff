@@ -609,7 +609,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
             "NONEDITIONABLE",
             optional=True,
         ),
-        Sequence("MATERIALIZED", optional=True),
+        Ref.keyword("MATERIALIZED", optional=True),
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
