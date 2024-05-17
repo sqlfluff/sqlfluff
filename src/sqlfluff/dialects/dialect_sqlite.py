@@ -103,6 +103,7 @@ sqlite_dialect.replace(
     PrimaryKeyGrammar=Sequence(
         "PRIMARY",
         "KEY",
+        OneOf("ASC", "DESC", optional=True),
         Ref("ConflictClauseSegment", optional=True),
         Sequence("AUTOINCREMENT", optional=True),
     ),
