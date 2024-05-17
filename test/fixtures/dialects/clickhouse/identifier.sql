@@ -1,3 +1,5 @@
+SELECT * FROM _1.Table;
+
 SELECT * FROM _1._2;
 
 SELECT bar AS _1 FROM foo;
