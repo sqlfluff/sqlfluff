@@ -365,6 +365,56 @@ class ReturningClauseSegment(BaseSegment):
     )
 
 
+class ConflictTargetSegment(BaseSegment):
+    """An upsert conflict target.
+
+    https://www.sqlite.org/lang_upsert.html
+    """
+
+    type = "conflict_target"
+    match_grammar = Sequence(
+        Delimited(Ref("IndexColumnDefinitionSegment")),
+        Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
+    )
+
+
+class UpsertClauseSegment(BaseSegment):
+    """An upsert clause.
+
+    https://www.sqlite.org/lang_upsert.html
+    """
+
+    type = "upsert_clause"
+    match_grammar = Sequence(
+        "ON",
+        "CONFLICT",
+        Ref("ConflictTargetSegment", optional=True),
+        "DO",
+        OneOf(
+            "NOTHING",
+            Sequence(
+                "UPDATE",
+                "SET",
+                Delimited(
+                    Sequence(
+                        OneOf(
+                            Ref("SingleIdentifierGrammar"),
+                            Ref("BracketedColumnReferenceListGrammar"),
+                        ),
+                        Ref("EqualsSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+                Sequence(
+                    "WHERE",
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+            ),
+        ),
+    )
+
+
 class InsertStatementSegment(BaseSegment):
     """An`INSERT` statement.
 
@@ -395,8 +445,14 @@ class InsertStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         OneOf(
-            Ref("ValuesClauseSegment"),
-            OptionallyBracketed(Ref("SelectableGrammar")),
+            Sequence(
+                Ref("ValuesClauseSegment"),
+                Ref("UpsertClauseSegment", optional=True),
+            ),
+            Sequence(
+                OptionallyBracketed(Ref("SelectableGrammar")),
+                Ref("UpsertClauseSegment", optional=True),
+            ),
             Ref("DefaultValuesGrammar"),
         ),
         Ref("ReturningClauseSegment", optional=True),
