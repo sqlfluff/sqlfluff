@@ -123,6 +123,22 @@ sqlite_dialect.replace(
             Ref.keyword("AS"),
         ],
     ),
+    AlterTableOptionsGrammar=OneOf(
+        Sequence("RENAME", "TO", Ref("SingleIdentifierGrammar")),
+        Sequence(
+            "RENAME",
+            Sequence("COLUMN", optional=True),
+            Ref("ColumnReferenceSegment"),
+            "TO",
+            Ref("SingleIdentifierGrammar"),
+        ),
+        Sequence(
+            "ADD", Sequence("COLUMN", optional=True), Ref("ColumnDefinitionSegment")
+        ),
+        Sequence(
+            "DROP", Sequence("COLUMN", optional=True), Ref("ColumnReferenceSegment")
+        ),
+    ),
     AutoIncrementGrammar=Nothing(),
     CommentClauseSegment=Nothing(),
     IntervalExpressionSegment=Nothing(),
