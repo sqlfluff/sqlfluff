@@ -66,6 +66,7 @@ class DbtConfigArgs:
     # https://github.com/sqlfluff/sqlfluff/issues/4861
     # https://github.com/sqlfluff/sqlfluff/issues/4965
     which: Optional[str] = "compile"
+    REQUIRE_RESOURCE_NAMES_WITHOUT_SPACES: Optional[bool] = True
 
 
 class DbtTemplater(JinjaTemplater):
@@ -155,6 +156,10 @@ class DbtTemplater(JinjaTemplater):
             user_config = None
             # 1.5.x+ this is a dict.
             cli_vars = self._get_cli_vars()
+            if self.dbt_version_tuple >= (1, 8):
+                from dbt_common.context import set_invocation_context
+
+                set_invocation_context({})
         else:
             # Here, we read flags.PROFILE_DIR directly, prior to calling
             # set_from_args(). Apparently, set_from_args() sets PROFILES_DIR
@@ -640,7 +645,10 @@ class DbtTemplater(JinjaTemplater):
         try:
             # These are the names in dbt-core 1.4.1+
             # https://github.com/dbt-labs/dbt-core/pull/6539
-            from dbt.exceptions import UndefinedMacroError
+            if self.dbt_version_tuple >= (1, 8):
+                from dbt_common.exceptions import UndefinedMacroError
+            else:
+                from dbt.exceptions import UndefinedMacroError
         except ImportError:
             # These are the historic names for older dbt-core versions
             from dbt.exceptions import UndefinedMacroException as UndefinedMacroError

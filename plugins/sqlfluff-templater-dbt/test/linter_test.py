@@ -9,15 +9,14 @@ import pytest
 from sqlfluff.cli.commands import lint
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.utils.testing.cli import invoke_assert_code
-from test.fixtures.dbt.templater import DBT_FLUFF_CONFIG, project_dir  # noqa: F401
 
 
 @pytest.mark.parametrize(
     "path", ["models/my_new_project/disabled_model.sql", "macros/echo.sql"]
 )
-def test__linter__skip_file(path, project_dir):  # noqa
+def test__linter__skip_file(path, project_dir, dbt_fluff_config):  # noqa
     """Test that the linter skips disabled dbt models and macros."""
-    conf = FluffConfig(configs=DBT_FLUFF_CONFIG)
+    conf = FluffConfig(configs=dbt_fluff_config)
     lntr = Linter(config=conf)
     model_file_path = os.path.join(project_dir, path)
     linted_path = lntr.lint_path(path=model_file_path)
@@ -30,19 +29,19 @@ def test__linter__skip_file(path, project_dir):  # noqa
     assert not linted_file.tree
 
 
-def test__linter__lint_ephemeral_3_level(project_dir):  # noqa
+def test__linter__lint_ephemeral_3_level(project_dir, dbt_fluff_config):
     """Test linter can lint a project with 3-level ephemeral dependencies."""
     # This was previously crashing inside dbt, in a function named
     # inject_ctes_into_sql(). (issue 2671).
-    conf = FluffConfig(configs=DBT_FLUFF_CONFIG)
+    conf = FluffConfig(configs=dbt_fluff_config)
     lntr = Linter(config=conf)
     model_file_path = os.path.join(project_dir, "models/ephemeral_3_level")
     lntr.lint_path(path=model_file_path)
 
 
-def test__linter__config_pairs(project_dir):  # noqa
+def test__linter__config_pairs(project_dir, dbt_fluff_config):  # noqa
     """Test that the dbt templater returns version information in it's config."""
-    conf = FluffConfig(configs=DBT_FLUFF_CONFIG)
+    conf = FluffConfig(configs=dbt_fluff_config)
     lntr = Linter(config=conf)
     # NOTE: This method is called within the config readout.
     assert lntr.templater.config_pairs() == [
@@ -51,14 +50,14 @@ def test__linter__config_pairs(project_dir):  # noqa
     ]
 
 
-def test_dbt_target_dir(tmpdir):
+def test_dbt_target_dir(tmp_path, project_dir, profiles_dir):
     """Test with dbt project in subdir that target/ is created in the correct place.
 
     https://github.com/sqlfluff/sqlfluff/issues/2895
     """
-    tmp_base_dir = str(tmpdir)
+    tmp_base_dir = str(tmp_path)
     tmp_dbt_dir = os.path.join(tmp_base_dir, "dir1", "dir2", "dbt")
-    # tmp_project_dir = os.path.join(tmp_dbt_dir, "dbt_project")
+    tmp_project_dir = os.path.join(tmp_dbt_dir, "dbt_project")
     os.makedirs(os.path.dirname(tmp_dbt_dir))
     shutil.copytree(
         "plugins/sqlfluff-templater-dbt/test/fixtures/dbt",
@@ -78,10 +77,11 @@ templater = dbt
 dialect = postgres
 
 [sqlfluff:templater:dbt]
-project_dir = {tmp_base_dir}/dir1/dir2/dbt/dbt_project
-profiles_dir = {old_cwd}/plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml
+project_dir = {tmp_project_dir}
+profiles_dir = {profiles_dir}
 """.format(
-                old_cwd=old_cwd, tmp_base_dir=tmp_base_dir
+                tmp_project_dir=tmp_project_dir,
+                profiles_dir=profiles_dir,
             ),
             file=f,
         )
