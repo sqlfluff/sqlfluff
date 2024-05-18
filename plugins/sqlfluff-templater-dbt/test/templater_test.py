@@ -495,13 +495,18 @@ def test__templater_dbt_handle_database_connection_failure(
     from dbt.adapters.factory import get_adapter
 
     try:
-        from dbt.exceptions import (
-            FailedToConnectException as DbtFailedToConnectException,
-        )
-    except ImportError:
-        from dbt.exceptions import (
+        from dbt.adapters.exceptions import (
             FailedToConnectError as DbtFailedToConnectException,
         )
+    except ImportError:
+        try:
+            from dbt.exceptions import (
+                FailedToConnectError as DbtFailedToConnectException,
+            )
+        except ImportError:
+            from dbt.exceptions import (
+                FailedToConnectException as DbtFailedToConnectException,
+            )
 
     # Clear the adapter cache to force this test to create a new connection.
     DbtTemplater.adapters.clear()
@@ -570,7 +575,7 @@ def test__context_in_config_is_loaded(
     dbt_templater,
     model_path,
     var_value,
-    dbt_fluff_config,  # noqa: F811
+    dbt_fluff_config,
 ):
     """Test that variables inside .sqlfluff are passed to dbt."""
     context = {"passed_through_cli": var_value} if var_value else {}

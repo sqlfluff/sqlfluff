@@ -39,7 +39,7 @@ def test__linter__lint_ephemeral_3_level(project_dir, dbt_fluff_config):
     lntr.lint_path(path=model_file_path)
 
 
-def test__linter__config_pairs(project_dir, dbt_fluff_config):  # noqa
+def test__linter__config_pairs(dbt_fluff_config):  # noqa
     """Test that the dbt templater returns version information in it's config."""
     conf = FluffConfig(configs=dbt_fluff_config)
     lntr = Linter(config=conf)
@@ -50,17 +50,17 @@ def test__linter__config_pairs(project_dir, dbt_fluff_config):  # noqa
     ]
 
 
-def test_dbt_target_dir(tmp_path, project_dir, profiles_dir):
+def test_dbt_target_dir(tmpdir, dbt_project_folder, profiles_dir):
     """Test with dbt project in subdir that target/ is created in the correct place.
 
     https://github.com/sqlfluff/sqlfluff/issues/2895
     """
-    tmp_base_dir = str(tmp_path)
+    tmp_base_dir = str(tmpdir)
     tmp_dbt_dir = os.path.join(tmp_base_dir, "dir1", "dir2", "dbt")
     tmp_project_dir = os.path.join(tmp_dbt_dir, "dbt_project")
     os.makedirs(os.path.dirname(tmp_dbt_dir))
     shutil.copytree(
-        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt",
+        dbt_project_folder,
         tmp_dbt_dir,
     )
     os.unlink(os.path.join(tmp_dbt_dir, ".sqlfluff"))
@@ -72,17 +72,14 @@ def test_dbt_target_dir(tmp_path, project_dir, profiles_dir):
     os.chdir(tmp_base_dir)
     with open(".sqlfluff", "w") as f:
         print(
-            """[sqlfluff]
+            f"""[sqlfluff]
 templater = dbt
 dialect = postgres
 
 [sqlfluff:templater:dbt]
 project_dir = {tmp_project_dir}
-profiles_dir = {profiles_dir}
-""".format(
-                tmp_project_dir=tmp_project_dir,
-                profiles_dir=profiles_dir,
-            ),
+profiles_dir = {old_cwd}/{profiles_dir}
+""",
             file=f,
         )
     try:

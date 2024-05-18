@@ -66,7 +66,7 @@ class DbtConfigArgs:
     # https://github.com/sqlfluff/sqlfluff/issues/4861
     # https://github.com/sqlfluff/sqlfluff/issues/4965
     which: Optional[str] = "compile"
-    REQUIRE_RESOURCE_NAMES_WITHOUT_SPACES: Optional[bool] = True
+    REQUIRE_RESOURCE_NAMES_WITHOUT_SPACES: Optional[bool] = None
 
 
 class DbtTemplater(JinjaTemplater):
@@ -148,6 +148,11 @@ class DbtTemplater(JinjaTemplater):
         from dbt.adapters.factory import register_adapter
         from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
 
+        if self.dbt_version_tuple >= (1, 8):
+            from dbt_common.context import set_invocation_context
+
+            set_invocation_context({})
+
         # Attempt to silence internal logging at this point.
         # https://github.com/sqlfluff/sqlfluff/issues/5054
         self.try_silence_dbt_logs()
@@ -156,10 +161,6 @@ class DbtTemplater(JinjaTemplater):
             user_config = None
             # 1.5.x+ this is a dict.
             cli_vars = self._get_cli_vars()
-            if self.dbt_version_tuple >= (1, 8):
-                from dbt_common.context import set_invocation_context
-
-                set_invocation_context({})
         else:
             # Here, we read flags.PROFILE_DIR directly, prior to calling
             # set_from_args(). Apparently, set_from_args() sets PROFILES_DIR
@@ -183,7 +184,7 @@ class DbtTemplater(JinjaTemplater):
             ),
             user_config,
         )
-        self.dbt_config = DbtRuntimeConfig.from_args(
+        _dbt_config = DbtRuntimeConfig.from_args(
             DbtConfigArgs(
                 project_dir=self.project_dir,
                 profiles_dir=self.profiles_dir,
@@ -197,19 +198,18 @@ class DbtTemplater(JinjaTemplater):
         if self.dbt_version_tuple >= (1, 8):
             from dbt.mp_context import get_mp_context
 
-            register_adapter(self.dbt_config, get_mp_context())
+            register_adapter(_dbt_config, get_mp_context())
         else:
-            register_adapter(self.dbt_config)
+            register_adapter(_dbt_config)
 
-        return self.dbt_config
+        return _dbt_config
 
     @cached_property
     def dbt_compiler(self):
         """Loads the dbt compiler."""
         from dbt.compilation import Compiler as DbtCompiler
 
-        self.dbt_compiler = DbtCompiler(self.dbt_config)
-        return self.dbt_compiler
+        return DbtCompiler(self.dbt_config)
 
     @cached_property
     def dbt_manifest(self):
@@ -245,14 +245,14 @@ class DbtTemplater(JinjaTemplater):
             # and before.
             if self.dbt_version_tuple < (1, 4):
                 os.chdir(self.project_dir)
-            self.dbt_manifest = ManifestLoader.get_full_manifest(self.dbt_config)
+            _dbt_manifest = ManifestLoader.get_full_manifest(self.dbt_config)
         except summary_errors as err:  # pragma: no cover
             raise SQLFluffUserError(f"{err.__class__.__name__}: {err}")
         finally:
             if self.dbt_version_tuple < (1, 4):
                 os.chdir(old_cwd)
 
-        return self.dbt_manifest
+        return _dbt_manifest
 
     @cached_property
     def dbt_selector_method(self):
@@ -272,7 +272,7 @@ class DbtTemplater(JinjaTemplater):
         selector_methods_manager = DbtSelectorMethodManager(
             self.dbt_manifest, previous_state=None
         )
-        self.dbt_selector_method = selector_methods_manager.get_method(
+        _dbt_selector_method = selector_methods_manager.get_method(
             DbtMethodName.Path, method_arguments=[]
         )
 
@@ -281,7 +281,7 @@ class DbtTemplater(JinjaTemplater):
                 "dbt templater", "Project Compiled."
             )
 
-        return self.dbt_selector_method
+        return _dbt_selector_method
 
     def _get_profiles_dir(self):
         """Get the dbt profiles directory from the configuration.
@@ -811,7 +811,20 @@ class DbtTemplater(JinjaTemplater):
             adapter = get_adapter(self.dbt_config)
             self.adapters[self.project_dir] = adapter
             adapter.acquire_connection("master")
-            adapter.set_relations_cache(self.dbt_manifest)
+            if self.dbt_version_tuple >= (1, 8):
+                adapter.set_relations_cache(
+                    [
+                        node
+                        for node in self.dbt_manifest.nodes.values()
+                        if (
+                            node.is_relational
+                            and not node.is_ephemeral_model
+                            and not node.is_external_node
+                        )
+                    ]
+                )
+            else:
+                adapter.set_relations_cache(self.dbt_manifest)
 
         yield
         # :TRICKY: Once connected, we never disconnect. Making multiple

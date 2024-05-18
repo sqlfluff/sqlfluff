@@ -1,0 +1,8 @@
+[sqlfluff]
+templater = dbt
+dialect = postgres
+# exclude_rules = LT12
+
+[sqlfluff:templater:dbt]
+profiles_dir = profiles_yml
+project_dir = dbt_project

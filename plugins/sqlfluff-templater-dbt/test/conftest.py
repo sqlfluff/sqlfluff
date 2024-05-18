@@ -2,6 +2,8 @@
 
 import os
 import shutil
+import subprocess
+from pathlib import Path
 
 import pytest
 
@@ -57,21 +59,24 @@ def dbt_templater():
 
 
 @pytest.fixture(scope="session")
-def dbt_project_folder(tmp_path_factory):
+def dbt_project_folder():
     """Fixture for a temporary dbt project directory."""
-    tmp = tmp_path_factory.mktemp("dbt")
-    shutil.copytree(
-        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt",
-        tmp,
-        dirs_exist_ok=True,
+    folder_suffix = "180" if dbt_version_tuple >= (1, 8) else ""
+    tmp = Path(f"plugins/sqlfluff-templater-dbt/test/fixtures/dbt{folder_suffix}")
+
+    subprocess.run(
+        [
+            "dbt",
+            "deps",
+            "--project-dir",
+            f"{tmp}/dbt_project",
+            "--profiles-dir",
+            f"{tmp}/profiles_yml",
+        ],
+        check=True,
     )
-    if dbt_version_tuple >= (1, 8):
-        shutil.copytree(
-            "plugins/sqlfluff-templater-dbt/test/fixtures/dbt180",
-            tmp,
-            dirs_exist_ok=True,
-        )
+
+    # Remove tests from dbt_package
+    shutil.rmtree(tmp / "dbt_project/dbt_packages/dbt_utils/tests", ignore_errors=True)
 
     yield tmp
-
-    shutil.rmtree(tmp)
