@@ -381,6 +381,13 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     https://dev.mysql.com/doc/refman/8.0/en/create-table.html
     """
 
+    ES = Ref("ExpressionSegment")
+    CRS = Ref("ColumnReferenceSegment")
+    NLS = Ref("NumericLiteralSegment")
+    ORS = Ref("ObjectReferenceSegment")
+    TRS = Ref("TableReferenceSegment")
+    SQIS = Ref("SingleQuotedIdentifierSegment")
+
     match_grammar = ansi.CreateTableStatementSegment.match_grammar.copy(
         insert=[
             AnyNumberOf(
@@ -480,15 +487,9 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                                         "MAXVALUE",
                                                         Bracketed(
                                                             OneOf(
-                                                                Ref(
-                                                                    "ExpressionSegment"
-                                                                ),
-                                                                Ref(
-                                                                    "ColumnReferenceSegment"
-                                                                ),
-                                                                Ref(
-                                                                    "NumericLiteralSegment"
-                                                                ),
+                                                                ES,
+                                                                CRS,
+                                                                NLS,
                                                                 Ref("LiteralGrammar"),
                                                             ),
                                                         ),
@@ -540,25 +541,13 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                                             "THAN",
                                                             OneOf(
                                                                 "MAXVALUE",
-                                                                Bracketed(
-                                                                    Ref(
-                                                                        "ExpressionSegment"
-                                                                    )
-                                                                ),
-                                                                Bracketed(
-                                                                    Ref(
-                                                                        "ColumnReferenceSegment"
-                                                                    )
-                                                                ),
+                                                                Bracketed(ES),
+                                                                Bracketed(CRS),
                                                             ),
                                                         ),
                                                         Sequence(
                                                             "IN",
-                                                            Bracketed(
-                                                                Ref(
-                                                                    "ObjectReferenceSegment"
-                                                                )
-                                                            ),
+                                                            Bracketed(ORS),
                                                         ),
                                                     ),
                                                 ),
@@ -580,17 +569,11 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                                         Ref("LiteralGrammar"),
                                                         Ref("ParameterNameSegment"),
                                                         Ref("QuotedLiteralSegment"),
-                                                        Ref(
-                                                            "SingleQuotedIdentifierSegment"
-                                                        ),
+                                                        SQIS,
                                                         Ref("NumericLiteralSegment"),
                                                         # Union option
                                                         Bracketed(
-                                                            Delimited(
-                                                                Ref(
-                                                                    "TableReferenceSegment"
-                                                                )
-                                                            ),
+                                                            Delimited(TRS),
                                                         ),
                                                     ),
                                                 ),

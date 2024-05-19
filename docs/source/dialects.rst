@@ -146,7 +146,7 @@ The dialect for `Materialize`_.
 .. _mariadb_dialect_ref:
 
 MariaDB
------
+-------
 
 The dialect for `MariaDB`_.
 
