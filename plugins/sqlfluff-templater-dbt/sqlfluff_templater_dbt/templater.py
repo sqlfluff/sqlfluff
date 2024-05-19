@@ -66,6 +66,7 @@ class DbtConfigArgs:
     # https://github.com/sqlfluff/sqlfluff/issues/4861
     # https://github.com/sqlfluff/sqlfluff/issues/4965
     which: Optional[str] = "compile"
+    # NOTE: As of dbt 1.8, the following is required to exist.
     REQUIRE_RESOURCE_NAMES_WITHOUT_SPACES: Optional[bool] = None
 
 
