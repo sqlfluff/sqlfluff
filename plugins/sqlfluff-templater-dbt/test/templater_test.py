@@ -91,11 +91,16 @@ def test__templater_dbt_templating_result(
     project_dir,
     dbt_templater,
     fname,
-    dbt_fluff_config,  # noqa: F811
+    dbt_fluff_config,
+    dbt_project_folder,
 ):
     """Test that input sql file gets templated into output sql file."""
     _run_templater_and_verify_result(
-        dbt_templater, project_dir, fname, dbt_fluff_config
+        dbt_templater,
+        project_dir,
+        fname,
+        dbt_fluff_config,
+        dbt_project_folder,
     )
 
 
@@ -104,21 +109,29 @@ def test_dbt_profiles_dir_env_var_uppercase(
     dbt_templater,
     tmpdir,
     monkeypatch,
-    dbt_fluff_config,  # noqa: F811
+    dbt_fluff_config,
+    dbt_project_folder,
+    profiles_dir,
 ):
     """Tests specifying the dbt profile dir with env var."""
-    profiles_dir = tmpdir.mkdir("SUBDIR")  # Use uppercase to test issue 2253
-    monkeypatch.setenv("DBT_PROFILES_DIR", str(profiles_dir))
-    shutil.copy(
-        os.path.join(project_dir, "../profiles_yml/profiles.yml"), str(profiles_dir)
-    )
+    sub_profiles_dir = tmpdir.mkdir("SUBDIR")  # Use uppercase to test issue 2253
+    monkeypatch.setenv("DBT_PROFILES_DIR", str(sub_profiles_dir))
+    shutil.copy(os.path.join(profiles_dir, "profiles.yml"), str(sub_profiles_dir))
     _run_templater_and_verify_result(
-        dbt_templater, project_dir, "use_dbt_utils.sql", dbt_fluff_config
+        dbt_templater,
+        project_dir,
+        "use_dbt_utils.sql",
+        dbt_fluff_config,
+        dbt_project_folder,
     )
 
 
 def _run_templater_and_verify_result(
-    dbt_templater, project_dir, fname, dbt_fluff_config
+    dbt_templater,
+    project_dir,
+    fname,
+    dbt_fluff_config,
+    dbt_project_folder,
 ):  # noqa: F811
     path = Path(project_dir) / "models/my_new_project" / fname
     config = FluffConfig(configs=dbt_fluff_config)
@@ -127,9 +140,7 @@ def _run_templater_and_verify_result(
         fname=str(path),
         config=config,
     )
-    template_output_folder_path = Path(
-        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/"
-    )
+    template_output_folder_path = dbt_project_folder / "templated_output/"
     fixture_path = _get_fixture_path(template_output_folder_path, fname)
     assert str(templated_file) == fixture_path.read_text()
     # Check we can lex the output too.

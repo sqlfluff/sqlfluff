@@ -609,6 +609,9 @@ class DbtTemplater(JinjaTemplater):
                         def render_func(in_str):
                             env.add_extension(SnapshotExtension)
                             template = env.from_string(in_str, globals=globals)
+                            if self.dbt_version_tuple >= (1, 8):
+                                # dbt 1.8 requires a context for rendering the template.
+                                return template.render(globals)
                             return template.render()
 
             return old_from_string(*args, **kwargs)
@@ -812,17 +815,13 @@ class DbtTemplater(JinjaTemplater):
             self.adapters[self.project_dir] = adapter
             adapter.acquire_connection("master")
             if self.dbt_version_tuple >= (1, 8):
-                adapter.set_relations_cache(
-                    [
-                        node
-                        for node in self.dbt_manifest.nodes.values()
-                        if (
-                            node.is_relational
-                            and not node.is_ephemeral_model
-                            and not node.is_external_node
-                        )
-                    ]
-                )
+                # See notes from https://github.com/dbt-labs/dbt-adapters/discussions/87
+                # about the decoupling of the adapters from core.
+                from dbt.context.providers import generate_runtime_macro_context
+
+                adapter.set_macro_resolver(self.dbt_manifest)
+                adapter.set_macro_context_generator(generate_runtime_macro_context)
+                adapter.set_relations_cache(self.dbt_manifest.nodes.values())
             else:
                 adapter.set_relations_cache(self.dbt_manifest)
 
