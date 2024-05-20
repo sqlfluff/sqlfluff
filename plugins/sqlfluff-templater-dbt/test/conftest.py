@@ -79,6 +79,9 @@ def dbt_project_folder():
         ]
     ).wait(10)
 
+    # Placeholder value for testing
+    os.environ["passed_through_env"] = "_"
+
     yield tmp
 
     shutil.rmtree(tmp)
