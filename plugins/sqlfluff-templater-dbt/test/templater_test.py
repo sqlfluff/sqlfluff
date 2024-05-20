@@ -17,14 +17,9 @@ from sqlfluff.core.errors import SQLFluffSkipFile, SQLFluffUserError, SQLTemplat
 from sqlfluff.utils.testing.cli import invoke_assert_code
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 from sqlfluff_templater_dbt.templater import DbtTemplater
-from test.fixtures.dbt.templater import (  # noqa: F401
-    DBT_FLUFF_CONFIG,
-    dbt_templater,
-    project_dir,
-)
 
 
-def test__templater_dbt_missing(dbt_templater, project_dir):  # noqa: F811
+def test__templater_dbt_missing(dbt_templater, project_dir, dbt_fluff_config):
     """Check that a nice error is returned when dbt module is missing."""
     try:
         import dbt  # noqa: F401
@@ -37,11 +32,11 @@ def test__templater_dbt_missing(dbt_templater, project_dir):  # noqa: F811
         dbt_templater.process(
             in_str="",
             fname=os.path.join(project_dir, "models/my_new_project/test.sql"),
-            config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+            config=FluffConfig(configs=dbt_fluff_config),
         )
 
 
-def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
+def test__templater_dbt_profiles_dir_expanded(dbt_templater):
     """Check that the profiles_dir is expanded."""
     dbt_templater.sqlfluff_config = FluffConfig(
         configs={
@@ -91,35 +86,59 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
     ],
 )
 def test__templater_dbt_templating_result(
-    project_dir, dbt_templater, fname  # noqa: F811
+    project_dir,
+    dbt_templater,
+    fname,
+    dbt_fluff_config,
+    dbt_project_folder,
 ):
     """Test that input sql file gets templated into output sql file."""
-    _run_templater_and_verify_result(dbt_templater, project_dir, fname)
+    _run_templater_and_verify_result(
+        dbt_templater,
+        project_dir,
+        fname,
+        dbt_fluff_config,
+        dbt_project_folder,
+    )
 
 
 def test_dbt_profiles_dir_env_var_uppercase(
-    project_dir, dbt_templater, tmpdir, monkeypatch  # noqa: F811
+    project_dir,
+    dbt_templater,
+    tmpdir,
+    monkeypatch,
+    dbt_fluff_config,
+    dbt_project_folder,
+    profiles_dir,
 ):
     """Tests specifying the dbt profile dir with env var."""
-    profiles_dir = tmpdir.mkdir("SUBDIR")  # Use uppercase to test issue 2253
-    monkeypatch.setenv("DBT_PROFILES_DIR", str(profiles_dir))
-    shutil.copy(
-        os.path.join(project_dir, "../profiles_yml/profiles.yml"), str(profiles_dir)
+    sub_profiles_dir = tmpdir.mkdir("SUBDIR")  # Use uppercase to test issue 2253
+    monkeypatch.setenv("DBT_PROFILES_DIR", str(sub_profiles_dir))
+    shutil.copy(os.path.join(profiles_dir, "profiles.yml"), str(sub_profiles_dir))
+    _run_templater_and_verify_result(
+        dbt_templater,
+        project_dir,
+        "use_dbt_utils.sql",
+        dbt_fluff_config,
+        dbt_project_folder,
     )
-    _run_templater_and_verify_result(dbt_templater, project_dir, "use_dbt_utils.sql")
 
 
-def _run_templater_and_verify_result(dbt_templater, project_dir, fname):  # noqa: F811
+def _run_templater_and_verify_result(
+    dbt_templater,
+    project_dir,
+    fname,
+    dbt_fluff_config,
+    dbt_project_folder,
+):
     path = Path(project_dir) / "models/my_new_project" / fname
-    config = FluffConfig(configs=DBT_FLUFF_CONFIG)
+    config = FluffConfig(configs=dbt_fluff_config)
     templated_file, _ = dbt_templater.process(
         in_str=path.read_text(),
         fname=str(path),
         config=config,
     )
-    template_output_folder_path = Path(
-        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/"
-    )
+    template_output_folder_path = dbt_project_folder / "templated_output/"
     fixture_path = _get_fixture_path(template_output_folder_path, fname)
     assert str(templated_file) == fixture_path.read_text()
     # Check we can lex the output too.
@@ -180,12 +199,16 @@ def _get_fixture_path(template_output_folder_path, fname):
     ],
 )
 def test__templater_dbt_sequence_files_ephemeral_dependency(
-    project_dir, dbt_templater, fnames_input, fnames_expected_sequence  # noqa: F811
+    project_dir,
+    dbt_templater,
+    fnames_input,
+    fnames_expected_sequence,
+    dbt_fluff_config,
 ):
     """Test that dbt templater sequences files based on dependencies."""
     result = dbt_templater.sequence_files(
         [str(Path(project_dir) / fn) for fn in fnames_input],
-        config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+        config=FluffConfig(configs=dbt_fluff_config),
     )
     pd = Path(project_dir)
     expected = [str(pd / fn) for fn in fnames_expected_sequence]
@@ -210,7 +233,11 @@ select * from a
     ],
 )
 def test__templater_dbt_slice_file_wrapped_test(
-    raw_file, templated_file, result, dbt_templater, caplog  # noqa: F811
+    raw_file,
+    templated_file,
+    result,
+    dbt_templater,
+    caplog,
 ):
     """Test that wrapped queries are sliced safely using _check_for_wrapped()."""
 
@@ -242,14 +269,17 @@ def test__templater_dbt_slice_file_wrapped_test(
     ],
 )
 def test__templater_dbt_templating_test_lex(
-    project_dir, dbt_templater, fname  # noqa: F811
+    project_dir,
+    dbt_templater,
+    fname,
+    dbt_fluff_config,
 ):
     """Demonstrate the lexer works on both dbt models and dbt tests.
 
     Handle any number of newlines.
     """
     path = Path(project_dir) / fname
-    config = FluffConfig(configs=DBT_FLUFF_CONFIG)
+    config = FluffConfig(configs=dbt_fluff_config)
     source_dbt_sql = path.read_text()
     # Count the newlines.
     n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
@@ -291,24 +321,28 @@ def test__templater_dbt_templating_test_lex(
     ],
 )
 def test__templater_dbt_skips_file(
-    path, reason, dbt_templater, project_dir  # noqa: F811
+    path,
+    reason,
+    dbt_templater,
+    project_dir,
+    dbt_fluff_config,
 ):
     """A disabled dbt model should be skipped."""
     with pytest.raises(SQLFluffSkipFile, match=reason):
         dbt_templater.process(
             in_str="",
             fname=os.path.join(project_dir, path),
-            config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+            config=FluffConfig(configs=dbt_fluff_config),
         )
 
 
-def test_dbt_fails_stdin(dbt_templater):  # noqa: F811
+def test_dbt_fails_stdin(dbt_templater, dbt_fluff_config):
     """Reading from stdin is not supported with dbt templater."""
     with pytest.raises(SQLFluffUserError):
         dbt_templater.process(
             in_str="",
             fname="stdin",
-            config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+            config=FluffConfig(configs=dbt_fluff_config),
         )
 
 
@@ -322,10 +356,13 @@ def test_dbt_fails_stdin(dbt_templater):  # noqa: F811
     ],
 )
 def test__dbt_templated_models_do_not_raise_lint_error(
-    project_dir, fname, caplog  # noqa: F811
+    project_dir,
+    fname,
+    caplog,
+    dbt_fluff_config,
 ):
     """Test that templated dbt models do not raise a linting error."""
-    linter = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
+    linter = Linter(config=FluffConfig(configs=dbt_fluff_config))
     # Log rules output.
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules"):
         lnt = linter.lint_path(
@@ -356,12 +393,15 @@ def _clean_path(glob_expression):
     "path", ["models/my_new_project/issue_1608.sql", "snapshots/issue_1771.sql"]
 )
 def test__dbt_templated_models_fix_does_not_corrupt_file(
-    project_dir, path, caplog  # noqa: F811
+    project_dir,
+    path,
+    caplog,
+    dbt_fluff_config,
 ):
     """Test issues where previously "sqlfluff fix" corrupted the file."""
     test_glob = os.path.join(project_dir, os.path.dirname(path), "*FIXED.sql")
     _clean_path(test_glob)
-    lntr = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
+    lntr = Linter(config=FluffConfig(configs=dbt_fluff_config))
     with caplog.at_level(logging.INFO, logger="sqlfluff.linter"):
         lnt = lntr.lint_path(os.path.join(project_dir, path), fix=True)
     try:
@@ -376,7 +416,9 @@ def test__dbt_templated_models_fix_does_not_corrupt_file(
 
 
 def test__templater_dbt_templating_absolute_path(
-    project_dir, dbt_templater  # noqa: F811
+    project_dir,
+    dbt_templater,
+    dbt_fluff_config,
 ):
     """Test that absolute path of input path does not cause RuntimeError."""
     try:
@@ -385,7 +427,7 @@ def test__templater_dbt_templating_absolute_path(
             fname=os.path.abspath(
                 os.path.join(project_dir, "models/my_new_project/use_var.sql")
             ),
-            config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+            config=FluffConfig(configs=dbt_fluff_config),
         )
     except Exception as e:
         pytest.fail(f"Unexpected RuntimeError: {e}")
@@ -418,29 +460,34 @@ def test__templater_dbt_templating_absolute_path(
     ],
 )
 def test__templater_dbt_handle_exceptions(
-    project_dir, dbt_templater, fname, exception_msg  # noqa: F811
+    project_dir,
+    dbt_templater,
+    dbt_fluff_config,
+    dbt_project_folder,
+    fname,
+    exception_msg,
 ):
     """Test that exceptions during compilation are returned as violation."""
     from dbt.adapters.factory import get_adapter
 
-    src_fpath = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/error_models/" + fname
+    src_fpath = dbt_project_folder / "error_models" / fname
     target_fpath = os.path.abspath(
         os.path.join(project_dir, "models/my_new_project/", fname)
     )
     # We move the file that throws an error in and out of the project directory
     # as dbt throws an error if a node fails to parse while computing the DAG
-    os.rename(src_fpath, target_fpath)
+    shutil.move(src_fpath, target_fpath)
     try:
         with pytest.raises(SQLTemplaterError) as excinfo:
             dbt_templater.process(
                 in_str="",
                 fname=target_fpath,
                 config=FluffConfig(
-                    configs=DBT_FLUFF_CONFIG, overrides={"dialect": "ansi"}
+                    configs=dbt_fluff_config, overrides={"dialect": "ansi"}
                 ),
             )
     finally:
-        os.rename(target_fpath, src_fpath)
+        shutil.move(target_fpath, src_fpath)
         get_adapter(dbt_templater.dbt_config).connections.release()
     # NB: Replace slashes to deal with different platform paths being returned.
     assert exception_msg in excinfo.value.desc().replace("\\", "/")
@@ -448,19 +495,27 @@ def test__templater_dbt_handle_exceptions(
 
 @mock.patch("dbt.adapters.postgres.impl.PostgresAdapter.set_relations_cache")
 def test__templater_dbt_handle_database_connection_failure(
-    set_relations_cache, project_dir, dbt_templater  # noqa: F811
+    set_relations_cache,
+    project_dir,
+    dbt_templater,
+    dbt_fluff_config,
 ):
     """Test the result of a failed database connection."""
     from dbt.adapters.factory import get_adapter
 
     try:
-        from dbt.exceptions import (
-            FailedToConnectException as DbtFailedToConnectException,
-        )
-    except ImportError:
-        from dbt.exceptions import (
+        from dbt.adapters.exceptions import (
             FailedToConnectError as DbtFailedToConnectException,
         )
+    except ImportError:
+        try:
+            from dbt.exceptions import (
+                FailedToConnectError as DbtFailedToConnectException,
+            )
+        except ImportError:
+            from dbt.exceptions import (
+                FailedToConnectException as DbtFailedToConnectException,
+            )
 
     # Clear the adapter cache to force this test to create a new connection.
     DbtTemplater.adapters.clear()
@@ -476,22 +531,22 @@ def test__templater_dbt_handle_database_connection_failure(
             project_dir, "models/my_new_project/exception_connect_database.sql"
         )
     )
-    dbt_fluff_config_fail = deepcopy(DBT_FLUFF_CONFIG)
+    dbt_fluff_config_fail = deepcopy(dbt_fluff_config)
     dbt_fluff_config_fail["templater"]["dbt"][
         "profiles_dir"
     ] = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml_fail"
     # We move the file that throws an error in and out of the project directory
     # as dbt throws an error if a node fails to parse while computing the DAG
-    os.rename(src_fpath, target_fpath)
+    shutil.move(src_fpath, target_fpath)
     try:
         with pytest.raises(SQLTemplaterError) as excinfo:
             dbt_templater.process(
                 in_str="",
                 fname=target_fpath,
-                config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+                config=FluffConfig(configs=dbt_fluff_config),
             )
     finally:
-        os.rename(target_fpath, src_fpath)
+        shutil.move(target_fpath, src_fpath)
         get_adapter(dbt_templater.dbt_config).connections.release()
     # NB: Replace slashes to deal with different platform paths being returned.
     assert (
@@ -501,7 +556,7 @@ def test__templater_dbt_handle_database_connection_failure(
     )
 
 
-def test__project_dir_does_not_exist_error(dbt_templater):  # noqa: F811
+def test__project_dir_does_not_exist_error(dbt_templater):
     """Test an error is logged if the given dbt project directory doesn't exist."""
     dbt_templater.sqlfluff_config = FluffConfig(
         configs={
@@ -525,12 +580,16 @@ def test__project_dir_does_not_exist_error(dbt_templater):  # noqa: F811
     ],
 )
 def test__context_in_config_is_loaded(
-    project_dir, dbt_templater, model_path, var_value  # noqa: F811
+    project_dir,
+    dbt_templater,
+    model_path,
+    var_value,
+    dbt_fluff_config,
 ):
     """Test that variables inside .sqlfluff are passed to dbt."""
     context = {"passed_through_cli": var_value} if var_value else {}
 
-    config_dict = deepcopy(DBT_FLUFF_CONFIG)
+    config_dict = deepcopy(dbt_fluff_config)
     config_dict["templater"]["dbt"]["context"] = context
     config = FluffConfig(config_dict)
 
@@ -544,7 +603,34 @@ def test__context_in_config_is_loaded(
     assert str(var_value) in processed.templated_str
 
 
-def test__dbt_log_supression():
+@pytest.mark.parametrize(
+    ("model_path", "var_value"),
+    [
+        ("models/vars_from_env.sql", "expected_value"),
+    ],
+)
+def test__context_in_env_is_loaded(
+    project_dir,
+    dbt_templater,
+    model_path,
+    var_value,
+    dbt_fluff_config,
+):
+    """Test that variables inside env are passed to dbt."""
+    os.environ["passed_through_env"] = var_value
+
+    config = FluffConfig(dbt_fluff_config)
+    path = Path(project_dir) / model_path
+
+    processed, violations = dbt_templater.process(
+        in_str=path.read_text(), fname=str(path), config=config
+    )
+
+    assert violations == []
+    assert str(var_value) in processed.templated_str
+
+
+def test__dbt_log_supression(dbt_project_folder):
     """Test that when we try and parse in JSON format we get JSON.
 
     This actually tests that we can successfully suppress unwanted
@@ -552,7 +638,7 @@ def test__dbt_log_supression():
     """
     oldcwd = os.getcwd()
     try:
-        os.chdir("plugins/sqlfluff-templater-dbt/test/fixtures/dbt")
+        os.chdir(dbt_project_folder)
         result = invoke_assert_code(
             ret_code=1,
             args=[
