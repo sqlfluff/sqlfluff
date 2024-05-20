@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fa157d6917a5e2ae251ccd1f13db371dde7162101798af4d75b07ff84b83b48a
+_hash: aee30d6b624ed9e332ff0cd797ec18596d75631b6750da3e8e1922db3ecf7633
 file:
 - statement:
     alter_table_statement:
@@ -60,7 +60,8 @@ file:
         - keyword: 'NULL'
       - column_constraint_segment:
           keyword: DEFAULT
-          numeric_literal: '0'
+          expression:
+            numeric_literal: '0'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -79,7 +80,8 @@ file:
         - keyword: 'NULL'
       - column_constraint_segment:
           keyword: DEFAULT
-          quoted_literal: "'0001-01-01T00:00:00.000000+00:00'"
+          expression:
+            quoted_literal: "'0001-01-01T00:00:00.000000+00:00'"
 - statement_terminator: ;
 - statement:
     alter_table_statement:

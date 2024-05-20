@@ -272,6 +272,7 @@ sqlite_dialect.replace(
     SingleQuotedIdentifierSegment=TypedParser(
         "single_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
     ),
+    ColumnConstraintDefaultGrammar=Ref("ExpressionSegment"),
 )
 
 
