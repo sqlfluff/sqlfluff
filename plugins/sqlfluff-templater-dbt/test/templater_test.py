@@ -603,6 +603,33 @@ def test__context_in_config_is_loaded(
     assert str(var_value) in processed.templated_str
 
 
+@pytest.mark.parametrize(
+    ("model_path", "var_value"),
+    [
+        ("models/vars_from_env.sql", "expected_value"),
+    ],
+)
+def test__context_in_env_is_loaded(
+    project_dir,
+    dbt_templater,
+    model_path,
+    var_value,
+    dbt_fluff_config,
+):
+    """Test that variables inside env are passed to dbt."""
+    os.environ["passed_through_env"] = var_value
+
+    config = FluffConfig(dbt_fluff_config)
+    path = Path(project_dir) / model_path
+
+    processed, violations = dbt_templater.process(
+        in_str=path.read_text(), fname=str(path), config=config
+    )
+
+    assert violations == []
+    assert str(var_value) in processed.templated_str
+
+
 def test__dbt_log_supression(dbt_project_folder):
     """Test that when we try and parse in JSON format we get JSON.
 

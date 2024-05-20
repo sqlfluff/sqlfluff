@@ -150,9 +150,10 @@ class DbtTemplater(JinjaTemplater):
         from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
 
         if self.dbt_version_tuple >= (1, 8):
+            from dbt_common.clients.system import get_env
             from dbt_common.context import set_invocation_context
 
-            set_invocation_context({})
+            set_invocation_context(get_env())
 
         # Attempt to silence internal logging at this point.
         # https://github.com/sqlfluff/sqlfluff/issues/5054
