@@ -9,11 +9,6 @@ import pytest
 from sqlfluff.core import Linter
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
-from test.fixtures.dbt.templater import (  # noqa
-    DBT_FLUFF_CONFIG,
-    dbt_templater,
-    project_dir,
-)
 
 
 @pytest.mark.parametrize(
@@ -25,22 +20,24 @@ from test.fixtures.dbt.templater import (  # noqa
         ("LT12", "models/my_new_project/multiple_trailing_newline.sql", [(3, 1)]),
     ],
 )
-def test__rules__std_file_dbt(rule, path, violations, project_dir):  # noqa
+def test__rules__std_file_dbt(
+    rule, path, violations, project_dir, dbt_fluff_config
+):  # noqa
     """Test linter finds the given errors in (and only in) the right places (DBT)."""
     assert_rule_raises_violations_in_file(
         rule=rule,
         fpath=os.path.join(project_dir, path),
         violations=violations,
-        fluff_config=FluffConfig(configs=DBT_FLUFF_CONFIG, overrides=dict(rules=rule)),
+        fluff_config=FluffConfig(configs=dbt_fluff_config, overrides=dict(rules=rule)),
     )
 
 
-def test__rules__fix_utf8(project_dir):  # noqa
+def test__rules__fix_utf8(project_dir, dbt_fluff_config):  # noqa
     """Verify that non-ASCII characters are preserved by 'fix'."""
     rule = "CP01"
     path = "models/my_new_project/utf8/test.sql"
     linter = Linter(
-        config=FluffConfig(configs=DBT_FLUFF_CONFIG, overrides=dict(rules=rule))
+        config=FluffConfig(configs=dbt_fluff_config, overrides=dict(rules=rule))
     )
     result = linter.lint_path(os.path.join(project_dir, path), fix=True)
     # Check that we did actually find issues.
@@ -66,12 +63,12 @@ def test__rules__fix_utf8(project_dir):  # noqa
     os.unlink(fixed_path)
 
 
-def test__rules__order_by(project_dir):  # noqa
+def test__rules__order_by(project_dir, dbt_fluff_config):  # noqa
     """Verify that rule AM03 works with dbt."""
     rule = "AM03"
     path = "models/my_new_project/AM03_test.sql"
     lntr = Linter(
-        config=FluffConfig(configs=DBT_FLUFF_CONFIG, overrides=dict(rules=rule))
+        config=FluffConfig(configs=dbt_fluff_config, overrides=dict(rules=rule))
     )
     lnt = lntr.lint_path(os.path.join(project_dir, path))
 
