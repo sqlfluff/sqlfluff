@@ -101,7 +101,10 @@ sqlite_dialect.add(
 
 sqlite_dialect.replace(
     PrimaryKeyGrammar=Sequence(
-        "PRIMARY", "KEY", Sequence("AUTOINCREMENT", optional=True)
+        "PRIMARY",
+        "KEY",
+        Ref("ConflictClauseSegment", optional=True),
+        Sequence("AUTOINCREMENT", optional=True),
     ),
     TemporaryTransientGrammar=Ref("TemporaryGrammar"),
     DateTimeLiteralGrammar=Sequence(
@@ -122,6 +125,22 @@ sqlite_dialect.replace(
             Ref("CommaSegment"),
             Ref.keyword("AS"),
         ],
+    ),
+    AlterTableOptionsGrammar=OneOf(
+        Sequence("RENAME", "TO", Ref("SingleIdentifierGrammar")),
+        Sequence(
+            "RENAME",
+            Sequence("COLUMN", optional=True),
+            Ref("ColumnReferenceSegment"),
+            "TO",
+            Ref("SingleIdentifierGrammar"),
+        ),
+        Sequence(
+            "ADD", Sequence("COLUMN", optional=True), Ref("ColumnDefinitionSegment")
+        ),
+        Sequence(
+            "DROP", Sequence("COLUMN", optional=True), Ref("ColumnReferenceSegment")
+        ),
     ),
     AutoIncrementGrammar=Nothing(),
     CommentClauseSegment=Nothing(),
@@ -365,6 +384,56 @@ class ReturningClauseSegment(BaseSegment):
     )
 
 
+class ConflictTargetSegment(BaseSegment):
+    """An upsert conflict target.
+
+    https://www.sqlite.org/lang_upsert.html
+    """
+
+    type = "conflict_target"
+    match_grammar = Sequence(
+        Delimited(Ref("IndexColumnDefinitionSegment")),
+        Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
+    )
+
+
+class UpsertClauseSegment(BaseSegment):
+    """An upsert clause.
+
+    https://www.sqlite.org/lang_upsert.html
+    """
+
+    type = "upsert_clause"
+    match_grammar = Sequence(
+        "ON",
+        "CONFLICT",
+        Ref("ConflictTargetSegment", optional=True),
+        "DO",
+        OneOf(
+            "NOTHING",
+            Sequence(
+                "UPDATE",
+                "SET",
+                Delimited(
+                    Sequence(
+                        OneOf(
+                            Ref("SingleIdentifierGrammar"),
+                            Ref("BracketedColumnReferenceListGrammar"),
+                        ),
+                        Ref("EqualsSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+                Sequence(
+                    "WHERE",
+                    Ref("ExpressionSegment"),
+                    optional=True,
+                ),
+            ),
+        ),
+    )
+
+
 class InsertStatementSegment(BaseSegment):
     """An`INSERT` statement.
 
@@ -395,26 +464,81 @@ class InsertStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         OneOf(
-            Ref("ValuesClauseSegment"),
-            OptionallyBracketed(Ref("SelectableGrammar")),
+            Sequence(
+                Ref("ValuesClauseSegment"),
+                Ref("UpsertClauseSegment", optional=True),
+            ),
+            Sequence(
+                OptionallyBracketed(Ref("SelectableGrammar")),
+                Ref("UpsertClauseSegment", optional=True),
+            ),
             Ref("DefaultValuesGrammar"),
         ),
         Ref("ReturningClauseSegment", optional=True),
     )
 
 
-class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
-    """Overriding ColumnConstraintSegment to allow for additional segment parsing."""
+class ConflictClauseSegment(BaseSegment):
+    """A conflict clause.
 
-    match_grammar = ansi.ColumnConstraintSegment.match_grammar.copy(
-        insert=[
-            OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
-            OneOf(
-                Sequence("INITIALLY", "DEFERRED"),
-                Sequence("INITIALLY", "IMMEDIATE"),
-                optional=True,
+    https://www.sqlite.org/lang_conflict.html
+    """
+
+    type = "conflict_clause"
+    match_grammar = Sequence(
+        "ON",
+        "CONFLICT",
+        OneOf(
+            "ROLLBACK",
+            "ABORT",
+            "FAIL",
+            "IGNORE",
+            "REPLACE",
+        ),
+    )
+
+
+class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
+    """A column option; each CREATE TABLE column can have 0 or more.
+
+    Overriding ColumnConstraintSegment to allow for additional segment parsing
+    and to support on conflict clauses.
+    """
+
+    match_grammar: Matchable = Sequence(
+        Sequence(
+            "CONSTRAINT",
+            Ref("ObjectReferenceSegment"),  # Constraint name
+            optional=True,
+        ),
+        OneOf(
+            Sequence(
+                Ref.keyword("NOT", optional=True),
+                "NULL",
+                Ref("ConflictClauseSegment", optional=True),
+            ),  # NOT NULL or NULL
+            Sequence("CHECK", Bracketed(Ref("ExpressionSegment"))),
+            Sequence(  # DEFAULT <value>
+                "DEFAULT",
+                Ref("ColumnConstraintDefaultGrammar"),
             ),
-        ],
+            Ref("PrimaryKeyGrammar"),
+            Sequence(
+                Ref("UniqueKeyGrammar"), Ref("ConflictClauseSegment", optional=True)
+            ),  # UNIQUE
+            Ref("AutoIncrementGrammar"),
+            Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]x
+            Ref("CommentClauseSegment"),
+            Sequence(
+                "COLLATE", Ref("CollationReferenceSegment")
+            ),  # https://www.sqlite.org/datatype3.html#collation
+        ),
+        OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
+        OneOf(
+            Sequence("INITIALLY", "DEFERRED"),
+            Sequence("INITIALLY", "IMMEDIATE"),
+            optional=True,
+        ),
     )
 
 
@@ -438,6 +562,7 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
                 # Columns making up PRIMARY KEY constraint
                 Ref("BracketedColumnReferenceListGrammar"),
                 # Later add support for index_parameters?
+                Ref("ConflictClauseSegment", optional=True),
             ),
             Sequence(  # FOREIGN KEY ( column_name [, ... ] )
                 # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
