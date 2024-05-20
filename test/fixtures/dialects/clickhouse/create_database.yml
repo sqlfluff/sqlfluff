@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9e78f284bcd9f6853ca4d74d9fba0c6e2ad5e76d795a87763c4cf732346c8b8b
+_hash: 6f61dcb5b9c9926b99cc4981bf90c36d88637f220c3ec6a5db6f2b47c66262f5
 file:
 - statement:
     create_database_statement:
@@ -11,6 +11,13 @@ file:
     - keyword: DATABASE
     - database_reference:
         naked_identifier: db_name
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: _123
 - statement_terminator: ;
 - statement:
     create_database_statement:
@@ -67,6 +74,17 @@ file:
       - keyword: 'ON'
       - keyword: CLUSTER
       - naked_identifier: cluster
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db_name
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: _123
 - statement_terminator: ;
 - statement:
     create_database_statement:

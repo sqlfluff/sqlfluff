@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 612f5a6269c6f3b3edfb7afeee15e095dce9d4e4d6adfaeaab1ccab45eb525ce
+_hash: d1ae6fd707a9460859df0a7f42811f1bf45148a3ca3dd4c540fe7cffbc8b8100
 file:
 - statement:
     create_table_statement:
@@ -225,6 +225,36 @@ file:
     - keyword: as
     - table_reference:
         naked_identifier: WatchLog_old
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: Merge
+          bracketed:
+          - start_bracket: (
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: currentDatabase
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+          - comma: ','
+          - expression:
+              quoted_literal: "'^WatchLog'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: _2
+    - keyword: as
+    - table_reference:
+        naked_identifier: _1
     - engine:
         keyword: ENGINE
         comparison_operator:
