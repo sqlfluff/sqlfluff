@@ -78,7 +78,7 @@ dialect = postgres
 
 [sqlfluff:templater:dbt]
 project_dir = {tmp_project_dir}
-profiles_dir = {profiles_dir}
+profiles_dir = {old_cwd}/{profiles_dir}
 """,
             file=f,
         )

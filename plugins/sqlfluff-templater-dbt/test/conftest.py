@@ -56,11 +56,12 @@ def dbt_templater():
     return FluffConfig(overrides={"dialect": "ansi"}).get_templater("dbt")
 
 
-@pytest.fixture(scope="session", autouse=True)
-def dbt_project_folder(tmp_path_factory):
+@pytest.fixture(scope="session")
+def dbt_project_folder():
     """Fixture for a temporary dbt project directory."""
     src = Path("plugins/sqlfluff-templater-dbt/test/fixtures/dbt")
-    tmp = tmp_path_factory.mktemp("dbt_test_project")
+    tmp = Path("plugins/sqlfluff-templater-dbt/test/temp_dbt_project")
+    tmp.mkdir(exist_ok=True)
     shutil.copytree(src, tmp, dirs_exist_ok=True)
     if DbtTemplater().dbt_version_tuple >= (1, 8):
         # Configuration overrides for dbt 1.8+
@@ -79,3 +80,5 @@ def dbt_project_folder(tmp_path_factory):
     ).wait(10)
 
     yield tmp
+
+    shutil.rmtree(tmp)

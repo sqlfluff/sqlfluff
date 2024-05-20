@@ -476,7 +476,7 @@ def test__templater_dbt_handle_exceptions(
     )
     # We move the file that throws an error in and out of the project directory
     # as dbt throws an error if a node fails to parse while computing the DAG
-    os.rename(src_fpath, target_fpath)
+    shutil.move(src_fpath, target_fpath)
     try:
         with pytest.raises(SQLTemplaterError) as excinfo:
             dbt_templater.process(
@@ -487,7 +487,7 @@ def test__templater_dbt_handle_exceptions(
                 ),
             )
     finally:
-        os.rename(target_fpath, src_fpath)
+        shutil.move(target_fpath, src_fpath)
         get_adapter(dbt_templater.dbt_config).connections.release()
     # NB: Replace slashes to deal with different platform paths being returned.
     assert exception_msg in excinfo.value.desc().replace("\\", "/")
@@ -537,7 +537,7 @@ def test__templater_dbt_handle_database_connection_failure(
     ] = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml_fail"
     # We move the file that throws an error in and out of the project directory
     # as dbt throws an error if a node fails to parse while computing the DAG
-    os.rename(src_fpath, target_fpath)
+    shutil.move(src_fpath, target_fpath)
     try:
         with pytest.raises(SQLTemplaterError) as excinfo:
             dbt_templater.process(
@@ -546,7 +546,7 @@ def test__templater_dbt_handle_database_connection_failure(
                 config=FluffConfig(configs=dbt_fluff_config),
             )
     finally:
-        os.rename(target_fpath, src_fpath)
+        shutil.move(target_fpath, src_fpath)
         get_adapter(dbt_templater.dbt_config).connections.release()
     # NB: Replace slashes to deal with different platform paths being returned.
     assert (
@@ -603,7 +603,7 @@ def test__context_in_config_is_loaded(
     assert str(var_value) in processed.templated_str
 
 
-def test__dbt_log_supression():
+def test__dbt_log_supression(dbt_project_folder):
     """Test that when we try and parse in JSON format we get JSON.
 
     This actually tests that we can successfully suppress unwanted
@@ -611,7 +611,7 @@ def test__dbt_log_supression():
     """
     oldcwd = os.getcwd()
     try:
-        os.chdir("plugins/sqlfluff-templater-dbt/test/fixtures/dbt")
+        os.chdir(dbt_project_folder)
         result = invoke_assert_code(
             ret_code=1,
             args=[
