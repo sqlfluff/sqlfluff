@@ -19,9 +19,7 @@ from sqlfluff.utils.testing.logging import fluff_log_catcher
 from sqlfluff_templater_dbt.templater import DbtTemplater
 
 
-def test__templater_dbt_missing(
-    dbt_templater, project_dir, dbt_fluff_config
-):  # noqa: F811
+def test__templater_dbt_missing(dbt_templater, project_dir, dbt_fluff_config):
     """Check that a nice error is returned when dbt module is missing."""
     try:
         import dbt  # noqa: F401
@@ -38,7 +36,7 @@ def test__templater_dbt_missing(
         )
 
 
-def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
+def test__templater_dbt_profiles_dir_expanded(dbt_templater):
     """Check that the profiles_dir is expanded."""
     dbt_templater.sqlfluff_config = FluffConfig(
         configs={
@@ -132,7 +130,7 @@ def _run_templater_and_verify_result(
     fname,
     dbt_fluff_config,
     dbt_project_folder,
-):  # noqa: F811
+):
     path = Path(project_dir) / "models/my_new_project" / fname
     config = FluffConfig(configs=dbt_fluff_config)
     templated_file, _ = dbt_templater.process(
@@ -205,7 +203,7 @@ def test__templater_dbt_sequence_files_ephemeral_dependency(
     dbt_templater,
     fnames_input,
     fnames_expected_sequence,
-    dbt_fluff_config,  # noqa: F811
+    dbt_fluff_config,
 ):
     """Test that dbt templater sequences files based on dependencies."""
     result = dbt_templater.sequence_files(
@@ -239,7 +237,7 @@ def test__templater_dbt_slice_file_wrapped_test(
     templated_file,
     result,
     dbt_templater,
-    caplog,  # noqa: F811
+    caplog,
 ):
     """Test that wrapped queries are sliced safely using _check_for_wrapped()."""
 
@@ -274,7 +272,7 @@ def test__templater_dbt_templating_test_lex(
     project_dir,
     dbt_templater,
     fname,
-    dbt_fluff_config,  # noqa: F811
+    dbt_fluff_config,
 ):
     """Demonstrate the lexer works on both dbt models and dbt tests.
 
@@ -327,7 +325,7 @@ def test__templater_dbt_skips_file(
     reason,
     dbt_templater,
     project_dir,
-    dbt_fluff_config,  # noqa: F811
+    dbt_fluff_config,
 ):
     """A disabled dbt model should be skipped."""
     with pytest.raises(SQLFluffSkipFile, match=reason):
@@ -338,7 +336,7 @@ def test__templater_dbt_skips_file(
         )
 
 
-def test_dbt_fails_stdin(dbt_templater, dbt_fluff_config):  # noqa: F811
+def test_dbt_fails_stdin(dbt_templater, dbt_fluff_config):
     """Reading from stdin is not supported with dbt templater."""
     with pytest.raises(SQLFluffUserError):
         dbt_templater.process(
@@ -361,7 +359,7 @@ def test__dbt_templated_models_do_not_raise_lint_error(
     project_dir,
     fname,
     caplog,
-    dbt_fluff_config,  # noqa: F811
+    dbt_fluff_config,
 ):
     """Test that templated dbt models do not raise a linting error."""
     linter = Linter(config=FluffConfig(configs=dbt_fluff_config))
@@ -398,7 +396,7 @@ def test__dbt_templated_models_fix_does_not_corrupt_file(
     project_dir,
     path,
     caplog,
-    dbt_fluff_config,  # noqa: F811
+    dbt_fluff_config,
 ):
     """Test issues where previously "sqlfluff fix" corrupted the file."""
     test_glob = os.path.join(project_dir, os.path.dirname(path), "*FIXED.sql")
@@ -420,7 +418,7 @@ def test__dbt_templated_models_fix_does_not_corrupt_file(
 def test__templater_dbt_templating_absolute_path(
     project_dir,
     dbt_templater,
-    dbt_fluff_config,  # noqa: F811
+    dbt_fluff_config,
 ):
     """Test that absolute path of input path does not cause RuntimeError."""
     try:
@@ -500,7 +498,7 @@ def test__templater_dbt_handle_database_connection_failure(
     set_relations_cache,
     project_dir,
     dbt_templater,
-    dbt_fluff_config,  # noqa: F811
+    dbt_fluff_config,
 ):
     """Test the result of a failed database connection."""
     from dbt.adapters.factory import get_adapter
@@ -558,7 +556,7 @@ def test__templater_dbt_handle_database_connection_failure(
     )
 
 
-def test__project_dir_does_not_exist_error(dbt_templater):  # noqa: F811
+def test__project_dir_does_not_exist_error(dbt_templater):
     """Test an error is logged if the given dbt project directory doesn't exist."""
     dbt_templater.sqlfluff_config = FluffConfig(
         configs={

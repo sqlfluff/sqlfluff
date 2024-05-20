@@ -10,8 +10,6 @@ import pytest
 from sqlfluff.core import FluffConfig
 from sqlfluff_templater_dbt.templater import DbtTemplater
 
-dbt_version_tuple = DbtTemplater().dbt_version_tuple
-
 
 @pytest.fixture(scope="session", autouse=True)
 def dbt_flags():
@@ -58,13 +56,18 @@ def dbt_templater():
     return FluffConfig(overrides={"dialect": "ansi"}).get_templater("dbt")
 
 
-@pytest.fixture(scope="session")
-def dbt_project_folder():
+@pytest.fixture(scope="session", autouse=True)
+def dbt_project_folder(tmp_path_factory):
     """Fixture for a temporary dbt project directory."""
-    folder_suffix = "180" if dbt_version_tuple >= (1, 8) else ""
-    tmp = Path(f"plugins/sqlfluff-templater-dbt/test/fixtures/dbt{folder_suffix}")
+    src = Path("plugins/sqlfluff-templater-dbt/test/fixtures/dbt")
+    tmp = tmp_path_factory.mktemp("dbt_test_project")
+    shutil.copytree(src, tmp, dirs_exist_ok=True)
+    if DbtTemplater().dbt_version_tuple >= (1, 8):
+        # Configuration overrides for dbt 1.8+
+        dbt180_fixtures = src.with_name("dbt180")
+        shutil.copytree(dbt180_fixtures, tmp, dirs_exist_ok=True)
 
-    subprocess.run(
+    subprocess.Popen(
         [
             "dbt",
             "deps",
@@ -72,11 +75,7 @@ def dbt_project_folder():
             f"{tmp}/dbt_project",
             "--profiles-dir",
             f"{tmp}/profiles_yml",
-        ],
-        check=True,
-    )
-
-    # Remove tests from dbt_package
-    shutil.rmtree(tmp / "dbt_project/dbt_packages/dbt_utils/tests", ignore_errors=True)
+        ]
+    ).wait(10)
 
     yield tmp
