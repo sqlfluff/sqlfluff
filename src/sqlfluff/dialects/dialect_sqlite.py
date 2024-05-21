@@ -103,6 +103,7 @@ sqlite_dialect.replace(
     PrimaryKeyGrammar=Sequence(
         "PRIMARY",
         "KEY",
+        OneOf("ASC", "DESC", optional=True),
         Ref("ConflictClauseSegment", optional=True),
         Sequence("AUTOINCREMENT", optional=True),
     ),
@@ -271,6 +272,7 @@ sqlite_dialect.replace(
     SingleQuotedIdentifierSegment=TypedParser(
         "single_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
     ),
+    ColumnConstraintDefaultGrammar=Ref("ExpressionSegment"),
 )
 
 
@@ -532,6 +534,12 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
             Sequence(
                 "COLLATE", Ref("CollationReferenceSegment")
             ),  # https://www.sqlite.org/datatype3.html#collation
+            Sequence(
+                Sequence("GENERATED", "ALWAYS", optional=True),
+                "AS",
+                Bracketed(Ref("ExpressionSegment")),
+                OneOf("STORED", "VIRTUAL", optional=True),
+            ),  # https://www.sqlite.org/gencol.html
         ),
         OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
         OneOf(
