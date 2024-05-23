@@ -1,2 +1,2 @@
 [sqlfluff]
-dialect = mysql
+dialect = mariadb
