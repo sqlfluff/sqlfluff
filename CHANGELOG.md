@@ -19,7 +19,7 @@ that it also brings several dialect improvements to SQLite, Bigquery,
 MySQL, Oracle & Clickhouse.
 
 Thanks also to the **five** new contributors whose work was included
-in this release! 🎉🎉🏆🎉🎉 
+in this release! 🎉🎉🏆🎉🎉
 
 ## What’s Changed
 
