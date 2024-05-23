@@ -10,6 +10,33 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [3.0.7] - 2024-05-23
+
+## Highlights
+
+## What’s Changed
+
+* Add more minor features and fixes to sqlite dialect [#5894](https://github.com/sqlfluff/sqlfluff/pull/5894) [@Enduriel](https://github.com/Enduriel)
+* Fix Clickhouse identifiers format [#5890](https://github.com/sqlfluff/sqlfluff/pull/5890) [@Pavel-Strybuk](https://github.com/Pavel-Strybuk)
+* Add full support for on conflict clause in SQLite [#5888](https://github.com/sqlfluff/sqlfluff/pull/5888) [@Enduriel](https://github.com/Enduriel)
+* dbt Templater Plugin: dbt 1.8 support [#5892](https://github.com/sqlfluff/sqlfluff/pull/5892) [@keraion](https://github.com/keraion)
+* Added support for oracle materialized view [#5883](https://github.com/sqlfluff/sqlfluff/pull/5883) [@harshsoni2024](https://github.com/harshsoni2024)
+* BigQuery: Support ALTER TABLE ADD KEY statements [#5881](https://github.com/sqlfluff/sqlfluff/pull/5881) [@kzosabe](https://github.com/kzosabe)
+* MySQL: Support DIV and MOD operators [#5879](https://github.com/sqlfluff/sqlfluff/pull/5879) [@kzosabe](https://github.com/kzosabe)
+* Update documentation to include all templaters [#5873](https://github.com/sqlfluff/sqlfluff/pull/5873) [@timchurch](https://github.com/timchurch)
+* MySQL: Define date part function names [#5874](https://github.com/sqlfluff/sqlfluff/pull/5874) [@kzosabe](https://github.com/kzosabe)
+* Remove typing_extensions requirement [#5860](https://github.com/sqlfluff/sqlfluff/pull/5860) [@qarkai](https://github.com/qarkai)
+* BigQuery: Fix EXPORT DATA statement [#5859](https://github.com/sqlfluff/sqlfluff/pull/5859) [@kzosabe](https://github.com/kzosabe)
+* BigQuery: Support CREATE INDEX statements [#5858](https://github.com/sqlfluff/sqlfluff/pull/5858) [@kzosabe](https://github.com/kzosabe)
+
+## New Contributors
+
+* [@qarkai](https://github.com/qarkai) made their first contribution in [#5860](https://github.com/sqlfluff/sqlfluff/pull/5860)
+* [@timchurch](https://github.com/timchurch) made their first contribution in [#5873](https://github.com/sqlfluff/sqlfluff/pull/5873)
+* [@harshsoni2024](https://github.com/harshsoni2024) made their first contribution in [#5883](https://github.com/sqlfluff/sqlfluff/pull/5883)
+* [@Enduriel](https://github.com/Enduriel) made their first contribution in [#5888](https://github.com/sqlfluff/sqlfluff/pull/5888)
+* [@Pavel-Strybuk](https://github.com/Pavel-Strybuk) made their first contribution in [#5890](https://github.com/sqlfluff/sqlfluff/pull/5890)
+
 ## [3.0.6] - 2024-05-06
 
 ## Highlights
