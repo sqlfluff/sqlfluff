@@ -14,6 +14,13 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This is primarily a fix for compatibility with dbt 1.8+. Beyond
+that it also brings several dialect improvements to SQLite, Bigquery,
+MySQL, Oracle & Clickhouse.
+
+Thanks also to the **five** new contributors whose work was included
+in this release! 🎉🎉🏆🎉🎉 
+
 ## What’s Changed
 
 * Add more minor features and fixes to sqlite dialect [#5894](https://github.com/sqlfluff/sqlfluff/pull/5894) [@Enduriel](https://github.com/Enduriel)
