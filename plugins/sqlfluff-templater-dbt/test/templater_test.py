@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import shutil
+import subprocess
 from copy import deepcopy
 from pathlib import Path
 from unittest import mock
@@ -655,12 +656,15 @@ def test__dbt_log_supression(dbt_project_folder):
             ],
         )
         # the CliRunner isn't isolated from the dbt plugin loading
-        isolated_stdout = os.popen("sqlfluff lint " + " ".join(cli_options)).read()
+        isolated_lint = subprocess.run(
+            ["sqlfluff", "lint"] + cli_options, capture_output=True
+        )
     finally:
         os.chdir(oldcwd)
     # Check that the full output parses as json
     parsed = json.loads(result.output)
-    assert " Registered adapter:" not in isolated_stdout
+    assert isolated_lint.returncode == 1
+    assert b" Registered adapter:" not in isolated_lint.stdout
     assert isinstance(parsed, list)
     assert len(parsed) == 1
     first_file = parsed[0]
