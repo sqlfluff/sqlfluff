@@ -69,7 +69,10 @@ as discussed more in [our modularity documentation](https://docs.sqlfluff.com/en
 
 **SQLFluff** supports the following templates:
 - [Jinja](https://jinja.palletsprojects.com/) (aka Jinja2)
-- [dbt](https://www.getdbt.com/)
+- SQL placeholders (e.g. SQLAlchemy parameters)
+- [Python format strings](https://docs.python.org/3/library/string.html#format-string-syntax)
+- [dbt](https://www.getdbt.com/) (requires plugin)
+
 
 Again, please raise issues if you wish to support more templating languages/syntaxes.
 
