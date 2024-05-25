@@ -908,6 +908,26 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         ),
     )
 
+class CreateViewStatementSegment(BaseSegment):
+    """A `CREATE VIEW` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/create/view
+    """
+
+    type = "create_view_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("OnClusterClauseSegment", optional=True),
+        "AS",
+        Ref("SelectableGrammar"),
+        Ref("TableEndClauseSegment", optional=True),
+    )
+
 
 class CreateMaterializedViewStatementSegment(BaseSegment):
     """A `CREATE MATERIALIZED VIEW` statement.
