@@ -383,6 +383,7 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
             Ref("DatatypeSegment"),
             bracket_type="angle",
             bracket_pairs_set="angle_bracket_pairs",
+            optional=True,
         ),
     )
 
@@ -1760,9 +1761,13 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
         Ref("TableReferenceSegment"),
         OneOf(
             # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_set_options_statement
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_collate_statement
             Sequence(
                 "SET",
-                Ref("OptionsSegment"),
+                OneOf(
+                    Ref("OptionsSegment"),
+                    Ref("DefaultCollateSegment"),
+                ),
             ),
             # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_add_column_statement
             Delimited(
@@ -1843,6 +1848,24 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     "COLUMN",
                     Ref("IfExistsGrammar", optional=True),
                     Ref("SingleIdentifierGrammar"),  # Column name
+                ),
+            ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_drop_constraint_statement
+            Delimited(
+                Sequence(
+                    "DROP",
+                    "CONSTRAINT",
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("SingleIdentifierGrammar"),  # Constraint name
+                ),
+            ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_drop_primary_key_statement
+            Delimited(
+                Sequence(
+                    "DROP",
+                    "PRIMARY",
+                    "KEY",
+                    Ref("IfExistsGrammar", optional=True),
                 ),
             ),
             # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_column_set_options_statement
@@ -2011,6 +2034,7 @@ class AlterViewStatementSegment(BaseSegment):
     """A `ALTER VIEW` statement.
 
     https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_view_set_options_statement
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_column_set_options_statement
     """
 
     type = "alter_view_statement"
@@ -2020,8 +2044,22 @@ class AlterViewStatementSegment(BaseSegment):
         "VIEW",
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        "SET",
-        Ref("OptionsSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                Ref("OptionsSegment"),
+            ),
+            Delimited(
+                Sequence(
+                    "ALTER",
+                    "COLUMN",
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("SingleIdentifierGrammar"),  # Column name
+                    "SET",
+                    Ref("OptionsSegment"),
+                ),
+            ),
+        ),
     )
 
 
