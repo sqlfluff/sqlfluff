@@ -383,6 +383,7 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
             Ref("DatatypeSegment"),
             bracket_type="angle",
             bracket_pairs_set="angle_bracket_pairs",
+            optional=True,
         ),
     )
 
