@@ -1,0 +1,127 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 99f8f71ded16064f1078d468c432aad573a5794deff084476cb173e27fcb7c5b
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          parameterized_expression:
+            at_sign_literal: '@variable'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+          parameterized_expression:
+            at_sign_literal: '@variable'
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          parameterized_expression:
+            question_literal: ?2
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+          parameterized_expression:
+            question_literal: ?2
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          parameterized_expression:
+            colon_literal: :variable
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+          parameterized_expression:
+            colon_literal: :variable
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          parameterized_expression:
+            question_literal: $variable
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+          parameterized_expression:
+            question_literal: $variable
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          parameterized_expression:
+            at_sign_literal: '@variable'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - parameterized_expression:
+          at_sign_literal: '@variable'
+      having_clause:
+        keyword: HAVING
+        expression:
+          parameterized_expression:
+            question_literal: $variable
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+- statement_terminator: ;

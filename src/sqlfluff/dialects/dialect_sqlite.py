@@ -22,6 +22,8 @@ from sqlfluff.core.parser import (
     ParseMode,
     Ref,
     RegexLexer,
+    StringParser,
+    SymbolSegment,
     Sequence,
     TypedParser,
     WhitespaceSegment,
@@ -89,6 +91,36 @@ sqlite_dialect.patch_lexer_matchers(
     ]
 )
 
+sqlite_dialect.insert_lexer_matchers(
+    [
+        RegexLexer(
+            "at_sign_literal",
+            r"@[a-zA-Z0-9_]+",
+            LiteralSegment,
+            segment_kwargs={"type": "at_sign_literal"},
+        ),
+        RegexLexer(
+            "colon_literal",
+            r":[a-zA-Z0-9_]+",
+            LiteralSegment,
+            segment_kwargs={"type": "colon_literal"},
+        ),
+        RegexLexer(
+            "question_literal",
+            r"\?[0-9]+",
+            LiteralSegment,
+            segment_kwargs={"type": "question_literal"},
+        ),
+        RegexLexer(
+            "dollar_literal",
+            r"\$[a-zA-Z0-9_]+",
+            LiteralSegment,
+            segment_kwargs={"type": "question_literal"},
+        ),
+    ],
+    before="question",
+)
+
 sqlite_dialect.add(
     BackQuotedIdentifierSegment=TypedParser(
         "back_quote",
@@ -96,6 +128,27 @@ sqlite_dialect.add(
         type="quoted_identifier",
         # match ANSI's naked identifier casefold, sqlite is case-insensitive.
         casefold=str.upper,
+    ),
+    QuestionMarkSegment=StringParser("?", SymbolSegment, type="question_mark"),
+    AtSignLiteralSegment=TypedParser(
+        "at_sign_literal",
+        LiteralSegment,
+        type="at_sign_literal",
+    ),
+    ColonLiteralSegment=TypedParser(
+        "colon_literal",
+        LiteralSegment,
+        type="colon_literal",
+    ),
+    QuestionLiteralSegment=TypedParser(
+        "question_literal",
+        LiteralSegment,
+        type="question_literal",
+    ),
+    DollarLiteralSegment=TypedParser(
+        "dollar_literal",
+        LiteralSegment,
+        type="dollar_literal",
     ),
 )
 
@@ -106,6 +159,15 @@ sqlite_dialect.replace(
         OneOf("ASC", "DESC", optional=True),
         Ref("ConflictClauseSegment", optional=True),
         Sequence("AUTOINCREMENT", optional=True),
+    ),
+    NumericLiteralSegment=OneOf(
+        TypedParser("numeric_literal", LiteralSegment, type="numeric_literal"),
+        Ref("ParameterizedSegment"),
+    ),
+    LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
+        insert=[
+            Ref("ParameterizedSegment")
+        ]
     ),
     TemporaryTransientGrammar=Ref("TemporaryGrammar"),
     DateTimeLiteralGrammar=Sequence(
@@ -274,6 +336,17 @@ sqlite_dialect.replace(
     ),
     ColumnConstraintDefaultGrammar=Ref("ExpressionSegment"),
 )
+
+
+class ParameterizedSegment(BaseSegment):
+    """Sqlite allows named and argument based parameters to prevent SQL Injection.
+
+    https://www.sqlite.org/c3ref/bind_blob.html
+
+    """
+
+    type = "parameterized_expression"
+    match_grammar = OneOf(Ref("AtSignLiteralSegment"), Ref("QuestionMarkSegment"), Ref("ColonLiteralSegment"), Ref("QuestionLiteralSegment"), Ref("DollarLiteralSegment"))
 
 
 class SetOperatorSegment(BaseSegment):
