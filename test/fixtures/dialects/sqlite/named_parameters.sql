@@ -18,3 +18,5 @@ SELECT @variable
 FROM table1
 GROUP BY @variable
 HAVING $variable = 1;
+
+SELECT ? from table1 where ? = 1;
