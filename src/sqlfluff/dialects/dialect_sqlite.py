@@ -22,9 +22,9 @@ from sqlfluff.core.parser import (
     ParseMode,
     Ref,
     RegexLexer,
+    Sequence,
     StringParser,
     SymbolSegment,
-    Sequence,
     TypedParser,
     WhitespaceSegment,
 )
@@ -165,9 +165,7 @@ sqlite_dialect.replace(
         Ref("ParameterizedSegment"),
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
-        insert=[
-            Ref("ParameterizedSegment")
-        ]
+        insert=[Ref("ParameterizedSegment")]
     ),
     TemporaryTransientGrammar=Ref("TemporaryGrammar"),
     DateTimeLiteralGrammar=Sequence(
@@ -346,7 +344,13 @@ class ParameterizedSegment(BaseSegment):
     """
 
     type = "parameterized_expression"
-    match_grammar = OneOf(Ref("AtSignLiteralSegment"), Ref("QuestionMarkSegment"), Ref("ColonLiteralSegment"), Ref("QuestionLiteralSegment"), Ref("DollarLiteralSegment"))
+    match_grammar = OneOf(
+        Ref("AtSignLiteralSegment"),
+        Ref("QuestionMarkSegment"),
+        Ref("ColonLiteralSegment"),
+        Ref("QuestionLiteralSegment"),
+        Ref("DollarLiteralSegment"),
+    )
 
 
 class SetOperatorSegment(BaseSegment):
