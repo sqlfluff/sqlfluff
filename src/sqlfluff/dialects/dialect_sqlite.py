@@ -320,13 +320,21 @@ class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
     match_grammar = ansi.ColumnReferenceSegment.match_grammar.copy(
         insert=[
             Sequence(
-                ansi.ColumnReferenceSegment.match_grammar.copy(),
                 OneOf(
-                    Ref("ColumnPathOperatorSegment"),
-                    Ref("InlinePathOperatorSegment"),
+                    ansi.ColumnReferenceSegment.match_grammar.copy(),
+                    Ref("FunctionSegment"),
+                    Ref("BareFunctionSegment"),
                 ),
-                OneOf(
-                    Ref("LiteralGrammar"),
+                AnyNumberOf(
+                    Sequence(
+                        OneOf(
+                            Ref("ColumnPathOperatorSegment"),
+                            Ref("InlinePathOperatorSegment"),
+                        ),
+                        OneOf(
+                            Ref("LiteralGrammar"),
+                        ),
+                    )
                 ),
             ),
         ]
