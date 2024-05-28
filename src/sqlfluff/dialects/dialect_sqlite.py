@@ -324,6 +324,7 @@ class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
                     ansi.ColumnReferenceSegment.match_grammar.copy(),
                     Ref("FunctionSegment"),
                     Ref("BareFunctionSegment"),
+                    Ref("LiteralGrammar"),
                 ),
                 AnyNumberOf(
                     Sequence(
