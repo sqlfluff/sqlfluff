@@ -46,7 +46,8 @@ sqlite_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 sqlite_dialect.insert_lexer_matchers(
     # SQLite uses key as a column name in json_tree and json_each.
     # This conflicts with the KEY keyword. Therefore we need to add
-    # parse PRIMARY KEY & FOREIGN KEY separately and remove KEY from the reserved keywords.
+    # parse PRIMARY KEY & FOREIGN KEY separately and remove KEY
+    # from the reserved keywords.
     # https://www.sqlite.org/json1.html#jeach
     [
         RegexLexer("primary_key", r"PRIMARY\s+KEY", KeywordSegment),
