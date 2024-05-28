@@ -702,6 +702,24 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
     )
 
 
+class CreateViewStatementSegment(BaseSegment):
+    """A `CREATE VIEW` statement."""
+
+    type = "create_view_statement"
+    # https://www.sqlite.org/lang_createview.html
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("TemporaryGrammar", optional=True),
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        # Optional list of column names
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        "AS",
+        OptionallyBracketed(Ref("SelectableGrammar")),
+    )
+
+
 class UnorderedSelectStatementSegment(BaseSegment):
     """A `SELECT` statement without any ORDER clauses or later.
 
