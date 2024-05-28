@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d5d2a2c34404e3fb22e85dbbb556e4170ef4080beeb62fc5220de978e41e5c40
+_hash: f3f3c4717b6525b076230c0e58ddb77f9890241012dbb483ff8c66c7d73a27fb
 file:
 - statement:
     create_table_statement:
@@ -18,9 +18,8 @@ file:
           data_type:
             data_type_identifier: INTEGER
           column_constraint_segment:
-          - keyword: PRIMARY
-          - keyword: KEY
-          - conflict_clause:
+            keyword: PRIMARY KEY
+            conflict_clause:
             - keyword: 'ON'
             - keyword: CONFLICT
             - keyword: ROLLBACK
