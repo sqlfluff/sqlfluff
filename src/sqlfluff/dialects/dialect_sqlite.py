@@ -765,6 +765,17 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
     type = "update_statement"
     match_grammar: Matchable = Sequence(
         "UPDATE",
+        Sequence(
+            "OR",
+            OneOf(
+                "ABORT",
+                "FAIL",
+                "IGNORE",
+                "REPLACE",
+                "ROLLBACK",
+            ),
+            optional=True,
+        ),
         Ref("TableReferenceSegment"),
         # SET is not a reserved word in all dialects (e.g. RedShift)
         # So specifically exclude as an allowed implicit alias to avoid parsing errors
