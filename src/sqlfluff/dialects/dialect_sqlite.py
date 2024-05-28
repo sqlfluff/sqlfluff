@@ -334,6 +334,7 @@ class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
                         ),
                         OneOf(
                             Ref("LiteralGrammar"),
+                            Ref("QuotedIdentifierSegment"),
                         ),
                     )
                 ),
