@@ -777,10 +777,18 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
             optional=True,
         ),
         Ref("TableReferenceSegment"),
-        # SET is not a reserved word in all dialects (e.g. RedShift)
-        # So specifically exclude as an allowed implicit alias to avoid parsing errors
-        Ref("AliasExpressionSegment", exclude=Ref.keyword("SET"), optional=True),
-        Ref("SetClauseListSegment"),
+        Ref("AliasExpressionSegment", optional=True),
+        "SET",
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("BracketedColumnReferenceListGrammar"),
+                ),
+                Ref("EqualsSegment"),
+                Ref("ExpressionSegment"),
+            ),
+        ),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("ReturningClauseSegment", optional=True),
