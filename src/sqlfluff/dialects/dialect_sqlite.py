@@ -13,7 +13,6 @@ from sqlfluff.core.parser import (
     CommentSegment,
     Delimited,
     IdentifierSegment,
-    KeywordSegment,
     LiteralSegment,
     Matchable,
     NewlineSegment,
