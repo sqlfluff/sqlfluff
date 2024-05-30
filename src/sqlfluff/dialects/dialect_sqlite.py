@@ -24,6 +24,9 @@ from sqlfluff.core.parser import (
     Ref,
     RegexLexer,
     Sequence,
+    StringLexer,
+    StringParser,
+    SymbolSegment,
     TypedParser,
     WhitespaceSegment,
 )
@@ -104,6 +107,14 @@ sqlite_dialect.patch_lexer_matchers(
     ]
 )
 
+sqlite_dialect.insert_lexer_matchers(
+    [
+        StringLexer("inline_path_operator", "->>", CodeSegment),
+        StringLexer("column_path_operator", "->", CodeSegment),
+    ],
+    before="greater_than",
+)
+
 sqlite_dialect.add(
     BackQuotedIdentifierSegment=TypedParser(
         "back_quote",
@@ -111,6 +122,12 @@ sqlite_dialect.add(
         type="quoted_identifier",
         # match ANSI's naked identifier casefold, sqlite is case-insensitive.
         casefold=str.upper,
+    ),
+    ColumnPathOperatorSegment=StringParser(
+        "->", SymbolSegment, type="column_path_operator"
+    ),
+    InlinePathOperatorSegment=StringParser(
+        "->>", SymbolSegment, type="column_path_operator"
     ),
 )
 
@@ -305,6 +322,62 @@ class SetOperatorSegment(BaseSegment):
             Ref.keyword("ALL", optional=True),
         ),
         exclude=Sequence("EXCEPT", Bracketed(Anything())),
+    )
+
+
+class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
+    """A reference to column, field or alias.
+
+    Also allows `column->path` and `column->>path` for JSON values.
+    https://www.sqlite.org/json1.html#jptr
+    """
+
+    match_grammar = ansi.ColumnReferenceSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                OneOf(
+                    ansi.ColumnReferenceSegment.match_grammar.copy(),
+                    Ref("FunctionSegment"),
+                    Ref("BareFunctionSegment"),
+                    Ref("LiteralGrammar"),
+                ),
+                AnyNumberOf(
+                    Sequence(
+                        OneOf(
+                            Ref("ColumnPathOperatorSegment"),
+                            Ref("InlinePathOperatorSegment"),
+                        ),
+                        OneOf(
+                            Ref("LiteralGrammar"),
+                            Ref("QuotedIdentifierSegment"),
+                        ),
+                    )
+                ),
+            ),
+        ]
+    )
+
+
+class TableReferenceSegment(ansi.TableReferenceSegment):
+    """A reference to a table.
+
+    Also allows `table->path` and `table->>path` for JSON values.
+    https://www.sqlite.org/json1.html#jptr
+    """
+
+    match_grammar = ansi.TableReferenceSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                ansi.TableReferenceSegment.match_grammar.copy(),
+                OneOf(
+                    Ref("ColumnPathOperatorSegment"),
+                    Ref("InlinePathOperatorSegment"),
+                ),
+                OneOf(
+                    Ref("LiteralGrammar"),
+                ),
+            ),
+        ]
     )
 
 

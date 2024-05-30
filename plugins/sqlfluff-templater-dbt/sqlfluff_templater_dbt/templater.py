@@ -136,7 +136,13 @@ class DbtTemplater(JinjaTemplater):
         # is present then assume that it's not a problem
         if not self.formatter:
             try:
-                from dbt.events.functions import cleanup_event_logger
+                if self.dbt_version_tuple >= (1, 8):
+                    from dbt_common.events.event_manager_client import (
+                        cleanup_event_logger,
+                    )
+
+                else:
+                    from dbt.events.functions import cleanup_event_logger
 
                 cleanup_event_logger()
             except ImportError:
