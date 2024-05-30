@@ -352,8 +352,10 @@ class JinjaTemplater(PythonTemplater):
         Returns:
             jinja2.Environment: A properly configured jinja environment.
         """
-        # We explicitly want to preserve newlines.
         macros_path = self._get_macros_path(config)
+        loader_search_path = self._get_loader_search_path(config)
+        final_search_path = (loader_search_path or []) + (macros_path or [])
+
         ignore_templating = config and "templating" in config.get("ignore")
         if ignore_templating:
 
@@ -375,14 +377,15 @@ class JinjaTemplater(PythonTemplater):
                         value = os.path.splitext(os.path.basename(str(name)))[0]
                         return value, f"{value}.sql", lambda: False
 
-            loader = SafeFileSystemLoader(macros_path or [])
+            loader = SafeFileSystemLoader(final_search_path or [])
         else:
-            loader = FileSystemLoader(macros_path) if macros_path else None
+            loader = FileSystemLoader(final_search_path) if final_search_path else None
         extensions = ["jinja2.ext.do"]
         if self._apply_dbt_builtins(config):
             extensions.append(DBTTestExtension)
 
         return SandboxedEnvironment(
+            # We explicitly want to preserve newlines.
             keep_trailing_newline=True,
             # The do extension allows the "do" directive
             autoescape=False,
@@ -413,6 +416,34 @@ class JinjaTemplater(PythonTemplater):
             )
             if macros_path:
                 result = [s.strip() for s in macros_path.split(",") if s.strip()]
+                if result:
+                    return result
+        return None
+
+    def _get_loader_search_path(self, config: FluffConfig) -> Optional[List[str]]:
+        """Get the list of Jinja loader search paths from the provided config object.
+
+        This method searches for a config section specified by the
+        templater_selector, name, and 'loader_search_path' keys. If the section is
+        found, it retrieves the value associated with that section and splits it into
+        a list of strings using a comma as the delimiter. The resulting list is
+        stripped of whitespace and empty strings and returned. If the section is not
+        found or the resulting list is empty, it returns None.
+
+        Args:
+            config (FluffConfig): The config object to search for the loader search
+                path section.
+
+        Returns:
+            Optional[List[str]]: The list of loader search paths if found, None
+                otherwise.
+        """
+        if config:
+            loader_search_path = config.get_section(
+                (self.templater_selector, self.name, "loader_search_path")
+            )
+            if loader_search_path:
+                result = [s.strip() for s in loader_search_path.split(",") if s.strip()]
                 if result:
                     return result
         return None

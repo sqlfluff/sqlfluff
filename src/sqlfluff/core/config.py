@@ -395,7 +395,10 @@ class ConfigLoader:
                 v = coerce_value(val)
 
                 # Attempt to resolve paths
-                if name.lower() == "load_macros_from_path":
+                if (
+                    name.lower() == "load_macros_from_path"
+                    or name.lower() == "loader_search_path"
+                ):
                     # Comma-separated list of paths.
                     paths = split_comma_separated_string(val)
                     v_temp = []
