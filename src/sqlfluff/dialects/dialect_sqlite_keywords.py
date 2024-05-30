@@ -85,7 +85,6 @@ RESERVED_KEYWORDS = [
     "IS",
     "ISNULL",
     "JOIN",
-    "KEY",
     "LAST",
     "LEFT",
     "LIKE",
@@ -156,6 +155,7 @@ RESERVED_KEYWORDS = [
 ]
 
 UNRESERVED_KEYWORDS = [
+    "KEY",
     "INT",
     "INTEGER",
     "TINYINT",
