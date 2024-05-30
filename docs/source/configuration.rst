@@ -595,31 +595,31 @@ loaded from files or folders. This is specified in the config file:
 .. code-block:: cfg
 
     [sqlfluff:templater:jinja]
-    load_macros_from_path = my_macros
+    load_macros_from_path = my_macros,other_macros
 
 ``load_macros_from_path`` is a comma-separated list of :code:`.sql` files or
 folders. Locations are *relative to the config file*. For example, if the
 config file above was found at :code:`/home/my_project/.sqlfluff`, then
-SQLFluff will look for macros in the folder :code:`/home/my_project/my_macros/`
-(but not subfolders). Any macros defined in the config will always take
-precedence over a macro defined in the path.
+SQLFluff will look for macros in the folders :code:`/home/my_project/my_macros/`
+and  :code:`/home/my_project/other_macros/`, including any of their subfolders.
+Any macros defined in the config will always take precedence over a macro
+defined in the path.
 
-* :code:`.sql` files: Macros in these files are available in every :code:`.sql`
-  file without requiring a Jinja :code:`include` or :code:`import`.
-* Folders: To use macros from the :code:`.sql` files in folders, use Jinja
-  :code:`include` or :code:`import` as explained below.
+Macros loaded from these files are available in every :code:`.sql` file without
+requiring a Jinja :code:`include` or :code:`import`.  They are loaded into the
+`Jinja Global Namespace <https://jinja.palletsprojects.com/en/3.1.x/api/#global-namespace>`_.
 
 **Note:** The :code:`load_macros_from_path` setting also defines the search
 path for Jinja
-`include <https://jinja.palletsprojects.com/en/3.0.x/templates/#include>`_ or
-`import <https://jinja.palletsprojects.com/en/3.0.x/templates/#import>`_.
-Unlike with macros (as noted above), subdirectories are supported. For example,
+`include <https://jinja.palletsprojects.com/en/3.1.x/templates/#include>`_ or
+`import <https://jinja.palletsprojects.com/en/3.1.x/templates/#import>`_.
+As with loaded macros, subdirectories are also supported. For example,
 if :code:`load_macros_from_path` is set to :code:`my_macros`, and there is a
 file :code:`my_macros/subdir/my_file.sql`, you can do:
 
 .. code-block:: jinja
 
-   {% include 'subdir/include_comment.sql' %}
+   {% include 'subdir/my_file.sql' %}
 
 .. note::
 
@@ -798,7 +798,7 @@ mixture of several types:
 * ``str``
 * ``int``
 * ``list``
-* Jinja's ``Undefined`` `class <https://jinja.palletsprojects.com/en/3.0.x/api/#jinja2.Undefined>`_
+* Jinja's ``Undefined`` `class <https://jinja.palletsprojects.com/en/3.1.x/api/#jinja2.Undefined>`_
 
 Because the values behave like ``Undefined``, it's possible to replace them
 using Jinja's ``default()`` `filter <https://jinja.palletsprojects.com/en/3.1.x/templates/#jinja-filters.default>`_.
