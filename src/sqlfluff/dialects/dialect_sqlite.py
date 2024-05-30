@@ -23,6 +23,7 @@ from sqlfluff.core.parser import (
     Ref,
     RegexLexer,
     Sequence,
+    StringLexer,
     StringParser,
     SymbolSegment,
     TypedParser,
@@ -121,6 +122,14 @@ sqlite_dialect.insert_lexer_matchers(
     before="question",
 )
 
+sqlite_dialect.insert_lexer_matchers(
+    [
+        StringLexer("inline_path_operator", "->>", CodeSegment),
+        StringLexer("column_path_operator", "->", CodeSegment),
+    ],
+    before="greater_than",
+)
+
 sqlite_dialect.add(
     BackQuotedIdentifierSegment=TypedParser(
         "back_quote",
@@ -128,6 +137,12 @@ sqlite_dialect.add(
         type="quoted_identifier",
         # match ANSI's naked identifier casefold, sqlite is case-insensitive.
         casefold=str.upper,
+    ),
+    ColumnPathOperatorSegment=StringParser(
+        "->", SymbolSegment, type="column_path_operator"
+    ),
+    InlinePathOperatorSegment=StringParser(
+        "->>", SymbolSegment, type="column_path_operator"
     ),
     QuestionMarkSegment=StringParser("?", SymbolSegment, type="question_mark"),
     AtSignLiteralSegment=TypedParser(
@@ -367,6 +382,62 @@ class SetOperatorSegment(BaseSegment):
             Ref.keyword("ALL", optional=True),
         ),
         exclude=Sequence("EXCEPT", Bracketed(Anything())),
+    )
+
+
+class ColumnReferenceSegment(ansi.ColumnReferenceSegment):
+    """A reference to column, field or alias.
+
+    Also allows `column->path` and `column->>path` for JSON values.
+    https://www.sqlite.org/json1.html#jptr
+    """
+
+    match_grammar = ansi.ColumnReferenceSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                OneOf(
+                    ansi.ColumnReferenceSegment.match_grammar.copy(),
+                    Ref("FunctionSegment"),
+                    Ref("BareFunctionSegment"),
+                    Ref("LiteralGrammar"),
+                ),
+                AnyNumberOf(
+                    Sequence(
+                        OneOf(
+                            Ref("ColumnPathOperatorSegment"),
+                            Ref("InlinePathOperatorSegment"),
+                        ),
+                        OneOf(
+                            Ref("LiteralGrammar"),
+                            Ref("QuotedIdentifierSegment"),
+                        ),
+                    )
+                ),
+            ),
+        ]
+    )
+
+
+class TableReferenceSegment(ansi.TableReferenceSegment):
+    """A reference to a table.
+
+    Also allows `table->path` and `table->>path` for JSON values.
+    https://www.sqlite.org/json1.html#jptr
+    """
+
+    match_grammar = ansi.TableReferenceSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                ansi.TableReferenceSegment.match_grammar.copy(),
+                OneOf(
+                    Ref("ColumnPathOperatorSegment"),
+                    Ref("InlinePathOperatorSegment"),
+                ),
+                OneOf(
+                    Ref("LiteralGrammar"),
+                ),
+            ),
+        ]
     )
 
 
@@ -779,6 +850,24 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
     )
 
 
+class CreateViewStatementSegment(BaseSegment):
+    """A `CREATE VIEW` statement."""
+
+    type = "create_view_statement"
+    # https://www.sqlite.org/lang_createview.html
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("TemporaryGrammar", optional=True),
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        # Optional list of column names
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        "AS",
+        OptionallyBracketed(Ref("SelectableGrammar")),
+    )
+
+
 class UnorderedSelectStatementSegment(BaseSegment):
     """A `SELECT` statement without any ORDER clauses or later.
 
@@ -824,11 +913,30 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
     type = "update_statement"
     match_grammar: Matchable = Sequence(
         "UPDATE",
+        Sequence(
+            "OR",
+            OneOf(
+                "ABORT",
+                "FAIL",
+                "IGNORE",
+                "REPLACE",
+                "ROLLBACK",
+            ),
+            optional=True,
+        ),
         Ref("TableReferenceSegment"),
-        # SET is not a reserved word in all dialects (e.g. RedShift)
-        # So specifically exclude as an allowed implicit alias to avoid parsing errors
-        Ref("AliasExpressionSegment", exclude=Ref.keyword("SET"), optional=True),
-        Ref("SetClauseListSegment"),
+        Ref("AliasExpressionSegment", optional=True),
+        "SET",
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("BracketedColumnReferenceListGrammar"),
+                ),
+                Ref("EqualsSegment"),
+                Ref("ExpressionSegment"),
+            ),
+        ),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("ReturningClauseSegment", optional=True),
