@@ -62,7 +62,7 @@ RESERVED_KEYWORDS = [
     "FIRST",
     "FOLLOWING",
     "FOR",
-    "FOREIGN KEY",
+    "FOREIGN",
     "FROM",
     "FULL",
     "GENERATED",
@@ -110,7 +110,7 @@ RESERVED_KEYWORDS = [
     "PLAN",
     "PRAGMA",
     "PRECEDING",
-    "PRIMARY KEY",
+    "PRIMARY",
     "QUERY",
     "RAISE",
     "RANGE",
@@ -155,6 +155,7 @@ RESERVED_KEYWORDS = [
 ]
 
 UNRESERVED_KEYWORDS = [
+    "KEY",
     "INT",
     "INTEGER",
     "TINYINT",

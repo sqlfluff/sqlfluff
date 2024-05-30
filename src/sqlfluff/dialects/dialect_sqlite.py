@@ -45,20 +45,6 @@ sqlite_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 sqlite_dialect.sets("unreserved_keywords").clear()
 sqlite_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
-
-sqlite_dialect.insert_lexer_matchers(
-    # SQLite uses key as a column name in json_tree and json_each.
-    # This conflicts with the KEY keyword. Therefore we need to add
-    # parse PRIMARY KEY & FOREIGN KEY separately and remove KEY
-    # from the reserved keywords.
-    # https://www.sqlite.org/json1.html#jeach
-    [
-        RegexLexer("primary_key", r"PRIMARY\s+KEY", KeywordSegment),
-        RegexLexer("foreign_key", r"FOREIGN\s+KEY", KeywordSegment),
-    ],
-    before="whitespace",
-)
-
 sqlite_dialect.patch_lexer_matchers(
     [
         # SQLite allows block comments to be terminated by end of input
@@ -133,12 +119,12 @@ sqlite_dialect.add(
 
 sqlite_dialect.replace(
     PrimaryKeyGrammar=Sequence(
-        TypedParser("primary_key", KeywordSegment),
+        "PRIMARY",
+        "KEY",
         OneOf("ASC", "DESC", optional=True),
         Ref("ConflictClauseSegment", optional=True),
         Sequence("AUTOINCREMENT", optional=True),
     ),
-    ForeignKeyGrammar=TypedParser("foreign_key", KeywordSegment),
     TemporaryTransientGrammar=Ref("TemporaryGrammar"),
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "DATETIME"),

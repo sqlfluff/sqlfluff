@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1b11c44147c0ee2bc346b4ba6f5cdf33dd7cce3e1aaf536be6bce00d75fe6c39
+_hash: 5ceb51beba6740a7f80613179a15a4d2856cefa05e3b9b34ca1e11b4727c6973
 file:
 - statement:
     create_table_statement:
@@ -24,7 +24,8 @@ file:
             data_type_identifier: TEXT
       - comma: ','
       - table_constraint:
-        - keyword: FOREIGN KEY
+        - keyword: FOREIGN
+        - keyword: KEY
         - bracketed:
             start_bracket: (
             column_reference:
@@ -60,7 +61,8 @@ file:
             data_type_identifier: TEXT
       - comma: ','
       - table_constraint:
-        - keyword: FOREIGN KEY
+        - keyword: FOREIGN
+        - keyword: KEY
         - bracketed:
             start_bracket: (
             column_reference:
@@ -98,7 +100,8 @@ file:
             data_type_identifier: TEXT
       - comma: ','
       - table_constraint:
-        - keyword: FOREIGN KEY
+        - keyword: FOREIGN
+        - keyword: KEY
         - bracketed:
             start_bracket: (
             column_reference:
@@ -136,7 +139,8 @@ file:
             data_type_identifier: TEXT
       - comma: ','
       - table_constraint:
-        - keyword: FOREIGN KEY
+        - keyword: FOREIGN
+        - keyword: KEY
         - bracketed:
             start_bracket: (
             column_reference:
@@ -173,7 +177,8 @@ file:
             data_type_identifier: TEXT
       - comma: ','
       - table_constraint:
-        - keyword: FOREIGN KEY
+        - keyword: FOREIGN
+        - keyword: KEY
         - bracketed:
             start_bracket: (
             column_reference:
@@ -212,7 +217,8 @@ file:
             data_type_identifier: TEXT
       - comma: ','
       - table_constraint:
-        - keyword: FOREIGN KEY
+        - keyword: FOREIGN
+        - keyword: KEY
         - bracketed:
             start_bracket: (
             column_reference:

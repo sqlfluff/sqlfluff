@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cd75e6dc4390d6afb3e4ac81a7b36f3431091a82ccb55a9a6b29965b74f33634
+_hash: 6cd54b8b91f3ed3656375f906eba6e76cafb51f89ccc97caf7736cdbc8d73878
 file:
 - statement:
     create_table_statement:
@@ -18,7 +18,8 @@ file:
           data_type:
             data_type_identifier: INTEGER
           column_constraint_segment:
-            keyword: PRIMARY KEY
+          - keyword: PRIMARY
+          - keyword: KEY
       - comma: ','
       - column_definition:
           naked_identifier: b
@@ -103,7 +104,8 @@ file:
           data_type:
             data_type_identifier: INTEGER
           column_constraint_segment:
-            keyword: PRIMARY KEY
+          - keyword: PRIMARY
+          - keyword: KEY
       - comma: ','
       - column_definition:
           naked_identifier: b
