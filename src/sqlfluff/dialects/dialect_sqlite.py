@@ -717,6 +717,24 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
     )
 
 
+class CreateViewStatementSegment(BaseSegment):
+    """A `CREATE VIEW` statement."""
+
+    type = "create_view_statement"
+    # https://www.sqlite.org/lang_createview.html
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("TemporaryGrammar", optional=True),
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        # Optional list of column names
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        "AS",
+        OptionallyBracketed(Ref("SelectableGrammar")),
+    )
+
+
 class UnorderedSelectStatementSegment(BaseSegment):
     """A `SELECT` statement without any ORDER clauses or later.
 
@@ -762,11 +780,30 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
     type = "update_statement"
     match_grammar: Matchable = Sequence(
         "UPDATE",
+        Sequence(
+            "OR",
+            OneOf(
+                "ABORT",
+                "FAIL",
+                "IGNORE",
+                "REPLACE",
+                "ROLLBACK",
+            ),
+            optional=True,
+        ),
         Ref("TableReferenceSegment"),
-        # SET is not a reserved word in all dialects (e.g. RedShift)
-        # So specifically exclude as an allowed implicit alias to avoid parsing errors
-        Ref("AliasExpressionSegment", exclude=Ref.keyword("SET"), optional=True),
-        Ref("SetClauseListSegment"),
+        Ref("AliasExpressionSegment", optional=True),
+        "SET",
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("BracketedColumnReferenceListGrammar"),
+                ),
+                Ref("EqualsSegment"),
+                Ref("ExpressionSegment"),
+            ),
+        ),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("ReturningClauseSegment", optional=True),
