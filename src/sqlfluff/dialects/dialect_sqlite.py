@@ -116,7 +116,7 @@ sqlite_dialect.insert_lexer_matchers(
             "dollar_literal",
             r"\$[a-zA-Z0-9_]+",
             LiteralSegment,
-            segment_kwargs={"type": "question_literal"},
+            segment_kwargs={"type": "dollar_literal"},
         ),
     ],
     before="question",
