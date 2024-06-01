@@ -199,7 +199,10 @@ sqlite_dialect.replace(
         "HAVING",
         "WINDOW",
     ),
-    PostFunctionGrammar=Ref("FilterClauseGrammar"),
+    PostFunctionGrammar=Sequence(
+        Ref("FilterClauseGrammar", optional=True),
+        Ref("OverClauseSegment", optional=True),
+    ),
     IgnoreRespectNullsGrammar=Nothing(),
     SelectClauseTerminatorGrammar=OneOf(
         "FROM",
@@ -290,7 +293,44 @@ sqlite_dialect.replace(
         "single_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
     ),
     ColumnConstraintDefaultGrammar=Ref("ExpressionSegment"),
+    FrameClauseUnitGrammar=OneOf("ROWS", "RANGE", "GROUPS"),
 )
+
+
+class FrameClauseSegment(BaseSegment):
+    type = "frame_clause"
+
+    match_grammar: Matchable = Sequence(
+        Ref("FrameClauseUnitGrammar"),
+        OneOf(
+            Sequence("UNBOUNDED", "PRECEDING"),
+            Sequence("CURRENT", "ROW"),
+            Sequence(Ref("ExpressionSegment"), "PRECEDING"),
+            Sequence(
+                "BETWEEN",
+                OneOf(
+                    Sequence("UNBOUNDED", "PRECEDING"),
+                    Sequence("CURRENT", "ROW"),
+                    Sequence(Ref("ExpressionSegment"), "FOLLOWING"),
+                    Sequence(Ref("ExpressionSegment"), "PRECEDING"),
+                ),
+                "AND",
+                OneOf(
+                    Sequence("UNBOUNDED", "FOLLOWING"),
+                    Sequence("CURRENT", "ROW"),
+                    Sequence(Ref("ExpressionSegment"), "FOLLOWING"),
+                    Sequence(Ref("ExpressionSegment"), "PRECEDING"),
+                ),
+            ),
+        ),
+        Sequence(
+            "EXCLUDE",
+            OneOf(
+                Sequence("NO", "OTHERS"), Sequence("CURRENT", "ROW"), "TIES", "GROUP"
+            ),
+            optional=True,
+        ),
+    )
 
 
 class SetOperatorSegment(BaseSegment):
