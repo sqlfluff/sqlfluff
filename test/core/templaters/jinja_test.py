@@ -992,7 +992,7 @@ def test__templater_jinja_slice_template(test, result, analyzer_class):
     templater = JinjaTemplater()
     env, _, render_func = templater.construct_render_func()
 
-    analyzer = analyzer_class(test, env)
+    analyzer = analyzer_class(test, env, FluffConfig(overrides={"dialect": "ansi"}))
     analyzer.analyze(render_func=render_func)
     resp = analyzer.raw_sliced
     # check contiguous (unless there's a comment in it)
@@ -1048,7 +1048,7 @@ class DerivedJinjaTemplater(JinjaTemplater):
     def _get_jinja_analyzer(
         self, raw_str: str, env: Environment, config: Optional[FluffConfig] = None
     ) -> JinjaAnalyzer:
-        return DerivedJinjaAnalyzer(raw_str, env)
+        return DerivedJinjaAnalyzer(raw_str, env, config)
 
 
 def _statement(*args, **kwargs):

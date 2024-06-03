@@ -14,6 +14,7 @@ import regex
 from jinja2 import Environment
 from jinja2.exceptions import TemplateSyntaxError
 
+from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFileSlice
 
 # Instantiate the templater logger
@@ -51,6 +52,7 @@ class JinjaTracer:
         raw_slice_info: Dict[RawFileSlice, RawSliceInfo],
         sliced_file: List[TemplatedFileSlice],
         render_func: Callable[[str], str],
+        config: Optional[FluffConfig] = None,
     ):
         # Input
         self.raw_str = raw_str
@@ -262,10 +264,13 @@ class JinjaAnalyzer:
     re_open_tag = regex.compile(r"^\s*({[{%])[\+\-]?\s*")
     re_close_tag = regex.compile(r"\s*[\+\-]?([}%]})\s*$")
 
-    def __init__(self, raw_str: str, env: Environment) -> None:
+    def __init__(
+        self, raw_str: str, env: Environment, config: Optional[FluffConfig]
+    ) -> None:
         # Input
         self.raw_str: str = raw_str
         self.env = env
+        self.config = config
 
         # Output
         self.raw_sliced: List[RawFileSlice] = []
@@ -390,6 +395,23 @@ class JinjaAnalyzer:
             )
         return JinjaTagConfiguration(
             block_type="block_start",
+        )
+
+    def _get_jinja_tracer(
+        self,
+        raw_str: str,
+        raw_sliced: List[RawFileSlice],
+        raw_slice_info: Dict[RawFileSlice, RawSliceInfo],
+        sliced_file: List[TemplatedFileSlice],
+        render_func: Callable[[str], str],
+        config: Optional[FluffConfig] = None,
+    ) -> JinjaTracer:
+        """Creates a new object derived from JinjaTracer.
+
+        Derived classes can provide their own tracers with custom functionality.
+        """
+        return JinjaTracer(
+            raw_str, raw_sliced, raw_slice_info, sliced_file, render_func, config
         )
 
     def next_slice_id(self) -> str:
@@ -641,12 +663,13 @@ class JinjaAnalyzer:
                     )
                 str_buff = ""
                 str_parts = []
-        return JinjaTracer(
+        return self._get_jinja_tracer(
             self.raw_str,
             self.raw_sliced,
             self.raw_slice_info,
             self.sliced_file,
             render_func,
+            self.config,
         )
 
     def track_templated(
