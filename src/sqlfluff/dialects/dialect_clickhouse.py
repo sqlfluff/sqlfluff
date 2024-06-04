@@ -227,9 +227,9 @@ clickhouse_dialect.replace(
         insert=[Ref.keyword("PREWHERE")],
         before=Ref.keyword("WHERE"),
     ),
-    FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
-        "FromClauseTerminatorGrammar"
-    ).copy(insert=[Ref.keyword("PREWHERE")], before=Ref.keyword("WHERE")).copy(insert=[Ref("SettingsClauseSegment")]),
+    FromClauseTerminatorGrammar=ansi_dialect.get_grammar("FromClauseTerminatorGrammar")
+    .copy(insert=[Ref.keyword("PREWHERE")], before=Ref.keyword("WHERE"))
+    .copy(insert=[Ref("SettingsClauseSegment")]),
 )
 
 
