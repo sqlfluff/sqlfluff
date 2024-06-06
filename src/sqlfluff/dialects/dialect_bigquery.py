@@ -383,6 +383,7 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
             Ref("DatatypeSegment"),
             bracket_type="angle",
             bracket_pairs_set="angle_bracket_pairs",
+            optional=True,
         ),
     )
 
@@ -516,11 +517,16 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropMaterializedViewStatementSegment"),
             Ref("DropProcedureStatementSegment"),
             Ref("UndropSchemaStatementSegment"),
+            Ref("AlterOrganizationStatementSegment"),
+            Ref("AlterProjectStatementSegment"),
             Ref("CreateSearchIndexStatementSegment"),
             Ref("CreateVectorIndexStatementSegment"),
             Ref("CreateRowAccessPolicyStatementSegment"),
+            Ref("AlterBiCapacityStatementSegment"),
             Ref("CreateCapacityStatementSegment"),
+            Ref("AlterCapacityStatementSegment"),
             Ref("CreateReservationStatementSegment"),
+            Ref("AlterReservationStatementSegment"),
             Ref("CreateAssignmentStatementSegment"),
         ],
     )
@@ -1760,9 +1766,13 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
         Ref("TableReferenceSegment"),
         OneOf(
             # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_set_options_statement
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_collate_statement
             Sequence(
                 "SET",
-                Ref("OptionsSegment"),
+                OneOf(
+                    Ref("OptionsSegment"),
+                    Ref("DefaultCollateSegment"),
+                ),
             ),
             # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_add_column_statement
             Delimited(
@@ -1843,6 +1853,24 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     "COLUMN",
                     Ref("IfExistsGrammar", optional=True),
                     Ref("SingleIdentifierGrammar"),  # Column name
+                ),
+            ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_drop_constraint_statement
+            Delimited(
+                Sequence(
+                    "DROP",
+                    "CONSTRAINT",
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("SingleIdentifierGrammar"),  # Constraint name
+                ),
+            ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_drop_primary_key_statement
+            Delimited(
+                Sequence(
+                    "DROP",
+                    "PRIMARY",
+                    "KEY",
+                    Ref("IfExistsGrammar", optional=True),
                 ),
             ),
             # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_column_set_options_statement
@@ -2011,6 +2039,7 @@ class AlterViewStatementSegment(BaseSegment):
     """A `ALTER VIEW` statement.
 
     https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_view_set_options_statement
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_column_set_options_statement
     """
 
     type = "alter_view_statement"
@@ -2020,8 +2049,22 @@ class AlterViewStatementSegment(BaseSegment):
         "VIEW",
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        "SET",
-        Ref("OptionsSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                Ref("OptionsSegment"),
+            ),
+            Delimited(
+                Sequence(
+                    "ALTER",
+                    "COLUMN",
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("SingleIdentifierGrammar"),  # Column name
+                    "SET",
+                    Ref("OptionsSegment"),
+                ),
+            ),
+        ),
     )
 
 
@@ -2663,6 +2706,39 @@ class RaiseStatementSegment(BaseSegment):
     )
 
 
+class AlterOrganizationStatementSegment(BaseSegment):
+    """A `ALTER ORGANIZATION` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_organization_set_options_statement
+    """
+
+    type = "alter_organization_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "ORGANIZATION",
+        "SET",
+        Ref("OptionsSegment"),
+    )
+
+
+class AlterProjectStatementSegment(BaseSegment):
+    """A `ALTER PROJECT` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_project_set_options_statement
+    """
+
+    type = "alter_project_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "PROJECT",
+        Ref("TableReferenceSegment"),  # project_id
+        "SET",
+        Ref("OptionsSegment"),
+    )
+
+
 class CreateSearchIndexStatementSegment(BaseSegment):
     """A `CREATE SEARCH INDEX` statement.
 
@@ -2742,6 +2818,23 @@ class CreateRowAccessPolicyStatementSegment(BaseSegment):
     )
 
 
+class AlterBiCapacityStatementSegment(BaseSegment):
+    """A `ALTER BI_CAPACITY` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_bi_capacity_set_options_statement
+    """
+
+    type = "alter_bi_capacity_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "BI_CAPACITY",
+        Ref("TableReferenceSegment"),
+        "SET",
+        Ref("OptionsSegment"),
+    )
+
+
 class CreateCapacityStatementSegment(BaseSegment):
     """A `CREATE CAPACITY` statement.
 
@@ -2758,6 +2851,23 @@ class CreateCapacityStatementSegment(BaseSegment):
     )
 
 
+class AlterCapacityStatementSegment(BaseSegment):
+    """A `ALTER CAPACITY` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_capacity_set_options_statement
+    """
+
+    type = "alter_capacity_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "CAPACITY",
+        Ref("TableReferenceSegment"),
+        "SET",
+        Ref("OptionsSegment"),
+    )
+
+
 class CreateReservationStatementSegment(BaseSegment):
     """A `CREATE RESERVATION` statement.
 
@@ -2770,6 +2880,23 @@ class CreateReservationStatementSegment(BaseSegment):
         "CREATE",
         "RESERVATION",
         Ref("TableReferenceSegment"),
+        Ref("OptionsSegment"),
+    )
+
+
+class AlterReservationStatementSegment(BaseSegment):
+    """A `ALTER RESERVATION` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_reservation_set_options_statement
+    """
+
+    type = "alter_reservation_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "RESERVATION",
+        Ref("TableReferenceSegment"),
+        "SET",
         Ref("OptionsSegment"),
     )
 

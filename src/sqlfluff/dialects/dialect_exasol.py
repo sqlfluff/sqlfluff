@@ -235,7 +235,7 @@ exasol_dialect.replace(
         CodeSegment,
         type="parameter",
     ),
-    LikeGrammar=Ref.keyword("LIKE"),
+    LikeGrammar=OneOf("LIKE", "REGEXP_LIKE"),
     NanLiteralSegment=Nothing(),
     SelectClauseTerminatorGrammar=OneOf(
         "FROM",

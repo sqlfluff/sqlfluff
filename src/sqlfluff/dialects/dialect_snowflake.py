@@ -149,7 +149,7 @@ snowflake_dialect.sets("compression_types").update(
 # Add all Snowflake supported file types
 snowflake_dialect.sets("files_types").clear()
 snowflake_dialect.sets("files_types").update(
-    ["CSV", "JSON", "AVRO", "ORC" "PARQUET", "XML"],
+    ["CSV", "JSON", "AVRO", "ORC", "PARQUET", "XML"],
 )
 
 snowflake_dialect.sets("warehouse_types").clear()

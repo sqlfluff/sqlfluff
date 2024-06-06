@@ -1,0 +1,190 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: da82884b29f9b36aea8c154dc246ee172e679a001c2a6b5c897c5065df4088db
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: c
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - column_definition:
+          naked_identifier: d
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: a
+                binary_operator: '*'
+                function:
+                  function_name:
+                    function_name_identifier: abs
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: b
+                    end_bracket: )
+              end_bracket: )
+          - keyword: VIRTUAL
+      - comma: ','
+      - column_definition:
+          naked_identifier: e
+          data_type:
+            data_type_identifier: TEXT
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: substr
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: c
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: b
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: b
+                      binary_operator: +
+                      numeric_literal: '1'
+                  - end_bracket: )
+              end_bracket: )
+          - keyword: STORED
+      - comma: ','
+      - table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: a
+            end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: c
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - column_definition:
+          naked_identifier: d
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: a
+                binary_operator: '*'
+                function:
+                  function_name:
+                    function_name_identifier: abs
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: b
+                    end_bracket: )
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: e
+        - data_type:
+            data_type_identifier: TEXT
+        - column_constraint_segment:
+          - keyword: AS
+          - bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: substr
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: c
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: b
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: b
+                      binary_operator: +
+                      numeric_literal: '1'
+                  - end_bracket: )
+              end_bracket: )
+          - keyword: STORED
+        - column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: "'foo'"
+      - comma: ','
+      - table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: a
+            end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

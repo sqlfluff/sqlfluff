@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import shutil
+import subprocess
 from copy import deepcopy
 from pathlib import Path
 from unittest import mock
@@ -639,22 +640,31 @@ def test__dbt_log_supression(dbt_project_folder):
     oldcwd = os.getcwd()
     try:
         os.chdir(dbt_project_folder)
+
+        cli_options = [
+            "--disable-progress-bar",
+            "dbt_project/models/my_new_project/operator_errors.sql",
+            "-f",
+            "json",
+        ]
+
         result = invoke_assert_code(
             ret_code=1,
             args=[
                 lint,
-                [
-                    "--disable-progress-bar",
-                    "dbt_project/models/my_new_project/operator_errors.sql",
-                    "-f",
-                    "json",
-                ],
+                cli_options,
             ],
+        )
+        # the CliRunner isn't isolated from the dbt plugin loading
+        isolated_lint = subprocess.run(
+            ["sqlfluff", "lint"] + cli_options, capture_output=True
         )
     finally:
         os.chdir(oldcwd)
     # Check that the full output parses as json
     parsed = json.loads(result.output)
+    assert isolated_lint.returncode == 1
+    assert b" Registered adapter:" not in isolated_lint.stdout
     assert isinstance(parsed, list)
     assert len(parsed) == 1
     first_file = parsed[0]
