@@ -908,6 +908,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         ),
     )
 
+
 class CreateViewStatementSegment(BaseSegment):
     """A `CREATE VIEW` statement.
 
