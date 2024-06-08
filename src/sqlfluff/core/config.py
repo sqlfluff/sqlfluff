@@ -685,6 +685,17 @@ class ConfigLoader:
             self.load_user_appdir_config() if not ignore_local_config else {}
         )
         user_config = self.load_user_config() if not ignore_local_config else {}
+        parent_config_paths = (
+            iter_intermediate_paths(Path(path).absolute(), Path(os.path.expanduser("~")))
+            if not ignore_local_config
+            else {}
+        )
+        parent_config_stack = (
+            [self.load_config_at_path(p) for p in reversed(list(parent_config_paths))]
+            if not ignore_local_config
+            else []
+        )
+        parent_config_stack = [config for config in parent_config_stack if config][:1]
         config_paths = (
             iter_intermediate_paths(Path(path).absolute(), Path.cwd())
             if not ignore_local_config
@@ -699,7 +710,7 @@ class ConfigLoader:
             self.load_extra_config(extra_config_path) if extra_config_path else {}
         )
         return nested_combine(
-            user_appdir_config, user_config, *config_stack, extra_config
+            user_appdir_config, user_config, *parent_config_stack, *config_stack, extra_config
         )
 
     @classmethod
