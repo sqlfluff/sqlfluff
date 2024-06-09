@@ -135,11 +135,14 @@ steps overriding those from earlier:
    above in the main :ref:`config` section. If multiple are present, they will
    *patch*/*override* each other in the order above.
 2. It will look for the same files in the user's home directory (~).
-3. It will look for the same files in the current working directory.
-4. *[if parsing a file in a subdirectory of the current working directory]*
+3. It will look for the same files in all directories between the user's home
+   directory (~), and the current working directory (this does nothing if the
+   current working directory is not a sub directory of the home directory).
+4. It will look for the same files in the current working directory.
+5. *[if parsing a file in a subdirectory of the current working directory]*
    It will look for the same files in every subdirectory between the
    current working dir and the file directory.
-5. It will look for the same files in the directory containing the file
+6. It will look for the same files in the directory containing the file
    being linted.
 
 This whole structure leads to efficient configuration, in particular
