@@ -1,10 +1,11 @@
 """Defines the placeholder template."""
 
 import logging
-from typing import Dict, Optional, Tuple
+from typing import Dict, List, Tuple
 
 import regex
 
+from sqlfluff.core.errors import SQLTemplaterError
 from sqlfluff.core.helpers.slice import offset_slice
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
@@ -114,7 +115,7 @@ class PlaceholderTemplater(RawTemplater):
     @large_file_check
     def process(
         self, *, in_str: str, fname: str, config=None, formatter=None
-    ) -> Tuple[Optional[TemplatedFile], list]:
+    ) -> Tuple[TemplatedFile, List[SQLTemplaterError]]:
         """Process a string and return a TemplatedFile.
 
         Note that the arguments are enforced as keywords
