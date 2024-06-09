@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1b5fd3bd0d3c91581cd2ee9f167c2a4607a98296c43717424aa44d4dba77243f
+_hash: 405ab9d1f5df047af29966b099705a1830b65db2c3918e8f4f78dadab5ffbc70
 file:
 - statement:
     select_statement:
@@ -1868,4 +1868,24 @@ file:
           alias_expression:
             keyword: AS
             naked_identifier: contains_email
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bare_function: current_date
+            binary_operator: '-'
+            numeric_literal: '1'
+          alias_expression:
+            keyword: as
+            naked_identifier: dt
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: dual
 - statement_terminator: ;
