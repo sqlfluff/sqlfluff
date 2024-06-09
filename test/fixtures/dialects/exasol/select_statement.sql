@@ -158,3 +158,5 @@ SELECT 'My mail address is my_mail@exasol.com'
 SELECT 'My mail address is my_mail@exasol.com'
        NOT REGEXP_LIKE '(?i).*[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}.*'
        AS contains_email;
+--
+SELECT current_date -1 as dt from dual;
