@@ -235,7 +235,7 @@ exasol_dialect.replace(
         CodeSegment,
         type="parameter",
     ),
-    LikeGrammar=Ref.keyword("LIKE"),
+    LikeGrammar=OneOf("LIKE", "REGEXP_LIKE"),
     NanLiteralSegment=Nothing(),
     SelectClauseTerminatorGrammar=OneOf(
         "FROM",
@@ -1530,33 +1530,10 @@ class InsertStatementSegment(BaseSegment):
         Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
         AnyNumberOf(
-            Ref("ValuesInsertClauseSegment"),
             Ref("ValuesRangeClauseSegment"),
             Sequence("DEFAULT", "VALUES"),
             Ref("SelectableGrammar"),
             Ref("BracketedColumnReferenceListGrammar", optional=True),
-        ),
-    )
-
-
-class ValuesInsertClauseSegment(BaseSegment):
-    """A `VALUES` clause like in `INSERT`."""
-
-    type = "values_insert_clause"
-    match_grammar = Sequence(
-        "VALUES",
-        Delimited(
-            Bracketed(
-                Delimited(
-                    Ref("LiteralGrammar"),
-                    Ref("IntervalExpressionSegment"),
-                    Ref("FunctionSegment"),
-                    Ref("BareFunctionSegment"),
-                    "DEFAULT",
-                    Ref("SelectableGrammar"),
-                ),
-                parse_mode=ParseMode.GREEDY,
-            ),
         ),
     )
 

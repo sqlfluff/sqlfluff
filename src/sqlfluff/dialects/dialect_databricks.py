@@ -16,6 +16,9 @@ from sqlfluff.core.parser import (
     OneOf,
     Ref,
     Sequence,
+    StringLexer,
+    StringParser,
+    SymbolSegment,
     TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -39,6 +42,15 @@ databricks_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 databricks_dialect.sets("date_part_function_name").update(["TIMEDIFF"])
 
 
+databricks_dialect.insert_lexer_matchers(
+    # Named Function Parameters:
+    # https://docs.databricks.com/en/sql/language-manual/sql-ref-function-invocation.html#named-parameter-invocation
+    [
+        StringLexer("right_arrow", "=>", CodeSegment),
+    ],
+    before="equals",
+)
+
 databricks_dialect.add(
     DoubleQuotedUDFBody=TypedParser(
         "double_quote",
@@ -57,6 +69,14 @@ databricks_dialect.add(
         CodeSegment,
         type="udf_body",
         trim_chars=("$",),
+    ),
+    RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+)
+
+databricks_dialect.replace(
+    FunctionContentsExpressionGrammar=OneOf(
+        Ref("ExpressionSegment"),
+        Ref("NamedArgumentSegment"),
     ),
 )
 
@@ -301,4 +321,18 @@ class CreateDatabricksFunctionStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("FunctionDefinitionGrammar"),
+    )
+
+
+class NamedArgumentSegment(BaseSegment):
+    """Named argument to a function.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-function-invocation.html#named-parameter-invocation
+    """
+
+    type = "named_argument"
+    match_grammar = Sequence(
+        Ref("NakedIdentifierSegment"),
+        Ref("RightArrowSegment"),
+        Ref("ExpressionSegment"),
     )

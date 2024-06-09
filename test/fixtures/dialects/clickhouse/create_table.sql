@@ -25,6 +25,8 @@ CREATE TABLE WatchLog_new(date Date, UserId Int64, EventType String, Cnt UInt64)
 
 CREATE TABLE WatchLog as WatchLog_old ENGINE=Merge(currentDatabase(), '^WatchLog');
 
+CREATE TABLE _2 as _1 ENGINE=Merge(currentDatabase(), '^WatchLog');
+
 CREATE TABLE hits_all AS hits
 ENGINE = Distributed(logs, default, hits)
 SETTINGS

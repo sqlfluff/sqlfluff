@@ -767,7 +767,9 @@ class AltAliasExpressionSegment(BaseSegment):
     type = "alias_expression"
     match_grammar = Sequence(
         OneOf(
-            Ref("SingleIdentifierGrammar"),
+            Ref("NakedIdentifierSegment"),
+            Ref("QuotedIdentifierSegment"),
+            Ref("BracketedIdentifierSegment"),
             Ref("SingleQuotedIdentifierSegment"),
         ),
         Ref("RawEqualsSegment"),

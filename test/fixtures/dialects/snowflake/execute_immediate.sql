@@ -19,3 +19,7 @@ EXECUTE IMMEDIATE $pie USING (one, two);
 SET three = 'select ? + ?';
 EXECUTE IMMEDIATE :three;
 EXECUTE IMMEDIATE :three USING (one, two);
+
+EXECUTE IMMEDIATE FROM './insert-inventory.sql';
+
+EXECUTE IMMEDIATE FROM @my_stage/scripts/create-inventory.sql;
