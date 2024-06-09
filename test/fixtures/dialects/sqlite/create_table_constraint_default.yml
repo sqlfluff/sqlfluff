@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b465661bdd47b953b078b1bbeed25eaceeb4bbc4751d064066e83f9b4561876f
+_hash: e84aa22e1f503d04c05cc09cb272823e0735739b0b4f0fb8adba54d875157a3f
 file:
 - statement:
     transaction_statement:
@@ -30,10 +30,145 @@ file:
           - keyword: 'NULL'
         - column_constraint_segment:
             keyword: DEFAULT
-            bare_function: CURRENT_TIMESTAMP
+            expression:
+              bare_function: CURRENT_TIMESTAMP
         end_bracket: )
 - statement_terminator: ;
 - statement:
     transaction_statement:
       keyword: COMMIT
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: TEXT
+          column_constraint_segment:
+            keyword: DEFAULT
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: datetime
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'now'"
+                  end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: TEXT
+          column_constraint_segment:
+            keyword: DEFAULT
+            expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: datetime
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: "'now'"
+                      end_bracket: )
+                end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: TEXT
+          column_constraint_segment:
+            keyword: DEFAULT
+            expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'now'"
+                end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: TEXT
+          column_constraint_segment:
+            keyword: DEFAULT
+            expression:
+              quoted_literal: "'now'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: TEXT
+          column_constraint_segment:
+            keyword: DEFAULT
+            expression:
+              numeric_literal:
+                sign_indicator: '-'
+                numeric_literal: '1'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: TEXT
+          column_constraint_segment:
+            keyword: DEFAULT
+            expression:
+              numeric_literal:
+                sign_indicator: +
+                numeric_literal: '1'
+        end_bracket: )
 - statement_terminator: ;

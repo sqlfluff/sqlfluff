@@ -1,0 +1,19 @@
+INSERT INTO t1 (a, b) VALUES (1, 2) ON CONFLICT DO NOTHING;
+
+INSERT INTO t1 (a, b) VALUES (1, 2) ON CONFLICT (a, b) DO NOTHING;
+
+INSERT INTO t1 (a, b)
+VALUES (1, 2)
+ON CONFLICT (a, b) DO UPDATE SET
+a = excluded.a;
+
+INSERT INTO t1 (a, b)
+VALUES (1, 2)
+ON CONFLICT (a, b) DO UPDATE SET
+a = excluded.a WHERE a < 10;
+
+INSERT INTO t1 (a, b)
+VALUES (1, 2)
+ON CONFLICT (a, b) DO UPDATE SET
+a = excluded.a WHERE a < 10
+RETURNING *;

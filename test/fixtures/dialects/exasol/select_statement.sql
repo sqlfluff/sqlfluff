@@ -146,3 +146,15 @@ SELECT v,
        DATE'2020-10-26' + v * INTERVAL'7'DAY AS late_2020_mondays,
        5 * v AS five_times_table
 FROM VALUES BETWEEN 1 AND 9 AS v(v);
+--
+SELECT 'abcd' LIKE 'a_d' AS res1, '%bcd' like '%%d' AS res2;
+--
+SELECT 'abcd' NOT LIKE 'a_d' AS res1, '%bcd' like '%%d' AS res2;
+--
+SELECT 'My mail address is my_mail@exasol.com'
+       REGEXP_LIKE '(?i).*[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}.*'
+       AS contains_email;
+--
+SELECT 'My mail address is my_mail@exasol.com'
+       NOT REGEXP_LIKE '(?i).*[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}.*'
+       AS contains_email;

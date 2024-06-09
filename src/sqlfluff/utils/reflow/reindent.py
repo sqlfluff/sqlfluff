@@ -825,7 +825,17 @@ def _crawl_indent_points(
 
             # Is the next element a comment? If so - delay the decision until we've
             # got any indents from after the comment too.
-            if "comment" in elements[idx + 1].class_types:
+            #
+            # Also, some templaters might insert custom marker slices that are of zero
+            # source string length as a way of marking locations in the middle of
+            # templated output.  These don't correspond to real source code, so we
+            # can't meaningfully indent before them.  We can safely handle them similar
+            # to the comment case.
+            if "comment" in elements[idx + 1].class_types or (
+                "placeholder" in elements[idx + 1].class_types
+                and cast(TemplateSegment, elements[idx + 1].segments[0]).source_str
+                == ""
+            ):
                 cached_indent_stats = indent_stats
                 # Create parts of a point to use later.
                 cached_point = indent_point

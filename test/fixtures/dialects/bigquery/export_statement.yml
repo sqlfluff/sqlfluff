@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ff4d2fa69759372f4d3bc11a761c5120bd908dffde43fcec59efbf422f874dcc
+_hash: 7d10b2ff48fefa01c60d89e3bb631de6f679dfe38608a25a5e339c6d7435ef1f
 file:
 - statement:
     export_statement:
@@ -33,12 +33,12 @@ file:
       - export_option: overwrite
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: 'true'
+      - boolean_literal: 'true'
       - comma: ','
       - export_option: header
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: 'true'
+      - boolean_literal: 'true'
       - comma: ','
       - export_option: field_delimiter
       - comparison_operator:
@@ -95,12 +95,12 @@ file:
       - export_option: overwrite
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: 'true'
+      - boolean_literal: 'true'
       - comma: ','
       - export_option: header
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: 'true'
+      - boolean_literal: 'true'
       - comma: ','
       - export_option: field_delimiter
       - comparison_operator:
@@ -153,12 +153,12 @@ file:
       - export_option: overwrite
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: 'true'
+      - boolean_literal: 'true'
       - comma: ','
       - export_option: header
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: 'true'
+      - boolean_literal: 'true'
       - comma: ','
       - export_option: field_delimiter
       - comparison_operator:
@@ -214,12 +214,12 @@ file:
       - export_option: overwrite
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: 'true'
+      - boolean_literal: 'true'
       - comma: ','
       - export_option: header
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: 'true'
+      - boolean_literal: 'true'
       - comma: ','
       - export_option: field_delimiter
       - comparison_operator:
@@ -326,7 +326,7 @@ file:
       - export_option: overwrite
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: 'true'
+      - boolean_literal: 'true'
       - end_bracket: )
     - keyword: AS
     - select_statement:
@@ -377,12 +377,12 @@ file:
       - export_option: overwrite
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: 'true'
+      - boolean_literal: 'true'
       - comma: ','
       - export_option: header
       - comparison_operator:
           raw_comparison_operator: '='
-      - keyword: 'true'
+      - boolean_literal: 'true'
       - comma: ','
       - export_option: field_delimiter
       - comparison_operator:
@@ -439,4 +439,65 @@ file:
                 table_expression:
                   table_reference:
                     naked_identifier: cte
+- statement_terminator: ;
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATA
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - export_option: uri
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - function:
+          function_name:
+            function_name_identifier: CONCAT
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: '"gs://bucket/"'
+          - comma: ','
+          - expression:
+              quoted_literal: '"/file_*.csv"'
+          - end_bracket: )
+      - comma: ','
+      - export_option: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'CSV'"
+      - comma: ','
+      - export_option: overwrite
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - export_option: header
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - export_option: field_delimiter
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "','"
+      - end_bracket: )
+    - keyword: as
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: thetable
 - statement_terminator: ;
