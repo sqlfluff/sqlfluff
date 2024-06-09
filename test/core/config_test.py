@@ -129,8 +129,12 @@ def change_dir(path):
         os.chdir(original_dir)
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Seems test is not executed under home directory on Windows",
+)
 def test__config__load_parent():
-    """Test nested overwrite and order of precedence of config files."""
+    """Test that config is loaded from parent directory of current working directory."""
     c = ConfigLoader()
     with change_dir(
         os.path.join("test", "fixtures", "config", "inheritance_a", "nested")
