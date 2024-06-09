@@ -1538,7 +1538,6 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
-
 ############################
 # UPDATE
 ############################
