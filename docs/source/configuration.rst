@@ -135,11 +135,9 @@ steps overriding those from earlier:
    above in the main :ref:`config` section. If multiple are present, they will
    *patch*/*override* each other in the order above.
 2. It will look for the same files in the user's home directory (~).
-3. It will look for the same files in all directories between the
-   user's home directory (~), and the current working directory, but
-   only use the first file it finds closest to the current working
-   directory (this does nothing if the current working directory is
-   not a sub directory of the home directory).
+3. *[if the current working directory is a subdirectory of the user's home directory (~)]*
+   It will look for the same files in all directories between the
+   user's home directory (~), and the current working directory.
 4. It will look for the same files in the current working directory.
 5. *[if parsing a file in a subdirectory of the current working directory]*
    It will look for the same files in every subdirectory between the
