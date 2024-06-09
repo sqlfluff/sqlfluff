@@ -702,11 +702,7 @@ class ConfigLoader:
             # here
             parent_config_paths = parent_config_paths[1:-1]
             parent_config_stack = [
-                self.load_config_at_path(p) for p in reversed(list(parent_config_paths))
-            ]
-            # Taking the first non-empty config (of the reversed list)
-            parent_config_stack = [config for config in parent_config_stack if config][
-                :1
+                self.load_config_at_path(p) for p in list(parent_config_paths)
             ]
 
             config_paths = iter_intermediate_paths(Path(path).absolute(), Path.cwd())
