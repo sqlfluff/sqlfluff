@@ -901,6 +901,9 @@ A few common styles are supported:
     -- (use with caution as more prone to false positives)
     WHERE bla = table:my_name
 
+    -- colon_optional_quotes
+    SELECT :"column" FROM :table WHERE bla = :'my_name'
+
     -- numeric_colon
     WHERE bla = :2
 
