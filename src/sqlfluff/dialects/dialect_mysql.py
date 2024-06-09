@@ -723,6 +723,12 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
         ansi.ColumnConstraintSegment.match_grammar,
         Sequence("CHARACTER", "SET", Ref("NakedIdentifierSegment")),
         Sequence("COLLATE", Ref("CollationReferenceSegment")),
+        Sequence(
+            Sequence("GENERATED", "ALWAYS", optional=True),
+            "AS",
+            Bracketed(Ref("ExpressionSegment")),
+            OneOf("STORED", "VIRTUAL", optional=True),
+        ),  # https://www.sqlite.org/gencol.html
     )
 
 

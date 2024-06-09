@@ -1,0 +1,90 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7fff21ba6a9cd5d9e5a1d6f20bd3affd6ffc4f49eb548fbbcfafa9946a9c4481
+file:
+- statement:
+    alter_organization_statement:
+    - keyword: ALTER
+    - keyword: ORGANIZATION
+    - keyword: SET
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+          start_bracket: (
+          parameter: '`region-us.default_time_zone`'
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: '"Asia/Tokyo"'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_project_statement:
+    - keyword: ALTER
+    - keyword: PROJECT
+    - table_reference:
+        quoted_identifier: '`example-project`'
+    - keyword: SET
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+          start_bracket: (
+          parameter: '`region-us.default_time_zone`'
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: '"Asia/Tokyo"'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_bi_capacity_statement:
+    - keyword: ALTER
+    - keyword: BI_CAPACITY
+    - table_reference:
+        quoted_identifier: '`example-project.region-us.default`'
+    - keyword: SET
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+          start_bracket: (
+          parameter: size_gb
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '250'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_capacity_statement:
+    - keyword: ALTER
+    - keyword: CAPACITY
+    - table_reference:
+        quoted_identifier: '`example-project.region-us.example_commitment`'
+    - keyword: SET
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+          start_bracket: (
+          parameter: plan
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: '"THREE_YEAR"'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_reservation_statement:
+    - keyword: ALTER
+    - keyword: RESERVATION
+    - table_reference:
+        quoted_identifier: '`example-project.region-us.example_reservation`'
+    - keyword: SET
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+          start_bracket: (
+          parameter: slot_capacity
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '123'
+          end_bracket: )
+- statement_terminator: ;

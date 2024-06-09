@@ -314,6 +314,8 @@ UNRESERVED_KEYWORDS = [
     "STREAMING",
     "UPDATES",
     "VIOLATION",
+    "TRACK",
+    "HISTORY",
     # Databricks widget
     "WIDGET",
     "DROPDOWN",

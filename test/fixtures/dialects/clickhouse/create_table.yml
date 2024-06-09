@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d1ae6fd707a9460859df0a7f42811f1bf45148a3ca3dd4c540fe7cffbc8b8100
+_hash: 74dc79622bd7e71234949b6e8a3f21f986e80cf3f4bff8e8c591b233fdc26510
 file:
 - statement:
     create_table_statement:
@@ -99,11 +99,12 @@ file:
                 column_reference:
                   naked_identifier: EventDate
               end_bracket: )
-      - keyword: SETTINGS
-      - naked_identifier: index_granularity
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - numeric_literal: '8192'
+      - settings_clause:
+          keyword: SETTINGS
+          naked_identifier: index_granularity
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '8192'
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -210,11 +211,12 @@ file:
         - column_reference:
             naked_identifier: EventType
         - end_bracket: )
-      - keyword: SETTINGS
-      - naked_identifier: index_granularity
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - numeric_literal: '8192'
+      - settings_clause:
+          keyword: SETTINGS
+          naked_identifier: index_granularity
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '8192'
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -286,10 +288,10 @@ file:
     - table_reference:
         naked_identifier: hits
     - engine:
-      - keyword: ENGINE
-      - comparison_operator:
+        keyword: ENGINE
+        comparison_operator:
           raw_comparison_operator: '='
-      - table_engine_function:
+        table_engine_function:
           function_name:
             function_name_identifier: Distributed
           bracketed:
@@ -306,16 +308,17 @@ file:
               column_reference:
                 naked_identifier: hits
           - end_bracket: )
-      - keyword: SETTINGS
-      - naked_identifier: fsync_after_insert
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - numeric_literal: '0'
-      - comma: ','
-      - naked_identifier: fsync_directories
-      - comparison_operator:
-          raw_comparison_operator: '='
-      - numeric_literal: '0'
+        settings_clause:
+        - keyword: SETTINGS
+        - naked_identifier: fsync_after_insert
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '0'
+        - comma: ','
+        - naked_identifier: fsync_directories
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '0'
 - statement_terminator: ;
 - statement:
     create_table_statement:
