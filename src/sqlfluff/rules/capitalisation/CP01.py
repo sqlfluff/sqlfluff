@@ -136,17 +136,20 @@ class Rule_CP01(BaseRule):
         refuted_cases = memory.get("refuted_cases", set())
 
         # Which cases are definitely inconsistent with the segment?
+        first_letter_is_lowercase = False
         for character in segment.raw:
             if is_capitalizable(character):
                 first_letter_is_lowercase = character != character.upper()
                 break
-            # If none of the characters are letters there will be a parsing
-            # error, so not sure we need this statement
-            first_letter_is_lowercase = False
 
+        # We refute inference of camel, pascal, and snake case.
+        # snake, if not explicitly set, can be destructive to
+        # variable names, adding underscores.
+        # camel and Pascal could allow poorly linted code in,
+        # so must be explicitly chosen.
+        refuted_cases.update(["camel", "pascal", "snake"])
         if first_letter_is_lowercase:
-            # snake added here as it cannot be inferred (presents as lower)
-            refuted_cases.update(["upper", "capitalise", "pascal", "snake"])
+            refuted_cases.update(["upper", "capitalise"])
             if segment.raw != segment.raw.lower():
                 refuted_cases.update(["lower"])
         else:
@@ -155,8 +158,6 @@ class Rule_CP01(BaseRule):
                 refuted_cases.update(["upper"])
             if segment.raw != segment.raw.capitalize():
                 refuted_cases.update(["capitalise"])
-            if not segment.raw.isalnum():
-                refuted_cases.update(["pascal", "snake"])
 
         # Update the memory
         memory["refuted_cases"] = refuted_cases
@@ -219,6 +220,14 @@ class Rule_CP01(BaseRule):
                 lambda match: match.group(1) + match.group(2).upper() + match.group(3),
                 segment.raw,
             )
+        elif concrete_policy == "camel":
+            # Similar to Pascal, for Camel, we can only do a best efforts approach.
+            # This presents as us never changing case mid-string.
+            fixed_raw = regex.sub(
+                "([^a-zA-Z0-9]+|^)([a-zA-Z0-9])([a-zA-Z0-9]*)",
+                lambda match: match.group(1) + match.group(2).lower() + match.group(3),
+                segment.raw,
+            )
         elif concrete_policy == "snake":
             if segment.raw.isupper():
                 fixed_raw = segment.raw.lower()
@@ -240,14 +249,10 @@ class Rule_CP01(BaseRule):
             # build description based on the policy in use
             consistency = "consistently " if cap_policy == "consistent" else ""
 
-            if concrete_policy in ["upper", "lower"]:
+            if concrete_policy in ["upper", "lower", "pascal", "camel", "snake"]:
                 policy = f"{concrete_policy} case."
             elif concrete_policy == "capitalise":
                 policy = "capitalised."
-            elif concrete_policy == "pascal":
-                policy = "pascal case."
-            elif concrete_policy == "snake":
-                policy = "snake case."
 
             # Return the fixed segment
             self.logger.debug(
