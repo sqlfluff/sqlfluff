@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4308147bbc98560af6bb3876254e2a121b14a42b4cbec69f86006b63c8dd00f5
+_hash: d49ba1f0d74c341c23e1a3f83e58cdffeaea64938ddb9cc468ef7666e8c62554
 file:
 - statement:
     select_statement:
@@ -78,4 +78,47 @@ file:
         select_clause_element:
         - quoted_literal: "'foo'"
         - quoted_literal: "'bar'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '"some_table"'
+    - keyword: IS
+    - quoted_literal: "E''"
+    - quoted_literal: "'This is a valid comment style'"
+    - quoted_literal: "'\\n\\n'"
+    - quoted_literal: "'which is escaped'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+        - quoted_literal: "U&''"
+        - quoted_literal: "'This is a valid comment style '"
+        - quoted_literal: "'d\\0061t\\+000061'"
+        - quoted_literal: "' which has unicode'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+        - quoted_literal: "b''"
+        - quoted_literal: "'000'"
+        - quoted_literal: "'010'"
+        - quoted_literal: "'101'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+        - quoted_literal: "x'1234'"
+        - quoted_literal: "'abcd'"
+        - quoted_literal: "'dead'"
+        - quoted_literal: "'beef'"
 - statement_terminator: ;

@@ -494,60 +494,32 @@ postgres_dialect.replace(
         # Note we CANNOT use Delimited as it's greedy and swallows the
         # last Newline - see #2495
         Sequence(
-            TypedParser(
-                "single_quote",
-                LiteralSegment,
-                type="quoted_literal",
-            ),
-            AnyNumberOf(
-                Ref("MultilineConcatenateDelimiterGrammar"),
+            OneOf(
                 TypedParser(
                     "single_quote",
                     LiteralSegment,
                     type="quoted_literal",
                 ),
-            ),
-        ),
-        Sequence(
-            TypedParser(
-                "bit_string_literal",
-                LiteralSegment,
-                type="quoted_literal",
-            ),
-            AnyNumberOf(
-                Ref("MultilineConcatenateDelimiterGrammar"),
                 TypedParser(
                     "bit_string_literal",
                     LiteralSegment,
                     type="quoted_literal",
                 ),
-            ),
-        ),
-        Delimited(
-            TypedParser(
-                "unicode_single_quote",
-                LiteralSegment,
-                type="quoted_literal",
-            ),
-            AnyNumberOf(
-                Ref("MultilineConcatenateDelimiterGrammar"),
                 TypedParser(
                     "unicode_single_quote",
                     LiteralSegment,
                     type="quoted_literal",
                 ),
-            ),
-        ),
-        Delimited(
-            TypedParser(
-                "escaped_single_quote",
-                LiteralSegment,
-                type="quoted_literal",
+                TypedParser(
+                    "escaped_single_quote",
+                    LiteralSegment,
+                    type="quoted_literal",
+                ),
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 TypedParser(
-                    "escaped_single_quote",
+                    "single_quote",
                     LiteralSegment,
                     type="quoted_literal",
                 ),
