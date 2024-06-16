@@ -2191,6 +2191,15 @@ ansi_dialect.add(
         Ref("ShorthandCastSegment"),
         terminators=[Ref("CommaSegment")],
     ),
+    Expression_D_Potential_Select_Statement_Without_Brackets=OneOf(
+        Ref("SelectStatementSegment"),
+        Ref("LiteralGrammar"),
+        Ref("IntervalExpressionSegment"),
+        Ref("TypedStructLiteralSegment"),
+        Ref("ArrayExpressionSegment"),
+        Ref("ColumnReferenceSegment"),
+        Ref("OverlapsClauseSegment"),
+    ),
     # Expression_D_Grammar
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#d_expr
     Expression_D_Grammar=Sequence(
@@ -2217,13 +2226,7 @@ ansi_dialect.add(
                 parse_mode=ParseMode.GREEDY,
             ),
             # Allow potential select statement without brackets
-            Ref("SelectStatementSegment"),
-            Ref("LiteralGrammar"),
-            Ref("IntervalExpressionSegment"),
-            Ref("TypedStructLiteralSegment"),
-            Ref("ArrayExpressionSegment"),
-            Ref("ColumnReferenceSegment"),
-            Ref("OverlapsClauseSegment"),
+            Ref("Expression_D_Potential_Select_Statement_Without_Brackets"),
             # For triggers, we allow "NEW.*" but not just "*" nor "a.b.*"
             # So can't use WildcardIdentifierSegment nor WildcardExpressionSegment
             Sequence(
