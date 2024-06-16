@@ -31,6 +31,9 @@ test_fail_self_alias:
             col_a,
             col_b as new_col_b
         from foo
+    configs:
+        core:
+            dialect: postgres
 
 test_fail_self_alias_upper:
     fail_str:
@@ -55,6 +58,9 @@ test_fail_self_alias_implicit:
             col_a,
             col_b AS new_col_b
         from foo
+    configs:
+        core:
+            dialect: postgres
 
 test_fail_self_alias_and_table_aliased:
     fail_str:
@@ -68,6 +74,9 @@ test_fail_self_alias_and_table_aliased:
             a.col_a,
             a.col_b as new_col_b
         from foo as a
+    configs:
+        core:
+            dialect: postgres
 
 test_fail_self_alias_quoted:
     fail_str:
@@ -81,11 +90,16 @@ test_fail_self_alias_quoted:
             col_b as new_col_b
         from foo
 
-test_pass_self_alias_case_insensitive:
+test_fail_self_alias_case_sensitive_column:
     # Renaming the column name from case-sensitive to case-insensitive
-    pass_str:
+    fail_str:
         select
             "col_a" as col_a,
+            col_b as new_col_b
+        from foo
+    fix_str:
+        select
+            "col_a",
             col_b as new_col_b
         from foo
 
@@ -96,3 +110,45 @@ test_pass_self_alias_case_sensitive:
             col_a as "col_a",
             col_b as new_col_b
         from foo
+
+test_fail_tsql_case_sensitive_result_set:
+    fail_str:
+        SELECT
+            id AS  ID,
+            date AS Date,
+            description AS Description
+        FROM foo
+    fix_str:
+        SELECT
+            ID,
+            Date,
+            Description
+        FROM foo
+    configs:
+        core:
+            dialect: tsql
+
+test_pass_snowflake_case_sensitive:
+    pass_str:
+        SELECT "ORDER" as "order" FROM foo
+    configs:
+        core:
+            dialect: snowflake
+
+test_fail_bigquery_case_sensitive_result_set:
+    fail_str:
+        SELECT Employee_ID AS employee_id FROM foo
+    fix_str:
+        SELECT employee_id FROM foo
+    configs:
+        core:
+            dialect: bigquery
+
+test_fail_bigquery_case_sensitive_result_set_qualified:
+    fail_str:
+        SELECT a.Employee_ID AS employee_id FROM foo a
+    fix_str:
+        SELECT a.employee_id FROM foo a
+    configs:
+        core:
+            dialect: bigquery
