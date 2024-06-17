@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b9f9b71161fc6fcdaae839c2b69ce0469b96d6642bf10715bbd387463766cd40
+_hash: fb85bb2c43e9968755abad0c47226608abf6d3e95a76f67ab38b697b2416a423
 file:
 - statement:
     select_statement:
@@ -458,6 +458,84 @@ file:
             - alias_expression:
                 keyword: AS
                 naked_identifier: avg
+            - keyword: FOR
+            - naked_identifier: quarter
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: q1
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: q2
+              - comma: ','
+              - expression:
+                  numeric_literal: '3'
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: q3
+              - comma: ','
+              - expression:
+                  numeric_literal: '4'
+              - alias_expression:
+                  keyword: AS
+                  naked_identifier: q4
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: year
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: region
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: q1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: q2
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: q3
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: q4
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: sales
+          pivot_clause:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: sum
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: sales
+                  end_bracket: )
             - keyword: FOR
             - naked_identifier: quarter
             - keyword: IN
