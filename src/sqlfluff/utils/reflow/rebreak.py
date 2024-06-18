@@ -272,7 +272,7 @@ def rebreak_sequence(
     # to handle comments differently. There are two other important points:
     # 1. The next newline outward before code (but passing over comments).
     # 2. The point before the next _code_ segment (ditto comments).
-    locations = []
+    locations: List[_RebreakLocation] = []
     for span in spans:
         try:
             locations.append(_RebreakLocation.from_span(span, elem_buff))
@@ -467,12 +467,51 @@ def rebreak_sequence(
                     lint_results=[],
                     anchor_on="before",
                 )
-                fixes.append(
-                    LintFix.create_before(
-                        elem_buff[loc.prev.pre_code_pt_idx].segments[0],
-                        [loc.target],
+
+                # Handle the potential case of an empty point.
+                try:
+                    lead_create_anchor = next(
+                        elem_buff[i].segments
+                        for i in range(
+                            loc.prev.pre_code_pt_idx, loc.prev.adj_pt_idx + 1
+                        )
+                        if elem_buff[i].segments
                     )
+                except StopIteration as exc:  # pragma: no cover
+                    # NOTE: We don't test this because we *should* always find
+                    # _something_ to anchor the creation on, even if we're
+                    # unlucky enough not to find it on the first pass.
+                    raise NotImplementedError(
+                        "Could not find anchor for creation."
+                    ) from exc
+
+                # Attempt to skip dedent elements on reinsertion. These are typically
+                # found at the end of segments, but we don't want to include the
+                # reinserted segment as part of prior code segment's parent segment.
+                prev_code_anchor = next(
+                    (
+                        prev_code_segment
+                        for prev_code_segment in lead_create_anchor
+                        if not prev_code_segment.is_type("dedent")
+                    ),
+                    None,
                 )
+
+                if prev_code_anchor:
+                    fixes.append(
+                        LintFix.create_before(
+                            prev_code_anchor,
+                            [loc.target],
+                        )
+                    )
+                else:
+                    # All segments were dedents, append to the end instead.
+                    fixes.append(
+                        LintFix.create_after(
+                            lead_create_anchor[-1],
+                            [loc.target],
+                        )
+                    )
 
                 elem_buff = (
                     elem_buff[: loc.prev.pre_code_pt_idx]
