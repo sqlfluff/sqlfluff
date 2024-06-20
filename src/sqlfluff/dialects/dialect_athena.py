@@ -119,7 +119,7 @@ athena_dialect.add(
             "optimize_rewrite_min_data_file_size_bytes",
             "optimize_rewrite_max_data_file_size_bytes",
             "optimize_rewrite_data_file_threshold",
-            "optimize_rewrite_delete_file_threshold",   
+            "optimize_rewrite_delete_file_threshold",
         ),
         Ref("EqualsSegment"),
         Ref("LiteralGrammar"),
