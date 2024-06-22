@@ -195,6 +195,14 @@ mysql_dialect.replace(
             Ref("VariableAssignmentSegment"),
         ]
     ),
+    Expression_D_Potential_Select_Statement_Without_Brackets=ansi_dialect.get_grammar(
+        "Expression_D_Potential_Select_Statement_Without_Brackets"
+    ).copy(
+        insert=[
+            Ref("SessionVariableNameSegment"),
+        ],
+        at=0,
+    ),
     ArithmeticBinaryOperatorGrammar=ansi_dialect.get_grammar(
         "ArithmeticBinaryOperatorGrammar"
     ).copy(
