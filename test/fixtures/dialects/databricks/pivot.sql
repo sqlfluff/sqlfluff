@@ -29,3 +29,10 @@ SELECT year, q1_total, q1_avg, q2_total, q2_avg, q3_total, q3_avg, q4_total, q4_
   PIVOT (sum(sales) AS total, avg(sales) AS avg
     FOR quarter
     IN (1 AS q1, 2 AS q2, 3 AS q3, 4 AS q4));
+
+-- A PIVOT with anonymous columns
+SELECT year, region, q1, q2, q3, q4
+FROM sales
+PIVOT (sum(sales)
+  FOR quarter
+  IN (1 AS q1, 2 AS q2, 3 AS q3, 4 AS q4));
