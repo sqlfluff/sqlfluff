@@ -1,0 +1,20 @@
+name: 'my_new_project'
+version: '1.0.0'
+config-version: 2
+
+profile: 'default'
+
+test-paths: ["tests"]
+
+models:
+  my_new_project:
+    materialized: view
+
+vars:
+  my_new_project:
+    # Default date stamp of run
+    ds: "2020-01-01"
+    # passed_through_cli: testing for vars passed through cli('--vars' option) rather than dbt_project
+
+flags:
+  send_anonymous_usage_stats: false

@@ -4,9 +4,7 @@ This stores the idea of a collection of linted files at a single start path
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Union, overload
-
-from typing_extensions import Literal, TypedDict
+from typing import Any, Dict, List, Literal, Optional, Tuple, TypedDict, Union, overload
 
 from sqlfluff.core.errors import CheckTuple, SQLLintError
 from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES, LintedFile

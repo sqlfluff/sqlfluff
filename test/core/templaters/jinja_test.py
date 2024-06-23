@@ -9,7 +9,7 @@ loops and placeholders.
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import List, NamedTuple, Optional, Union
+from typing import List, NamedTuple, Union
 
 import pytest
 from jinja2 import Environment, nodes
@@ -740,6 +740,8 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         # Load all the macros
         ("jinja_q_multiple_path_macros/jinja", True, False),
         ("jinja_s_filters_in_library/jinja", True, False),
+        # Jinja loader search path, without also loading macros into global namespace
+        ("jinja_t_loader_search_path/jinja", True, False),
     ],
 )
 def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
@@ -1043,9 +1045,7 @@ class DerivedJinjaTemplater(JinjaTemplater):
         env.add_extension(DBMigrationExtension)
         return env
 
-    def _get_jinja_analyzer(
-        self, raw_str: str, env: Environment, config: Optional[FluffConfig] = None
-    ) -> JinjaAnalyzer:
+    def _get_jinja_analyzer(self, raw_str: str, env: Environment) -> JinjaAnalyzer:
         return DerivedJinjaAnalyzer(raw_str, env)
 
 

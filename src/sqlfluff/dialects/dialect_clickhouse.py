@@ -205,7 +205,7 @@ clickhouse_dialect.replace(
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
-            r"[A-Z0-9_]*[A-Z][A-Z0-9_]*",
+            r"[a-zA-Z_][0-9a-zA-Z_]*",
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
@@ -227,9 +227,9 @@ clickhouse_dialect.replace(
         insert=[Ref.keyword("PREWHERE")],
         before=Ref.keyword("WHERE"),
     ),
-    FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
-        "FromClauseTerminatorGrammar"
-    ).copy(insert=[Ref.keyword("PREWHERE")], before=Ref.keyword("WHERE")),
+    FromClauseTerminatorGrammar=ansi_dialect.get_grammar("FromClauseTerminatorGrammar")
+    .copy(insert=[Ref.keyword("PREWHERE")], before=Ref.keyword("WHERE"))
+    .copy(insert=[Ref("SettingsClauseSegment")]),
 )
 
 
@@ -253,12 +253,37 @@ class PreWhereClauseSegment(BaseSegment):
     )
 
 
+class SettingsClauseSegment(BaseSegment):
+    """A `SETTINGS` clause for engines or query-level settings."""
+
+    type = "settings_clause"
+    match_grammar: Matchable = Sequence(
+        "SETTINGS",
+        Delimited(
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                ),
+                optional=True,
+            ),
+        ),
+        optional=True,
+    )
+
+
 class SelectStatementSegment(ansi.SelectStatementSegment):
     """Enhance `SELECT` statement to include QUALIFY."""
 
     match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
         insert=[Ref("PreWhereClauseSegment", optional=True)],
         before=Ref("WhereClauseSegment", optional=True),
+    ).copy(
+        insert=[Ref("SettingsClauseSegment", optional=True)],
     )
 
 
@@ -511,21 +536,8 @@ class TableEngineSegment(BaseSegment):
                     "BY",
                     Ref("ExpressionSegment"),
                 ),
-                Sequence(
-                    "SETTINGS",
-                    Delimited(
-                        Sequence(
-                            Ref("NakedIdentifierSegment"),
-                            Ref("EqualsSegment"),
-                            OneOf(
-                                Ref("NumericLiteralSegment"),
-                                Ref("QuotedLiteralSegment"),
-                            ),
-                            optional=True,
-                        ),
-                    ),
-                ),
             ),
+            Ref("SettingsClauseSegment", optional=True),
         ),
     )
 
@@ -601,24 +613,8 @@ class DatabaseEngineSegment(BaseSegment):
                     Ref("ExpressionSegment"),
                     optional=True,
                 ),
-                Sequence(
-                    "SETTINGS",
-                    Delimited(
-                        AnyNumberOf(
-                            Sequence(
-                                Ref("NakedIdentifierSegment"),
-                                Ref("EqualsSegment"),
-                                OneOf(
-                                    Ref("NumericLiteralSegment"),
-                                    Ref("QuotedLiteralSegment"),
-                                ),
-                                optional=True,
-                            ),
-                        )
-                    ),
-                    optional=True,
-                ),
             ),
+            Ref("SettingsClauseSegment", optional=True),
         ),
     )
 
@@ -745,23 +741,6 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
             Sequence(
                 "COMMENT",
                 Ref("SingleIdentifierGrammar"),
-                optional=True,
-            ),
-            Sequence(
-                "SETTINGS",
-                Delimited(
-                    Sequence(
-                        Ref("NakedIdentifierSegment"),
-                        Ref("EqualsSegment"),
-                        OneOf(
-                            Ref("NakedIdentifierSegment"),
-                            Ref("NumericLiteralSegment"),
-                            Ref("QuotedLiteralSegment"),
-                            Ref("BooleanLiteralGrammar"),
-                        ),
-                        optional=True,
-                    ),
-                ),
                 optional=True,
             ),
         ),
@@ -906,6 +885,27 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             ),
             Ref("TableEndClauseSegment", optional=True),
         ),
+    )
+
+
+class CreateViewStatementSegment(BaseSegment):
+    """A `CREATE VIEW` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/create/view
+    """
+
+    type = "create_view_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("OnClusterClauseSegment", optional=True),
+        "AS",
+        Ref("SelectableGrammar"),
+        Ref("TableEndClauseSegment", optional=True),
     )
 
 

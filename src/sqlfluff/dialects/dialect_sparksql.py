@@ -3338,6 +3338,22 @@ class ApplyChangesIntoStatementSegment(BaseSegment):
             Ref("NumericLiteralSegment"),
             optional=True,
         ),
+        Sequence(
+            "TRACK",
+            "HISTORY",
+            "ON",
+            OneOf(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+                Sequence(
+                    Ref("StarSegment"),
+                    "EXCEPT",
+                    Ref("BracketedColumnReferenceListGrammar"),
+                ),
+            ),
+            optional=True,
+        ),
     )
 
 

@@ -100,14 +100,22 @@ class LintFix:
                 self.edit != self.anchor
             ), "Fix created which replaces segment with itself."
 
-    def is_just_source_edit(self) -> bool:
-        """Return whether this a valid source only edit."""
-        return (
+    def is_just_source_edit(self, single_source_fix: bool = False) -> bool:
+        """Return whether this a valid source only edit.
+
+        Args:
+        single_source_fix (:obj:`bool`): Check for a single source_fixes.
+        """
+        if (
             self.edit_type == "replace"
             and self.edit is not None
             and len(self.edit) == 1
             and self.edit[0].raw == self.anchor.raw
-        )
+        ):
+            if single_source_fix:
+                return len(self.edit[0].source_fixes) == 1
+            return True
+        return False
 
     def __repr__(self) -> str:
         if self.edit_type == "delete":
@@ -143,7 +151,9 @@ class LintFix:
                 "edit": "",
                 **_src_loc,
             }
-        elif self.edit_type == "replace" and self.is_just_source_edit():
+        elif self.edit_type == "replace" and self.is_just_source_edit(
+            single_source_fix=True
+        ):
             assert self.edit is not None
             assert len(self.edit) == 1
             assert len(self.edit[0].source_fixes) == 1

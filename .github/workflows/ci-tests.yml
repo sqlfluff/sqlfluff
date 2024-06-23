@@ -72,7 +72,7 @@ jobs:
     name: dbt Plugin Tests
     strategy:
       matrix:
-        dbt-version: [ dbt110, dbt120, dbt130, dbt140, dbt150, dbt160, dbt170 ]
+        dbt-version: [ dbt110, dbt120, dbt130, dbt140, dbt150, dbt160, dbt170, dbt180 ]
         include:
           # Default to python 3.12 for dbt tests.
           - python-version: "3.12"
