@@ -35,10 +35,23 @@ COMMENT ON TABLE "some_table" IS E''
 '\n\n'
 'which is escaped';
 
+SELECT
+e'da' --this is a comment
+'ta';
+
+SELECT
+e'value of newline here:
+'
+    'space '
+'no'
+'space';
+
 SELECT U&''
-'This is a valid comment style '
 'd\0061t\+000061'
-' which has unicode';
+' which has unicode',
+U&'d!0061t!+000061'
+' which has unicode' UESCAPE '!',
+u&'d!0061t!+000061 which has unicode' uescape '!';
 
 SELECT b''
 '000'
@@ -48,4 +61,10 @@ SELECT b''
 SELECT x'1234'
 'abcd'
 'dead'
-'beef';
+'beEF';
+
+SELECT e'two '
+'line',
+E'can have single quotes escaped this way: \' ',
+e'but the second line'
+'requires it like this '' \n\n';
