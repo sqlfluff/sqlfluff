@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a1e78aed2e96871f7bea75234bcc4cf6d20cb79dacfcbc8df61eed5f658719a7
+_hash: 041eb20639e0550e0740668d735d02046748fbc7c432b731fae5f4e0882238ff
 file:
 - statement:
     create_procedure_statement:
@@ -410,4 +410,63 @@ file:
               numeric_literal: '5'
       - statement_terminator: ;
       - keyword: END
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: MY_PROCEDURE
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: hello_world
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '10000'
+                end_bracket: )
+          end_bracket: )
+    - keyword: COPY
+    - keyword: GRANTS
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: TABLE
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+    - keyword: LANGUAGE
+    - keyword: PYTHON
+    - keyword: RUNTIME_VERSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'3.11'"
+    - keyword: PACKAGES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'snowflake-snowpark-python'"
+        end_bracket: )
+    - keyword: HANDLER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'variablecalculator.formulaparser_proc.func_formula_parser_test_script_runner_proc'"
+    - keyword: IMPORTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'@MIRROR.PYTHON_SCRIPTS/DATA.py'"
+      - comma: ','
+      - quoted_literal: "'@MIRROR.PYTHON_SCRIPTS/variablecalculator.zip'"
+      - end_bracket: )
+    - keyword: EXECUTE
+    - keyword: AS
+    - keyword: OWNER
 - statement_terminator: ;
