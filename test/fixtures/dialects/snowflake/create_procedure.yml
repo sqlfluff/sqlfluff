@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 041eb20639e0550e0740668d735d02046748fbc7c432b731fae5f4e0882238ff
+_hash: 091f4618f445b7b9a8b1f7cf9b5e131f873ee2b2bdb980453121da2f1095e5a1
 file:
 - statement:
     create_procedure_statement:
@@ -456,16 +456,14 @@ file:
     - keyword: HANDLER
     - comparison_operator:
         raw_comparison_operator: '='
-    - quoted_literal: "'variablecalculator.formulaparser_proc.func_formula_parser_test_script_runner_proc'"
+    - quoted_literal: "'my.path.func_formula_parser_test_script_runner_proc'"
     - keyword: IMPORTS
     - comparison_operator:
         raw_comparison_operator: '='
     - bracketed:
-      - start_bracket: (
-      - quoted_literal: "'@MIRROR.PYTHON_SCRIPTS/DATA.py'"
-      - comma: ','
-      - quoted_literal: "'@MIRROR.PYTHON_SCRIPTS/variablecalculator.zip'"
-      - end_bracket: )
+        start_bracket: (
+        quoted_literal: "'@MIRROR.PYTHON_SCRIPTS/script.py'"
+        end_bracket: )
     - keyword: EXECUTE
     - keyword: AS
     - keyword: OWNER
