@@ -336,3 +336,44 @@ class NamedArgumentSegment(BaseSegment):
         Ref("RightArrowSegment"),
         Ref("ExpressionSegment"),
     )
+
+
+class AliasExpressionSegment(sparksql.AliasExpressionSegment):
+    """A reference to an object with an `AS` clause.
+
+    The optional AS keyword allows both implicit and explicit aliasing.
+    Note also that it's possible to specify just column aliases without aliasing the
+    table as well:
+    .. code-block:: sql
+
+        SELECT * FROM VALUES (1,2) as t (a, b);
+        SELECT * FROM VALUES (1,2) as (a, b);
+        SELECT * FROM VALUES (1,2) as t;
+
+    Note that in Spark SQL, identifiers are quoted using backticks (`my_table`) rather
+    than double quotes ("my_table"). Quoted identifiers are allowed in aliases, but
+    unlike ANSI which allows single quoted identifiers ('my_table') in aliases, this is
+    not allowed in Spark and so the definition of this segment must depart from ANSI.
+    """
+
+    match_grammar = Sequence(
+        Ref.keyword("AS", optional=True),
+        OneOf(
+            # maybe table alias and column aliases
+            Sequence(
+                Ref("SingleIdentifierGrammar", optional=True),
+                Bracketed(Ref("SingleIdentifierListSegment")),
+            ),
+            # just a table alias
+            Ref("SingleIdentifierGrammar"),
+            exclude=OneOf(
+                "LATERAL",
+                Ref("JoinTypeKeywords"),
+                "WINDOW",
+                "PIVOT",
+                "KEYS",
+                "FROM",
+                "FOR",
+            ),
+        ),
+    )

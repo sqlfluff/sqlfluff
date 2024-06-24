@@ -10,8 +10,10 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     CodeSegment,
+    Dedent,
     Delimited,
     IdentifierSegment,
+    Indent,
     LiteralSegment,
     Matchable,
     Nothing,
@@ -431,3 +433,34 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
 
     type = "array_type"
     match_grammar = Ref.keyword("ARRAY")
+
+
+class GroupByClauseSegment(BaseSegment):
+    """A `GROUP BY` clause like in `SELECT`."""
+
+    type = "groupby_clause"
+
+    match_grammar: Matchable = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        OneOf(
+            "ALL",
+            Ref("CubeRollupClauseSegment"),
+            # Add GROUPING SETS support
+            Ref("GroupingSetsClauseSegment"),
+            Sequence(
+                Delimited(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        # Can `GROUP BY 1`
+                        Ref("NumericLiteralSegment"),
+                        # Can `GROUP BY coalesce(col, 1)`
+                        Ref("ExpressionSegment"),
+                    ),
+                    terminators=[Ref("GroupByClauseTerminatorGrammar")],
+                ),
+            ),
+        ),
+        Dedent,
+    )

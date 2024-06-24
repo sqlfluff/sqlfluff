@@ -4,7 +4,7 @@ import logging
 from dataclasses import dataclass
 from typing import List, Tuple, Type, cast
 
-from sqlfluff.core.parser import BaseSegment
+from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.rules import LintFix, LintResult
 from sqlfluff.utils.reflow.elements import ReflowBlock, ReflowPoint, ReflowSequenceType
 from sqlfluff.utils.reflow.helpers import (
@@ -142,6 +142,28 @@ class _RebreakLocation:
         )
 
 
+def first_create_anchor(
+    elem_buff: ReflowSequenceType, loc_range: range
+) -> Tuple[RawSegment, ...]:
+    """Handle the potential case of an empty point with the next point with segments.
+
+    While a reflow element's segments are empty, search for the next
+    available element with segments to anchor new element creation.
+    """
+    # https://github.com/sqlfluff/sqlfluff/issues/4184
+    try:
+        create_anchor = next(
+            elem_buff[i].segments for i in loc_range if elem_buff[i].segments
+        )
+    except StopIteration as exc:  # pragma: no cover
+        # NOTE: We don't test this because we *should* always find
+        # _something_ to anchor the creation on, even if we're
+        # unlucky enough not to find it on the first pass.
+        raise NotImplementedError("Could not find anchor for creation.") from exc
+
+    return create_anchor
+
+
 def identify_rebreak_spans(
     element_buffer: ReflowSequenceType, root_segment: BaseSegment
 ) -> List[_RebreakSpan]:
@@ -272,7 +294,7 @@ def rebreak_sequence(
     # to handle comments differently. There are two other important points:
     # 1. The next newline outward before code (but passing over comments).
     # 2. The point before the next _code_ segment (ditto comments).
-    locations = []
+    locations: List[_RebreakLocation] = []
     for span in spans:
         try:
             locations.append(_RebreakLocation.from_span(span, elem_buff))
@@ -372,19 +394,10 @@ def rebreak_sequence(
                     anchor_on="after",
                 )
 
-                # Handle the potential case of an empty point.
-                # https://github.com/sqlfluff/sqlfluff/issues/4184
-                for i in range(loc.next.pre_code_pt_idx):
-                    if elem_buff[loc.next.pre_code_pt_idx - i].segments:
-                        create_anchor = elem_buff[
-                            loc.next.pre_code_pt_idx - i
-                        ].segments[-1]
-                        break
-                else:  # pragma: no cover
-                    # NOTE: We don't test this because we *should* always find
-                    # _something_ to anchor the creation on, even if we're
-                    # unlucky enough not to find it on the first pass.
-                    raise NotImplementedError("Could not find anchor for creation.")
+                create_anchor = first_create_anchor(
+                    elem_buff,
+                    range(loc.next.pre_code_pt_idx, loc.next.adj_pt_idx - 1, -1),
+                )[-1]
 
                 fixes.append(
                     LintFix.create_after(
@@ -467,12 +480,38 @@ def rebreak_sequence(
                     lint_results=[],
                     anchor_on="before",
                 )
-                fixes.append(
-                    LintFix.create_before(
-                        elem_buff[loc.prev.pre_code_pt_idx].segments[0],
-                        [loc.target],
-                    )
+
+                lead_create_anchor = first_create_anchor(
+                    elem_buff, range(loc.prev.pre_code_pt_idx, loc.prev.adj_pt_idx + 1)
                 )
+
+                # Attempt to skip dedent elements on reinsertion. These are typically
+                # found at the end of segments, but we don't want to include the
+                # reinserted segment as part of prior code segment's parent segment.
+                prev_code_anchor = next(
+                    (
+                        prev_code_segment
+                        for prev_code_segment in lead_create_anchor
+                        if not prev_code_segment.is_type("dedent")
+                    ),
+                    None,
+                )
+
+                if prev_code_anchor:
+                    fixes.append(
+                        LintFix.create_before(
+                            prev_code_anchor,
+                            [loc.target],
+                        )
+                    )
+                else:
+                    # All segments were dedents, append to the end instead.
+                    fixes.append(
+                        LintFix.create_after(
+                            lead_create_anchor[-1],
+                            [loc.target],
+                        )
+                    )
 
                 elem_buff = (
                     elem_buff[: loc.prev.pre_code_pt_idx]

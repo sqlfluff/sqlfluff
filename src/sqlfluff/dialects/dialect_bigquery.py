@@ -520,14 +520,20 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterOrganizationStatementSegment"),
             Ref("AlterProjectStatementSegment"),
             Ref("CreateSearchIndexStatementSegment"),
+            Ref("DropSearchIndexStatementSegment"),
             Ref("CreateVectorIndexStatementSegment"),
+            Ref("DropVectorIndexStatementSegment"),
             Ref("CreateRowAccessPolicyStatementSegment"),
+            Ref("DropRowAccessPolicyStatementSegment"),
             Ref("AlterBiCapacityStatementSegment"),
             Ref("CreateCapacityStatementSegment"),
             Ref("AlterCapacityStatementSegment"),
+            Ref("DropCapacityStatementSegment"),
             Ref("CreateReservationStatementSegment"),
             Ref("AlterReservationStatementSegment"),
+            Ref("DropReservationStatementSegment"),
             Ref("CreateAssignmentStatementSegment"),
+            Ref("DropAssignmentStatementSegment"),
         ],
     )
 
@@ -2766,6 +2772,25 @@ class CreateSearchIndexStatementSegment(BaseSegment):
     )
 
 
+class DropSearchIndexStatementSegment(BaseSegment):
+    """A `DROP SEARCH INDEX` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_search_index
+    """
+
+    type = "drop_search_index_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "SEARCH",
+        "INDEX",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+    )
+
+
 class CreateVectorIndexStatementSegment(BaseSegment):
     """A `CREATE VECTOR INDEX` statement.
 
@@ -2788,6 +2813,25 @@ class CreateVectorIndexStatementSegment(BaseSegment):
             ),
         ),
         Ref("OptionsSegment"),
+    )
+
+
+class DropVectorIndexStatementSegment(BaseSegment):
+    """A `DROP VECTOR INDEX` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_vector_index
+    """
+
+    type = "drop_vector_index_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "VECTOR",
+        "INDEX",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
     )
 
 
@@ -2815,6 +2859,26 @@ class CreateRowAccessPolicyStatementSegment(BaseSegment):
         Bracketed(
             Ref("ExpressionSegment"),
         ),
+    )
+
+
+class DropRowAccessPolicyStatementSegment(BaseSegment):
+    """A `DROP ROW ACCESS POLICY` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_row_access_policy_statement
+    """
+
+    type = "drop_row_access_policy_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "ROW",
+        "ACCESS",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("NakedIdentifierSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
     )
 
 
@@ -2868,6 +2932,22 @@ class AlterCapacityStatementSegment(BaseSegment):
     )
 
 
+class DropCapacityStatementSegment(BaseSegment):
+    """A `DROP CAPACITY` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_capacity_statement
+    """
+
+    type = "drop_capacity_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "CAPACITY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
 class CreateReservationStatementSegment(BaseSegment):
     """A `CREATE RESERVATION` statement.
 
@@ -2901,6 +2981,22 @@ class AlterReservationStatementSegment(BaseSegment):
     )
 
 
+class DropReservationStatementSegment(BaseSegment):
+    """A `DROP RESERVATION` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_reservation_statement
+    """
+
+    type = "drop_reservation_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "RESERVATION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
 class CreateAssignmentStatementSegment(BaseSegment):
     """A `CREATE ASSIGNMENT` statement.
 
@@ -2914,4 +3010,20 @@ class CreateAssignmentStatementSegment(BaseSegment):
         "ASSIGNMENT",
         Ref("TableReferenceSegment"),
         Ref("OptionsSegment"),
+    )
+
+
+class DropAssignmentStatementSegment(BaseSegment):
+    """A `DROP ASSIGNMENT` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_assignment_statement
+    """
+
+    type = "drop_assignment_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "ASSIGNMENT",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
     )

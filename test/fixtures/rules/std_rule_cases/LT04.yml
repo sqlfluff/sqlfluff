@@ -362,3 +362,13 @@ trailing_comma_fix_mixed_indent:
       type:
         comma:
           line_position: leading
+
+trailing_comma_no_space_comment:
+  fail_str: |
+    SELECT a--comment
+        , b
+    FROM t
+  fix_str: |
+    SELECT a,--comment
+        b
+    FROM t

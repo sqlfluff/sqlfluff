@@ -9,7 +9,7 @@ loops and placeholders.
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import List, NamedTuple, Optional, Union
+from typing import List, NamedTuple, Union
 
 import pytest
 from jinja2 import Environment, nodes
@@ -1045,9 +1045,7 @@ class DerivedJinjaTemplater(JinjaTemplater):
         env.add_extension(DBMigrationExtension)
         return env
 
-    def _get_jinja_analyzer(
-        self, raw_str: str, env: Environment, config: Optional[FluffConfig] = None
-    ) -> JinjaAnalyzer:
+    def _get_jinja_analyzer(self, raw_str: str, env: Environment) -> JinjaAnalyzer:
         return DerivedJinjaAnalyzer(raw_str, env)
 
 
