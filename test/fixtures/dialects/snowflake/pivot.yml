@@ -135,3 +135,69 @@ file:
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_tbl
+          from_unpivot_expression:
+          - keyword: UNPIVOT
+          - keyword: INCLUDE
+          - keyword: NULLS
+          - bracketed:
+            - start_bracket: (
+            - naked_identifier: val
+            - keyword: FOR
+            - naked_identifier: col_name
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: a
+              - comma: ','
+              - naked_identifier: b
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_tbl
+          from_unpivot_expression:
+          - keyword: UNPIVOT
+          - keyword: EXCLUDE
+          - keyword: NULLS
+          - bracketed:
+            - start_bracket: (
+            - naked_identifier: val
+            - keyword: FOR
+            - naked_identifier: col_name
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: a
+              - comma: ','
+              - naked_identifier: b
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
