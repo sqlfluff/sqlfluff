@@ -356,7 +356,10 @@ class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
-        insert=[Ref("AnalyzeStatementSegment")],
+        insert=[
+            Ref("AnalyzeStatementSegment"),
+            Ref("CommentOnStatementSegment"),
+        ],
         remove=[
             Ref("TransactionStatementSegment"),
         ],
@@ -463,4 +466,36 @@ class GroupByClauseSegment(BaseSegment):
             ),
         ),
         Dedent,
+    )
+
+
+class CommentOnStatementSegment(BaseSegment):
+    """`COMMENT ON` statement.
+
+    https://trino.io/docs/current/sql/comment.html
+    """
+
+    type = "comment_clause"
+
+    match_grammar = Sequence(
+        "COMMENT",
+        "ON",
+        Sequence(
+            OneOf(
+                Sequence(
+                    OneOf(
+                        "TABLE",
+                        # TODO: Create a ViewReferenceSegment
+                        "VIEW",
+                    ),
+                    Ref("TableReferenceSegment"),
+                ),
+                Sequence(
+                    "COLUMN",
+                    # TODO: Does this correctly emit a Table Reference?
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+            Sequence("IS", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
+        ),
     )
