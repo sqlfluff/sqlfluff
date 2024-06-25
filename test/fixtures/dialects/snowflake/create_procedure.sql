@@ -155,3 +155,15 @@ select 3;
 select 4;
 return 5;
 END;
+
+
+CREATE OR REPLACE PROCEDURE MY_PROCEDURE(hello_world VARCHAR(10000))
+COPY GRANTS
+RETURNS TABLE ()
+LANGUAGE PYTHON
+RUNTIME_VERSION = '3.11'
+PACKAGES = ('snowflake-snowpark-python')
+HANDLER = 'my.path.func_formula_parser_test_script_runner_proc'
+IMPORTS = ('@MIRROR.PYTHON_SCRIPTS/script.py')
+EXECUTE AS OWNER
+;

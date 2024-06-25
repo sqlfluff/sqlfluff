@@ -2992,14 +2992,17 @@ class CreateProcedureStatementSegment(BaseSegment):
             Sequence("EXECUTE", "AS", OneOf("CALLER", "OWNER"), optional=True),
             optional=True,
         ),
-        "AS",
-        OneOf(
-            # Either a foreign programming language UDF...
-            Ref("DoubleQuotedUDFBody"),
-            Ref("SingleQuotedUDFBody"),
-            Ref("DollarQuotedUDFBody"),
-            # ...or a SQL UDF
-            Ref("ScriptingBlockStatementSegment"),
+        Sequence(
+            "AS",
+            OneOf(
+                # Either a foreign programming language UDF...
+                Ref("DoubleQuotedUDFBody"),
+                Ref("SingleQuotedUDFBody"),
+                Ref("DollarQuotedUDFBody"),
+                # ...or a SQL UDF
+                Ref("ScriptingBlockStatementSegment"),
+            ),
+            optional=True,
         ),
     )
 
