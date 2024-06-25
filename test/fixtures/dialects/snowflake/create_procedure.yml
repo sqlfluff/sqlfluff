@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a1e78aed2e96871f7bea75234bcc4cf6d20cb79dacfcbc8df61eed5f658719a7
+_hash: 1288867e61af83d39b30d203c06af23ffdd1d12524a8549d288118801358273f
 file:
 - statement:
     create_procedure_statement:
@@ -410,4 +410,108 @@ file:
               numeric_literal: '5'
       - statement_terminator: ;
       - keyword: END
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+        naked_identifier: DATA_STAGE
+        dot: .
+        function_name_identifier: INGEST_DATA_FROM_GS
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: P_GOOGLE_SPREADSHEET_ID
+        - data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '16777216'
+                end_bracket: )
+        - comma: ','
+        - parameter: P_SHEET_NAME
+        - data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '16777216'
+                end_bracket: )
+        - comma: ','
+        - parameter: P_STAGING_TABLE
+        - data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '16777216'
+                end_bracket: )
+        - end_bracket: )
+    - keyword: COPY
+    - keyword: GRANTS
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARCHAR
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '16777216'
+            end_bracket: )
+    - keyword: LANGUAGE
+    - keyword: PYTHON
+    - keyword: RUNTIME_VERSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'3.11'"
+    - keyword: PACKAGES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'snowflake-snowpark-python'"
+      - comma: ','
+      - quoted_literal: "'requests'"
+      - end_bracket: )
+    - keyword: HANDLER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'SF_GOOGLE_SHEET_LOADER.ingest_gs_to_staging_table'"
+    - keyword: IMPORTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'@DATA_STAGE.PYTHON_SCRIPTS/SF_GOOGLE_SHEET_LOADER.py'"
+        end_bracket: )
+    - keyword: EXTERNAL_ACCESS_INTEGRATIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        naked_identifier: GOOGLESHEET_APIS_ACCESS_INTEGRATION
+        end_bracket: )
+    - keyword: SECRETS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'cred'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: DATA_STAGE
+      - dot: .
+      - naked_identifier: GS_OAUTH_TOKEN
+      - comma: ','
+      - quoted_literal: "'cred2'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: my_cred
+      - end_bracket: )
+    - keyword: EXECUTE
+    - keyword: AS
+    - keyword: CALLER
 - statement_terminator: ;
