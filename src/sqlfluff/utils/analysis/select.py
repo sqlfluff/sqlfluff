@@ -30,7 +30,8 @@ def _get_object_references(segment: BaseSegment) -> List[ObjectReferenceSegment]
     return list(
         cast(ObjectReferenceSegment, _seg)
         for _seg in segment.recursive_crawl(
-            "object_reference", no_recursive_seg_type="select_statement"
+            "object_reference",
+            no_recursive_seg_type=["select_statement", "merge_statement"],
         )
     )
 

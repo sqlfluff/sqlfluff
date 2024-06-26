@@ -1013,7 +1013,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         self,
         *seg_type: str,
         recurse_into: bool = True,
-        no_recursive_seg_type: Optional[str] = None,
+        no_recursive_seg_type: Optional[Union[str, List[str]]] = None,
         allow_self: bool = True,
     ) -> Iterator[BaseSegment]:
         """Recursively crawl for segments of a given type.
@@ -1023,13 +1023,16 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 to look for.
             recurse_into: :obj:`bool`: When an element of type "seg_type" is
                 found, whether to recurse into it.
-            no_recursive_seg_type: :obj:`str`: a type of segment
+            no_recursive_seg_type: :obj:`Union[str, List[str]]`: a type of segment
                 not to recurse further into. It is highly recommended
                 to set this argument where possible, as it can significantly
                 narrow the search pattern.
             allow_self: :obj:`bool`: Whether to allow the initial segment this
                 is called on to be one of the results.
         """
+        if isinstance(no_recursive_seg_type, str):
+            no_recursive_seg_type = [no_recursive_seg_type]
+
         # Assuming there is a segment to be found, first check self (if allowed):
         if allow_self and self.is_type(*seg_type):
             match = True
@@ -1050,7 +1053,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 # recurse into.
                 # NOTE: Setting no_recursive_seg_type can significantly
                 # improve performance in many cases.
-                if not no_recursive_seg_type or not seg.is_type(no_recursive_seg_type):
+                if not no_recursive_seg_type or not seg.is_type(*no_recursive_seg_type):
                     yield from seg.recursive_crawl(
                         *seg_type,
                         recurse_into=recurse_into,
