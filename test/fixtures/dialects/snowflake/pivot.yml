@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 57ff3afe4fe78cf0a36a3a3a561a8ebd0578fbb29eb444fdb7f84cfcd389cca3
+_hash: f512baba6b334bc9af42a35efa130dda56ada074eeb4725798ccba91406e26d6
 file:
 - statement:
     select_statement:
@@ -88,56 +88,6 @@ file:
 - statement:
     select_statement:
       select_clause:
-        keyword: select
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: from
-        from_expression:
-        - from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: table_a
-        - from_unpivot_expression:
-            keyword: unpivot
-            bracketed:
-            - start_bracket: (
-            - naked_identifier: a
-            - keyword: for
-            - naked_identifier: b
-            - keyword: in
-            - bracketed:
-              - start_bracket: (
-              - naked_identifier: col_1
-              - comma: ','
-              - naked_identifier: col_2
-              - comma: ','
-              - naked_identifier: col_3
-              - end_bracket: )
-            - end_bracket: )
-        - from_unpivot_expression:
-            keyword: unpivot
-            bracketed:
-            - start_bracket: (
-            - naked_identifier: c
-            - keyword: for
-            - naked_identifier: d
-            - keyword: in
-            - bracketed:
-              - start_bracket: (
-              - naked_identifier: col_a
-              - comma: ','
-              - naked_identifier: col_b
-              - comma: ','
-              - naked_identifier: col_c
-              - end_bracket: )
-            - end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
         keyword: SELECT
         select_clause_element:
           wildcard_expression:
@@ -198,6 +148,56 @@ file:
               - naked_identifier: a
               - comma: ','
               - naked_identifier: b
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+        - from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table_a
+        - from_unpivot_expression:
+            keyword: unpivot
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: a
+            - keyword: for
+            - naked_identifier: b
+            - keyword: in
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: col_1
+              - comma: ','
+              - naked_identifier: col_2
+              - comma: ','
+              - naked_identifier: col_3
+              - end_bracket: )
+            - end_bracket: )
+        - from_unpivot_expression:
+            keyword: unpivot
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: c
+            - keyword: for
+            - naked_identifier: d
+            - keyword: in
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: col_a
+              - comma: ','
+              - naked_identifier: col_b
+              - comma: ','
+              - naked_identifier: col_c
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
