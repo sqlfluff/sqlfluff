@@ -144,9 +144,6 @@ class Rule_ST05(BaseRule):
             clone_map=clone_map,
         )
 
-        if not results:
-            return None
-
         lint_results: List[LintResult] = []
         is_fixable = True
         for result in results:
@@ -250,7 +247,7 @@ class Rule_ST05(BaseRule):
         ctes: "_CTEBuilder",
         case_preference: str,
         clone_map,
-    ) -> Optional[Iterator[Tuple[LintResult, BaseSegment, str, BaseSegment]]]:
+    ) -> Iterator[Tuple[LintResult, BaseSegment, str, BaseSegment]]:
         """Given the root query, compute lint warnings."""
         nsq: _NestedSubQuerySummary
         for nsq in self._nested_subqueries(query, dialect):
@@ -285,7 +282,6 @@ class Rule_ST05(BaseRule):
                     # Query with the subquery: 'select a from (select x from b)'
                     nsq.query.selectables[0].selectable,
                 )
-        return None
 
 
 def _get_first_select_statement_descendant(
