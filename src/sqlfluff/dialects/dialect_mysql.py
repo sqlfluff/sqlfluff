@@ -736,7 +736,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
             "AS",
             Bracketed(Ref("ExpressionSegment")),
             OneOf("STORED", "VIRTUAL", optional=True),
-        ),  # https://www.sqlite.org/gencol.html
+        ),
     )
 
 

@@ -1,0 +1,232 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7ff2ab4e1bd8265aa372097fda2816db7e380dd7ddd3905b40617d91b3aa33fd
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        naked_identifier: d
+        data_type:
+          data_type_identifier: INT
+        column_constraint_segment:
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: a
+              binary_operator: '*'
+              function:
+                function_name:
+                  function_name_identifier: abs
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: b
+                  end_bracket: )
+            end_bracket: )
+        - keyword: VIRTUAL
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        naked_identifier: e
+        data_type:
+          data_type_identifier: TEXT
+        column_constraint_segment:
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: substr
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: c
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: b
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: b
+                    binary_operator: +
+                    numeric_literal: '1'
+                - end_bracket: )
+            end_bracket: )
+        - keyword: STORED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        naked_identifier: e
+        data_type:
+          data_type_identifier: TEXT
+        column_constraint_segment:
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: substr
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: c
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: b
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: b
+                    binary_operator: +
+                    numeric_literal: '1'
+                - end_bracket: )
+            end_bracket: )
+        - keyword: PERSISTENT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        naked_identifier: d
+        data_type:
+          data_type_identifier: INT
+        column_constraint_segment:
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: a
+              binary_operator: '*'
+              function:
+                function_name:
+                  function_name_identifier: abs
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: b
+                  end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        naked_identifier: e
+        data_type:
+          data_type_identifier: TEXT
+        column_constraint_segment:
+        - keyword: AS
+        - bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: substr
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: c
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: b
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: b
+                    binary_operator: +
+                    numeric_literal: '1'
+                - end_bracket: )
+            end_bracket: )
+        - keyword: STORED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        naked_identifier: e
+        data_type:
+          data_type_identifier: TEXT
+        column_constraint_segment:
+        - keyword: AS
+        - bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: substr
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: c
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: b
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: b
+                    binary_operator: +
+                    numeric_literal: '1'
+                - end_bracket: )
+            end_bracket: )
+        - keyword: PERSISTENT
+- statement_terminator: ;
