@@ -5,6 +5,7 @@ MariaDB is a fork of MySQL, so the dialect is very similar.
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
+    AnySetOf,
     BaseSegment,
     Bracketed,
     Dedent,
@@ -96,6 +97,75 @@ class DeleteStatementSegment(BaseSegment):
     )
 
 
+class InsertStatementSegment(BaseSegment):
+    """An `INSERT` statement.
+
+    https://mariadb.com/kb/en/insert/
+    """
+
+    type = "insert_statement"
+    match_grammar = Sequence(
+        "INSERT",
+        OneOf(
+            "LOW_PRIORITY",
+            "DELAYED",
+            "HIGH_PRIORITY",
+            optional=True,
+        ),
+        Ref.keyword("IGNORE", optional=True),
+        Ref.keyword("INTO", optional=True),
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "PARTITION",
+            Bracketed(
+                Ref("SingleIdentifierListSegment"),
+            ),
+            optional=True,
+        ),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        AnySetOf(
+            OneOf(
+                Ref("ValuesClauseSegment"),
+                Ref("SetClauseListSegment"),
+                Ref("SelectStatementSegment"),
+                optional=False,
+            ),
+            Ref("InsertRowAliasSegment", optional=True),
+            Ref("UpsertClauseListSegment", optional=True),
+            Ref("ReturningClauseSegment", optional=True),
+        ),
+    )
+
+
+class ReplaceSegment(BaseSegment):
+    """A `REPLACE` statement.
+
+    As per https://mariadb.com/kb/en/replace/
+    """
+
+    type = "replace_statement"
+
+    match_grammar = Sequence(
+        "REPLACE",
+        OneOf("LOW_PRIORITY", "DELAYED", optional=True),
+        Sequence("INTO", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("SelectPartitionClauseSegment", optional=True),
+        OneOf(
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Ref("ValuesClauseSegment"),
+            ),
+            Ref("SetClauseListSegment"),
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Ref("SelectStatementSegment"),
+            ),
+        ),
+        Ref("ReturningClauseSegment", optional=True),
+    )
+
+
 class ReturningClauseSegment(BaseSegment):
     """This is a `RETURNING` clause.
 
@@ -121,3 +191,28 @@ class ReturningClauseSegment(BaseSegment):
         parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
 
+
+class SelectStatementSegment(ansi.SelectStatementSegment):
+    """A `SELECT` statement.
+
+    https://mariadb.com/kb/en/select/
+    """
+
+    # Inherit most of the parse grammar from the original.
+    match_grammar = mysql.UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
+            Ref("IntoClauseSegment", optional=True),
+        ],
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("UpsertClauseListSegment"),
+            Ref("WithCheckOptionSegment"),
+            Ref("ReturningClauseSegment"),
+        ],
+        # Overwrite the terminators, because we want to remove some from the
+        # expression above.
+        replace_terminators=True,
+    )
