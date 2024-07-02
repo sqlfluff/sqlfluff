@@ -155,7 +155,7 @@ class OutputStreamFormatter:
 
     def _format_path(self, path: str) -> str:
         """Format paths."""
-        return f"=== [ path: {self.colorize(path, Color.lightgrey)} ] ===\n"
+        return f"=== [ path: {self.colorize(path, Color.light)} ] ===\n"
 
     def dispatch_path(self, path: str) -> None:
         """Dispatch paths for display."""
@@ -197,14 +197,14 @@ class OutputStreamFormatter:
     def dispatch_compilation_header(self, templater: str, message: str) -> None:
         """Dispatch the header displayed before linting."""
         self._dispatch(
-            f"=== [{self.colorize(templater, Color.lightgrey)}] {message}"
+            f"=== [{self.colorize(templater, Color.light)}] {message}"
         )  # pragma: no cover
 
     def dispatch_processing_header(self, processes: int) -> None:
         """Dispatch the header displayed before linting."""
         if self.verbosity > 0:
             self._dispatch(  # pragma: no cover
-                f"{self.colorize('effective configured processes: ', Color.lightgrey)} "
+                f"{self.colorize('effective configured processes: ', Color.light)} "
                 f"{processes}"
             )
 
@@ -290,7 +290,7 @@ class OutputStreamFormatter:
         max_label_width=10,
         sep_char=": ",
         divider_char=" ",
-        label_color=Color.lightgrey,
+        label_color=Color.light,
         val_align="right",
     ) -> str:
         """Make a row of a CLI table, using wrapped values."""
@@ -350,7 +350,7 @@ class OutputStreamFormatter:
         cols=2,
         divider_char=" ",
         sep_char=": ",
-        label_color=Color.lightgrey,
+        label_color=Color.light,
         float_format="{0:.2f}",
         max_label_width=10,
         val_align="right",
@@ -407,7 +407,7 @@ class OutputStreamFormatter:
         elif status_string in ("FAIL", "ERROR"):
             status_string = self.colorize(status_string, Color.red)
 
-        return f"== [{self.colorize(filename, Color.lightgrey)}] {status_string}"
+        return f"== [{self.colorize(filename, Color.light)}] {status_string}"
 
     def format_violation(
         self,
@@ -441,7 +441,7 @@ class OutputStreamFormatter:
 
         # If the rule has a name, add that the description.
         if name:
-            desc += f" [{self.colorize(name, Color.lightgrey)}]"
+            desc += f" [{self.colorize(name, Color.light)}]"
 
         split_desc = split_string_on_spaces(desc, line_length=max_line_length - 25)
 
@@ -449,7 +449,7 @@ class OutputStreamFormatter:
         # Grey out the violation if we're ignoring or warning it.
         section_color: Color
         if warning:
-            section_color = Color.lightgrey
+            section_color = Color.light
         else:
             section_color = Color.blue
 
@@ -516,9 +516,7 @@ class OutputStreamFormatter:
             val = "" if v is None else str(v)
             text_buffer.write(
                 ("    " * i)
-                + self.colorize(
-                    pad_line(str(k) + ":", 20, "left"), color=Color.lightgrey
-                )
+                + self.colorize(pad_line(str(k) + ":", 20, "left"), color=Color.light)
                 + pad_line(val, 20, "left")
                 + "\n"
             )
@@ -536,10 +534,10 @@ class OutputStreamFormatter:
             description = rule.description
 
         if rule.groups:
-            groups = self.colorize(", ".join(rule.groups), Color.lightgrey)
+            groups = self.colorize(", ".join(rule.groups), Color.light)
             description += f"\ngroups: {groups}"
         if rule.aliases:
-            aliases = self.colorize(", ".join(rule.aliases), Color.lightgrey)
+            aliases = self.colorize(", ".join(rule.aliases), Color.light)
             description += f" aliases: {aliases}"
         return description
 
@@ -593,7 +591,7 @@ class OutputStreamFormatter:
                 "WARNING: Parsing errors found and dialect is set to "
                 f"'{dialect}'. Have you configured your dialect correctly?"
             ),
-            Color.lightgrey,
+            Color.light,
         )
 
     def print_out_residual_error_counts(
@@ -637,25 +635,53 @@ class OutputStreamFormatter:
         verbose: int,
         parsed_strings: List[ParsedString],
     ) -> int:
-        """Used by human formatting during the parse."""
+        """Used by human formatting during the `sqlfluff parse` command."""
         violations_count = 0
         timing = TimingSummary()
 
         for parsed_string in parsed_strings:
             timing.add(parsed_string.time_dict)
 
-            if parsed_string.tree:
-                output_stream.write(parsed_string.tree.stringify(code_only=code_only))
-            else:
+            num_variants = len(parsed_string.parsed_variants)
+            root_variant = parsed_string.root_variant()
+            if not root_variant:
                 # TODO: Make this prettier
-                output_stream.write("...Failed to Parse...")  # pragma: no cover
+                output_stream.write(
+                    self.colorize("...Failed to Parse...", Color.red)
+                )  # pragma: no cover
+            elif num_variants == 1:
+                # Backward compatible single parse
+                assert root_variant.tree
+                output_stream.write(root_variant.tree.stringify(code_only=code_only))
+            else:
+                # Multi variant parse setup.
+                output_stream.write(
+                    self.colorize(
+                        f"SQLFluff parsed {num_variants} variants of this file",
+                        Color.blue,
+                    )
+                )
+                for idx, variant in enumerate(parsed_string.parsed_variants):
+                    output_stream.write(
+                        self.colorize(
+                            f"Variant {idx + 1}:",
+                            Color.blue,
+                        )
+                    )
+                    if variant.tree:
+                        output_stream.write(variant.tree.stringify(code_only=code_only))
+                    else:  # pragma: no cover
+                        output_stream.write(
+                            self.colorize("...Failed to Parse...", Color.red)
+                        )
 
-            violations_count += len(parsed_string.violations)
-            if parsed_string.violations:
+            violations = parsed_string.violations
+            violations_count += len(violations)
+            if violations:
                 output_stream.write("==== parsing violations ====")  # pragma: no cover
-            for v in parsed_string.violations:
+            for v in violations:
                 output_stream.write(self.format_violation(v))  # pragma: no cover
-            if parsed_string.violations:
+            if violations:
                 output_stream.write(
                     self.format_dialect_warning(parsed_string.config.get("dialect"))
                 )

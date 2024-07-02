@@ -15,6 +15,8 @@ from sqlfluff.core.errors import (
     SQLFluffUserError,
     SQLLexError,
     SQLLintError,
+    SQLParseError,
+    SQLTemplaterError,
 )
 from sqlfluff.core.linter import LintingResult, runner
 from sqlfluff.core.linter.runner import get_runner
@@ -428,18 +430,77 @@ def test__linter__linting_unexpected_error_handled_gracefully(
 
 
 def test__linter__empty_file():
-    """Test linter behaves nicely with an empty string."""
+    """Test linter behaves nicely with an empty string.
+
+    Much of this test is about making sure that ParsedString is
+    instantiated appropriately.
+    """
     lntr = Linter(dialect="ansi")
     # Make sure no exceptions raised and no violations found in empty file.
     parsed = lntr.parse_string("")
+    # There should still be a parsed variant
+    assert parsed.parsed_variants
+    assert len(parsed.parsed_variants) == 1
+    root_variant = parsed.parsed_variants[0]
+    # That root variant should still have a templated file and a parsed tree
+    # (although that parsed tree will likely just be an end of file marker).
+    assert root_variant.templated_file
+    assert root_variant.tree
+    # No violations
     assert not parsed.violations
 
 
+def test__linter__parse_fail():
+    """Test linter behaves as expected with an unparsable string.
+
+    Much of this test is about making sure that ParsedString is
+    instantiated appropriately.
+    """
+    lntr = Linter(dialect="ansi")
+    # Try and parse something which obviously isn't SQL
+    parsed = lntr.parse_string("THIS IS NOT SQL")
+    # There should still be a parsed variant
+    assert parsed.parsed_variants
+    assert len(parsed.parsed_variants) == 1
+    root_variant = parsed.parsed_variants[0]
+    # That root variant should still have a templated file and a parsed tree...
+    assert root_variant.templated_file
+    assert root_variant.tree
+    # ...but that tree should contain an unparsable segment.
+    assert "unparsable" in root_variant.tree.type_set()
+    # There *should* be violations because there should be a parsing fail.
+    assert parsed.violations
+    assert any(isinstance(v, SQLParseError) for v in parsed.violations)
+
+
+def test__linter__templating_fail():
+    """Test linter behaves as expected with invalid jinja template.
+
+    Much of this test is about making sure that ParsedString is
+    instantiated appropriately.
+    """
+    lntr = Linter(dialect="ansi")
+    # Try and parse something which breaks Jinja templating.
+    parsed = lntr.parse_string("{% if foo %}")
+    # For a templating fail, there won't be a parsed variant.
+    assert not parsed.parsed_variants
+    # There *should* be violations because there should be a templating fail.
+    assert parsed.violations
+    assert any(isinstance(v, SQLTemplaterError) for v in parsed.violations)
+
+
 @pytest.mark.parametrize(
-    "ignore_templated_areas,check_tuples",
+    "path,rules,ignore_templated_areas,check_tuples",
     [
-        (True, [("LT01", 3, 39), ("LT01", 3, 40)]),
         (
+            "test/fixtures/templater/jinja_h_macros/jinja.sql",
+            "L006",
+            True,
+            [("LT01", 3, 39), ("LT01", 3, 40)],
+        ),
+        (
+            "test/fixtures/templater/jinja_h_macros/jinja.sql",
+            "L006",
             False,
             [
                 # there are still two of each because LT01 checks
@@ -451,9 +512,23 @@ def test__linter__empty_file():
                 ("LT01", 3, 40),
             ],
         ),
+        (
+            "test/fixtures/linter/jinja_variants/simple_CP01.sql",
+            "CP01",
+            False,
+            [
+                # We should get violations from both sides of the if
+                # statement without doubling up on the one outside.
+                ("CP01", 2, 10),
+                ("CP01", 2, 34),
+                ("CP01", 2, 52),
+            ],
+        ),
     ],
 )
-def test__linter__mask_templated_violations(ignore_templated_areas, check_tuples):
+def test__linter__mask_templated_violations(
+    path, rules, ignore_templated_areas, check_tuples
+):
     """Test linter masks files properly around templated content.
 
     NOTE: this also tests deduplication of fixes which have the same
@@ -462,13 +537,13 @@ def test__linter__mask_templated_violations(ignore_templated_areas, check_tuples
     lntr = Linter(
         config=FluffConfig(
             overrides={
-                "rules": "L006",
+                "rules": rules,
                 "ignore_templated_areas": ignore_templated_areas,
                 "dialect": "ansi",
             }
         )
     )
-    linted = lntr.lint_path(path="test/fixtures/templater/jinja_h_macros/jinja.sql")
+    linted = lntr.lint_path(path=path)
     assert linted.check_tuples() == check_tuples
 
 

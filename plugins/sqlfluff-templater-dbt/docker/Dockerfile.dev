@@ -1,5 +1,7 @@
 FROM python:3.9-slim-bullseye
 
+RUN apt update \
+&& apt -y install libpq-dev gcc
 # Set separate working directory for easier debugging.
 WORKDIR /app
 
@@ -8,7 +10,7 @@ RUN --mount=type=cache,target=/root/.cache/pip pip install --upgrade pip setupto
 # Install requirements separately
 # to take advantage of layer caching.
 COPY requirements*.txt .
-RUN --mount=type=cache,target=/root/.cache/pip pip install --upgrade -r requirements.txt -r requirements_dev.txt
+RUN --mount=type=cache,target=/root/.cache/pip pip install --upgrade -r requirements_dev.txt
 
 # Set up dbt-related dependencies.
 RUN --mount=type=cache,target=/root/.cache/pip pip install dbt-postgres

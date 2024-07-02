@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a40fabce576738fd3cf6906914c39c675c61a6f105bd4e3e642815c931db1b3e
+_hash: 0f5c6dde85625695134ea93ec3cf15cb09894dcf3d84d9adc6472b88f8caff2b
 file:
   batch:
-    statement:
+  - statement:
       alter_table_switch_statement:
       - keyword: ALTER
       - keyword: TABLE
@@ -28,4 +28,112 @@ file:
             raw_comparison_operator: '='
         - keyword: 'ON'
         - end_bracket: )
+      - statement_terminator: ;
+  - statement:
+      alter_table_switch_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - object_reference:
+          quoted_identifier: '[PartitionTable]'
+      - keyword: SWITCH
+      - keyword: PARTITION
+      - numeric_literal: '1'
+      - keyword: TO
+      - object_reference:
+          naked_identifier: NonPartitionTable
+      - statement_terminator: ;
+  - statement:
+      alter_table_switch_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - object_reference:
+          naked_identifier: Orders
+      - keyword: SWITCH
+      - keyword: PARTITION
+      - numeric_literal: '2'
+      - keyword: TO
+      - object_reference:
+          quoted_identifier: '[OrdersHistory]'
+      - keyword: PARTITION
+      - numeric_literal: '2'
+      - statement_terminator: ;
+  - statement:
+      alter_table_switch_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - object_reference:
+          naked_identifier: Orders
+      - keyword: SWITCH
+      - keyword: PARTITION
+      - numeric_literal: '3'
+      - keyword: TO
+      - object_reference:
+          quoted_identifier: '[OrdersHistory]'
+      - keyword: PARTITION
+      - numeric_literal: '3'
+      - statement_terminator: ;
+  - statement:
+      alter_table_switch_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - object_reference:
+          naked_identifier: Orders
+      - keyword: SWITCH
+      - keyword: PARTITION
+      - numeric_literal: '4'
+      - keyword: TO
+      - object_reference:
+          quoted_identifier: '[OrdersHistory]'
+      - keyword: PARTITION
+      - numeric_literal: '4'
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          keyword: WAIT_AT_LOW_PRIORITY
+          bracketed:
+          - start_bracket: (
+          - keyword: MAX_DURATION
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '15'
+          - keyword: MINUTES
+          - comma: ','
+          - keyword: ABORT_AFTER_WAIT
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: NONE
+          - end_bracket: )
+          end_bracket: )
+      - statement_terminator: ;
+  - statement:
+      alter_table_switch_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - object_reference:
+          naked_identifier: Orders
+      - keyword: SWITCH
+      - keyword: PARTITION
+      - numeric_literal: '5'
+      - keyword: TO
+      - object_reference:
+          quoted_identifier: '[OrdersHistory]'
+      - keyword: PARTITION
+      - numeric_literal: '5'
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          keyword: WAIT_AT_LOW_PRIORITY
+          bracketed:
+          - start_bracket: (
+          - keyword: MAX_DURATION
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '25'
+          - comma: ','
+          - keyword: ABORT_AFTER_WAIT
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: SELF
+          - end_bracket: )
+          end_bracket: )
       - statement_terminator: ;

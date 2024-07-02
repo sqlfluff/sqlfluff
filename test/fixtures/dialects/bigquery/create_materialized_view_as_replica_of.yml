@@ -1,0 +1,58 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1aaeff374dcc712894928545f6560bc8f91555ab61ce4c327d133baad9b877eb
+file:
+- statement:
+    create_materialized_view_as_replica_of_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: my_mv
+    - keyword: AS
+    - keyword: REPLICA
+    - keyword: OF
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: my_original_mv
+- statement_terminator: ;
+- statement:
+    create_materialized_view_as_replica_of_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: my
+      - dash: '-'
+      - naked_identifier: project
+      - dot: .
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: my_mv
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+          start_bracket: (
+          parameter: replication_interval_seconds
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '900'
+          end_bracket: )
+    - keyword: AS
+    - keyword: REPLICA
+    - keyword: OF
+    - table_reference:
+      - naked_identifier: my
+      - dash: '-'
+      - naked_identifier: project
+      - dot: .
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: my_original_mv
+- statement_terminator: ;

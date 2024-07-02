@@ -145,6 +145,14 @@ mysql_dialect.sets("datetime_units").update(
     ]
 )
 
+mysql_dialect.sets("date_part_function_name").clear()
+mysql_dialect.sets("date_part_function_name").update(
+    [
+        "EXTRACT",
+        "TIMESTAMPADD",
+        "TIMESTAMPDIFF",
+    ]
+)
 
 mysql_dialect.replace(
     QuotedIdentifierSegment=TypedParser(
@@ -186,6 +194,22 @@ mysql_dialect.replace(
             Ref("LocalVariableNameSegment"),
             Ref("VariableAssignmentSegment"),
         ]
+    ),
+    Expression_D_Potential_Select_Statement_Without_Brackets=ansi_dialect.get_grammar(
+        "Expression_D_Potential_Select_Statement_Without_Brackets"
+    ).copy(
+        insert=[
+            Ref("SessionVariableNameSegment"),
+        ],
+        at=0,
+    ),
+    ArithmeticBinaryOperatorGrammar=ansi_dialect.get_grammar(
+        "ArithmeticBinaryOperatorGrammar"
+    ).copy(
+        insert=[
+            Ref("DivOperatorSegment"),
+            Ref("ModOperatorSegment"),
+        ],
     ),
     DateTimeLiteralGrammar=Sequence(
         # MySQL does not require the keyword to be specified:
@@ -284,6 +308,8 @@ mysql_dialect.add(
         CodeSegment,
         type="system_variable",
     ),
+    DivOperatorSegment=StringParser("DIV", KeywordSegment, type="binary_operator"),
+    ModOperatorSegment=StringParser("MOD", KeywordSegment, type="binary_operator"),
     DoubleQuotedJSONPath=TypedParser(
         "double_quote",
         CodeSegment,
@@ -901,6 +927,12 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
         ansi.ColumnConstraintSegment.match_grammar,
         Sequence("CHARACTER", "SET", Ref("NakedIdentifierSegment")),
         Sequence("COLLATE", Ref("CollationReferenceSegment")),
+        Sequence(
+            Sequence("GENERATED", "ALWAYS", optional=True),
+            "AS",
+            Bracketed(Ref("ExpressionSegment")),
+            OneOf("STORED", "VIRTUAL", optional=True),
+        ),  # https://www.sqlite.org/gencol.html
     )
 
 

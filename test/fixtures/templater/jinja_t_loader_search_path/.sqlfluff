@@ -1,0 +1,3 @@
+[sqlfluff:templater:jinja]
+load_macros_from_path=macro_load
+loader_search_path=search_a,search_b

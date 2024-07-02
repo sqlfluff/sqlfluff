@@ -3,6 +3,7 @@
 import logging
 import os
 import sys
+from contextlib import contextmanager
 from unittest.mock import call, patch
 
 import appdirs
@@ -105,6 +106,40 @@ def test__config__load_nested():
             "test", "fixtures", "config", "inheritance_a", "nested", "blah.sql"
         )
     )
+    assert cfg == {
+        "core": {
+            "dialect": "mysql",
+            "testing_val": "foobar",
+            "testing_int": 1,
+            "testing_bar": 7.698,
+        },
+        "bar": {"foo": "foobar"},
+        "fnarr": {"fnarr": {"foo": "foobar"}},
+    }
+
+
+@contextmanager
+def change_dir(path):
+    """Set the current working directory to `path` for the duration of the context."""
+    original_dir = os.getcwd()
+    try:
+        os.chdir(path)
+        yield
+    finally:
+        os.chdir(original_dir)
+
+
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Seems test is not executed under home directory on Windows",
+)
+def test__config__load_parent():
+    """Test that config is loaded from parent directory of current working directory."""
+    c = ConfigLoader()
+    with change_dir(
+        os.path.join("test", "fixtures", "config", "inheritance_a", "nested")
+    ):
+        cfg = c.load_config_up_to_path("blah.sql")
     assert cfg == {
         "core": {
             "dialect": "mysql",

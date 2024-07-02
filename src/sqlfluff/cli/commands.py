@@ -313,6 +313,17 @@ def core_options(f: Callable) -> Callable:
             " inline directives."
         ),
     )(f)
+    f = click.option(
+        "--stdin-filename",
+        default=None,
+        help=(
+            "When using stdin as an input, load the configuration as if the contents"
+            " of stdin was in a file in the listed location."
+            " This is useful for some editors that pass file contents from the editor"
+            " that might not match the content on disk."
+        ),
+        type=click.Path(allow_dash=False),
+    )(f)
     return f
 
 
@@ -576,6 +587,7 @@ def lint(
     persist_timing: Optional[str] = None,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
+    stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
     """Lint SQL files via passing a list of files or using stdin.
@@ -624,6 +636,8 @@ def lint(
     with PathAndUserErrorHandler(formatter):
         # add stdin if specified via lone '-'
         if ("-",) == paths:
+            if stdin_filename:
+                lnt.config = lnt.config.make_child_from_path(stdin_filename)
             result = lnt.lint_string_wrapped(sys.stdin.read(), fname="stdin")
         else:
             result = lnt.lint_paths(
@@ -1032,6 +1046,7 @@ def fix(
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
     show_lint_violations: bool = False,
+    stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
     """Fix SQL files.
@@ -1086,6 +1101,8 @@ def fix(
     with PathAndUserErrorHandler(formatter):
         # handle stdin case. should output formatted sql to stdout and nothing else.
         if fixing_stdin:
+            if stdin_filename:
+                lnt.config = lnt.config.make_child_from_path(stdin_filename)
             _stdin_fix(lnt, formatter, fix_even_unparsable)
         else:
             _paths_fix(
@@ -1123,6 +1140,7 @@ def cli_format(
     persist_timing: Optional[str] = None,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
+    stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
     """Autoformat SQL files.
@@ -1185,6 +1203,8 @@ def cli_format(
     with PathAndUserErrorHandler(formatter):
         # handle stdin case. should output formatted sql to stdout and nothing else.
         if fixing_stdin:
+            if stdin_filename:
+                lnt.config = lnt.config.make_child_from_path(stdin_filename)
             _stdin_fix(lnt, formatter, fix_even_unparsable=False)
         else:
             _paths_fix(
@@ -1278,6 +1298,7 @@ def parse(
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
     parse_statistics: bool = False,
+    stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
     """Parse SQL files and just spit out the result.
@@ -1314,11 +1335,14 @@ def parse(
     # handle stdin if specified via lone '-'
     with PathAndUserErrorHandler(formatter):
         if "-" == path:
+            file_config = lnt.config
+            if stdin_filename:
+                file_config = file_config.make_child_from_path(stdin_filename)
             parsed_strings = [
                 lnt.parse_string(
                     sys.stdin.read(),
                     "stdin",
-                    config=lnt.config,
+                    config=file_config,
                     parse_statistics=parse_statistics,
                 ),
             ]
@@ -1340,19 +1364,24 @@ def parse(
             output_stream, bench, code_only, total_time, verbose, parsed_strings
         )
     else:
-        parsed_strings_dict = [
-            dict(
-                filepath=linted_result.fname,
-                segments=(
-                    linted_result.tree.as_record(
-                        code_only=code_only, show_raw=True, include_meta=include_meta
-                    )
-                    if linted_result.tree
-                    else None
-                ),
+        parsed_strings_dict = []
+        for parsed_string in parsed_strings:
+            # TODO: Multiple variants aren't yet supported here in the non-human
+            # output of the parse command.
+            root_variant = parsed_string.root_variant()
+            # Updating violation count ensures the correct return code below.
+            violations_count += len(parsed_string.violations)
+            if root_variant:
+                assert root_variant.tree
+                segments = root_variant.tree.as_record(
+                    code_only=code_only, show_raw=True, include_meta=include_meta
+                )
+            else:
+                # Parsing failed - return null for segments.
+                segments = None
+            parsed_strings_dict.append(
+                {"filepath": parsed_string.fname, "segments": segments}
             )
-            for linted_result in parsed_strings
-        ]
 
         if format == FormatType.yaml.value:
             # For yaml dumping always dump double quoted strings if they contain
@@ -1431,7 +1460,25 @@ def render(
                 click.echo(formatter.format_violation(v))
             sys.exit(EXIT_FAIL)
         else:
-            click.echo(rendered.templated_file.templated_str)
+            _num_variants = len(rendered.templated_variants)
+            if _num_variants > 1:
+                click.echo(
+                    formatter.colorize(
+                        f"SQLFluff rendered {_num_variants} variants of this file",
+                        Color.blue,
+                    )
+                )
+                for idx, variant in enumerate(rendered.templated_variants):
+                    click.echo(
+                        formatter.colorize(
+                            f"Variant {idx + 1}:",
+                            Color.blue,
+                        )
+                    )
+                    click.echo(variant)
+            else:
+                # No preamble if there's only one.
+                click.echo(rendered.templated_variants[0])
             sys.exit(EXIT_SUCCESS)
 
 

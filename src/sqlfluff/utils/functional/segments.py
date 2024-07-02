@@ -7,11 +7,10 @@ from typing import (
     Iterator,
     List,
     Optional,
+    SupportsIndex,
     Union,
     overload,
 )
-
-from typing_extensions import SupportsIndex  # NOTE: Required for py37
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters.base import TemplatedFile

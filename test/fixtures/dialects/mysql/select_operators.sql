@@ -5,3 +5,5 @@ SELECT 1 XOR 1;
 SELECT 1 || 1;
 SELECT col_1 && 1;
 SELECT (col_1 = col_2) || col_3;
+SELECT 5 DIV 2;
+SELECT 5 MOD 2;
