@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4308147bbc98560af6bb3876254e2a121b14a42b4cbec69f86006b63c8dd00f5
+_hash: e53e8cc1e40a1087dd18253243ec780e81222af06792c96b0735a56e400ee728
 file:
 - statement:
     select_statement:
@@ -78,4 +78,88 @@ file:
         select_clause_element:
         - quoted_literal: "'foo'"
         - quoted_literal: "'bar'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '"some_table"'
+    - keyword: IS
+    - quoted_literal: "E''"
+    - quoted_literal: "'This is a valid comment style'"
+    - quoted_literal: "'\\n\\n'"
+    - quoted_literal: "'which is escaped'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+        - quoted_literal: "e'da'"
+        - quoted_literal: "'ta'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+        - quoted_literal: "e'value of newline here:\n'"
+        - quoted_literal: "'space '"
+        - quoted_literal: "'no'"
+        - quoted_literal: "'space'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: "U&''"
+        - quoted_literal: "'d\\0061t\\+000061'"
+        - quoted_literal: "' which has unicode'"
+      - comma: ','
+      - select_clause_element:
+        - quoted_literal: "U&'d!0061t!+000061'"
+        - quoted_literal: "' which has unicode'"
+        - keyword: UESCAPE
+        - unicode_escape_value: "'!'"
+      - comma: ','
+      - select_clause_element:
+          quoted_literal: "u&'d!0061t!+000061 which has unicode' uescape '!'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+        - quoted_literal: "b''"
+        - quoted_literal: "'000'"
+        - quoted_literal: "'010'"
+        - quoted_literal: "'101'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+        - quoted_literal: "x'1234'"
+        - quoted_literal: "'abcd'"
+        - quoted_literal: "'dead'"
+        - quoted_literal: "'beEF'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: "e'two '"
+        - quoted_literal: "'line'"
+      - comma: ','
+      - select_clause_element:
+          quoted_literal: "E'can have single quotes escaped this way: \\' '"
+      - comma: ','
+      - select_clause_element:
+        - quoted_literal: "e'but the second line'"
+        - quoted_literal: "'requires it like this '' \\n\\n'"
 - statement_terminator: ;
