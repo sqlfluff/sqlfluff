@@ -14,6 +14,18 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This minor release has two breaking changes:
+ - The addition of camelCase in the extended capitalisation policy. This change removes the ability to
+autodetect PascalCase, from now on PascalCase, and camelCase must be explicitly set in the config if desired.
+ - The detection method for sqlfluff config has changed. It should now be more consistent, regardless of how deep if the directory
+structure you run the command from.
+
+This release also brings in support for the MariaDB dialect. As well as this, there are many bugfixes,
+and dialect improvements.
+
+Thanks also to the **twelve** new contributors whose work was included
+in this release! 🎉🎉🏆🎉🎉
+
 ## What’s Changed
 
 * Snowflake: alter procedure & function updates [#5997](https://github.com/sqlfluff/sqlfluff/pull/5997) [@hawle](https://github.com/hawle)
