@@ -31,6 +31,7 @@ _dialect_lookup = {
     "greenplum": ("dialect_greenplum", "greenplum_dialect"),
     "hive": ("dialect_hive", "hive_dialect"),
     "materialize": ("dialect_materialize", "materialize_dialect"),
+    "mariadb": ("dialect_mariadb", "mariadb_dialect"),
     "mysql": ("dialect_mysql", "mysql_dialect"),
     "oracle": ("dialect_oracle", "oracle_dialect"),
     "postgres": ("dialect_postgres", "postgres_dialect"),

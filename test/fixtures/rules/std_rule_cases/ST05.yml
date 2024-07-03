@@ -649,3 +649,215 @@ test_fail_subquery_in_cte_3:
     rules:
       structure.subquery:
         forbid_subquery_in: both
+
+test_cte_with_multiple_subqueries:
+  fail_str: |
+    WITH q AS (
+        SELECT
+            t1.a
+        FROM
+            table_1 AS t1
+        INNER JOIN
+            table_2 AS t2 USING (a)
+        LEFT JOIN (
+            SELECT DISTINCT a FROM table_3
+                WHERE c = 'v1'
+        ) AS dns USING (a)
+        LEFT JOIN (
+            SELECT DISTINCT a FROM table_4
+                WHERE b = 'v2'
+        ) AS dcod USING (a)
+    )
+    SELECT
+        a
+    FROM
+        q
+    ;
+  fix_str: |
+    WITH dns AS (
+            SELECT DISTINCT a FROM table_3
+                WHERE c = 'v1'
+        ),
+    dcod AS (
+            SELECT DISTINCT a FROM table_4
+                WHERE b = 'v2'
+        ),
+    q AS (
+        SELECT
+            t1.a
+        FROM
+            table_1 AS t1
+        INNER JOIN
+            table_2 AS t2 USING (a)
+        LEFT JOIN dns USING (a)
+        LEFT JOIN dcod USING (a)
+    )
+    SELECT
+        a
+    FROM
+        q
+    ;
+
+test_cte_with_double_nested_subquery:
+  fail_str: |
+    WITH q AS (
+        SELECT
+            t1.a
+        FROM
+            table_1 AS t1
+        INNER JOIN
+            table_2 AS t2 USING (a)
+        LEFT JOIN (
+            SELECT DISTINCT a FROM table_3
+                WHERE c = 'v1'
+        ) AS dns USING (a)
+        LEFT JOIN (
+            SELECT DISTINCT a FROM table_5
+            LEFT JOIN (
+                SELECT DISTINCT
+                    a,
+                    b
+                FROM table_6
+                WHERE c < 5
+            ) AS t4
+                USING (a)
+            WHERE table_5.b = 'v2'
+        ) AS dcod USING (a)
+    )
+    SELECT
+        a
+    FROM
+        q;
+  fix_str: |
+    WITH dns AS (
+            SELECT DISTINCT a FROM table_3
+                WHERE c = 'v1'
+        ),
+    t4 AS (
+                SELECT DISTINCT
+                    a,
+                    b
+                FROM table_6
+                WHERE c < 5
+            ),
+    dcod AS (
+            SELECT DISTINCT a FROM table_5
+            LEFT JOIN t4
+                USING (a)
+            WHERE table_5.b = 'v2'
+        ),
+    q AS (
+        SELECT
+            t1.a
+        FROM
+            table_1 AS t1
+        INNER JOIN
+            table_2 AS t2 USING (a)
+        LEFT JOIN dns USING (a)
+        LEFT JOIN dcod USING (a)
+    )
+    SELECT
+        a
+    FROM
+        q;
+
+test_two_ctes_with_same_named_nested_subquery:
+  fail_str: |
+    with purchases_in_the_last_year as (
+        select
+            customer_id
+            , arrayagg(distinct attr) within group (order by attr asc) as attrlist
+        from (
+            select
+                o.customer_id
+                , p.attr
+            from
+                order_line_item as o
+            inner join product as p
+                on o.product_id = p.product_id
+                and o.time_placed >= dateadd(year, -1, current_date())
+        ) group by customer_id
+    )
+
+    , purchases_in_the_last_three_years as (
+        select
+            customer_id
+            , arrayagg(distinct attr) within group (order by attr asc) as attrlist
+        from (
+            select
+                o.customer_id
+                , p.attr
+            from
+                order_line_item as o
+            inner join product as p
+                on o.product_id = p.product_id
+                and o.time_placed >= dateadd(year, -3, current_date())
+        ) group by customer_id
+    )
+
+
+    select distinct
+        c.customer_id
+        , ly.attrlist as attrlist_last_year
+        , l3y.attrlist as attrlist_last_three_years
+    from
+        customers as c
+    left outer join
+        purchases_in_the_last_year as ly
+        on c.customer_id = ly.customer_id
+    left outer join
+        purchases_in_the_last_three_years as l3y
+        on c.customer_id = l3y.customer_id
+    ;
+  fix_str: |
+    with prep_1 as (
+            select
+                o.customer_id
+                , p.attr
+            from
+                order_line_item as o
+            inner join product as p
+                on o.product_id = p.product_id
+                and o.time_placed >= dateadd(year, -1, current_date())
+        ),
+    purchases_in_the_last_year as (
+        select
+            customer_id
+            , arrayagg(distinct attr) within group (order by attr asc) as attrlist
+        from prep_1 group by customer_id
+    ),
+    prep_2 as (
+            select
+                o.customer_id
+                , p.attr
+            from
+                order_line_item as o
+            inner join product as p
+                on o.product_id = p.product_id
+                and o.time_placed >= dateadd(year, -3, current_date())
+        ),
+    purchases_in_the_last_three_years as (
+        select
+            customer_id
+            , arrayagg(distinct attr) within group (order by attr asc) as attrlist
+        from prep_2 group by customer_id
+    )
+    select distinct
+        c.customer_id
+        , ly.attrlist as attrlist_last_year
+        , l3y.attrlist as attrlist_last_three_years
+    from
+        customers as c
+    left outer join
+        purchases_in_the_last_year as ly
+        on c.customer_id = ly.customer_id
+    left outer join
+        purchases_in_the_last_three_years as l3y
+        on c.customer_id = l3y.customer_id
+    ;
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both

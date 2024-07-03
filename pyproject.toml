@@ -49,6 +49,7 @@ keywords = [
     "greenplum",
     "hive",
     "materialize",
+    "mariadb",
     "mysql",
     "postgres",
     "redshift",

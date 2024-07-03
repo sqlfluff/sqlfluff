@@ -1,0 +1,459 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b7d7ef20a92e8be5f1d1d78915f1a19312436821e2173a1450e3838d0c73dcf9
+file:
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: t1
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            naked_identifier: col1
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            column_reference:
+              naked_identifier: col1
+            binary_operator: +
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: t1
+      set_clause_list:
+      - keyword: SET
+      - set_clause:
+          column_reference:
+            naked_identifier: col1
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            column_reference:
+              naked_identifier: col1
+            binary_operator: +
+            numeric_literal: '1'
+      - comma: ','
+      - set_clause:
+        - column_reference:
+            naked_identifier: col2
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+            naked_identifier: col1
+- statement_terminator: ;
+- statement:
+    update_statement:
+    - keyword: UPDATE
+    - table_reference:
+        naked_identifier: items
+    - comma: ','
+    - table_reference:
+        naked_identifier: month
+    - set_clause_list:
+        keyword: SET
+        set_clause:
+        - column_reference:
+          - naked_identifier: items
+          - dot: .
+          - naked_identifier: price
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: month
+          - dot: .
+          - naked_identifier: price
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: items
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: month
+          - dot: .
+          - naked_identifier: id
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: t
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            naked_identifier: id
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            column_reference:
+              naked_identifier: id
+            binary_operator: +
+            numeric_literal: '1'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: id
+      - keyword: DESC
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: items
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            naked_identifier: retail
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            column_reference:
+              naked_identifier: retail
+            binary_operator: '*'
+            numeric_literal: '0.9'
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: id
+          keyword: IN
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: id
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: items
+              where_clause:
+                keyword: WHERE
+                expression:
+                - column_reference:
+                    naked_identifier: retail
+                - binary_operator: /
+                - column_reference:
+                    naked_identifier: wholesale
+                - comparison_operator:
+                  - raw_comparison_operator: '>'
+                  - raw_comparison_operator: '='
+                - numeric_literal: '1.3'
+                - binary_operator: AND
+                - column_reference:
+                    naked_identifier: quantity
+                - comparison_operator:
+                    raw_comparison_operator: '>'
+                - numeric_literal: '100'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: items
+      comma: ','
+      from_expression:
+        from_expression_element:
+          table_expression:
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                      naked_identifier: id
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: items
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                    column_reference:
+                      naked_identifier: id
+                    keyword: IN
+                    bracketed:
+                      start_bracket: (
+                      select_statement:
+                        select_clause:
+                          keyword: SELECT
+                          select_clause_element:
+                            column_reference:
+                              naked_identifier: id
+                        from_clause:
+                          keyword: FROM
+                          from_expression:
+                            from_expression_element:
+                              table_expression:
+                                table_reference:
+                                  naked_identifier: items
+                        where_clause:
+                          keyword: WHERE
+                          expression:
+                          - column_reference:
+                              naked_identifier: retail
+                          - binary_operator: /
+                          - column_reference:
+                              naked_identifier: wholesale
+                          - comparison_operator:
+                            - raw_comparison_operator: '>'
+                            - raw_comparison_operator: '='
+                          - numeric_literal: '1.3'
+                          - binary_operator: AND
+                          - column_reference:
+                              naked_identifier: quantity
+                          - comparison_operator:
+                              raw_comparison_operator: <
+                          - numeric_literal: '100'
+                      end_bracket: )
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: discounted
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+          - naked_identifier: items
+          - dot: .
+          - naked_identifier: retail
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            column_reference:
+            - naked_identifier: items
+            - dot: .
+            - naked_identifier: retail
+            binary_operator: '*'
+            numeric_literal: '0.9'
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: items
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: discounted
+          - dot: .
+          - naked_identifier: id
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: items
+      comma: ','
+      from_expression:
+        from_expression_element:
+          table_expression:
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    column_reference:
+                      naked_identifier: id
+                - comma: ','
+                - select_clause_element:
+                    expression:
+                    - column_reference:
+                        naked_identifier: retail
+                    - binary_operator: /
+                    - column_reference:
+                        naked_identifier: wholesale
+                    alias_expression:
+                      keyword: AS
+                      naked_identifier: markup
+                - comma: ','
+                - select_clause_element:
+                    column_reference:
+                      naked_identifier: quantity
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: items
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: discounted
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+          - naked_identifier: items
+          - dot: .
+          - naked_identifier: retail
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            column_reference:
+            - naked_identifier: items
+            - dot: .
+            - naked_identifier: retail
+            binary_operator: '*'
+            numeric_literal: '0.9'
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: discounted
+          - dot: .
+          - naked_identifier: markup
+        - comparison_operator:
+          - raw_comparison_operator: '>'
+          - raw_comparison_operator: '='
+        - numeric_literal: '1.3'
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: discounted
+          - dot: .
+          - naked_identifier: quantity
+        - comparison_operator:
+            raw_comparison_operator: <
+        - numeric_literal: '100'
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: items
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: discounted
+          - dot: .
+          - naked_identifier: id
+- statement_terminator: ;
+- statement:
+    update_statement:
+    - keyword: UPDATE
+    - keyword: LOW_PRIORITY
+    - table_reference:
+        naked_identifier: foo
+    - set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            naked_identifier: bar
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '7'
+    - limit_clause:
+        keyword: LIMIT
+        numeric_literal: '4'
+- statement_terminator: ;
+- statement:
+    update_statement:
+    - keyword: UPDATE
+    - table_reference:
+        naked_identifier: a
+    - comma: ','
+    - table_reference:
+        naked_identifier: b
+    - set_clause_list:
+        keyword: SET
+        set_clause:
+        - column_reference:
+          - naked_identifier: a
+          - dot: .
+          - naked_identifier: name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: b
+          - dot: .
+          - naked_identifier: name
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: a
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: b
+          - dot: .
+          - naked_identifier: id
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      from_expression:
+        from_expression_element:
+          table_expression:
+            table_reference:
+              naked_identifier: a
+        join_clause:
+          keyword: join
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: b
+          join_on_condition:
+            keyword: 'on'
+            expression:
+            - column_reference:
+              - naked_identifier: a
+              - dot: .
+              - naked_identifier: id
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+              - naked_identifier: b
+              - dot: .
+              - naked_identifier: id
+      set_clause_list:
+        keyword: set
+        set_clause:
+        - column_reference:
+          - naked_identifier: a
+          - dot: .
+          - naked_identifier: type
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: b
+          - dot: .
+          - naked_identifier: type
+      where_clause:
+        keyword: where
+        expression:
+          column_reference:
+          - naked_identifier: a
+          - dot: .
+          - naked_identifier: type
+          keyword: is
+          null_literal: 'null'
+- statement_terminator: ;

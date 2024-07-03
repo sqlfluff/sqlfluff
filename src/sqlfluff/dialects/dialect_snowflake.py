@@ -1661,6 +1661,7 @@ class FromUnpivotExpressionSegment(BaseSegment):
     type = "from_unpivot_expression"
     match_grammar = Sequence(
         "UNPIVOT",
+        Sequence(OneOf("INCLUDE", "EXCLUDE"), "NULLS", optional=True),
         Bracketed(
             Ref("SingleIdentifierGrammar"),
             "FOR",
