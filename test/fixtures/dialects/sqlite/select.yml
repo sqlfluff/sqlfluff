@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c27d3470decd42b40110e9420bda1cbf242293766cad615753cfb40875a1c45f
+_hash: d0731e93a28210a1498fa0f2eb9a15867fed52a6a72c77dcbf4c741d78fc1dd8
 file:
 - statement:
     select_statement:
@@ -85,8 +85,8 @@ file:
                   function_name:
                     function_name_identifier: cast
                   bracketed:
-                  - start_bracket: (
-                  - expression:
+                    start_bracket: (
+                    expression:
                       column_reference:
                         naked_identifier: time
                       binary_operator: '-'
@@ -106,22 +106,21 @@ file:
                             column_reference:
                               naked_identifier: time
                         - end_bracket: )
-                  - expression:
-                      function:
-                        function_name:
-                          function_name_identifier: OVER
-                        bracketed:
-                          start_bracket: (
-                          orderby_clause:
-                          - keyword: ORDER
-                          - keyword: BY
-                          - column_reference:
-                              naked_identifier: time
-                          end_bracket: )
-                  - keyword: as
-                  - data_type:
+                        over_clause:
+                          keyword: OVER
+                          bracketed:
+                            start_bracket: (
+                            window_specification:
+                              orderby_clause:
+                              - keyword: ORDER
+                              - keyword: BY
+                              - column_reference:
+                                  naked_identifier: time
+                            end_bracket: )
+                    keyword: as
+                    data_type:
                       data_type_identifier: real
-                  - end_bracket: )
+                    end_bracket: )
                 alias_expression:
                   keyword: AS
                   naked_identifier: time_spent

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3ac600fa9db5bca6f4e64fd5a6141a57ea55630707bd387061e56299e0a5430d
+_hash: a421a80640fe4e013133432ce6fccf9e145397ba3c8bedcc36d8b1da64981e17
 file:
 - statement:
     create_trigger:
@@ -120,10 +120,9 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           expression:
-          - column_reference:
-              variable: '@sum'
-          - binary_operator: +
-          - column_reference:
+            variable: '@sum'
+            binary_operator: +
+            column_reference:
             - naked_identifier: NEW
             - dot: .
             - naked_identifier: amount
@@ -389,10 +388,9 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           expression:
-          - column_reference:
-              variable: '@sum'
-          - binary_operator: +
-          - column_reference:
+            variable: '@sum'
+            binary_operator: +
+            column_reference:
             - naked_identifier: NEW
             - dot: .
             - naked_identifier: amount
@@ -424,10 +422,9 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           expression:
-          - column_reference:
-              variable: '@sum'
-          - binary_operator: +
-          - column_reference:
+            variable: '@sum'
+            binary_operator: +
+            column_reference:
             - naked_identifier: NEW
             - dot: .
             - naked_identifier: amount

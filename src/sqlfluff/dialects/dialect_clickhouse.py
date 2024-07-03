@@ -14,6 +14,7 @@ from sqlfluff.core.parser import (
     Dedent,
     Delimited,
     IdentifierSegment,
+    ImplicitIndent,
     Indent,
     LiteralSegment,
     Matchable,
@@ -37,7 +38,6 @@ ansi_dialect = load_raw_dialect("ansi")
 
 clickhouse_dialect = ansi_dialect.copy_as("clickhouse")
 clickhouse_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
-
 
 clickhouse_dialect.insert_lexer_matchers(
     # https://clickhouse.com/docs/en/sql-reference/functions#higher-order-functions---operator-and-lambdaparams-expr-function
@@ -205,7 +205,7 @@ clickhouse_dialect.replace(
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
-            r"[A-Z0-9_]*[A-Z][A-Z0-9_]*",
+            r"[a-zA-Z_][0-9a-zA-Z_]*",
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
@@ -221,7 +221,79 @@ clickhouse_dialect.replace(
         insert=[Ref.keyword("GLOBAL", optional=True)],
         before=Ref.keyword("NOT", optional=True),
     ),
+    SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "SelectClauseTerminatorGrammar"
+    ).copy(
+        insert=[Ref.keyword("PREWHERE")],
+        before=Ref.keyword("WHERE"),
+    ),
+    FromClauseTerminatorGrammar=ansi_dialect.get_grammar("FromClauseTerminatorGrammar")
+    .copy(insert=[Ref.keyword("PREWHERE")], before=Ref.keyword("WHERE"))
+    .copy(insert=[Ref("SettingsClauseSegment")]),
 )
+
+
+class PreWhereClauseSegment(BaseSegment):
+    """A `PREWHERE` clause like in `SELECT` or `INSERT`."""
+
+    type = "prewhere_clause"
+    match_grammar: Matchable = Sequence(
+        "PREWHERE",
+        # NOTE: The indent here is implicit to allow
+        # constructions like:
+        #
+        #    PREWHERE a
+        #        AND b
+        #
+        # to be valid without forcing an indent between
+        # "PREWHERE" and "a".
+        ImplicitIndent,
+        OptionallyBracketed(Ref("ExpressionSegment")),
+        Dedent,
+    )
+
+
+class SettingsClauseSegment(BaseSegment):
+    """A `SETTINGS` clause for engines or query-level settings."""
+
+    type = "settings_clause"
+    match_grammar: Matchable = Sequence(
+        "SETTINGS",
+        Delimited(
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                ),
+                optional=True,
+            ),
+        ),
+        optional=True,
+    )
+
+
+class SelectStatementSegment(ansi.SelectStatementSegment):
+    """Enhance `SELECT` statement to include QUALIFY."""
+
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
+        insert=[Ref("PreWhereClauseSegment", optional=True)],
+        before=Ref("WhereClauseSegment", optional=True),
+    ).copy(
+        insert=[Ref("SettingsClauseSegment", optional=True)],
+    )
+
+
+class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
+    """Enhance unordered `SELECT` statement to include QUALIFY."""
+
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[Ref("PreWhereClauseSegment", optional=True)],
+        before=Ref("WhereClauseSegment", optional=True),
+    )
 
 
 class BracketedArguments(ansi.BracketedArguments):
@@ -464,21 +536,8 @@ class TableEngineSegment(BaseSegment):
                     "BY",
                     Ref("ExpressionSegment"),
                 ),
-                Sequence(
-                    "SETTINGS",
-                    Delimited(
-                        Sequence(
-                            Ref("NakedIdentifierSegment"),
-                            Ref("EqualsSegment"),
-                            OneOf(
-                                Ref("NumericLiteralSegment"),
-                                Ref("QuotedLiteralSegment"),
-                            ),
-                            optional=True,
-                        ),
-                    ),
-                ),
             ),
+            Ref("SettingsClauseSegment", optional=True),
         ),
     )
 
@@ -554,24 +613,8 @@ class DatabaseEngineSegment(BaseSegment):
                     Ref("ExpressionSegment"),
                     optional=True,
                 ),
-                Sequence(
-                    "SETTINGS",
-                    Delimited(
-                        AnyNumberOf(
-                            Sequence(
-                                Ref("NakedIdentifierSegment"),
-                                Ref("EqualsSegment"),
-                                OneOf(
-                                    Ref("NumericLiteralSegment"),
-                                    Ref("QuotedLiteralSegment"),
-                                ),
-                                optional=True,
-                            ),
-                        )
-                    ),
-                    optional=True,
-                ),
             ),
+            Ref("SettingsClauseSegment", optional=True),
         ),
     )
 
@@ -700,23 +743,6 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
                 Ref("SingleIdentifierGrammar"),
                 optional=True,
             ),
-            Sequence(
-                "SETTINGS",
-                Delimited(
-                    Sequence(
-                        Ref("NakedIdentifierSegment"),
-                        Ref("EqualsSegment"),
-                        OneOf(
-                            Ref("NakedIdentifierSegment"),
-                            Ref("NumericLiteralSegment"),
-                            Ref("QuotedLiteralSegment"),
-                            Ref("BooleanLiteralGrammar"),
-                        ),
-                        optional=True,
-                    ),
-                ),
-                optional=True,
-            ),
         ),
         AnyNumberOf(
             "TABLE",
@@ -744,62 +770,141 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
 
     type = "create_table_statement"
 
-    match_grammar: Matchable = Sequence(
-        "CREATE",
-        OneOf(
-            Ref("OrReplaceGrammar"),
-            Ref.keyword("TEMPORARY"),
-            optional=True,
-        ),
-        "TABLE",
-        Ref("IfNotExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
-        Ref("OnClusterClauseSegment", optional=True),
-        OneOf(
-            # CREATE TABLE (...):
-            Sequence(
-                Bracketed(
-                    Delimited(
-                        OneOf(
-                            Ref("TableConstraintSegment"),
-                            Ref("ColumnDefinitionSegment"),
-                            Ref("ColumnConstraintSegment"),
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            "CREATE",
+            Ref("OrReplaceGrammar", optional=True),
+            "TABLE",
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("TableReferenceSegment"),
+            Ref("OnClusterClauseSegment", optional=True),
+            OneOf(
+                # CREATE TABLE (...):
+                Sequence(
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("TableConstraintSegment"),
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("ColumnConstraintSegment"),
+                            ),
                         ),
+                        # Column definition may be missing if using AS SELECT
+                        optional=True,
                     ),
-                    # Column definition may be missing if using AS SELECT
-                    optional=True,
+                    Ref("TableEngineSegment"),
+                    # CREATE TABLE (...) AS SELECT:
+                    Sequence(
+                        "AS",
+                        Ref("SelectableGrammar"),
+                        optional=True,
+                    ),
                 ),
-                Ref("TableEngineSegment"),
-                # CREATE TABLE (...) AS SELECT:
+                # CREATE TABLE AS other_table:
+                Sequence(
+                    "AS",
+                    Ref("TableReferenceSegment"),
+                    Ref("TableEngineSegment", optional=True),
+                ),
+                # CREATE TABLE AS table_function():
+                Sequence(
+                    "AS",
+                    Ref("FunctionSegment"),
+                ),
+            ),
+            AnySetOf(
+                Sequence(
+                    "COMMENT",
+                    OneOf(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("QuotedIdentifierSegment"),
+                    ),
+                ),
+                Ref("TableTTLSegment"),
+                optional=True,
+            ),
+            Ref("TableEndClauseSegment", optional=True),
+        ),
+        # CREATE TEMPORARY TABLE
+        Sequence(
+            "CREATE",
+            Ref.keyword("TEMPORARY"),
+            "TABLE",
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("TableReferenceSegment"),
+            OneOf(
+                # CREATE TEMPORARY TABLE (...):
+                Sequence(
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("TableConstraintSegment"),
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("ColumnConstraintSegment"),
+                            ),
+                        ),
+                        # Column definition may be missing if using AS SELECT
+                        optional=True,
+                    ),
+                    Ref("TableEngineSegment"),
+                    # CREATE TEMPORARY TABLE (...) AS SELECT:
+                    Sequence(
+                        "AS",
+                        Ref("SelectableGrammar"),
+                        optional=True,
+                    ),
+                ),
+                # CREATE TEMPORARY TABLE AS other_table:
+                Sequence(
+                    "AS",
+                    Ref("TableReferenceSegment"),
+                    Ref("TableEngineSegment", optional=True),
+                ),
+                # CREATE TEMPORARY TABLE AS table_function():
+                Sequence(
+                    "AS",
+                    Ref("FunctionSegment"),
+                ),
+                # CREATE TEMPORARY TABLE AS
                 Sequence(
                     "AS",
                     Ref("SelectableGrammar"),
                     optional=True,
                 ),
             ),
-            # CREATE TABLE AS other_table:
-            Sequence(
-                "AS",
-                Ref("TableReferenceSegment"),
-                Ref("TableEngineSegment", optional=True),
-            ),
-            # CREATE TABLE AS table_function():
-            Sequence(
-                "AS",
-                Ref("FunctionSegment"),
-            ),
-        ),
-        AnySetOf(
-            Sequence(
-                "COMMENT",
-                OneOf(
-                    Ref("SingleIdentifierGrammar"),
-                    Ref("QuotedIdentifierSegment"),
+            AnySetOf(
+                Sequence(
+                    "COMMENT",
+                    OneOf(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("QuotedIdentifierSegment"),
+                    ),
                 ),
+                Ref("TableTTLSegment"),
+                optional=True,
             ),
-            Ref("TableTTLSegment"),
-            optional=True,
+            Ref("TableEndClauseSegment", optional=True),
         ),
+    )
+
+
+class CreateViewStatementSegment(BaseSegment):
+    """A `CREATE VIEW` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/create/view
+    """
+
+    type = "create_view_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("OnClusterClauseSegment", optional=True),
+        "AS",
+        Ref("SelectableGrammar"),
         Ref("TableEndClauseSegment", optional=True),
     )
 

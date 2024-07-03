@@ -135,11 +135,14 @@ steps overriding those from earlier:
    above in the main :ref:`config` section. If multiple are present, they will
    *patch*/*override* each other in the order above.
 2. It will look for the same files in the user's home directory (~).
-3. It will look for the same files in the current working directory.
-4. *[if parsing a file in a subdirectory of the current working directory]*
+3. *[if the current working directory is a subdirectory of the user's home directory (~)]*
+   It will look for the same files in all directories between the
+   user's home directory (~), and the current working directory.
+4. It will look for the same files in the current working directory.
+5. *[if parsing a file in a subdirectory of the current working directory]*
    It will look for the same files in every subdirectory between the
    current working dir and the file directory.
-5. It will look for the same files in the directory containing the file
+6. It will look for the same files in the directory containing the file
    being linted.
 
 This whole structure leads to efficient configuration, in particular
@@ -497,6 +500,7 @@ options:
     [sqlfluff:templater:jinja]
     apply_dbt_builtins = True
     load_macros_from_path = my_macros
+    loader_search_path = included_templates
     library_path = sqlfluff_libs
 
     [sqlfluff:templater:jinja:context]
@@ -595,31 +599,35 @@ loaded from files or folders. This is specified in the config file:
 .. code-block:: cfg
 
     [sqlfluff:templater:jinja]
-    load_macros_from_path = my_macros
+    load_macros_from_path = my_macros,other_macros
 
 ``load_macros_from_path`` is a comma-separated list of :code:`.sql` files or
 folders. Locations are *relative to the config file*. For example, if the
 config file above was found at :code:`/home/my_project/.sqlfluff`, then
-SQLFluff will look for macros in the folder :code:`/home/my_project/my_macros/`
-(but not subfolders). Any macros defined in the config will always take
-precedence over a macro defined in the path.
+SQLFluff will look for macros in the folders :code:`/home/my_project/my_macros/`
+and  :code:`/home/my_project/other_macros/`, including any of their subfolders.
+Any macros defined in the config will always take precedence over a macro
+defined in the path.
 
-* :code:`.sql` files: Macros in these files are available in every :code:`.sql`
-  file without requiring a Jinja :code:`include` or :code:`import`.
-* Folders: To use macros from the :code:`.sql` files in folders, use Jinja
-  :code:`include` or :code:`import` as explained below.
+Macros loaded from these files are available in every :code:`.sql` file without
+requiring a Jinja :code:`include` or :code:`import`.  They are loaded into the
+`Jinja Global Namespace <https://jinja.palletsprojects.com/en/3.1.x/api/#global-namespace>`_.
 
 **Note:** The :code:`load_macros_from_path` setting also defines the search
 path for Jinja
-`include <https://jinja.palletsprojects.com/en/3.0.x/templates/#include>`_ or
-`import <https://jinja.palletsprojects.com/en/3.0.x/templates/#import>`_.
-Unlike with macros (as noted above), subdirectories are supported. For example,
+`include <https://jinja.palletsprojects.com/en/3.1.x/templates/#include>`_ or
+`import <https://jinja.palletsprojects.com/en/3.1.x/templates/#import>`_.
+As with loaded macros, subdirectories are also supported. For example,
 if :code:`load_macros_from_path` is set to :code:`my_macros`, and there is a
 file :code:`my_macros/subdir/my_file.sql`, you can do:
 
 .. code-block:: jinja
 
-   {% include 'subdir/include_comment.sql' %}
+   {% include 'subdir/my_file.sql' %}
+
+If you would like to define the Jinja search path without also loading the
+macros into the global namespace, use the :code:`loader_search_path` setting
+instead.
 
 .. note::
 
@@ -755,6 +763,42 @@ Now, ``ds`` can be used in SQL
 
     SELECT "{{ "2000-01-01" | ds }}";
 
+Jinja loader search path
+""""""""""""""""""""""""
+
+The Jinja environment can be configured to search for files included with
+`include <https://jinja.palletsprojects.com/en/3.1.x/templates/#include>`_ or
+`import <https://jinja.palletsprojects.com/en/3.1.x/templates/#import>`_ in a
+list of folders. This is specified in the config file:
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:jinja]
+    loader_search_path = included_templates,other_templates
+
+``loader_search_path`` is a comma-separated list of folders. Locations are
+*relative to the config file*. For example, if the config file above was found
+at :code:`/home/my_project/.sqlfluff`, then SQLFluff will look for included
+files in the folders :code:`/home/my_project/included_templates/` and
+:code:`/home/my_project/other_templates/`, including any of their subfolders.
+For example, this will read from
+:code:`/home/my_project/included_templates/my_template.sql`:
+
+.. code-block:: jinja
+
+   {% include 'included_templates/my_template.sql' %}
+
+Any folders specified in the :code:`load_macros_from_path` setting are
+automatically appended to the ``loader_search_path``.  It is not necessary to
+specify a given directory in both settings.
+
+Unlike the :code:`load_macros_from_path` setting, any macros within these
+folders are *not* automatically loaded into the global namespace.  They must be
+explicitly imported using the
+`import <https://jinja.palletsprojects.com/en/3.1.x/templates/#import>`_ Jinja
+directive.  If you would like macros to be automatically included in the
+global Jinja namespace, use the :code:`load_macros_from_path` setting instead.
+
 Interaction with ``--ignore=templating``
 """"""""""""""""""""""""""""""""""""""""
 
@@ -775,8 +819,9 @@ Here's how it works:
 * If you do: ``{% include query %}``, and the variable ``query`` is not
   defined, it returns a “file” containing the string ``query``.
 * If you do: ``{% include "query_file.sql" %}``, and that file does not exist
-  or you haven’t configured a setting for ``load_macros_from_path``, it
-  returns a “file” containing the text ``query_file``.
+  or you haven’t configured a setting for ``load_macros_from_path`` or
+  ``loader_search_path``, it returns a “file” containing the text
+  ``query_file``.
 
 For example:
 
@@ -798,7 +843,7 @@ mixture of several types:
 * ``str``
 * ``int``
 * ``list``
-* Jinja's ``Undefined`` `class <https://jinja.palletsprojects.com/en/3.0.x/api/#jinja2.Undefined>`_
+* Jinja's ``Undefined`` `class <https://jinja.palletsprojects.com/en/3.1.x/api/#jinja2.Undefined>`_
 
 Because the values behave like ``Undefined``, it's possible to replace them
 using Jinja's ``default()`` `filter <https://jinja.palletsprojects.com/en/3.1.x/templates/#jinja-filters.default>`_.
@@ -853,6 +898,9 @@ A few common styles are supported:
     -- colon_nospaces
     -- (use with caution as more prone to false positives)
     WHERE bla = table:my_name
+
+    -- colon_optional_quotes
+    SELECT :"column" FROM :table WHERE bla = :'my_name'
 
     -- numeric_colon
     WHERE bla = :2

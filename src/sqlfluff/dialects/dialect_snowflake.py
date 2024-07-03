@@ -149,7 +149,7 @@ snowflake_dialect.sets("compression_types").update(
 # Add all Snowflake supported file types
 snowflake_dialect.sets("files_types").clear()
 snowflake_dialect.sets("files_types").update(
-    ["CSV", "JSON", "AVRO", "ORC" "PARQUET", "XML"],
+    ["CSV", "JSON", "AVRO", "ORC", "PARQUET", "XML"],
 )
 
 snowflake_dialect.sets("warehouse_types").clear()
@@ -1660,6 +1660,7 @@ class FromUnpivotExpressionSegment(BaseSegment):
     type = "from_unpivot_expression"
     match_grammar = Sequence(
         "UNPIVOT",
+        Sequence(OneOf("INCLUDE", "EXCLUDE"), "NULLS", optional=True),
         Bracketed(
             Ref("SingleIdentifierGrammar"),
             "FOR",
@@ -2972,6 +2973,48 @@ class CreateProcedureStatementSegment(BaseSegment):
                 optional=True,
             ),
             Sequence(
+                "SECRETS",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    Sequence(
+                        Delimited(
+                            Sequence(
+                                Ref("QuotedLiteralSegment"),
+                                Ref("EqualsSegment"),
+                                AnyNumberOf(
+                                    Sequence(
+                                        Ref("SingleIdentifierGrammar"),
+                                        Ref("DotSegment"),
+                                        optional=True,
+                                    ),
+                                ),
+                                Ref("SingleIdentifierGrammar"),
+                            )
+                        )
+                    )
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "EXTERNAL_ACCESS_INTEGRATIONS",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            AnyNumberOf(
+                                Sequence(
+                                    Ref("SingleIdentifierGrammar"),
+                                    Ref("DotSegment"),
+                                    optional=True,
+                                )
+                            ),
+                            Ref("SingleIdentifierGrammar"),
+                        )
+                    )
+                ),
+                optional=True,
+            ),
+            Sequence(
                 "PACKAGES",
                 Ref("EqualsSegment"),
                 Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
@@ -2992,14 +3035,17 @@ class CreateProcedureStatementSegment(BaseSegment):
             Sequence("EXECUTE", "AS", OneOf("CALLER", "OWNER"), optional=True),
             optional=True,
         ),
-        "AS",
-        OneOf(
-            # Either a foreign programming language UDF...
-            Ref("DoubleQuotedUDFBody"),
-            Ref("SingleQuotedUDFBody"),
-            Ref("DollarQuotedUDFBody"),
-            # ...or a SQL UDF
-            Ref("ScriptingBlockStatementSegment"),
+        Sequence(
+            "AS",
+            OneOf(
+                # Either a foreign programming language UDF...
+                Ref("DoubleQuotedUDFBody"),
+                Ref("SingleQuotedUDFBody"),
+                Ref("DollarQuotedUDFBody"),
+                # ...or a SQL UDF
+                Ref("ScriptingBlockStatementSegment"),
+            ),
+            optional=True,
         ),
     )
 
@@ -3230,6 +3276,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
+        Sequence("COPY", "GRANTS", optional=True),
         "RETURNS",
         OneOf(
             Ref("DatatypeSegment"),
@@ -3260,6 +3307,35 @@ class CreateFunctionStatementSegment(BaseSegment):
                 "IMPORTS",
                 Ref("EqualsSegment"),
                 Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                optional=True,
+            ),
+            Sequence(
+                "SECRETS",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    Sequence(
+                        Delimited(
+                            Sequence(
+                                Ref("QuotedLiteralSegment"),
+                                Ref("EqualsSegment"),
+                                AnyNumberOf(
+                                    Sequence(
+                                        Ref("SingleIdentifierGrammar"),
+                                        Ref("DotSegment"),
+                                        optional=True,
+                                    )
+                                ),
+                                Ref("SingleIdentifierGrammar"),
+                            )
+                        )
+                    )
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "EXTERNAL_ACCESS_INTEGRATIONS",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
                 optional=True,
             ),
             Sequence(
@@ -6869,9 +6945,13 @@ class ExecuteImmediateClauseSegment(BaseSegment):
 
     EXECUTE IMMEDIATE $<session_variable>
         [ USING ( <bind_variable> [ , <bind_variable> ... ] ) ]
+
+    EXECUTE IMMEDIATE
+        FROM { absoluteFilePath | relativeFilePath }
     ```
 
     https://docs.snowflake.com/en/sql-reference/sql/execute-immediate
+    https://docs.snowflake.com/en/sql-reference/sql/execute-immediate-from
     """
 
     type = "execute_immediate_clause"
@@ -6879,9 +6959,11 @@ class ExecuteImmediateClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "EXECUTE",
         "IMMEDIATE",
+        Ref.keyword("FROM", optional=True),
         OneOf(
             Ref("QuotedLiteralSegment"),
             Ref("ReferencedVariableNameSegment"),
+            Ref("StorageLocation"),
             Sequence(
                 Ref("ColonSegment"),
                 Ref("LocalVariableNameSegment"),

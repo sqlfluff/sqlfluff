@@ -11,6 +11,9 @@ file:
       - comma: ','
       - select_clause_element:
           numeric_literal: '103'
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '104'
       from_clause:
         keyword: from
         from_expression:

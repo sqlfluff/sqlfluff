@@ -1,0 +1,236 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a46e1a8bf8e5b9a0ac889136ef46f93f4b2ee96622592c04863964ca32e990dd
+file:
+- multi_statement_segment:
+    begin_statement:
+    - keyword: BEGIN
+    - statement:
+        transaction_statement:
+          keyword: BEGIN
+    - statement_terminator: ;
+    - statement:
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            quoted_identifier: '`my_project.my_dataset.my_table`'
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: col1
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: col2
+            - comma: ','
+            - select_clause_element:
+                expression:
+                  case_expression:
+                  - keyword: CASE
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                      - column_reference:
+                          naked_identifier: col1
+                      - comparison_operator:
+                          raw_comparison_operator: '>'
+                      - column_reference:
+                          naked_identifier: col2
+                    - keyword: THEN
+                    - expression:
+                        boolean_literal: 'False'
+                  - else_clause:
+                      keyword: ELSE
+                      expression:
+                        boolean_literal: 'True'
+                  - keyword: END
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: col3
+            - comma: ','
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      quoted_identifier: '`my_project.my_dataset.my_other_table`'
+    - statement_terminator: ;
+    - statement:
+        transaction_statement:
+        - keyword: COMMIT
+        - keyword: TRANSACTION
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- multi_statement_segment:
+    begin_statement:
+    - keyword: BEGIN
+    - statement:
+        transaction_statement:
+        - keyword: BEGIN
+        - keyword: TRANSACTION
+    - statement_terminator: ;
+    - statement:
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            quoted_identifier: '`my_project.my_dataset.my_table`'
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: col1
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: col2
+            - comma: ','
+            - select_clause_element:
+                expression:
+                  case_expression:
+                  - keyword: CASE
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                      - column_reference:
+                          naked_identifier: col1
+                      - comparison_operator:
+                          raw_comparison_operator: '>'
+                      - column_reference:
+                          naked_identifier: col2
+                    - keyword: THEN
+                    - expression:
+                        boolean_literal: 'False'
+                  - else_clause:
+                      keyword: ELSE
+                      expression:
+                        boolean_literal: 'True'
+                  - keyword: END
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: col3
+            - comma: ','
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      quoted_identifier: '`my_project.my_dataset.my_other_table`'
+    - statement_terminator: ;
+    - statement:
+        transaction_statement:
+        - keyword: COMMIT
+        - keyword: TRANSACTION
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- multi_statement_segment:
+    begin_statement:
+    - keyword: BEGIN
+    - statement:
+        transaction_statement:
+          keyword: BEGIN
+    - statement_terminator: ;
+    - statement:
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            quoted_identifier: '`my_project.my_dataset.my_table`'
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: col1
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: col2
+            - comma: ','
+            - select_clause_element:
+                expression:
+                  case_expression:
+                  - keyword: CASE
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                      - column_reference:
+                          naked_identifier: col1
+                      - comparison_operator:
+                          raw_comparison_operator: '>'
+                      - column_reference:
+                          naked_identifier: col2
+                    - keyword: THEN
+                    - expression:
+                        numeric_literal: '1'
+                  - else_clause:
+                      keyword: ELSE
+                      expression:
+                        numeric_literal: '2'
+                  - keyword: END
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: col3
+            - comma: ','
+            - select_clause_element:
+                expression:
+                  case_expression:
+                  - keyword: CASE
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                        column_reference:
+                          naked_identifier: x
+                        comparison_operator:
+                          raw_comparison_operator: '>'
+                        numeric_literal: '5'
+                    - keyword: THEN
+                    - expression:
+                        numeric_literal: '5'
+                  - keyword: END
+    - statement_terminator: ;
+    - statement:
+        transaction_statement:
+          keyword: COMMIT
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- multi_statement_segment:
+    begin_statement:
+    - naked_identifier: mylabel
+    - colon: ':'
+    - keyword: BEGIN
+    - statement:
+        transaction_statement:
+          keyword: BEGIN
+    - statement_terminator: ;
+    - statement:
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            quoted_identifier: '`my_project.my_dataset.my_table`'
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                numeric_literal: '1'
+    - statement_terminator: ;
+    - statement:
+        transaction_statement:
+          keyword: COMMIT
+    - statement_terminator: ;
+    - keyword: END
+    - naked_identifier: mylabel
+- statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8e04c349292c858194d9339483207da94a5fdf7483fa466ba1eb05a2eae1efb6
+_hash: 63e7035b51a821c215f17c68f64f1c30d7da14b1c6aa549f64fa0d8ca1fd3ff2
 file:
 - statement:
     execute_immediate_clause:
@@ -92,4 +92,19 @@ file:
       - comma: ','
       - variable: two
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - keyword: FROM
+    - quoted_literal: "'./insert-inventory.sql'"
+- statement_terminator: ;
+- statement:
+    execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - keyword: FROM
+    - storage_location:
+        stage_path: '@my_stage/scripts/create-inventory.sql'
 - statement_terminator: ;

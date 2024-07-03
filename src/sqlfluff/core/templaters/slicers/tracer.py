@@ -392,6 +392,22 @@ class JinjaAnalyzer:
             block_type="block_start",
         )
 
+    def _get_jinja_tracer(
+        self,
+        raw_str: str,
+        raw_sliced: List[RawFileSlice],
+        raw_slice_info: Dict[RawFileSlice, RawSliceInfo],
+        sliced_file: List[TemplatedFileSlice],
+        render_func: Callable[[str], str],
+    ) -> JinjaTracer:
+        """Creates a new object derived from JinjaTracer.
+
+        Derived classes can provide their own tracers with custom functionality.
+        """
+        return JinjaTracer(
+            raw_str, raw_sliced, raw_slice_info, sliced_file, render_func
+        )
+
     def next_slice_id(self) -> str:
         """Returns a new, unique slice ID."""
         result = "{0:#0{1}x}".format(self.slice_id, 34)[2:]
@@ -641,7 +657,7 @@ class JinjaAnalyzer:
                     )
                 str_buff = ""
                 str_parts = []
-        return JinjaTracer(
+        return self._get_jinja_tracer(
             self.raw_str,
             self.raw_sliced,
             self.raw_slice_info,

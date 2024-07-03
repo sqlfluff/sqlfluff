@@ -1,0 +1,189 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: bceadfcc2e3aaafb5def62f48dbdfb315fcb41b776861ca60ee27a30ae879b24
+file:
+- statement:
+    create_row_access_policy_statement:
+    - keyword: CREATE
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - naked_identifier: row_access_policy_name
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: example_dataset
+      - dot: .
+      - naked_identifier: example_table
+    - keyword: FILTER
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+          boolean_literal: 'TRUE'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_row_access_policy_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - naked_identifier: row_access_policy_name
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: example_dataset
+      - dot: .
+      - naked_identifier: example_table
+    - grant_to_segment:
+      - keyword: GRANT
+      - keyword: TO
+      - bracketed:
+          start_bracket: (
+          quoted_literal: '"user:someone@example.com"'
+          end_bracket: )
+    - keyword: FILTER
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+        - column_reference:
+            naked_identifier: x
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+            naked_identifier: y
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_row_access_policy_statement:
+    - keyword: CREATE
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: row_access_policy_name
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: example_dataset
+      - dot: .
+      - naked_identifier: example_table
+    - grant_to_segment:
+      - keyword: GRANT
+      - keyword: TO
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: '"serviceAccount:example@example-project.iam.gserviceaccount.com"'
+        - comma: ','
+        - quoted_literal: '"group:some_group@example.com"'
+        - comma: ','
+        - quoted_literal: '"domain:example.com"'
+        - end_bracket: )
+    - keyword: FILTER
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: email_column_name
+          comparison_operator:
+            raw_comparison_operator: '='
+          function:
+            function_name:
+              function_name_identifier: SESSION_USER
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_row_access_policy_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: row_access_policy_name
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: example_dataset
+      - dot: .
+      - naked_identifier: example_table
+    - grant_to_segment:
+      - keyword: GRANT
+      - keyword: TO
+      - bracketed:
+          start_bracket: (
+          quoted_literal: '"allAuthenticatedUsers"'
+          end_bracket: )
+    - keyword: FILTER
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+          function:
+            function_name:
+              function_name_identifier: SESSION_USER
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+          keyword: IN
+          bracketed:
+          - start_bracket: (
+          - quoted_literal: '"foo"'
+          - comma: ','
+          - quoted_literal: '"bar"'
+          - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_row_access_policy_statement:
+    - keyword: CREATE
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - naked_identifier: row_access_policy_name
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: example_dataset
+      - dot: .
+      - naked_identifier: example_table
+    - grant_to_segment:
+      - keyword: GRANT
+      - keyword: TO
+      - bracketed:
+          start_bracket: (
+          quoted_literal: '"allUsers"'
+          end_bracket: )
+    - keyword: FILTER
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+          function:
+            function_name:
+              naked_identifier: example_dataset
+              dot: .
+              function_name_identifier: exampleFunction
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  naked_identifier: x
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: y
+            - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;

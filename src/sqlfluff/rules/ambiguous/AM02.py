@@ -59,6 +59,10 @@ class Rule_AM02(BaseRule):
         """
         if context.dialect.name not in [
             "ansi",
+            "bigquery",
+            "clickhouse",
+            "databricks",
+            "db2",
             "hive",
             "mysql",
             "redshift",

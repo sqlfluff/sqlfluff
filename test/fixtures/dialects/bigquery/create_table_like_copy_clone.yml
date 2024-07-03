@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1d796951320912d1de1fb4f375e9c181b868fd162508bc7e60e82f88f0097b04
+_hash: 53452e24fda4345fb426d5c1d1df4c0eeeb71f3b343821d0e1629f6f82a3dd88
 file:
 - statement:
     create_table_statement:
@@ -77,4 +77,42 @@ file:
       - naked_identifier: mydataset
       - dot: .
       - naked_identifier: sourcetable
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: newtable_clone
+    - keyword: CLONE
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: sourcetable
+    - for_system_time_as_of_segment:
+      - keyword: FOR
+      - keyword: SYSTEM_TIME
+      - keyword: AS
+      - keyword: OF
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: CURRENT_TIMESTAMP
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+          start_bracket: (
+          parameter: description
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: '"example"'
+          end_bracket: )
 - statement_terminator: ;
