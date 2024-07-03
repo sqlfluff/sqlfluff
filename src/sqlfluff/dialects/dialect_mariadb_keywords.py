@@ -1,5 +1,9 @@
 """A List of MariaDB SQL keywords.
 
+The full list can be queried from MariaDB directly
+https://mariadb.com/kb/en/information-schema-keywords-table/
+
+The reserved keywords are listed on
 https://mariadb.com/kb/en/reserved-words/
 """
 
@@ -703,4 +707,14 @@ X509
 XA
 XML
 YEAR
+"""
+
+# These are not MariaDB keywords, but needed to parse well.
+# Taken from the mysql dialect
+mariadb_unreserved_keywords += """
+NOW
+SHARED
+INPLACE
+NOCOPY
+INSTANT
 """
