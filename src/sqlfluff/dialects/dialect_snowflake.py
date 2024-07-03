@@ -1102,19 +1102,40 @@ class ConnectByClauseSegment(BaseSegment):
     """
 
     type = "connectby_clause"
-    match_grammar = Sequence(
-        "START",
-        "WITH",
-        Ref("ExpressionSegment"),
-        "CONNECT",
-        "BY",
-        Delimited(
+    match_grammar = OneOf(
+        Sequence(
+            "START",
+            "WITH",
+            Ref("ExpressionSegment"),
+            "CONNECT",
+            "BY",
+            Delimited(
+                Sequence(
+                    Ref.keyword("PRIOR", optional=True),
+                    Ref("ColumnReferenceSegment"),
+                    Ref("EqualsSegment"),
+                    Ref.keyword("PRIOR", optional=True),
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+        ),
+        Sequence(
+            "CONNECT",
+            "BY",
+            Delimited(
+                Sequence(
+                    Ref.keyword("PRIOR", optional=True),
+                    Ref("ColumnReferenceSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("ColumnReferenceSegment"),
+                ),
+                delimiter="AND",
+            ),
             Sequence(
-                Ref.keyword("PRIOR", optional=True),
-                Ref("ColumnReferenceSegment"),
-                Ref("EqualsSegment"),
-                Ref.keyword("PRIOR", optional=True),
-                Ref("ColumnReferenceSegment"),
+                "START",
+                "WITH",
+                Ref("ExpressionSegment"),
+                optional=True,
             ),
         ),
     )
