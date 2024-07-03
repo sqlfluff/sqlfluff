@@ -1,0 +1,106 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b976170556023f001f8ee857f5a302503bc1d90e0bc76eeb09c2033eafa7f05c
+file:
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: somefunction
+        bracketed:
+          start_bracket: (
+          expression:
+            quoted_literal: "'a'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: somefunction
+        bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: test
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'something'"
+                end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: somefunction
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'test'"
+        - comma: ','
+        - expression:
+            variable: '@test1'
+        - comma: ','
+        - expression:
+            column_reference:
+              naked_identifier: test2
+        - comma: ','
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: test3
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'test'"
+                end_bracket: )
+        - comma: ','
+        - expression:
+            quoted_literal: '"test4"'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: somefunction
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          quoted_identifier: '`somefunction`'
+        bracketed:
+          start_bracket: (
+          expression:
+            quoted_literal: "'a'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          naked_identifier: testdb
+          dot: .
+          function_name_identifier: testfunc
+        bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '123'
+          end_bracket: )
+- statement_terminator: ;
