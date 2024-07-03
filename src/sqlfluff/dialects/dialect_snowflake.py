@@ -1335,6 +1335,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropExternalVolumeStatementSegment"),
             Ref("AlterExternalVolumeStatementSegment"),
             Ref("ForInLoopSegment"),
+            Ref("CreateEventTableStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -3990,6 +3991,72 @@ class SchemaObjectParamsSegment(BaseSegment):
     )
 
 
+class CreateEventTableStatementSegment(BaseSegment):
+    """A `CREATE EVENT TABLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-event-table
+    """
+
+    type = "create_event_table_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Sequence("EVENT", "TABLE"),
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        AnySetOf(
+            Sequence(
+                "CLUSTER",
+                "BY",
+                OneOf(
+                    Ref("FunctionSegment"),
+                    Bracketed(Delimited(Ref("ExpressionSegment"))),
+                ),
+            ),
+            Sequence(
+                "DATA_RETENTION_TIME_IN_DAYS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "CHANGE_TRACKING",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "DEFAULT_DDL_COLLATION",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "COPY",
+                "GRANTS",
+            ),
+            Sequence(
+                "WITH",
+                "ROW",
+                "ACCESS",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+                "ON",
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            ),
+            Sequence(
+                "WITH",
+                Ref("CommentEqualsClauseSegment"),
+            ),
+            Ref("TagBracketedEqualsSegment"),
+            optional=True,
+        ),
+    )
+
+
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """A `CREATE TABLE` statement.
 
@@ -6486,6 +6553,7 @@ class AlterAccountStatementSegment(BaseSegment):
                             Ref("QuotedLiteralSegment"),
                             Ref("NumericLiteralSegment"),
                             Ref("NakedIdentifierSegment"),
+                            Ref("TableReferenceSegment"),
                         ),
                     ),
                 ),
