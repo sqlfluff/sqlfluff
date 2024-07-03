@@ -15,3 +15,28 @@ UNSET COMMENT;
 
 ALTER PROCEDURE procedure1()
 UNSET TAG TAG1, TAG2, TAG3;
+
+ALTER PROCEDURE procedure1(varchar)
+SET LOG_LEVEL = WARN
+;
+
+ALTER PROCEDURE procedure1(varchar)
+SET TRACE_LEVEL = ALWAYS
+;
+
+ALTER PROCEDURE mirror.procedure1(varchar)
+SET LOG_LEVEL = WARN, TRACE_LEVEL = ON_EVENT
+;
+
+ALTER PROCEDURE example_procedure()
+SET
+    EXTERNAL_ACCESS_INTEGRATIONS = (my_external_access_integration),
+    LOG_LEVEL = DEBUG,
+    TRACE_LEVEL = ON_EVENT,
+    SECRETS = ('cred' = oauth_token)
+
+;
+
+ALTER PROCEDURE example_procedure()
+SET EXTERNAL_ACCESS_INTEGRATIONS = (my_external_access_integration)
+;
