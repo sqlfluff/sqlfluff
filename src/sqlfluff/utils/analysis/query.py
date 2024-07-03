@@ -327,7 +327,7 @@ class Query(Generic[T]):
             selectables = [Selectable(segment, dialect=dialect)]
         elif segment.is_type("set_expression"):
             # It's a set expression. There may be multiple selectables.
-            for _seg in segment.get_children("select_statement"):
+            for _seg in segment.recursive_crawl("select_statement", recurse_into=False):
                 selectables.append(Selectable(_seg, dialect=dialect))
         else:
             # Otherwise it's a WITH statement.
