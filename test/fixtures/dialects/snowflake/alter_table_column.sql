@@ -75,6 +75,12 @@ ALTER TABLE empl_info DROP COLUMN my_column;
 ALTER TABLE some_schema.empl_info DROP COLUMN my_column;
 ALTER TABLE my_table DROP COLUMN column_1, column_2, column_3;
 
+-- Drop column if exists
+ALTER TABLE demo_db.public DROP column IF EXISTS public_name, IF EXISTS description_text, IF EXISTS type_alias;
+ALTER TABLE demo_db.public DROP column public_name,  description_text,  type_alias;
+ALTER TABLE demo_db.public DROP public_name,  description_text,  type_alias;
+ALTER TABLE demo_db.public DROP IF EXISTS public_name, IF EXISTS description_text, IF EXISTS type_alias;
+
 -- IF EXISTS
 ALTER TABLE IF EXISTS my_table ADD COLUMN my_column INTEGER;
 ALTER TABLE IF EXISTS empl_info DROP COLUMN my_column;
