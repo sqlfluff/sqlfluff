@@ -8,6 +8,7 @@ It also has some extensions.
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    Anything,
     BaseSegment,
     Bracketed,
     CodeSegment,
@@ -375,5 +376,60 @@ class AliasExpressionSegment(sparksql.AliasExpressionSegment):
                 "FROM",
                 "FOR",
             ),
+        ),
+    )
+
+
+class GeneratedColumnDefinitionSegment(sparksql.GeneratedColumnDefinitionSegment):
+    """A generated column definition, e.g. for CREATE TABLE or ALTER TABLE.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-using.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        Ref("DatatypeSegment"),  # Column type
+        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+        OneOf(
+            Sequence(
+                "GENERATED",
+                "ALWAYS",
+                "AS",
+                Bracketed(
+                    OneOf(
+                        Ref("FunctionSegment"),
+                        Ref("BareFunctionSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "GENERATED",
+                OneOf(
+                    "ALWAYS",
+                    Sequence("BY", "DEFAULT"),
+                ),
+                "AS",
+                "IDENTITY",
+                Bracketed(
+                    Sequence(
+                        Sequence(
+                            "START",
+                            "WITH",
+                            Ref("NumericLiteralSegment"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "INCREMENT",
+                            "BY",
+                            Ref("NumericLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+        AnyNumberOf(
+            Ref("ColumnConstraintSegment", optional=True),
         ),
     )
