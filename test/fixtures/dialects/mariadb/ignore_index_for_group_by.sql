@@ -1,0 +1,1 @@
+SELECT * FROM onetable IGNORE INDEX FOR GROUP BY (i2);

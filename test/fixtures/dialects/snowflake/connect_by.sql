@@ -32,3 +32,13 @@ start with title = 'President'
 connect by
     manager_id = prior employee_id
 order by employee_id;
+
+select
+  description,
+  quantity,
+  component_id,
+  parent_component_id,
+  component_type
+from components c
+connect by prior c.parent_component_id = c.component_id AND PRIOR c.component_type = c.component_type
+order by quantity;

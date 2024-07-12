@@ -4158,6 +4158,7 @@ class TableExpressionSegment(BaseSegment):
     type = "table_expression"
     match_grammar: Matchable = OneOf(
         Ref("ValuesClauseSegment"),
+        Sequence(Ref("TableReferenceSegment"), Ref("PostTableExpressionGrammar")),
         Ref("BareFunctionSegment"),
         Ref("FunctionSegment"),
         Ref("OpenRowSetSegment"),
