@@ -389,7 +389,7 @@ class GeneratedColumnDefinitionSegment(sparksql.GeneratedColumnDefinitionSegment
     match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),  # Column name
         Ref("DatatypeSegment"),  # Column type
-        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+        Bracketed(Anything(), optional=True),  # For types like DECIMAL(3, 2)
         OneOf(
             Sequence(
                 "GENERATED",
