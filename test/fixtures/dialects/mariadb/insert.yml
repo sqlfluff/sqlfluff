@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f26042eddf4339d9869fb9f5ad624003347b83461901ce6ffb122617abf6c2d9
+_hash: 651a0d14bda891e258a0bb7da14c4054db6c1661870c16fe2ad13aeafa5c3b8a
 file:
 - statement:
     insert_statement:
@@ -406,55 +406,6 @@ file:
             raw_comparison_operator: '='
         - column_reference:
             naked_identifier: e
-- statement_terminator: ;
-- statement:
-    insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: t1
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: a
-      - comma: ','
-      - column_reference:
-          naked_identifier: b
-      - comma: ','
-      - column_reference:
-          naked_identifier: c
-      - end_bracket: )
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: t2
-    - insert_row_alias:
-        keyword: as
-        naked_identifier: t3
-        bracketed:
-          start_bracket: (
-          identifier_list:
-          - naked_identifier: m
-          - comma: ','
-          - naked_identifier: n
-          - comma: ','
-          - naked_identifier: p
-          end_bracket: )
-    - upsert_clause_list:
-      - keyword: 'ON'
-      - keyword: DUPLICATE
-      - keyword: KEY
-      - keyword: UPDATE
-      - set_clause:
-          column_reference:
-            naked_identifier: b
-          comparison_operator:
-            raw_comparison_operator: '='
-          expression:
-          - column_reference:
-              naked_identifier: n
-          - binary_operator: +
-          - column_reference:
-              naked_identifier: p
 - statement_terminator: ;
 - statement:
     insert_statement:

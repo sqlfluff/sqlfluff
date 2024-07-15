@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5e56839dde36d79ac2153e62446f262002bffb704a7185d5e155ef88f1e1b528
+_hash: b343d858f9614e81cf80ec421c746686ad3ce2ba4c4e22f2b4a39b3dd619e817
 file:
 - statement:
     replace_statement:
@@ -330,77 +330,4 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: table_name
-- statement_terminator: ;
-- statement:
-    replace_statement:
-    - keyword: REPLACE
-    - table_reference:
-        naked_identifier: tbl_name
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: table_name
-- statement_terminator: ;
-- statement:
-    replace_statement:
-    - keyword: REPLACE
-    - keyword: LOW_PRIORITY
-    - table_reference:
-        naked_identifier: tbl_name
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: table_name
-- statement_terminator: ;
-- statement:
-    replace_statement:
-    - keyword: REPLACE
-    - keyword: DELAYED
-    - table_reference:
-        naked_identifier: tbl_name
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: table_name
-- statement_terminator: ;
-- statement:
-    replace_statement:
-    - keyword: REPLACE
-    - keyword: LOW_PRIORITY
-    - keyword: INTO
-    - table_reference:
-        naked_identifier: tbl_name
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: table_name
-- statement_terminator: ;
-- statement:
-    replace_statement:
-    - keyword: REPLACE
-    - table_reference:
-        naked_identifier: tbl_name
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          naked_identifier: col1
-      - comma: ','
-      - column_reference:
-          naked_identifier: col2
-      - end_bracket: )
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: table_name
-- statement_terminator: ;
-- statement:
-    replace_statement:
-    - keyword: REPLACE
-    - table_reference:
-        naked_identifier: tbl_name
-    - partition_clause:
-        keyword: PARTITION
-        bracketed:
-          start_bracket: (
-          object_reference:
-            naked_identifier: partition_name
-          end_bracket: )
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: table_name
 - statement_terminator: ;
