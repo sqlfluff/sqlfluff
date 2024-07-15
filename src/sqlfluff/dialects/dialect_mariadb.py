@@ -236,6 +236,35 @@ class FlushStatementSegment(mysql.FlushStatementSegment):
     )
 
 
+class GroupByClauseSegment(BaseSegment):
+    """A `GROUP BY` clause like in `SELECT`."""
+
+    type = "groupby_clause"
+
+    match_grammar: Matchable = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        Sequence(
+            Delimited(
+                Sequence(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        # Can `GROUP BY 1`
+                        Ref("NumericLiteralSegment"),
+                        # Can `GROUP BY coalesce(col, 1)`
+                        Ref("ExpressionSegment"),
+                    ),
+                    OneOf("ASC", "DESC", optional=True),
+                ),
+                terminators=[Ref("GroupByClauseTerminatorGrammar")],
+            ),
+        ),
+        Ref("WithRollupClauseSegment", optional=True),
+        Dedent,
+    )
+
+
 class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement.
 
@@ -354,4 +383,15 @@ class SelectStatementSegment(mysql.SelectStatementSegment):
         # Overwrite the terminators, because we want to remove some from the
         # expression above.
         replace_terminators=True,
+    )
+
+
+class WithRollupClauseSegment(BaseSegment):
+    """A `WITH ROLLUP` clause after the `GROUP BY` clause."""
+
+    type = "with_rollup_clause"
+
+    match_grammar = Sequence(
+        "WITH",
+        "ROLLUP",
     )
