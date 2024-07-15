@@ -31,6 +31,20 @@ mariadb_dialect.update_keywords_set_from_multiline_string(
 )
 
 
+class ColumnConstraintSegment(mysql.ColumnConstraintSegment):
+    """A column option; each CREATE TABLE column can have 0 or more."""
+
+    match_grammar: Matchable = OneOf(
+        mysql.ColumnConstraintSegment.match_grammar,
+        Sequence(
+            Sequence("GENERATED", "ALWAYS", optional=True),
+            "AS",
+            Bracketed(Ref("ExpressionSegment")),
+            OneOf("PERSISTENT", "STORED", "VIRTUAL", optional=True),
+        ),
+    )
+
+
 class CreateUserStatementSegment(mysql.CreateUserStatementSegment):
     """`CREATE USER` statement.
 
