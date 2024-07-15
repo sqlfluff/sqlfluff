@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 651a0d14bda891e258a0bb7da14c4054db6c1661870c16fe2ad13aeafa5c3b8a
+_hash: 778b69ed660190c0933251827c15abb586d4064415475e3c3d97ae65cd3bc9ff
 file:
 - statement:
     insert_statement:
@@ -41,6 +41,19 @@ file:
         - comma: ','
         - numeric_literal: '6'
         - end_bracket: )
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: c
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -90,6 +103,19 @@ file:
               alias_expression:
                 keyword: AS
                 naked_identifier: dt
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: c
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -150,6 +176,19 @@ file:
             - naked_identifier: t2
             - dot: .
             - naked_identifier: b
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: c
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -222,6 +261,19 @@ file:
                 column_reference:
                   naked_identifier: b
               end_bracket: )
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: c
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -287,6 +339,19 @@ file:
           - binary_operator: +
           - column_reference:
               naked_identifier: n
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: c
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -348,6 +413,19 @@ file:
             raw_comparison_operator: '='
         - column_reference:
             naked_identifier: e
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: c
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -406,6 +484,19 @@ file:
             raw_comparison_operator: '='
         - column_reference:
             naked_identifier: e
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: c
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -458,6 +549,19 @@ file:
             - naked_identifier: t2
             - dot: .
             - naked_identifier: b
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: c
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -527,4 +631,17 @@ file:
           - binary_operator: +
           - column_reference:
               naked_identifier: p
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: c
 - statement_terminator: ;

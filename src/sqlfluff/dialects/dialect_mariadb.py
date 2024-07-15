@@ -5,11 +5,16 @@ https://mariadb.com/kb/en/sql-statements-structure/
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
+    AnySetOf,
+    BaseSegment,
     Bracketed,
+    Dedent,
     Delimited,
+    Indent,
     Matchable,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     Sequence,
 )
@@ -119,6 +124,48 @@ class CreateTableStatementSegment(mysql.CreateTableStatementSegment):
     )
 
 
+class DeleteStatementSegment(BaseSegment):
+    """A `DELETE` statement.
+
+    https://mariadb.com/kb/en/delete/
+    """
+
+    type = "delete_statement"
+    match_grammar = Sequence(
+        "DELETE",
+        Ref.keyword("LOW_PRIORITY", optional=True),
+        Ref.keyword("QUICK", optional=True),
+        Ref.keyword("IGNORE", optional=True),
+        OneOf(
+            Sequence(
+                "FROM",
+                Delimited(
+                    Ref("DeleteTargetTableSegment"),
+                    terminators=["USING"],
+                ),
+                Ref("DeleteUsingClauseSegment"),
+                Ref("WhereClauseSegment", optional=True),
+            ),
+            Sequence(
+                Delimited(
+                    Ref("DeleteTargetTableSegment"),
+                    terminators=["FROM"],
+                ),
+                Ref("FromClauseSegment"),
+                Ref("WhereClauseSegment", optional=True),
+            ),
+            Sequence(
+                Ref("FromClauseSegment"),
+                Ref("SelectPartitionClauseSegment", optional=True),
+                Ref("WhereClauseSegment", optional=True),
+                Ref("OrderByClauseSegment", optional=True),
+                Ref("LimitClauseSegment", optional=True),
+                Ref("ReturningClauseSegment", optional=True),
+            ),
+        ),
+    )
+
+
 class FlushStatementSegment(mysql.FlushStatementSegment):
     """A `Flush` statement.
 
@@ -186,4 +233,125 @@ class FlushStatementSegment(mysql.FlushStatementSegment):
                 Sequence("FOR", "EXPORT", optional=True),
             ),
         ),
+    )
+
+
+class InsertStatementSegment(BaseSegment):
+    """An `INSERT` statement.
+
+    https://mariadb.com/kb/en/insert/
+    """
+
+    type = "insert_statement"
+    match_grammar = Sequence(
+        "INSERT",
+        OneOf(
+            "LOW_PRIORITY",
+            "DELAYED",
+            "HIGH_PRIORITY",
+            optional=True,
+        ),
+        Ref.keyword("IGNORE", optional=True),
+        Ref.keyword("INTO", optional=True),
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "PARTITION",
+            Bracketed(
+                Ref("SingleIdentifierListSegment"),
+            ),
+            optional=True,
+        ),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        AnySetOf(
+            OneOf(
+                Ref("ValuesClauseSegment"),
+                Ref("SetClauseListSegment"),
+                Ref("SelectStatementSegment"),
+                optional=False,
+            ),
+            Ref("InsertRowAliasSegment", optional=True),
+            Ref("UpsertClauseListSegment", optional=True),
+            Ref("ReturningClauseSegment", optional=True),
+        ),
+    )
+
+
+class ReplaceSegment(BaseSegment):
+    """A `REPLACE` statement.
+
+    As per https://mariadb.com/kb/en/replace/
+    """
+
+    type = "replace_statement"
+
+    match_grammar = Sequence(
+        "REPLACE",
+        OneOf("LOW_PRIORITY", "DELAYED", optional=True),
+        Sequence("INTO", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("SelectPartitionClauseSegment", optional=True),
+        OneOf(
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Ref("ValuesClauseSegment"),
+            ),
+            Ref("SetClauseListSegment"),
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Ref("SelectStatementSegment"),
+            ),
+        ),
+        Ref("ReturningClauseSegment", optional=True),
+    )
+
+
+class ReturningClauseSegment(BaseSegment):
+    """This is a `RETURNING` clause.
+
+    A RETURNING clause returns values modified by a
+    INSERT, DELETE or REPLACE query.
+
+    https://mariadb.com/kb/en/insert/
+    https://mariadb.com/kb/en/delete/
+    https://mariadb.com/kb/en/replace/
+    """
+
+    type = "returning_clause"
+
+    match_grammar: Matchable = Sequence(
+        "RETURNING",
+        Indent,
+        Delimited(
+            Ref("SelectClauseElementSegment"),
+            allow_trailing=True,
+        ),
+        Dedent,
+        terminators=[Ref("SelectClauseTerminatorGrammar")],
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
+    )
+
+
+class SelectStatementSegment(mysql.SelectStatementSegment):
+    """A `SELECT` statement.
+
+    https://mariadb.com/kb/en/select/
+    """
+
+    # Inherit most of the parse grammar from the original.
+    match_grammar = mysql.UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
+            Ref("IntoClauseSegment", optional=True),
+        ],
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("UpsertClauseListSegment"),
+            Ref("WithCheckOptionSegment"),
+            Ref("ReturningClauseSegment"),
+        ],
+        # Overwrite the terminators, because we want to remove some from the
+        # expression above.
+        replace_terminators=True,
     )
