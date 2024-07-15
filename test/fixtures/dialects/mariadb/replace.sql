@@ -29,15 +29,3 @@ REPLACE LOW_PRIORITY INTO tbl_name SET col1 = 1, col2 = 2;
 REPLACE tbl_name PARTITION (partition_name) SET col1 = 1, col2 = 2;
 
 REPLACE tbl_name SELECT * FROM table_name;
-
-REPLACE tbl_name TABLE table_name;
-
-REPLACE LOW_PRIORITY tbl_name TABLE table_name;
-
-REPLACE DELAYED tbl_name TABLE table_name;
-
-REPLACE LOW_PRIORITY INTO tbl_name TABLE table_name;
-
-REPLACE tbl_name (col1, col2) TABLE table_name;
-
-REPLACE tbl_name PARTITION (partition_name) TABLE table_name;
