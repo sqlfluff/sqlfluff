@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8a1936b1d3db7a914b04b28e3a9e8d806de7efe93cf96c8b99850520c4c4a2a7
+_hash: cd13e4ed70aa44f9a3f225b1e450d51fbd63278f2103a59ddc5cc5e67a3e2bbe
 file:
 - statement:
     alter_function_statement:
@@ -53,4 +53,209 @@ file:
           end_bracket: )
     - keyword: UNSET
     - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: function
+    - function_name:
+        function_name_identifier: function1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: FLOAT_PARAM1
+          data_type:
+            data_type_identifier: FLOAT
+          end_bracket: )
+    - keyword: SET
+    - tag_equals:
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: TAG1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value1'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: TAG2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value2'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: TAG3
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value3'"
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: function
+    - function_name:
+        function_name_identifier: function1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: TAG1
+    - comma: ','
+    - tag_reference:
+        naked_identifier: TAG2
+    - comma: ','
+    - tag_reference:
+        naked_identifier: TAG3
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: function
+    - function_name:
+        function_name_identifier: function1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'just a comment'"
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: function
+    - function_name:
+        function_name_identifier: function1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: example_function
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: SET
+    - external_access_integration_equals:
+        keyword: EXTERNAL_ACCESS_INTEGRATIONS
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+          start_bracket: (
+          naked_identifier: my_external_access_integration
+          end_bracket: )
+    - comma: ','
+    - log_level_equals:
+      - keyword: LOG_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DEBUG
+    - comma: ','
+    - trace_level_equals:
+      - keyword: TRACE_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ON_EVENT
+    - comma: ','
+    - external_access_integration_equals:
+        keyword: SECRETS
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+          start_bracket: (
+          quoted_literal: "'cred'"
+          comparison_operator:
+            raw_comparison_operator: '='
+          naked_identifier: oauth_token
+          end_bracket: )
+    - comma: ','
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'just a comment'"
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: example_function
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: SET
+    - tag_equals:
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: TAG1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value1'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: TAG2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value2'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: TAG3
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value3'"
+    - comma: ','
+    - external_access_integration_equals:
+        keyword: EXTERNAL_ACCESS_INTEGRATIONS
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+          start_bracket: (
+          naked_identifier: my_external_access_integration
+          end_bracket: )
+    - comma: ','
+    - log_level_equals:
+      - keyword: LOG_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DEBUG
+    - comma: ','
+    - trace_level_equals:
+      - keyword: TRACE_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ON_EVENT
+    - comma: ','
+    - external_access_integration_equals:
+        keyword: SECRETS
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+          start_bracket: (
+          quoted_literal: "'cred'"
+          comparison_operator:
+            raw_comparison_operator: '='
+          naked_identifier: oauth_token
+          end_bracket: )
+    - comma: ','
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'just a comment'"
 - statement_terminator: ;

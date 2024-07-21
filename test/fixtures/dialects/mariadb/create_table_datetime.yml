@@ -1,0 +1,220 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7d380062698a45e2def8a6ea2766b072296d0f462727a05fddfceddc50c2e735
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: created_date
+        - keyword: DATETIME
+        - keyword: DEFAULT
+        - keyword: CURRENT_TIMESTAMP
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ts1
+        - keyword: TIMESTAMP
+        - keyword: DEFAULT
+        - keyword: CURRENT_TIMESTAMP
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_definition:
+        - naked_identifier: dt1
+        - keyword: DATETIME
+        - keyword: DEFAULT
+        - keyword: CURRENT_TIMESTAMP
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ts2
+        - keyword: TIMESTAMP
+        - keyword: DEFAULT
+        - keyword: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_definition:
+        - naked_identifier: dt2
+        - keyword: DATETIME
+        - keyword: DEFAULT
+        - keyword: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ts3
+        - keyword: TIMESTAMP
+        - keyword: DEFAULT
+        - numeric_literal: '0'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: dt3
+        - keyword: DATETIME
+        - keyword: DEFAULT
+        - numeric_literal: '0'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ts4
+        - keyword: TIMESTAMP
+        - keyword: DEFAULT
+        - numeric_literal: '0'
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_definition:
+        - naked_identifier: dt4
+        - keyword: DATETIME
+        - keyword: DEFAULT
+        - numeric_literal: '0'
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ts5
+        - keyword: TIMESTAMP
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ts6
+        - keyword: TIMESTAMP
+        - keyword: 'NULL'
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_definition:
+        - naked_identifier: dt5
+        - keyword: DATETIME
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_definition:
+        - naked_identifier: dt6
+        - keyword: DATETIME
+        - keyword: NOT
+        - keyword: 'NULL'
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ts7
+        - keyword: TIMESTAMP
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '6'
+            end_bracket: )
+        - keyword: DEFAULT
+        - keyword: CURRENT_TIMESTAMP
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '6'
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: CURRENT_TIMESTAMP
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '6'
+            end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ts8
+        - keyword: TIMESTAMP
+        - keyword: 'NULL'
+        - keyword: DEFAULT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ts9
+        - keyword: TIMESTAMP
+        - keyword: 'NULL'
+        - keyword: DEFAULT
+        - numeric_literal: '0'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ts10
+        - keyword: TIMESTAMP
+        - keyword: 'NULL'
+        - keyword: DEFAULT
+        - keyword: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ts11
+        - keyword: TIMESTAMP
+        - keyword: 'NULL'
+        - keyword: DEFAULT
+        - keyword: CURRENT_TIMESTAMP
+        - bracketed:
+            start_bracket: (
+            end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ts12
+        - keyword: TIMESTAMP
+        - keyword: 'NULL'
+        - keyword: DEFAULT
+        - quoted_literal: "'0000-00-00 00:00:00'"
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ts13
+        - keyword: TIMESTAMP
+        - keyword: 'NULL'
+        - keyword: DEFAULT
+        - keyword: NOW
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: NOW
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ts14
+        - keyword: TIMESTAMP
+        - keyword: 'NULL'
+        - keyword: DEFAULT
+        - keyword: NOW
+        - bracketed:
+            start_bracket: (
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: NOW
+        - bracketed:
+            start_bracket: (
+            end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ts15
+        - keyword: TIMESTAMP
+        - keyword: NOT
+        - keyword: 'NULL'
+        - keyword: DEFAULT
+        - keyword: CURRENT_TIMESTAMP
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ts16
+        - keyword: TIMESTAMP
+        - keyword: 'NULL'
+        - keyword: DEFAULT
+        - keyword: 'NULL'
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: CURRENT_TIMESTAMP
+      - end_bracket: )

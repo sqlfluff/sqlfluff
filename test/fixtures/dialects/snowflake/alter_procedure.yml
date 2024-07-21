@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8f841d1d99a03db696647d601c374564c49328096510bb3c377ae1fd25c3769d
+_hash: bb4ee28109f4aa3f4dc5576bafb9381642778daf92a88cfe77f7a288391a9b87
 file:
 - statement:
     alter_procedure_statement:
@@ -147,4 +147,133 @@ file:
     - comma: ','
     - tag_reference:
         naked_identifier: TAG3
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: procedure1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: varchar
+          end_bracket: )
+    - keyword: SET
+    - log_level_equals:
+      - keyword: LOG_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: WARN
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: procedure1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: varchar
+          end_bracket: )
+    - keyword: SET
+    - trace_level_equals:
+      - keyword: TRACE_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ALWAYS
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        naked_identifier: mirror
+        dot: .
+        function_name_identifier: procedure1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: varchar
+          end_bracket: )
+    - keyword: SET
+    - log_level_equals:
+      - keyword: LOG_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: WARN
+    - comma: ','
+    - trace_level_equals:
+      - keyword: TRACE_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ON_EVENT
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: example_procedure
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: SET
+    - external_access_integration_equals:
+        keyword: EXTERNAL_ACCESS_INTEGRATIONS
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+          start_bracket: (
+          naked_identifier: my_external_access_integration
+          end_bracket: )
+    - comma: ','
+    - log_level_equals:
+      - keyword: LOG_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DEBUG
+    - comma: ','
+    - trace_level_equals:
+      - keyword: TRACE_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ON_EVENT
+    - comma: ','
+    - external_access_integration_equals:
+        keyword: SECRETS
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+          start_bracket: (
+          quoted_literal: "'cred'"
+          comparison_operator:
+            raw_comparison_operator: '='
+          naked_identifier: oauth_token
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: example_procedure
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: SET
+    - external_access_integration_equals:
+        keyword: EXTERNAL_ACCESS_INTEGRATIONS
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+          start_bracket: (
+          naked_identifier: my_external_access_integration
+          end_bracket: )
 - statement_terminator: ;
