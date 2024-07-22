@@ -1,0 +1,359 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 32b4a7267d2ca88d7fa3dfd37eeb9d00e3c91a4e41df3264bf878e1da1b63048
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: n
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: source
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      function:
+                        function_name:
+                          function_name_identifier: toFloat32
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: number
+                            binary_operator: '%'
+                            numeric_literal: '10'
+                          end_bracket: )
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: n
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'original'"
+                      alias_expression:
+                        keyword: AS
+                        naked_identifier: source
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          function:
+                            function_name:
+                              function_name_identifier: numbers
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                numeric_literal: '10'
+                              end_bracket: )
+                  where_clause:
+                    keyword: WHERE
+                    expression:
+                    - column_reference:
+                        naked_identifier: number
+                    - binary_operator: '%'
+                    - numeric_literal: '3'
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - numeric_literal: '1'
+                end_bracket: )
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: n
+      - keyword: WITH
+      - keyword: FILL
+      - keyword: FROM
+      - expression:
+          numeric_literal: '0'
+      - keyword: TO
+      - expression:
+          numeric_literal: '5.51'
+      - keyword: STEP
+      - numeric_literal: '0.5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toDate
+            bracketed:
+              start_bracket: (
+              expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: number
+                    binary_operator: '*'
+                    numeric_literal: '10'
+                  end_bracket: )
+                binary_operator: '*'
+                numeric_literal: '86400'
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: d1
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toDate
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: number
+                binary_operator: '*'
+                numeric_literal: '86400'
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: d2
+      - comma: ','
+      - select_clause_element:
+          quoted_literal: "'original'"
+          alias_expression:
+            keyword: AS
+            naked_identifier: source
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: numbers
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '10'
+                  end_bracket: )
+      where_clause:
+        keyword: WHERE
+        expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: number
+              binary_operator: '%'
+              numeric_literal: '3'
+            end_bracket: )
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: d2
+      - keyword: WITH
+      - keyword: FILL
+      - comma: ','
+      - column_reference:
+          naked_identifier: d1
+      - keyword: WITH
+      - keyword: FILL
+      - keyword: STEP
+      - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toDate
+            bracketed:
+              start_bracket: (
+              expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: number
+                    binary_operator: '*'
+                    numeric_literal: '10'
+                  end_bracket: )
+                binary_operator: '*'
+                numeric_literal: '86400'
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: d1
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toDate
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: number
+                binary_operator: '*'
+                numeric_literal: '86400'
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: d2
+      - comma: ','
+      - select_clause_element:
+          quoted_literal: "'original'"
+          alias_expression:
+            keyword: AS
+            naked_identifier: source
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: numbers
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '10'
+                  end_bracket: )
+      where_clause:
+        keyword: WHERE
+        expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: number
+              binary_operator: '%'
+              numeric_literal: '3'
+            end_bracket: )
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: d1
+      - keyword: WITH
+      - keyword: FILL
+      - keyword: STEP
+      - numeric_literal: '5'
+      - comma: ','
+      - column_reference:
+          naked_identifier: d2
+      - keyword: WITH
+      - keyword: FILL
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toDate
+            bracketed:
+              start_bracket: (
+              expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: number
+                    binary_operator: '*'
+                    numeric_literal: '10'
+                  end_bracket: )
+                binary_operator: '*'
+                numeric_literal: '86400'
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: d1
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: toDate
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: number
+                binary_operator: '*'
+                numeric_literal: '86400'
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: d2
+      - comma: ','
+      - select_clause_element:
+          quoted_literal: "'original'"
+          alias_expression:
+            keyword: AS
+            naked_identifier: source
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: numbers
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '10'
+                  end_bracket: )
+      where_clause:
+        keyword: WHERE
+        expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: number
+              binary_operator: '%'
+              numeric_literal: '3'
+            end_bracket: )
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: d1
+      - keyword: WITH
+      - keyword: FILL
+      - keyword: STEP
+      - interval_expression:
+          keyword: INTERVAL
+          numeric_literal: '1'
+          date_part: DAY
+      - comma: ','
+      - column_reference:
+          naked_identifier: d2
+      - keyword: WITH
+      - keyword: FILL
+- statement_terminator: ;
