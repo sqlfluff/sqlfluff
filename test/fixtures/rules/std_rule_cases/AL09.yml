@@ -152,3 +152,24 @@ test_fail_bigquery_case_sensitive_result_set_qualified:
     configs:
         core:
             dialect: bigquery
+
+test_fail_clickhouse_different_case_6019:
+    fail_str: |
+        SELECT
+            myidcol AS col_id,
+            my_expected_drop_alias AS my_expected_drop_alias,
+            My_Wrong_Case_Col as my_wrong_case_col,
+            my_good_col,
+        FROM
+            file('myfile.parquet', 'Parquet')
+    fix_str: |
+        SELECT
+            myidcol AS col_id,
+            my_expected_drop_alias,
+            My_Wrong_Case_Col as my_wrong_case_col,
+            my_good_col,
+        FROM
+            file('myfile.parquet', 'Parquet')
+    configs:
+        core:
+            dialect: clickhouse
