@@ -98,8 +98,7 @@ class Rule_AL09(BaseRule):
                         "naked_identifier", "quoted_identifier"
                     )
 
-                    if not whitespace or not column_identifier or not alias_identifier:
-                        continue
+                    assert whitespace and column_identifier and alias_identifier
 
                     # Column self-aliased
                     if (
