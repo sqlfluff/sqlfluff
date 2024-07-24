@@ -4346,6 +4346,7 @@ class PathSegment(BaseSegment):
         Ref("QuotedLiteralSegment"),
     )
 
+
 class WithFillSegment(BaseSegment):
     """Prefix for WITH FILL clause.
 
