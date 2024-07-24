@@ -315,7 +315,6 @@ class WithFillSegment(ansi.WithFillSegment):
             ),
             optional=True,
         ),
-        optional=True,
     )
 
 
