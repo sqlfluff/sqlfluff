@@ -295,9 +295,10 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
         before=Ref("WhereClauseSegment", optional=True),
     )
 
+
 class OrderByClauseSegment(ansi.OrderByClauseSegment):
     """Enhance A `ORDER BY` state to include WITH FILL.
-    
+
     https://clickhouse.com/docs/en/sql-reference/statements/select/order-by#order-by-expr-with-fill-modifier
     """
 
@@ -322,25 +323,17 @@ class OrderByClauseSegment(ansi.OrderByClauseSegment):
                 Sequence(
                     "WITH",
                     "FILL",
-                    Sequence(
-                        "FROM",
-                        Ref("ExpressionSegment"),
-                        optional=True
-                    ),
-                    Sequence(
-                        "TO",
-                        Ref("ExpressionSegment"),
-                        optional=True
-                    ),
+                    Sequence("FROM", Ref("ExpressionSegment"), optional=True),
+                    Sequence("TO", Ref("ExpressionSegment"), optional=True),
                     Sequence(
                         "STEP",
                         OneOf(
                             Ref("NumericLiteralSegment"),
                             Ref("IntervalExpressionSegment"),
                         ),
-                        optional=True
+                        optional=True,
                     ),
-                    optional=True
+                    optional=True,
                 ),
             ),
             terminators=["LIMIT", Ref("FrameClauseUnitGrammar")],
