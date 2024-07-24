@@ -296,49 +296,26 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     )
 
 
-class OrderByClauseSegment(ansi.OrderByClauseSegment):
-    """Enhance A `ORDER BY` state to include WITH FILL.
+class WithFillSegment(ansi.WithFillSegment):
+    """Enhances `ORDER BY` clauses to include WITH FILL.
 
     https://clickhouse.com/docs/en/sql-reference/statements/select/order-by#order-by-expr-with-fill-modifier
     """
 
     match_grammar: Matchable = Sequence(
-        "ORDER",
-        "BY",
-        Indent,
-        Delimited(
-            Sequence(
-                OneOf(
-                    Ref("ColumnReferenceSegment"),
-                    # Can `ORDER BY 1`
-                    Ref("NumericLiteralSegment"),
-                    # Can order by an expression
-                    Ref("ExpressionSegment"),
-                ),
-                OneOf("ASC", "DESC", optional=True),
-                # NB: This isn't really ANSI, and isn't supported in Mysql, but
-                # is supported in enough other dialects for it to make sense here
-                # for now.
-                Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
-                Sequence(
-                    "WITH",
-                    "FILL",
-                    Sequence("FROM", Ref("ExpressionSegment"), optional=True),
-                    Sequence("TO", Ref("ExpressionSegment"), optional=True),
-                    Sequence(
-                        "STEP",
-                        OneOf(
-                            Ref("NumericLiteralSegment"),
-                            Ref("IntervalExpressionSegment"),
-                        ),
-                        optional=True,
-                    ),
-                    optional=True,
-                ),
+        "WITH",
+        "FILL",
+        Sequence("FROM", Ref("ExpressionSegment"), optional=True),
+        Sequence("TO", Ref("ExpressionSegment"), optional=True),
+        Sequence(
+            "STEP",
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Ref("IntervalExpressionSegment"),
             ),
-            terminators=["LIMIT", Ref("FrameClauseUnitGrammar")],
+            optional=True,
         ),
-        Dedent,
+        optional=True,
     )
 
 

@@ -2405,6 +2405,7 @@ class OrderByClauseSegment(BaseSegment):
                 # is supported in enough other dialects for it to make sense here
                 # for now.
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+                Ref("WithFillSegment", optional=True),
             ),
             terminators=["LIMIT", Ref("FrameClauseUnitGrammar")],
         ),
@@ -4344,3 +4345,12 @@ class PathSegment(BaseSegment):
         ),
         Ref("QuotedLiteralSegment"),
     )
+
+class WithFillSegment(BaseSegment):
+    """Prefix for WITH FILL clause.
+
+    A hookpoint for other dialects e.g. ClickHouse.
+    """
+
+    type = "with_fill"
+    match_grammar: Matchable = Nothing()
