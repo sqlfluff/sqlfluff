@@ -20,79 +20,89 @@ test_pass_no_self_alias_function:
             max(sum) as max_sum
         from foo
 
+test_pass_self_alias_sensitivity_change:
+    # Renaming the column name from case-sensitive to case-insensitive
+    pass_str:
+        select
+            "col_a" as col_a,
+            col_b as "col_b"
+        from foo
+
+test_pass_self_alias_quoted_case_change:
+    pass_str:
+        select
+            "COL_A" as "col_a",
+            "CoL_b" as "COL_B"
+        from
+            foo
+
+test_pass_literal_alias_bigquery:
+    pass_str:
+        select
+            "COL_A" as `col_a`,
+            "COL_B" AS col_b
+        from foo
+    configs:
+        core:
+            dialect: bigquery
+
+# Cases where the rule fails
 test_fail_self_alias:
     fail_str:
         select
             col_a as col_a,
-            col_b as new_col_b
+            col_b col_b
         from foo
     fix_str:
         select
             col_a,
-            col_b as new_col_b
+            col_b
         from foo
 
-test_fail_self_alias_upper:
+test_fail_self_alias_quoted:
     fail_str:
         select
-            col_a as COL_A,
-            col_b as new_col_b
+            "col" as "col"
         from foo
     fix_str:
         select
-            col_a,
-            col_b as new_col_b
-        from foo
-
-test_fail_self_alias_implicit:
-    fail_str:
-        select
-            col_a col_a,
-            col_b AS new_col_b
-        from foo
-    fix_str:
-        select
-            col_a,
-            col_b AS new_col_b
+            "col"
         from foo
 
 test_fail_self_alias_and_table_aliased:
     fail_str:
         select
-            a.col_a as col_a,
-            a.col_b as new_col_b
+            a.col_a as col_a
         from foo as a
 
     fix_str:
         select
-            a.col_a,
-            a.col_b as new_col_b
+            a.col_a
         from foo as a
 
-test_fail_self_alias_quoted:
+test_fail_case_change_without_quoted_alias:
     fail_str:
         select
-            "col_a" as "col_a",
-            col_b as new_col_b
+            col_a as COL_A,
+            col_b Col_B
         from foo
     fix_str:
         select
-            "col_a",
-            col_b as new_col_b
+            col_a as "COL_A",
+            col_b as "Col_B"
         from foo
 
-test_pass_self_alias_case_insensitive:
-    # Renaming the column name from case-sensitive to case-insensitive
-    pass_str:
+test_fail_case_change_without_quoted_alias_bigquery:
+    fail_str:
         select
-            "col_a" as col_a,
-            col_b as new_col_b
+            col_a as COL_A,
+            col_b Col_B
         from foo
-
-test_pass_self_alias_case_sensitive:
-    # Renaming the column name from case-insensitive to case-sensitive
-    pass_str:
+    fix_str:
         select
-            col_a as "col_a",
-            col_b as new_col_b
+            col_a as `COL_A`,
+            col_b as `Col_B`
         from foo
+    configs:
+        core:
+            dialect: bigquery
