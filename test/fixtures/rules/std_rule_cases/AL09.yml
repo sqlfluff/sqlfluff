@@ -46,6 +46,15 @@ test_pass_literal_alias_bigquery:
         core:
             dialect: bigquery
 
+test_pass_case_change_snowflake:
+    pass_str:
+        select
+            "COL" as "col"
+        from foo
+    configs:
+        core:
+            dialect: snowflake
+
 # Cases where the rule fails
 test_fail_self_alias:
     fail_str:
