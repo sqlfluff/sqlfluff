@@ -32,7 +32,8 @@ test_pass_self_alias_quoted_case_change:
     pass_str:
         select
             "COL_A" as "col_a",
-            "CoL_b" as "COL_B"
+            "CoL_b" as "COL_B",
+            COL_C as "col_C"
         from
             foo
 
@@ -40,7 +41,7 @@ test_pass_literal_alias_bigquery:
     pass_str:
         select
             "COL_A" as `col_a`,
-            "COL_B" AS col_b
+            "COL_B" as col_b
         from foo
     configs:
         core:
@@ -95,23 +96,3 @@ test_fail_case_change_without_quoted_alias:
             col_a as COL_A,
             col_b Col_B
         from foo
-    fix_str:
-        select
-            col_a as "COL_A",
-            col_b as "Col_B"
-        from foo
-
-test_fail_case_change_without_quoted_alias_bigquery:
-    fail_str:
-        select
-            col_a as COL_A,
-            col_b Col_B
-        from foo
-    fix_str:
-        select
-            col_a as `COL_A`,
-            col_b as `Col_B`
-        from foo
-    configs:
-        core:
-            dialect: bigquery

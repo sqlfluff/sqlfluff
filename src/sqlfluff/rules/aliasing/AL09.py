@@ -6,8 +6,6 @@ from sqlfluff.core.rules import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.base import EvalResultType
 from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.dialects import dialect_ansi
-from sqlfluff.dialects.dialect_ansi import AliasExpressionSegment
 from sqlfluff.utils.functional import FunctionalContext, Segments, sp
 
 
@@ -17,9 +15,11 @@ class Rule_AL09(BaseRule):
     Renaming the column to itself is a redundant piece of SQL,
     which doesn't affect its functionality.
 
-    Note that this rule does allow self-alias to change case sensitivity.
-    In this case, the alias should be quoted. This ensures capitalisation
-    rules are adhered.
+    .. note::
+        Note that this rule allows self-alias to change case sensitivity.
+
+        However, when the case is changed without quoting the alias, the rule is
+        not ``sqlfluff fix`` compatible.
 
     **Anti-pattern**
 
@@ -41,7 +41,7 @@ class Rule_AL09(BaseRule):
 
         SELECT
             col,
-            casechange AS "CaseChange"
+            casechange AS "CaseChange"  -- 'sqlfluff fix' won't do this
         FROM table;
     """
 
@@ -64,7 +64,6 @@ class Rule_AL09(BaseRule):
         assert context.segment.is_type("select_clause")
 
         violations = []
-        quote_char = self.dialect_column_quotes_dict.get(context.dialect.name, '"')
 
         children: Segments = FunctionalContext(context).segment.children()
 
@@ -139,41 +138,11 @@ class Rule_AL09(BaseRule):
                         column_identifier.raw_upper == alias_identifier.raw_upper
                     ) and not is_alias_quoted:
                         violations.append(
-                            self._get_case_change_lint_result(
-                                quote_char,
-                                clause_element,
-                                alias_expression,
-                                alias_identifier,
+                            LintResult(
+                                anchor=clause_element,
+                                description="The alias should be quoted \
+                                    when case of column is changed.",
                             )
                         )
 
         return violations or None
-
-    def _get_case_change_lint_result(
-        self, quote_char, clause_element, alias_expression, alias_identifier
-    ):
-        fixes = []
-
-        as_keyword = dialect_ansi.KeywordSegment("as")
-        fixes.append(
-            LintFix.replace(
-                alias_expression,
-                [
-                    AliasExpressionSegment(
-                        (
-                            as_keyword,
-                            dialect_ansi.WhitespaceSegment(),
-                            dialect_ansi.IdentifierSegment(
-                                quote_char + alias_identifier.raw + quote_char,
-                                type="quoted_identifier",
-                            ),
-                        )
-                    )
-                ],
-            )
-        )
-        return LintResult(
-            anchor=clause_element,
-            description="The alias should be quoted when case of column is changed.",
-            fixes=fixes,
-        )
