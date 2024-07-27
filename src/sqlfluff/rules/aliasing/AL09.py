@@ -49,7 +49,6 @@ class Rule_AL09(BaseRule):
     groups = ("all", "core", "aliasing")
     crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
     is_fix_compatible = True
-    dialect_column_quotes_dict = {"bigquery": "`"}
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         """Find self-aliased columns and fix them.
