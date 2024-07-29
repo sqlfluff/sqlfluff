@@ -502,6 +502,7 @@ options:
     load_macros_from_path = my_macros
     loader_search_path = included_templates
     library_path = sqlfluff_libs
+    exclude_macros_from_path = my_macros_exclude
 
     [sqlfluff:templater:jinja:context]
     my_list = ['a', 'b', 'c']
@@ -608,6 +609,10 @@ SQLFluff will look for macros in the folders :code:`/home/my_project/my_macros/`
 and  :code:`/home/my_project/other_macros/`, including any of their subfolders.
 Any macros defined in the config will always take precedence over a macro
 defined in the path.
+
+``exclude_macros_from_path`` works in the same manner as ``load_macros_from_path`` but
+allows you to have sqlfluff ignore certain macros. This can be useful if you have
+custom jinja tags.
 
 Macros loaded from these files are available in every :code:`.sql` file without
 requiring a Jinja :code:`include` or :code:`import`.  They are loaded into the
