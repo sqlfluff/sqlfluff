@@ -1,5 +1,6 @@
 """The Test file for The New Parser (Grammar Classes)."""
 
+from sqlfluff.core import FluffConfig
 from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.linter.linter import Linter
 from sqlfluff.core.parser import Anything, BaseSegment, KeywordSegment, StringParser
@@ -48,3 +49,15 @@ def test__parser__parse_error():
         "after <WordSegment: ([L:  1, P:  1]) 'SELECT'>. "
         "Found nothing."
     ) in parsed.tree.stringify()
+
+
+def test_parse_jinja_macro_exclude():
+    """Test parsing when excluding macros with unknown tags."""
+    config_path = "test/fixtures/templater/jinja_exclude_macro_path/.sqlfluff"
+    config = FluffConfig.from_path(config_path)
+    linter = Linter(config=config)
+    sql_file_path = "test/fixtures/templater/jinja_exclude_macro_path/jinja.sql"
+
+    parsed = linter.parse_path(sql_file_path)
+    for parse in parsed:
+        assert parse.violations == []

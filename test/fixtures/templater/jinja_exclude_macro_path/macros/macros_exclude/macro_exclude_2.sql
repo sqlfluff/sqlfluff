@@ -1,0 +1,3 @@
+{% materialization my_materialization_name_2, default %}
+ -- materialization...
+{% endmaterialization %}
