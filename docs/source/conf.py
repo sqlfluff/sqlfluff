@@ -65,7 +65,7 @@ templates_path = ["_templates"]
 exclude_patterns = [
     # Exclude the partials folder, which is made up of files intended
     # to be included in others.
-    "partials",
+    "_partials",
 ]
 
 # Master doc
