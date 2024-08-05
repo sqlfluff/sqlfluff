@@ -98,6 +98,6 @@ ignored until a corresponding `-- noqa:enable=<rule>[,...] | all` directive.
 Rule Index
 ----------
 
-.. include:: partials/rule_table.rst
+.. include:: _partials/rule_table.rst
 
-.. include:: partials/rule_summaries.rst
+.. include:: _partials/rule_summaries.rst
