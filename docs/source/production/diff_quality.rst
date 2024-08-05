@@ -1,7 +1,7 @@
 .. _diff-quality:
 
 Using SQLFluff on changes using ``diff-quality``
-------------------------------------------------
+================================================
 
 For projects with large amounts of (potentially imperfect) SQL code, the full
 SQLFluff output could be very large, which can be distracting -- perhaps the CI
@@ -20,7 +20,7 @@ NOTE: Installing SQLFluff automatically installs the ``diff_cover`` package
 that provides the ``diff-quality`` tool.
 
 Adding ``diff-quality`` to your builds
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------
 
 In your CI build script:
 
