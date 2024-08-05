@@ -1,7 +1,7 @@
 .. _using-pre-commit:
 
 Using :code:`pre-commit`
-^^^^^^^^^^^^^^^^^^^^^^^^
+========================
 
 `pre-commit`_ is a framework to manage git "hooks"
 triggered right before a commit is made.
@@ -74,3 +74,26 @@ through the CLI using ``args:``.
 .. _`git hook`: https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks
 .. _`dbt templater`: `dbt-project-configuration`
 .. _`dbt-adapters`: https://docs.getdbt.com/docs/available-adapters
+
+Ignoring files while using :code:`pre-commit`
+---------------------------------------------
+
+Under the hood, `pre-commit`_ works by passing specific files to *SQLFluff*.
+For example, if the only two files that are modified in your commit are
+:code:`file_a.sql` and :code:`file_b.sql`, then the command which is called
+in the background is :code:`sqlfluff lint file_a.sql file_b.sql`. While this
+is efficient, it does produce some unwanted noise when also
+using :ref:`sqlfluffignore`. This is because *SQLFluff* is designed to allow
+users to override an *ignore* configuration by passing the name of the file
+directly. This makes a lot of sense in a CLI context, but less so in the context
+of being invoked by `pre-commit`_.
+
+To avoid noisy logs when using both `pre-commit`_ and :ref:`sqlfluffignore`,
+we recommend also setting the :code:`exclude` argument in your
+:code:`.pre-commit-config.yaml` file (either the `top level config`_ or the
+`hook specific config`_). This will prevent files matching the given pattern
+being passed to *SQLFluff* and so silence any warnings about the
+:ref:`sqlfluffignore` being overridden.
+
+.. _`top level config`: https://pre-commit.com/#top_level-exclude
+.. _`hook specific config`: https://pre-commit.com/#config-exclude
