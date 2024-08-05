@@ -15,6 +15,7 @@ on our Wiki_ including a `Contributing Dialect Changes`_ guide.
    :maxdepth: 2
 
    architecture
+   dialects
    rules
    reflow
    plugins
