@@ -1,7 +1,7 @@
 .. _security:
 
 Security Considerations
------------------------
+=======================
 
 A full list of `Security Advisories is available on GitHub <https://github.com/sqlfluff/sqlfluff/security/advisories>`_.
 
