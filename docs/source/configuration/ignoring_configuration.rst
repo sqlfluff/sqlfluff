@@ -47,26 +47,15 @@ ignored until a corresponding `-- noqa:enable=<rule>[,...] | all` directive.
 
 .. _sqlfluffignore:
 
-Ignoring types of errors
-^^^^^^^^^^^^^^^^^^^^^^^^
-General *categories* of errors can be ignored using the ``--ignore`` command
-line option or the ``ignore`` setting in ``.sqlfluffignore``. Types of errors
-that can be ignored include:
-
-* ``lexing``
-* ``linting``
-* ``parsing``
-* ``templating``
-
-.sqlfluffignore
-^^^^^^^^^^^^^^^
+:code:`.sqlfluffignore`
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Similar to `Git's`_ :code:`.gitignore` and `Docker's`_ :code:`.dockerignore`,
-SQLFluff supports a :code:`.sqlfluffignore` file to control which files are and
+SQLFluff supports a :ref:`sqlfluffignore` file to control which files are and
 aren't linted. Under the hood we use the python `pathspec library`_ which also
 has a brief tutorial in their documentation.
 
-An example of a potential :code:`.sqlfluffignore` placed in the root of your
+An example of a potential :ref:`sqlfluffignore` placed in the root of your
 project would be:
 
 .. code-block:: cfg
@@ -89,3 +78,14 @@ linted and the sub files will also be applied within that subdirectory.
 .. _`Git's`: https://git-scm.com/docs/gitignore#_pattern_format
 .. _`Docker's`: https://docs.docker.com/engine/reference/builder/#dockerignore-file
 .. _`pathspec library`: https://python-path-specification.readthedocs.io/
+
+Ignoring types of errors
+^^^^^^^^^^^^^^^^^^^^^^^^
+General *categories* of errors can be ignored using the ``--ignore`` command
+line option or the ``ignore`` setting in :ref:`sqlfluffignore`. Types of errors
+that can be ignored include:
+
+* :code:`lexing`
+* :code:`linting`
+* :code:`parsing`
+* :code:`templating`
