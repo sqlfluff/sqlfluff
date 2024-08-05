@@ -9,6 +9,37 @@ SQLFluff crawls through the parse tree of a SQL file, calling the rule's
 the rule code to be really streamlined and only contain the logic for the rule
 itself, with all the other mechanics abstracted away.
 
+Running Tests
+-------------
+
+The majority of the test cases for most bundled rules are *"yaml test cases"*,
+i.e. test cases defined in `yaml`_ files. You can find those `yaml fixtures on github`_.
+While this provides a very simple way to *write* tests, it can be occasionally tedious
+to *run* specific tests. 
+
+Within either a `tox` environment or `virtualenv` (as decribed in the `contributing.md`_
+file), you can either run all of the rule yaml tests with:
+
+.. code-block:: sh
+
+   pytest test/rules/yaml_test_cases_test.py -vv
+
+...or to just run tests for a specific rule, there are two options for a syntax to select
+only those tests:
+
+.. code-block:: sh
+
+   pytest -vv test/rules/yaml_test_cases_test.py --rule_id=RF01
+   pytest -vv test/rules/ -k RF01
+
+The :code:`--rule_id` syntax relies on the name of the yaml file, and the :code:`-k`
+option simply searches for the content of the argument being in the name of the test.
+The latter is slightly less to type and so is generally the most frequently used.
+
+.. _`yaml`: https://yaml.org/
+.. _`yaml fixtures on github`: https://github.com/sqlfluff/sqlfluff/tree/main/test/fixtures/rules/std_rule_cases
+.. _`contributing.md`: https://github.com/sqlfluff/sqlfluff/blob/main/CONTRIBUTING.md
+
 Traversal Options
 -----------------
 
