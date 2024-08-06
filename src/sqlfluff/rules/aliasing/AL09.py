@@ -10,12 +10,16 @@ from sqlfluff.utils.functional import FunctionalContext, Segments, sp
 
 
 class Rule_AL09(BaseRule):
-    """Column aliases should not alias to itself, i.e. self-alias.
+    """Column alias should not alias to itself, i.e. self-alias.
 
     Renaming the column to itself is a redundant piece of SQL,
     which doesn't affect its functionality.
 
-    Note that this rule does allow self-alias to change case sensitivity.
+    .. note::
+        Note that this rule allows self-alias to change case sensitivity.
+
+        However, when the case is changed without quoting the alias, the rule is
+        not ``sqlfluff fix`` compatible.
 
     **Anti-pattern**
 
@@ -24,7 +28,8 @@ class Rule_AL09(BaseRule):
     .. code-block:: sql
 
         SELECT
-            col AS col
+            col AS col,
+            casechange AS CaseChange
         FROM table;
 
     **Best practice**
@@ -35,7 +40,8 @@ class Rule_AL09(BaseRule):
     .. code-block:: sql
 
         SELECT
-            col
+            col,
+            casechange AS "CaseChange"  -- 'sqlfluff fix' won't do this
         FROM table;
     """
 
@@ -61,17 +67,14 @@ class Rule_AL09(BaseRule):
         children: Segments = FunctionalContext(context).segment.children()
 
         for clause_element in children.select(sp.is_type("select_clause_element")):
-            clause_element_raw_segments = (
-                clause_element.get_raw_segments()
-            )  # col_a as col_a
 
             column = clause_element.get_child("column_reference")  # `col_a`
             alias_expression = clause_element.get_child(
                 "alias_expression"
             )  # `as col_a`
 
-            # If the alias is for a column_reference type (not function)
-            # then continue
+            # If the alias is for a column_reference type,
+            # and not: function or literal, then continue
             if alias_expression and column:
                 # If column has either a naked_identifier or quoted_identifier
                 # (not positional identifier like $n in snowflake)
@@ -81,6 +84,11 @@ class Rule_AL09(BaseRule):
                 ):
                     whitespace = clause_element.get_child("whitespace")  # ` `
 
+                    is_column_quoted = False
+                    is_alias_quoted = False
+                    column_identifier = None
+                    alias_identifier = None
+
                     # If the column name is quoted then get the `quoted_identifier`,
                     # otherwise get the last `naked_identifier`.
                     # The last naked_identifier in column_reference type
@@ -88,28 +96,51 @@ class Rule_AL09(BaseRule):
                     # Example: a.col_name where `a` is table name/alias identifier
                     if column.get_child("quoted_identifier"):
                         column_identifier = column.get_child("quoted_identifier")
+                        is_column_quoted = True
                     else:
                         column_identifier = column.get_children("naked_identifier")[-1]
 
                     # The alias can be the naked_identifier or the quoted_identifier
-                    alias_identifier = alias_expression.get_child(
-                        "naked_identifier"
-                    ) or alias_expression.get_child("quoted_identifier")
+                    if alias_expression.get_child("quoted_identifier"):
+                        alias_identifier = alias_expression.get_child(
+                            "quoted_identifier"
+                        )
+                        is_alias_quoted = True
+                    elif alias_expression.get_child("naked_identifier"):
+                        alias_identifier = alias_expression.get_child(
+                            "naked_identifier"
+                        )
 
                     assert whitespace and column_identifier and alias_identifier
 
-                    # Column self-aliased
-                    if column_identifier.raw_upper == alias_identifier.raw_upper:
-                        fixes: List[LintFix] = []
+                    if column_identifier.raw == alias_identifier.raw:
 
-                        fixes.append(LintFix.delete(whitespace))
-                        fixes.append(LintFix.delete(alias_expression))
+                        # Self Alias when raw of column and alias is same
+                        # and both are either naked or quoted
+                        if is_column_quoted == is_alias_quoted:
+                            fixes: List[LintFix] = []
 
+                            fixes.append(LintFix.delete(whitespace))
+                            fixes.append(LintFix.delete(alias_expression))
+
+                            violations.append(
+                                LintResult(
+                                    anchor=clause_element,
+                                    description="Column should not be self-aliased.",
+                                    fixes=fixes,
+                                )
+                            )
+
+                    # When case is changed, the alias should be quoted
+                    # Example: column AS "CoLuMn"
+                    elif (
+                        column_identifier.raw_upper == alias_identifier.raw_upper
+                    ) and not is_alias_quoted:
                         violations.append(
                             LintResult(
-                                anchor=clause_element_raw_segments[0],
-                                description="Column should not be self-aliased.",
-                                fixes=fixes,
+                                anchor=clause_element,
+                                description="The alias should be quoted \
+                                    when case of column is changed.",
                             )
                         )
 
