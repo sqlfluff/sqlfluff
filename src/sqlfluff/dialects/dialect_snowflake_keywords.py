@@ -4,6 +4,7 @@ https://docs.snowflake.com/en/sql-reference/reserved-keywords.html
 """
 
 snowflake_reserved_keywords = """ALL
+AGGREGATE
 ALTER
 AND
 ANY
