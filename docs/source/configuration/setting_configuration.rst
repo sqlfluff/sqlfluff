@@ -1,4 +1,4 @@
-.. _config:
+.. _setting_config:
 
 Setting Configuration
 =====================
@@ -132,7 +132,7 @@ steps overriding those from earlier:
 1. It will look in the user's os-specific app config directory.
    On macOS and Unix this is `~/.config/sqlfluff`, Windows is
    `<home>\\AppData\\Local\\sqlfluff\\sqlfluff`, for any of the filenames
-   above in the main :ref:`config` section. If multiple are present, they will
+   above in the main :ref:`setting_config` section. If multiple are present, they will
    *patch*/*override* each other in the order above.
 2. It will look for the same files in the user's home directory (~).
 3. *[if the current working directory is a subdirectory of the user's home directory (~)]*

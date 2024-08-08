@@ -111,10 +111,38 @@ html_theme_options = {
 # https://documatt.gitlab.io/sphinx-reredirects/usage.html
 
 redirects = {
-    # There's an old link to /indentation in config files.
-    # That should point to the layout section now.
-    "indentation": "layout.html#configuring-indent-locations",
-    "architecture": "internals.html#architecture",
+    # Where there are references to the docs in any of the codebase (whether in
+    # places like the README or in error messages), they should all reference
+    # a perma link (to redirect). This ensures we can support a consistent
+    # link location even if the docs move around.
+    "perma/layout": "../configuration/layout.html",
+    "perma/indent_locations": "../configuration/layout.html#configuring-indent-locations",
+    "perma/hanging_indents": "../configuration/layout.html#hanging-indents",
+    "perma/layout_spacing": "../configuration/layout.html#configuring-layout-and-spacing",
+    "perma/configuration": "../configuration/index.html",
+    "perma/dbt": "../configuration/templating/dbt.html",
+    "perma/cli": "../reference/cli.html",
+    "perma/rules": "../reference/rules.html",
+    "perma/dialects": "../reference/dialects.html",
+    "perma/architecture": "../development/architecture.html",
+    "perma/rule_disabling": "../configuration/rule_configuration.html#enabling-and-disabling-rules",
+    "perma/internals": "../development/index.html",
+    "perma/modularity": "../why_sqlfluff.html#modularity",
+    "perma/indentation": "../configuration/layout.html#configuring-indent-locations",
+    "perma/releasenotes": "../reference/releasenotes.html",
+    "perma/why": "../why_sqlfluff.html",
+    "perma/plugin_dev": "../development/plugins.html",
+    "perma/variables": "../configuration/templating/index.html",
+    # These are legacy links which used to exist in different parts of the
+    # SQLFluff code base, and which we continue to support so those links
+    # aren't dead ends. They should redirect to permalinks.
+    "indentation": "perma/indentation.html",
+    "architecture": "perma/architecture.html",
+    "dialects": "perma/dialects.html",
+    "internals": "perma/internals.html",
+    "layout": "perma/layout.html",
+    "releasenotes": "perma/releasenotes.html",
+    "realworld": "perma/why.html",
 }
 
 

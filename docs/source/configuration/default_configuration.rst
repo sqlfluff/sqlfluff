@@ -3,7 +3,7 @@
 Default Configuration
 ---------------------
 
-The default configuration is as follows, note the `Builtin Jinja Macro Blocks`_
+The default configuration is as follows, note the :ref:`builtin_jinja_blocks`
 in section *[sqlfluff:templater:jinja:macros]* as referred to above.
 
 .. note::

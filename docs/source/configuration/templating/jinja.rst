@@ -105,7 +105,7 @@ Jinja Macro Templating (from config)
 """"""""""""""""""""""""""""""""""""
 
 Macros (which also look and feel like *functions* are available only in the
-*jinja* templater. Similar to `Generic Variable Templating`_, these are
+*jinja* templater. Similar to :ref:`generic_variable_templating`, these are
 specified in config files, what's different in this case is how they are named.
 Similar to the *context* section above, macros are configured separately in the
 *macros* section of the config.
@@ -189,6 +189,8 @@ instead.
     the *templating* is accurate - it only needs to work well enough that
     *parsing* and *linting* are helpful.
 
+.. _builtin_jinja_blocks:
+
 Builtin Jinja Macro Blocks
 """"""""""""""""""""""""""
 
@@ -201,7 +203,7 @@ repositories of sql files which could potentially benefit from some linting.
     It is the recommended templater for dbt projects. If used, it eliminates the
     need for the overrides described in this section.
 
-    To use the dbt templater, go to `dbt templater`_.
+    To use the dbt templater, go to :ref:`dbt_templater`.
 
 *SQLFluff* anticipates this use case and provides some built in macro blocks
 in the :ref:`defaultconfig` which assist in getting started with `dbt`_

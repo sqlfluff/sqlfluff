@@ -250,7 +250,7 @@ def test__config__nested_config_tests():
             # re-enables CP01.
             # This may seem counter-intuitive but is in line with current
             # documentation on how to use `rules` and `exclude-rules`.
-            # https://docs.sqlfluff.com/en/latest/configuration.html#enabling-and-disabling-rules
+            # https://docs.sqlfluff.com/en/latest/perma/rule_disabling.html
             assert ("CP01", 1, 4) in violations[k]
             # CP02 is disabled because of the override above.
             assert "CP02" not in [c[0] for c in violations[k]]

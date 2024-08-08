@@ -268,7 +268,7 @@ class RuleMetaclass(type):
                 "have been fully loaded. For best performance, plugins "
                 "should import any rule definitions within their `get_rules()` "
                 "method. Please update your plugin to remove this warning. See: "
-                "https://docs.sqlfluff.com/en/stable/developingplugins.html"
+                "https://docs.sqlfluff.com/en/stable/perma/plugin_dev.html"
             )
         elif class_dict.get("config_keywords", []):
             config_docs = "\n    **Configuration**\n"

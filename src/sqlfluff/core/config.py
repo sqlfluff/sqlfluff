@@ -88,7 +88,7 @@ REMOVED_CONFIGS = [
         (
             "Hanging indents are no longer supported in SQLFluff "
             "from version 2.0.0 onwards. See "
-            "https://docs.sqlfluff.com/en/stable/layout.html#hanging-indents"
+            "https://docs.sqlfluff.com/en/stable/perma/hanging_indents.html"
         ),
     ),
     _RemovedConfig(
@@ -485,7 +485,7 @@ class ConfigLoader:
                             f"value (`{removed_option.new_path}`) takes precedence. "
                             "Please update your configuration to remove this warning. "
                             f"\n\n{removed_option.warning}\n\n"
-                            "See https://docs.sqlfluff.com/en/stable/configuration.html"
+                            "See https://docs.sqlfluff.com/en/stable/perma/configuration.html"
                             " for more details.\n"
                         )
                         # continue to NOT add this value in the set
@@ -504,7 +504,7 @@ class ConfigLoader:
                         f"`{formatted_new_key}` set to a value of `{v}` for this run. "
                         "Please update your configuration to remove this warning. "
                         f"\n\n{removed_option.warning}\n\n"
-                        "See https://docs.sqlfluff.com/en/stable/configuration.html"
+                        "See https://docs.sqlfluff.com/en/stable/perma/configuration.html"
                         " for more details.\n"
                     )
                 else:
@@ -512,7 +512,7 @@ class ConfigLoader:
                     raise SQLFluffUserError(
                         f"Config file {file_path!r} set an outdated config "
                         f"value {formatted_key}.\n\n{removed_option.warning}\n\n"
-                        "See https://docs.sqlfluff.com/en/stable/configuration.html"
+                        "See https://docs.sqlfluff.com/en/stable/perma/configuration.html"
                         " for more details."
                     )
 
@@ -537,7 +537,7 @@ class ConfigLoader:
                     raise SQLFluffUserError(
                         f"Config file {file_path!r} set an invalid `layout` option "
                         f"value {':'.join(k)}.\n"
-                        "See https://docs.sqlfluff.com/en/stable/layout.html"
+                        "See https://docs.sqlfluff.com/en/stable/perma/layout.html"
                         "#configuring-layout for more details."
                     )
 
