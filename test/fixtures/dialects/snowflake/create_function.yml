@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 10d47a6618333fb466b4456052a57d01e60f0246e09e90dfdd2bd8f89ba8eafe
+_hash: 53467f506bc00fd37ce97203a7a95cb0fc7e9c50965599a64534e8d4b717ded2
 file:
 - statement:
     create_function_statement:
@@ -431,4 +431,36 @@ file:
         \ = {'q': sentence,'target': language}\n  response = session.post(url, json\
         \ = data, headers = {\"Authorization\": \"Bearer \" + token})\n  return response.json()['data']['translations'][0]['translatedText']\n\
         $$"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: aggregate
+    - keyword: function
+    - function_name:
+        function_name_identifier: addone
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: i
+          data_type:
+            data_type_identifier: int
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: int
+    - keyword: language
+    - keyword: python
+    - keyword: runtime_version
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'3.8'"
+    - keyword: handler
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'addone_py'"
+    - keyword: as
+    - udf_body: "$$\ndef addone_py(i):\n  return i+1\n$$"
 - statement_terminator: ;
