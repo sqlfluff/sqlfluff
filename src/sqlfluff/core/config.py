@@ -796,22 +796,7 @@ class FluffConfig:
             False if self._configs["core"].get("nocolor", False) else None
         )
         # Handle inputs which are potentially comma separated strings
-        for in_key, out_key in [
-            # Deal with potential ignore & warning parameters
-            ("ignore", "ignore"),
-            ("warnings", "warnings"),
-            ("rules", "rule_allowlist"),
-            # Allowlists and denylistsignore_words
-            ("exclude_rules", "rule_denylist"),
-        ]:
-            if self._configs["core"].get(in_key, None):
-                # Checking if key is string as can potentially be a list to
-                self._configs["core"][out_key] = split_comma_separated_string(
-                    self._configs["core"][in_key]
-                )
-            else:
-                self._configs["core"][out_key] = []
-
+        self._handle_comma_separated_values()
         # Dialect and Template selection.
         dialect: Optional[str] = self._configs["core"]["dialect"]
         self._initialise_dialect(dialect, require_dialect)
@@ -819,6 +804,20 @@ class FluffConfig:
         self._configs["core"]["templater_obj"] = self.get_templater(
             self._configs["core"]["templater"]
         )
+
+    def _handle_comma_separated_values(self):
+        for in_key, out_key in [
+            ("ignore", "ignore"),
+            ("warnings", "warnings"),
+            ("rules", "rule_allowlist"),
+            ("exclude_rules", "rule_denylist"),
+        ]:
+            if self._configs["core"].get(in_key, None):
+                self._configs["core"][out_key] = split_comma_separated_string(
+                    self._configs["core"][in_key]
+                )
+            else:
+                self._configs["core"][out_key] = []
 
     def _initialise_dialect(
         self, dialect: Optional[str], require_dialect: bool = True
@@ -1181,6 +1180,8 @@ class FluffConfig:
             if raw_line.startswith(("-- sqlfluff", "--sqlfluff")):
                 # Found a in-file config command
                 self.process_inline_config(raw_line, fname)
+        # Deal with potential list-like inputs.
+        self._handle_comma_separated_values()
 
 
 class ProgressBarConfiguration:
