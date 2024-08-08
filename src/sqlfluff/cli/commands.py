@@ -629,8 +629,6 @@ def lint(
         stderr_output=non_human_output,
     )
 
-    click.echo(f"PATHS PROVIDED: {paths}")
-
     # Output the results as we go
     if verbose >= 1 and not non_human_output:
         click.echo(format_linting_result_header())
