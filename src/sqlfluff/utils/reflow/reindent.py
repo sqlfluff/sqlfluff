@@ -26,7 +26,7 @@ from sqlfluff.core.parser import (
 )
 from sqlfluff.core.parser.segments import Indent, SourceFix
 from sqlfluff.core.parser.segments.meta import MetaSegment, TemplateSegment
-from sqlfluff.core.rules.base import LintFix, LintResult
+from sqlfluff.core.rules import LintFix, LintResult
 from sqlfluff.utils.reflow.elements import (
     IndentStats,
     ReflowBlock,
@@ -594,9 +594,9 @@ def _revise_comment_lines(
                     "  Comment Only Line: %s. Anchoring to %s", comment_line_idx, idx
                 )
                 # Mutate reference lines to match this one.
-                lines[
-                    comment_line_idx
-                ].initial_indent_balance = line.initial_indent_balance
+                lines[comment_line_idx].initial_indent_balance = (
+                    line.initial_indent_balance
+                )
             # Reset the buffer
             comment_line_buffer = []
 
@@ -825,7 +825,17 @@ def _crawl_indent_points(
 
             # Is the next element a comment? If so - delay the decision until we've
             # got any indents from after the comment too.
-            if "comment" in elements[idx + 1].class_types:
+            #
+            # Also, some templaters might insert custom marker slices that are of zero
+            # source string length as a way of marking locations in the middle of
+            # templated output.  These don't correspond to real source code, so we
+            # can't meaningfully indent before them.  We can safely handle them similar
+            # to the comment case.
+            if "comment" in elements[idx + 1].class_types or (
+                "placeholder" in elements[idx + 1].class_types
+                and cast(TemplateSegment, elements[idx + 1].segments[0]).source_str
+                == ""
+            ):
                 cached_indent_stats = indent_stats
                 # Create parts of a point to use later.
                 cached_point = indent_point
@@ -2051,7 +2061,7 @@ def lint_line_length(
             # we know there's always a trailing block.
             "end_of_file" in elem_buffer[i + 1].class_types
             # Or is there a newline?
-            or has_untemplated_newline(cast(ReflowPoint, elem))
+            or has_untemplated_newline(elem)
         ):
             # In either case we want to process this, so carry on.
             pass

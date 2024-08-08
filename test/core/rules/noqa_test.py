@@ -1,5 +1,6 @@
 """Tests for applying noqa directives and the IgnoreMask."""
 
+import logging
 from typing import List
 
 import pytest
@@ -467,13 +468,34 @@ where
     assert not result.get_violations()
 
 
-def test_linter_noqa_prs():
-    """Test "noqa" feature to ignore PRS at the higher "Linter" level."""
-    lntr = Linter(dialect="ansi")
-    sql = "SELEC * FROM foo -- noqa: PRS\n"
-    result = lntr.lint_string(sql)
+@pytest.mark.parametrize("disable_noqa", [True, False])
+@pytest.mark.parametrize(
+    "sql", ["SELEC * FROM foo -- noqa: PRS\n", "{% if 1 > '2' %} -- noqa: TMP\n"]
+)
+def test_linter_noqa_prs(sql, disable_noqa, caplog):
+    """Test "noqa" feature to ignore PRS or TMP at the higher "Linter" level.
+
+    Because templating and parsing failures prevent a fully formed parse tree
+    to be formed the rely on slightly different routines to ensure ignores are
+    still applied.
+    """
+    lntr = Linter(
+        config=FluffConfig(
+            overrides={
+                "disable_noqa": disable_noqa,
+                "dialect": "ansi",
+            }
+        )
+    )
+    with caplog.at_level(logging.DEBUG, logger="sqlfluff.linter"):
+        result = lntr.lint_string(sql)
     violations = result.get_violations()
-    assert not violations
+    # In both the templating fail and parsing fail cases, the failures should be
+    # ignored because of the inline ignore, _unless_ `disable_noqa`` is set.
+    if disable_noqa:
+        assert violations
+    else:
+        assert not violations
 
 
 def test_linter_noqa_tmp():

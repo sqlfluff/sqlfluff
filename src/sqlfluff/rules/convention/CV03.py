@@ -1,4 +1,5 @@
 """Implementation of Rule CV03."""
+
 from typing import Optional
 
 from sqlfluff.core.parser import BaseSegment, SymbolSegment

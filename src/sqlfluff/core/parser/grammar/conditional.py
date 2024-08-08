@@ -44,7 +44,7 @@ class Conditional(BaseGrammar):
         self,
         meta: Type[Indent],
         config_type: str = "indentation",
-        **rules: Union[str, bool]
+        **rules: Union[str, bool],
     ):
         """Initialize a new instance of the class.
 

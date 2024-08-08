@@ -1,4 +1,5 @@
 """Sqlfluff is a SQL linter for humans."""
+
 import sys
 from importlib import metadata
 

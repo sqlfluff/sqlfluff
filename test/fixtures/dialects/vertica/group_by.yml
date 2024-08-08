@@ -1,0 +1,173 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e64a1cadd5d2d9f262332c14bd63d4c5f8d9ab0f4d1354e941725eefd4d0a91c
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: employee_last_name
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: SUM
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: vacation_days
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employee_dimension
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: employee_last_name
+          keyword: ILIKE
+          quoted_literal: "'S%'"
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: employee_last_name
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: vendor_region
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: MAX
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: deal_size
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            quoted_identifier: '"Biggest Deal"'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: vendor_dimension
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: vendor_region
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: vendor_region
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: MAX
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: deal_size
+              end_bracket: )
+          alias_expression:
+            keyword: as
+            quoted_identifier: '"Biggest Deal"'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: vendor_dimension
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: vendor_region
+      having_clause:
+        keyword: HAVING
+        expression:
+          function:
+            function_name:
+              function_name_identifier: MAX
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: deal_size
+              end_bracket: )
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '900000'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: department
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: grants
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: SUM
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: apply_sum
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: grant_values
+                    end_bracket: )
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: grants
+      - comma: ','
+      - column_reference:
+          naked_identifier: department
+- statement_terminator: ;

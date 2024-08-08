@@ -3,158 +3,156 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cebbdec1262f1c649e6a473626c05bb44a8f96d50daf31c8b46e03e24213a7d5
+_hash: 94b76d4e211a2955e33429ee9a511f0a53be873ca34e1b36ba6531c78010242d
 file:
-- statement:
+  statement:
     scripting_block_statement:
-      keyword: begin
-      statement:
+    - keyword: begin
+    - statement:
         scripting_let_statement:
           keyword: let
           variable: somevariable
           assignment_operator: :=
           expression:
             numeric_literal: '5'
-- statement_terminator: ;
-- statement:
-    scripting_let_statement:
-      keyword: let
-      variable: somevariable
-      data_type:
-        data_type_identifier: number
-        bracketed_arguments:
-          bracketed:
-          - start_bracket: (
-          - numeric_literal: '38'
-          - comma: ','
-          - numeric_literal: '0'
-          - end_bracket: )
-      assignment_operator: :=
-      expression:
-        numeric_literal: '5'
-- statement_terminator: ;
-- statement:
-    scripting_let_statement:
-    - keyword: let
-    - variable: somevariable
-    - data_type:
-        data_type_identifier: number
-        bracketed_arguments:
-          bracketed:
-          - start_bracket: (
-          - numeric_literal: '38'
-          - comma: ','
-          - numeric_literal: '0'
-          - end_bracket: )
-    - keyword: default
-    - expression:
-        numeric_literal: '5'
-- statement_terminator: ;
-- statement:
-    scripting_let_statement:
-    - keyword: let
-    - variable: somevariable
-    - keyword: default
-    - expression:
-        numeric_literal: '5'
-- statement_terminator: ;
-- statement:
-    scripting_let_statement:
-      variable: somevariable
-      assignment_operator: :=
-      expression:
-        numeric_literal: '5'
-- statement_terminator: ;
-- statement:
-    scripting_let_statement:
-    - keyword: let
-    - variable: somevariable
-    - keyword: cursor
-    - keyword: for
-    - select_statement:
-        select_clause:
-          keyword: select
-          select_clause_element:
-            column_reference:
-              naked_identifier: some_col
-        from_clause:
-          keyword: from
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                - naked_identifier: some_database
-                - dot: .
-                - naked_identifier: schema
-                - dot: .
-                - naked_identifier: some_table
-- statement_terminator: ;
-- statement:
-    scripting_let_statement:
-    - keyword: let
-    - variable: somevariable
-    - keyword: cursor
-    - keyword: for
-    - variable: somevariable
-- statement_terminator: ;
-- statement:
-    scripting_let_statement:
-      keyword: let
-      variable: someresult
-      data_type:
-        data_type_identifier: resultset
-      assignment_operator: :=
-      expression:
-        bracketed:
-          start_bracket: (
+    - statement_terminator: ;
+    - statement:
+        scripting_let_statement:
+          keyword: let
+          variable: somevariable
+          data_type:
+            data_type_identifier: number
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '38'
+              - comma: ','
+              - numeric_literal: '0'
+              - end_bracket: )
+          assignment_operator: :=
           expression:
-            select_statement:
-              select_clause:
-                keyword: select
-                select_clause_element:
-                  column_reference:
-                    naked_identifier: some_col
-              from_clause:
-                keyword: from
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                      - naked_identifier: some_database
-                      - dot: .
-                      - naked_identifier: schema
-                      - dot: .
-                      - naked_identifier: some_table
-          end_bracket: )
-- statement_terminator: ;
-- statement:
-    scripting_let_statement:
-      variable: someresult
-      assignment_operator: :=
-      expression:
-        bracketed:
-          start_bracket: (
+            numeric_literal: '5'
+    - statement_terminator: ;
+    - statement:
+        scripting_let_statement:
+        - keyword: let
+        - variable: somevariable
+        - data_type:
+            data_type_identifier: number
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '38'
+              - comma: ','
+              - numeric_literal: '0'
+              - end_bracket: )
+        - keyword: default
+        - expression:
+            numeric_literal: '5'
+    - statement_terminator: ;
+    - statement:
+        scripting_let_statement:
+        - keyword: let
+        - variable: somevariable
+        - keyword: default
+        - expression:
+            numeric_literal: '5'
+    - statement_terminator: ;
+    - statement:
+        scripting_let_statement:
+          variable: somevariable
+          assignment_operator: :=
           expression:
-            select_statement:
-              select_clause:
-                keyword: select
-                select_clause_element:
-                  column_reference:
-                    naked_identifier: SOME_COL
-              from_clause:
-                keyword: from
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                      - naked_identifier: some_database
-                      - dot: .
-                      - naked_identifier: schema
-                      - dot: .
-                      - naked_identifier: some_table
-          end_bracket: )
-- statement_terminator: ;
-- statement:
-    scripting_block_statement:
-      keyword: end
-- statement_terminator: ;
+            numeric_literal: '5'
+    - statement_terminator: ;
+    - statement:
+        scripting_let_statement:
+        - keyword: let
+        - variable: somevariable
+        - keyword: cursor
+        - keyword: for
+        - select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                column_reference:
+                  naked_identifier: some_col
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: some_database
+                    - dot: .
+                    - naked_identifier: schema
+                    - dot: .
+                    - naked_identifier: some_table
+    - statement_terminator: ;
+    - statement:
+        scripting_let_statement:
+        - keyword: let
+        - variable: somevariable
+        - keyword: cursor
+        - keyword: for
+        - variable: somevariable
+    - statement_terminator: ;
+    - statement:
+        scripting_let_statement:
+          keyword: let
+          variable: someresult
+          data_type:
+            data_type_identifier: resultset
+          assignment_operator: :=
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: select
+                    select_clause_element:
+                      column_reference:
+                        naked_identifier: some_col
+                  from_clause:
+                    keyword: from
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                          - naked_identifier: some_database
+                          - dot: .
+                          - naked_identifier: schema
+                          - dot: .
+                          - naked_identifier: some_table
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        scripting_let_statement:
+          variable: someresult
+          assignment_operator: :=
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: select
+                    select_clause_element:
+                      column_reference:
+                        naked_identifier: SOME_COL
+                  from_clause:
+                    keyword: from
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                          - naked_identifier: some_database
+                          - dot: .
+                          - naked_identifier: schema
+                          - dot: .
+                          - naked_identifier: some_table
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: end
+  statement_terminator: ;

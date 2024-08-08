@@ -1,4 +1,5 @@
 """Testing utils for rule plugins."""
+
 from glob import glob
 from typing import List, NamedTuple, Optional, Set, Tuple
 
@@ -116,13 +117,13 @@ def assert_rule_pass_in_sql(code, sql, configs=None, msg=None):
     # This section is mainly for aid in debugging.
     rendered = linter.render_string(sql, fname="<STR>", config=cfg, encoding="utf-8")
     parsed = linter.parse_rendered(rendered)
-    if parsed.violations:
+    tree = parsed.tree  # Delegate assertions to the `.tree` property
+    violations = parsed.violations
+    if violations:
         if msg:
             print(msg)  # pragma: no cover
-        assert parsed.tree
-        pytest.fail(parsed.violations[0].desc() + "\n" + parsed.tree.stringify())
-    assert parsed.tree
-    print(f"Parsed:\n {parsed.tree.stringify()}")
+        pytest.fail(violations[0].desc() + "\n" + tree.stringify())
+    print(f"Parsed:\n {tree.stringify()}")
 
     # Note that lint_string() runs the templater and parser again, in order to
     # test the whole linting pipeline in the same way that users do. In other
@@ -161,7 +162,7 @@ def prep_violations(rule, violations):
 def assert_violations_before_fix(test_case, violations_before_fix):
     """Assert that the given violations are found in the given sql."""
     print("# Asserting Violations Before Fix")
-    violation_info = [e.get_info_dict() for e in violations_before_fix]
+    violation_info = [e.to_dict() for e in violations_before_fix]
     try:
         assert violation_info == prep_violations(test_case.rule, test_case.violations)
     except AssertionError:  # pragma: no cover
@@ -178,7 +179,7 @@ def assert_violations_after_fix(test_case):
         configs=test_case.configs,
         line_numbers=test_case.line_numbers,
     )
-    violation_info = [e.get_info_dict() for e in violations_after_fix]
+    violation_info = [e.to_dict() for e in violations_after_fix]
     try:
         assert violation_info == prep_violations(
             test_case.rule, test_case.violations_after_fix

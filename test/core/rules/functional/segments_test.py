@@ -1,4 +1,5 @@
 """Tests for the segments module."""
+
 import pytest
 
 import sqlfluff.utils.functional.segment_predicates as sp
@@ -156,7 +157,7 @@ def test_segments_recursive_crawl():
     linter = Linter(dialect="ansi")
     parsed = linter.parse_string(sql)
 
-    functional_tree = segments.Segments(parsed.tree)
+    functional_tree = segments.Segments(parsed.root_variant().tree)
 
     assert len(functional_tree.recursive_crawl("common_table_expression")) == 1
     assert len(functional_tree.recursive_crawl("table_reference")) == 3

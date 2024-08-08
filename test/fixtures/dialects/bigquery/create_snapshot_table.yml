@@ -1,0 +1,86 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: be520ab6d2ddd160941f3e0d32350789d379962421dc595d087c5044efd59f2e
+file:
+- statement:
+    create_snapshot_table_statement:
+    - keyword: CREATE
+    - keyword: SNAPSHOT
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`example-project.example_dataset.example_table_snapshot_20240101`'
+    - keyword: CLONE
+    - table_reference:
+        quoted_identifier: '`example-project.example_dataset.example_table`'
+- statement_terminator: ;
+- statement:
+    create_snapshot_table_statement:
+    - keyword: CREATE
+    - keyword: SNAPSHOT
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        quoted_identifier: '`example-project.example_dataset.example_table_snapshot_20240101`'
+    - keyword: CLONE
+    - table_reference:
+        quoted_identifier: '`example-project.example_dataset.example_table`'
+    - for_system_time_as_of_segment:
+      - keyword: FOR
+      - keyword: SYSTEM_TIME
+      - keyword: AS
+      - keyword: OF
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: TIMESTAMP
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: '"2024-01-01 12:00:00"'
+              end_bracket: )
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+        - start_bracket: (
+        - parameter: expiration_timestamp
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - function:
+            function_name:
+              function_name_identifier: TIMESTAMP
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: '"2024-02-01 12:00:00"'
+              end_bracket: )
+        - comma: ','
+        - parameter: friendly_name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"my_table_snapshot"'
+        - comma: ','
+        - parameter: description
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"example description"'
+        - comma: ','
+        - parameter: labels
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - array_literal:
+            start_square_bracket: '['
+            expression:
+              bracketed:
+              - start_bracket: (
+              - quoted_literal: '"example_key"'
+              - comma: ','
+              - quoted_literal: '"example_value"'
+              - end_bracket: )
+            end_square_bracket: ']'
+        - end_bracket: )
+- statement_terminator: ;

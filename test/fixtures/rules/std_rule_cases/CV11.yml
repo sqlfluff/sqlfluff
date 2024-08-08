@@ -246,9 +246,15 @@ test_fail_inconsistent_type_casting_3_arguments_convert_when_config_cast:
   - code: CV11
     description: Used type casting style is different from the preferred type
                  casting style.
-    line_no: 2
-    line_pos: 5
     name: "convention.casting_style"
+    warning: false
+    fixes: []
+    start_line_no: 2
+    start_line_pos: 5
+    start_file_pos: 11
+    end_line_no: 2
+    end_line_pos: 25
+    end_file_pos: 31
   configs:
     rules:
       convention.casting_style:
@@ -307,9 +313,16 @@ test_fail_inconsistent_type_casting_3_arguments_convert_when_config_shorthand:
   - code: CV11
     description: Used type casting style is different from the preferred type
                  casting style.
-    line_no: 2
-    line_pos: 5
     name: "convention.casting_style"
+    warning: false
+    fixes: []
+    start_line_no: 2
+    start_line_pos: 5
+    start_file_pos: 11
+    end_line_no: 2
+    end_line_pos: 25
+    end_file_pos: 31
+
   configs:
     rules:
       convention.casting_style:

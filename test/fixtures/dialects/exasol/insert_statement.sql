@@ -9,3 +9,5 @@ INSERT INTO s.t(c1, c2, c3) VALUES((SELECT x FROM y), 'val1', 'val2');
 INSERT INTO t (adate) values(current_timestamp);
 INSERT INTO t VALUES BETWEEN 1 AND 100;
 INSERT INTO t (i) VALUES BETWEEN 1 AND 100 WITH STEP 4;
+INSERT INTO t (d1, n1, v1) values (add_days(current_date, -1), 15.0, 'myvalue');
+INSERT INTO t (d1, n1, v1) values (current_date +1, 15.0, 'myvalue');

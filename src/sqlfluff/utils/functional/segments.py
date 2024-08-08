@@ -1,4 +1,5 @@
 """Surrogate class for working with Segment collections."""
+
 from typing import (
     Any,
     Callable,
@@ -6,11 +7,10 @@ from typing import (
     Iterator,
     List,
     Optional,
+    SupportsIndex,
     Union,
     overload,
 )
-
-from typing_extensions import SupportsIndex  # NOTE: Required for py37
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters.base import TemplatedFile
@@ -89,7 +89,7 @@ class Segments(tuple):
             )
         return RawFileSlices(
             *sorted(raw_slices, key=lambda slice_: slice_.source_idx),
-            templated_file=self.templated_file
+            templated_file=self.templated_file,
         )
 
     # TODO:This method isn't used as at 2022-08-10. Consider removing in future.

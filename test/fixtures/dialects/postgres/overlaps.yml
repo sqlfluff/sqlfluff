@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b52f94d6189b518815f0ab38c9a623899123c23bf3e6a7a98647d57aecca1640
+_hash: cd8bf36d6366b91a343664b94df80616dba1cddf2e19897b707d22a0c57dda6e
 file:
 - statement:
     select_statement:
@@ -26,28 +26,28 @@ file:
       where_clause:
         keyword: where
         expression:
-          bracketed:
-          - start_bracket: (
-          - column_reference:
-              naked_identifier: start_date
-          - comma: ','
-          - column_reference:
-              naked_identifier: end_date
-          - end_bracket: )
-      overlaps_clause:
-        keyword: overlaps
-        bracketed:
-        - start_bracket: (
-        - datetime_literal:
-            datetime_type_identifier:
-              keyword: DATE
-            quoted_literal: "'2023-02-15'"
-        - comma: ','
-        - datetime_literal:
-            datetime_type_identifier:
-              keyword: DATE
-            quoted_literal: "'2023-03-15'"
-        - end_bracket: )
+          overlaps_clause:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: start_date
+            - comma: ','
+            - column_reference:
+                naked_identifier: end_date
+            - end_bracket: )
+          - keyword: overlaps
+          - bracketed:
+            - start_bracket: (
+            - datetime_literal:
+                datetime_type_identifier:
+                  keyword: DATE
+                quoted_literal: "'2023-02-15'"
+            - comma: ','
+            - datetime_literal:
+                datetime_type_identifier:
+                  keyword: DATE
+                quoted_literal: "'2023-03-15'"
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -70,22 +70,271 @@ file:
       where_clause:
         keyword: where
         expression:
-          bracketed:
-          - start_bracket: (
-          - column_reference:
-              naked_identifier: start_date
-          - comma: ','
-          - column_reference:
-              naked_identifier: end_date
-          - end_bracket: )
-      overlaps_clause:
-        keyword: overlaps
-        bracketed:
-        - start_bracket: (
-        - datetime_literal:
-            quoted_literal: "'2023-02-15'"
-        - comma: ','
-        - datetime_literal:
-            quoted_literal: "'2023-03-15'"
-        - end_bracket: )
+          overlaps_clause:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: start_date
+            - comma: ','
+            - column_reference:
+                naked_identifier: end_date
+            - end_bracket: )
+          - keyword: overlaps
+          - bracketed:
+            - start_bracket: (
+            - datetime_literal:
+                quoted_literal: "'2023-02-15'"
+            - comma: ','
+            - datetime_literal:
+                quoted_literal: "'2023-03-15'"
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: start_date
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: end_date
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_overlaps1
+            alias_expression:
+              keyword: AS
+              naked_identifier: t1
+          join_clause:
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test_overlaps2
+              alias_expression:
+                keyword: AS
+                naked_identifier: t2
+      where_clause:
+        keyword: WHERE
+        expression:
+          overlaps_clause:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: t1
+              - dot: .
+              - naked_identifier: start_date
+            - comma: ','
+            - column_reference:
+              - naked_identifier: t1
+              - dot: .
+              - naked_identifier: end_date
+            - end_bracket: )
+          - keyword: OVERLAPS
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: t2
+              - dot: .
+              - naked_identifier: start_date
+            - comma: ','
+            - column_reference:
+              - naked_identifier: t2
+              - dot: .
+              - naked_identifier: end_date
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: start_date
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: end_date
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_overlaps
+      where_clause:
+        keyword: WHERE
+        expression:
+          overlaps_clause:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: start_date
+            - comma: ','
+            - column_reference:
+                naked_identifier: end_date
+            - end_bracket: )
+          - keyword: OVERLAPS
+          - bracketed:
+            - start_bracket: (
+            - cast_expression:
+                quoted_literal: "'2023-12-30T00:00:00'"
+                casting_operator: '::'
+                data_type:
+                  datetime_type_identifier:
+                    keyword: TIMESTAMP
+            - comma: ','
+            - cast_expression:
+                quoted_literal: "'2024-01-14T13:01:39.884877'"
+                casting_operator: '::'
+                data_type:
+                  datetime_type_identifier:
+                    keyword: TIMESTAMP
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: start_date
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: end_date
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_overlaps
+      where_clause:
+        keyword: WHERE
+        expression:
+          overlaps_clause:
+          - bracketed:
+            - start_bracket: (
+            - cast_expression:
+                quoted_literal: "'2023-12-30T00:00:00'"
+                casting_operator: '::'
+                data_type:
+                  datetime_type_identifier:
+                    keyword: TIMESTAMP
+            - comma: ','
+            - cast_expression:
+                quoted_literal: "'2024-01-14T13:01:39.884877'"
+                casting_operator: '::'
+                data_type:
+                  datetime_type_identifier:
+                    keyword: TIMESTAMP
+            - end_bracket: )
+          - keyword: OVERLAPS
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: start_date
+            - comma: ','
+            - column_reference:
+                naked_identifier: end_date
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: start_date
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: end_date
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_overlaps
+      where_clause:
+        keyword: WHERE
+        expression:
+          overlaps_clause:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: start_date
+            - comma: ','
+            - column_reference:
+                naked_identifier: end_date
+            - end_bracket: )
+          - keyword: OVERLAPS
+          - bracketed:
+            - start_bracket: (
+            - datetime_literal:
+                datetime_type_identifier:
+                  keyword: DATE
+                quoted_literal: "'2023-12-30'"
+            - comma: ','
+            - datetime_literal:
+                datetime_type_identifier:
+                  keyword: INTERVAL
+                quoted_literal: "'2 HOURS'"
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: start_date
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: end_date
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_overlaps
+      where_clause:
+        keyword: WHERE
+        expression:
+          overlaps_clause:
+          - bracketed:
+            - start_bracket: (
+            - datetime_literal:
+                datetime_type_identifier:
+                  keyword: DATE
+                quoted_literal: "'2023-12-30'"
+            - comma: ','
+            - datetime_literal:
+                datetime_type_identifier:
+                  keyword: DATE
+                quoted_literal: "'2024-01-14'"
+            - end_bracket: )
+          - keyword: OVERLAPS
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: start_date
+            - comma: ','
+            - column_reference:
+                naked_identifier: end_date
+            - end_bracket: )
 - statement_terminator: ;

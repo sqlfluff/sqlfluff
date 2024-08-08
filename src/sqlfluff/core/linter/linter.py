@@ -29,9 +29,15 @@ from sqlfluff.core.errors import (
     SQLLexError,
     SQLLintError,
     SQLParseError,
+    SQLTemplaterError,
 )
-from sqlfluff.core.file_helpers import get_encoding
-from sqlfluff.core.linter.common import ParsedString, RenderedFile, RuleTuple
+from sqlfluff.core.helpers.file import get_encoding
+from sqlfluff.core.linter.common import (
+    ParsedString,
+    ParsedVariant,
+    RenderedFile,
+    RuleTuple,
+)
 from sqlfluff.core.linter.fix import apply_fixes, compute_anchor_edit_info
 from sqlfluff.core.linter.linted_dir import LintedDir
 from sqlfluff.core.linter.linted_file import (
@@ -46,8 +52,9 @@ from sqlfluff.core.rules import BaseRule, RulePack, get_ruleset
 from sqlfluff.core.rules.noqa import IgnoreMask
 
 if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.dialects import Dialect
     from sqlfluff.core.parser.segments.meta import MetaSegment
-    from sqlfluff.core.templaters import TemplatedFile
+    from sqlfluff.core.templaters import RawTemplater, TemplatedFile
 
 
 WalkableType = Iterable[Tuple[str, Optional[List[str]], List[str]]]
@@ -84,8 +91,10 @@ class Linter:
             require_dialect=False,
         )
         # Get the dialect and templater
-        self.dialect = self.config.get("dialect_obj")
-        self.templater = self.config.get("templater_obj")
+        self.dialect: "Dialect" = cast("Dialect", self.config.get("dialect_obj"))
+        self.templater: "RawTemplater" = cast(
+            "RawTemplater", self.config.get("templater_obj")
+        )
         # Store the formatter for output
         self.formatter = formatter
         # Store references to user rule classes
@@ -117,7 +126,8 @@ class Linter:
     ) -> Tuple[str, FluffConfig, str]:
         """Load a raw file and the associated config."""
         file_config = root_config.make_child_from_path(fname)
-        encoding = get_encoding(fname=fname, config=file_config)
+        config_encoding: str = file_config.get("encoding", default="autodetect")
+        encoding = get_encoding(fname=fname, config_encoding=config_encoding)
         # Check file size before loading.
         limit = file_config.get("large_file_skip_byte_limit")
         if limit:
@@ -146,31 +156,25 @@ class Linter:
     @staticmethod
     def _lex_templated_file(
         templated_file: "TemplatedFile", config: FluffConfig
-    ) -> Tuple[Optional[Sequence[BaseSegment]], List[SQLLexError], FluffConfig]:
-        """Lex a templated file.
-
-        NOTE: This potentially mutates the config, so make sure to
-        use the returned one.
-        """
+    ) -> Tuple[Optional[Sequence[BaseSegment]], List[SQLLexError]]:
+        """Lex a templated file."""
         violations = []
         linter_logger.info("LEXING RAW (%s)", templated_file.fname)
         # Get the lexer
         lexer = Lexer(config=config)
         # Lex the file and log any problems
         try:
-            tokens, lex_vs = lexer.lex(templated_file)
+            segments, lex_vs = lexer.lex(templated_file)
+            # NOTE: There will always be segments, even if it's
+            # just an end of file marker.
+            assert segments, "The token sequence should never be empty."
             # We might just get the violations as a list
             violations += lex_vs
-            linter_logger.info(
-                "Lexed tokens: %s", [seg.raw for seg in tokens] if tokens else None
-            )
+            linter_logger.info("Lexed segments: %s", [seg.raw for seg in segments])
         except SQLLexError as err:  # pragma: no cover
             linter_logger.info("LEXING FAILED! (%s): %s", templated_file.fname, err)
             violations.append(err)
-            return None, violations, config
-
-        if not tokens:  # pragma: no cover TODO?
-            return None, violations, config
+            return None, violations
 
         # Check that we've got sensible indentation from the lexer.
         # We might need to suppress if it's a complicated file.
@@ -182,10 +186,7 @@ class Linter:
         templating_blocks_indent = bool(templating_blocks_indent)
         # If we're forcing it through we don't check.
         if templating_blocks_indent and not force_block_indent:
-            indent_balance = sum(
-                getattr(elem, "indent_val", 0)
-                for elem in cast(Tuple[BaseSegment, ...], tokens)
-            )
+            indent_balance = sum(getattr(elem, "indent_val", 0) for elem in segments)
             if indent_balance != 0:  # pragma: no cover
                 linter_logger.debug(
                     "Indent balance test failed for %r. Template indents will not be "
@@ -197,18 +198,18 @@ class Linter:
 
         # The file will have been lexed without config, so check all indents
         # are enabled.
-        new_tokens = []
-        for token in cast(Tuple[BaseSegment, ...], tokens):
-            if token.is_meta:
-                token = cast("MetaSegment", token)
-                if token.indent_val != 0:
+        new_segments = []
+        for segment in segments:
+            if segment.is_meta:
+                meta_segment = cast("MetaSegment", segment)
+                if meta_segment.indent_val != 0:
                     # Don't allow it if we're not linting templating block indents.
                     if not templating_blocks_indent:
                         continue  # pragma: no cover
-            new_tokens.append(token)
+            new_segments.append(segment)
 
         # Return new buffer
-        return new_tokens, violations, config
+        return new_segments, violations
 
     @staticmethod
     def _parse_tokens(
@@ -250,9 +251,11 @@ class Linter:
                     "Line {0[0]}, Position {0[1]}: Found unparsable section: "
                     "{1!r}".format(
                         unparsable.pos_marker.working_loc,
-                        unparsable.raw
-                        if len(unparsable.raw) < 40
-                        else unparsable.raw[:40] + "...",
+                        (
+                            unparsable.raw
+                            if len(unparsable.raw) < 40
+                            else unparsable.raw[:40] + "..."
+                        ),
                     ),
                     segment=unparsable,
                 )
@@ -306,44 +309,55 @@ class Linter:
         parse_statistics: bool = False,
     ) -> ParsedString:
         """Parse a rendered file."""
-        t0 = time.monotonic()
-        violations = cast(List[SQLBaseError], rendered.templater_violations)
         tokens: Optional[Sequence[BaseSegment]]
-        if rendered.templated_file is not None:
-            tokens, lvs, config = cls._lex_templated_file(
-                rendered.templated_file, rendered.config
-            )
-            violations += lvs
-        else:
-            tokens = None
+        parsed_variants: List[ParsedVariant] = []
+        _lexing_time = 0.0
+        _parsing_time = 0.0
 
-        t1 = time.monotonic()
-        linter_logger.info("PARSING (%s)", rendered.fname)
-
-        if tokens:
-            parsed, pvs = cls._parse_tokens(
-                tokens,
-                rendered.config,
-                fname=rendered.fname,
-                parse_statistics=parse_statistics,
+        for idx, variant in enumerate(rendered.templated_variants):
+            t0 = time.monotonic()
+            linter_logger.info("Parse Rendered. Lexing Variant %s", idx)
+            tokens, lex_errors = cls._lex_templated_file(variant, rendered.config)
+            t1 = time.monotonic()
+            linter_logger.info("Parse Rendered. Parsing Variant %s", idx)
+            if tokens:
+                parsed, parse_errors = cls._parse_tokens(
+                    tokens,
+                    rendered.config,
+                    fname=rendered.fname,
+                    parse_statistics=parse_statistics,
+                )
+            else:  # pragma: no cover
+                parsed = None
+                parse_errors = []
+            _lt = t1 - t0
+            _pt = time.monotonic() - t1
+            linter_logger.info(
+                "Parse Rendered. Variant %s. Lex in %s. Parse in %s.", idx, _lt, _pt
             )
-            violations += pvs
-        else:
-            parsed = None
+            parsed_variants.append(
+                ParsedVariant(
+                    variant,
+                    parsed,
+                    lex_errors,
+                    parse_errors,
+                )
+            )
+            _lexing_time += _lt
+            _parsing_time += _pt
 
         time_dict = {
             **rendered.time_dict,
-            "lexing": t1 - t0,
-            "parsing": time.monotonic() - t1,
+            "lexing": _lexing_time,
+            "parsing": _parsing_time,
         }
         return ParsedString(
-            parsed,
-            violations,
-            time_dict,
-            rendered.templated_file,
-            rendered.config,
-            rendered.fname,
-            rendered.source_str,
+            parsed_variants=parsed_variants,
+            templating_violations=rendered.templater_violations,
+            time_dict=time_dict,
+            config=rendered.config,
+            fname=rendered.fname,
+            source_str=rendered.source_str,
         )
 
     @classmethod
@@ -589,36 +603,82 @@ class Linter:
         """Lint a ParsedString and return a LintedFile."""
         violations = parsed.violations
         time_dict = parsed.time_dict
-        tree: Optional[BaseSegment]
-        if parsed.tree:
-            t0 = time.monotonic()
-            linter_logger.info("LINTING (%s)", parsed.fname)
+        tree: Optional[BaseSegment] = None
+        templated_file: Optional[TemplatedFile] = None
+        t0 = time.monotonic()
+
+        # First identify the root variant. That's the first variant
+        # that successfully parsed.
+        root_variant: Optional[ParsedVariant] = None
+        for variant in parsed.parsed_variants:
+            if variant.tree:
+                root_variant = variant
+                break
+        else:
+            linter_logger.info(
+                "lint_parsed found no valid root variant for %s", parsed.fname
+            )
+
+        # If there is a root variant, handle that first.
+        if root_variant:
+            linter_logger.info("lint_parsed - linting root variant (%s)", parsed.fname)
+            assert root_variant.tree  # We just checked this.
             (
-                tree,
+                fixed_tree,
                 initial_linting_errors,
                 ignore_mask,
                 rule_timings,
             ) = cls.lint_fix_parsed(
-                parsed.tree,
+                root_variant.tree,
                 config=parsed.config,
                 rule_pack=rule_pack,
                 fix=fix,
                 fname=parsed.fname,
-                templated_file=parsed.templated_file,
+                templated_file=variant.templated_file,
                 formatter=formatter,
             )
-            # Update the timing dict
-            time_dict["linting"] = time.monotonic() - t0
+
+            # Set legacy variables for now
+            # TODO: Revise this
+            templated_file = variant.templated_file
+            tree = fixed_tree
 
             # We're only going to return the *initial* errors, rather
             # than any generated during the fixing cycle.
             violations += initial_linting_errors
+
+            # Attempt to lint other variants if they exist.
+            # TODO: Revise whether this is sensible...
+            for idx, alternate_variant in enumerate(parsed.parsed_variants):
+                if alternate_variant is variant or not alternate_variant.tree:
+                    continue
+                linter_logger.info("lint_parsed - linting alt variant (%s)", idx)
+                (
+                    _,  # Fixed Tree
+                    alt_linting_errors,
+                    _,  # Ignore Mask
+                    _,  # Timings
+                ) = cls.lint_fix_parsed(
+                    alternate_variant.tree,
+                    config=parsed.config,
+                    rule_pack=rule_pack,
+                    fix=fix,
+                    fname=parsed.fname,
+                    templated_file=alternate_variant.templated_file,
+                    formatter=formatter,
+                )
+                violations += alt_linting_errors
+
+        # If no root variant, we should still apply ignores to any parsing
+        # or templating fails.
         else:
-            # If no parsed tree, set to None
-            tree = None
-            ignore_mask = None
             rule_timings = []
-            if not parsed.config.get("disable_noqa"):
+            if parsed.config.get("disable_noqa"):
+                # NOTE: This path is only accessible if there is no valid `tree`
+                # which implies that there was a fatal templating fail. Even an
+                # unparsable file will still have a valid tree.
+                ignore_mask = None
+            else:
                 # Templating and/or parsing have failed. Look for "noqa"
                 # comments (the normal path for identifying these comments
                 # requires access to the parse tree, and because of the failure,
@@ -634,6 +694,9 @@ class Linter:
                 )
                 violations += ignore_violations
 
+        # Update the timing dict
+        time_dict["linting"] = time.monotonic() - t0
+
         # We process the ignore config here if appropriate
         for violation in violations:
             violation.ignore_if_in(parsed.config.get("ignore"))
@@ -646,7 +709,7 @@ class Linter:
             FileTimings(time_dict, rule_timings),
             tree,
             ignore_mask=ignore_mask,
-            templated_file=parsed.templated_file,
+            templated_file=templated_file,
             encoding=encoding,
         )
 
@@ -694,7 +757,7 @@ class Linter:
         self, in_str: str, fname: str, config: FluffConfig, encoding: str
     ) -> RenderedFile:
         """Template the file."""
-        linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
+        linter_logger.info("Rendering String [%s] (%s)", self.templater.name, fname)
 
         # Start the templating timer
         t0 = time.monotonic()
@@ -720,23 +783,43 @@ class Linter:
                     "details."
                 )
             )
-        try:
-            templated_file, templater_violations = self.templater.process(
-                in_str=in_str, fname=fname, config=config, formatter=self.formatter
-            )
-        except SQLFluffSkipFile as s:  # pragma: no cover
-            linter_logger.warning(str(s))
-            templated_file = None
-            templater_violations = []
 
-        if templated_file is None:
+        variant_limit = config.get("render_variant_limit")
+        templated_variants: List[TemplatedFile] = []
+        templater_violations: List[SQLTemplaterError] = []
+
+        try:
+            for variant, templater_errs in self.templater.process_with_variants(
+                in_str=in_str, fname=fname, config=config, formatter=self.formatter
+            ):
+                if variant:
+                    templated_variants.append(variant)
+                # NOTE: We could very easily end up with duplicate errors between
+                # different variants and this code doesn't currently do any
+                # deduplication between them. That will be resolved in further
+                # testing.
+                # TODO: Resolve potential duplicate templater violations between
+                # variants before we enable jinja variant linting by default.
+                templater_violations += templater_errs
+                if len(templated_variants) >= variant_limit:
+                    # Stop if we hit the limit.
+                    break
+        except SQLTemplaterError as templater_err:
+            # Fatal templating error. Capture it and don't generate a variant.
+            templater_violations.append(templater_err)
+        except SQLFluffSkipFile as skip_file_err:  # pragma: no cover
+            linter_logger.warning(str(skip_file_err))
+
+        if not templated_variants:
             linter_logger.info("TEMPLATING FAILED: %s", templater_violations)
+
+        linter_logger.info("Rendered %s variants", len(templated_variants))
 
         # Record time
         time_dict = {"templating": time.monotonic() - t0}
 
         return RenderedFile(
-            templated_file,
+            templated_variants,
             templater_violations,
             config,
             time_dict,
@@ -1030,6 +1113,7 @@ class Linter:
         apply_fixes: bool = False,
         fixed_file_suffix: str = "",
         fix_even_unparsable: bool = False,
+        retain_files: bool = True,
     ) -> LintingResult:
         """Lint an iterable of paths."""
         # If no paths specified - assume local
@@ -1041,7 +1125,7 @@ class Linter:
         expanded_paths: List[str] = []
         expanded_path_to_linted_dir = {}
         for path in paths:
-            linted_dir = LintedDir(path)
+            linted_dir = LintedDir(path, retain_files=retain_files)
             result.add(linted_dir)
             for fname in self.paths_from_path(
                 path,

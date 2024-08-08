@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5ce6e3c7c4dc3263e4f470a51c0b7c52a2173bba1d16f2852067b0d232b40bc6
+_hash: cd5c1e1638d1d92a2646681f46b513cce2da8c732fbc2d9649f3ac74cd3d7064
 file:
   batch:
-    statement:
+  - statement:
       select_statement:
         select_clause:
         - keyword: SELECT
@@ -336,6 +336,10 @@ file:
         - select_clause_element:
             column_reference:
               naked_identifier: PRECISION
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: PROPERTY
         - comma: ','
         - select_clause_element:
             column_reference:
@@ -877,3 +881,55 @@ file:
                 - naked_identifier: dbo
                 - dot: .
                 - naked_identifier: all_pop
+          statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_modifier:
+          - keyword: DISTINCT
+          - keyword: TOP
+          - expression:
+              numeric_literal: '5'
+          select_clause_element:
+            column_reference:
+              naked_identifier: some_value
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: some_table
+          statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            quoted_literal: "'Tabellen'"
+            alias_expression:
+              keyword: as
+              naked_identifier: Objekt
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: Count
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+            alias_expression:
+              keyword: as
+              naked_identifier: Anzahl
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: sql_modules
+          statement_terminator: ;

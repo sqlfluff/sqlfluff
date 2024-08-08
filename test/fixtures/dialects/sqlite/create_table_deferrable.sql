@@ -38,36 +38,36 @@ CREATE TABLE messages(
 -- check deferrable in column constrain segment
 CREATE TABLE track(
   trackid     INTEGER,
-  trackname   TEXT, 
+  trackname   TEXT,
   trackartist INTEGER REFERENCES artist(artistid) DEFERRABLE
 );
 
 CREATE TABLE track(
   trackid     INTEGER,
-  trackname   TEXT, 
+  trackname   TEXT,
   trackartist INTEGER REFERENCES artist(artistid) DEFERRABLE INITIALLY DEFERRED
 );
 
 CREATE TABLE track(
   trackid     INTEGER,
-  trackname   TEXT, 
+  trackname   TEXT,
   trackartist INTEGER REFERENCES artist(artistid) DEFERRABLE INITIALLY IMMEDIATE
 );
 
 CREATE TABLE track(
   trackid     INTEGER,
-  trackname   TEXT, 
+  trackname   TEXT,
   trackartist INTEGER REFERENCES artist(artistid) NOT DEFERRABLE
 );
 
 CREATE TABLE track(
   trackid     INTEGER,
-  trackname   TEXT, 
+  trackname   TEXT,
   trackartist INTEGER REFERENCES artist(artistid) NOT DEFERRABLE INITIALLY DEFERRED
 );
 
 CREATE TABLE track(
   trackid     INTEGER,
-  trackname   TEXT, 
+  trackname   TEXT,
   trackartist INTEGER REFERENCES artist(artistid) NOT DEFERRABLE INITIALLY IMMEDIATE
 );

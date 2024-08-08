@@ -1,0 +1,337 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 96d8398ecbf490ade6848e33eb70e2bb3dd3a41a590b38f0272936ce5db28744
+file:
+- statement:
+    values_clause:
+    - keyword: VALUES
+    - bracketed:
+        start_bracket: (
+        expression:
+          numeric_literal: '1'
+        end_bracket: )
+    - comma: ','
+    - bracketed:
+        start_bracket: (
+        expression:
+          numeric_literal: '2'
+        end_bracket: )
+    - comma: ','
+    - bracketed:
+        start_bracket: (
+        expression:
+          numeric_literal: '3'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: VALUES
+    - expression:
+        numeric_literal: '1'
+    - comma: ','
+    - expression:
+        numeric_literal: '2'
+    - comma: ','
+    - expression:
+        numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    values_clause:
+      keyword: VALUES
+      bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - comma: ','
+      - expression:
+          numeric_literal: '3'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: VALUES
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '21'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '2'
+      - comma: ','
+      - expression:
+          numeric_literal: '22'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '3'
+      - comma: ','
+      - expression:
+          numeric_literal: '23'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: VALUES
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          quoted_literal: "'A'"
+      - comma: ','
+      - expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              quoted_literal: "'S'"
+            end_bracket: )
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          quoted_literal: "'C'"
+      - comma: ','
+      - expression:
+          quoted_literal: "'X'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_expression:
+    - values_clause:
+      - keyword: VALUES
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+    - set_operator:
+        keyword: EXCEPT
+    - values_clause:
+        keyword: VALUES
+        expression:
+          numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: VALUES
+    - expression:
+        numeric_literal: '1'
+    - comma: ','
+    - expression:
+        numeric_literal: '2'
+    - comma: ','
+    - expression:
+        numeric_literal: '3'
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - numeric_literal: '1'
+    - limit_clause:
+        offset_clause:
+        - keyword: OFFSET
+        - numeric_literal: '1'
+        - keyword: ROWS
+        fetch_clause:
+        - keyword: FETCH
+        - keyword: FIRST
+        - numeric_literal: '1'
+        - keyword: ROWS
+        - keyword: ONLY
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: CTE1
+        cte_column_list:
+          bracketed:
+            start_bracket: (
+            identifier_list:
+              naked_identifier: C
+            end_bracket: )
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          values_clause:
+          - keyword: VALUES
+          - expression:
+              quoted_literal: "'A'"
+          - comma: ','
+          - expression:
+              quoted_literal: "'B'"
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: CTE1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: X
+          - dot: .
+          - naked_identifier: NUM
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: D
+          - dot: .
+          - naked_identifier: MY_COL
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: MY_SCHEMA
+              - dot: .
+              - naked_identifier: MY_TABLE
+            alias_expression:
+              keyword: AS
+              naked_identifier: D
+          join_clause:
+          - keyword: CROSS
+          - keyword: JOIN
+          - from_expression_element:
+              keyword: LATERAL
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  values_clause:
+                  - keyword: VALUES
+                  - expression:
+                      numeric_literal: '0'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '1'
+                end_bracket: )
+              alias_expression:
+                keyword: AS
+                naked_identifier: X
+                bracketed:
+                  start_bracket: (
+                  identifier_list:
+                    naked_identifier: NUM
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: MY_TAB_DFLT
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            numeric_literal: '2'
+        - comma: ','
+        - expression:
+            numeric_literal: '3'
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            null_literal: 'NULL'
+        - comma: ','
+        - keyword: DEFAULT
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: MY_TAB_DFLT
+    - values_clause:
+      - keyword: VALUES
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: MY_TAB_DFLT
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          keyword: DEFAULT
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: MY_TAB_DFLT
+    - values_clause:
+      - keyword: VALUES
+      - keyword: DEFAULT
+      - comma: ','
+      - expression:
+          null_literal: 'NULL'
+      - comma: ','
+      - expression:
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: MY_TAB_DFLT
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+          start_bracket: (
+          keyword: DEFAULT
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          expression:
+            null_literal: 'NULL'
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '1'
+          end_bracket: )
+- statement_terminator: ;

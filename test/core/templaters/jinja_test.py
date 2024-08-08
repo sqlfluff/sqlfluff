@@ -9,16 +9,22 @@ loops and placeholders.
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import List, NamedTuple
+from typing import List, NamedTuple, Union
 
 import pytest
+from jinja2 import Environment, nodes
 from jinja2.exceptions import UndefinedError
+from jinja2.ext import Extension
+from jinja2.nodes import Node
+from jinja2.parser import Parser
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile, SQLFluffUserError, SQLTemplaterError
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters import JinjaTemplater
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
-from sqlfluff.core.templaters.jinja import DummyUndefined, JinjaAnalyzer
+from sqlfluff.core.templaters.jinja import DummyUndefined
+from sqlfluff.core.templaters.slicers.tracer import JinjaAnalyzer, JinjaTagConfiguration
 
 JINJA_STRING = (
     "SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, "
@@ -35,6 +41,15 @@ JINJA_MACRO_CALL_SQL = (
     "    {% endcall %}\n"
     "FROM baz\n"
 )
+
+
+def get_parsed(path: str) -> BaseSegment:
+    """Testing helper to parse paths."""
+    linter = Linter()
+    # Get the first file matching the path string
+    first_path = next(linter.parse_path(path))
+    # Delegate parse assertions to the `.tree` property
+    return first_path.tree
 
 
 @pytest.mark.parametrize(
@@ -197,7 +212,7 @@ class RawTemplatedTestCase(NamedTuple):
                 " ",
                 "{%- set x = 42 %}",
                 " 1",
-                # This whitespace is a seperate from the 1 because it's consumed.
+                # This whitespace is a separate from the 1 because it's consumed.
                 " ",
                 "{%- if true -%}",
                 " ",
@@ -589,26 +604,32 @@ def test__templater_jinja_error_syntax():
     """Test syntax problems in the jinja templater."""
     t = JinjaTemplater()
     instr = "SELECT {{foo} FROM jinja_error\n"
-    outstr, vs = t.process(
-        in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
-    )
-    # Check we just skip templating.
-    assert str(outstr) == instr
-    # Check we have violations.
-    assert len(vs) > 0
-    # Check one of them is a templating error on line 1
-    assert any(v.rule_code() == "TMP" and v.line_no == 1 for v in vs)
+    with pytest.raises(SQLTemplaterError) as excinfo:
+        t.process(
+            in_str=instr,
+            fname="test",
+            config=FluffConfig(overrides={"dialect": "ansi"}),
+        )
+    templater_exception = excinfo.value
+    assert templater_exception.rule_code() == "TMP"
+    assert templater_exception.line_no == 1
+    assert "Failed to parse Jinja syntax" in str(templater_exception)
 
 
 def test__templater_jinja_error_catastrophic():
     """Test error handling in the jinja templater."""
     t = JinjaTemplater(override_context=dict(blah=7))
     instr = JINJA_STRING
-    outstr, vs = t.process(
-        in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
-    )
-    assert not outstr
-    assert len(vs) > 0
+    with pytest.raises(SQLTemplaterError) as excinfo:
+        t.process(
+            in_str=instr,
+            fname="test",
+            config=FluffConfig(overrides={"dialect": "ansi"}),
+        )
+    templater_exception = excinfo.value
+    assert templater_exception.rule_code() == "TMP"
+    assert templater_exception.line_no == 1
+    assert "Unrecoverable failure in Jinja templating" in str(templater_exception)
 
 
 def test__templater_jinja_error_macro_path_does_not_exist():
@@ -646,29 +667,25 @@ def test__templater_jinja_lint_empty():
     """
     lntr = Linter(dialect="ansi")
     parsed = lntr.parse_string(in_str='{{ "" }}')
-    assert parsed.templated_file.source_str == '{{ "" }}'
-    assert parsed.templated_file.templated_str == ""
+    parsed_variant = parsed.parsed_variants[0]
+    assert parsed_variant.templated_file.source_str == '{{ "" }}'
+    assert parsed_variant.templated_file.templated_str == ""
     # Get the types of the segments
-    print(f"Segments: {parsed.tree.raw_segments}")
-    seg_types = [seg.get_type() for seg in parsed.tree.raw_segments]
+    print(f"Segments: {parsed_variant.tree.raw_segments}")
+    seg_types = [seg.get_type() for seg in parsed_variant.tree.raw_segments]
     assert seg_types == ["placeholder", "end_of_file"]
 
 
 def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
     """Check that a parsed sql file matches the yaml file with the same name."""
-    lntr = Linter()
-    p = list(lntr.parse_path(path + ".sql"))
-    parsed = p[0][0]
-    if parsed is None:
-        print(p)
-        raise RuntimeError(p[0][1])
+    parsed = get_parsed(path + ".sql")
     # Whitespace is important here to test how that's treated
     tpl = parsed.to_tuple(code_only=code_only, show_raw=True, include_meta=include_meta)
     # Check nothing unparsable
     if "unparsable" in parsed.type_set():
         print(parsed.stringify())
         raise ValueError("Input file is unparsable.")
-    _hash, expected = yaml_loader(path + ".yml")
+    _, expected = yaml_loader(path + ".yml")
     assert tpl == expected
 
 
@@ -680,6 +697,7 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         # Macros
         ("jinja_b/jinja", False, False),
         # dbt builtins
+        ("jinja_c_dbt/dbt_builtins_cross_ref", True, False),
         ("jinja_c_dbt/dbt_builtins_config", True, False),
         ("jinja_c_dbt/dbt_builtins_is_incremental", True, False),
         ("jinja_c_dbt/dbt_builtins_ref", True, False),
@@ -722,6 +740,8 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         # Load all the macros
         ("jinja_q_multiple_path_macros/jinja", True, False),
         ("jinja_s_filters_in_library/jinja", True, False),
+        # Jinja loader search path, without also loading macros into global namespace
+        ("jinja_t_loader_search_path/jinja", True, False),
     ],
 )
 def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
@@ -743,9 +763,7 @@ def test__templater_jinja_block_matching(caplog):
     caplog.set_level(logging.DEBUG, logger="sqlfluff.lexer")
     path = "test/fixtures/templater/jinja_l_metas/002.sql"
     # Parse the file.
-    p = list(Linter().parse_path(path))
-    parsed = p[0][0]
-    assert parsed
+    parsed = get_parsed(path)
     # We only care about the template elements
     template_segments = [
         seg
@@ -796,11 +814,37 @@ def test__templater_jinja_block_matching(caplog):
             raise ValueError(f"Couldn't find appropriate grouping of blocks: {clause}")
 
 
+class DerivedJinjaAnalyzer(JinjaAnalyzer):
+    """An analyzer that includes some custom Jinja tags.
+
+    This is used for tests that show the analyzer can be extended for custom plugin
+    templaters that support custom tags.
+    """
+
+    @classmethod
+    def _get_tag_configuration(cls, tag: str) -> JinjaTagConfiguration:
+        tag_map = {
+            "up": JinjaTagConfiguration(
+                block_type="block_start",
+                block_tracking=True,
+            ),
+            "down": JinjaTagConfiguration(
+                block_type="block_mid",
+                block_tracking=True,
+            ),
+            "end": JinjaTagConfiguration(
+                block_type="block_end",
+                block_tracking=True,
+            ),
+        }
+        return tag_map.get(tag, super()._get_tag_configuration(tag))
+
+
 @pytest.mark.parametrize(
-    "test,result",
+    "test,result,analyzer_class",
     [
-        ("", []),
-        ("foo", [("foo", "literal", 0)]),
+        ("", [], JinjaAnalyzer),
+        ("foo", [("foo", "literal", 0)], JinjaAnalyzer),
         (
             "foo {{bar}} z ",
             [
@@ -808,6 +852,7 @@ def test__templater_jinja_block_matching(caplog):
                 ("{{bar}}", "templated", 4),
                 (" z ", "literal", 11),
             ],
+            JinjaAnalyzer,
         ),
         (
             (
@@ -828,6 +873,7 @@ def test__templater_jinja_block_matching(caplog):
                 ("{{my_table}}", "templated", 92, 2),
                 (" ", "literal", 104, 2),
             ],
+            JinjaAnalyzer,
         ),
         (
             "{% set thing %}FOO{% endset %} BAR",
@@ -837,6 +883,7 @@ def test__templater_jinja_block_matching(caplog):
                 ("{% endset %}", "block_end", 18, 1, "endset"),
                 (" BAR", "literal", 30, 2),
             ],
+            JinjaAnalyzer,
         ),
         (
             # Tests Jinja "block assignment" syntax. Also tests the use of
@@ -856,6 +903,7 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
                 ("{{ my_query }}", "templated", 83, 2),
                 ("\n", "literal", 97, 2),
             ],
+            JinjaAnalyzer,
         ),
         # Tests for jinja blocks that consume whitespace.
         (
@@ -868,6 +916,7 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
                 (" ", "literal", 42, 1),
                 ("{%-endif%}", "block_end", 43, 1, "endif"),
             ],
+            JinjaAnalyzer,
         ),
         (
             """{% for item in some_list -%}
@@ -884,6 +933,7 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
                 ("\n", "literal", 97, 1),
                 ("{%- endfor %}", "block_end", 98, 1, "endfor"),
             ],
+            JinjaAnalyzer,
         ),
         (
             JINJA_MACRO_CALL_SQL,
@@ -901,15 +951,48 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
                 ("{% endcall %}", "block_end", 142, 3, "endcall"),
                 ("\n" "FROM baz\n", "literal", 155, 4),
             ],
+            JinjaAnalyzer,
+        ),
+        (
+            # Test of tag heuristics in the default _get_tag_configuration
+            """{% randomtagstart %}
+    SELECT 1;
+{% elphony %}
+    SELECT 2;
+{% endsomethingweird %}""",
+            [
+                ("{% randomtagstart %}", "block_start", 0, 1, "randomtagstart"),
+                ("\n    SELECT 1;\n", "literal", 20, 1),
+                ("{% elphony %}", "block_mid", 35, 1, "elphony"),
+                ("\n    SELECT 2;\n", "literal", 48, 1),
+                ("{% endsomethingweird %}", "block_end", 63, 1, "endsomethingweird"),
+            ],
+            JinjaAnalyzer,
+        ),
+        (
+            # Basic test with a derived JinjaAnalyzer that supports some custom tags
+            """{% up 'create table xyz' %}
+    CREATE TABLE xyz (id int);
+{% down %}
+    DROP TABLE xyz;
+{% end %}""",
+            [
+                ("{% up 'create table xyz' %}", "block_start", 0, 1, "up"),
+                ("\n    CREATE TABLE xyz (id int);\n", "literal", 27, 1),
+                ("{% down %}", "block_mid", 59, 1, "down"),
+                ("\n    DROP TABLE xyz;\n", "literal", 69, 1),
+                ("{% end %}", "block_end", 90, 1, "end"),
+            ],
+            DerivedJinjaAnalyzer,
         ),
     ],
 )
-def test__templater_jinja_slice_template(test, result):
+def test__templater_jinja_slice_template(test, result, analyzer_class):
     """Test _slice_template."""
     templater = JinjaTemplater()
     env, _, render_func = templater.construct_render_func()
 
-    analyzer = JinjaAnalyzer(test, env)
+    analyzer = analyzer_class(test, env)
     analyzer.analyze(render_func=render_func)
     resp = analyzer.raw_sliced
     # check contiguous (unless there's a comment in it)
@@ -924,6 +1007,48 @@ def test__templater_jinja_slice_template(test, result):
     assert resp == [RawFileSlice(*args) for args in result]
 
 
+class DBMigrationExtension(Extension):
+    """Example of a hypothetical custom Jinja extension.
+
+    This extension might ostensibly be used to represent up/down database migrations.
+    """
+
+    tags = {"up"}
+
+    def parse(self, parser: Parser) -> Union[Node, List[Node]]:
+        """Parse the up/down blocks."""
+        # {% up 'migration name' %}
+        next(parser.stream)  # skip the "up" token
+        parser.parse_expression()  # skip the name of this migration
+        up_body = parser.parse_statements(("name:down",))
+        # {% down %}
+        next(parser.stream)  # skip the "down" token
+        down_body = parser.parse_statements(("name:end",))
+        # {% end %}
+        next(parser.stream)
+
+        # This is just a test, so output the blocks verbatim one after the other:
+        return [nodes.Scope(up_body), nodes.Scope(down_body)]
+
+
+class DerivedJinjaTemplater(JinjaTemplater):
+    """A templater that includes some custom Jinja tags.
+
+    This is used for tests that show the templater can be extended for custom plugin
+    templaters that support custom tags.
+    """
+
+    name = "derivedtemplater"
+
+    def _get_jinja_env(self, config=None):
+        env = super()._get_jinja_env(config)
+        env.add_extension(DBMigrationExtension)
+        return env
+
+    def _get_jinja_analyzer(self, raw_str: str, env: Environment) -> JinjaAnalyzer:
+        return DerivedJinjaAnalyzer(raw_str, env)
+
+
 def _statement(*args, **kwargs):
     # NOTE: The standard dbt statement() call returns nothing.
     return ""
@@ -934,10 +1059,15 @@ def _load_result(*args, **kwargs):
 
 
 @pytest.mark.parametrize(
-    "raw_file,override_context,result",
+    "raw_file,override_context,result,templater_class",
     [
-        ("", None, []),
-        ("foo", None, [("literal", slice(0, 3, None), slice(0, 3, None))]),
+        ("", None, [], JinjaTemplater),
+        (
+            "foo",
+            None,
+            [("literal", slice(0, 3, None), slice(0, 3, None))],
+            JinjaTemplater,
+        ),
         # Example with no loops
         (
             "SELECT {{blah}}, boo {# comment #} from something",
@@ -949,6 +1079,7 @@ def _load_result(*args, **kwargs):
                 ("comment", slice(21, 34, None), slice(19, 19, None)),
                 ("literal", slice(34, 49, None), slice(19, 34, None)),
             ],
+            JinjaTemplater,
         ),
         # Example with loops
         (
@@ -980,6 +1111,7 @@ def _load_result(*args, **kwargs):
                 ("templated", slice(97, 109, None), slice(58, 64, None)),
                 ("literal", slice(109, 110, None), slice(64, 65, None)),
             ],
+            JinjaTemplater,
         ),
         # Example with loops (and utilising the end slice code)
         (
@@ -1008,6 +1140,7 @@ def _load_result(*args, **kwargs):
                 ("templated", slice(95, 107, None), slice(52, 58, None)),
                 ("literal", slice(107, 108, None), slice(58, 59, None)),
             ],
+            JinjaTemplater,
         ),
         # Test a trailing split, and some variables which don't refer anything.
         (
@@ -1023,6 +1156,7 @@ def _load_result(*args, **kwargs):
                 ("templated", slice(49, 97, None), slice(16, 45, None)),
                 ("literal", slice(97, 99, None), slice(45, 47, None)),
             ],
+            JinjaTemplater,
         ),
         # Test splitting with a loop.
         (
@@ -1055,6 +1189,7 @@ def _load_result(*args, **kwargs):
                 ("block_end", slice(95, 107, None), slice(146, 146, None)),
                 ("literal", slice(107, 121, None), slice(146, 160, None)),
             ],
+            JinjaTemplater,
         ),
         # Test an example where a block is removed entirely.
         (
@@ -1066,6 +1201,7 @@ def _load_result(*args, **kwargs):
                 ("block_end", slice(18, 30, None), slice(0, 0, None)),
                 ("literal", slice(30, 39, None), slice(0, 9, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Tests Jinja "include" directive.
@@ -1078,6 +1214,7 @@ SELECT 1
                 ("templated", slice(0, 42, None), slice(0, 18, None)),
                 ("literal", slice(42, 53, None), slice(18, 29, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Tests Jinja "import" directive.
@@ -1090,6 +1227,7 @@ SELECT 1
                 ("templated", slice(0, 31, None), slice(0, 0, None)),
                 ("literal", slice(31, 42, None), slice(0, 11, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Tests Jinja "from import" directive..
@@ -1111,6 +1249,7 @@ SELECT
                 ("templated", slice(111, 132, None), slice(25, 34, None)),
                 ("literal", slice(132, 133, None), slice(34, 35, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Tests Jinja "do" directive. Should be treated as a
@@ -1128,6 +1267,7 @@ SELECT
                 ("literal", slice(28, 42, None), slice(2, 16, None)),
                 ("block_end", slice(42, 53, None), slice(16, 16, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Tests issue 2541, a bug where the {%- endfor %} was causing
@@ -1154,6 +1294,7 @@ SELECT
                 ("block_end", slice(79, 92, None), slice(30, 30, None)),
                 ("literal", slice(92, 93, None), slice(30, 31, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Similar to the test above for issue 2541, but it's even trickier:
@@ -1185,6 +1326,7 @@ SELECT
                 ("block_end", slice(100, 113, None), slice(22, 22, None)),
                 ("block_end", slice(113, 127, None), slice(22, 22, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Test for issue 2786. Also lots of whitespace control. In this
@@ -1236,6 +1378,7 @@ from my_table
                 ("block_end", slice(299, 312, None), slice(27, 27, None)),
                 ("literal", slice(312, 327, None), slice(27, 42, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Test for issue 2835. There's no space between "col" and "=".
@@ -1251,6 +1394,7 @@ SELECT {{ col }}
                 ("templated", slice(29, 38, None), slice(8, 12, None)),
                 ("literal", slice(38, 39, None), slice(12, 13, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Another test for issue 2835. The {% for %} loop inside the
@@ -1280,6 +1424,7 @@ FROM SOME_TABLE
                 ("templated", slice(113, 139, None), slice(9, 29, None)),
                 ("literal", slice(139, 156, None), slice(29, 46, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Third test for issue 2835. This was the original SQL provided in
@@ -1319,6 +1464,7 @@ FROM SOME_TABLE
                 ("templated", slice(244, 270, None), slice(11, 66, None)),
                 ("literal", slice(270, 287, None), slice(66, 83, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Test for issue 2822: Handle slicing when there's no newline after
@@ -1331,6 +1477,7 @@ FROM SOME_TABLE
                 ("literal", slice(26, 27, None), slice(13, 13, None)),
                 ("block_end", slice(27, 39, None), slice(13, 13, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Test for issue 3434: Handle {% block %}.
@@ -1348,6 +1495,7 @@ FROM SOME_TABLE
                 ("literal", slice(29, 43, None), slice(27, 41, None)),
                 ("literal", slice(86, 87, None), slice(41, 42, None)),
             ],
+            JinjaTemplater,
         ),
         (
             # Another test for issue 3434: Similar to the first, but uses
@@ -1386,6 +1534,7 @@ FROM {{ j }}{{ self.table_name() }}
                 ("block_end", slice(119, 131, None), slice(88, 88, None)),
                 ("literal", slice(131, 132, None), slice(88, 89, None)),
             ],
+            JinjaTemplater,
         ),
         (
             "{{ statement('variables', fetch_result=true) }}\n",
@@ -1397,6 +1546,7 @@ FROM {{ j }}{{ self.table_name() }}
                 ("templated", slice(0, 47, None), slice(0, 0, None)),
                 ("literal", slice(47, 48, None), slice(0, 1, None)),
             ],
+            JinjaTemplater,
         ),
         (
             "{% call statement('variables', fetch_result=true) %}\n"
@@ -1413,6 +1563,7 @@ FROM {{ j }}{{ self.table_name() }}
                 ("block_end", slice(70, 83, None), slice(0, 0, None)),
                 ("literal", slice(83, 100, None), slice(0, 17, None)),
             ],
+            JinjaTemplater,
         ),
         (
             JINJA_MACRO_CALL_SQL,
@@ -1435,12 +1586,32 @@ FROM {{ j }}{{ self.table_name() }}
                 ("block_end", slice(142, 155, None), slice(47, 47, None)),
                 ("literal", slice(155, 165, None), slice(47, 57, None)),
             ],
+            JinjaTemplater,
+        ),
+        (
+            # Simple test of a derived templater with custom tags
+            """{% up 'create table xyz' %}
+    CREATE TABLE xyz (id int);
+{% down %}
+    DROP TABLE xyz;
+{% end %}""",
+            None,
+            [
+                ("block_start", slice(0, 27, None), slice(0, 0, None)),
+                ("literal", slice(27, 59, None), slice(0, 32, None)),
+                ("block_mid", slice(59, 69, None), slice(32, 32, None)),
+                ("literal", slice(69, 90, None), slice(32, 53, None)),
+                ("block_end", slice(90, 99, None), slice(53, 53, None)),
+            ],
+            DerivedJinjaTemplater,
         ),
     ],
 )
-def test__templater_jinja_slice_file(raw_file, override_context, result, caplog):
+def test__templater_jinja_slice_file(
+    raw_file, override_context, result, templater_class, caplog
+):
     """Test slice_file."""
-    templater = JinjaTemplater(override_context=override_context)
+    templater = templater_class(override_context=override_context)
     _, _, render_func = templater.construct_render_func(
         config=FluffConfig.from_path(
             "test/fixtures/templater/jinja_slice_template_macros"
@@ -1652,6 +1823,15 @@ def test_undefined_magic_methods():
             ],
             id="if_true_elif_type_error_else",
         ),
+        # https://github.com/sqlfluff/sqlfluff/issues/5803
+        pytest.param(
+            "inline_select.sql",
+            [
+                "select 2\n",
+                "select 1\n",
+            ],
+            id="inline_select",
+        ),
     ],
 )
 def test__templater_lint_unreached_code(sql_path: str, expected_renderings):
@@ -1659,10 +1839,28 @@ def test__templater_lint_unreached_code(sql_path: str, expected_renderings):
     test_dir = Path("test/fixtures/templater/jinja_lint_unreached_code")
     t = JinjaTemplater()
     renderings = []
+    raw_slicings = []
+    final_source_slices = []
     for templated_file, _ in t.process_with_variants(
         in_str=(test_dir / sql_path).read_text(),
         fname=str(sql_path),
         config=FluffConfig.from_path(str(test_dir)),
     ):
         renderings.append(templated_file.templated_str)
+        raw_slicings.append(templated_file.raw_sliced)
+        # Capture the final slice for all of them.
+        final_source_slices.append(templated_file.sliced_file[-1].source_slice)
     assert renderings == expected_renderings
+    # Compare all of the additional raw slicings to make sure they're the
+    # same as the root.
+    root_slicing = raw_slicings[0]
+    for additional_slicing in raw_slicings[1:]:
+        assert additional_slicing == root_slicing
+    # Check that the final source slices also line up in the templated files.
+    # NOTE: Clearly the `templated_slice` values _won't_ be the same.
+    # We're doing the _final_ slice, because it's very likely to be the same
+    # _type_ and if it's in the right place, we can assume that all of the
+    # others probably are.
+    root_final_slice = final_source_slices[0]
+    for additional_final_slice in final_source_slices[1:]:
+        assert additional_final_slice == root_final_slice

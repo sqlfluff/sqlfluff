@@ -1,0 +1,502 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9161ddb2a56e8fd5cc2ada0f788444a01cfb93ed8c26b6487310667e95c9702e
+file:
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: a
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - data_type:
+          keyword: BINARY
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - data_type:
+          keyword: VARBINARY
+      - comma: ','
+      - column_reference:
+          naked_identifier: ba
+      - data_type:
+        - keyword: LONG
+        - keyword: VARBINARY
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: b
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: a
+        data_type:
+          keyword: boolean
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: c
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - data_type:
+          keyword: char
+      - comma: ','
+      - column_reference:
+          naked_identifier: aa
+      - data_type:
+          keyword: char
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '7'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - data_type:
+          keyword: varchar
+      - comma: ','
+      - column_reference:
+          naked_identifier: bb
+      - data_type:
+          keyword: varchar
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '10'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: c
+      - data_type:
+        - keyword: long
+        - keyword: varchar
+      - comma: ','
+      - column_reference:
+          naked_identifier: cc
+      - data_type:
+        - keyword: long
+        - keyword: varchar
+        - bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100000'
+              end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: d
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - data_type:
+          keyword: date
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - data_type:
+          keyword: TIME
+      - comma: ','
+      - column_reference:
+          naked_identifier: c
+      - data_type:
+        - keyword: TIME
+        - keyword: WITH
+        - keyword: TIME
+        - keyword: ZONE
+      - comma: ','
+      - column_reference:
+          naked_identifier: d
+      - data_type:
+          keyword: TIMESTAMP
+      - comma: ','
+      - column_reference:
+          naked_identifier: e
+      - data_type:
+          keyword: DATETIME
+      - comma: ','
+      - column_reference:
+          naked_identifier: f
+      - data_type:
+          keyword: SMALLDATETIME
+      - comma: ','
+      - column_reference:
+          naked_identifier: g
+      - data_type:
+        - keyword: TIMESTAMP
+        - keyword: WITH
+        - keyword: TIME
+        - keyword: ZONE
+      - comma: ','
+      - column_reference:
+          naked_identifier: h
+      - data_type:
+          keyword: INTERVAL
+      - comma: ','
+      - column_reference:
+          naked_identifier: i
+      - data_type:
+        - keyword: INTERVAL
+        - keyword: DAY
+        - keyword: TO
+        - keyword: SECOND
+      - comma: ','
+      - column_reference:
+          naked_identifier: j
+      - data_type:
+        - keyword: INTERVAL
+        - keyword: YEAR
+        - keyword: TO
+        - keyword: MONTH
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: e
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - data_type:
+        - keyword: double
+        - keyword: precision
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - data_type:
+          keyword: float
+      - comma: ','
+      - column_reference:
+          naked_identifier: bb
+      - data_type:
+          keyword: float
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '7'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: bbb
+      - data_type:
+          keyword: float
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '7'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: c
+      - data_type:
+          keyword: float8
+      - comma: ','
+      - column_reference:
+          naked_identifier: d
+      - data_type:
+          keyword: real
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: f
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - data_type:
+          keyword: BINARY
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - data_type:
+          keyword: VARBINARY
+      - comma: ','
+      - column_reference:
+          naked_identifier: c
+      - data_type:
+        - keyword: LONG
+        - keyword: VARBINARY
+      - comma: ','
+      - column_reference:
+          naked_identifier: d
+      - data_type:
+          keyword: BYTEA
+      - comma: ','
+      - column_reference:
+          naked_identifier: e
+      - data_type:
+          keyword: RAW
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: g
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - data_type:
+          keyword: INTEGER
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - data_type:
+          keyword: INT
+      - comma: ','
+      - column_reference:
+          naked_identifier: c
+      - data_type:
+          keyword: BIGINT
+      - comma: ','
+      - column_reference:
+          naked_identifier: d
+      - data_type:
+          keyword: INT8
+      - comma: ','
+      - column_reference:
+          naked_identifier: e
+      - data_type:
+          keyword: SMALLINT
+      - comma: ','
+      - column_reference:
+          naked_identifier: f
+      - data_type:
+          keyword: TINYINT
+      - comma: ','
+      - column_reference:
+          naked_identifier: g
+      - data_type:
+          keyword: DECIMAL
+      - comma: ','
+      - column_reference:
+          naked_identifier: gg
+      - data_type:
+          keyword: DECIMAL
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: ggg
+      - data_type:
+          keyword: DECIMAL
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '5'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: h
+      - data_type:
+          keyword: NUMERIC
+      - comma: ','
+      - column_reference:
+          naked_identifier: hh
+      - data_type:
+          keyword: NUMERIC
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: hhh
+      - data_type:
+          keyword: NUMERIC
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '5'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: hhhh
+      - data_type:
+          keyword: NUMERIC
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '5'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: i
+      - data_type:
+          keyword: NUMBER
+      - comma: ','
+      - column_reference:
+          naked_identifier: ii
+      - data_type:
+          keyword: NUMBER
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: iii
+      - data_type:
+          keyword: NUMBER
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '5'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: j
+      - data_type:
+          keyword: MONEY
+      - comma: ','
+      - column_reference:
+          naked_identifier: jj
+      - data_type:
+          keyword: MONEY
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: jjj
+      - data_type:
+          keyword: MONEY
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '5'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: h
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: a
+        data_type:
+          keyword: uuid
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: i
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - data_type:
+          keyword: GEOMETRY
+      - comma: ','
+      - column_reference:
+          naked_identifier: aa
+      - data_type:
+          keyword: GEOMETRY
+          bracketed:
+            start_bracket: (
+            numeric_literal: '10'
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - data_type:
+          keyword: GEOGRAPHY
+      - comma: ','
+      - column_reference:
+          naked_identifier: bb
+      - data_type:
+          keyword: GEOGRAPHY
+          bracketed:
+            start_bracket: (
+            numeric_literal: '10'
+            end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: p
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - data_type:
+          array_type:
+            keyword: array
+            start_square_bracket: '['
+            data_type:
+              keyword: integer
+            end_square_bracket: ']'
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - data_type:
+          array_type:
+            keyword: array
+            start_square_bracket: '['
+            data_type:
+              keyword: varchar
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '50'
+                  end_bracket: )
+            end_square_bracket: ']'
+      - end_bracket: )
+- statement_terminator: ;

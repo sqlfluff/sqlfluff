@@ -1,0 +1,247 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f20fb63140dbf48d70b1e52b4db30324a332968e7e33b62144d994727ef3e6d5
+file:
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            numeric_literal: '2'
+        - end_bracket: )
+    - upsert_clause:
+      - keyword: 'ON'
+      - keyword: CONFLICT
+      - keyword: DO
+      - keyword: NOTHING
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            numeric_literal: '2'
+        - end_bracket: )
+    - upsert_clause:
+      - keyword: 'ON'
+      - keyword: CONFLICT
+      - conflict_target:
+          index_column_definition:
+            expression:
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: a
+              - comma: ','
+              - column_reference:
+                  naked_identifier: b
+              - end_bracket: )
+      - keyword: DO
+      - keyword: NOTHING
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            numeric_literal: '2'
+        - end_bracket: )
+    - upsert_clause:
+      - keyword: 'ON'
+      - keyword: CONFLICT
+      - conflict_target:
+          index_column_definition:
+            expression:
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: a
+              - comma: ','
+              - column_reference:
+                  naked_identifier: b
+              - end_bracket: )
+      - keyword: DO
+      - keyword: UPDATE
+      - keyword: SET
+      - naked_identifier: a
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+          - naked_identifier: excluded
+          - dot: .
+          - naked_identifier: a
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            numeric_literal: '2'
+        - end_bracket: )
+    - upsert_clause:
+      - keyword: 'ON'
+      - keyword: CONFLICT
+      - conflict_target:
+          index_column_definition:
+            expression:
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: a
+              - comma: ','
+              - column_reference:
+                  naked_identifier: b
+              - end_bracket: )
+      - keyword: DO
+      - keyword: UPDATE
+      - keyword: SET
+      - naked_identifier: a
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+          - naked_identifier: excluded
+          - dot: .
+          - naked_identifier: a
+      - keyword: WHERE
+      - expression:
+          column_reference:
+            naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: <
+          numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            numeric_literal: '2'
+        - end_bracket: )
+    - upsert_clause:
+      - keyword: 'ON'
+      - keyword: CONFLICT
+      - conflict_target:
+          index_column_definition:
+            expression:
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: a
+              - comma: ','
+              - column_reference:
+                  naked_identifier: b
+              - end_bracket: )
+      - keyword: DO
+      - keyword: UPDATE
+      - keyword: SET
+      - naked_identifier: a
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+          - naked_identifier: excluded
+          - dot: .
+          - naked_identifier: a
+      - keyword: WHERE
+      - expression:
+          column_reference:
+            naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: <
+          numeric_literal: '10'
+    - returning_clause:
+        keyword: RETURNING
+        wildcard_expression:
+          wildcard_identifier:
+            star: '*'
+- statement_terminator: ;

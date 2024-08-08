@@ -3,6 +3,7 @@ CREATE TABLE [dbo].[example](
     [Column B] [int] IDENTITY(1, 1) NOT NULL,
     [ColumnC] varchar(100) DEFAULT 'mydefault',
     [ColumnDecimal] DATE DEFAULT GETDATE(),
+    [ColumnUser] char(30) DEFAULT CURRENT_USER,
     [col1] int default ((-1)) not null,
     [col1] int default (-1) not null,
     [col1] int default -1 not null,
@@ -33,3 +34,10 @@ CREATE TABLE [dbo].[table1] (
     [column1] varchar (100) collate Latin1_General_BIN
 )
 GO
+
+CREATE TABLE table_name (
+    id UNIQUEIDENTIFIER NOT NULL
+    CONSTRAINT constraint_name
+    REFERENCES referenced_table_name
+    ON DELETE NO ACTION
+);

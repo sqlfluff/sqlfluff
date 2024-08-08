@@ -1,4 +1,5 @@
 """Implementation of Rule AL02."""
+
 from typing import Optional
 
 from sqlfluff.core.rules import LintResult, RuleContext

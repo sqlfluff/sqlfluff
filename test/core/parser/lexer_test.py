@@ -388,6 +388,40 @@ class _LexerSlicingTemplateFileCase(NamedTuple):
                 ("", None, None, "end_of_file"),
             ],
         ),
+        _LexerSlicingTemplateFileCase(
+            name="template with escaped slice",
+            file=TemplatedFile(
+                source_str="SELECT '{{}}' FROM TAB;",
+                templated_str="SELECT '{}' FROM TAB;",
+                fname="test.sql",
+                sliced_file=[
+                    TemplatedFileSlice("literal", slice(0, 8, None), slice(0, 8, None)),
+                    TemplatedFileSlice(
+                        "escaped", slice(8, 12, None), slice(8, 10, None)
+                    ),
+                    TemplatedFileSlice(
+                        "literal", slice(12, 23, None), slice(10, 21, None)
+                    ),
+                ],
+                raw_sliced=[
+                    RawFileSlice("SELECT '", "literal", 0, None, 0),
+                    RawFileSlice("{{", "escaped", 8, None, 0),
+                    RawFileSlice("}}", "escaped", 10, None, 0),
+                    RawFileSlice("' FROM TAB;", "literal", 12, None, 0),
+                ],
+            ),
+            expected_segments=[
+                ("SELECT", None, None, "word"),
+                (" ", None, None, "whitespace"),
+                ("'{}'", None, None, "raw"),
+                (" ", None, None, "whitespace"),
+                ("FROM", None, None, "word"),
+                (" ", None, None, "whitespace"),
+                ("TAB", None, None, "word"),
+                (";", None, None, "raw"),
+                ("", None, None, "end_of_file"),
+            ],
+        ),
     ],
     ids=lambda case: case.name,
 )

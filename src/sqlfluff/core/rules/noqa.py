@@ -283,8 +283,7 @@ class IgnoreMask:
                 (
                     ignore
                     for ignore in ignore_mask
-                    if not ignore.rules
-                    or (v.rule_code() in cast(Tuple[str, ...], ignore.rules))
+                    if not ignore.rules or (v.rule_code() in ignore.rules)
                 ),
                 key=lambda ignore: ignore.line_no,
             )

@@ -24,3 +24,11 @@ select
         else col3
     end as text) as mycol
 from table1;
+
+SELECT
+    column1,
+    CASE
+        WHEN 'test' THEN 12
+        ELSE 0
+    END >= 0
+FROM boo;

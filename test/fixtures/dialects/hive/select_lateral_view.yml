@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 42595fd8445bfd6551382c053b6f52b96f0690bd47979028dff4cfd3d862add3
+_hash: 8b745501faab5270d0a39402a5a7f56217bcd43dcf399c8fea0962c5c51fd5da
 file:
 - statement:
     select_statement:
@@ -255,4 +255,193 @@ file:
       limit_clause:
         keyword: limit
         numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: explode
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: map
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'A'"
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '10'
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'B'"
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '20'
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'C'"
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '30'
+                  - end_bracket: )
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              identifier_list:
+              - naked_identifier: key
+              - comma: ','
+              - naked_identifier: value
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: posexplode
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: array
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'A'"
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'B'"
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'C'"
+                  - end_bracket: )
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              identifier_list:
+              - naked_identifier: pos
+              - comma: ','
+              - naked_identifier: val
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: inline
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: array
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      function:
+                        function_name:
+                          function_name_identifier: struct
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            quoted_literal: "'A'"
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '10'
+                        - comma: ','
+                        - expression:
+                            keyword: DATE
+                            date_constructor_literal: "'2015-01-01'"
+                        - end_bracket: )
+                  - comma: ','
+                  - expression:
+                      function:
+                        function_name:
+                          function_name_identifier: struct
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            quoted_literal: "'B'"
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '20'
+                        - comma: ','
+                        - expression:
+                            keyword: DATE
+                            date_constructor_literal: "'2016-02-02'"
+                        - end_bracket: )
+                  - end_bracket: )
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              identifier_list:
+              - naked_identifier: col1
+              - comma: ','
+              - naked_identifier: col2
+              - comma: ','
+              - naked_identifier: col3
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: stack
+            bracketed:
+            - start_bracket: (
+            - expression:
+                numeric_literal: '2'
+            - comma: ','
+            - expression:
+                quoted_literal: "'A'"
+            - comma: ','
+            - expression:
+                numeric_literal: '10'
+            - comma: ','
+            - expression:
+                keyword: DATE
+                date_constructor_literal: "'2015-01-01'"
+            - comma: ','
+            - expression:
+                quoted_literal: "'B'"
+            - comma: ','
+            - expression:
+                numeric_literal: '20'
+            - comma: ','
+            - expression:
+                keyword: DATE
+                date_constructor_literal: "'2016-01-01'"
+            - end_bracket: )
+          alias_expression:
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              identifier_list:
+              - naked_identifier: col0
+              - comma: ','
+              - naked_identifier: col1
+              - comma: ','
+              - naked_identifier: col2
+              end_bracket: )
 - statement_terminator: ;

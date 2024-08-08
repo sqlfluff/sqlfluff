@@ -1,4 +1,5 @@
 """Test rules docstring."""
+
 import re
 
 import pytest

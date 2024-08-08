@@ -257,7 +257,7 @@ def test_safe_create_replace_file(case, tmp_path):
         LintedFile._safe_create_replace_file(
             str(p), str(p), case["update"], case["encoding"]
         )
-    except:  # noqa: E722
+    except Exception:
         pass
     actual = p.read_text(encoding=case["encoding"])
     assert case["expected"] == actual

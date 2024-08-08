@@ -19,6 +19,7 @@ from sqlfluff.core.parser import (
     ParseMode,
     Ref,
     RegexParser,
+    SegmentGenerator,
     Sequence,
     StringParser,
     SymbolSegment,
@@ -137,6 +138,7 @@ hive_dialect.add(
         "back_quote",
         IdentifierSegment,
         type="quoted_identifier",
+        casefold=str.lower,
     ),
 )
 
@@ -144,11 +146,28 @@ hive_dialect.add(
 hive_dialect.replace(
     JoinKeywordsGrammar=Sequence(Sequence("SEMI", optional=True), "JOIN"),
     QuotedLiteralSegment=OneOf(
-        TypedParser("single_quote", LiteralSegment, type="quoted_literal"),
-        TypedParser("double_quote", LiteralSegment, type="quoted_literal"),
-        TypedParser("back_quote", LiteralSegment, type="quoted_literal"),
+        TypedParser(
+            "single_quote", LiteralSegment, type="quoted_literal", casefold=str.lower
+        ),
+        TypedParser(
+            "double_quote", LiteralSegment, type="quoted_literal", casefold=str.lower
+        ),
+        TypedParser(
+            "back_quote", LiteralSegment, type="quoted_literal", casefold=str.lower
+        ),
     ),
     TrimParametersGrammar=Nothing(),
+    # ANSI with lower casefold
+    NakedIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"[A-Z0-9_]*[A-Z][A-Z0-9_]*",
+            IdentifierSegment,
+            type="naked_identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.lower,
+        )
+    ),
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
         insert=[
             Ref("BackQuotedIdentifierSegment"),
@@ -421,11 +440,32 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
 class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     """Modified from ANSI to allow for `LATERAL VIEW` clause."""
 
-    match_grammar = ansi.FromExpressionElementSegment.match_grammar.copy(
-        insert=[
-            AnyNumberOf(Ref("LateralViewClauseSegment")),
-        ],
-        before=Ref("PostTableExpressionGrammar", optional=True),
+    match_grammar = (
+        ansi.FromExpressionElementSegment._base_from_expression_element.copy(
+            insert=[
+                AnyNumberOf(Ref("LateralViewClauseSegment")),
+            ],
+            before=Ref("PostTableExpressionGrammar", optional=True),
+        )
+    )
+
+
+class AliasExpressionSegment(ansi.AliasExpressionSegment):
+    """Modified to allow UDTF in SELECT clause to return multiple columns aliases.
+
+    Full Apache Hive `Built-in Table-Generating Functions (UDTF)` reference here:
+    https://cwiki.apache.org/confluence/display/hive/languagemanual+udf#LanguageManualUDF-Built-inTable-GeneratingFunctions(UDTF)
+    """
+
+    match_grammar = Sequence(
+        Ref.keyword("AS", optional=True),
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar", optional=True),
+                Bracketed(Ref("SingleIdentifierListSegment")),
+            ),
+            Ref("SingleIdentifierGrammar"),
+        ),
     )
 
 

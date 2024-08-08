@@ -35,9 +35,9 @@ jobs:
         jobs: [ 'linting', 'doclinting', 'docbuild', 'yamllint', 'mypy', 'doctests' ]
     name: ${{ matrix.jobs }} tests
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.12'
     - name: Install dependencies
@@ -72,7 +72,7 @@ jobs:
     name: dbt Plugin Tests
     strategy:
       matrix:
-        dbt-version: [ dbt110, dbt120, dbt130, dbt140, dbt150, dbt160 ]
+        dbt-version: [ dbt110, dbt120, dbt130, dbt140, dbt150, dbt160, dbt170, dbt180 ]
         include:
           # Default to python 3.11 for dbt tests. dbt doesn't support py 3.12 yet.
           - python-version: "3.11"
@@ -137,9 +137,9 @@ jobs:
   ymlchecks:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.12'
     - name: Install dependencies
@@ -163,9 +163,9 @@ jobs:
     runs-on: ubuntu-latest
     name: example tests
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.12'
     - name: Install dependencies
@@ -188,9 +188,9 @@ jobs:
       run: |
         git config --global core.autocrlf false
         git config --global core.eol lf
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.12"
     - name: List Env
@@ -209,9 +209,9 @@ jobs:
         mkdir temp_pytest
         python -m tox -e winpy -- --cov=sqlfluff -n 2 test -m "not integration"
     - name: Upload coverage data (github)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: coverage-data
+        name: coverage-data-winpy3.12
         path: ".coverage.*"
         if-no-files-found: ignore
 
@@ -231,9 +231,9 @@ jobs:
       run: |
         git config --global core.autocrlf false
         git config --global core.eol lf
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         # dbt doesn't support py 3.12 yet.
         python-version: "3.11"
@@ -255,10 +255,10 @@ jobs:
     name: pip install tests
     steps:
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.12"
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Install dependencies
       run: |
         pip install .
@@ -284,7 +284,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Coveralls Finished
-      uses: coverallsapp/github-action@master
+      uses: coverallsapp/github-action@v2
       with:
         github-token: ${{ secrets.github_token }}
         parallel-finished: true
@@ -294,17 +294,18 @@ jobs:
     runs-on: ubuntu-latest
     needs: [python-version-tests, dbt-tests, python-windows-tests, dialect-tests]
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - run: python -m pip install --upgrade coverage[toml]
 
       - name: Download coverage data.
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: coverage-data
+          pattern: coverage-data-*
+          merge-multiple: true
 
       - name: Combine coverage & fail if it's <100%.
         id: report_coverage
@@ -318,7 +319,7 @@ jobs:
           python -m coverage report --fail-under=100 --skip-covered --skip-empty -m | tee coverage-report.txt
 
       - name: Upload HTML report if check failed.
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: html-report
           path: htmlcov
@@ -335,7 +336,7 @@ jobs:
         # NOTE: We don't actually comment on the PR from here, we'll do that in
         # a more secure way by triggering a more secure workflow.
         # https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: txt-report
           path: |

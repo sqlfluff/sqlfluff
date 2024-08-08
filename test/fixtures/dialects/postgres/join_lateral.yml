@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5e6004ee8ed27c696d29099874de40fe8832c7b10dfc5d946e8da9d1d8ef0566
+_hash: 247eb433c991df9cf781b257b0abae8c85416599c0d7f58daf5e18f7898717ef
 file:
 - statement:
     select_statement:
@@ -58,14 +58,32 @@ file:
               table_reference:
                 naked_identifier: tbl1
           join_clause:
-          - keyword: join
-          - keyword: lateral
-          - from_expression_element:
+            keyword: join
+            from_expression_element:
+              keyword: lateral
               table_expression:
-                table_reference:
-                  naked_identifier: tbl2
-          - join_on_condition:
-              keyword: 'on'
+                bracketed:
+                  start_bracket: (
+                  select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        wildcard_expression:
+                          wildcard_identifier:
+                            star: '*'
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                              naked_identifier: tbl2
+                  end_bracket: )
+              alias_expression:
+                keyword: AS
+                naked_identifier: foo
+            join_on_condition:
+              keyword: 'ON'
               expression:
               - column_reference:
                 - naked_identifier: tbl1
@@ -74,7 +92,7 @@ file:
               - comparison_operator:
                   raw_comparison_operator: '='
               - column_reference:
-                - naked_identifier: tbl2
+                - naked_identifier: foo
                 - dot: .
                 - naked_identifier: id
 - statement_terminator: ;
@@ -98,11 +116,29 @@ file:
           - keyword: full
           - keyword: outer
           - keyword: join
-          - keyword: lateral
           - from_expression_element:
+              keyword: lateral
               table_expression:
-                table_reference:
-                  naked_identifier: tbl2
+                bracketed:
+                  start_bracket: (
+                  select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        wildcard_expression:
+                          wildcard_identifier:
+                            star: '*'
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                              naked_identifier: tbl2
+                  end_bracket: )
+              alias_expression:
+                keyword: AS
+                naked_identifier: tbl2
           - join_on_condition:
               keyword: 'on'
               expression:
@@ -123,27 +159,32 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: tbl3
-          - join_on_condition:
-              keyword: 'on'
-              expression:
-              - column_reference:
-                - naked_identifier: tbl1
-                - dot: .
-                - naked_identifier: id
-              - comparison_operator:
-                  raw_comparison_operator: '='
-              - column_reference:
-                - naked_identifier: tbl3
-                - dot: .
-                - naked_identifier: id
         - join_clause:
           - keyword: left
           - keyword: join
-          - keyword: lateral
           - from_expression_element:
+              keyword: lateral
               table_expression:
-                table_reference:
-                  naked_identifier: tbl4
+                bracketed:
+                  start_bracket: (
+                  select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        wildcard_expression:
+                          wildcard_identifier:
+                            star: '*'
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                              naked_identifier: tbl4
+                  end_bracket: )
+              alias_expression:
+                keyword: AS
+                naked_identifier: tbl4
           - join_on_condition:
               keyword: 'on'
               expression:
@@ -157,4 +198,192 @@ file:
                 - naked_identifier: tbl4
                 - dot: .
                 - naked_identifier: id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: X
+          - dot: .
+          - naked_identifier: NUM
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: D
+          - dot: .
+          - naked_identifier: id
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl1
+            alias_expression:
+              keyword: AS
+              naked_identifier: D
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            keyword: LATERAL
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: values
+                - bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '0'
+                    end_bracket: )
+                - comma: ','
+                - bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '1'
+                    end_bracket: )
+              end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: X
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                  naked_identifier: NUM
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: m
+          - dot: .
+          - naked_identifier: name
+          alias_expression:
+            keyword: AS
+            naked_identifier: mname
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: pname
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: manufacturers
+            alias_expression:
+              naked_identifier: m
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            keyword: LATERAL
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: get_product_names
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: m
+                    - dot: .
+                    - naked_identifier: id
+                  end_bracket: )
+            alias_expression:
+              naked_identifier: pname
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: m
+          - dot: .
+          - naked_identifier: name
+          alias_expression:
+            keyword: AS
+            naked_identifier: mname
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: pname
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: manufacturers
+            alias_expression:
+              naked_identifier: m
+          join_clause:
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              keyword: LATERAL
+              table_expression:
+                function:
+                  function_name:
+                    function_name_identifier: get_product_names
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                      - naked_identifier: m
+                      - dot: .
+                      - naked_identifier: id
+                    end_bracket: )
+              alias_expression:
+                naked_identifier: pname
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+                boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+          - naked_identifier: X
+          - dot: .
+          - naked_identifier: NUM
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            keyword: LATERAL
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: values
+                - bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '0'
+                    end_bracket: )
+                - comma: ','
+                - bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '1'
+                    end_bracket: )
+              end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: X
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                  naked_identifier: NUM
+                end_bracket: )
 - statement_terminator: ;

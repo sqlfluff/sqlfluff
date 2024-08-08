@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6fe6077b68d1043a06174c757f1566f29133888aab96b254faa753d3b667b133
+_hash: 53039c0d53bd1b9398fd5409bee675087f08fe87991ba36c0259a530aa66afce
 file:
 - batch:
     statement:
@@ -202,7 +202,7 @@ file:
                       naked_identifier: PersonID
                   - keyword: IS
                   - keyword: NOT
-                  - keyword: 'NULL'
+                  - null_literal: 'NULL'
             - set_operator:
               - keyword: UNION
               - keyword: ALL
@@ -977,12 +977,37 @@ file:
                 - naked_identifier: dbo
                 - dot: .
                 - naked_identifier: tableX
-              post_table_expression:
-                keyword: WITH
-                bracketed:
-                  start_bracket: (
-                  query_hint_segment:
-                    keyword: NOLOCK
-                  end_bracket: )
+                post_table_expression:
+                  keyword: WITH
+                  bracketed:
+                    start_bracket: (
+                    query_hint_segment:
+                      keyword: NOLOCK
+                    end_bracket: )
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: ID
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: tableX
+                post_table_expression:
+                  bracketed:
+                    start_bracket: (
+                    query_hint_segment:
+                      keyword: NOLOCK
+                    end_bracket: )
 - go_statement:
     keyword: GO

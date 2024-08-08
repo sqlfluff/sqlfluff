@@ -76,6 +76,10 @@ sparksql_dialect.patch_lexer_matchers(
             "back_quote",
             r"`([^`]|``)*`",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"`((?:[^`]|``)*)`", 1),
+                "escape_replacements": [(r"``", "`")],
+            },
         ),
         # Numeric literal matches integers, decimals, and exponential formats.
         # https://spark.apache.org/docs/latest/sql-ref-literals.html#numeric-literal
@@ -175,6 +179,19 @@ sparksql_dialect.sets("bare_functions").update(
     ]
 )
 
+# Set the date part functions
+sparksql_dialect.sets("date_part_function_name").clear()
+sparksql_dialect.sets("date_part_function_name").update(
+    [
+        "DATE_ADD",
+        "DATE_DIFF",
+        "DATEADD",
+        "DATEDIFF",
+        "TIMESTAMPADD",
+        "TIMESTAMPDIFF",
+    ]
+)
+
 # Set the datetime units
 sparksql_dialect.sets("datetime_units").clear()
 sparksql_dialect.sets("datetime_units").update(
@@ -194,6 +211,7 @@ sparksql_dialect.sets("datetime_units").update(
         "DAY",
         "DAYS",
         "DD",
+        "DAYOFYEAR",
         "HOUR",
         "HOURS",
         "MINUTE",
@@ -220,6 +238,12 @@ sparksql_dialect.bracket_sets("angle_bracket_pairs").update(
 
 # Real Segments
 sparksql_dialect.replace(
+    DateTimeLiteralGrammar=Sequence(
+        OneOf(
+            "DATE", "TIME", "TIMESTAMP", "INTERVAL", "TIMESTAMP_LTZ", "TIMESTAMP_NTZ"
+        ),
+        TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
+    ),
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
         Ref("EqualsSegment_a"),
@@ -232,6 +256,16 @@ sparksql_dialect.replace(
         Ref("LikeOperatorSegment"),
         Sequence("IS", "DISTINCT", "FROM"),
         Sequence("IS", "NOT", "DISTINCT", "FROM"),
+    ),
+    SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "SelectClauseTerminatorGrammar"
+    ).copy(
+        insert=[
+            Sequence("CLUSTER", "BY"),
+            Sequence("DISTRIBUTE", "BY"),
+            Sequence("SORT", "BY"),
+            Ref.keyword("QUALIFY"),
+        ]
     ),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
@@ -265,6 +299,21 @@ sparksql_dialect.replace(
         "NATURAL",
         Ref("JoinTypeKeywords", optional=True),
     ),
+    JoinLikeClauseGrammar=Sequence(
+        OneOf(
+            Ref("PivotClauseSegment"),
+            Ref("UnpivotClauseSegment"),
+            Ref("LateralViewClauseSegment"),
+        ),
+        Ref(
+            "AliasExpressionSegment",
+            exclude=OneOf(
+                Ref("FromClauseTerminatorGrammar"),
+                Ref("JoinLikeClauseGrammar"),
+            ),
+            optional=True,
+        ),
+    ),
     LikeGrammar=OneOf(
         # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-like.html
         # ilike: https://github.com/apache/spark/pull/33966/files
@@ -280,6 +329,10 @@ sparksql_dialect.replace(
         ),
         "RLIKE",
         "REGEXP",
+    ),
+    NotOperatorGrammar=OneOf(
+        StringParser("NOT", KeywordSegment, type="keyword"),
+        StringParser("!", CodeSegment, type="not_operator"),
     ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -387,6 +440,8 @@ sparksql_dialect.add(
         IdentifierSegment,
         type="quoted_identifier",
         trim_chars=("`",),
+        # match ANSI's naked identifier casefold, sparksql is case-insensitive.
+        casefold=str.upper,
     ),
     NakedSemiStructuredElementSegment=RegexParser(
         r"[A-Z0-9_]*",
@@ -442,7 +497,11 @@ sparksql_dialect.add(
         Ref("EqualsSegment", optional=True),
         OneOf(
             Ref("LiteralGrammar"),
-            Ref("SingleIdentifierGrammar"),
+            # when property value is Java Class Name
+            Delimited(
+                Ref("PropertiesNakedIdentifierSegment"),
+                delimiter=Ref("DotSegment"),
+            ),
         ),
     ),
     PropertyNameListGrammar=Delimited(Ref("PropertyNameSegment")),
@@ -696,9 +755,11 @@ sparksql_dialect.add(
                         OneOf(
                             Ref("ColumnDefinitionSegment"),
                             Ref("GeneratedColumnDefinitionSegment"),
+                            Ref("TableConstraintSegment", optional=True),
                         ),
                         Ref("CommentGrammar", optional=True),
                     ),
+                    Ref("ConstraintStatementSegment", optional=True),
                 ),
             ),
             # Like Syntax
@@ -726,6 +787,9 @@ sparksql_dialect.add(
             Ref("LocationGrammar", optional=True),
             Ref("CommentGrammar", optional=True),
             Ref("TablePropertiesGrammar", optional=True),
+        ),
+        Sequence(
+            "CLUSTER", "BY", Ref("BracketedColumnReferenceListGrammar"), optional=True
         ),
         Dedent,
         # Create AS syntax:
@@ -834,6 +898,8 @@ class PrimitiveTypeSegment(BaseSegment):
         "DOUBLE",
         "DATE",
         "TIMESTAMP",
+        "TIMESTAMP_LTZ",
+        "TIMESTAMP_NTZ",
         "STRING",
         Sequence(
             OneOf("CHAR", "CHARACTER", "VARCHAR", "DECIMAL", "DEC", "NUMERIC"),
@@ -1055,10 +1121,12 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 OneOf(
                     Sequence(
                         "COLUMN",
+                        Ref("IfExistsGrammar", optional=True),
                         Ref("ColumnReferenceSegment"),
                     ),
                     Sequence(
                         "COLUMNS",
+                        Ref("IfExistsGrammar", optional=True),
                         Bracketed(
                             Delimited(AnyNumberOf(Ref("ColumnReferenceSegment"))),
                         ),
@@ -1263,15 +1331,37 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
     )
 
 
-class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
+class FunctionParameterListGrammarWithComments(BaseSegment):
+    """The parameters for a function ie. `(column type COMMENT 'comment')`."""
+
+    type = "function_parameter_list_with_comments"
+
+    match_grammar: Matchable = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("FunctionParameterGrammar"),
+                AnyNumberOf(
+                    Sequence("DEFAULT", Ref("LiteralGrammar"), optional=True),
+                    Ref("CommentClauseSegment", optional=True),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class CreateFunctionStatementSegment(BaseSegment):
     """A `CREATE FUNCTION` statement.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-function.html
+
     """
+
+    type = "create_function_statement"
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         Ref("TemporaryGrammar", optional=True),
         "FUNCTION",
         Ref("IfNotExistsGrammar", optional=True),
@@ -1291,15 +1381,6 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """
 
     match_grammar = Sequence("CREATE", Ref("TableDefinitionSegment"))
-
-
-class CreateHiveFormatTableStatementSegment(hive.CreateTableStatementSegment):
-    """A `CREATE TABLE` statement using Hive format.
-
-    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-hiveformat.html
-    """
-
-    pass
 
 
 class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
@@ -1325,6 +1406,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
                         Ref("ColumnReferenceSegment"),
                         Ref("CommentGrammar", optional=True),
                     ),
+                    Ref("ConstraintStatementSegment", optional=True),
                 ),
             ),
             optional=True,
@@ -1746,6 +1828,7 @@ class SetOperatorSegment(ansi.SetOperatorSegment):
             OneOf("UNION", "INTERSECT"),
             OneOf("DISTINCT", "ALL", optional=True),
         ),
+        exclude=Sequence("EXCEPT", Bracketed(Anything())),
     )
 
 
@@ -1787,7 +1870,12 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """
 
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
-        insert=[Ref("QualifyClauseSegment", optional=True)],
+        insert=[
+            Ref("QualifyClauseSegment", optional=True),
+            Ref("ClusterByClauseSegment", optional=True),
+            Ref("DistributeByClauseSegment", optional=True),
+            Ref("SortByClauseSegment", optional=True),
+        ],
         # Removing non-valid clauses that exist in ANSI dialect
         remove=[Ref("OverlapsClauseSegment", optional=True)],
     )
@@ -2011,6 +2099,75 @@ class PivotClauseSegment(BaseSegment):
                 ),
             ),
             Dedent,
+        ),
+        Dedent,
+    )
+
+
+class UnpivotClauseSegment(BaseSegment):
+    """An UNPIVOT expression.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-unpivot.html
+    """
+
+    type = "unpivot_clause"
+    match_grammar = Sequence(
+        Indent,
+        "UNPIVOT",
+        Sequence(OneOf("INCLUDE", "EXCLUDE"), "NULLS", optional=True),
+        Indent,
+        Bracketed(
+            OneOf(
+                Ref("SingleValueColumnUnpivotSegment"),
+                Ref("MultiValueColumnUnpivotSegment"),
+            ),
+        ),
+        Dedent,
+    )
+
+
+class SingleValueColumnUnpivotSegment(BaseSegment):
+    """An UNPIVOT single column syntax fragment."""
+
+    type = "unpivot_single_column"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        "FOR",
+        Ref("SingleIdentifierGrammar"),
+        "IN",
+        Bracketed(
+            Indent,
+            Delimited(
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("AliasExpressionSegment", optional=True),
+                ),
+            ),
+            parse_mode=ParseMode.GREEDY,
+        ),
+        Dedent,
+    )
+
+
+class MultiValueColumnUnpivotSegment(BaseSegment):
+    """An UNPIVOT multiple column syntax fragment."""
+
+    type = "unpivot_multi_column"
+    match_grammar = Sequence(
+        Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+        Indent,
+        "FOR",
+        Ref("SingleIdentifierGrammar"),
+        "IN",
+        Bracketed(
+            Indent,
+            Delimited(
+                Sequence(
+                    Bracketed(Indent, Delimited(Ref("ColumnReferenceSegment"))),
+                    Ref("AliasExpressionSegment", optional=True),
+                ),
+            ),
+            parse_mode=ParseMode.GREEDY,
         ),
         Dedent,
     )
@@ -2545,7 +2702,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterDatabaseStatementSegment"),
             Ref("AlterTableStatementSegment"),
             Ref("AlterViewStatementSegment"),
-            Ref("CreateHiveFormatTableStatementSegment"),
+            Ref("CreateTableStatementSegment"),
             Ref("MsckRepairTableStatementSegment"),
             Ref("UseDatabaseStatementSegment"),
             # Auxiliary Statements
@@ -2793,21 +2950,15 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
+        Ref("SamplingExpressionSegment", optional=True),
         Ref(
             "AliasExpressionSegment",
             exclude=OneOf(
                 Ref("FromClauseTerminatorGrammar"),
-                Ref("SamplingExpressionSegment"),
+                Ref("JoinLikeClauseGrammar"),
             ),
             optional=True,
         ),
-        Ref("SamplingExpressionSegment", optional=True),
-        # NB: `LateralViewClauseSegment`, `NamedWindowSegment`,
-        # and `PivotClauseSegment should come after Alias/Sampling
-        # expressions so those are matched before
-        AnyNumberOf(Ref("LateralViewClauseSegment")),
-        Ref("NamedWindowSegment", optional=True),
-        Ref("PivotClauseSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
     )
 
@@ -2918,7 +3069,7 @@ class UpdateStatementSegment(ansi.UpdateStatementSegment):
             optional=True,
         ),
         Ref("SetClauseListSegment"),
-        Ref("WhereClauseSegment"),
+        Ref("WhereClauseSegment", optional=True),
     )
 
 
@@ -3177,6 +3328,7 @@ class ApplyChangesIntoStatementSegment(BaseSegment):
                     Ref("BracketedColumnReferenceListGrammar"),
                 ),
             ),
+            optional=True,
         ),
         Sequence(
             "STORED",
@@ -3184,6 +3336,22 @@ class ApplyChangesIntoStatementSegment(BaseSegment):
             "SCD",
             "TYPE",
             Ref("NumericLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "TRACK",
+            "HISTORY",
+            "ON",
+            OneOf(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+                Sequence(
+                    Ref("StarSegment"),
+                    "EXCEPT",
+                    Ref("BracketedColumnReferenceListGrammar"),
+                ),
+            ),
             optional=True,
         ),
     )
@@ -3207,7 +3375,7 @@ class ExceptClauseSegment(BaseSegment):
     type = "select_except_clause"
     match_grammar = Sequence(
         "EXCEPT",
-        Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
     )
 
 
@@ -3237,14 +3405,7 @@ class SelectClauseSegment(BaseSegment):
             ),
         ),
         Dedent,
-        terminators=[
-            "FROM",
-            "WHERE",
-            "UNION",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            "OVERLAPS",
-        ],
+        terminators=[Ref("SelectClauseTerminatorGrammar")],
         parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
 

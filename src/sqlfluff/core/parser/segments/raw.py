@@ -4,8 +4,10 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
-from typing import Any, FrozenSet, List, Optional, Tuple
+from typing import Any, Callable, Dict, FrozenSet, List, Optional, Tuple, Union, cast
 from uuid import uuid4
+
+import regex as re
 
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
@@ -35,6 +37,9 @@ class RawSegment(BaseSegment):
         trim_chars: Optional[Tuple[str, ...]] = None,
         source_fixes: Optional[List[SourceFix]] = None,
         uuid: Optional[int] = None,
+        quoted_value: Optional[Tuple[str, Union[int, str]]] = None,
+        escape_replacements: Optional[List[Tuple[str, str]]] = None,
+        casefold: Optional[Callable[[str], str]] = None,
     ):
         """Initialise raw segment.
 
@@ -69,6 +74,10 @@ class RawSegment(BaseSegment):
         self.representation = "<{}: ({}) {!r}>".format(
             self.__class__.__name__, self.pos_marker, self.raw
         )
+        self.quoted_value = quoted_value
+        self.escape_replacements = escape_replacements
+        self.casefold = casefold
+        self._raw_value: str = self._raw_normalized()
 
     def __repr__(self) -> str:
         # This is calculated at __init__, because all elements are immutable
@@ -171,6 +180,40 @@ class RawSegment(BaseSegment):
             return raw_buff
         return raw_buff
 
+    def _raw_normalized(self) -> str:
+        """Returns the string of the raw content's value.
+
+        E.g. This removes leading and trailing quote characters, removes escapes
+
+        Return:
+        str: The raw content's value
+        """
+        raw_buff = self.raw
+        if self.quoted_value:
+            _match = re.match(self.quoted_value[0], raw_buff)
+            if _match:
+                _group_match = _match.group(self.quoted_value[1])
+                if isinstance(_group_match, str):
+                    raw_buff = _group_match
+        if self.escape_replacements:
+            for old, new in self.escape_replacements:
+                raw_buff = re.sub(old, new, raw_buff)
+        return raw_buff
+
+    def raw_normalized(self, casefold: bool = True) -> str:
+        """Returns a normalized string of the raw content.
+
+        E.g. This removes leading and trailing quote characters, removes escapes,
+        optionally casefolds to the dialect's casing
+
+        Return:
+        str: The normalized version of the raw content
+        """
+        raw_buff = self._raw_value
+        if self.casefold and casefold:
+            raw_buff = self.casefold(raw_buff)
+        return raw_buff
+
     def stringify(
         self, ident: int = 0, tabsize: int = 4, code_only: bool = False
     ) -> str:
@@ -223,5 +266,41 @@ class RawSegment(BaseSegment):
             instance_types=self.instance_types,
             trim_start=self.trim_start,
             trim_chars=self.trim_chars,
+            quoted_value=self.quoted_value,
+            escape_replacements=self.escape_replacements,
+            casefold=self.casefold,
             source_fixes=source_fixes or self.source_fixes,
         )
+
+    def _get_raw_segment_kwargs(self) -> Dict[str, Any]:
+        return {
+            "quoted_value": self.quoted_value,
+            "escape_replacements": self.escape_replacements,
+            "casefold": self.casefold,
+        }
+
+    # ################ CLASS METHODS
+
+    @classmethod
+    def from_result_segments(
+        cls,
+        result_segments: Tuple[BaseSegment, ...],
+        segment_kwargs: Dict[str, Any],
+    ) -> "RawSegment":
+        """Create a RawSegment from result segments."""
+        assert len(result_segments) == 1
+        raw_seg = cast("RawSegment", result_segments[0])
+        new_segment_kwargs = raw_seg._get_raw_segment_kwargs()
+        new_segment_kwargs.update(segment_kwargs)
+        return cls(
+            raw=raw_seg.raw,
+            pos_marker=raw_seg.pos_marker,
+            **new_segment_kwargs,
+        )
+
+
+__all__ = [
+    "PositionMarker",
+    "RawSegment",
+    "SourceFix",
+]

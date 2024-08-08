@@ -2,7 +2,7 @@
 
 The logos, both as png and svg files are available here for use when referencing the project.
 
-Contributions are welcome to these files in addition to contibutions to the codebase
+Contributions are welcome to these files in addition to contributions to the codebase
 of the project. This is especially useful if you have graphic design skills, but before
 planning any large scale changes, do raise an issue for discussion on GitHub to ensure
 that your planned changes are likely to be accepted.

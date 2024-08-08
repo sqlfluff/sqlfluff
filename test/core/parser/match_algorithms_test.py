@@ -57,9 +57,11 @@ def make_result_tuple(result_slice, matcher_keywords, test_segments):
         return ()
 
     return tuple(
-        KeywordSegment(elem.raw, pos_marker=elem.pos_marker)
-        if elem.raw in matcher_keywords
-        else elem
+        (
+            KeywordSegment(elem.raw, pos_marker=elem.pos_marker)
+            if elem.raw in matcher_keywords
+            else elem
+        )
         for elem in test_segments[result_slice]
     )
 

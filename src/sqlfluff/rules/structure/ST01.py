@@ -1,4 +1,5 @@
 """Implementation of Rule ST01."""
+
 from typing import Optional, Tuple
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext

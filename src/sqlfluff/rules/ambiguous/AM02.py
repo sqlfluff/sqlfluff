@@ -1,4 +1,5 @@
 """Implementation of Rule AM02."""
+
 from typing import Tuple
 
 from sqlfluff.core.parser import (
@@ -58,6 +59,10 @@ class Rule_AM02(BaseRule):
         """
         if context.dialect.name not in [
             "ansi",
+            "bigquery",
+            "clickhouse",
+            "databricks",
+            "db2",
             "hive",
             "mysql",
             "redshift",

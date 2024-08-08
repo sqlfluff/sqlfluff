@@ -1,4 +1,5 @@
 """Sharing fixtures to test the dialects."""
+
 import logging
 
 import pytest

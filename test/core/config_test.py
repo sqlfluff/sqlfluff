@@ -3,7 +3,7 @@
 import logging
 import os
 import sys
-from pathlib import Path
+from contextlib import contextmanager
 from unittest.mock import call, patch
 
 import appdirs
@@ -118,6 +118,40 @@ def test__config__load_nested():
     }
 
 
+@contextmanager
+def change_dir(path):
+    """Set the current working directory to `path` for the duration of the context."""
+    original_dir = os.getcwd()
+    try:
+        os.chdir(path)
+        yield
+    finally:
+        os.chdir(original_dir)
+
+
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Seems test is not executed under home directory on Windows",
+)
+def test__config__load_parent():
+    """Test that config is loaded from parent directory of current working directory."""
+    c = ConfigLoader()
+    with change_dir(
+        os.path.join("test", "fixtures", "config", "inheritance_a", "nested")
+    ):
+        cfg = c.load_config_up_to_path("blah.sql")
+    assert cfg == {
+        "core": {
+            "dialect": "mysql",
+            "testing_val": "foobar",
+            "testing_int": 1,
+            "testing_bar": 7.698,
+        },
+        "bar": {"foo": "foobar"},
+        "fnarr": {"fnarr": {"foo": "foobar"}},
+    }
+
+
 def test__config__iter_config_elems_from_dict():
     """Test nested overwrite and order of precedence of config files."""
     c = ConfigLoader._iter_config_elems_from_dict(
@@ -174,26 +208,6 @@ def test__config__load_placeholder_cfg():
             }
         },
     }
-
-
-def test__config__iter_config_paths_right_order():
-    """Test that config paths are fetched ordered by priority."""
-    c = ConfigLoader()
-    cfg_paths = c.iter_config_locations_up_to_path(
-        os.path.join(
-            "test", "fixtures", "config", "inheritance_a", "nested", "blah.sql"
-        ),
-        working_path="test/fixtures",
-    )
-    assert list(cfg_paths) == [
-        str(Path(p).resolve())
-        for p in [
-            "test/fixtures",
-            "test/fixtures/config",
-            "test/fixtures/config/inheritance_a",
-            "test/fixtures/config/inheritance_a/nested",
-        ]
-    ]
 
 
 def test__config__find_sqlfluffignore_in_same_directory():

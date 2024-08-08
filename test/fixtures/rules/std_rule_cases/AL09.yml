@@ -1,0 +1,98 @@
+rule: AL09
+
+test_pass_no_alias:
+    pass_str:
+        select
+            col_a,
+            col_b
+        from foo
+
+test_pass_no_self_alias:
+    pass_str:
+        select
+            col_a,
+            col_b as new_col_b
+        from foo
+
+test_pass_no_self_alias_function:
+    pass_str:
+        select
+            max(sum) as max_sum
+        from foo
+
+test_fail_self_alias:
+    fail_str:
+        select
+            col_a as col_a,
+            col_b as new_col_b
+        from foo
+    fix_str:
+        select
+            col_a,
+            col_b as new_col_b
+        from foo
+
+test_fail_self_alias_upper:
+    fail_str:
+        select
+            col_a as COL_A,
+            col_b as new_col_b
+        from foo
+    fix_str:
+        select
+            col_a,
+            col_b as new_col_b
+        from foo
+
+test_fail_self_alias_implicit:
+    fail_str:
+        select
+            col_a col_a,
+            col_b AS new_col_b
+        from foo
+    fix_str:
+        select
+            col_a,
+            col_b AS new_col_b
+        from foo
+
+test_fail_self_alias_and_table_aliased:
+    fail_str:
+        select
+            a.col_a as col_a,
+            a.col_b as new_col_b
+        from foo as a
+
+    fix_str:
+        select
+            a.col_a,
+            a.col_b as new_col_b
+        from foo as a
+
+test_fail_self_alias_quoted:
+    fail_str:
+        select
+            "col_a" as "col_a",
+            col_b as new_col_b
+        from foo
+    fix_str:
+        select
+            "col_a",
+            col_b as new_col_b
+        from foo
+
+test_pass_self_alias_case_insensitive:
+    # Renaming the column name from case-sensitive to case-insensitive
+    pass_str:
+        select
+            "col_a" as col_a,
+            col_b as new_col_b
+        from foo
+
+test_pass_self_alias_case_sensitive:
+    # Renaming the column name from case-insensitive to case-sensitive
+    pass_str:
+        select
+            col_a as "col_a",
+            col_b as new_col_b
+        from foo

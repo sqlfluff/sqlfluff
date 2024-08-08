@@ -23,4 +23,3 @@ WINDOW w AS (
     PARTITION BY custkey
     ORDER BY orderdate
     RANGE BETWEEN interval '1' month PRECEDING AND CURRENT ROW)
-

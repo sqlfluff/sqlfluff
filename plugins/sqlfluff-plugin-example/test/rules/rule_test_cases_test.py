@@ -1,4 +1,5 @@
 """Runs the rule test cases."""
+
 import os
 
 import pytest

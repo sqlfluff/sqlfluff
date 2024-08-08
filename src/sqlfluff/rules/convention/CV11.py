@@ -265,7 +265,6 @@ class Rule_CV11(BaseRule):
                         functional_context.segment
                     )
 
-                    print(previous_skipped)
                     fixes = self._cast_fix_list(
                         context,
                         [expression_datatype_segment[0]],

@@ -1,4 +1,5 @@
 """Tests specific to the soql dialect."""
+
 import pytest
 
 from sqlfluff.core import FluffConfig, Linter

@@ -12,7 +12,17 @@ import logging
 import uuid
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Sequence, Tuple
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Iterator,
+    List,
+    NoReturn,
+    Optional,
+    Sequence,
+    Tuple,
+)
 
 from tqdm import tqdm
 
@@ -97,7 +107,7 @@ class ParseContext:
         # NOTE: Includes inherited parent terminators.
         self.terminators: Tuple["Matchable", ...] = ()
         # Value for holding a reference to the progress bar.
-        self._tqdm: Optional[tqdm] = None
+        self._tqdm: Optional[tqdm[NoReturn]] = None
         # Variable to store whether we're tracking progress. When looking
         # ahead to terminators or suchlike, we set this to False so as not
         # to confuse the progress bar.
@@ -271,7 +281,7 @@ class ParseContext:
             disable=progress_bar_configuration.disable_progress_bar,
             leave=False,
         )
-        self._current_line = 0
+
         try:
             yield self
         finally:

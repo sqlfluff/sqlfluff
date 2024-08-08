@@ -89,3 +89,8 @@ Select * from foo TABLESAMPLE BERNOULLI (10);
 SELECT * FROM (SELECT * FROM mytable FOR UPDATE) ss WHERE col1 = $1;
 
 SELECT i + $1 INTO j from foo;
+
+SELECT 1 /* hi hi /* foo */ ho ho */ AS bar;
+
+-- escape double quotes
+SELECT """t".col1 FROM tbl1 AS """t";

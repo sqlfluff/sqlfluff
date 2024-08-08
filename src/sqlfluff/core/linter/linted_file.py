@@ -69,7 +69,7 @@ class LintedFile(NamedTuple):
     timings: Optional[FileTimings]
     tree: Optional[BaseSegment]
     ignore_mask: Optional[IgnoreMask]
-    templated_file: TemplatedFile
+    templated_file: Optional[TemplatedFile]
     encoding: str
 
     def check_tuples(
@@ -82,7 +82,6 @@ class LintedFile(NamedTuple):
         raises that error.
         """
         vs: List[CheckTuple] = []
-        v: SQLLintError
         for v in self.get_violations():
             if isinstance(v, SQLLintError):
                 vs.append(v.check_tuple())
@@ -113,7 +112,9 @@ class LintedFile(NamedTuple):
                 dedupe_buffer.add(signature)
             else:
                 linter_logger.debug("Removing duplicate source violation: %r", v)
-        return new_violations
+        # Sort on return so that if any are out of order, they're now ordered
+        # appropriately. This happens most often when linting multiple variants.
+        return sorted(new_violations, key=lambda v: (v.line_no, v.line_pos))
 
     def get_violations(
         self,
@@ -123,7 +124,7 @@ class LintedFile(NamedTuple):
         filter_warning: bool = True,
         warn_unused_ignores: bool = False,
         fixable: Optional[bool] = None,
-    ) -> list:
+    ) -> List[SQLBaseError]:
         """Get a list of violations, respecting filters and ignore options.
 
         Optionally now with filters.
@@ -195,8 +196,9 @@ class LintedFile(NamedTuple):
         completely dialect agnostic. A Segment is determined by the
         Lexer from portions of strings after templating.
         """
+        assert self.templated_file, "Fixing a string requires successful templating."
         linter_logger.debug("Original Tree: %r", self.templated_file.templated_str)
-        assert self.tree
+        assert self.tree, "Fixing a string requires successful parsing."
         linter_logger.debug("Fixed Tree: %r", self.tree.raw)
 
         # The sliced file is contiguous in the TEMPLATED space.
@@ -392,20 +394,6 @@ class LintedFile(NamedTuple):
             formatter.dispatch_persist_filename(filename=self.path, result=result_label)
 
         return success
-
-    def discard_fixes_if_tmp_or_prs_errors(self) -> None:
-        """Discard lint fixes for files with templating or parse errors."""
-        num_errors = self.num_violations(
-            types=TMP_PRS_ERROR_TYPES,
-            filter_ignore=False,
-            filter_warning=False,
-        )
-        if num_errors:
-            # File has errors. Discard all the SQLLintError fixes:
-            # they are potentially unsafe.
-            for violation in self.violations:
-                if isinstance(violation, SQLLintError):
-                    violation.fixes = []
 
     @staticmethod
     def _safe_create_replace_file(

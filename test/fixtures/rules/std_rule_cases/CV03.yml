@@ -48,9 +48,16 @@ test_fail_templated:
   violations_after_fix:
   - code: CV03
     description: Trailing comma in select statement forbidden
-    line_no: 3
-    line_pos: 16
     name: "convention.select_trailing_comma"
+    warning: false
+    fixes: []
+    start_line_no: 3
+    start_line_pos: 16
+    start_file_pos: 59
+    end_line_no: 3
+    end_line_pos: 17
+    end_file_pos: 60
+
   configs:
     rules:
       convention.select_trailing_comma:

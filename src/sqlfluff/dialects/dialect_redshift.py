@@ -3,6 +3,7 @@
 This is based on postgres dialect, since it was initially based off of Postgres 8.
 We should monitor in future and see if it should be rebased off of ANSI
 """
+
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -189,6 +190,7 @@ redshift_dialect.replace(
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.lower,
         )
     ),
 )
@@ -686,6 +688,13 @@ class AlterTableActionSegment(BaseSegment):
             Ref("ColumnReferenceSegment"),
             Ref("DropBehaviorGrammar", optional=True),
         ),
+        Sequence(
+            "APPEND",
+            "FROM",
+            Ref("TableReferenceSegment"),
+            Ref.keyword("IGNOREEXTRA", optional=True),
+            Ref.keyword("FILLTARGET", optional=True),
+        ),
     )
 
 
@@ -740,7 +749,7 @@ class TableConstraintSegment(BaseSegment):
                 Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
                 "REFERENCES",
                 Ref("TableReferenceSegment"),
-                Sequence(Bracketed(Ref("ColumnReferenceSegment"))),
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
             ),
         ),
     )
@@ -1835,7 +1844,7 @@ class GrantUsageDatashareStatementSegment(BaseSegment):
 
     https://docs.aws.amazon.com/redshift/latest/dg/r_GRANT.html
     section "Granting datashare permissions"
-    Note: According to docummentation, multiple accounts and namespaces can be
+    Note: According to documentation, multiple accounts and namespaces can be
           specified. However, tests using redshift instance showed this causes a syntax
           error.
     """

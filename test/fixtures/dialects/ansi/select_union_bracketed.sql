@@ -1,3 +1,15 @@
 (SELECT 0) UNION (SELECT 1);
 
 ((SELECT 0)) UNION ((SELECT 1));
+
+(
+    SELECT * FROM tbl1
+    EXCEPT
+    SELECT * FROM tbl2
+)
+UNION
+(
+    SELECT * FROM tbl2
+    EXCEPT
+    SELECT * FROM tbl1
+);

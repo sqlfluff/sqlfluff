@@ -1,6 +1,5 @@
 """Methods to set up appropriate reflow config from file."""
 
-
 # Until we have a proper structure this will work.
 # TODO: Migrate this to the config file.
 from dataclasses import dataclass

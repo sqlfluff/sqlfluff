@@ -1,0 +1,84 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8fab8176123d3063d83e53cc60e50bb312fc5eaeaac89cb9c50d73489f4635d5
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: xt0
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: x
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: t2
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: ty
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - column_definition:
+          naked_identifier: t2
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - column_definition:
+          naked_identifier: c_date_time
+          data_type:
+            data_type_identifier: DateTime32
+      - end_bracket: )
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+      - keyword: ORDER
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: ty
+        - comma: ','
+        - column_reference:
+            naked_identifier: t2
+        - end_bracket: )
+    - table_ttl_segment:
+        keyword: TTL
+        expression:
+          column_reference:
+            naked_identifier: c_date_time
+          binary_operator: +
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '1'
+            date_part: DAY

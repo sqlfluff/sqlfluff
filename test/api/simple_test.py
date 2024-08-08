@@ -5,6 +5,7 @@ import json
 import pytest
 
 import sqlfluff
+from sqlfluff.api import APIParsingError
 from sqlfluff.core.errors import SQLFluffUserError
 
 my_bad_query = "SeLEct  *, 1, blah as  fOO  from myTable"
@@ -13,89 +14,341 @@ lint_result = [
     {
         "code": "AM04",
         "description": "Query produces an unknown number of result columns.",
-        "line_no": 1,
-        "line_pos": 1,
+        "start_line_no": 1,
+        "start_line_pos": 1,
+        "start_file_pos": 0,
+        "end_line_no": 1,
+        "end_line_pos": 41,
+        "end_file_pos": 40,
         "name": "ambiguous.column_count",
+        "fixes": [],
+        "warning": False,
     },
     {
         "code": "CP01",
-        "line_no": 1,
-        "line_pos": 1,
+        "start_line_no": 1,
+        "start_line_pos": 1,
+        "start_file_pos": 0,
+        "end_line_no": 1,
+        "end_line_pos": 7,
+        "end_file_pos": 6,
         "description": "Keywords must be consistently upper case.",
         "name": "capitalisation.keywords",
+        "fixes": [
+            {
+                "type": "replace",
+                "edit": "SELECT",
+                "start_line_no": 1,
+                "start_line_pos": 1,
+                "start_file_pos": 0,
+                "end_line_no": 1,
+                "end_line_pos": 7,
+                "end_file_pos": 6,
+            }
+        ],
+        "warning": False,
     },
     {
         "code": "LT09",
         "description": "Select targets should be on a new line unless there is only "
         "one select target.",
-        "line_no": 1,
-        "line_pos": 1,
+        "start_line_no": 1,
+        "start_line_pos": 1,
+        "start_file_pos": 0,
+        "end_line_no": 1,
+        "end_line_pos": 27,
+        "end_file_pos": 26,
         "name": "layout.select_targets",
+        "fixes": [
+            {
+                "type": "delete",
+                "edit": "",
+                "start_line_no": 1,
+                "start_line_pos": 7,
+                "start_file_pos": 6,
+                "end_line_no": 1,
+                "end_line_pos": 9,
+                "end_file_pos": 8,
+            },
+            {
+                "type": "create_before",
+                "edit": "\n",
+                "start_line_no": 1,
+                "start_line_pos": 9,
+                "start_file_pos": 8,
+                "end_line_no": 1,
+                "end_line_pos": 9,
+                "end_file_pos": 8,
+            },
+            {
+                "type": "delete",
+                "edit": "",
+                "start_line_no": 1,
+                "start_line_pos": 11,
+                "start_file_pos": 10,
+                "end_line_no": 1,
+                "end_line_pos": 12,
+                "end_file_pos": 11,
+            },
+            {
+                "type": "create_before",
+                "edit": "\n",
+                "start_line_no": 1,
+                "start_line_pos": 12,
+                "start_file_pos": 11,
+                "end_line_no": 1,
+                "end_line_pos": 12,
+                "end_file_pos": 11,
+            },
+            {
+                "type": "delete",
+                "edit": "",
+                "start_line_no": 1,
+                "start_line_pos": 14,
+                "start_file_pos": 13,
+                "end_line_no": 1,
+                "end_line_pos": 15,
+                "end_file_pos": 14,
+            },
+            {
+                "type": "create_before",
+                "edit": "\n",
+                "start_line_no": 1,
+                "start_line_pos": 15,
+                "start_file_pos": 14,
+                "end_line_no": 1,
+                "end_line_pos": 15,
+                "end_file_pos": 14,
+            },
+            {
+                "type": "delete",
+                "edit": "",
+                "start_line_no": 1,
+                "start_line_pos": 27,
+                "start_file_pos": 26,
+                "end_line_no": 1,
+                "end_line_pos": 29,
+                "end_file_pos": 28,
+            },
+            {
+                "type": "create_before",
+                "edit": "\n",
+                "start_line_no": 1,
+                "start_line_pos": 29,
+                "start_file_pos": 28,
+                "end_line_no": 1,
+                "end_line_pos": 29,
+                "end_file_pos": 28,
+            },
+        ],
+        "warning": False,
     },
     {
         "code": "LT01",
         "description": "Expected only single space before star '*'. Found '  '.",
-        "line_no": 1,
-        "line_pos": 7,
+        "start_line_no": 1,
+        "start_line_pos": 7,
+        "start_file_pos": 6,
+        "end_line_no": 1,
+        "end_line_pos": 9,
+        "end_file_pos": 8,
         "name": "layout.spacing",
+        "fixes": [
+            {
+                "type": "replace",
+                "edit": " ",
+                "start_line_no": 1,
+                "start_line_pos": 7,
+                "start_file_pos": 6,
+                "end_line_no": 1,
+                "end_line_pos": 9,
+                "end_file_pos": 8,
+            }
+        ],
+        "warning": False,
     },
     {
         "code": "AL03",
-        "line_no": 1,
-        "line_pos": 12,
+        "start_line_no": 1,
+        "start_line_pos": 12,
+        "start_file_pos": 11,
+        "end_line_no": 1,
+        "end_line_pos": 13,
+        "end_file_pos": 12,
         "description": "Column expression without alias. Use explicit `AS` clause.",
         "name": "aliasing.expression",
+        "fixes": [],
+        "warning": False,
     },
     {
         "code": "CP01",
-        "line_no": 1,
-        "line_pos": 20,
+        "start_line_no": 1,
+        "start_line_pos": 20,
+        "start_file_pos": 19,
+        "end_line_no": 1,
+        "end_line_pos": 22,
+        "end_file_pos": 21,
         "description": "Keywords must be consistently upper case.",
         "name": "capitalisation.keywords",
+        "fixes": [
+            {
+                "type": "replace",
+                "edit": "AS",
+                "start_line_no": 1,
+                "start_line_pos": 20,
+                "start_file_pos": 19,
+                "end_line_no": 1,
+                "end_line_pos": 22,
+                "end_file_pos": 21,
+            }
+        ],
+        "warning": False,
     },
     {
         "code": "LT01",
         "description": (
             "Expected only single space before naked identifier. Found '  '."
         ),
-        "line_no": 1,
-        "line_pos": 22,
+        "start_line_no": 1,
+        "start_line_pos": 22,
+        "start_file_pos": 21,
+        "end_line_no": 1,
+        "end_line_pos": 24,
+        "end_file_pos": 23,
         "name": "layout.spacing",
+        "fixes": [
+            {
+                "type": "replace",
+                "edit": " ",
+                "start_line_no": 1,
+                "start_line_pos": 22,
+                "start_file_pos": 21,
+                "end_line_no": 1,
+                "end_line_pos": 24,
+                "end_file_pos": 23,
+            }
+        ],
+        "warning": False,
     },
     {
         "code": "CP02",
-        "line_no": 1,
-        "line_pos": 24,
+        "start_line_no": 1,
+        "start_line_pos": 24,
+        "start_file_pos": 23,
+        "end_line_no": 1,
+        "end_line_pos": 27,
+        "end_file_pos": 26,
         "description": "Unquoted identifiers must be consistently lower case.",
         "name": "capitalisation.identifiers",
+        "fixes": [
+            {
+                "type": "replace",
+                "edit": "foo",
+                "start_line_no": 1,
+                "start_line_pos": 24,
+                "start_file_pos": 23,
+                "end_line_no": 1,
+                "end_line_pos": 27,
+                "end_file_pos": 26,
+            }
+        ],
+        "warning": False,
     },
     {
         "code": "LT01",
         "description": "Expected only single space before 'from' keyword. Found '  '.",
-        "line_no": 1,
-        "line_pos": 27,
+        "start_line_no": 1,
+        "start_line_pos": 27,
+        "start_file_pos": 26,
+        "end_line_no": 1,
+        "end_line_pos": 29,
+        "end_file_pos": 28,
         "name": "layout.spacing",
+        "fixes": [
+            {
+                "type": "replace",
+                "edit": " ",
+                "start_line_no": 1,
+                "start_line_pos": 27,
+                "start_file_pos": 26,
+                "end_line_no": 1,
+                "end_line_pos": 29,
+                "end_file_pos": 28,
+            }
+        ],
+        "warning": False,
     },
     {
         "code": "CP01",
-        "line_no": 1,
-        "line_pos": 29,
+        "start_line_no": 1,
+        "start_line_pos": 29,
+        "start_file_pos": 28,
+        "end_line_no": 1,
+        "end_line_pos": 33,
+        "end_file_pos": 32,
         "description": "Keywords must be consistently upper case.",
         "name": "capitalisation.keywords",
+        "fixes": [
+            {
+                "type": "replace",
+                "edit": "FROM",
+                "start_line_no": 1,
+                "start_line_pos": 29,
+                "start_file_pos": 28,
+                "end_line_no": 1,
+                "end_line_pos": 33,
+                "end_file_pos": 32,
+            }
+        ],
+        "warning": False,
     },
     {
         "code": "CP02",
-        "line_no": 1,
-        "line_pos": 34,
+        "start_line_no": 1,
+        "start_line_pos": 34,
+        "start_file_pos": 33,
+        "end_line_no": 1,
+        "end_line_pos": 41,
+        "end_file_pos": 40,
         "description": "Unquoted identifiers must be consistently lower case.",
         "name": "capitalisation.identifiers",
+        "fixes": [
+            {
+                "type": "replace",
+                "edit": "mytable",
+                "start_line_no": 1,
+                "start_line_pos": 34,
+                "start_file_pos": 33,
+                "end_line_no": 1,
+                "end_line_pos": 41,
+                "end_file_pos": 40,
+            }
+        ],
+        "warning": False,
     },
     {
         "code": "LT12",
-        "line_no": 1,
-        "line_pos": 41,
+        "start_line_no": 1,
+        "start_line_pos": 41,
+        "start_file_pos": 40,
+        "end_line_no": 1,
+        "end_line_pos": 41,
+        "end_file_pos": 40,
         "description": "Files must end with a single trailing newline.",
         "name": "layout.end_of_file",
+        "fixes": [
+            {
+                "type": "create_after",
+                "edit": "\n",
+                "start_line_no": 1,
+                "start_line_pos": 41,
+                "start_file_pos": 40,
+                "end_line_no": 1,
+                "end_line_pos": 41,
+                "end_file_pos": 40,
+            }
+        ],
+        "warning": False,
     },
 ]
 
@@ -147,7 +400,7 @@ def test__api__lint_string_specific_exclude_single():
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check only AM04 is found
     assert len(result) == 9
-    set(["LT12", "CP01", "AL03", "CP02", "LT09", "AM04"]) == set(
+    assert set(["LT12", "CP01", "AL03", "CP02", "LT09", "AM04"]) == set(
         [r["code"] for r in result]
     )
 
@@ -310,3 +563,16 @@ def test__api__invalid_dialect():
         )
 
     assert str(err.value) == "Error: Unknown dialect 'not_a_real_dialect'"
+
+
+def test__api__parse_exceptions():
+    """Test parse behaviour with errors."""
+    # Parsable content
+    result = sqlfluff.parse("SELECT 1")
+    assert result
+    # Templater fail
+    with pytest.raises(APIParsingError):
+        sqlfluff.parse('SELECT {{ 1 > "a"}}')
+    # Templater success but parsing fail
+    with pytest.raises(APIParsingError):
+        sqlfluff.parse("THIS IS NOT SQL")

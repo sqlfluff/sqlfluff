@@ -1,4 +1,5 @@
 """Implementation of Rule AM04."""
+
 from typing import Optional, Tuple
 
 from sqlfluff.core.parser import BaseSegment

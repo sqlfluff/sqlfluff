@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 653c3331eb481f4fe465aa9aa63fb4d83bf7515eb19bd756bd6d0dfde3ba0184
+_hash: c75e9d7b8dd1b4bafaa40bb49ba25f4732ecef4cc1c4adc176a43dc05b9dabbe
 file:
 - batch:
     statement:
@@ -67,6 +67,20 @@ file:
                 bracketed:
                   start_bracket: (
                   end_bracket: )
+        - comma: ','
+        - column_definition:
+            quoted_identifier: '[ColumnUser]'
+            data_type:
+              data_type_identifier: char
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '30'
+                  end_bracket: )
+            column_constraint_segment:
+              keyword: DEFAULT
+              bare_function: CURRENT_USER
         - comma: ','
         - column_definition:
           - quoted_identifier: '[col1]'
@@ -315,3 +329,33 @@ file:
         - end_bracket: )
 - go_statement:
     keyword: GO
+- batch:
+    statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: table_name
+      - bracketed:
+          start_bracket: (
+          column_definition:
+          - naked_identifier: id
+          - data_type:
+              data_type_identifier: UNIQUEIDENTIFIER
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          - column_constraint_segment:
+              keyword: CONSTRAINT
+              object_reference:
+                naked_identifier: constraint_name
+              references_constraint_grammar:
+              - keyword: REFERENCES
+              - table_reference:
+                  naked_identifier: referenced_table_name
+              - keyword: 'ON'
+              - keyword: DELETE
+              - keyword: 'NO'
+              - keyword: ACTION
+          end_bracket: )
+      - statement_terminator: ;

@@ -1,4 +1,5 @@
 """Setup file for an example rules plugin."""
+
 from setuptools import find_packages, setup
 
 # Change these names in your plugin, e.g. company name or plugin purpose.

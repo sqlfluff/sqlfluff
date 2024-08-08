@@ -150,9 +150,15 @@ test_compute_line_length_before_template_expansion_2:
   violations_after_fix:
     # Even after fixing, the final line is still too long.
     - description: Line is too long (86 > 80).
-      line_no: 4
-      line_pos: 9
       name: layout.long_lines
+      warning: false
+      fixes: []
+      start_line_no: 4
+      start_line_pos: 9
+      start_file_pos: 78
+      end_line_no: 4
+      end_line_pos: 11
+      end_file_pos: 80
   configs:
     core:
       dialect: bigquery
@@ -756,13 +762,25 @@ test_trailing_semicolon_moves:
   # the comma and semicolon where they are.
   violations_after_fix:
     - description: Line is too long (23 > 20).
-      line_no: 2
-      line_pos: 5
       name: layout.long_lines
+      warning: false
+      fixes: []
+      start_line_no: 2
+      start_line_pos: 5
+      start_file_pos: 11
+      end_line_no: 2
+      end_line_pos: 23
+      end_file_pos: 29
     - description: Line is too long (23 > 20).
-      line_no: 5
-      line_pos: 5
       name: layout.long_lines
+      warning: false
+      fixes: []
+      start_line_no: 5
+      start_line_pos: 5
+      start_file_pos: 53
+      end_line_no: 5
+      end_line_pos: 23
+      end_file_pos: 71
 
 test_pass_window_function:
   # Test that we don't flag too eagerly on window functions.

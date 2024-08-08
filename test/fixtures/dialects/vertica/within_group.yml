@@ -1,0 +1,111 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d23a6b69e9eaddca4f8e9da7c9dcd187194f97dcae0ac36c4180fc5e993271ae
+file:
+  statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: cd
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_modifier:
+                keyword: DISTINCT
+            - select_clause_element:
+                expression:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: customer_city
+                    end_bracket: )
+                alias_expression:
+                  naked_identifier: city
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: customer_state
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: customer_region
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: customer_dimension
+          end_bracket: )
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: customer_region
+            alias_expression:
+              naked_identifier: Region
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: LISTAGG
+              bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                    naked_identifier: city
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - quoted_literal: "', '"
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - column_reference:
+                    naked_identifier: customer_state
+              - keyword: USING
+              - keyword: PARAMETERS
+              - parameter: separator
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - quoted_literal: "' | '"
+              - end_bracket: )
+              within_group_clause_statement:
+              - keyword: WITHIN
+              - keyword: GROUP
+              - bracketed:
+                  start_bracket: (
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: city
+                  end_bracket: )
+            alias_expression:
+              naked_identifier: CityAndState
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: cd
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: region
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: region
+  statement_terminator: ;

@@ -68,10 +68,10 @@ class Rule_AL04(BaseRule):
     def _lint_references_and_aliases(
         self,
         table_aliases: List[AliasInfo],
-        standalone_aliases: List[str],
+        standalone_aliases: List[BaseSegment],
         references: List[ObjectReferenceSegment],
         col_aliases: List[ColumnAliasInfo],
-        using_cols: List[str],
+        using_cols: List[BaseSegment],
         parent_select: Optional[BaseSegment],
     ) -> Optional[List[LintResult]]:
         """Check whether any aliases are duplicates.

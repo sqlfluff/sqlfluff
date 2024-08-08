@@ -1,4 +1,5 @@
 """Tests the python routines within CV09."""
+
 from sqlfluff.core import FluffConfig, Linter
 
 

@@ -1,0 +1,435 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e822c0f9ea346cb2ecac9dba634ddc798bee26c466402d20c982e94dfbb57078
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              naked_identifier: t
+              dot: .
+              star: '*'
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: p
+          - dot: .
+          - naked_identifier: price
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: trades
+            alias_expression:
+              keyword: AS
+              naked_identifier: t
+          join_clause:
+          - keyword: ASOF
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: prices
+              alias_expression:
+                keyword: AS
+                naked_identifier: p
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: t
+                - dot: .
+                - naked_identifier: symbol
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: p
+                - dot: .
+                - naked_identifier: symbol
+              - binary_operator: AND
+              - column_reference:
+                  naked_identifier: t
+                  dot: .
+                  naked_identifier_all: when
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+                - raw_comparison_operator: '='
+              - column_reference:
+                  naked_identifier: p
+                  dot: .
+                  naked_identifier_all: when
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: trades
+            alias_expression:
+              keyword: AS
+              naked_identifier: t
+          join_clause:
+          - keyword: ASOF
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: prices
+              alias_expression:
+                keyword: AS
+                naked_identifier: p
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: t
+                - dot: .
+                - naked_identifier: symbol
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: p
+                - dot: .
+                - naked_identifier: symbol
+              - binary_operator: AND
+              - column_reference:
+                  naked_identifier: t
+                  dot: .
+                  naked_identifier_all: when
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+                - raw_comparison_operator: '='
+              - column_reference:
+                  naked_identifier: p
+                  dot: .
+                  naked_identifier_all: when
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: trades
+            alias_expression:
+              keyword: AS
+              naked_identifier: t
+          join_clause:
+          - keyword: ASOF
+          - keyword: RIGHT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: prices
+              alias_expression:
+                keyword: AS
+                naked_identifier: p
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: t
+                - dot: .
+                - naked_identifier: symbol
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: p
+                - dot: .
+                - naked_identifier: symbol
+              - binary_operator: AND
+              - column_reference:
+                  naked_identifier: t
+                  dot: .
+                  naked_identifier_all: when
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+                - raw_comparison_operator: '='
+              - column_reference:
+                  naked_identifier: p
+                  dot: .
+                  naked_identifier_all: when
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: trades
+            alias_expression:
+              keyword: AS
+              naked_identifier: t
+          join_clause:
+          - keyword: ASOF
+          - keyword: FULL
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: prices
+              alias_expression:
+                keyword: AS
+                naked_identifier: p
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: t
+                - dot: .
+                - naked_identifier: symbol
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: p
+                - dot: .
+                - naked_identifier: symbol
+              - binary_operator: AND
+              - column_reference:
+                  naked_identifier: t
+                  dot: .
+                  naked_identifier_all: when
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+                - raw_comparison_operator: '='
+              - column_reference:
+                  naked_identifier: p
+                  dot: .
+                  naked_identifier_all: when
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: trades
+            alias_expression:
+              keyword: AS
+              naked_identifier: t
+          join_clause:
+          - keyword: ASOF
+          - keyword: ANTI
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: prices
+              alias_expression:
+                keyword: AS
+                naked_identifier: p
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: t
+                - dot: .
+                - naked_identifier: symbol
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: p
+                - dot: .
+                - naked_identifier: symbol
+              - binary_operator: AND
+              - column_reference:
+                  naked_identifier: t
+                  dot: .
+                  naked_identifier_all: when
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+                - raw_comparison_operator: '='
+              - column_reference:
+                  naked_identifier: p
+                  dot: .
+                  naked_identifier_all: when
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: trades
+            alias_expression:
+              keyword: AS
+              naked_identifier: t
+          join_clause:
+          - keyword: ASOF
+          - keyword: SEMI
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: prices
+              alias_expression:
+                keyword: AS
+                naked_identifier: p
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: t
+                - dot: .
+                - naked_identifier: symbol
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: p
+                - dot: .
+                - naked_identifier: symbol
+              - binary_operator: AND
+              - column_reference:
+                  naked_identifier: t
+                  dot: .
+                  naked_identifier_all: when
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+                - raw_comparison_operator: '='
+              - column_reference:
+                  naked_identifier: p
+                  dot: .
+                  naked_identifier_all: when
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: trades
+          join_clause:
+          - keyword: ASOF
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: prices
+          - keyword: USING
+          - bracketed:
+              start_bracket: (
+              naked_identifier: symbol
+              comma: ','
+              quoted_identifier: '"when"'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: symbol
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: t
+            dot: .
+            naked_identifier_all: when
+          alias_expression:
+            keyword: AS
+            naked_identifier: trade_when
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: p
+            dot: .
+            naked_identifier_all: when
+          alias_expression:
+            keyword: AS
+            naked_identifier: price_when
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: price
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: trades
+            alias_expression:
+              keyword: AS
+              naked_identifier: t
+          join_clause:
+          - keyword: ASOF
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: prices
+              alias_expression:
+                keyword: AS
+                naked_identifier: p
+          - keyword: USING
+          - bracketed:
+              start_bracket: (
+              naked_identifier: symbol
+              comma: ','
+              quoted_identifier: '"when"'
+              end_bracket: )
+- statement_terminator: ;
