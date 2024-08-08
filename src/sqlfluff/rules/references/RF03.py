@@ -21,7 +21,7 @@ _START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
 
 
 class Rule_RF03(BaseRule):
-    """Column references should be consistently qualified in statements with a single table.
+    """Column references should be qualified consistently in single table statements.
 
     .. note::
         For BigQuery, Hive and Redshift this rule is disabled by default.
