@@ -1,0 +1,126 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2b92c42c17bfd5ec314ef478d91a9ef359dc6ff30578dc60aeef9c89a43f25e8
+file:
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: TRANSACTION
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: REPEATABLE
+    - keyword: READ
+- statement_terminator: ;
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: TRANSACTION
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: READ
+    - keyword: COMMITTED
+- statement_terminator: ;
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: TRANSACTION
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: READ
+    - keyword: UNCOMMITTED
+- statement_terminator: ;
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: TRANSACTION
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: SERIALIZABLE
+- statement_terminator: ;
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: GLOBAL
+    - keyword: TRANSACTION
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: REPEATABLE
+    - keyword: READ
+- statement_terminator: ;
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: TRANSACTION
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: READ
+    - keyword: COMMITTED
+- statement_terminator: ;
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: TRANSACTION
+    - keyword: READ
+    - keyword: WRITE
+- statement_terminator: ;
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: GLOBAL
+    - keyword: TRANSACTION
+    - keyword: READ
+    - keyword: ONLY
+- statement_terminator: ;
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: TRANSACTION
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: REPEATABLE
+    - keyword: READ
+    - comma: ','
+    - keyword: READ
+    - keyword: ONLY
+- statement_terminator: ;
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: GLOBAL
+    - keyword: TRANSACTION
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: SERIALIZABLE
+    - comma: ','
+    - keyword: READ
+    - keyword: WRITE
+- statement_terminator: ;
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: TRANSACTION
+    - keyword: READ
+    - keyword: WRITE
+    - comma: ','
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: READ
+    - keyword: UNCOMMITTED
+- statement_terminator: ;
+- statement:
+    set_transaction_statement:
+    - keyword: SET
+    - keyword: TRANSACTION
+    - keyword: READ
+    - keyword: ONLY
+    - comma: ','
+    - keyword: ISOLATION
+    - keyword: LEVEL
+    - keyword: SERIALIZABLE
+- statement_terminator: ;
