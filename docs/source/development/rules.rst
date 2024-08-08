@@ -17,7 +17,7 @@ i.e. test cases defined in `yaml`_ files. You can find those `yaml fixtures on g
 While this provides a very simple way to *write* tests, it can be occasionally tedious
 to *run* specific tests.
 
-Within either a `tox` environment or `virtualenv` (as decribed in the `contributing.md`_
+Within either a `tox` environment or `virtualenv` (as described in the `contributing.md`_
 file), you can either run all of the rule yaml tests with:
 
 .. code-block:: sh
