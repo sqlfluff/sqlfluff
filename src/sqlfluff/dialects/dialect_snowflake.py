@@ -2019,6 +2019,7 @@ class AlterTableTableColumnActionSegment(BaseSegment):
             # Handle Multiple Columns
             Delimited(
                 Sequence(
+                    Ref("IfNotExistsGrammar", optional=True),
                     Ref("ColumnReferenceSegment"),
                     Ref("DatatypeSegment"),
                     OneOf(
@@ -3431,6 +3432,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         Sequence("SECURE", optional=True),
+        Sequence("AGGREGATE", optional=True),
         "FUNCTION",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
