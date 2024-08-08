@@ -116,16 +116,22 @@ redirects = {
     # a perma link (to redirect). This ensures we can support a consistent
     # link location even if the docs move around.
     "perma/layout": "../configuration/layout.html",
-    "perma/indent_locations": "../configuration/layout.html#configuring-indent-locations",
+    "perma/indent_locations": (
+        "../configuration/layout.html#configuring-indent-locations"
+    ),
     "perma/hanging_indents": "../configuration/layout.html#hanging-indents",
-    "perma/layout_spacing": "../configuration/layout.html#configuring-layout-and-spacing",
+    "perma/layout_spacing": (
+        "../configuration/layout.html#configuring-layout-and-spacing"
+    ),
     "perma/configuration": "../configuration/index.html",
     "perma/dbt": "../configuration/templating/dbt.html",
     "perma/cli": "../reference/cli.html",
     "perma/rules": "../reference/rules.html",
     "perma/dialects": "../reference/dialects.html",
     "perma/architecture": "../development/architecture.html",
-    "perma/rule_disabling": "../configuration/rule_configuration.html#enabling-and-disabling-rules",
+    "perma/rule_disabling": (
+        "../configuration/rule_configuration.html#enabling-and-disabling-rules"
+    ),
     "perma/internals": "../development/index.html",
     "perma/modularity": "../why_sqlfluff.html#modularity",
     "perma/indentation": "../configuration/layout.html#configuring-indent-locations",

@@ -485,8 +485,8 @@ class ConfigLoader:
                             f"value (`{removed_option.new_path}`) takes precedence. "
                             "Please update your configuration to remove this warning. "
                             f"\n\n{removed_option.warning}\n\n"
-                            "See https://docs.sqlfluff.com/en/stable/perma/configuration.html"
-                            " for more details.\n"
+                            "See https://docs.sqlfluff.com/en/stable/perma/"
+                            "configuration.html for more details.\n"
                         )
                         # continue to NOT add this value in the set
                         continue
@@ -504,16 +504,16 @@ class ConfigLoader:
                         f"`{formatted_new_key}` set to a value of `{v}` for this run. "
                         "Please update your configuration to remove this warning. "
                         f"\n\n{removed_option.warning}\n\n"
-                        "See https://docs.sqlfluff.com/en/stable/perma/configuration.html"
-                        " for more details.\n"
+                        "See https://docs.sqlfluff.com/en/stable/perma/"
+                        "configuration.html for more details.\n"
                     )
                 else:
                     # Raise an error.
                     raise SQLFluffUserError(
                         f"Config file {file_path!r} set an outdated config "
                         f"value {formatted_key}.\n\n{removed_option.warning}\n\n"
-                        "See https://docs.sqlfluff.com/en/stable/perma/configuration.html"
-                        " for more details."
+                        "See https://docs.sqlfluff.com/en/stable/perma/"
+                        "configuration.html for more details."
                     )
 
             # Second validate any layout configs for validity.

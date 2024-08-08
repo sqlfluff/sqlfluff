@@ -15,7 +15,7 @@ Running Tests
 The majority of the test cases for most bundled rules are *"yaml test cases"*,
 i.e. test cases defined in `yaml`_ files. You can find those `yaml fixtures on github`_.
 While this provides a very simple way to *write* tests, it can be occasionally tedious
-to *run* specific tests. 
+to *run* specific tests.
 
 Within either a `tox` environment or `virtualenv` (as decribed in the `contributing.md`_
 file), you can either run all of the rule yaml tests with:
