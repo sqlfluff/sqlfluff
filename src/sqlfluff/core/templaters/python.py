@@ -1,6 +1,7 @@
 """Defines the templaters."""
 
 import ast
+import re
 from string import Formatter
 from typing import (
     Any,
@@ -249,9 +250,23 @@ class PythonTemplater(RawTemplater):
         live_context = self.get_context(fname=fname, config=config)
 
         def render_func(raw_str: str) -> str:
-            """Render the string using the captured live_context."""
+            """Render the string using the captured live_context.
+
+            In order to support mocking of template variables
+            containing "." characters, this function converts any
+            template variable containing "." into a dictionary lookup.
+                Example:  {foo.bar} => {sqlfluff[foo.bar]}
+            """
             try:
-                rendered_str = raw_str.format(**live_context)
+                # Hack to allow template variables with dot notation (e.g. foo.bar)
+                raw_str_with_dot_notation_hack = re.sub(
+                    r"{([^:}]*\.[^:}]*)(:\S*)?}", r"{sqlfluff[\1]\2}", raw_str
+                )
+                templater_logger.debug(
+                    "    Raw String with Dot Notation Hack: %r",
+                    raw_str_with_dot_notation_hack,
+                )
+                rendered_str = raw_str_with_dot_notation_hack.format(**live_context)
             except KeyError as err:
                 raise SQLTemplaterError(
                     "Failure in Python templating: {}. Have you configured your "
