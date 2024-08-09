@@ -5,7 +5,7 @@ import os
 import pytest
 
 from sqlfluff.core.errors import SQLFluffUserError
-from sqlfluff.core.linter.paths import _find_ignore_config_files, paths_from_path
+from sqlfluff.core.linter.discovery import _find_ignore_config_files, paths_from_path
 
 
 def normalise_paths(paths):

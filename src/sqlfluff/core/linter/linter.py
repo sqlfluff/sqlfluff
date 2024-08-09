@@ -35,6 +35,7 @@ from sqlfluff.core.linter.common import (
     RenderedFile,
     RuleTuple,
 )
+from sqlfluff.core.linter.discovery import paths_from_path
 from sqlfluff.core.linter.fix import apply_fixes, compute_anchor_edit_info
 from sqlfluff.core.linter.linted_dir import LintedDir
 from sqlfluff.core.linter.linted_file import (
@@ -43,7 +44,6 @@ from sqlfluff.core.linter.linted_file import (
     LintedFile,
 )
 from sqlfluff.core.linter.linting_result import LintingResult
-from sqlfluff.core.linter.paths import paths_from_path
 from sqlfluff.core.parser import Lexer, Parser
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
 from sqlfluff.core.rules import BaseRule, RulePack, get_ruleset
