@@ -365,7 +365,7 @@ class JinjaTemplater(PythonTemplater):
         Returns:
             jinja2.Environment: A properly configured jinja environment.
         """
-        macros_path = self._get_macros_path(config)
+        macros_path = self._get_macros_path(config, "load_macros_from_path")
         loader_search_path = self._get_loader_search_path(config)
         final_search_path = (loader_search_path or []) + (macros_path or [])
 
@@ -406,11 +406,11 @@ class JinjaTemplater(PythonTemplater):
             loader=loader,
         )
 
-    def _get_macros_path(self, config: FluffConfig) -> Optional[List[str]]:
+    def _get_macros_path(self, config: FluffConfig, key: str) -> Optional[List[str]]:
         """Get the list of macros paths from the provided config object.
 
         This method searches for a config section specified by the
-        templater_selector, name, and 'load_macros_from_path' keys. If the section is
+        templater_selector, name, and key specified. If the section is
         found, it retrieves the value associated with that section and splits it into
         a list of strings using a comma as the delimiter. The resulting list is
         stripped of whitespace and empty strings and returned. If the section is not
@@ -419,45 +419,16 @@ class JinjaTemplater(PythonTemplater):
         Args:
             config (FluffConfig): The config object to search for the macros path
                 section.
+            key (str): Key to load the macros path from the config file.
+                Also used for loading the excluding macros path from config.
 
         Returns:
             Optional[List[str]]: The list of macros paths if found, None otherwise.
         """
         if config:
-            macros_path = config.get_section(
-                (self.templater_selector, self.name, "load_macros_from_path")
-            )
+            macros_path = config.get_section((self.templater_selector, self.name, key))
             if macros_path:
                 result = [s.strip() for s in macros_path.split(",") if s.strip()]
-                if result:
-                    return result
-        return None
-
-    def _get_exclude_macros_path(self, config: FluffConfig) -> Optional[List[str]]:
-        """Get the list of macros paths to exclude from the provided config object.
-
-        This method searches for a config section specified by the
-        'exclude_macros_from_path' key. If the section is
-        found, it retrieves the value associated with that section and splits it into
-        a list of strings using a comma as the delimiter. The resulting list is
-        stripped of whitespace and empty strings and returned. If the section is not
-        found or the resulting list is empty, it returns None.
-
-        Args:
-            config (FluffConfig): The config object to search for the macros path
-                section.
-
-        Returns:
-            Optional[List[str]]: The list of macros paths if found, None otherwise.
-        """
-        if config:
-            exclude_macros_path = config.get_section(
-                (self.templater_selector, self.name, "exclude_macros_from_path")
-            )
-            if exclude_macros_path:
-                result = [
-                    s.strip() for s in exclude_macros_path.split(",") if s.strip()
-                ]
                 if result:
                     return result
         return None
@@ -555,8 +526,10 @@ class JinjaTemplater(PythonTemplater):
 
         # Load macros from path (if applicable)
         if config:
-            macros_path = self._get_macros_path(config)
-            exclude_macros_path = self._get_exclude_macros_path(config)
+            macros_path = self._get_macros_path(config, "load_macros_from_path")
+            exclude_macros_path = self._get_macros_path(
+                config, "exclude_macros_from_path"
+            )
             if macros_path:
                 live_context.update(
                     self._extract_macros_from_path(

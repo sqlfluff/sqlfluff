@@ -1,7 +1,3 @@
 [sqlfluff:templater:jinja]
 load_macros_from_path = macros
 exclude_macros_from_path = macros/macros_exclude
-
-[sqlfluff:templater:jinja:macros]
-foo1_def={%- macro foo1() -%}101{%- endmacro -%}
-foo2_def={%- macro foo2() -%}102{%- endmacro -%}

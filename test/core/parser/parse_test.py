@@ -52,7 +52,12 @@ def test__parser__parse_error():
 
 
 def test_parse_jinja_macro_exclude():
-    """Test parsing when excluding macros with unknown tags."""
+    """Test parsing when excluding macros with unknown tags.
+
+    This test case has a file which defines the unknown tag `materialization` which
+    would cause a templating error if not excluded. By ignoring that folder we can
+    ensure there are no errors.
+    """
     config_path = "test/fixtures/templater/jinja_exclude_macro_path/.sqlfluff"
     config = FluffConfig.from_path(config_path)
     linter = Linter(config=config)

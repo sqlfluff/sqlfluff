@@ -655,13 +655,3 @@ def test_normalise_newlines():
     in_str = "SELECT\r\n foo\n FROM \r \n\r bar;"
     out_str = "SELECT\n foo\n FROM \n \n\n bar;"
     assert out_str == Linter._normalise_newlines(in_str)
-
-
-def test_lint_jinja_macro_exclude():
-    """Test linting when excluding macros with unknown tags."""
-    config_path = "test/fixtures/templater/jinja_exclude_macro_path/.sqlfluff"
-    config = FluffConfig.from_path(config_path)
-    linter = Linter(config=config)
-    sql_file_path = "test/fixtures/templater/jinja_exclude_macro_path/jinja.sql"
-    lint = linter.lint_path(sql_file_path)
-    assert lint.num_violations() == 0
