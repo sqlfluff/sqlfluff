@@ -43,6 +43,7 @@ def _find_ignore_config_files(
         )
     )
 
+
 def paths_from_path(
     path: str,
     ignore_file_name: str = ".sqlfluffignore",
@@ -143,9 +144,7 @@ def paths_from_path(
                     if os.path.dirname(abs_ignore_base) == abs_ignore_base
                     else os.sep
                 )
-            ) and ignore_spec.match_file(
-                os.path.relpath(abs_fpath, abs_ignore_base)
-            ):
+            ) and ignore_spec.match_file(os.path.relpath(abs_fpath, abs_ignore_base)):
                 # This file is ignored, skip it.
                 if is_exact_file:
                     linter_logger.warning(

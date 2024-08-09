@@ -37,7 +37,9 @@ def test__linter__path_from_paths__default():
 
 def test__linter__path_from_paths__exts():
     """Test configuration of file discovery."""
-    paths = normalise_paths(paths_from_path("test/fixtures/linter", target_file_exts=[".txt"]))
+    paths = normalise_paths(
+        paths_from_path("test/fixtures/linter", target_file_exts=[".txt"])
+    )
     assert "test.fixtures.linter.passing.sql" not in paths
     assert "test.fixtures.linter.passing_cap_extension.SQL" not in paths
     assert "test.fixtures.linter.discovery_file.txt" in paths
@@ -47,6 +49,7 @@ def test__linter__path_from_paths__file():
     """Test extracting paths from a file path."""
     paths = paths_from_path("test/fixtures/linter/indentation_errors.sql")
     assert normalise_paths(paths) == {"test.fixtures.linter.indentation_errors.sql"}
+
 
 def test__linter__path_from_paths__not_exist():
     """Test that the right errors are raise when a file doesn't exist."""
@@ -59,6 +62,7 @@ def test__linter__path_from_paths__not_exist_ignore():
     paths = paths_from_path("asflekjfhsakuefhse", ignore_non_existent_files=True)
     assert len(paths) == 0
 
+
 def test__linter__path_from_paths__explicit_ignore():
     """Test ignoring files that were passed explicitly."""
     paths = paths_from_path(
@@ -68,6 +72,7 @@ def test__linter__path_from_paths__explicit_ignore():
         working_path="test/fixtures/linter/sqlfluffignore/",
     )
     assert len(paths) == 0
+
 
 def test__linter__path_from_paths__sqlfluffignore_current_directory():
     """Test that .sqlfluffignore in the current directory is read when dir given."""

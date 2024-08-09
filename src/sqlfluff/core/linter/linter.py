@@ -984,6 +984,8 @@ class Linter:
 
         expanded_paths: List[str] = []
         expanded_path_to_linted_dir = {}
+        sql_exts = self.config.get("sql_file_exts", default=".sql").lower().split(",")
+
         for path in paths:
             linted_dir = LintedDir(path, retain_files=retain_files)
             result.add(linted_dir)
@@ -991,7 +993,7 @@ class Linter:
                 path,
                 ignore_non_existent_files=ignore_non_existent_files,
                 ignore_files=ignore_files,
-                target_file_exts=self.config.get("sql_file_exts", default=".sql").lower().split(",")
+                target_file_exts=sql_exts
             ):
                 expanded_paths.append(fname)
                 expanded_path_to_linted_dir[fname] = linted_dir
@@ -1067,9 +1069,10 @@ class Linter:
         NB: This a generator which will yield the result of each file
         within the path iteratively.
         """
+        sql_exts = self.config.get("sql_file_exts", default=".sql").lower().split(",")
         for fname in paths_from_path(
             path,
-            target_file_exts=self.config.get("sql_file_exts", default=".sql").lower().split(","),
+            target_file_exts=sql_exts,
         ):
             if self.formatter:
                 self.formatter.dispatch_path(path)
