@@ -20,7 +20,8 @@ class Rule_RF06(BaseRule):
     depending on the ``force_quote_identifier`` configuration.
 
     When ``prefer_quoted_identifiers = False`` (default behaviour), the quotes are
-    unnecessary, except for reserved keywords and special characters in identifiers.
+    unnecessary, except for reserved keywords, special characters in identifiers and
+    case-sensitive aliases.
 
     .. note::
        This rule is disabled by default for Postgres and Snowflake because they allow
@@ -33,18 +34,23 @@ class Rule_RF06(BaseRule):
 
     In this example, a valid unquoted identifier,
     that is also not a reserved keyword, is needlessly quoted.
+    However, quoted alias is allowed for generating case-sensitive columns.
 
     .. code-block:: sql
 
-        SELECT 123 as "foo"
+        SELECT
+            "foo",
+            123 as "CaseSensitive_Col"
 
     **Best practice**
 
-    Use unquoted identifiers where possible.
+    Use unquoted identifiers where possible. Quoted alias are allowed.
 
     .. code-block:: sql
 
-        SELECT 123 as foo
+        SELECT
+            foo,
+            123 as "CaseSensitive_Col"
 
     When ``prefer_quoted_identifiers = True``, the quotes are always necessary, no
     matter if the identifier is valid, a reserved keyword, or contains special
@@ -62,17 +68,24 @@ class Rule_RF06(BaseRule):
 
     .. code-block:: sql
 
-        SELECT 123 as foo
+        SELECT
+            foo,
+            123 as CaseSensitive_Col
 
     **Best practice**
     Use quoted identifiers.
 
     .. code-block:: sql
 
-        SELECT 123 as "foo" -- For ANSI, ...
-        -- or
-        SELECT 123 as `foo` -- For BigQuery, MySql, ...
+        -- For ANSI, ...
+        SELECT
+            "foo",
+            123 as "CaseSensitive_Col"
 
+        -- For BigQuery, MySql, ...
+        SELECT
+            `foo`,
+            123 as `CaseSensitive_Col`
     """
 
     name = "references.quoting"
@@ -185,6 +198,9 @@ class Rule_RF06(BaseRule):
 
         # Now we only deal with NOT forced quoted identifiers configuration
         # (meaning prefer_quoted_identifiers=False).
+
+        if FunctionalContext(context).parent_stack.any(sp.is_type("alias_expression")):
+            return LintResult(memory=context.memory)
 
         # Retrieve NakedIdentifierSegment RegexParser for the dialect.
         naked_identifier_parser = cast(

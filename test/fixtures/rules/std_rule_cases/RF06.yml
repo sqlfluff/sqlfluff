@@ -6,15 +6,27 @@ test_pass_column_reference:
 
 test_fail_column_reference:
   fail_str: |
-    SELECT 123 AS "foo";
+    SELECT "foo";
   fix_str: |
-    SELECT 123 AS foo;
+    SELECT foo;
+
+test_pass_quoted_alias:
+  pass_str: |
+    SELECT 123 AS "foo";
+
+test_pass_quoted_alias_prefer_unquoted:
+  pass_str: |
+    SELECT 123 AS "foo";
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: false
 
 test_fail_column_reference_tsql:
   fail_str: |
-    SELECT 123 AS [foo];
+    SELECT [foo];
   fix_str: |
-    SELECT 123 AS foo;
+    SELECT foo;
   configs:
     core:
       dialect: tsql
@@ -69,40 +81,40 @@ test_fail_multiple_references_tsql:
 
 test_pass_whitespace:
   pass_str: |
-    SELECT 123 AS "I cannot be unquoted"
+    SELECT "I cannot be unquoted"
 
 test_pass_whitespace_tsql:
   pass_str: |
-    SELECT 123 AS [I cannot be unquoted]
+    SELECT [I cannot be unquoted]
   configs:
     core:
       dialect: tsql
 
 test_pass_special_symbols:
   pass_str: |
-    SELECT 123 AS "I-c@nn0t-be~un-quoted"
+    SELECT "I-c@nn0t-be~un-quoted"
 
 test_pass_special_symbols_tsql:
   pass_str: |
-    SELECT 123 AS [I-c@nn0t-be~un-quoted]
+    SELECT [I-c@nn0t-be~un-quoted]
   configs:
     core:
       dialect: tsql
 
 test_pass_reserved_keyword:
   pass_str: |
-    SELECT 123 AS "SELECT"
+    SELECT "SELECT"
 
 test_pass_reserved_keyword_tsql:
   pass_str: |
-    SELECT 123 AS [SELECT]
+    SELECT [SELECT]
   configs:
     core:
       dialect: tsql
 
 test_pass_column_reference_prefer_quoted_ansi:
   pass_str: |
-    SELECT 123 AS "foo";
+    SELECT "foo";
   configs:
     rules:
       references.quoting:
@@ -110,7 +122,7 @@ test_pass_column_reference_prefer_quoted_ansi:
 
 test_pass_column_reference_prefer_quoted_tsql:
   pass_str: |
-    SELECT 123 AS [foo];
+    SELECT [foo];
   configs:
     core:
       dialect: tsql
@@ -120,7 +132,7 @@ test_pass_column_reference_prefer_quoted_tsql:
 
 test_fail_column_reference_prefer_quoted_ansi:
   fail_str: |
-    SELECT 123 AS foo;
+    SELECT foo;
   configs:
     rules:
       references.quoting:
@@ -208,7 +220,7 @@ test_fail_multiple_references_prefer_quoted_tsql:
 
 test_pass_whitespace_prefer_quoted_ansi:
   pass_str: |
-    SELECT 123 AS "I cannot be unquoted"
+    SELECT "I cannot be unquoted"
   configs:
     rules:
       references.quoting:
@@ -216,7 +228,7 @@ test_pass_whitespace_prefer_quoted_ansi:
 
 test_pass_whitespace_prefer_quoted_tsql:
   pass_str: |
-    SELECT 123 AS [I cannot be unquoted]
+    SELECT [I cannot be unquoted]
   configs:
     core:
       dialect: tsql
@@ -226,7 +238,7 @@ test_pass_whitespace_prefer_quoted_tsql:
 
 test_pass_special_symbols_prefer_quoted_ansi:
   pass_str: |
-    SELECT 123 AS "I-c@nn0t-be~un-quoted"
+    SELECT "I-c@nn0t-be~un-quoted"
   configs:
     rules:
       references.quoting:
@@ -234,7 +246,7 @@ test_pass_special_symbols_prefer_quoted_ansi:
 
 test_pass_special_symbols_prefer_quoted_tsql:
   pass_str: |
-    SELECT 123 AS [I-c@nn0t-be~un-quoted]
+    SELECT [I-c@nn0t-be~un-quoted]
   configs:
     core:
       dialect: tsql
@@ -244,7 +256,7 @@ test_pass_special_symbols_prefer_quoted_tsql:
 
 test_pass_reserved_keyword_prefer_quoted_ansi:
   pass_str: |
-    SELECT 123 AS "SELECT"
+    SELECT "SELECT"
   configs:
     rules:
       references.quoting:
@@ -252,7 +264,7 @@ test_pass_reserved_keyword_prefer_quoted_ansi:
 
 test_pass_reserved_keyword_prefer_quoted_tsql:
   pass_str: |
-    SELECT 123 AS [SELECT]
+    SELECT [SELECT]
   configs:
     core:
       dialect: tsql
@@ -262,7 +274,7 @@ test_pass_reserved_keyword_prefer_quoted_tsql:
 
 test_pass_column_reference_prefer_quoted_backticks:
   pass_str: |
-    SELECT 123 AS `foo`;
+    SELECT `foo`;
   configs:
     core:
       dialect: bigquery
@@ -272,7 +284,7 @@ test_pass_column_reference_prefer_quoted_backticks:
 
 test_fail_column_reference_prefer_quoted_backticks:
   fail_str: |
-    SELECT 123 AS foo;
+    SELECT foo;
   configs:
     core:
       dialect: bigquery
@@ -326,7 +338,7 @@ test_fail_multiple_references_prefer_quoted_backticks:
 
 test_pass_whitespace_prefer_quoted_backticks:
   pass_str: |
-    SELECT 123 AS `I cannot be unquoted`
+    SELECT `I cannot be unquoted`
   configs:
     core:
       dialect: bigquery
@@ -336,7 +348,7 @@ test_pass_whitespace_prefer_quoted_backticks:
 
 test_pass_special_symbols_prefer_quoted_backticks:
   pass_str: |
-    SELECT 123 AS `I-c@nn0t-be~un-quoted`
+    SELECT `I-c@nn0t-be~un-quoted`
   configs:
     core:
       dialect: bigquery
@@ -346,7 +358,7 @@ test_pass_special_symbols_prefer_quoted_backticks:
 
 test_pass_reserved_keyword_prefer_quoted_backticks:
   pass_str: |
-    SELECT 123 AS `SELECT`
+    SELECT `SELECT`
   configs:
     core:
       dialect: bigquery
@@ -400,7 +412,7 @@ test_fail_create_quoted_user_exasol:
 
 test_pass_ignore_lists:
   pass_str:
-    SELECT 123 AS "foo";
+    SELECT "foo";
   configs:
     rules:
       references.quoting:
@@ -408,7 +420,7 @@ test_pass_ignore_lists:
 
 test_pass_ignore_lists_tsql:
   pass_str:
-    SELECT 123 AS [foo];
+    SELECT [foo];
   configs:
     core:
       dialect: tsql
@@ -418,7 +430,7 @@ test_pass_ignore_lists_tsql:
 
 test_pass_ignore_lists_mixed_case:
   pass_str:
-    SELECT 123 AS "Foo";
+    SELECT "Foo";
   configs:
     rules:
       references.quoting:
@@ -426,7 +438,7 @@ test_pass_ignore_lists_mixed_case:
 
 test_pass_ignore_lists_mixed_case_tsql:
   pass_str:
-    SELECT 123 AS [Foo];
+    SELECT [Foo];
   configs:
     core:
       dialect: tsql
@@ -436,7 +448,7 @@ test_pass_ignore_lists_mixed_case_tsql:
 
 test_pass_ignore_words_regex:
   pass_str:
-    SELECT 123 AS "foo";
+    SELECT "foo";
   configs:
     rules:
       references.quoting:
@@ -444,7 +456,7 @@ test_pass_ignore_words_regex:
 
 test_pass_ignore_words_regex_tsql:
   pass_str:
-    SELECT 123 AS [foo];
+    SELECT [foo];
   configs:
     core:
       dialect: tsql
@@ -454,7 +466,7 @@ test_pass_ignore_words_regex_tsql:
 
 test_pass_ignore_words_regex_mixed_case:
   pass_str:
-    SELECT 123 AS "Foo";
+    SELECT "Foo";
   configs:
     rules:
       references.quoting:
@@ -462,7 +474,7 @@ test_pass_ignore_words_regex_mixed_case:
 
 test_pass_ignore_words_regex_mixed_case_tsql:
   pass_str:
-    SELECT 123 AS [Foo];
+    SELECT [Foo];
   configs:
     core:
       dialect: tsql
@@ -623,3 +635,11 @@ test_pass_exasol_password_literals:
         prefer_quoted_identifiers: false
     core:
       dialect: exasol
+
+test_fail_alias_prefer_quoted:
+  fail_str: |
+    SELECT 123 AS foo
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
