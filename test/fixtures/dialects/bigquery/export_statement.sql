@@ -63,3 +63,11 @@ WITH cte AS (
 )
 SELECT *
 FROM cte;
+
+EXPORT DATA OPTIONS
+(uri=CONCAT("gs://bucket/","/file_*.csv"),
+  format='CSV',
+  overwrite=true,
+  header=true,
+  field_delimiter=',')
+as SELECT col1,col2 FROM thetable;

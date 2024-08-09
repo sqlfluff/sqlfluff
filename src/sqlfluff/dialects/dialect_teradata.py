@@ -19,6 +19,7 @@ from sqlfluff.core.parser import (
     CompositeComparisonOperatorSegment,
     Dedent,
     Delimited,
+    IdentifierSegment,
     Indent,
     Matchable,
     OneOf,
@@ -27,6 +28,7 @@ from sqlfluff.core.parser import (
     RegexLexer,
     Sequence,
     StringParser,
+    TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 
@@ -122,7 +124,11 @@ teradata_dialect.replace(
         Ref("LikeOperatorSegment"),
         Sequence("IS", "DISTINCT", "FROM"),
         Sequence("IS", "NOT", "DISTINCT", "FROM"),
-    )
+    ),
+    # match ANSI's naked identifier casefold, teradata is case-insensitive.
+    QuotedIdentifierSegment=TypedParser(
+        "double_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
+    ),
 )
 
 teradata_dialect.add(

@@ -48,6 +48,7 @@ db2_dialect.replace(
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.upper,
         )
     ),
     FunctionContentsExpressionGrammar=OneOf(
@@ -121,14 +122,22 @@ db2_dialect.patch_lexer_matchers(
         # In Db2, the only escape character is ' for single quote strings
         RegexLexer(
             "single_quote",
-            r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))",
+            r"'((?:[^']|'')*)'",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"'((?:[^']|'')*)'", 1),
+                "escape_replacements": [(r"''", "'")],
+            },
         ),
-        # In Db2, there is no escape character for double quote strings
+        # In Db2, the escape character is "" for double quote strings
         RegexLexer(
             "double_quote",
-            r'(?s)".+?"',
+            r'"((?:[^"]|"")*)"',
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"]|"")*)"', 1),
+                "escape_replacements": [(r'""', '"')],
+            },
         ),
         # In Db2, a field could have a # pound/hash sign
         RegexLexer("word", r"[0-9a-zA-Z_#]+", WordSegment),
@@ -211,6 +220,25 @@ db2_dialect.add(
                 "TIMEZONE",
                 "USER",
             ),
+        ),
+    ),
+    XmlIndexSpecificationGrammar=Sequence(
+        "GENERATE",
+        OneOf("KEY", "KEYS"),
+        "USING",
+        "XMLPATTERN",
+        Ref("QuotedLiteralSegment"),  # XmlPatternClause
+        Ref("XmlTypeClauseGrammar"),
+    ),
+    XmlTypeClauseGrammar=Sequence(
+        "AS",
+        "SQL",
+        Ref("DatatypeSegment"),
+        Sequence(
+            OneOf("IGNORE", "REJECT"),
+            "INVALID",
+            "VALUES",
+            optional=True,
         ),
     ),
 )
@@ -368,6 +396,86 @@ class DeclareDistributionClauseSegment(BaseSegment):
                 ),
             ),
             "RANDOM",
+        ),
+    )
+
+
+class IndexColumnDefinitionSegment(ansi.IndexColumnDefinitionSegment):
+    """A column definition for CREATE INDEX."""
+
+    type = "index_column_definition"
+    match_grammar = Sequence(
+        OneOf(
+            Ref("SingleIdentifierGrammar"),  # Column name
+            Ref("ExpressionSegment"),  # key expression
+        ),
+        OneOf("ASC", "DESC", "RANDOM", optional=True),
+    )
+
+
+class CreateIndexStatementSegment(ansi.CreateIndexStatementSegment):
+    """A `CREATE INDEX` statement.
+
+    https://www.ibm.com/docs/en/db2/11.5?topic=statements-create-index
+    """
+
+    type = "create_index_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref.keyword("UNIQUE", optional=True),
+        "INDEX",
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Sequence(
+            Bracketed(
+                Delimited(
+                    Ref("IndexColumnDefinitionSegment"),
+                    Sequence("BUSINESS_TIME", "WITHOUT", "OVERLAPS"),
+                ),
+            )
+        ),
+        AnySetOf(
+            Sequence(Ref.keyword("NOT", optional=True), "PARTITIONED"),
+            Sequence("IN", Ref("TablespaceReferenceSegment")),
+            Sequence("SPECIFICATION", "ONLY"),
+            Sequence(
+                "INCLUDE",
+                Bracketed(
+                    Delimited(
+                        Ref("SingleIdentifierGrammar"),  # Column name
+                        Ref("ExpressionSegment"),  # key expression
+                    )
+                ),
+            ),
+            OneOf(
+                Ref("XmlIndexSpecificationGrammar"),
+                "CLUSTER",
+                Sequence(
+                    "EXTEND",
+                    "USING",
+                    OptionallyBracketed(
+                        Ref("IndexReferenceSegment"),
+                        Bracketed(Delimited(Ref("BaseExpressionElementGrammar"))),
+                    ),
+                ),
+            ),
+            Sequence("PCTFREE", Ref("NumericLiteralSegment")),
+            Sequence("LEVEL2", "PCTFREE", Ref("NumericLiteralSegment")),
+            Sequence("MINPCTUSED", Ref("NumericLiteralSegment")),
+            Sequence(OneOf("ALLOW", "DISALLOW"), "REVERSE", "SCANS"),
+            Sequence("PAGE", "SPLIT", OneOf("SYMMETRIC", "HIGH", "LOW")),
+            Sequence(
+                "COLLECT",
+                Sequence(
+                    OneOf("SAMPLED", "UNSAMPLED", optional=True),
+                    "DETAILED",
+                    optional=True,
+                ),
+                "STATISTICS",
+            ),
+            Sequence("COMPRESS", OneOf("YES", "NO")),
+            Sequence(OneOf("INCLUDE", "EXCLUDE"), "NULL", "KEYS"),
         ),
     )
 

@@ -15,16 +15,18 @@ test_pass_consistent_capitalisation_with_single_letter_upper:
   pass_str: SELECT A, Boo
 
 test_pass_consistent_capitalisation_with_single_word_snake:
-  # Single-word ambiguity: Pascal vs Capitalise
-  pass_str: SELECT Apple, Banana_split
+  # Snake is refuted as ambiguous
+  pass_str: SELECT apple, banana_split
 
-test_pass_consistent_capitalisation_with_single_word_pascal:
+test_fail_consistent_capitalisation_with_single_word_pascal:
   # Single-word ambiguity: Pascal vs Capitalise
-  pass_str: SELECT AppleFritter, Banana
+  fail_str: SELECT AppleFritter, Banana
+  fix_str: SELECT APPLEFRITTER, BANANA
 
-test_pass_consistent_capitalisation_with_multiple_words_with_numbers:
+test_fail_consistent_capitalisation_with_multiple_words_with_numbers:
   # Numbers count as part of words so following letter can be upper or lower
-  pass_str: SELECT AppleFritter, Apple123fritter, Apple123Fritter
+  fail_str: SELECT AppleFritter, Apple123fritter, Apple123Fritter
+  fix_str: SELECT APPLEFRITTER, APPLE123FRITTER, APPLE123FRITTER
 
 test_pass_consistent_capitalisation_with_leading_underscore:
   pass_str: SELECT _a, b
@@ -133,6 +135,36 @@ test_fail_inconsistent_capitalisation_pascal_v_capitalise:
   # Pascal vs Capitalise
   fail_str: SELECT AppleFritter, Banana_split
   fix_str: SELECT AppleFritter, Banana_Split
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: pascal
+
+test_fail_inconsistent_capitalisation_policy_camel_1:
+  fail_str: SELECT Camelcase
+  fix_str: SELECT camelcase
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: camel
+
+test_fail_inconsistent_capitalisation_policy_camel_2:
+  fail_str: SELECT Camel_Case
+  fix_str: SELECT camel_case
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: camel
+
+test_fail_inconsistent_capitalisation_policy_camel_3:
+  # Similar to above, you could argue the fixed string is
+  # Not really Pascal Case, but it's closer than it was!
+  fail_str: SELECT cAMEL_CASE
+  fix_str: SELECT cAMEL_cASE
+  configs:
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: camel
 
 test_pass_policy_unquoted_identifiers_aliases_1:
   pass_str: SELECT a,   B
@@ -167,7 +199,7 @@ test_pass_policy_unquoted_identifiers_aliases_4:
 
 test_policy_unquoted_identifiers_aliases_5:
   fail_str: SELECT UPPER_CASE AS PascalCase, PascalCase AS lower_case
-  fix_str: SELECT UPPER_CASE AS PascalCase, PascalCase AS Lower_Case
+  fix_str: SELECT UPPER_CASE AS PASCALCASE, PascalCase AS LOWER_CASE
   configs:
     rules:
       capitalisation.identifiers:
@@ -192,7 +224,7 @@ test_policy_unquoted_identifiers_aliases_7:
 
 test_policy_unquoted_identifiers_aliases_8:
   fail_str: SELECT UPPER_CASE AS PascalCase, PascalCase AS lower_case FROM lower_case AS lower_case
-  fix_str: SELECT UPPER_CASE AS PascalCase, PascalCase AS Lower_Case FROM lower_case AS Lower_Case
+  fix_str: SELECT UPPER_CASE AS PASCALCASE, PascalCase AS LOWER_CASE FROM lower_case AS LOWER_CASE
   configs:
     rules:
       capitalisation.identifiers:
@@ -207,7 +239,7 @@ test_policy_unquoted_identifiers_column_aliases_1:
 
 test_policy_unquoted_identifiers_aliases_2:
   fail_str: SELECT UPPER_CASE AS PascalCase, PascalCase AS lower_case FROM lower_case AS lower_case
-  fix_str: SELECT UPPER_CASE AS PascalCase, PascalCase AS Lower_Case FROM lower_case AS lower_case
+  fix_str: SELECT UPPER_CASE AS PASCALCASE, PascalCase AS LOWER_CASE FROM lower_case AS lower_case
   configs:
     rules:
       capitalisation.identifiers:
@@ -253,3 +285,59 @@ test_pass_databricks_case_sensitive_property:
   configs:
     core:
       dialect: databricks
+
+test_fail_snake_aliases:
+  # Test for issue #5470
+  # similar to PascalCase, case logic defined in CP01, but tested in CP02
+  fail_str: |
+    SELECT
+    test1,
+    test_2,
+    testColumn3,
+    TestColumn4,
+    TESTCOLUMN5,
+    TEST_COLUMN6,
+    test_column_7_
+  fix_str: |
+    SELECT
+    test_1,
+    test_2,
+    test_column_3,
+    test_column_4,
+    testcolumn_5,
+    test_column_6,
+    test_column_7_
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: snake
+
+test_fail_camel_aliases:
+  # Test for issue #5470
+  # similar to PascalCase, case logic defined in CP01, but tested in CP02
+  fail_str: |
+    SELECT
+    test1,
+    test_2,
+    testColumn3,
+    TestColumn4,
+    TESTCOLUMN5,
+    TEST_COLUMN6,
+    test_colUmn_7
+  fix_str: |
+    SELECT
+    test1,
+    test_2,
+    testColumn3,
+    testColumn4,
+    tESTCOLUMN5,
+    tEST_cOLUMN6,
+    test_colUmn_7
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: camel

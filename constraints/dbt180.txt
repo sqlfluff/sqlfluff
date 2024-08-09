@@ -1,0 +1,2 @@
+dbt-core~=1.8.0
+dbt-postgres~=1.8.0

@@ -1028,9 +1028,14 @@ postgres_postgis_other_keywords = [
     ("EMPTY", "non-reserved"),
 ]
 
+postgres_pgvector_keywords = [
+    ("VECTOR", "non-reserved"),
+]
+
 postgres_keywords = priority_keyword_merge(
     postgres_docs_keywords,
     postgres_nondocs_keywords,
     postgres_postgis_datatype_keywords,
     postgres_postgis_other_keywords,
+    postgres_pgvector_keywords,
 )

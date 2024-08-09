@@ -395,7 +395,10 @@ class ConfigLoader:
                 v = coerce_value(val)
 
                 # Attempt to resolve paths
-                if name.lower() == "load_macros_from_path":
+                if (
+                    name.lower() == "load_macros_from_path"
+                    or name.lower() == "loader_search_path"
+                ):
                     # Comma-separated list of paths.
                     paths = split_comma_separated_string(val)
                     v_temp = []
@@ -682,21 +685,37 @@ class ConfigLoader:
             self.load_user_appdir_config() if not ignore_local_config else {}
         )
         user_config = self.load_user_config() if not ignore_local_config else {}
-        config_paths = (
-            iter_intermediate_paths(Path(path).absolute(), Path.cwd())
-            if not ignore_local_config
-            else {}
-        )
-        config_stack = (
-            [self.load_config_at_path(p) for p in config_paths]
-            if not ignore_local_config
-            else []
-        )
+        parent_config_stack = []
+        config_stack = []
+        if not ignore_local_config:
+            # Finding all paths between here and the home
+            # directory. We could start at the root of the filesystem,
+            # but depending on the user's setup, this might result in
+            # permissions errors.
+            parent_config_paths = list(
+                iter_intermediate_paths(
+                    Path(path).absolute(), Path(os.path.expanduser("~"))
+                )
+            )
+            # Stripping off the home directory and the current working
+            # directory, since they are both covered by other code
+            # here
+            parent_config_paths = parent_config_paths[1:-1]
+            parent_config_stack = [
+                self.load_config_at_path(p) for p in list(parent_config_paths)
+            ]
+
+            config_paths = iter_intermediate_paths(Path(path).absolute(), Path.cwd())
+            config_stack = [self.load_config_at_path(p) for p in config_paths]
         extra_config = (
             self.load_extra_config(extra_config_path) if extra_config_path else {}
         )
         return nested_combine(
-            user_appdir_config, user_config, *config_stack, extra_config
+            user_appdir_config,
+            user_config,
+            *parent_config_stack,
+            *config_stack,
+            extra_config,
         )
 
     @classmethod
@@ -777,22 +796,7 @@ class FluffConfig:
             False if self._configs["core"].get("nocolor", False) else None
         )
         # Handle inputs which are potentially comma separated strings
-        for in_key, out_key in [
-            # Deal with potential ignore & warning parameters
-            ("ignore", "ignore"),
-            ("warnings", "warnings"),
-            ("rules", "rule_allowlist"),
-            # Allowlists and denylistsignore_words
-            ("exclude_rules", "rule_denylist"),
-        ]:
-            if self._configs["core"].get(in_key, None):
-                # Checking if key is string as can potentially be a list to
-                self._configs["core"][out_key] = split_comma_separated_string(
-                    self._configs["core"][in_key]
-                )
-            else:
-                self._configs["core"][out_key] = []
-
+        self._handle_comma_separated_values()
         # Dialect and Template selection.
         dialect: Optional[str] = self._configs["core"]["dialect"]
         self._initialise_dialect(dialect, require_dialect)
@@ -800,6 +804,20 @@ class FluffConfig:
         self._configs["core"]["templater_obj"] = self.get_templater(
             self._configs["core"]["templater"]
         )
+
+    def _handle_comma_separated_values(self):
+        for in_key, out_key in [
+            ("ignore", "ignore"),
+            ("warnings", "warnings"),
+            ("rules", "rule_allowlist"),
+            ("exclude_rules", "rule_denylist"),
+        ]:
+            if self._configs["core"].get(in_key, None):
+                self._configs["core"][out_key] = split_comma_separated_string(
+                    self._configs["core"][in_key]
+                )
+            else:
+                self._configs["core"][out_key] = []
 
     def _initialise_dialect(
         self, dialect: Optional[str], require_dialect: bool = True
@@ -1162,6 +1180,8 @@ class FluffConfig:
             if raw_line.startswith(("-- sqlfluff", "--sqlfluff")):
                 # Found a in-file config command
                 self.process_inline_config(raw_line, fname)
+        # Deal with potential list-like inputs.
+        self._handle_comma_separated_values()
 
 
 class ProgressBarConfiguration:

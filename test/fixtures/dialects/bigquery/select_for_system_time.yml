@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a0bc988c91bbf2eec01f4c1ca18bfae91db7fdadf49b9613c98c8eb2ac7177f8
+_hash: 0ad09aa1c91c7187352441e855ffa3193c54cb231f4ef24d7f41b767fce821ea
 file:
 - statement:
     select_statement:
@@ -16,28 +16,29 @@ file:
         keyword: FROM
         from_expression:
           from_expression_element:
-          - table_expression:
+            table_expression:
               table_reference:
                 naked_identifier: lists_emails
-          - alias_expression:
+            alias_expression:
               keyword: AS
               naked_identifier: list_emails
-          - keyword: FOR
-          - keyword: SYSTEM_TIME
-          - keyword: AS
-          - keyword: OF
-          - expression:
-              function:
-                function_name:
-                  function_name_identifier: CAST
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    quoted_literal: "'2019-12-02T20:52:34+00:00'"
-                  keyword: AS
-                  data_type:
-                    data_type_identifier: TIMESTAMP
-                  end_bracket: )
+            for_system_time_as_of_segment:
+            - keyword: FOR
+            - keyword: SYSTEM_TIME
+            - keyword: AS
+            - keyword: OF
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: CAST
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'2019-12-02T20:52:34+00:00'"
+                    keyword: AS
+                    data_type:
+                      data_type_identifier: TIMESTAMP
+                    end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -50,25 +51,26 @@ file:
         keyword: FROM
         from_expression:
           from_expression_element:
-          - table_expression:
+            table_expression:
               table_reference:
                 quoted_identifier: '`project.dataset.table1`'
-          - keyword: FOR
-          - keyword: SYSTEM_TIME
-          - keyword: AS
-          - keyword: OF
-          - expression:
-              function:
-                function_name:
-                  function_name_identifier: CAST
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    quoted_literal: "'2020-05-11T14:02:52+00:00'"
-                  keyword: AS
-                  data_type:
-                    data_type_identifier: TIMESTAMP
-                  end_bracket: )
+            for_system_time_as_of_segment:
+            - keyword: FOR
+            - keyword: SYSTEM_TIME
+            - keyword: AS
+            - keyword: OF
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: CAST
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'2020-05-11T14:02:52+00:00'"
+                    keyword: AS
+                    data_type:
+                      data_type_identifier: TIMESTAMP
+                    end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -81,23 +83,24 @@ file:
         keyword: FROM
         from_expression:
           from_expression_element:
-          - table_expression:
+            table_expression:
               table_reference:
                 quoted_identifier: '`project.dataset.table1`'
-          - keyword: FOR
-          - keyword: SYSTEM
-          - keyword: TIME
-          - keyword: AS
-          - keyword: OF
-          - expression:
-              function:
-                function_name:
-                  function_name_identifier: CAST
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    quoted_literal: "'2020-05-11T14:02:52+00:00'"
-                  keyword: AS
-                  data_type:
-                    data_type_identifier: TIMESTAMP
-                  end_bracket: )
+            for_system_time_as_of_segment:
+            - keyword: FOR
+            - keyword: SYSTEM
+            - keyword: TIME
+            - keyword: AS
+            - keyword: OF
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: CAST
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'2020-05-11T14:02:52+00:00'"
+                    keyword: AS
+                    data_type:
+                      data_type_identifier: TIMESTAMP
+                    end_bracket: )

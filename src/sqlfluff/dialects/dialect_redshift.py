@@ -190,6 +190,7 @@ redshift_dialect.replace(
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.lower,
         )
     ),
 )
@@ -1258,6 +1259,21 @@ class UnloadStatementSegment(BaseSegment):
                 ),
                 optional=True,
             ),
+            Sequence(
+                "EXTENSION",
+                Ref("QuotedLiteralSegment"),
+                Sequence(
+                    "PARALLEL",
+                    OneOf(
+                        "ON",
+                        "OFF",
+                        "TRUE",
+                        "FALSE",
+                    ),
+                    optional=True,
+                ),
+                optional=True,
+            ),
             OneOf(
                 Sequence(
                     "DELIMITER",
@@ -1843,7 +1859,7 @@ class GrantUsageDatashareStatementSegment(BaseSegment):
 
     https://docs.aws.amazon.com/redshift/latest/dg/r_GRANT.html
     section "Granting datashare permissions"
-    Note: According to docummentation, multiple accounts and namespaces can be
+    Note: According to documentation, multiple accounts and namespaces can be
           specified. However, tests using redshift instance showed this causes a syntax
           error.
     """

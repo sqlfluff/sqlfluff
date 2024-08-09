@@ -82,7 +82,6 @@ athena_dialect.add(
     BracketedPropertyListGrammar=Bracketed(Delimited(Ref("PropertyGrammar"))),
     CTASPropertyGrammar=Sequence(
         OneOf(
-            "external_location",
             "format",
             "partitioned_by",
             "bucketed_by",
@@ -90,15 +89,17 @@ athena_dialect.add(
             "write_compression",
             "orc_compression",
             "parquet_compression",
+            "compression_level",
             "field_delimiter",
-            "location",
+            "is_external",
+            "table_type",
+            "external_location",
         ),
         Ref("EqualsSegment"),
         Ref("LiteralGrammar"),
     ),
     CTASIcebergPropertyGrammar=Sequence(
         OneOf(
-            "external_location",
             "format",
             "partitioned_by",
             "bucketed_by",
@@ -106,13 +107,19 @@ athena_dialect.add(
             "write_compression",
             "orc_compression",
             "parquet_compression",
+            "compression_level",
             "field_delimiter",
-            "location",
             "is_external",
             "table_type",
+            # Iceberg-specific properties
+            "location",
             "partitioning",
-            "vacuum_max_snapshot_age_ms",
+            "vacuum_max_snapshot_age_seconds",
             "vacuum_min_snapshots_to_keep",
+            "optimize_rewrite_min_data_file_size_bytes",
+            "optimize_rewrite_max_data_file_size_bytes",
+            "optimize_rewrite_data_file_threshold",
+            "optimize_rewrite_delete_file_threshold",
         ),
         Ref("EqualsSegment"),
         Ref("LiteralGrammar"),
@@ -193,8 +200,9 @@ athena_dialect.add(
     ),
     BackQuotedIdentifierSegment=TypedParser(
         "back_quote",
-        LiteralSegment,
+        IdentifierSegment,
         type="quoted_identifier",
+        casefold=str.lower,
     ),
     DatetimeWithTZSegment=Sequence(OneOf("TIMESTAMP", "TIME"), "WITH", "TIME", "ZONE"),
 )
@@ -231,7 +239,11 @@ athena_dialect.replace(
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.lower,
         )
+    ),
+    QuotedIdentifierSegment=TypedParser(
+        "double_quote", IdentifierSegment, type="quoted_identifier", casefold=str.lower
     ),
     SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
         insert=[

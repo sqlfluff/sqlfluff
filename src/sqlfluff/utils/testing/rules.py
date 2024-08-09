@@ -117,13 +117,13 @@ def assert_rule_pass_in_sql(code, sql, configs=None, msg=None):
     # This section is mainly for aid in debugging.
     rendered = linter.render_string(sql, fname="<STR>", config=cfg, encoding="utf-8")
     parsed = linter.parse_rendered(rendered)
-    if parsed.violations:
+    tree = parsed.tree  # Delegate assertions to the `.tree` property
+    violations = parsed.violations
+    if violations:
         if msg:
             print(msg)  # pragma: no cover
-        assert parsed.tree
-        pytest.fail(parsed.violations[0].desc() + "\n" + parsed.tree.stringify())
-    assert parsed.tree
-    print(f"Parsed:\n {parsed.tree.stringify()}")
+        pytest.fail(violations[0].desc() + "\n" + tree.stringify())
+    print(f"Parsed:\n {tree.stringify()}")
 
     # Note that lint_string() runs the templater and parser again, in order to
     # test the whole linting pipeline in the same way that users do. In other

@@ -5,6 +5,12 @@ PIVOT (min(f_val) FOR f_id IN (1, 2)) AS f (a, b);
 SELECT * FROM my_tbl
 UNPIVOT (val FOR col_name IN (a, b));
 
+SELECT * FROM my_tbl
+UNPIVOT INCLUDE NULLS (val FOR col_name IN (a, b));
+
+SELECT * FROM my_tbl
+UNPIVOT EXCLUDE NULLS (val FOR col_name IN (a, b));
+
 select
 *
 from table_a

@@ -93,11 +93,42 @@ ansi_dialect.set_lexer_matchers(
                 WhitespaceSegment,
             ),
         ),
-        RegexLexer("single_quote", r"'([^'\\]|\\.|'')*'", CodeSegment),
-        RegexLexer("double_quote", r'"([^"\\]|\\.)*"', CodeSegment),
-        RegexLexer("back_quote", r"`[^`]*`", CodeSegment),
+        RegexLexer(
+            "single_quote",
+            r"'([^'\\]|\\.|'')*'",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"'((?:[^'\\]|\\.|'')*)'", 1),
+                "escape_replacements": [(r"\\'|''", "'")],
+            },
+        ),
+        RegexLexer(
+            "double_quote",
+            r'"([^"\\]|\\.)*"',
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"\\]|\\.)*)"', 1),
+                "escape_replacements": [(r'\\"|""', '"')],
+            },
+        ),
+        RegexLexer(
+            "back_quote",
+            r"`(?:[^`\\]|\\.)*`",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"`((?:[^`\\]|\\.)*)`", 1),
+                "escape_replacements": [(r"\\`", "`")],
+            },
+        ),
         # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
-        RegexLexer("dollar_quote", r"\$(\w*)\$[^\1]*?\$\1\$", CodeSegment),
+        RegexLexer(
+            "dollar_quote",
+            r"\$(\w*)\$(.*?)\$\1\$",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"\$(\w*)\$(.*?)\$\1\$", 2),
+            },
+        ),
         # Numeric literal matches integers, decimals, and exponential formats,
         # Pattern breakdown:
         # (?>                      Atomic grouping
@@ -272,6 +303,7 @@ ansi_dialect.add(
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.upper,
         )
     ),
     ParameterNameSegment=RegexParser(
@@ -414,6 +446,7 @@ ansi_dialect.add(
     IfExistsGrammar=Sequence("IF", "EXISTS"),
     IfNotExistsGrammar=Sequence("IF", "NOT", "EXISTS"),
     LikeGrammar=OneOf("LIKE", "RLIKE", "ILIKE"),
+    PatternMatchingGrammar=Nothing(),
     UnionGrammar=Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
     IsClauseGrammar=OneOf(
         Ref("NullLiteralSegment"),
@@ -1228,7 +1261,7 @@ class QualifiedNumericLiteralSegment(BaseSegment):
 
 
 class AggregateOrderByClause(BaseSegment):
-    """An order by clause for an aggregate fucntion.
+    """An order by clause for an aggregate function.
 
     Defined as a class to allow a specific type for rule AM06
     """
@@ -1552,6 +1585,7 @@ class FromExpressionElementSegment(BaseSegment):
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
             if segment:
+                segment = cast(IdentifierSegment, segment)
                 return AliasInfo(
                     segment.raw, segment, True, self, alias_expression, ref
                 )
@@ -1765,6 +1799,14 @@ class SelectClauseSegment(BaseSegment):
     )
 
 
+class MatchConditionSegment(BaseSegment):
+    """A stub segment to be used in Snowflake ASOF joins."""
+
+    type = "match_condition"
+
+    match_grammar: Matchable = Nothing()
+
+
 class JoinClauseSegment(BaseSegment):
     """Any number of join clauses, including the `JOIN` keyword."""
 
@@ -1783,6 +1825,7 @@ class JoinClauseSegment(BaseSegment):
                 # if we also have content.
                 Conditional(Indent, indented_using_on=True),
                 # NB: this is optional
+                Ref("MatchConditionSegment", optional=True),
                 OneOf(
                     # ON clause
                     Ref("JoinOnConditionSegment"),
@@ -1801,6 +1844,7 @@ class JoinClauseSegment(BaseSegment):
             Ref("JoinKeywordsGrammar"),
             Indent,
             Ref("FromExpressionElementSegment"),
+            Ref("MatchConditionSegment", optional=True),
             Dedent,
         ),
         # Sometimes, a natural join might already include the keyword
@@ -2000,7 +2044,11 @@ class CaseExpressionSegment(BaseSegment):
             Dedent,
             "END",
         ),
-        terminators=[Ref("CommaSegment"), Ref("BinaryOperatorGrammar")],
+        terminators=[
+            Ref("ComparisonOperatorGrammar"),
+            Ref("CommaSegment"),
+            Ref("BinaryOperatorGrammar"),
+        ],
     )
 
 
@@ -2084,6 +2132,10 @@ ansi_dialect.add(
                     "AND",
                     Ref("Tail_Recurse_Expression_A_Grammar"),
                 ),
+                Sequence(
+                    Ref("PatternMatchingGrammar"),
+                    Ref("Expression_A_Grammar"),
+                ),
             )
         ),
     ),
@@ -2139,6 +2191,15 @@ ansi_dialect.add(
         Ref("ShorthandCastSegment"),
         terminators=[Ref("CommaSegment")],
     ),
+    Expression_D_Potential_Select_Statement_Without_Brackets=OneOf(
+        Ref("SelectStatementSegment"),
+        Ref("LiteralGrammar"),
+        Ref("IntervalExpressionSegment"),
+        Ref("TypedStructLiteralSegment"),
+        Ref("ArrayExpressionSegment"),
+        Ref("ColumnReferenceSegment"),
+        Ref("OverlapsClauseSegment"),
+    ),
     # Expression_D_Grammar
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#d_expr
     Expression_D_Grammar=Sequence(
@@ -2165,13 +2226,7 @@ ansi_dialect.add(
                 parse_mode=ParseMode.GREEDY,
             ),
             # Allow potential select statement without brackets
-            Ref("SelectStatementSegment"),
-            Ref("LiteralGrammar"),
-            Ref("IntervalExpressionSegment"),
-            Ref("TypedStructLiteralSegment"),
-            Ref("ArrayExpressionSegment"),
-            Ref("ColumnReferenceSegment"),
-            Ref("OverlapsClauseSegment"),
+            Ref("Expression_D_Potential_Select_Statement_Without_Brackets"),
             # For triggers, we allow "NEW.*" but not just "*" nor "a.b.*"
             # So can't use WildcardIdentifierSegment nor WildcardExpressionSegment
             Sequence(
@@ -2350,6 +2405,7 @@ class OrderByClauseSegment(BaseSegment):
                 # is supported in enough other dialects for it to make sense here
                 # for now.
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+                Ref("WithFillSegment", optional=True),
             ),
             terminators=["LIMIT", Ref("FrameClauseUnitGrammar")],
         ),
@@ -4289,3 +4345,13 @@ class PathSegment(BaseSegment):
         ),
         Ref("QuotedLiteralSegment"),
     )
+
+
+class WithFillSegment(BaseSegment):
+    """Prefix for WITH FILL clause.
+
+    A hookpoint for other dialects e.g. ClickHouse.
+    """
+
+    type = "with_fill"
+    match_grammar: Matchable = Nothing()

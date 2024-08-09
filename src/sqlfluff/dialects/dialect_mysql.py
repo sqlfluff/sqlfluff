@@ -47,9 +47,9 @@ mysql_dialect.patch_lexer_matchers(
     [
         RegexLexer(
             "inline_comment",
-            r"(-- |#)[^\n]*",
+            r"(^--|-- |#)[^\n]*",
             CommentSegment,
-            segment_kwargs={"trim_start": ("-- ", "#")},
+            segment_kwargs={"trim_start": ("--", "#")},
         ),
         # Pattern breakdown:
         # (?s)                     DOTALL (dot matches newline)
@@ -68,11 +68,19 @@ mysql_dialect.patch_lexer_matchers(
             "single_quote",
             r"(?s)('(?:\\'|''|\\\\|[^'])*'(?!'))",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"(?s)('((?:\\'|''|\\\\|[^'])*)'(?!'))", 2),
+                "escape_replacements": [(r"\\'|''", "'")],
+            },
         ),
         RegexLexer(
             "double_quote",
             r'(?s)("(?:\\"|""|\\\\|[^"])*"(?!"))',
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'(?s)("((?:\\"|""|\\\\|[^"])*)"(?!"))', 2),
+                "escape_replacements": [(r'\\"|""', '"')],
+            },
         ),
     ]
 )
@@ -137,6 +145,14 @@ mysql_dialect.sets("datetime_units").update(
     ]
 )
 
+mysql_dialect.sets("date_part_function_name").clear()
+mysql_dialect.sets("date_part_function_name").update(
+    [
+        "EXTRACT",
+        "TIMESTAMPADD",
+        "TIMESTAMPDIFF",
+    ]
+)
 
 mysql_dialect.replace(
     QuotedIdentifierSegment=TypedParser(
@@ -178,6 +194,22 @@ mysql_dialect.replace(
             Ref("LocalVariableNameSegment"),
             Ref("VariableAssignmentSegment"),
         ]
+    ),
+    Expression_D_Potential_Select_Statement_Without_Brackets=ansi_dialect.get_grammar(
+        "Expression_D_Potential_Select_Statement_Without_Brackets"
+    ).copy(
+        insert=[
+            Ref("SessionVariableNameSegment"),
+        ],
+        at=0,
+    ),
+    ArithmeticBinaryOperatorGrammar=ansi_dialect.get_grammar(
+        "ArithmeticBinaryOperatorGrammar"
+    ).copy(
+        insert=[
+            Ref("DivOperatorSegment"),
+            Ref("ModOperatorSegment"),
+        ],
     ),
     DateTimeLiteralGrammar=Sequence(
         # MySQL does not require the keyword to be specified:
@@ -256,6 +288,7 @@ mysql_dialect.replace(
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
     ),
+    LikeGrammar=OneOf("LIKE", "RLIKE", "REGEXP"),
 )
 
 mysql_dialect.add(
@@ -275,6 +308,8 @@ mysql_dialect.add(
         CodeSegment,
         type="system_variable",
     ),
+    DivOperatorSegment=StringParser("DIV", KeywordSegment, type="binary_operator"),
+    ModOperatorSegment=StringParser("MOD", KeywordSegment, type="binary_operator"),
     DoubleQuotedJSONPath=TypedParser(
         "double_quote",
         CodeSegment,
@@ -338,6 +373,7 @@ class ColumnDefinitionSegment(BaseSegment):
                             ),
                             Ref("NumericLiteralSegment"),
                             Ref("QuotedLiteralSegment"),
+                            "NULL",
                         ),
                         optional=True,
                     ),
@@ -371,14 +407,209 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     https://dev.mysql.com/doc/refman/8.0/en/create-table.html
     """
 
+    ES = Ref("ExpressionSegment")
+    CRS = Ref("ColumnReferenceSegment")
+    NLS = Ref("NumericLiteralSegment")
+    ORS = Ref("ObjectReferenceSegment")
+    TRS = Ref("TableReferenceSegment")
+    SQIS = Ref("SingleQuotedIdentifierSegment")
+
     match_grammar = ansi.CreateTableStatementSegment.match_grammar.copy(
         insert=[
             AnyNumberOf(
                 Sequence(
                     Ref.keyword("DEFAULT", optional=True),
-                    Ref("ParameterNameSegment"),
+                    OneOf(
+                        Ref("ParameterNameSegment"),
+                        Sequence("CHARACTER", "SET"),
+                        Sequence(OneOf("DATA", "INDEX"), "DIRECTORY"),
+                        Sequence("WITH", "SYSTEM"),
+                    ),
                     Ref("EqualsSegment", optional=True),
-                    OneOf(Ref("LiteralGrammar"), Ref("ParameterNameSegment")),
+                    OneOf(
+                        Ref("LiteralGrammar"),
+                        Ref("ParameterNameSegment"),
+                        Ref("QuotedLiteralSegment"),
+                        Ref("SingleQuotedIdentifierSegment"),
+                        Ref("NumericLiteralSegment"),
+                        # Union option
+                        Bracketed(
+                            Delimited(Ref("TableReferenceSegment")),
+                        ),
+                    ),
+                ),
+                # Partition Options
+                # https://dev.mysql.com/doc/refman/8.0/en/create-table.html#create-table-partitioning
+                Sequence(
+                    "PARTITION",
+                    "BY",
+                    OneOf(
+                        Sequence(
+                            Ref.keyword("LINEAR", optional=True),
+                            OneOf(
+                                Sequence("HASH", Ref("ExpressionSegment")),
+                                Sequence(
+                                    "KEY",
+                                    Sequence(
+                                        "ALGORITHM",
+                                        Ref("EqualsSegment"),
+                                        Ref("NumericLiteralSegment"),
+                                        optional=True,
+                                    ),
+                                    Delimited(Ref("ColumnReferenceSegment")),
+                                ),
+                            ),
+                        ),
+                        Sequence(
+                            OneOf("RANGE", "LIST"),
+                            OneOf(
+                                Ref("ExpressionSegment"),
+                                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            ),
+                        ),
+                    ),
+                    Sequence("PARTITIONS", Ref("NumericLiteralSegment"), optional=True),
+                    Sequence(
+                        "SUBPARTITION",
+                        "BY",
+                        Sequence(
+                            Ref.keyword("LINEAR", optional=True),
+                            OneOf(
+                                Sequence("HASH", Ref("ExpressionSegment")),
+                                Sequence(
+                                    "KEY",
+                                    Sequence(
+                                        "ALGORITHM",
+                                        Ref("EqualsSegment"),
+                                        Ref("NumericLiteralSegment"),
+                                        optional=True,
+                                    ),
+                                    Bracketed(Ref("ColumnReferenceSegment")),
+                                ),
+                            ),
+                        ),
+                        Sequence(
+                            "SUBPARTITIONS",
+                            Ref("NumericLiteralSegment"),
+                            optional=True,
+                        ),
+                        optional=True,
+                    ),
+                    # optional partition_definition(s)
+                    AnyNumberOf(
+                        Bracketed(
+                            Delimited(
+                                Sequence(
+                                    "PARTITION",
+                                    Ref("ColumnReferenceSegment"),
+                                    AnyNumberOf(
+                                        Sequence(
+                                            "VALUES",
+                                            OneOf(
+                                                Sequence(
+                                                    "LESS",
+                                                    "THAN",
+                                                    OneOf(
+                                                        "MAXVALUE",
+                                                        Bracketed(
+                                                            OneOf(
+                                                                ES,
+                                                                CRS,
+                                                                NLS,
+                                                                Ref("LiteralGrammar"),
+                                                            ),
+                                                        ),
+                                                    ),
+                                                ),
+                                                Sequence(
+                                                    "IN",
+                                                    Bracketed(
+                                                        Ref("ObjectReferenceSegment")
+                                                    ),
+                                                ),
+                                            ),
+                                        ),
+                                        Sequence(
+                                            OneOf(
+                                                Ref("ParameterNameSegment"),
+                                                Sequence("CHARACTER", "SET"),
+                                                Sequence(
+                                                    OneOf("DATA", "INDEX"),
+                                                    "DIRECTORY",
+                                                ),
+                                                Sequence("WITH", "SYSTEM"),
+                                            ),
+                                            Ref("EqualsSegment", optional=True),
+                                            OneOf(
+                                                Ref("LiteralGrammar"),
+                                                Ref("ParameterNameSegment"),
+                                                Ref("QuotedLiteralSegment"),
+                                                Ref("SingleQuotedIdentifierSegment"),
+                                                Ref("NumericLiteralSegment"),
+                                                # Union option
+                                                Bracketed(
+                                                    Delimited(
+                                                        Ref("TableReferenceSegment")
+                                                    ),
+                                                ),
+                                            ),
+                                        ),
+                                        # optional subpartition_definition(s)
+                                        Sequence(
+                                            Ref.keyword("SUBPARTITION", optional=True),
+                                            Ref("LiteralGrammar"),
+                                            AnyNumberOf(
+                                                Sequence(
+                                                    "VALUES",
+                                                    OneOf(
+                                                        Sequence(
+                                                            "LESS",
+                                                            "THAN",
+                                                            OneOf(
+                                                                "MAXVALUE",
+                                                                Bracketed(ES),
+                                                                Bracketed(CRS),
+                                                            ),
+                                                        ),
+                                                        Sequence(
+                                                            "IN",
+                                                            Bracketed(ORS),
+                                                        ),
+                                                    ),
+                                                ),
+                                                Sequence(
+                                                    OneOf(
+                                                        Ref("ParameterNameSegment"),
+                                                        Sequence("CHARACTER", "SET"),
+                                                        Sequence(
+                                                            OneOf("DATA", "INDEX"),
+                                                            "DIRECTORY",
+                                                        ),
+                                                        Sequence("WITH", "SYSTEM"),
+                                                    ),
+                                                    Ref(
+                                                        "EqualsSegment",
+                                                        optional=True,
+                                                    ),
+                                                    OneOf(
+                                                        Ref("LiteralGrammar"),
+                                                        Ref("ParameterNameSegment"),
+                                                        Ref("QuotedLiteralSegment"),
+                                                        SQIS,
+                                                        Ref("NumericLiteralSegment"),
+                                                        # Union option
+                                                        Bracketed(
+                                                            Delimited(TRS),
+                                                        ),
+                                                    ),
+                                                ),
+                                            ),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
                 ),
             ),
         ],
@@ -696,6 +927,12 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
         ansi.ColumnConstraintSegment.match_grammar,
         Sequence("CHARACTER", "SET", Ref("NakedIdentifierSegment")),
         Sequence("COLLATE", Ref("CollationReferenceSegment")),
+        Sequence(
+            Sequence("GENERATED", "ALWAYS", optional=True),
+            "AS",
+            Bracketed(Ref("ExpressionSegment")),
+            OneOf("STORED", "VIRTUAL", optional=True),
+        ),
     )
 
 
@@ -1775,26 +2012,11 @@ class CallStoredProcedureSegment(BaseSegment):
     https://dev.mysql.com/doc/refman/8.0/en/call.html
     """
 
-    type = "call_segment"
+    type = "call_statement"
 
     match_grammar = Sequence(
         "CALL",
-        OneOf(
-            Ref("SingleIdentifierGrammar"),
-            Ref("QuotedIdentifierSegment"),
-        ),
-        Bracketed(
-            AnyNumberOf(
-                Delimited(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("NumericLiteralSegment"),
-                    Ref("DoubleQuotedLiteralSegment"),
-                    Ref("SessionVariableNameSegment"),
-                    Ref("LocalVariableNameSegment"),
-                    Ref("FunctionSegment"),
-                ),
-            ),
-        ),
+        Ref("FunctionSegment"),
     )
 
 
@@ -2645,7 +2867,7 @@ class CreateOptionSegment(BaseSegment):
                 "CHARACTER",
                 "SET",
                 Ref("EqualsSegment", optional=True),
-                Ref("NakedIdentifierSegment"),
+                OneOf(Ref("NakedIdentifierSegment"), Ref("QuotedLiteralSegment")),
             ),
             Sequence(
                 "COLLATE",

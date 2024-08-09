@@ -5,7 +5,7 @@ from bisect import bisect_left
 from typing import Any, Dict, Iterable, Iterator, List, NamedTuple, Optional, Tuple
 
 from sqlfluff.core.config import FluffConfig
-from sqlfluff.core.errors import SQLFluffSkipFile
+from sqlfluff.core.errors import SQLFluffSkipFile, SQLTemplaterError
 from sqlfluff.core.helpers.slice import zero_slice
 
 # Instantiate the templater logger
@@ -519,12 +519,11 @@ class RawTemplater:
         fname: str,
         config: Optional[FluffConfig] = None,
         formatter=None,
-    ) -> Tuple[Optional[TemplatedFile], List]:
+    ) -> Tuple[TemplatedFile, List[SQLTemplaterError]]:
         """Process a string and return a TemplatedFile.
 
-        Note that the arguments are enforced as keywords
-        because Templaters can have differences in their
-        `process` method signature.
+        Note that the arguments are enforced as keywords because Templaters
+        can have differences in their `process` method signature.
         A Templater that only supports reading from a file
         would need the following signature:
             process(*, fname, in_str=None, config=None)
@@ -538,15 +537,29 @@ class RawTemplater:
                 templating operation. Only necessary for some templaters.
             formatter (:obj:`CallbackFormatter`): Optional object for output.
 
+        Returns:
+            :obj:`tuple` of :obj:`TemplatedFile` and a list of SQLTemplaterError
+            if templating was successful enough that we may move to attempt parsing.
+
+        Raises:
+            SQLTemplaterError: If templating fails fatally, then this method
+                should raise a :obj:`SQLTemplaterError` instead which will be
+                caught and displayed appropriately.
+
         """
         return TemplatedFile(in_str, fname=fname), []
 
     @large_file_check
     def process_with_variants(
         self, *, in_str: str, fname: str, config=None, formatter=None
-    ) -> Iterator[Tuple[Optional[TemplatedFile], List]]:
-        """Extended version of `process` which returns multiple variants."""
-        raise NotImplementedError  # pragma: no cover
+    ) -> Iterator[Tuple[TemplatedFile, List[SQLTemplaterError]]]:
+        """Extended version of `process` which returns multiple variants.
+
+        Unless explicitly defined, this simply yields the result of .process().
+        """
+        yield self.process(
+            in_str=in_str, fname=fname, config=config, formatter=formatter
+        )
 
     def __eq__(self, other: Any) -> bool:
         """Return true if `other` is of the same class as this one.

@@ -14,6 +14,7 @@ from sqlfluff.core.parser import (
     CompositeComparisonOperatorSegment,
     Dedent,
     Delimited,
+    IdentifierSegment,
     Indent,
     KeywordSegment,
     LiteralSegment,
@@ -88,6 +89,20 @@ vertica_dialect.insert_lexer_matchers(
         ),
     ],
     before="like_operator",
+)
+
+vertica_dialect.patch_lexer_matchers(
+    [
+        RegexLexer(
+            "double_quote",
+            r'"([^"]|"")*"',
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"]|"")*)"', 1),
+                "escape_replacements": [(r'""', '"')],
+            },
+        ),
+    ]
 )
 
 # Set Keywords
@@ -455,6 +470,9 @@ vertica_dialect.replace(
                 type="quoted_literal",
             ),
         ),
+    ),
+    QuotedIdentifierSegment=TypedParser(
+        "double_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
     ),
 )
 

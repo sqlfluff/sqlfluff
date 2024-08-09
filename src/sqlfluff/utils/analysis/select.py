@@ -1,11 +1,13 @@
 """Basic code analysis tools for SELECT statements."""
 
-from typing import List, NamedTuple, Optional, cast
+from typing import List, NamedTuple, Optional, Tuple, cast
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
-from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.segments import BaseSegment
 from sqlfluff.dialects.dialect_ansi import (
+    FromClauseSegment,
+    JoinClauseSegment,
     ObjectReferenceSegment,
     SelectClauseElementSegment,
 )
@@ -16,18 +18,20 @@ class SelectStatementColumnsAndTables(NamedTuple):
 
     select_statement: BaseSegment
     table_aliases: List[AliasInfo]
-    standalone_aliases: List[str]  # value table function aliases
+    standalone_aliases: List[BaseSegment]  # value table function aliases
     reference_buffer: List[ObjectReferenceSegment]
     select_targets: List[SelectClauseElementSegment]
     col_aliases: List[ColumnAliasInfo]
-    using_cols: List[str]
+    using_cols: List[BaseSegment]
+    table_reference_buffer: List[ObjectReferenceSegment]
 
 
 def _get_object_references(segment: BaseSegment) -> List[ObjectReferenceSegment]:
     return list(
         cast(ObjectReferenceSegment, _seg)
         for _seg in segment.recursive_crawl(
-            "object_reference", no_recursive_seg_type="select_statement"
+            "object_reference",
+            no_recursive_seg_type=["select_statement", "merge_statement"],
         )
     )
 
@@ -52,6 +56,7 @@ def get_select_statement_info(
     # NOTE: In this first crawl, don't crawl inside any sub-selects, that's very
     # important for both isolation and performance reasons.
     reference_buffer = _get_object_references(sc)
+    table_reference_buffer = []
     for potential_clause in (
         "where_clause",
         "groupby_clause",
@@ -80,6 +85,19 @@ def get_select_statement_info(
     using_cols = []
     fc = segment.get_child("from_clause")
     if fc:
+        for table_expression in fc.recursive_crawl(
+            "table_expression", no_recursive_seg_type="select_statement"
+        ):
+            for seg in table_expression.iter_segments():
+                # table references can get tricky with what is a schema, table,
+                # project, or column. It may be best for now to use the redshift
+                # unnest logic for dialects that support arrays or objects/structs
+                # in AL05. However, this solves finding other types of references
+                # in functions such as LATERAL FLATTEN.
+                if not seg.is_type("table_reference"):
+                    reference_buffer += _get_object_references(seg)
+                elif cast(ObjectReferenceSegment, seg).is_qualified():
+                    table_reference_buffer += _get_object_references(seg)
         for join_clause in fc.recursive_crawl(
             "join_clause", no_recursive_seg_type="select_statement"
         ):
@@ -95,7 +113,7 @@ def get_select_statement_info(
                 elif seen_using and seg.is_type("bracketed"):
                     for subseg in seg.segments:
                         if subseg.is_type("identifier"):
-                            using_cols.append(subseg.raw)
+                            using_cols.append(subseg)
                     seen_using = False
 
     return SelectStatementColumnsAndTables(
@@ -106,10 +124,13 @@ def get_select_statement_info(
         select_targets=select_targets,
         col_aliases=col_aliases,
         using_cols=using_cols,
+        table_reference_buffer=table_reference_buffer,
     )
 
 
-def get_aliases_from_select(segment, dialect=None):
+def get_aliases_from_select(
+    segment: BaseSegment, dialect: Optional[Dialect] = None
+) -> Tuple[Optional[list], Optional[list]]:
     """Gets the aliases referred to in the FROM clause.
 
     Returns a tuple of two lists:
@@ -120,19 +141,20 @@ def get_aliases_from_select(segment, dialect=None):
     if not fc:
         # If there's no from clause then just abort.
         return None, None
+    assert isinstance(fc, (FromClauseSegment, JoinClauseSegment))
     aliases = fc.get_eventual_aliases()
 
     # We only want table aliases, so filter out aliases for value table
     # functions, lambda parameters and pivot columns.
-    standalone_aliases = []
+    standalone_aliases: List[BaseSegment] = []
     standalone_aliases += _get_pivot_table_columns(segment, dialect)
     standalone_aliases += _get_lambda_argument_columns(segment, dialect)
 
     table_aliases = []
     for table_expr, alias_info in aliases:
         if _has_value_table_function(table_expr, dialect):
-            if alias_info[0] not in standalone_aliases:
-                standalone_aliases.append(alias_info[0])
+            if alias_info.segment and alias_info.segment not in standalone_aliases:
+                standalone_aliases.append(alias_info.segment)
         elif alias_info not in table_aliases:
             table_aliases.append(alias_info)
 
@@ -155,7 +177,9 @@ def _has_value_table_function(table_expr, dialect) -> bool:
     return False
 
 
-def _get_pivot_table_columns(segment, dialect) -> list:
+def _get_pivot_table_columns(
+    segment: BaseSegment, dialect: Optional[Dialect]
+) -> List[BaseSegment]:
     if not dialect:
         # We need the dialect to get the pivot table column names. If
         # we don't have it, assume the clause does not have a pivot table
@@ -166,11 +190,13 @@ def _get_pivot_table_columns(segment, dialect) -> list:
         # If there's no pivot clause then just abort.
         return []  # pragma: no cover
 
-    pivot_table_column_aliases = []
+    pivot_table_column_aliases: list[BaseSegment] = []
 
     for pivot_table_column_alias in segment.recursive_crawl("pivot_column_reference"):
-        if pivot_table_column_alias.raw not in pivot_table_column_aliases:
-            pivot_table_column_aliases.append(pivot_table_column_alias.raw)
+        if pivot_table_column_alias.raw not in [
+            a.raw for a in pivot_table_column_aliases
+        ]:
+            pivot_table_column_aliases.append(pivot_table_column_alias)
 
     return pivot_table_column_aliases
 
@@ -182,14 +208,14 @@ def _get_pivot_table_columns(segment, dialect) -> list:
 # These columns are interesting to identify since they can get special
 # treatment in some rules.
 def _get_lambda_argument_columns(
-    segment: BaseSegment, dialect: Dialect
-) -> Optional[List[str]]:
+    segment: BaseSegment, dialect: Optional[Dialect]
+) -> List[BaseSegment]:
     if not dialect or dialect.name not in ["athena", "sparksql"]:
         # Only athena and sparksql are known to have lambda expressions,
         # so all other dialects will have zero lambda columns
         return []
 
-    lambda_argument_columns = []
+    lambda_argument_columns: list[BaseSegment] = []
     for potential_lambda in segment.recursive_crawl("expression"):
         potential_arrow = potential_lambda.get_child("binary_operator")
         if potential_arrow and potential_arrow.raw == "->":
@@ -200,9 +226,7 @@ def _get_lambda_argument_columns(
             # more, this doesn't cleanly match a lambda expression
             argument_segments = potential_lambda.select_children(
                 stop_seg=arrow_operator,
-                select_if=(
-                    lambda x: x.is_type("bracketed") or x.is_type("column_reference")
-                ),
+                select_if=(lambda x: x.is_type("bracketed", "column_reference")),
             )
 
             assert len(argument_segments) == 1
@@ -214,10 +238,10 @@ def _get_lambda_argument_columns(
                 assert start_bracket
                 if start_bracket.raw == "(":
                     bracketed_arguments = child_segment.get_children("column_reference")
-                    raw_arguments = [argument.raw for argument in bracketed_arguments]
+                    raw_arguments = [argument for argument in bracketed_arguments]
                     lambda_argument_columns += raw_arguments
 
             elif child_segment.is_type("column_reference"):
-                lambda_argument_columns.append(child_segment.raw)
+                lambda_argument_columns.append(child_segment)
 
     return lambda_argument_columns

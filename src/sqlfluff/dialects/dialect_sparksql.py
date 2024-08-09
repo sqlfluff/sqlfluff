@@ -76,6 +76,10 @@ sparksql_dialect.patch_lexer_matchers(
             "back_quote",
             r"`([^`]|``)*`",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"`((?:[^`]|``)*)`", 1),
+                "escape_replacements": [(r"``", "`")],
+            },
         ),
         # Numeric literal matches integers, decimals, and exponential formats.
         # https://spark.apache.org/docs/latest/sql-ref-literals.html#numeric-literal
@@ -175,6 +179,19 @@ sparksql_dialect.sets("bare_functions").update(
     ]
 )
 
+# Set the date part functions
+sparksql_dialect.sets("date_part_function_name").clear()
+sparksql_dialect.sets("date_part_function_name").update(
+    [
+        "DATE_ADD",
+        "DATE_DIFF",
+        "DATEADD",
+        "DATEDIFF",
+        "TIMESTAMPADD",
+        "TIMESTAMPDIFF",
+    ]
+)
+
 # Set the datetime units
 sparksql_dialect.sets("datetime_units").clear()
 sparksql_dialect.sets("datetime_units").update(
@@ -194,6 +211,7 @@ sparksql_dialect.sets("datetime_units").update(
         "DAY",
         "DAYS",
         "DD",
+        "DAYOFYEAR",
         "HOUR",
         "HOURS",
         "MINUTE",
@@ -220,6 +238,12 @@ sparksql_dialect.bracket_sets("angle_bracket_pairs").update(
 
 # Real Segments
 sparksql_dialect.replace(
+    DateTimeLiteralGrammar=Sequence(
+        OneOf(
+            "DATE", "TIME", "TIMESTAMP", "INTERVAL", "TIMESTAMP_LTZ", "TIMESTAMP_NTZ"
+        ),
+        TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
+    ),
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
         Ref("EqualsSegment_a"),
@@ -281,7 +305,14 @@ sparksql_dialect.replace(
             Ref("UnpivotClauseSegment"),
             Ref("LateralViewClauseSegment"),
         ),
-        Ref("AliasExpressionSegment", optional=True),
+        Ref(
+            "AliasExpressionSegment",
+            exclude=OneOf(
+                Ref("FromClauseTerminatorGrammar"),
+                Ref("JoinLikeClauseGrammar"),
+            ),
+            optional=True,
+        ),
     ),
     LikeGrammar=OneOf(
         # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-like.html
@@ -409,6 +440,8 @@ sparksql_dialect.add(
         IdentifierSegment,
         type="quoted_identifier",
         trim_chars=("`",),
+        # match ANSI's naked identifier casefold, sparksql is case-insensitive.
+        casefold=str.upper,
     ),
     NakedSemiStructuredElementSegment=RegexParser(
         r"[A-Z0-9_]*",
@@ -865,6 +898,8 @@ class PrimitiveTypeSegment(BaseSegment):
         "DOUBLE",
         "DATE",
         "TIMESTAMP",
+        "TIMESTAMP_LTZ",
+        "TIMESTAMP_NTZ",
         "STRING",
         Sequence(
             OneOf("CHAR", "CHARACTER", "VARCHAR", "DECIMAL", "DEC", "NUMERIC"),
@@ -3301,6 +3336,22 @@ class ApplyChangesIntoStatementSegment(BaseSegment):
             "SCD",
             "TYPE",
             Ref("NumericLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "TRACK",
+            "HISTORY",
+            "ON",
+            OneOf(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+                Sequence(
+                    Ref("StarSegment"),
+                    "EXCEPT",
+                    Ref("BracketedColumnReferenceListGrammar"),
+                ),
+            ),
             optional=True,
         ),
     )

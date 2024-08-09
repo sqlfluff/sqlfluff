@@ -9,4 +9,3 @@ create table sandbox_db.Org_Descendant
 )
 primary index Org_Descendant_NUPI (Org_Unit_Code, Org_Unit_Type, Entity_Code)
 ;
-

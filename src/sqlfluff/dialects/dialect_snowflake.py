@@ -149,7 +149,7 @@ snowflake_dialect.sets("compression_types").update(
 # Add all Snowflake supported file types
 snowflake_dialect.sets("files_types").clear()
 snowflake_dialect.sets("files_types").update(
-    ["CSV", "JSON", "AVRO", "ORC" "PARQUET", "XML"],
+    ["CSV", "JSON", "AVRO", "ORC", "PARQUET", "XML"],
 )
 
 snowflake_dialect.sets("warehouse_types").clear()
@@ -573,6 +573,7 @@ snowflake_dialect.replace(
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.upper,
         )
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
@@ -620,6 +621,7 @@ snowflake_dialect.replace(
                 OneOf(
                     Ref("SingleQuotedIdentifierSegment"),
                     Ref("ReferencedVariableNameSegment"),
+                    Ref("BindVariableSegment"),
                 ),
             ),
         ),
@@ -722,6 +724,13 @@ snowflake_dialect.replace(
         "WINDOW",
         "FETCH",
         "OFFSET",
+    ),
+    NonStandardJoinTypeKeywordsGrammar=OneOf("ASOF"),
+    UnconditionalJoinKeywordsGrammar=OneOf(
+        Ref("NaturalJoinKeywordsGrammar"),
+        Ref("UnconditionalCrossJoinKeywordsGrammar"),
+        Ref("HorizontalJoinKeywordsGrammar"),
+        Ref("NonStandardJoinTypeKeywordsGrammar"),
     ),
 )
 
@@ -1096,19 +1105,40 @@ class ConnectByClauseSegment(BaseSegment):
     """
 
     type = "connectby_clause"
-    match_grammar = Sequence(
-        "START",
-        "WITH",
-        Ref("ExpressionSegment"),
-        "CONNECT",
-        "BY",
-        Delimited(
+    match_grammar = OneOf(
+        Sequence(
+            "START",
+            "WITH",
+            Ref("ExpressionSegment"),
+            "CONNECT",
+            "BY",
+            Delimited(
+                Sequence(
+                    Ref.keyword("PRIOR", optional=True),
+                    Ref("ColumnReferenceSegment"),
+                    Ref("EqualsSegment"),
+                    Ref.keyword("PRIOR", optional=True),
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+        ),
+        Sequence(
+            "CONNECT",
+            "BY",
+            Delimited(
+                Sequence(
+                    Ref.keyword("PRIOR", optional=True),
+                    Ref("ColumnReferenceSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("ColumnReferenceSegment"),
+                ),
+                delimiter="AND",
+            ),
             Sequence(
-                Ref.keyword("PRIOR", optional=True),
-                Ref("ColumnReferenceSegment"),
-                Ref("EqualsSegment"),
-                Ref.keyword("PRIOR", optional=True),
-                Ref("ColumnReferenceSegment"),
+                "START",
+                "WITH",
+                Ref("ExpressionSegment"),
+                optional=True,
             ),
         ),
     )
@@ -1250,6 +1280,14 @@ class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
+        # NOTE: The Scripting Block segment must be tried before
+        # we get to the transaction statement (from the ansi dialect)
+        # because they both start with BEGIN.
+        insert=[
+            Ref("ScriptingBlockStatementSegment"),
+        ],
+        before=Ref("TransactionStatementSegment"),
+    ).copy(
         insert=[
             Ref("AccessStatementSegment"),
             Ref("CreateStatementSegment"),
@@ -1258,7 +1296,6 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateCloneStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
             Ref("AlterProcedureStatementSegment"),
-            Ref("ScriptingBlockStatementSegment"),
             Ref("ScriptingLetStatementSegment"),
             Ref("ReturnStatementSegment"),
             Ref("ShowStatementSegment"),
@@ -1321,6 +1358,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateExternalVolumeStatementSegment"),
             Ref("DropExternalVolumeStatementSegment"),
             Ref("AlterExternalVolumeStatementSegment"),
+            Ref("ForInLoopSegment"),
+            Ref("CreateEventTableStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -1412,6 +1451,14 @@ class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
         Ref("SamplingExpressionSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
     )
+
+
+class MatchConditionSegment(ansi.MatchConditionSegment):
+    """A match condition for an ASOF join."""
+
+    type = "match_condition"
+
+    match_grammar = Sequence("MATCH_CONDITION", Bracketed(Ref("ExpressionSegment")))
 
 
 class PatternSegment(BaseSegment):
@@ -1638,6 +1685,7 @@ class FromUnpivotExpressionSegment(BaseSegment):
     type = "from_unpivot_expression"
     match_grammar = Sequence(
         "UNPIVOT",
+        Sequence(OneOf("INCLUDE", "EXCLUDE"), "NULLS", optional=True),
         Bracketed(
             Ref("SingleIdentifierGrammar"),
             "FOR",
@@ -1974,6 +2022,7 @@ class AlterTableTableColumnActionSegment(BaseSegment):
             # Handle Multiple Columns
             Delimited(
                 Sequence(
+                    Ref("IfNotExistsGrammar", optional=True),
                     Ref("ColumnReferenceSegment"),
                     Ref("DatatypeSegment"),
                     OneOf(
@@ -2126,7 +2175,12 @@ class AlterTableTableColumnActionSegment(BaseSegment):
         Sequence(
             "DROP",
             Ref.keyword("COLUMN", optional=True),
-            Delimited(Ref("ColumnReferenceSegment")),
+            Delimited(
+                Sequence(
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("ColumnReferenceSegment"),
+                )
+            ),
         ),
         # @TODO: Drop columns
         # vvvvv COPIED FROM ANSI vvvvv
@@ -2562,6 +2616,106 @@ class TagBracketedEqualsSegment(BaseSegment):
     )
 
 
+class LogLevelEqualsSegment(BaseSegment):
+    """LOG_LEVEL clause.
+
+    https://docs.snowflake.com/en/sql-reference/parameters#label-log-level
+    """
+
+    type = "log_level_equals"
+    match_grammar = Sequence(
+        "LOG_LEVEL",
+        Ref("EqualsSegment"),
+        OneOf(
+            "TRACE",
+            "DEBUG",
+            "INFO",
+            "WARN",
+            "ERROR",
+            "FATAL",
+            "OFF",
+        ),
+    )
+
+
+class TraceLevelEqualsSegment(BaseSegment):
+    """TRACE_LEVEL clause.
+
+    https://docs.snowflake.com/en/sql-reference/parameters#trace-level
+    """
+
+    type = "trace_level_equals"
+    match_grammar = Sequence(
+        "TRACE_LEVEL",
+        Ref("EqualsSegment"),
+        OneOf(
+            "ALWAYS",
+            "ON_EVENT",
+            "OFF",
+        ),
+    )
+
+
+class ExternalAccessIntegrationsEqualsSegment(BaseSegment):
+    """EXTERNAL_ACCESS_INTEGRATIONS clause.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-function
+    https://docs.snowflake.com/en/sql-reference/sql/create-external-access-integration
+    """
+
+    type = "external_access_integration_equals"
+    match_grammar = Sequence(
+        "EXTERNAL_ACCESS_INTEGRATIONS",
+        Ref("EqualsSegment"),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("SingleIdentifierGrammar"),
+                            Ref("DotSegment"),
+                            optional=True,
+                        )
+                    ),
+                    Ref("SingleIdentifierGrammar"),
+                )
+            )
+        ),
+    )
+
+
+class SecretsEqualsSegment(BaseSegment):
+    """SECRETS clause.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-function
+    https://docs.snowflake.com/en/sql-reference/sql/create-external-access-integration
+    """
+
+    type = "external_access_integration_equals"
+    match_grammar = Sequence(
+        "SECRETS",
+        Ref("EqualsSegment"),
+        Bracketed(
+            Sequence(
+                Delimited(
+                    Sequence(
+                        Ref("QuotedLiteralSegment"),
+                        Ref("EqualsSegment"),
+                        AnyNumberOf(
+                            Sequence(
+                                Ref("SingleIdentifierGrammar"),
+                                Ref("DotSegment"),
+                                optional=True,
+                            ),
+                        ),
+                        Ref("SingleIdentifierGrammar"),
+                    )
+                )
+            )
+        ),
+    )
+
+
 class TagEqualsSegment(BaseSegment):
     """A tag clause.
 
@@ -2952,6 +3106,48 @@ class CreateProcedureStatementSegment(BaseSegment):
                 optional=True,
             ),
             Sequence(
+                "SECRETS",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    Sequence(
+                        Delimited(
+                            Sequence(
+                                Ref("QuotedLiteralSegment"),
+                                Ref("EqualsSegment"),
+                                AnyNumberOf(
+                                    Sequence(
+                                        Ref("SingleIdentifierGrammar"),
+                                        Ref("DotSegment"),
+                                        optional=True,
+                                    ),
+                                ),
+                                Ref("SingleIdentifierGrammar"),
+                            )
+                        )
+                    )
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "EXTERNAL_ACCESS_INTEGRATIONS",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            AnyNumberOf(
+                                Sequence(
+                                    Ref("SingleIdentifierGrammar"),
+                                    Ref("DotSegment"),
+                                    optional=True,
+                                )
+                            ),
+                            Ref("SingleIdentifierGrammar"),
+                        )
+                    )
+                ),
+                optional=True,
+            ),
+            Sequence(
                 "PACKAGES",
                 Ref("EqualsSegment"),
                 Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
@@ -2972,14 +3168,17 @@ class CreateProcedureStatementSegment(BaseSegment):
             Sequence("EXECUTE", "AS", OneOf("CALLER", "OWNER"), optional=True),
             optional=True,
         ),
-        "AS",
-        OneOf(
-            # Either a foreign programming language UDF...
-            Ref("DoubleQuotedUDFBody"),
-            Ref("SingleQuotedUDFBody"),
-            Ref("DollarQuotedUDFBody"),
-            # ...or a SQL UDF
-            Ref("ScriptingBlockStatementSegment"),
+        Sequence(
+            "AS",
+            OneOf(
+                # Either a foreign programming language UDF...
+                Ref("DoubleQuotedUDFBody"),
+                Ref("SingleQuotedUDFBody"),
+                Ref("DollarQuotedUDFBody"),
+                # ...or a SQL UDF
+                Ref("ScriptingBlockStatementSegment"),
+            ),
+            optional=True,
         ),
     )
 
@@ -3001,7 +3200,39 @@ class AlterProcedureStatementSegment(BaseSegment):
             Sequence("RENAME", "TO", Ref("FunctionNameSegment")),
             Sequence("EXECUTE", "AS", OneOf("CALLER", "OWNER")),
             Sequence(
-                "SET", OneOf(Ref("TagEqualsSegment"), Ref("CommentEqualsClauseSegment"))
+                OneOf(
+                    # eg. SET LOG_LEVEL = WARN
+                    Sequence(
+                        "SET",
+                        OneOf(
+                            Ref("TagEqualsSegment", optional=True),
+                            Ref("CommentEqualsClauseSegment", optional=True),
+                            Ref("LogLevelEqualsSegment", optional=True),
+                            Ref("TraceLevelEqualsSegment", optional=True),
+                            Ref(
+                                "ExternalAccessIntegrationsEqualsSegment", optional=True
+                            ),
+                            Ref("SecretsEqualsSegment", optional=True),
+                        ),
+                    ),
+                    # eg. SET LOG_LEVEL = WARN, TRACE_LEVEL = ON_EVENT
+                    Sequence(
+                        "SET",
+                        Delimited(
+                            AnyNumberOf(
+                                Ref("TagEqualsSegment", optional=True),
+                                Ref("CommentEqualsClauseSegment", optional=True),
+                                Ref("LogLevelEqualsSegment", optional=True),
+                                Ref("TraceLevelEqualsSegment", optional=True),
+                                Ref(
+                                    "ExternalAccessIntegrationsEqualsSegment",
+                                    optional=True,
+                                ),
+                                Ref("SecretsEqualsSegment", optional=True),
+                            ),
+                        ),
+                    ),
+                ),
             ),
             Sequence(
                 "UNSET",
@@ -3108,14 +3339,33 @@ class ScriptingBlockStatementSegment(BaseSegment):
     """
 
     type = "scripting_block_statement"
-    match_grammar = OneOf(
+    match_grammar = Sequence(
         Sequence(
             "BEGIN",
-            Delimited(
+            Indent,
+            Ref("StatementSegment"),
+        ),
+        AnyNumberOf(
+            Sequence(
+                Ref("DelimiterGrammar"),
                 Ref("StatementSegment"),
             ),
+            terminators=[
+                OneOf(
+                    Sequence(Ref("DelimiterGrammar"), "END"),
+                    # Don't terminate on an "END FOR", because that's a different
+                    # expression.
+                    exclude=Sequence(Ref("DelimiterGrammar"), "END", "FOR"),
+                ),
+            ],
+            # NOTE: We can't be greedy because there may be nested loops. This
+            # does make understanding any failed parsing loops difficult but I
+            # don't think there's an easy way around that.
         ),
-        Sequence("END"),
+        Ref("DelimiterGrammar"),
+        Dedent,
+        "END",
+        reset_terminators=True,
     )
 
 
@@ -3133,7 +3383,7 @@ class ScriptingLetStatementSegment(BaseSegment):
             "LET",
             Ref("LocalVariableNameSegment"),
             OneOf(
-                # Variable assigment
+                # Variable assignment
                 OneOf(
                     Sequence(
                         Ref("DatatypeSegment"),
@@ -3187,10 +3437,12 @@ class CreateFunctionStatementSegment(BaseSegment):
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         Sequence("SECURE", optional=True),
+        Sequence("AGGREGATE", optional=True),
         "FUNCTION",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
+        Sequence("COPY", "GRANTS", optional=True),
         "RETURNS",
         OneOf(
             Ref("DatatypeSegment"),
@@ -3221,6 +3473,35 @@ class CreateFunctionStatementSegment(BaseSegment):
                 "IMPORTS",
                 Ref("EqualsSegment"),
                 Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
+                optional=True,
+            ),
+            Sequence(
+                "SECRETS",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    Sequence(
+                        Delimited(
+                            Sequence(
+                                Ref("QuotedLiteralSegment"),
+                                Ref("EqualsSegment"),
+                                AnyNumberOf(
+                                    Sequence(
+                                        Ref("SingleIdentifierGrammar"),
+                                        Ref("DotSegment"),
+                                        optional=True,
+                                    )
+                                ),
+                                Ref("SingleIdentifierGrammar"),
+                            )
+                        )
+                    )
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "EXTERNAL_ACCESS_INTEGRATIONS",
+                Ref("EqualsSegment"),
+                Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
                 optional=True,
             ),
             Sequence(
@@ -3280,49 +3561,120 @@ class AlterFunctionStatementSegment(BaseSegment):
             Sequence(
                 "SET",
                 OneOf(
-                    Ref("CommentEqualsClauseSegment"),
+                    # eg. SET LOG_LEVEL = WARN
                     Sequence(
-                        "API_INTEGRATION",
-                        Ref("EqualsSegment"),
-                        Ref("SingleIdentifierGrammar"),
+                        OneOf(
+                            Ref("CommentEqualsClauseSegment"),
+                            Ref("LogLevelEqualsSegment", optional=True),
+                            Ref("TraceLevelEqualsSegment", optional=True),
+                            Ref(
+                                "ExternalAccessIntegrationsEqualsSegment", optional=True
+                            ),
+                            Ref("SecretsEqualsSegment", optional=True),
+                            Ref("TagEqualsSegment", optional=True),
+                            Sequence(
+                                "API_INTEGRATION",
+                                Ref("EqualsSegment"),
+                                Ref("SingleIdentifierGrammar"),
+                            ),
+                            Sequence(
+                                "HEADERS",
+                                Ref("EqualsSegment"),
+                                Bracketed(
+                                    Delimited(
+                                        Sequence(
+                                            Ref("SingleQuotedIdentifierSegment"),
+                                            Ref("EqualsSegment"),
+                                            Ref("SingleQuotedIdentifierSegment"),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                            Sequence(
+                                "CONTEXT_HEADERS",
+                                Ref("EqualsSegment"),
+                                Bracketed(
+                                    Delimited(
+                                        Ref("ContextHeadersGrammar"),
+                                    ),
+                                ),
+                            ),
+                            Sequence(
+                                "MAX_BATCH_ROWS",
+                                Ref("EqualsSegment"),
+                                Ref("NumericLiteralSegment"),
+                            ),
+                            Sequence(
+                                "COMPRESSION",
+                                Ref("EqualsSegment"),
+                                Ref("CompressionType"),
+                            ),
+                            "SECURE",
+                            Sequence(
+                                OneOf("REQUEST_TRANSLATOR", "RESPONSE_TRANSLATOR"),
+                                Ref("EqualsSegment"),
+                                Ref("FunctionNameSegment"),
+                            ),
+                        ),
                     ),
+                    # eg. SET LOG_LEVEL = WARN, TRACE_LEVEL = ON_EVENT
                     Sequence(
-                        "HEADERS",
-                        Ref("EqualsSegment"),
-                        Bracketed(
-                            Delimited(
+                        Delimited(
+                            AnyNumberOf(
+                                Ref("CommentEqualsClauseSegment"),
+                                Ref("LogLevelEqualsSegment", optional=True),
+                                Ref("TraceLevelEqualsSegment", optional=True),
+                                Ref(
+                                    "ExternalAccessIntegrationsEqualsSegment",
+                                    optional=True,
+                                ),
+                                Ref("SecretsEqualsSegment", optional=True),
+                                Ref("TagEqualsSegment", optional=True),
                                 Sequence(
-                                    Ref("SingleQuotedIdentifierSegment"),
+                                    "API_INTEGRATION",
                                     Ref("EqualsSegment"),
-                                    Ref("SingleQuotedIdentifierSegment"),
+                                    Ref("SingleIdentifierGrammar"),
+                                ),
+                                Sequence(
+                                    "HEADERS",
+                                    Ref("EqualsSegment"),
+                                    Bracketed(
+                                        Delimited(
+                                            Sequence(
+                                                Ref("SingleQuotedIdentifierSegment"),
+                                                Ref("EqualsSegment"),
+                                                Ref("SingleQuotedIdentifierSegment"),
+                                            ),
+                                        ),
+                                    ),
+                                ),
+                                Sequence(
+                                    "CONTEXT_HEADERS",
+                                    Ref("EqualsSegment"),
+                                    Bracketed(
+                                        Delimited(
+                                            Ref("ContextHeadersGrammar"),
+                                        ),
+                                    ),
+                                ),
+                                Sequence(
+                                    "MAX_BATCH_ROWS",
+                                    Ref("EqualsSegment"),
+                                    Ref("NumericLiteralSegment"),
+                                ),
+                                Sequence(
+                                    "COMPRESSION",
+                                    Ref("EqualsSegment"),
+                                    Ref("CompressionType"),
+                                ),
+                                "SECURE",
+                                Sequence(
+                                    OneOf("REQUEST_TRANSLATOR", "RESPONSE_TRANSLATOR"),
+                                    Ref("EqualsSegment"),
+                                    Ref("FunctionNameSegment"),
                                 ),
                             ),
                         ),
-                    ),
-                    Sequence(
-                        "CONTEXT_HEADERS",
-                        Ref("EqualsSegment"),
-                        Bracketed(
-                            Delimited(
-                                Ref("ContextHeadersGrammar"),
-                            ),
-                        ),
-                    ),
-                    Sequence(
-                        "MAX_BATCH_ROWS",
-                        Ref("EqualsSegment"),
-                        Ref("NumericLiteralSegment"),
-                    ),
-                    Sequence(
-                        "COMPRESSION",
-                        Ref("EqualsSegment"),
-                        Ref("CompressionType"),
-                    ),
-                    "SECURE",
-                    Sequence(
-                        OneOf("REQUEST_TRANSLATOR", "RESPONSE_TRANSLATOR"),
-                        Ref("EqualsSegment"),
-                        Ref("FunctionNameSegment"),
                     ),
                 ),
             ),
@@ -3337,6 +3689,15 @@ class AlterFunctionStatementSegment(BaseSegment):
                     "SECURE",
                     "REQUEST_TRANSLATOR",
                     "RESPONSE_TRANSLATOR",
+                    Sequence(
+                        "TAG",
+                        Ref("TagReferenceSegment"),
+                        AnyNumberOf(
+                            Ref("CommaSegment"),
+                            Ref("TagReferenceSegment"),
+                            optional=True,
+                        ),
+                    ),
                 ),
             ),
             Sequence(
@@ -3872,6 +4233,72 @@ class SchemaObjectParamsSegment(BaseSegment):
             Ref("QuotedLiteralSegment"),
         ),
         Ref("CommentEqualsClauseSegment"),
+    )
+
+
+class CreateEventTableStatementSegment(BaseSegment):
+    """A `CREATE EVENT TABLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-event-table
+    """
+
+    type = "create_event_table_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Sequence("EVENT", "TABLE"),
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        AnySetOf(
+            Sequence(
+                "CLUSTER",
+                "BY",
+                OneOf(
+                    Ref("FunctionSegment"),
+                    Bracketed(Delimited(Ref("ExpressionSegment"))),
+                ),
+            ),
+            Sequence(
+                "DATA_RETENTION_TIME_IN_DAYS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "CHANGE_TRACKING",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "DEFAULT_DDL_COLLATION",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "COPY",
+                "GRANTS",
+            ),
+            Sequence(
+                "WITH",
+                "ROW",
+                "ACCESS",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+                "ON",
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            ),
+            Sequence(
+                "WITH",
+                Ref("CommentEqualsClauseSegment"),
+            ),
+            Ref("TagBracketedEqualsSegment"),
+            optional=True,
+        ),
     )
 
 
@@ -6382,6 +6809,7 @@ class AlterAccountStatementSegment(BaseSegment):
                             Ref("QuotedLiteralSegment"),
                             Ref("NumericLiteralSegment"),
                             Ref("NakedIdentifierSegment"),
+                            Ref("TableReferenceSegment"),
                         ),
                     ),
                 ),
@@ -6841,9 +7269,13 @@ class ExecuteImmediateClauseSegment(BaseSegment):
 
     EXECUTE IMMEDIATE $<session_variable>
         [ USING ( <bind_variable> [ , <bind_variable> ... ] ) ]
+
+    EXECUTE IMMEDIATE
+        FROM { absoluteFilePath | relativeFilePath }
     ```
 
     https://docs.snowflake.com/en/sql-reference/sql/execute-immediate
+    https://docs.snowflake.com/en/sql-reference/sql/execute-immediate-from
     """
 
     type = "execute_immediate_clause"
@@ -6851,9 +7283,11 @@ class ExecuteImmediateClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "EXECUTE",
         "IMMEDIATE",
+        Ref.keyword("FROM", optional=True),
         OneOf(
             Ref("QuotedLiteralSegment"),
             Ref("ReferencedVariableNameSegment"),
+            Ref("StorageLocation"),
             Sequence(
                 Ref("ColonSegment"),
                 Ref("LocalVariableNameSegment"),
@@ -7132,6 +7566,8 @@ class TransactionStatementSegment(ansi.TransactionStatementSegment):
     https://docs.snowflake.com/en/sql-reference/sql/begin.html
     https://docs.snowflake.com/en/sql-reference/sql/commit.html
     https://docs.snowflake.com/en/sql-reference/sql/rollback.html
+
+    NOTE: "END" is not currently a supported keyword here.
     """
 
     match_grammar = OneOf(
@@ -7827,4 +8263,49 @@ class AlterMaskingPolicySegment(BaseSegment):
             ),
             Sequence("UNSET", "COMMENT"),
         ),
+    )
+
+
+class ForInLoopSegment(BaseSegment):
+    """FOR...IN...DO...END FOR statement.
+
+    https://docs.snowflake.com/en/developer-guide/snowflake-scripting/loops#for-loop
+    """
+
+    type = "for_in_statement"
+
+    match_grammar = Sequence(
+        Sequence(
+            Sequence(
+                "FOR",
+                Ref("LocalVariableNameSegment"),
+                "IN",
+                Ref("LocalVariableNameSegment"),
+                "DO",
+                Indent,
+            ),
+            Delimited(
+                Ref("StatementSegment"),
+                delimiter=Ref("DelimiterGrammar"),
+            ),
+            parse_mode=ParseMode.GREEDY_ONCE_STARTED,
+            reset_terminators=True,
+            terminators=[Sequence(Ref("DelimiterGrammar"), "END", "FOR")],
+        ),
+        # There must be a trailing semicolon
+        Ref("DelimiterGrammar"),
+        Dedent,
+        "END",
+        "FOR",
+    )
+
+
+class BindVariableSegment(BaseSegment):
+    """A :VARIABLE_NAME expression."""
+
+    type = "bind_variable"
+
+    match_grammar = Sequence(
+        Ref("ColonSegment"),
+        Ref("LocalVariableNameSegment"),
     )

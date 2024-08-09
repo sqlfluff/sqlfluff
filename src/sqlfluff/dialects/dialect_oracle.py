@@ -88,6 +88,19 @@ oracle_dialect.patch_lexer_matchers(
             "single_quote",
             r"'([^'\\]|\\|\\.|'')*'",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"'((?:[^'\\]|\\|\\.|'')*)'", 1),
+                "escape_replacements": [(r"''", "'")],
+            },
+        ),
+        RegexLexer(
+            "double_quote",
+            r'"([^"]|"")*"',
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"]|"")*)"', 1),
+                "escape_replacements": [(r'""', '"')],
+            },
         ),
     ]
 )
@@ -175,6 +188,7 @@ oracle_dialect.replace(
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.upper,
         )
     ),
     PostFunctionGrammar=AnyNumberOf(
@@ -595,6 +609,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
             "NONEDITIONABLE",
             optional=True,
         ),
+        Ref.keyword("MATERIALIZED", optional=True),
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
@@ -776,7 +791,7 @@ class StartWithClauseSegment(BaseSegment):
 
 
 class HierarchicalQueryClauseSegment(BaseSegment):
-    """Hiearchical Query.
+    """Hierarchical Query.
 
     https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Hierarchical-Queries.html
     """
