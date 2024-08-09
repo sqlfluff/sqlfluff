@@ -30,7 +30,7 @@ contributors, and we have
 to help you through your first contribution. Bear in mind that all the tests
 should pass, and test coverage should not decrease unduly as part of the
 changes which you make. You may find it useful to familiarise yourself with the
-[architectural principles here](https://docs.sqlfluff.com/en/stable/internals.html#architecture)
+[architectural principles here](https://docs.sqlfluff.com/en/stable/perma/architecture.html)
 and with the [current documentation here](https://docs.sqlfluff.com).
 
 ## How The Community Works

@@ -711,7 +711,7 @@ class JinjaTemplater(PythonTemplater):
                 (
                     "Unrecoverable failure in Jinja templating: {}. Have you "
                     "correctly configured your variables? "
-                    "https://docs.sqlfluff.com/en/latest/configuration.html"
+                    "https://docs.sqlfluff.com/en/latest/perma/variables.html"
                 ).format(err),
                 # We don't have actual line number information, but specify
                 # line 1 so users can ignore with "noqa" if they want. (The

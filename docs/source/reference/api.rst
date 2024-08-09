@@ -1,14 +1,14 @@
 .. _apiref:
 
-API Reference
-=============
+Python API Reference
+====================
 
 SQLFluff exposes a public api for other python applications to use.
 A basic example of this usage is given here, with the documentation
 for each of the methods below.
 
 
-.. literalinclude:: ../../examples/01_basic_api_usage.py
+.. literalinclude:: ../../../examples/01_basic_api_usage.py
    :language: python
 
 
@@ -38,14 +38,14 @@ Configuring SQLFluff
 You can use :code:`FluffConfig()` class to configure SQLFluff behaviour.
 
 
-.. literalinclude:: ../../examples/04_config_overrides.py
+.. literalinclude:: ../../../examples/04_config_overrides.py
    :language: python
 
 
 Instances of :code:`FluffConfig()` can be created manually, or parsed.
 
 
-.. literalinclude:: ../../examples/05_simple_api_config.py
+.. literalinclude:: ../../../examples/05_simple_api_config.py
    :language: python
 
 
@@ -53,7 +53,7 @@ Supported dialects and rules are available through :code:`list_dialects()`
 and :code:`list_rules()`.
 
 
-.. literalinclude:: ../../examples/03_getting_rules_and_dialects.py
+.. literalinclude:: ../../../examples/03_getting_rules_and_dialects.py
    :language: python
 
 

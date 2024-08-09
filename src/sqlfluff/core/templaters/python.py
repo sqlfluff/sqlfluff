@@ -256,7 +256,7 @@ class PythonTemplater(RawTemplater):
                 raise SQLTemplaterError(
                     "Failure in Python templating: {}. Have you configured your "
                     "variables? https://docs.sqlfluff.com/en/stable/"
-                    "configuration.html#templating-configuration".format(err)
+                    "perma/variables.html".format(err)
                 )
             return rendered_str
 

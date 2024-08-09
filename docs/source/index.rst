@@ -53,24 +53,15 @@ Contents
 ^^^^^^^^
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
    :caption: Documentation for SQLFluff:
 
    gettingstarted
-   realworld
-   vision
-   teamrollout
-   layout
-   rules
-   dialects
-   production
-   configuration
-   cli
-   api
-   releasenotes
-   internals
-   developingrules
-   developingplugins
+   why_sqlfluff
+   configuration/index
+   production/index
+   development/index
+   reference/index
    inthewild
    jointhecommunity
 

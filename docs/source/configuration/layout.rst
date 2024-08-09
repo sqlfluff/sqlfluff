@@ -1,7 +1,7 @@
 .. _layoutref:
 
-Let's talk about whitespace
-===========================
+Layout & Whitespace Configuration
+=================================
 
 If there is one part of building a linter that is going to be controversial
 it's going to be **whitespace** (closely followed by **cApiTaLiSaTiOn** 😁).

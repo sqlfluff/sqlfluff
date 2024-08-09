@@ -34,7 +34,7 @@ for plugin_rules in get_plugin_manager().hook.get_rules():
 
 # Write them into the table. Bundle by bundle.
 print("Rule Docs Generation: Writing Rule Table...")
-with open(base_path / "source/partials/rule_table.rst", "w", encoding="utf8") as f:
+with open(base_path / "source/_partials/rule_table.rst", "w", encoding="utf8") as f:
     f.write(autogen_header)
     f.write(table_header)
     for bundle in sorted(rule_bundles.keys()):
@@ -74,7 +74,7 @@ with open(base_path / "source/partials/rule_table.rst", "w", encoding="utf8") as
 
 # Write each of the summary files.
 print("Rule Docs Generation: Writing Rule Summaries...")
-with open(base_path / "source/partials/rule_summaries.rst", "w", encoding="utf8") as f:
+with open(base_path / "source/_partials/rule_summaries.rst", "w", encoding="utf8") as f:
     f.write(autogen_header)
     for bundle in sorted(rule_bundles.keys()):
         if "sql" in bundle:
