@@ -76,14 +76,13 @@ def paths_from_path(
 
     path_walk: WalkableType
     if is_exact_file:
-        # When the exact file to lint is passed, we
-        # fill path_walk with an input that follows
-        # the structure of `os.walk`:
+        # When the exact file to lint is passed, we fill path_walk with an
+        # input that follows the structure of `os.walk`:
         #   (root, directories, files)
-        dirpath = os.path.dirname(path)
-        files = [os.path.basename(path)]
-        path_walk = [(dirpath, None, files)]
+        path_walk = [(os.path.dirname(path), None, [os.path.basename(path)])]
     else:
+        # Otherwise, walk the given path to populate the list of
+        # files that it represents.
         path_walk = list(os.walk(path))
 
     ignore_file_paths = _find_ignore_config_files(
