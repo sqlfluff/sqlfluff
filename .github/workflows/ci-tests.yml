@@ -251,7 +251,7 @@ jobs:
       # Do not set explicitly temp dir for dbt as causes problems
       # None of these test need temp dir set
       run: |
-        python -m tox -e dbt150-winpy -- plugins/sqlfluff-templater-dbt
+        python -m tox -e dbt180-winpy -- plugins/sqlfluff-templater-dbt
 
   pip-test-pull-request:
     # Test that using pip install works as we've missed
