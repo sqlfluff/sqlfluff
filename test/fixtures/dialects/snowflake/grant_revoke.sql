@@ -101,3 +101,12 @@ GRANT MANAGE ORGANIZATION SUPPORT CASES ON ACCOUNT TO ROLE my_role;
 GRANT MANAGE USER SUPPORT CASES ON ACCOUNT TO ROLE my_role;
 
 GRANT ADD SEARCH OPTIMIZATION ON SCHEMA MY_SCHEMA TO ROLE MY_ROLE;
+
+grant database role dbname.rolename to role public;
+grant database role dbrolename to role public;
+revoke database role dbname.rolename from role public;
+revoke database role dbrolename from role public;
+grant select on table dbname.schemaname.tablename to database role dbname.rolename;
+grant select on table dbname.schemaname.tablename to database role dbrolename;
+revoke select on table dbname.schemaname.tablename from database role dbname.rolename;
+revoke select on table dbname.schemaname.tablename from database role dbrolename;

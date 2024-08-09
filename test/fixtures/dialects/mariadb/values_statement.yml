@@ -1,0 +1,77 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ec3f560739d5cbb79a45481da9f5a78d3d3073fbc8830284de6763c9fc987458
+file:
+- statement:
+    values_clause:
+    - keyword: VALUES
+    - keyword: ROW
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'a'"
+        comma: ','
+        numeric_literal: '1'
+        end_bracket: )
+    - comma: ','
+    - keyword: ROW
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'b'"
+        comma: ','
+        numeric_literal: '2'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: VALUES
+    - keyword: ROW
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'a'"
+        comma: ','
+        numeric_literal: '1'
+        end_bracket: )
+    - comma: ','
+    - keyword: ROW
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: upper
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'b'"
+              end_bracket: )
+      - comma: ','
+      - expression:
+        - numeric_literal: '2'
+        - binary_operator: +
+        - numeric_literal: '1'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: VALUES
+    - keyword: ROW
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          bare_function: CURRENT_DATE
+      - comma: ','
+      - expression:
+          quoted_literal: "'2020-06-04'"
+          binary_operator: +
+          interval_expression:
+            keyword: interval
+            expression:
+              numeric_literal:
+                sign_indicator: '-'
+                numeric_literal: '5'
+            date_part: day
+      - end_bracket: )
+- statement_terminator: ;

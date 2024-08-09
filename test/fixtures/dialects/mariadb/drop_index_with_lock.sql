@@ -1,0 +1,8 @@
+DROP INDEX `test` ON `table1` LOCK = DEFAULT;
+DROP INDEX `test` ON `table1` LOCK = NONE;
+DROP INDEX `test` ON `table1` LOCK = SHARED;
+DROP INDEX `test` ON `table1` LOCK = EXCLUSIVE;
+DROP INDEX `test` ON `table1` LOCK DEFAULT;
+DROP INDEX `test` ON `table1` LOCK NONE;
+DROP INDEX `test` ON `table1` LOCK SHARED;
+DROP INDEX `test` ON `table1` LOCK EXCLUSIVE;

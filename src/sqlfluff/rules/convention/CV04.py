@@ -1,10 +1,10 @@
 """Implementation of Rule CV04."""
+
 from typing import Optional
 
-from sqlfluff.core.parser import RawSegment, SymbolSegment
+from sqlfluff.core.parser import LiteralSegment, RawSegment, SymbolSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.dialects.dialect_ansi import LiteralSegment
 from sqlfluff.utils.functional import FunctionalContext, sp
 
 

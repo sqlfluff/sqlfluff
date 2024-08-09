@@ -1,16 +1,23 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.5.0
     hooks:
+      - id: no-commit-to-branch
+        args: [--branch, main]
       # If adding any exceptions here, make sure to add them to .editorconfig as well
       - id: end-of-file-fixer
         exclude: |
-          (?x)^(
-            test/fixtures/linter/sqlfluffignore/|
-            test/fixtures/config/inheritance_b/example.sql|
-            test/fixtures/config/inheritance_b/nested/example.sql|
-            plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/trailing_newlines.sql|
-            plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/models/my_new_project/trailing_newlines.sql
+          (?x)^
+          (
+            test/fixtures/templater/jinja_l_metas/0(0[134578]|11).sql|
+            test/fixtures/linter/sqlfluffignore/[^/]*/[^/]*.sql|
+            test/fixtures/config/inheritance_b/(nested/)?example.sql|
+            (.*)/trailing_newlines.sql|
+            plugins/sqlfluff-templater-dbt/test/fixtures/dbt.*/dbt_project/models/my_new_project/multiple_trailing_newline.sql|
+            plugins/sqlfluff-templater-dbt/test/fixtures/dbt.*/templated_output/macro_in_macro.sql|
+            plugins/sqlfluff-templater-dbt/test/fixtures/dbt.*/templated_output/(dbt_utils_0.8.0/)?last_day.sql|
+            test/fixtures/linter/indentation_errors.sql|
+            test/fixtures/templater/jinja_d_roundtrip/test.sql
           )$
       - id: trailing-whitespace
         exclude: |
@@ -19,49 +26,55 @@ repos:
             test/fixtures/templater/jinja_d_roundtrip/test.sql|
             test/fixtures/config/inheritance_b/example.sql|
             test/fixtures/config/inheritance_b/nested/example.sql|
-            plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/macro_in_macro.sq|
-            plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/last_day.sql|
-            plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/dbt_utils_0.8.0/last_day.sql|
+            plugins/sqlfluff-templater-dbt/test/fixtures/dbt.*/templated_output/macro_in_macro.sql|
+            plugins/sqlfluff-templater-dbt/test/fixtures/dbt.*/templated_output/last_day.sql|
+            plugins/sqlfluff-templater-dbt/test/fixtures/dbt.*/templated_output/dbt_utils_0.8.0/last_day.sql|
             test/fixtures/linter/sqlfluffignore/
           )$
   - repo: https://github.com/psf/black
-    rev: 22.3.0
+    rev: 24.2.0
     hooks:
       - id: black
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.4.1
+    rev: v1.9.0
     hooks:
       - id: mypy
-        args: [--ignore-missing-imports]
         additional_dependencies:
           [
             types-toml,
-            types-pkg_resources,
+            types-setuptools,
             types-chardet,
             types-appdirs,
             types-colorama,
             types-pyyaml,
             types-regex,
+            types-tqdm,
           ]
         files: ^src/sqlfluff/.*
   - repo: https://github.com/pycqa/flake8
-    rev: 4.0.1
+    rev: 7.0.0
     hooks:
       - id: flake8
-        additional_dependencies: [flake8-black>=0.2.4, flake8-docstrings]
+        additional_dependencies: [flake8-black>=0.3.6]
   - repo: https://github.com/pycqa/doc8
-    rev: 0.10.1
+    rev: v1.1.1
     hooks:
       - id: doc8
         args: [--file-encoding, utf8]
         files: docs/source/.*\.rst$
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.26.3
+    rev: v1.35.1
     hooks:
       - id: yamllint
         args: [-c=.yamllint]
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     # Ruff version.
-    rev: "v0.0.243"
+    rev: "v0.3.2"
     hooks:
       - id: ruff
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.6
+    hooks:
+      - id: codespell
+        exclude: (?x)^(test/fixtures/.*|pyproject.toml)$
+        additional_dependencies: [tomli]

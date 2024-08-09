@@ -176,3 +176,39 @@ BEGIN ATOMIC
                 coalesce(in_valid_until, 'infinity'))
     RETURNING *;
 END;
+
+CREATE OR REPLACE FUNCTION time_bucket(
+    _time timestamp without time zone,
+    _from timestamp without time zone,
+    _to timestamp without time zone,
+    _buckets integer DEFAULT 200,
+    _offset integer DEFAULT 0
+)
+RETURNS timestamp without time zone
+IMMUTABLE PARALLEL SAFE
+BEGIN ATOMIC
+SELECT date_bin(((_to - _from) / greatest((_buckets - 1), 1)), _time, _from) + ((_to - _from) / greatest((_buckets - 1), 1)) * (_offset + 1);
+END;
+
+CREATE OR REPLACE FUNCTION time_bucket_limited(_time timestamp, _from timestamp, _to timestamp, _buckets int = 200)
+    RETURNS timestamp
+    IMMUTABLE PARALLEL SAFE
+BEGIN ATOMIC
+    RETURN CASE WHEN _time <= _from THEN _from
+      WHEN _time >= _to THEN _to
+      ELSE DATE_BIN((_to - _from) / GREATEST(_buckets - 1, 1), _time, _from) + ((_to - _from) / GREATEST(_buckets - 1, 1))
+    end;
+END;
+
+CREATE OR REPLACE FUNCTION time_series(
+    _from timestamp without time zone,
+    _to timestamp without time zone,
+    _buckets integer DEFAULT 200
+)
+RETURNS TABLE ("time" timestamp without time zone)
+IMMUTABLE PARALLEL SAFE
+BEGIN ATOMIC
+-- ATTENTION: use integer to generate series, since with timestamps there are rounding issues
+SELECT time_bucket(_from, _from, _to, _buckets, g.ofs - 1)
+FROM generate_series(0, greatest((_buckets - 1), 1)) AS g (ofs);
+END;

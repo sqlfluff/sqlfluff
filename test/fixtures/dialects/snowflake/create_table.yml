@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aeba969f26bbd96e19f9d50456b394277f9ff8265058283c9f5f85557165e0e6
+_hash: 09ce4465cc81752ef2cc8eba0e1c3de1f2359fdf047a71d44494499f5fb5cc93
 file:
 - statement:
     create_table_statement:
@@ -1056,4 +1056,169 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: raw
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: names
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'1 minute'"
+    - keyword: REFRESH_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: AUTO
+    - keyword: INITIALIZE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - initialize_type: ON_CREATE
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            expression:
+              cast_expression:
+                column_reference:
+                  naked_identifier: var
+                semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: id
+                casting_operator: '::'
+                data_type:
+                  data_type_identifier: int
+            alias_expression:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            expression:
+              cast_expression:
+                column_reference:
+                  naked_identifier: var
+                semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: fname
+                casting_operator: '::'
+                data_type:
+                  data_type_identifier: string
+            alias_expression:
+              naked_identifier: first_name
+        - comma: ','
+        - select_clause_element:
+            expression:
+              cast_expression:
+                column_reference:
+                  naked_identifier: var
+                semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: lname
+                casting_operator: '::'
+                data_type:
+                  data_type_identifier: string
+            alias_expression:
+              naked_identifier: last_name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: raw
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: EXAMPLE_TABLE_WITH_RLS
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: EXAMPLE
+          data_type:
+            data_type_identifier: VARCHAR
+        end_bracket: )
+    - keyword: WITH
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: rls_policy
+    - keyword: 'ON'
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: EXAMPLE
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: EXAMPLE_TABLE_WITH_RLS
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: EXAMPLE
+          data_type:
+            data_type_identifier: VARCHAR
+        end_bracket: )
+    - keyword: WITH
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: rls_policy
+    - keyword: 'ON'
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: EXAMPLE
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        keyword: IDENTIFIER
+        bracketed:
+          start_bracket: (
+          bind_variable:
+            colon: ':'
+            variable: SOME_TABLE
+          end_bracket: )
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: AMOUNT
+          data_type:
+            data_type_identifier: NUMBER
+        end_bracket: )
 - statement_terminator: ;

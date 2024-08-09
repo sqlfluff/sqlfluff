@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4931a20648137c67b8a0523b177168eeb14ba8cfa8c6ca932cf62df543df9002
+_hash: b97d342bce0a8626ad54b1635ea0aa457b01fc4bd34c73f8f2af63fb27121d98
 file:
 - statement:
     create_function_statement:
@@ -25,13 +25,85 @@ file:
       - naked_identifier: SQL
 - statement_terminator: ;
 - statement:
-    drop_function_statement:
-    - keyword: DROP
+    create_function_statement:
+    - keyword: CREATE
     - keyword: FUNCTION
     - function_name:
-      - naked_identifier: myproject
-      - dot: .
-      - naked_identifier: mydataset
-      - dot: .
-      - function_name_identifier: addfunc
+        naked_identifier: example_dataset
+        dot: .
+        function_name_identifier: exampleFunction
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: STRING
+    - function_definition:
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          expression:
+            quoted_literal: '"example"'
+          end_bracket: )
+        options_segment:
+          keyword: OPTIONS
+          bracketed:
+            start_bracket: (
+            parameter: description
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: '"example"'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: exampleFunction
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: FLOAT64
+    - function_definition:
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          expression:
+          - numeric_literal: '1.234'
+          - binary_operator: '*'
+          - numeric_literal: '5.678'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: exampleFunction
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: BOOL
+    - function_definition:
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          expression:
+            boolean_literal: 'TRUE'
+          end_bracket: )
+        options_segment:
+          keyword: OPTIONS
+          bracketed:
+            start_bracket: (
+            end_bracket: )
 - statement_terminator: ;

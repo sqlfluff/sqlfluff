@@ -16,14 +16,13 @@ from typing import (
     Tuple,
     Type,
     Union,
-    cast,
 )
 
 from sqlfluff.core.helpers.slice import slice_length
 from sqlfluff.core.parser.markers import PositionMarker
 
 if TYPE_CHECKING:  # pragma: no cover
-    from sqlfluff.core.parser.segments import BaseSegment, MetaSegment, RawSegment
+    from sqlfluff.core.parser.segments import BaseSegment, MetaSegment
 
 
 def _get_point_pos_at_idx(
@@ -287,19 +286,7 @@ class MatchResult:
             return result_segments
 
         # Otherwise construct the subsegment
-        new_seg: "BaseSegment"
-        if self.matched_class.class_is_type("raw"):
-            _raw_type = cast(Type["RawSegment"], self.matched_class)
-            assert len(result_segments) == 1
-            # TODO: Should this be a generic method on BaseSegment and RawSegment?
-            # It feels a little strange to be this specific here.
-            new_seg = _raw_type(
-                raw=result_segments[0].raw,
-                pos_marker=result_segments[0].pos_marker,
-                **self.segment_kwargs,
-            )
-        else:
-            new_seg = self.matched_class(
-                segments=result_segments, **self.segment_kwargs
-            )
+        new_seg: "BaseSegment" = self.matched_class.from_result_segments(
+            result_segments, self.segment_kwargs
+        )
         return (new_seg,)

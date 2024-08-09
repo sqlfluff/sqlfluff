@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a420dc4999c43a235f958ae912f431afd817a6b0dd44737ccf8f002256e62eeb
+_hash: 6aec1d2eace7f17278f49da7fae79896cbbfdf2ac3ce35697acc8eb4dfd1aebf
 file:
 - statement:
     alter_view_statement:
@@ -187,4 +187,21 @@ file:
       - naked_identifier: scoped
       - dot: .
       - function_name_identifier: policy
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        quoted_identifier: '"my_table"'
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        quoted_identifier: '"my_column"'
+    - keyword: SET
+    - keyword: MASKING
+    - keyword: POLICY
+    - function_name:
+        function_name_identifier: my_masking_policy
+    - keyword: FORCE
 - statement_terminator: ;

@@ -60,11 +60,25 @@ STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
         "definition": "The capitalisation policy to enforce.",
     },
     "extended_capitalisation_policy": {
-        "validation": ["consistent", "upper", "lower", "pascal", "capitalise"],
+        "validation": [
+            "consistent",
+            "upper",
+            "lower",
+            "pascal",
+            "capitalise",
+            "snake",
+            "camel",
+        ],
         "definition": (
-            "The capitalisation policy to enforce, extended with PascalCase. "
+            "The capitalisation policy to enforce, extended with PascalCase, "
+            "snake_case, and camelCase. "
             "This is separate from ``capitalisation_policy`` as it should not be "
             "applied to keywords."
+            "Camel, Pascal, and Snake will never be inferred when the policy is set"
+            "to consistent. This is because snake can cause destructive changes to"
+            "the identifier, and unlinted code is too easily mistaken for camel and "
+            "pascal. If, when set to consistent, no consistent case is found, it will"
+            "default to upper."
         ),
     },
     "select_clause_trailing_comma": {
@@ -194,6 +208,16 @@ STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
             "in the file."
         ),
     },
+    "alias_case_check": {
+        "validation": [
+            "dialect",
+            "case_insensitive",
+            "quoted_cs_naked_upper",
+            "quoted_cs_naked_lower",
+            "case_sensitive",
+        ],
+        "definition": "How to handle comparison casefolding in an alias.",
+    },
     "min_alias_length": {
         "validation": range(1000),
         "definition": (
@@ -221,11 +245,17 @@ STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
             "Defaults to ``earlier``."
         ),
     },
+    "preferred_not_equal_style": {
+        "validation": ["consistent", "c_style", "ansi"],
+        "definition": (
+            "The style for using not equal to operator. Defaults to ``consistent``."
+        ),
+    },
 }
 
 
 def get_config_info() -> Dict[str, Any]:
-    """Gets the config from core sqlfluff and sqlfluff plugins and merges them."""
+    """Get the config from core sqlfluff and sqlfluff plugins and merges them."""
     plugin_manager = get_plugin_manager()
     configs_info = plugin_manager.hook.get_configs_info()
     return {

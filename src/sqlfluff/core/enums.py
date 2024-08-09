@@ -1,7 +1,8 @@
 """Enums used by sqlfluff."""
+
 from enum import Enum
 
-from colorama import Back, Fore, Style
+from colorama import Fore
 
 
 class FormatType(Enum):
@@ -21,4 +22,4 @@ class Color(Enum):
     red = Fore.RED
     green = Fore.GREEN
     blue = Fore.BLUE
-    lightgrey = Fore.BLACK + Back.WHITE + Style.BRIGHT
+    light = Fore.YELLOW

@@ -5,6 +5,7 @@ NOTE: All of these decorators are deprecated from SQLFluff 2.0.0 onwards.
 They are still included to allow a transition period, but the functionality
 is now packaged in the BaseRule class via the RuleMetaclass.
 """
+
 from typing import TYPE_CHECKING, Any, Type
 
 from sqlfluff.core.rules.base import rules_logger  # noqa

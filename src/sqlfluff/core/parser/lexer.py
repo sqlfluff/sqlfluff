@@ -441,30 +441,27 @@ def _handle_zero_length_slice(
         # Before we move on, we might have a _forward_ jump to the next
         # element. That element can handle itself, but we'll add a
         # placeholder for it here before we move on.
-        if next_tfs:
-            # Identify whether we have a skip.
-            skipped_chars = next_tfs.source_slice.start - tfs.source_slice.stop
-            placeholder_str = ""
-            if skipped_chars >= 10:
+        if next_tfs and next_tfs.source_slice.start > tfs.source_slice.stop:
+            # We do so extract the string.
+            placeholder_str = templated_file.source_str[
+                tfs.source_slice.stop : next_tfs.source_slice.start
+            ]
+            # Trim it if it's too long to show.
+            if len(placeholder_str) >= 20:
                 placeholder_str = (
-                    f"... [{skipped_chars} unused template " "characters] ..."
+                    f"... [{len(placeholder_str)} unused template " "characters] ..."
                 )
-            elif skipped_chars:
-                placeholder_str = "..."
-
-            # Handle it if we do.
-            if placeholder_str:
-                lexer_logger.debug("      Forward jump detected. Inserting placeholder")
-                yield TemplateSegment(
-                    pos_marker=PositionMarker(
-                        slice(tfs.source_slice.stop, next_tfs.source_slice.start),
-                        # Zero slice in the template.
-                        tfs.templated_slice,
-                        templated_file,
-                    ),
-                    source_str=placeholder_str,
-                    block_type="skipped_source",
-                )
+            lexer_logger.debug("      Forward jump detected. Inserting placeholder")
+            yield TemplateSegment(
+                pos_marker=PositionMarker(
+                    slice(tfs.source_slice.stop, next_tfs.source_slice.start),
+                    # Zero slice in the template.
+                    tfs.templated_slice,
+                    templated_file,
+                ),
+                source_str=placeholder_str,
+                block_type="skipped_source",
+            )
 
         # Move on
         return
@@ -642,7 +639,7 @@ def _iter_segments(
                             )
                         continue
 
-            elif tfs.slice_type in ("templated", "block_start"):
+            elif tfs.slice_type in ("templated", "block_start", "escaped"):
                 # Found a templated slice. Does it have length in the templated file?
                 # If it doesn't, then we'll pick it up next.
                 if not is_zero_slice(tfs.templated_slice):
@@ -812,9 +809,11 @@ class Lexer:
         # Add an end of file marker
         segment_buffer.append(
             EndOfFile(
-                pos_marker=segment_buffer[-1].pos_marker.end_point_marker()
-                if segment_buffer
-                else PositionMarker.from_point(0, 0, templated_file)
+                pos_marker=(
+                    segment_buffer[-1].pos_marker.end_point_marker()
+                    if segment_buffer
+                    else PositionMarker.from_point(0, 0, templated_file)
+                )
             )
         )
         # Convert to tuple before return

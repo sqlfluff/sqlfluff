@@ -3,6 +3,7 @@
 from typing import Iterator, List, Optional, Set
 
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
+from sqlfluff.core.parser import IdentifierSegment
 from sqlfluff.core.parser.segments import BaseSegment, SymbolSegment
 from sqlfluff.core.rules import (
     BaseRule,
@@ -12,7 +13,7 @@ from sqlfluff.core.rules import (
     RuleContext,
 )
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.dialects.dialect_ansi import IdentifierSegment, ObjectReferenceSegment
+from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.utils.analysis.query import Query
 from sqlfluff.utils.analysis.select import SelectStatementColumnsAndTables
 
@@ -20,7 +21,7 @@ _START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
 
 
 class Rule_RF03(BaseRule):
-    """References should be consistent in statements with a single table.
+    """Column references should be qualified consistently in single table statements.
 
     .. note::
         For BigQuery, Hive and Redshift this rule is disabled by default.
@@ -32,7 +33,7 @@ class Rule_RF03(BaseRule):
 
     **Anti-pattern**
 
-    In this example, only the field ``b`` is referenced.
+    In this example, only the reference to ``b`` is qualified.
 
     .. code-block:: sql
 
@@ -43,7 +44,7 @@ class Rule_RF03(BaseRule):
 
     **Best practice**
 
-    Add or remove references to all fields.
+    Either all column references should be qualified, or all unqualified.
 
     .. code-block:: sql
 
@@ -76,6 +77,7 @@ class Rule_RF03(BaseRule):
     # This could be turned into an option
     _fix_inconsistent_to = "qualified"
     is_fix_compatible = True
+    single_table_references: str
 
     def _eval(self, context: RuleContext) -> EvalResultType:
         """Override base class for dialects that use structs, or SELECT aliases."""
@@ -97,13 +99,21 @@ class Rule_RF03(BaseRule):
         # Recursively visit and check each query in the tree.
         return list(self._visit_queries(query, visited))
 
-    def _iter_available_targets(self, query) -> Iterator[str]:
+    def _iter_available_targets(
+        self, query: Query, subquery: Optional[Query] = None
+    ) -> Iterator[AliasInfo]:
         """Iterate along a list of valid alias targets."""
         for selectable in query.selectables:
             select_info = selectable.select_info
-            for alias in select_info.table_aliases:
-                if alias.ref_str:
-                    yield alias.ref_str
+            if select_info:
+                for alias in select_info.table_aliases:
+                    if subquery and alias.from_expression_element.path_to(
+                        subquery.selectables[0].selectable
+                    ):
+                        # Skip the subquery alias itself
+                        continue
+                    if (subquery and not alias.object_reference) or alias.ref_str:
+                        yield alias
 
     def _visit_queries(self, query: Query, visited: set) -> Iterator[LintResult]:
         select_info: Optional[SelectStatementColumnsAndTables] = None
@@ -115,11 +125,12 @@ class Rule_RF03(BaseRule):
                 fixable = True
                 # :TRICKY: Subqueries in the column list of a SELECT can see tables
                 # in the FROM list of the containing query. Thus, count tables at
-                # the *parent* query level.
+                # the *parent* query level. Only check if it is a subquery of the
+                # parent.
                 possible_ref_tables = list(self._iter_available_targets(query))
-                if query.parent:
+                if query.parent and query.is_subquery:
                     possible_ref_tables += list(
-                        self._iter_available_targets(query.parent)
+                        self._iter_available_targets(query.parent, query)
                     )
                 if len(possible_ref_tables) > 1:
                     # If more than one table name is visible, check for and report
@@ -132,7 +143,7 @@ class Rule_RF03(BaseRule):
                     select_info.standalone_aliases,
                     select_info.reference_buffer,
                     select_info.col_aliases,
-                    self.single_table_references,  # type: ignore
+                    self.single_table_references,
                     self._is_struct_dialect,
                     self._fix_inconsistent_to,
                     fixable,
@@ -159,7 +170,7 @@ class Rule_RF03(BaseRule):
 
 def _check_references(
     table_aliases: List[AliasInfo],
-    standalone_aliases: List[str],
+    standalone_aliases: List[BaseSegment],
     references: List[ObjectReferenceSegment],
     col_aliases: List[ColumnAliasInfo],
     single_table_references: str,
@@ -219,7 +230,7 @@ def _validate_one_reference(
     single_table_references: str,
     ref: BaseSegment,
     this_ref_type: str,
-    standalone_aliases: List[str],
+    standalone_aliases: List[BaseSegment],
     table_ref_str: str,
     table_ref_str_source: Optional[BaseSegment],
     col_alias_names: List[str],
@@ -235,7 +246,7 @@ def _validate_one_reference(
     # Note there could be a table with a column by the same name as
     # this alias, so avoid bogus warnings by just skipping them
     # entirely rather than trying to enforce anything.
-    if ref.raw in standalone_aliases:
+    if ref.raw in [a.raw for a in standalone_aliases]:
         return None
 
     # Oddball case: tsql table variables can't be used to qualify references.
@@ -266,13 +277,16 @@ def _validate_one_reference(
 
     # If not, it's the wrong type and we should handle it.
     if single_table_references == "unqualified":
+        # If unqualified and not fixable, there is no error.
+        if not fixable:
+            return None
         # If this is qualified we must have a "table", "."" at least
-        fixes = [LintFix.delete(el) for el in ref.segments[:2]] if fixable else None
         return LintResult(
             anchor=ref,
-            fixes=fixes,
-            description="{} reference {!r} found in single table "
-            "select.".format(this_ref_type.capitalize(), ref.raw),
+            fixes=[LintFix.delete(el) for el in ref.segments[:2]],
+            description="{} reference {!r} found in single table select.".format(
+                this_ref_type.capitalize(), ref.raw
+            ),
         )
 
     fixes = None
@@ -293,6 +307,7 @@ def _validate_one_reference(
     return LintResult(
         anchor=ref,
         fixes=fixes,
-        description="{} reference {!r} found in single table "
-        "select.".format(this_ref_type.capitalize(), ref.raw),
+        description="{} reference {!r} found in single table select.".format(
+            this_ref_type.capitalize(), ref.raw
+        ),
     )

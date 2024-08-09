@@ -15,7 +15,7 @@ test_fail_column_exp_without_alias:
   fail_str: SELECT upper(foo), bar from blah
 
 # Casting (via "::TYPE" syntax) has no effect on column output naming
-# and AL03 therefore shouldnt be applied
+# and AL03 therefore shouldn't be applied
 test_pass_column_exp_without_alias_if_only_cast:
   pass_str: SELECT foo_col::VARCHAR(28) , bar from blah
 
@@ -77,3 +77,31 @@ test_pass_cte_column_list:
         a,
         b
     FROM cte
+
+test_pass_duckdb_columns_expression:
+  pass_str: |
+    SELECT COLUMNS(c -> c LIKE '%num%'), 1 AS x FROM numbers;
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_nested_columns_expression:
+  pass_str: |
+    SELECT MIN(COLUMNS(c -> c LIKE '%num%')), 1 AS x FROM numbers;
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_exclude_expression:
+  pass_str: |
+    select * exclude (y), 6 as z from tabx;
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_replace_expression:
+  pass_str: |
+    select * replace (3 as x), 6 as z from tabx;
+  configs:
+    core:
+      dialect: duckdb

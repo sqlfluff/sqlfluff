@@ -1,4 +1,5 @@
 """Implementation of Rule CV05."""
+
 from typing import List, Optional, Union
 
 from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment

@@ -1,4 +1,5 @@
 """Tests the python routines within LT12 and CV06."""
+
 from sqlfluff.core import FluffConfig, Linter
 
 

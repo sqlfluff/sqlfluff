@@ -24,4 +24,3 @@ CREATE TABLE prod.db.sample
 USING iceberg
 PARTITIONED BY (part)
 TBLPROPERTIES ('key'='value');
-

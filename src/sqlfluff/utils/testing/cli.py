@@ -1,4 +1,5 @@
 """Testing utils for working with the CLIs."""
+
 from typing import Any, Dict, List, Optional
 
 from click.testing import CliRunner, Result
@@ -30,6 +31,6 @@ def invoke_assert_code(
     # raised by `sys.exit()`)
     if raise_exceptions and result.exception:
         if not isinstance(result.exception, SystemExit):
-            raise result.exception
+            raise result.exception  # pragma: no cover
     assert ret_code == result.exit_code
     return result

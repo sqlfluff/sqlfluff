@@ -1,4 +1,5 @@
 """Tests for templaters."""
+
 import pytest
 
 from sqlfluff.core import FluffConfig
@@ -76,6 +77,24 @@ def test__templater_raw():
                 user_id="42",
                 start_date="'2021-10-01'",
                 city_ids="(1, 2, 3, 45)",
+            ),
+        ),
+        (
+            """
+            SELECT user_mail, city_id, :"custom_column"
+            FROM users_data
+            WHERE userid = :user_id AND date > :'start_date'
+            """,
+            "colon_optional_quotes",
+            """
+            SELECT user_mail, city_id, "PascalCaseColumn"
+            FROM users_data
+            WHERE userid = 42 AND date > '2021-10-01'
+            """,
+            dict(
+                user_id="42",
+                custom_column="PascalCaseColumn",
+                start_date="2021-10-01",
             ),
         ),
         (
@@ -316,6 +335,7 @@ def test__templater_raw():
         "colon_simple_substitution",
         "colon_accept_block_at_end",
         "colon_tuple_substitution",
+        "colon_quoted",
         "colon_nospaces",
         "colon_nospaces_double_colon_ignored",
         "question_mark",

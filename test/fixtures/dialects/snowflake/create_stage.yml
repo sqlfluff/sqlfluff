@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e74ae003f42dd1f8b6c8bcc13b4fb44aa4fa94610156d9e8737ae3ef3e728369
+_hash: b457d834ca663d3e7950bb24033870243b39061db2ce406826d98ed08f7bac37
 file:
 - statement:
     create_stage_statement:
@@ -573,4 +573,43 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - bucket_path: "'s3://your-s3-bucket/your-path-in-s3'"
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: mystage
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - variable: $your_variable
+    - stage_parameters:
+        keyword: CREDENTIALS
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+          start_bracket: (
+          keyword: AZURE_SAS_TOKEN
+          comparison_operator:
+            raw_comparison_operator: '='
+          variable: $your_variable
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: mystage
+    - keyword: URL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - variable: $your_variable
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          variable: $your_variable
 - statement_terminator: ;

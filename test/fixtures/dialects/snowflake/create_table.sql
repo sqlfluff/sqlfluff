@@ -116,3 +116,22 @@ WAREHOUSE = mywh
 AS
 SELECT var:id::int id, var:fname::string first_name,
 var:lname::string last_name FROM raw;
+
+CREATE OR REPLACE DYNAMIC TABLE names
+TARGET_LAG = '1 minute'
+REFRESH_MODE = AUTO
+INITIALIZE = ON_CREATE
+WAREHOUSE = mywh
+AS
+SELECT var:id::int id, var:fname::string first_name,
+var:lname::string last_name FROM raw;
+
+CREATE OR REPLACE TABLE IF NOT EXISTS EXAMPLE_TABLE_WITH_RLS (
+  EXAMPLE VARCHAR
+  ) WITH ROW ACCESS POLICY my_db.my_schema.rls_policy ON (EXAMPLE);
+
+CREATE OR REPLACE TABLE IF NOT EXISTS EXAMPLE_TABLE_WITH_RLS (
+  EXAMPLE VARCHAR
+) WITH ROW ACCESS POLICY rls_policy ON (EXAMPLE);
+
+CREATE TABLE IDENTIFIER(:SOME_TABLE) (AMOUNT NUMBER);

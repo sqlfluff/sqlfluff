@@ -27,11 +27,27 @@ This release makes a couple of potentially breaking changes:
   renamed to :code:`start_line_pos` and :code:`start_line_no`, to distinguish
   them from the new fields starting :code:`end_*`.
 
+* When linting from stdin, if there are no violations found - before this version,
+  the serialised response would be simply an empty list (:code:`[]`). From 3.0
+  onwards, there will now  be a record for the *file* with some statistics,
+  but the *violations* section of the response for that file will still be an
+  empty list.
+
 * The default :code:`annotation_level` set by the :code:`--annotation-level`
   option on the :code:`sqlfluff lint` command has been changed from :code:`notice`
   to :code:`warning`, to better distinguish linting errors from warnings, which
   always now have the level of :code:`notice`. This is only relevant when using
   the :code:`github-annotation` or :code:`github-annotation-native` formats.
+
+* The previously deprecated :code:`--disable_progress_bar` on `:code:lint`,
+  :code:`fix` and :code:`format` has now been removed entirely. Please migrate
+  to :code:`--disable-progress-bar` to continue using this option.
+
+* The :code:`--force` option on :code:`sqlfluff fix` is now the default behaviour
+  and so the option has been deprecated. A new :code:`--check` option has been
+  introduced which mimics the old default behaviour. This has been changed as it
+  enables significantly lower memory overheads when linting and fixing large
+  projects.
 
 Upgrading to 2.3
 ----------------

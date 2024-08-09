@@ -93,11 +93,42 @@ ansi_dialect.set_lexer_matchers(
                 WhitespaceSegment,
             ),
         ),
-        RegexLexer("single_quote", r"'([^'\\]|\\.|'')*'", CodeSegment),
-        RegexLexer("double_quote", r'"([^"\\]|\\.)*"', CodeSegment),
-        RegexLexer("back_quote", r"`[^`]*`", CodeSegment),
+        RegexLexer(
+            "single_quote",
+            r"'([^'\\]|\\.|'')*'",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"'((?:[^'\\]|\\.|'')*)'", 1),
+                "escape_replacements": [(r"\\'|''", "'")],
+            },
+        ),
+        RegexLexer(
+            "double_quote",
+            r'"([^"\\]|\\.)*"',
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"\\]|\\.)*)"', 1),
+                "escape_replacements": [(r'\\"|""', '"')],
+            },
+        ),
+        RegexLexer(
+            "back_quote",
+            r"`(?:[^`\\]|\\.)*`",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"`((?:[^`\\]|\\.)*)`", 1),
+                "escape_replacements": [(r"\\`", "`")],
+            },
+        ),
         # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
-        RegexLexer("dollar_quote", r"\$(\w*)\$[^\1]*?\$\1\$", CodeSegment),
+        RegexLexer(
+            "dollar_quote",
+            r"\$(\w*)\$(.*?)\$\1\$",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"\$(\w*)\$(.*?)\$\1\$", 2),
+            },
+        ),
         # Numeric literal matches integers, decimals, and exponential formats,
         # Pattern breakdown:
         # (?>                      Atomic grouping
@@ -272,6 +303,7 @@ ansi_dialect.add(
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.upper,
         )
     ),
     ParameterNameSegment=RegexParser(
@@ -353,6 +385,9 @@ ansi_dialect.add(
     BooleanBinaryOperatorGrammar=OneOf(
         Ref("AndOperatorGrammar"), Ref("OrOperatorGrammar")
     ),
+    IsDistinctFromGrammar=Sequence(
+        "IS", Ref.keyword("NOT", optional=True), "DISTINCT", "FROM"
+    ),
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
         Ref("GreaterThanSegment"),
@@ -361,8 +396,7 @@ ansi_dialect.add(
         Ref("LessThanOrEqualToSegment"),
         Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
-        Sequence("IS", "DISTINCT", "FROM"),
-        Sequence("IS", "NOT", "DISTINCT", "FROM"),
+        Ref("IsDistinctFromGrammar"),
     ),
     # hookpoint for other dialects
     # e.g. EXASOL str to date cast with DATE '2021-01-01'
@@ -412,11 +446,28 @@ ansi_dialect.add(
     IfExistsGrammar=Sequence("IF", "EXISTS"),
     IfNotExistsGrammar=Sequence("IF", "NOT", "EXISTS"),
     LikeGrammar=OneOf("LIKE", "RLIKE", "ILIKE"),
+    PatternMatchingGrammar=Nothing(),
     UnionGrammar=Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
     IsClauseGrammar=OneOf(
         Ref("NullLiteralSegment"),
         Ref("NanLiteralSegment"),
         Ref("BooleanLiteralGrammar"),
+    ),
+    InOperatorGrammar=Sequence(
+        Ref.keyword("NOT", optional=True),
+        "IN",
+        OneOf(
+            Bracketed(
+                OneOf(
+                    Delimited(
+                        Ref("Expression_A_Grammar"),
+                    ),
+                    Ref("SelectableGrammar"),
+                ),
+                parse_mode=ParseMode.GREEDY,
+            ),
+            Ref("FunctionSegment"),  # E.g. UNNEST()
+        ),
     ),
     SelectClauseTerminatorGrammar=OneOf(
         "FROM",
@@ -522,8 +573,9 @@ ansi_dialect.add(
     ),
     IgnoreRespectNullsGrammar=Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
     FrameClauseUnitGrammar=OneOf("ROWS", "RANGE"),
+    # Some dialects do not support `ON` or `USING` with `CROSS JOIN`
+    ConditionalCrossJoinKeywordsGrammar=Ref.keyword("CROSS"),
     JoinTypeKeywordsGrammar=OneOf(
-        "CROSS",
         "INNER",
         Sequence(
             OneOf(
@@ -533,7 +585,29 @@ ansi_dialect.add(
             ),
             Ref.keyword("OUTER", optional=True),
         ),
-        optional=True,
+    ),
+    # Extensible in individual dialects
+    NonStandardJoinTypeKeywordsGrammar=Nothing(),
+    ConditionalJoinKeywordsGrammar=OneOf(
+        Ref("JoinTypeKeywordsGrammar"),
+        Ref("ConditionalCrossJoinKeywordsGrammar"),
+        Ref("NonStandardJoinTypeKeywordsGrammar"),
+    ),
+    JoinUsingConditionGrammar=Sequence(
+        "USING",
+        Indent,
+        Bracketed(
+            # NB: We don't use BracketedColumnReferenceListGrammar
+            # here because we're just using SingleIdentifierGrammar,
+            # rather than ObjectReferenceSegment or
+            # ColumnReferenceSegment.
+            # This is a) so that we don't lint it as a reference and
+            # b) because the column will probably be returned anyway
+            # during parsing.
+            Delimited(Ref("SingleIdentifierGrammar")),
+            parse_mode=ParseMode.GREEDY,
+        ),
+        Dedent,
     ),
     # It's as a sequence to allow to parametrize that in Postgres dialect with LATERAL
     JoinKeywordsGrammar=Sequence("JOIN"),
@@ -541,16 +615,16 @@ ansi_dialect.add(
     # or T-SQL). So define here to allow override with Nothing() for those.
     NaturalJoinKeywordsGrammar=Sequence(
         "NATURAL",
-        OneOf(
-            # Note that NATURAL joins do not support CROSS joins
-            "INNER",
-            Sequence(
-                OneOf("LEFT", "RIGHT", "FULL"),
-                Ref.keyword("OUTER", optional=True),
-                optional=True,
-            ),
-            optional=True,
-        ),
+        Ref("JoinTypeKeywordsGrammar", optional=True),
+    ),
+    UnconditionalCrossJoinKeywordsGrammar=Nothing(),
+    # Some dialects such as DuckDB and Clickhouse support a row by row
+    # join between two tables (e.g. POSITIONAL and PASTE)
+    HorizontalJoinKeywordsGrammar=Nothing(),
+    UnconditionalJoinKeywordsGrammar=OneOf(
+        Ref("NaturalJoinKeywordsGrammar"),
+        Ref("UnconditionalCrossJoinKeywordsGrammar"),
+        Ref("HorizontalJoinKeywordsGrammar"),
     ),
     # This can be overwritten by dialects
     ExtendedNaturalJoinKeywordsGrammar=Nothing(),
@@ -646,6 +720,9 @@ ansi_dialect.add(
         ),
     ),
     OrderNoOrderGrammar=OneOf("ORDER", "NOORDER"),
+    ColumnsExpressionNameGrammar=Nothing(),
+    # Uses grammar for LT06 support
+    ColumnsExpressionGrammar=Nothing(),
 )
 
 
@@ -687,6 +764,11 @@ class IntervalExpressionSegment(BaseSegment):
             ),
             # The String version
             Ref("QuotedLiteralSegment"),
+            # Combine version
+            Sequence(
+                Ref("QuotedLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
+            ),
         ),
     )
 
@@ -1179,7 +1261,7 @@ class QualifiedNumericLiteralSegment(BaseSegment):
 
 
 class AggregateOrderByClause(BaseSegment):
-    """An order by clause for an aggregate fucntion.
+    """An order by clause for an aggregate function.
 
     Defined as a class to allow a specific type for rule AM06
     """
@@ -1278,7 +1360,9 @@ class WindowSpecificationSegment(BaseSegment):
     type = "window_specification"
     match_grammar: Matchable = Sequence(
         Ref(
-            "SingleIdentifierGrammar", optional=True, exclude=Ref.keyword("PARTITION")
+            "SingleIdentifierGrammar",
+            optional=True,
+            exclude=OneOf(Ref.keyword("PARTITION"), Ref.keyword("ORDER")),
         ),  # "Base" window name
         Ref("PartitionClauseSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
@@ -1340,12 +1424,14 @@ class FunctionSegment(BaseSegment):
                 ),
             ),
         ),
+        Ref("ColumnsExpressionGrammar"),
         Sequence(
             Sequence(
                 Ref(
                     "FunctionNameSegment",
                     exclude=OneOf(
                         Ref("DatePartFunctionNameSegment"),
+                        Ref("ColumnsExpressionFunctionNameSegment"),
                         Ref("ValuesClauseSegment"),
                     ),
                 ),
@@ -1361,6 +1447,28 @@ class FunctionSegment(BaseSegment):
             Ref("PostFunctionGrammar", optional=True),
         ),
     )
+
+
+class ColumnsExpressionFunctionNameSegment(BaseSegment):
+    """COLUMNS function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar: Matchable = Ref("ColumnsExpressionNameGrammar")
+
+
+class ColumnsExpressionFunctionContentsSegment(BaseSegment):
+    """Columns expression in a select statement.
+
+    From DuckDB:
+    https://duckdb.org/docs/sql/expressions/star#columns-expression
+    """
+
+    type = "columns_expression"
+    match_grammar: Matchable = Nothing()
 
 
 class PartitionClauseSegment(BaseSegment):
@@ -1413,7 +1521,8 @@ class FromExpressionElementSegment(BaseSegment):
     """A table expression."""
 
     type = "from_expression_element"
-    match_grammar: Matchable = Sequence(
+
+    _base_from_expression_element = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
         Ref(
@@ -1422,6 +1531,7 @@ class FromExpressionElementSegment(BaseSegment):
                 Ref("FromClauseTerminatorGrammar"),
                 Ref("SamplingExpressionSegment"),
                 Ref("JoinLikeClauseGrammar"),
+                Ref("JoinClauseSegment"),
             ),
             optional=True,
         ),
@@ -1429,6 +1539,16 @@ class FromExpressionElementSegment(BaseSegment):
         Sequence("WITH", "OFFSET", Ref("AliasExpressionSegment"), optional=True),
         Ref("SamplingExpressionSegment", optional=True),
         Ref("PostTableExpressionGrammar", optional=True),
+    )
+
+    match_grammar: Matchable = OneOf(
+        _base_from_expression_element,
+        Bracketed(
+            Sequence(
+                _base_from_expression_element,
+                AnyNumberOf(Ref("JoinClauseSegment")),
+            ),
+        ),
     )
 
     def get_eventual_alias(self) -> AliasInfo:
@@ -1465,6 +1585,7 @@ class FromExpressionElementSegment(BaseSegment):
             # If it has an alias, return that
             segment = alias_expression.get_child("identifier")
             if segment:
+                segment = cast(IdentifierSegment, segment)
                 return AliasInfo(
                     segment.raw, segment, True, self, alias_expression, ref
                 )
@@ -1678,6 +1799,14 @@ class SelectClauseSegment(BaseSegment):
     )
 
 
+class MatchConditionSegment(BaseSegment):
+    """A stub segment to be used in Snowflake ASOF joins."""
+
+    type = "match_condition"
+
+    match_grammar: Matchable = Nothing()
+
+
 class JoinClauseSegment(BaseSegment):
     """Any number of join clauses, including the `JOIN` keyword."""
 
@@ -1685,7 +1814,7 @@ class JoinClauseSegment(BaseSegment):
     match_grammar: Matchable = OneOf(
         # NB These qualifiers are optional
         Sequence(
-            Ref("JoinTypeKeywordsGrammar", optional=True),
+            Ref("ConditionalJoinKeywordsGrammar", optional=True),
             Ref("JoinKeywordsGrammar"),
             Indent,
             Ref("FromExpressionElementSegment"),
@@ -1696,26 +1825,12 @@ class JoinClauseSegment(BaseSegment):
                 # if we also have content.
                 Conditional(Indent, indented_using_on=True),
                 # NB: this is optional
+                Ref("MatchConditionSegment", optional=True),
                 OneOf(
                     # ON clause
                     Ref("JoinOnConditionSegment"),
                     # USING clause
-                    Sequence(
-                        "USING",
-                        Indent,
-                        Bracketed(
-                            # NB: We don't use BracketedColumnReferenceListGrammar
-                            # here because we're just using SingleIdentifierGrammar,
-                            # rather than ObjectReferenceSegment or
-                            # ColumnReferenceSegment.
-                            # This is a) so that we don't lint it as a reference and
-                            # b) because the column will probably be returned anyway
-                            # during parsing.
-                            Delimited(Ref("SingleIdentifierGrammar")),
-                            parse_mode=ParseMode.GREEDY,
-                        ),
-                        Dedent,
-                    ),
+                    Ref("JoinUsingConditionGrammar"),
                     # Unqualified joins *are* allowed. They just might not
                     # be a good idea.
                 ),
@@ -1725,10 +1840,11 @@ class JoinClauseSegment(BaseSegment):
         ),
         # Note NATURAL joins do not support Join conditions
         Sequence(
-            Ref("NaturalJoinKeywordsGrammar"),
+            Ref("UnconditionalJoinKeywordsGrammar"),
             Ref("JoinKeywordsGrammar"),
             Indent,
             Ref("FromExpressionElementSegment"),
+            Ref("MatchConditionSegment", optional=True),
             Dedent,
         ),
         # Sometimes, a natural join might already include the keyword
@@ -1928,7 +2044,11 @@ class CaseExpressionSegment(BaseSegment):
             Dedent,
             "END",
         ),
-        terminators=[Ref("CommaSegment"), Ref("BinaryOperatorGrammar")],
+        terminators=[
+            Ref("ComparisonOperatorGrammar"),
+            Ref("CommaSegment"),
+            Ref("BinaryOperatorGrammar"),
+        ],
     )
 
 
@@ -1996,24 +2116,7 @@ ansi_dialect.add(
                     Ref("BinaryOperatorGrammar"),
                     Ref("Tail_Recurse_Expression_A_Grammar"),
                 ),
-                Sequence(
-                    Ref.keyword("NOT", optional=True),
-                    "IN",
-                    Bracketed(
-                        OneOf(
-                            Delimited(
-                                Ref("Expression_A_Grammar"),
-                            ),
-                            Ref("SelectableGrammar"),
-                        ),
-                        parse_mode=ParseMode.GREEDY,
-                    ),
-                ),
-                Sequence(
-                    Ref.keyword("NOT", optional=True),
-                    "IN",
-                    Ref("FunctionSegment"),  # E.g. UNNEST()
-                ),
+                Ref("InOperatorGrammar"),
                 Sequence(
                     "IS",
                     Ref.keyword("NOT", optional=True),
@@ -2028,6 +2131,10 @@ ansi_dialect.add(
                     Ref("Expression_B_Grammar"),
                     "AND",
                     Ref("Tail_Recurse_Expression_A_Grammar"),
+                ),
+                Sequence(
+                    Ref("PatternMatchingGrammar"),
+                    Ref("Expression_A_Grammar"),
                 ),
             )
         ),
@@ -2084,6 +2191,15 @@ ansi_dialect.add(
         Ref("ShorthandCastSegment"),
         terminators=[Ref("CommaSegment")],
     ),
+    Expression_D_Potential_Select_Statement_Without_Brackets=OneOf(
+        Ref("SelectStatementSegment"),
+        Ref("LiteralGrammar"),
+        Ref("IntervalExpressionSegment"),
+        Ref("TypedStructLiteralSegment"),
+        Ref("ArrayExpressionSegment"),
+        Ref("ColumnReferenceSegment"),
+        Ref("OverlapsClauseSegment"),
+    ),
     # Expression_D_Grammar
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#d_expr
     Expression_D_Grammar=Sequence(
@@ -2110,12 +2226,7 @@ ansi_dialect.add(
                 parse_mode=ParseMode.GREEDY,
             ),
             # Allow potential select statement without brackets
-            Ref("SelectStatementSegment"),
-            Ref("LiteralGrammar"),
-            Ref("IntervalExpressionSegment"),
-            Ref("TypedStructLiteralSegment"),
-            Ref("ArrayExpressionSegment"),
-            Ref("ColumnReferenceSegment"),
+            Ref("Expression_D_Potential_Select_Statement_Without_Brackets"),
             # For triggers, we allow "NEW.*" but not just "*" nor "a.b.*"
             # So can't use WildcardIdentifierSegment nor WildcardExpressionSegment
             Sequence(
@@ -2294,6 +2405,7 @@ class OrderByClauseSegment(BaseSegment):
                 # is supported in enough other dialects for it to make sense here
                 # for now.
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+                Ref("WithFillSegment", optional=True),
             ),
             terminators=["LIMIT", Ref("FrameClauseUnitGrammar")],
         ),
@@ -2390,6 +2502,7 @@ class GroupByClauseSegment(BaseSegment):
         "BY",
         Indent,
         OneOf(
+            "ALL",
             Ref("CubeRollupClauseSegment"),
             # We could replace this next bit with a GroupingExpressionList
             # reference (renaming that to a more generic name), to avoid
@@ -2503,7 +2616,11 @@ class FetchClauseSegment(BaseSegment):
             "FIRST",
             "NEXT",
         ),
-        Ref("NumericLiteralSegment", optional=True),
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("ExpressionSegment", exclude=Ref.keyword("ROW")),
+            optional=True,
+        ),
         OneOf("ROW", "ROWS"),
         "ONLY",
     )
@@ -2639,7 +2756,11 @@ ansi_dialect.add(
         Bracketed(Ref("SelectStatementSegment")),
         Bracketed(Ref("WithCompoundStatementSegment")),
         Bracketed(Ref("NonSetSelectableGrammar")),
+        Ref("BracketedSetExpressionGrammar"),
     ),
+    # Added as part of `NonSetSelectableGrammar` where a nested `SetExpressionSegment`
+    # could be used. Some dialects don't support an "ordered" set, but some may.
+    BracketedSetExpressionGrammar=Bracketed(Ref("UnorderedSetExpressionSegment")),
 )
 
 
@@ -2745,7 +2866,7 @@ class SetOperatorSegment(BaseSegment):
     )
 
 
-class SetExpressionSegment(BaseSegment):
+class UnorderedSetExpressionSegment(BaseSegment):
     """A set expression with either Union, Minus, Except or Intersect."""
 
     type = "set_expression"
@@ -2759,9 +2880,20 @@ class SetExpressionSegment(BaseSegment):
             ),
             min_times=1,
         ),
-        Ref("OrderByClauseSegment", optional=True),
-        Ref("LimitClauseSegment", optional=True),
-        Ref("NamedWindowSegment", optional=True),
+    )
+
+
+class SetExpressionSegment(BaseSegment):
+    """A set expression with either Union, Minus, Except or Intersect."""
+
+    type = "set_expression"
+    # match grammar
+    match_grammar: Matchable = UnorderedSetExpressionSegment.match_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
+        ],
     )
 
 
@@ -3795,6 +3927,7 @@ class CreateRoleStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "CREATE",
         "ROLE",
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("RoleReferenceSegment"),
     )
 
@@ -4212,3 +4345,13 @@ class PathSegment(BaseSegment):
         ),
         Ref("QuotedLiteralSegment"),
     )
+
+
+class WithFillSegment(BaseSegment):
+    """Prefix for WITH FILL clause.
+
+    A hookpoint for other dialects e.g. ClickHouse.
+    """
+
+    type = "with_fill"
+    match_grammar: Matchable = Nothing()

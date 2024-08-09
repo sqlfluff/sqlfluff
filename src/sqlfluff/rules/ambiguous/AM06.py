@@ -1,4 +1,5 @@
 """Implementation of Rule AM06."""
+
 from typing import List, Optional, Tuple
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
@@ -155,9 +156,9 @@ class Rule_AM06(BaseRule):
                         memory=context.memory,
                     )
 
-                context.memory[
-                    "prior_group_by_order_by_convention"
-                ] = current_group_by_order_by_convention
+                context.memory["prior_group_by_order_by_convention"] = (
+                    current_group_by_order_by_convention
+                )
         else:
             # If explicit or implicit naming then raise lint error
             # if the opposite reference type is detected.

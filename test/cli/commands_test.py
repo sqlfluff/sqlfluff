@@ -33,8 +33,6 @@ from sqlfluff.cli.commands import (
     rules,
     version,
 )
-from sqlfluff.core.parser import CommentSegment
-from sqlfluff.core.rules import BaseRule, LintFix, LintResult
 from sqlfluff.utils.testing.cli import invoke_assert_code
 
 # tomllib is only in the stdlib from 3.11+
@@ -126,19 +124,31 @@ def test__cli__command_dialect():
     )
 
 
-def test__cli__command_no_dialect():
+@pytest.mark.parametrize(
+    "command",
+    [
+        render,
+        parse,
+        lint,
+        cli_format,
+        fix,
+    ],
+)
+def test__cli__command_no_dialect(command):
     """Check the script raises the right exception no dialect."""
     # The dialect is unknown should be a non-zero exit code
     result = invoke_assert_code(
         ret_code=2,
         args=[
-            lint,
+            command,
             ["-"],
         ],
         cli_input="SELECT 1",
     )
     assert "User Error" in result.stdout
     assert "No dialect was specified" in result.stdout
+    # No traceback should be in the output
+    assert "Traceback (most recent call last)" not in result.stdout
 
 
 def test__cli__command_parse_error_dialect_explicit_warning():
@@ -224,6 +234,103 @@ def test__cli__command_extra_config_fail():
     )
 
 
+stdin_cli_input = (
+    "SELECT\n    A.COL1,\n    B.COL2\nFROM TABA AS A\n" "POSITIONAL JOIN TABB AS B;\n"
+)
+
+
+@pytest.mark.parametrize(
+    ("command", "stdin_filepath", "ret_code", "output"),
+    [
+        (
+            parse,
+            "test/fixtures/cli/stdin_filename/without_config/stdin_filename.sql",
+            0,
+            (
+                "[L:  5, P:  1]      |                    join_clause:\n"
+                "[L:  5, P:  1]      |                        keyword:"
+                "                              'POSITIONAL'"
+            ),
+        ),
+        (
+            parse,
+            "test/fixtures/an_ansi_config_here.sql",
+            1,
+            "Parsing errors found and dialect is set to 'ansi'.",
+        ),
+        (
+            lint,
+            "test/fixtures/cli/stdin_filename/stdin_filename.sql",
+            0,
+            "All Finished!",
+        ),
+        (
+            lint,
+            "test/fixtures/cli/stdin_filename/without_config/stdin_filename.sql",
+            0,
+            "All Finished!",
+        ),
+        (
+            lint,
+            "test/fixtures/an_ansi_config_here.sql",
+            1,
+            "Parsing errors found and dialect is set to 'ansi'.",
+        ),
+        (
+            cli_format,
+            "test/fixtures/cli/stdin_filename/stdin_filename.sql",
+            0,
+            stdin_cli_input,
+        ),
+        (
+            cli_format,
+            "test/fixtures/cli/stdin_filename/without_config/stdin_filename.sql",
+            0,
+            stdin_cli_input,
+        ),
+        (
+            cli_format,
+            "test/fixtures/an_ansi_config_here.sql",
+            1,
+            "[1 templating/parsing errors found]",
+        ),
+        (
+            fix,
+            "test/fixtures/cli/stdin_filename/stdin_filename.sql",
+            0,
+            stdin_cli_input,
+        ),
+        (
+            fix,
+            "test/fixtures/cli/stdin_filename/without_config/stdin_filename.sql",
+            0,
+            stdin_cli_input,
+        ),
+        (
+            fix,
+            "test/fixtures/an_ansi_config_here.sql",
+            1,
+            "Unfixable violations detected.",
+        ),
+    ],
+)
+def test__cli__command_stdin_filename_config(command, stdin_filepath, ret_code, output):
+    """Check the script picks up the config from the indicated path."""
+    invoke_assert_code(
+        ret_code=ret_code,
+        args=[
+            command,
+            [
+                "--stdin-filename",
+                stdin_filepath,
+                "-",
+            ],
+        ],
+        cli_input=stdin_cli_input,
+        assert_output_contains=output,
+    )
+
+
 @pytest.mark.parametrize(
     "command",
     [
@@ -298,6 +405,13 @@ def test__cli__command_render_stdin():
                 "test/fixtures/cli/passing_b.sql",
             ],
         ),
+        # Render with variants
+        (
+            render,
+            [
+                "test/fixtures/cli/jinja_variants.sql",
+            ],
+        ),
         # Original tests from test__cli__command_lint
         (lint, ["-n", "test/fixtures/cli/passing_a.sql"]),
         (lint, ["-n", "-v", "test/fixtures/cli/passing_a.sql"]),
@@ -352,32 +466,21 @@ def test__cli__command_render_stdin():
         # Check basic parsing, with the code only option
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-c"]),
         # Check basic parsing, with the yaml output
-        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-c", "-f", "yaml"]),
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-c", "--format", "yaml"]),
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--format", "yaml"]),
         # Check parsing with no output (used mostly for testing)
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--format", "none"]),
+        # Parsing with variants
+        (
+            parse,
+            [
+                "test/fixtures/cli/jinja_variants.sql",
+            ],
+        ),
         # Check the benching commands
-        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
-        (
-            lint,
-            [
-                "-n",
-                "test/fixtures/cli/passing_b.sql",
-                "--bench",
-                "--exclude-rules",
-                "AM05",
-            ],
-        ),
-        (
-            fix,
-            [
-                "-n",
-                "test/fixtures/cli/passing_b.sql",
-                "--bench",
-                "--exclude-rules",
-                "AM05",
-            ],
-        ),
+        (parse, ["-n", "test/fixtures/cli/passing_timing.sql", "--bench"]),
+        (lint, ["-n", "test/fixtures/cli/passing_timing.sql", "--bench"]),
+        (fix, ["-n", "test/fixtures/cli/passing_timing.sql", "--bench"]),
         # Check linting works in specifying rules
         (
             lint,
@@ -491,7 +594,6 @@ def test__cli__command_lint_parse(command):
                     "test/fixtures/cli/fail_many.sql",
                     "-vvvvvvv",
                 ],
-                "y",
             ),
             1,
         ),
@@ -506,7 +608,6 @@ def test__cli__command_lint_parse(command):
                     "_fix",
                     "test/fixtures/cli/fail_many.sql",
                 ],
-                "y",
             ),
             1,
         ),
@@ -519,7 +620,6 @@ def test__cli__command_lint_parse(command):
                     "_fix",
                     "test/fixtures/cli/fail_many.sql",
                 ],
-                "y",
             ),
             1,
         ),
@@ -625,6 +725,22 @@ def test__cli__command_lint_parse(command):
                 ],
             ),
             2,
+        ),
+        # Test machine format parse command with an unparsable file.
+        (
+            (
+                parse,
+                ["test/fixtures/linter/parse_lex_error.sql", "-f", "yaml"],
+            ),
+            1,
+        ),
+        # Test machine format parse command with a fatal templating error.
+        (
+            (
+                parse,
+                ["test/fixtures/cli/jinja_fatal_fail.sql", "-f", "yaml"],
+            ),
+            1,
         ),
     ],
 )
@@ -759,7 +875,7 @@ def generic_roundtrip_test(
     source_file,
     rulestring,
     final_exit_code=0,
-    force=True,
+    check=False,
     fix_input=None,
     fix_exit_code=0,
     input_file_encoding="utf-8",
@@ -787,8 +903,8 @@ def generic_roundtrip_test(
         args=[lint, ["--dialect=ansi", "--rules", rulestring, filepath]],
     )
     # Fix the file (in force mode)
-    if force:
-        fix_args = ["--rules", rulestring, "-f", filepath]
+    if check:
+        fix_args = ["--rules", rulestring, "--check", filepath]
     else:
         fix_args = ["--rules", rulestring, filepath]
     fix_args.append("--dialect=ansi")
@@ -840,7 +956,7 @@ def test__cli__command__fix(rule, fname):
             FROM my_schema.my_table
             where processdate ! 3
             """,
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "CP01"],
+            ["--fixed-suffix", "FIXED", "--rules", "CP01"],
             None,
             1,
         ),
@@ -853,7 +969,7 @@ def test__cli__command__fix(rule, fname):
             where processdate {{ condition }}
             """,
             # Test the short versions of the options.
-            ["--force", "-x", "FIXED", "-r", "CP01"],
+            ["-x", "FIXED", "-r", "CP01"],
             None,
             1,
         ),
@@ -867,7 +983,7 @@ def test__cli__command__fix(rule, fname):
             where processdate ! 3  -- noqa: PRS
             """,
             # Test the short versions of the options.
-            ["--force", "-x", "FIXED", "-r", "CP01"],
+            ["-x", "FIXED", "-r", "CP01"],
             None,
             1,
         ),
@@ -879,7 +995,7 @@ def test__cli__command__fix(rule, fname):
             FROM my_schema.my_table
             WHERE processdate ! 3
             """,
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "CP01"],
+            ["--fixed-suffix", "FIXED", "--rules", "CP01"],
             None,
             1,
         ),
@@ -891,7 +1007,7 @@ def test__cli__command__fix(rule, fname):
             FROM my_schema.my_table
             WHERE processdate ! 3  --noqa: PRS
             """,
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "CP01"],
+            ["--fixed-suffix", "FIXED", "--rules", "CP01"],
             None,
             0,
         ),
@@ -905,7 +1021,6 @@ def test__cli__command__fix(rule, fname):
             where processdate ! 3
             """,
             [
-                "--force",
                 "--fixed-suffix",
                 "FIXED",
                 "--rules",
@@ -939,7 +1054,7 @@ def test__cli__command__fix(rule, fname):
                 FROM my_schema.my_table
                 where processdate != 3""",
             ],
-            ["--force", "--fixed-suffix", "FIXED", "--rules", "CP01"],
+            ["--fixed-suffix", "FIXED", "--rules", "CP01"],
             [
                 None,
                 """SELECT my_col
@@ -974,12 +1089,8 @@ def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmpd
         with pytest.raises(SystemExit) as e:
             fix(
                 fix_args
-                + [
-                    "-f",
-                    # Use the short dialect option
-                    "-d",
-                    "ansi",
-                ]
+                # Use the short dialect option
+                + ["-d", "ansi"]
             )
         assert exit_code == e.value.code
     for idx, this_fixed in enumerate(fixed):
@@ -1019,7 +1130,6 @@ where processdate ! 3
     options = [
         "--dialect",
         "ansi",
-        "-f",
         "--fixed-suffix=FIXED",
         sql_path,
     ]
@@ -1058,58 +1168,6 @@ WHERE processdate ! 3
             )
     else:
         assert not os.path.isfile(fixed_path)
-
-
-_old_eval = BaseRule._eval
-_fix_counter = 0
-
-
-def _mock_eval(rule, context):
-    # For test__cli__fix_loop_limit_behavior, we mock BaseRule.crawl(),
-    # replacing it with this function. This function generates an infinite
-    # sequence of fixes without ever repeating the same fix. This causes the
-    # linter to hit the loop limit, allowing us to test that behavior.
-    if context.segment.is_type("comment") and "Comment" in context.segment.raw:
-        global _fix_counter
-        _fix_counter += 1
-        fix = LintFix.replace(
-            context.segment, [CommentSegment(f"-- Comment {_fix_counter}")]
-        )
-        return LintResult(context.segment, fixes=[fix])
-    else:
-        return _old_eval(rule, context)
-
-
-@pytest.mark.parametrize(
-    "sql, exit_code",
-    [
-        ("-- Comment A\nSELECT 1 FROM foo", 1),
-        ("-- noqa: disable=all\n-- Comment A\nSELECT 1 FROM foo", 0),
-    ],
-)
-@patch("sqlfluff.rules.layout.LT01.Rule_LT01._eval", _mock_eval)
-def test__cli__fix_loop_limit_behavior(sql, exit_code, tmpdir):
-    """Tests how "fix" behaves when the loop limit is exceeded."""
-    fix_args = ["--force", "--fixed-suffix", "FIXED", "--rules", "LT01"]
-    tmp_path = pathlib.Path(str(tmpdir))
-    filepath = tmp_path / "testing.sql"
-    filepath.write_text(textwrap.dedent(sql))
-    with tmpdir.as_cwd():
-        with pytest.raises(SystemExit) as e:
-            fix(
-                fix_args
-                + [
-                    "-f",
-                    "--dialect=ansi",
-                ]
-            )
-        assert exit_code == e.value.code
-    # In both parametrized test cases, no output file should have been
-    # created.
-    # - Case #1: Hitting the loop limit is an error
-    # - Case #2: "noqa" suppressed all lint errors, thus no fixes applied
-    fixed_path = tmp_path / "testingFIXED.sql"
-    assert not fixed_path.is_file()
 
 
 @pytest.mark.parametrize(
@@ -1247,13 +1305,13 @@ def test__cli__command_fix_stdin_error_exit_code(
         ("LT01", "test/fixtures/linter/indentation_errors.sql", "n", 1, 1),
     ],
 )
-def test__cli__command__fix_no_force(rule, fname, prompt, exit_code, fix_exit_code):
+def test__cli__command__fix_check(rule, fname, prompt, exit_code, fix_exit_code):
     """Round trip test, using the prompts."""
     with open(fname) as test_file:
         generic_roundtrip_test(
             test_file,
             rule,
-            force=False,
+            check=True,
             final_exit_code=exit_code,
             fix_input=prompt,
             fix_exit_code=fix_exit_code,
@@ -1300,7 +1358,24 @@ def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_pat
 @pytest.mark.parametrize(
     "sql,rules,expected,exit_code",
     [
-        ("select * from tbl", "CP01", [], 0),  # empty list if no violations
+        (
+            "select * from tbl",
+            "CP01",
+            [
+                {
+                    "filepath": "stdin",
+                    "statistics": {
+                        "raw_segments": 12,
+                        "segments": 24,
+                        "source_chars": 17,
+                        "templated_chars": 17,
+                    },
+                    # Empty list because no violations.
+                    "violations": [],
+                }
+            ],
+            0,
+        ),
         (
             "SElect * from tbl",
             "CP01",
@@ -1357,6 +1432,14 @@ def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_pat
                             ],
                         },
                     ],
+                    "statistics": {
+                        "raw_segments": 12,
+                        "segments": 24,
+                        "source_chars": 17,
+                        "templated_chars": 17,
+                    },
+                    # NOTE: There will be a timings section too, but we're not
+                    # going to test that.
                 }
             ],
             1,
@@ -1397,6 +1480,14 @@ def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_pat
                             ],
                         },
                     ],
+                    "statistics": {
+                        "raw_segments": 6,
+                        "segments": 11,
+                        "source_chars": 12,
+                        "templated_chars": 8,
+                    },
+                    # NOTE: There will be a timings section too, but we're not
+                    # going to test that.
                 }
             ],
             1,
@@ -1425,9 +1516,19 @@ def test__cli__command_lint_serialize_from_stdin(
     )
 
     if serialize == "json":
-        assert json.loads(result.output) == expected
+        result = json.loads(result.output)
+        # Drop any timing section (because it's less determinate)
+        for record in result:
+            if "timings" in record:
+                del record["timings"]
+        assert result == expected
     elif serialize == "yaml":
-        assert yaml.safe_load(result.output) == expected
+        result = yaml.safe_load(result.output)
+        # Drop any timing section (because it's less determinate)
+        for record in result:
+            if "timings" in record:
+                del record["timings"]
+        assert result == expected
     elif serialize == "none":
         assert result.output == ""
     else:
@@ -1941,29 +2042,6 @@ class TestProgressBars:
         assert "\rparsing: 0it" not in raw_output
         assert "\r\rlint by rules:" not in raw_output
 
-    def test_cli_lint_disabled_progress_bar_deprecated_option(
-        self, mock_disable_progress_bar: MagicMock
-    ) -> None:
-        """Same as above but checks additionally if deprecation warning is printed."""
-        result = invoke_assert_code(
-            args=[
-                lint,
-                [
-                    "--disable_progress_bar",
-                    "test/fixtures/linter/passing.sql",
-                ],
-            ],
-        )
-        raw_output = repr(result.output)
-
-        assert "\rpath test/fixtures/linter/passing.sql:" not in raw_output
-        assert "\rparsing: 0it" not in raw_output
-        assert "\r\rlint by rules:" not in raw_output
-        assert (
-            "DeprecationWarning: The option '--disable_progress_bar' is deprecated, "
-            "use '--disable-progress-bar'"
-        ) in raw_output
-
     def test_cli_lint_enabled_progress_bar(
         self, mock_disable_progress_bar: MagicMock
     ) -> None:
@@ -2045,44 +2123,6 @@ class TestProgressBars:
         assert r"\rrule LT01:" in raw_output
         assert r"\rrule CV05:" in raw_output
 
-    def test_cli_fix_disabled_progress_bar(
-        self, mock_disable_progress_bar: MagicMock
-    ) -> None:
-        """When progress bar is disabled, nothing should be printed into output."""
-        result = invoke_assert_code(
-            args=[
-                fix,
-                [
-                    "--disable-progress-bar",
-                    "test/fixtures/linter/passing.sql",
-                ],
-            ],
-        )
-        raw_output = repr(result.output)
-
-        assert (
-            "DeprecationWarning: The option '--disable_progress_bar' is deprecated, "
-            "use '--disable-progress-bar'"
-        ) not in raw_output
-
-    def test_cli_fix_disabled_progress_bar_deprecated_option(
-        self, mock_disable_progress_bar: MagicMock
-    ) -> None:
-        """Same as above but checks additionally if deprecation warning is printed."""
-        invoke_assert_code(
-            args=[
-                fix,
-                [
-                    "--disable_progress_bar",
-                    "test/fixtures/linter/passing.sql",
-                ],
-            ],
-            assert_output_contains=(
-                "DeprecationWarning: The option '--disable_progress_bar' is "
-                "deprecated, use '--disable-progress-bar'"
-            ),
-        )
-
 
 multiple_expected_output = """==== finding fixable violations ====
 == [test/fixtures/linter/multiple_sql_errors.sql] FAIL
@@ -2105,6 +2145,7 @@ def test__cli__fix_multiple_errors_no_show_errors():
         args=[
             fix,
             [
+                "--check",  # Run in check mode to get the confirmation.
                 "--disable-progress-bar",
                 "test/fixtures/linter/multiple_sql_errors.sql",
             ],
@@ -2122,7 +2163,6 @@ def test__cli__fix_multiple_errors_quiet_force():
             [
                 "--disable-progress-bar",
                 "test/fixtures/linter/multiple_sql_errors.sql",
-                "--force",
                 "--quiet",
                 "-x",
                 "_fix",
@@ -2135,7 +2175,7 @@ def test__cli__fix_multiple_errors_quiet_force():
     )
 
 
-def test__cli__fix_multiple_errors_quiet_no_force():
+def test__cli__fix_multiple_errors_quiet_check():
     """Test the fix --quiet option without --force."""
     invoke_assert_code(
         ret_code=0,
@@ -2144,6 +2184,7 @@ def test__cli__fix_multiple_errors_quiet_no_force():
             [
                 "--disable-progress-bar",
                 "test/fixtures/linter/multiple_sql_errors.sql",
+                "--check",  # Run in check mode to get the confirmation.
                 "--quiet",
                 "-x",
                 "_fix",
@@ -2170,6 +2211,7 @@ def test__cli__fix_multiple_errors_show_errors():
                 "--disable-progress-bar",
                 "--show-lint-violations",
                 "test/fixtures/linter/multiple_sql_errors.sql",
+                "--check",  # Run in check mode to get the confirmation.
             ],
         ],
     )
@@ -2207,6 +2249,7 @@ def test__cli__multiple_files__fix_multiple_errors_show_errors():
             fix,
             [
                 "--disable-progress-bar",
+                "--check",  # Run in check mode to get the confirmation.
                 "--show-lint-violations",
                 sql_path,
                 indent_path,

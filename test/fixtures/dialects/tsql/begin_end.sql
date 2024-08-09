@@ -13,4 +13,3 @@ END
 BEGIN
 	SELECT 'Weekend';
 END;
-

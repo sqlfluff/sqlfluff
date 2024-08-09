@@ -1,4 +1,5 @@
 """Surrogate class for working with Segment collections."""
+
 from typing import (
     Any,
     Callable,
@@ -6,11 +7,10 @@ from typing import (
     Iterator,
     List,
     Optional,
+    SupportsIndex,
     Union,
     overload,
 )
-
-from typing_extensions import SupportsIndex  # NOTE: Required for py37
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters.base import TemplatedFile

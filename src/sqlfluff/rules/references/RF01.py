@@ -1,9 +1,11 @@
 """Implementation of Rule RF01."""
+
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple, cast
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import (
     BaseRule,
     LintResult,
@@ -26,7 +28,7 @@ class RF01Query(Query):
     """Query with custom RF01 info."""
 
     aliases: List[AliasInfo] = field(default_factory=list)
-    standalone_aliases: List[str] = field(default_factory=list)
+    standalone_aliases: List[BaseSegment] = field(default_factory=list)
 
 
 class Rule_RF01(BaseRule):
@@ -142,7 +144,7 @@ class Rule_RF01(BaseRule):
                 self.logger.debug(
                     "Aliases: %s %s",
                     [alias.ref_str for alias in select_info.table_aliases],
-                    select_info.standalone_aliases,
+                    [standalone.raw for standalone in select_info.standalone_aliases],
                 )
 
                 # Try and resolve each reference to a value in query.aliases (or
@@ -214,7 +216,7 @@ class Rule_RF01(BaseRule):
         for alias in query.aliases:
             targets += self._alias_info_as_tuples(alias)
         for standalone_alias in query.standalone_aliases:
-            targets.append((standalone_alias,))
+            targets.append((standalone_alias.raw,))
         if not object_ref_matches_table(possible_references, targets):
             # No. Check the parent query, if there is one.
             if query.parent:

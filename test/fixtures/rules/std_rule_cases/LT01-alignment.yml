@@ -168,3 +168,92 @@ test_align_multiple_b:
         column_constraint_segment:
           spacing_before: align
           align_within: create_table_statement
+
+test_align_multiple_multiple_lines_a:
+  # If there are multiple options on several lines, always choose the first
+  # to align with, related to https://github.com/sqlfluff/sqlfluff/pull/5823
+  fail_str: |
+    create table tab (
+        foo    varchar(25)  not null,
+        barbar int not null unique,
+        barbara varchar(5) not null primary key
+    )
+  fix_str: |
+    create table tab (
+        foo     varchar(25) not null,
+        barbar  int         not null unique,
+        barbara varchar(5)  not null primary key
+    )
+  configs:
+    layout:
+      type:
+        data_type:
+          spacing_before: align
+          align_within: create_table_statement
+        column_constraint_segment:
+          spacing_before: align
+          align_within: create_table_statement
+
+test_align_multiple_multiple_lines_b:
+  # If there are multiple options only on one of several lines, still align
+  # correctly, related to https://github.com/sqlfluff/sqlfluff/pull/5823
+  pass_str: |
+    CREATE TABLE foo (
+        x INT NOT NULL PRIMARY KEY,
+        y INT NULL,
+        z INT NULL
+    );
+  configs:
+    layout:
+      type:
+        data_type:
+          spacing_before: align
+          align_within: create_table_statement
+        column_constraint_segment:
+          spacing_before: align
+          align_within: create_table_statement
+
+test_align_multiple_all:
+  fail_str: |
+    create table tab1 (
+        a    varchar(25)  not null,
+        b int not null unique references tab2(b),
+        c varchar(5) not null primary key references tab2(c)
+    )
+  fix_str: |
+    create table tab1 (
+        a varchar(25) not null,
+        b int         not null unique      references tab2 (b),
+        c varchar(5)  not null primary key references tab2 (c)
+    )
+  configs:
+    layout:
+      type:
+        data_type:
+          spacing_before: align
+          align_within: create_table_statement
+        column_constraint_segment:
+          spacing_before: align
+          align_within: create_table_statement
+
+test_align_multiple_operators:
+  # Unrealistic but more stretching with several lines which
+  # have different numbers of the same target.
+  fail_str: |
+    select
+        1+123+12345 as foo,
+        123456+1+12+56 as bar,
+        1234+123456789 as baz
+    from t
+  fix_str: |
+    select
+        1      + 123 + 12345 as foo,
+        123456 + 1   + 12 + 56 as bar,
+        1234   + 123456789 as baz
+    from t
+  configs:
+    layout:
+      type:
+        binary_operator:
+          spacing_before: align
+          align_within: select_statement

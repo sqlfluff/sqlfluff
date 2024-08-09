@@ -1,0 +1,30 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d53cda26a6930b6ac0a0fb8da204254ecf1dabc0319e1bb600f76bd373732d50
+file:
+- statement:
+    create_table_like_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: All_Customers
+    - keyword: like
+    - table_reference:
+        naked_identifier: Premium_Customer
+- statement_terminator: ;
+- statement:
+    create_table_like_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: newstates
+    - keyword: LIKE
+    - table_reference:
+        naked_identifier: states
+    - like_option_segment:
+      - keyword: INCLUDING
+      - keyword: PROJECTIONS
+- statement_terminator: ;

@@ -1,6 +1,5 @@
 """Define RuleContext class."""
 
-
 import pathlib
 from dataclasses import dataclass, field
 from typing import Any, Optional, Tuple

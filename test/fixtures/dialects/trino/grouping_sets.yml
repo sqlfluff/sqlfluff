@@ -1,0 +1,108 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 14c103cab6d96bcaf62a139d1ffea8ecf9f35306b02931174e794ccaa76ea4da
+file:
+  statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: tmp_view
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: name
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: price
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: store
+            from_clause:
+            - keyword: FROM
+            - from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: customers
+            - comma: ','
+            - from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: sales
+            where_clause:
+              keyword: WHERE
+              expression:
+              - column_reference:
+                - naked_identifier: customers
+                - dot: .
+                - naked_identifier: c_id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: sales
+                - dot: .
+                - naked_identifier: c_id
+          end_bracket: )
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: sum
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: price
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: volume
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: store
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tmp_view
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - grouping_sets_clause:
+          - keyword: GROUPING
+          - keyword: SETS
+          - bracketed:
+              start_bracket: (
+              grouping_expression_list:
+              - column_reference:
+                  naked_identifier: name
+              - comma: ','
+              - column_reference:
+                  naked_identifier: store
+              - comma: ','
+              - expression:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+              end_bracket: )
+  statement_terminator: ;

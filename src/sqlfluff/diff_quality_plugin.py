@@ -1,4 +1,5 @@
 """This module integrates SQLFluff with diff_cover's "diff-quality" tool."""
+
 import copy
 import json
 import logging
@@ -101,9 +102,11 @@ class SQLFluffViolationReporter(QualityReporter):
                 # Run SQLFluff.
                 printable_command = " ".join(
                     [
-                        c.decode(sys.getfilesystemencoding())
-                        if isinstance(c, bytes)
-                        else c
+                        (
+                            c.decode(sys.getfilesystemencoding())
+                            if isinstance(c, bytes)
+                            else c
+                        )
                         for c in command
                     ]
                 )

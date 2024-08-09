@@ -1,0 +1,379 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c852b601d9814ce5cc69aba1cd38aa6e92d722ff6def75317012752ff14eb557
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: uniq
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: col1
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: col1
+          keyword: IN
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: col1
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: table1
+              where_clause:
+                keyword: WHERE
+                expression:
+                  column_reference:
+                    naked_identifier: col2
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '34'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: uniq
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: col1
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: col1
+        - keyword: NOT
+        - keyword: IN
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: col1
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: table1
+              where_clause:
+                keyword: WHERE
+                expression:
+                  column_reference:
+                    naked_identifier: col2
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '34'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: uniq
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: col1
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: col1
+        - keyword: GLOBAL
+        - keyword: IN
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: col1
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: table1
+              where_clause:
+                keyword: WHERE
+                expression:
+                  column_reference:
+                    naked_identifier: col2
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '34'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: uniq
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: col1
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: col1
+        - keyword: GLOBAL
+        - keyword: NOT
+        - keyword: IN
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: col1
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: table1
+              where_clause:
+                keyword: WHERE
+                expression:
+                  column_reference:
+                    naked_identifier: col2
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '34'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: uniq
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: col1
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: col1
+          keyword: IN
+          function:
+            function_name:
+              function_name_identifier: tuple
+            bracketed:
+            - start_bracket: (
+            - expression:
+                numeric_literal: '1'
+            - comma: ','
+            - expression:
+                numeric_literal: '2'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: uniq
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: col1
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: col1
+        - keyword: NOT
+        - keyword: IN
+        - function:
+            function_name:
+              function_name_identifier: tuple
+            bracketed:
+            - start_bracket: (
+            - expression:
+                numeric_literal: '1'
+            - comma: ','
+            - expression:
+                numeric_literal: '2'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: uniq
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: col1
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: col1
+        - keyword: GLOBAL
+        - keyword: IN
+        - function:
+            function_name:
+              function_name_identifier: tuple
+            bracketed:
+            - start_bracket: (
+            - expression:
+                numeric_literal: '1'
+            - comma: ','
+            - expression:
+                numeric_literal: '2'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: uniq
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: col1
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: col1
+        - keyword: GLOBAL
+        - keyword: NOT
+        - keyword: IN
+        - function:
+            function_name:
+              function_name_identifier: tuple
+            bracketed:
+            - start_bracket: (
+            - expression:
+                numeric_literal: '1'
+            - comma: ','
+            - expression:
+                numeric_literal: '2'
+            - end_bracket: )
+- statement_terminator: ;

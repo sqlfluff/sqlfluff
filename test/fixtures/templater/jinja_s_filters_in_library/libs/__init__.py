@@ -1,4 +1,5 @@
 """Module used to test filters within the jinja template."""
+
 from __future__ import annotations
 
 import datetime

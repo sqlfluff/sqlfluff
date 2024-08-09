@@ -52,3 +52,17 @@ FROM person
 GROUP BY age
 HAVING COUNT(age) > 1
 CLUSTER BY age;
+
+SELECT
+    age,
+    name
+FROM person
+UNION ALL
+SELECT
+    age,
+    name
+FROM person_cold
+CLUSTER BY age;
+
+SELECT CURRENT_DATE() AS p_data_date
+CLUSTER BY p_data_date;

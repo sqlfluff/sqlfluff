@@ -2,6 +2,7 @@
 
 This inherits from the ansi dialect.
 """
+
 from typing import cast
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -14,10 +15,12 @@ from sqlfluff.core.parser import (
     BracketedSegment,
     CodeSegment,
     CommentSegment,
+    CompositeComparisonOperatorSegment,
     Delimited,
     IdentifierSegment,
     LiteralSegment,
     Matchable,
+    Nothing,
     OneOf,
     OptionallyBracketed,
     ParseMode,
@@ -85,6 +88,19 @@ oracle_dialect.patch_lexer_matchers(
             "single_quote",
             r"'([^'\\]|\\|\\.|'')*'",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"'((?:[^'\\]|\\|\\.|'')*)'", 1),
+                "escape_replacements": [(r"''", "'")],
+            },
+        ),
+        RegexLexer(
+            "double_quote",
+            r'"([^"]|"")*"',
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"]|"")*)"', 1),
+                "escape_replacements": [(r'""', '"')],
+            },
         ),
     ]
 )
@@ -172,6 +188,7 @@ oracle_dialect.replace(
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.upper,
         )
     ),
     PostFunctionGrammar=AnyNumberOf(
@@ -279,6 +296,9 @@ oracle_dialect.replace(
             Sequence("TO", Ref("IntervalUnitsGrammar"), optional=True),
         ),
     ),
+    PreTableFunctionKeywordsGrammar=OneOf("LATERAL"),
+    ConditionalCrossJoinKeywordsGrammar=Nothing(),
+    UnconditionalCrossJoinKeywordsGrammar=Ref.keyword("CROSS"),
 )
 
 
@@ -376,7 +396,7 @@ class AlterTableColumnClausesSegment(BaseSegment):
             Ref("ColumnReferenceSegment"),
             "TO",
             Ref("ColumnReferenceSegment"),
-        )
+        ),
         # @TODO: modify_collection_retrieval
         # @TODO: modify_LOB_storage_clause
         # @TODO: alter_varray_col_properties
@@ -589,6 +609,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
             "NONEDITIONABLE",
             optional=True,
         ),
+        Ref.keyword("MATERIALIZED", optional=True),
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
@@ -702,7 +723,18 @@ class ColumnDefinitionSegment(BaseSegment):
             ),
             Sequence(
                 Ref("DatatypeSegment"),  # Column type
-                Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+                # For types like VARCHAR(100), VARCHAR(100 BYTE), VARCHAR (100 CHAR)
+                Bracketed(
+                    Sequence(
+                        Anything(),
+                        OneOf(
+                            "BYTE",
+                            "CHAR",
+                            optional=True,
+                        ),
+                    ),
+                    optional=True,
+                ),
                 AnyNumberOf(
                     Ref("ColumnConstraintSegment", optional=True),
                 ),
@@ -759,7 +791,7 @@ class StartWithClauseSegment(BaseSegment):
 
 
 class HierarchicalQueryClauseSegment(BaseSegment):
-    """Hiearchical Query.
+    """Hierarchical Query.
 
     https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Hierarchical-Queries.html
     """
@@ -826,7 +858,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     )
 
 
-class GreaterThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class GreaterThanOrEqualToSegment(CompositeComparisonOperatorSegment):
     """Allow spaces between operators."""
 
     match_grammar = OneOf(
@@ -841,7 +873,7 @@ class GreaterThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class LessThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class LessThanOrEqualToSegment(CompositeComparisonOperatorSegment):
     """Allow spaces between operators."""
 
     match_grammar = OneOf(
@@ -856,7 +888,7 @@ class LessThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class NotEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class NotEqualToSegment(CompositeComparisonOperatorSegment):
     """Allow spaces between operators."""
 
     match_grammar = OneOf(

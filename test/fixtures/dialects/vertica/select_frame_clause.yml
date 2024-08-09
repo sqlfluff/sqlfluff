@@ -1,0 +1,444 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3d0729e4f2d0d841cfc7549386f52afd45b0f3926a8912413b578d11a0c38681
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: dev_group
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: product_name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: users
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: ARGMAX
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  naked_identifier: users
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: product_name
+            - end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: dev_group
+                  - keyword: ASC
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: service_info
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: dev_group
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: product_name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: users
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: ARGMIN
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  naked_identifier: users
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: product_name
+            - end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: dev_group
+                  - keyword: ASC
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: service_info
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: calendar_month_number_in_year
+          alias_expression:
+            naked_identifier: Mo
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: SUM
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: product_price
+              end_bracket: )
+          alias_expression:
+            naked_identifier: Sales
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              function:
+                function_name:
+                  function_name_identifier: AVG
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: SUM
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: product_price
+                        end_bracket: )
+                  end_bracket: )
+                over_clause:
+                  keyword: OVER
+                  bracketed:
+                    start_bracket: (
+                    window_specification:
+                      orderby_clause:
+                      - keyword: ORDER
+                      - keyword: BY
+                      - column_reference:
+                          naked_identifier: calendar_month_number_in_year
+                      frame_clause:
+                      - keyword: ROWS
+                      - keyword: BETWEEN
+                      - numeric_literal: '2'
+                      - keyword: PRECEDING
+                      - keyword: AND
+                      - numeric_literal: '2'
+                      - keyword: FOLLOWING
+                    end_bracket: )
+              casting_operator: '::'
+              data_type:
+                keyword: INTEGER
+          alias_expression:
+            naked_identifier: Average
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: product_dimension
+            alias_expression:
+              naked_identifier: pd
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: date_dimension
+            alias_expression:
+              naked_identifier: dm
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: inventory_fact
+            alias_expression:
+              naked_identifier: if
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: dm
+          - dot: .
+          - naked_identifier: date_key
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: if
+          - dot: .
+          - naked_identifier: date_key
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: pd
+          - dot: .
+          - naked_identifier: product_key
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: if
+          - dot: .
+          - naked_identifier: product_key
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: Mo
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: employee_region
+          alias_expression:
+            naked_identifier: region
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: employee_key
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: annual_salary
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: RANK
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: employee_region
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: annual_salary
+                end_bracket: )
+          alias_expression:
+            naked_identifier: Rank
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DENSE_RANK
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: employee_region
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: annual_salary
+                end_bracket: )
+          alias_expression:
+            quoted_identifier: '"Dense Rank"'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employee_dimension
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: customer_state
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: customer_key
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: annual_income
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: PERCENTILE_CONT
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '0.5'
+              end_bracket: )
+            within_group_clause_statement:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: annual_income
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: customer_state
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: PERCENTILE_CONT
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: customer_dimension
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: customer_state
+        - keyword: IN
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: "'DC'"
+          - comma: ','
+          - quoted_literal: "'WI'"
+          - end_bracket: )
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: customer_key
+        - comparison_operator:
+            raw_comparison_operator: <
+        - numeric_literal: '300'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: customer_state
+      - comma: ','
+      - column_reference:
+          naked_identifier: customer_key
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: employee_last_name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: annual_salary
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: STDDEV
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: annual_salary
+              end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: hire_date
+                end_bracket: )
+          alias_expression:
+            keyword: as
+            quoted_identifier: '"stddev"'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employee_dimension
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: job_title
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'Assistant Director'"
+- statement_terminator: ;

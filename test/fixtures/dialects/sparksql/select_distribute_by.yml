@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9ce5dad4768aabdc2d0ae563cdd3b7b9db42c3608bc643d818f18cc212079131
+_hash: b342901b95972d70ee9d482c16b8de504f9e22d9c71e926ab47740b37d61f6cb
 file:
 - statement:
     select_statement:
@@ -283,4 +283,74 @@ file:
       - keyword: BY
       - column_reference:
           naked_identifier: age
+- statement_terminator: ;
+- statement:
+    set_expression:
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: age
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: person
+    - set_operator:
+      - keyword: UNION
+      - keyword: ALL
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: age
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: person_cold
+        distribute_by_clause:
+        - keyword: DISTRIBUTE
+        - keyword: BY
+        - column_reference:
+            naked_identifier: age
+        sort_by_clause:
+        - keyword: SORT
+        - keyword: BY
+        - column_reference:
+            naked_identifier: age
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CURRENT_DATE
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: p_data_date
+      distribute_by_clause:
+      - keyword: DISTRIBUTE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: p_data_date
 - statement_terminator: ;

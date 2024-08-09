@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sqlfluff"
-version = "3.0.0a4"
+version = "3.1.0"
 description = "The SQL Linter for Humans"
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.8"
@@ -49,6 +49,7 @@ keywords = [
     "greenplum",
     "hive",
     "materialize",
+    "mariadb",
     "mysql",
     "postgres",
     "redshift",
@@ -59,6 +60,7 @@ keywords = [
     "teradata",
     "trino",
     "tsql",
+    "vertica",
     "dbt",
 ]
 dependencies = [
@@ -90,8 +92,6 @@ dependencies = [
     "toml; python_version < '3.11'",
     # For handling progress bars
     "tqdm",
-    # better type hints for older python versions
-    "typing_extensions",
 ]
 
 [project.urls]
@@ -128,7 +128,7 @@ sqlfluff_rules_tsql = "sqlfluff.rules.tsql"
 
 [tool.sqlfluff_docs]
 # NOTE: Stable version is used by docs/conf.py
-stable_version = "2.3.5"
+stable_version = "3.1.0"
 
 
 [tool.setuptools.package-data]
@@ -163,7 +163,7 @@ forbidden_modules = [
 ]
 
 [[tool.importlinter.contracts]]
-name = "Helper methods must be internally indepentent"
+name = "Helper methods must be internally independent"
 type = "independence"
 modules = [
     "sqlfluff.core.helpers.string",
@@ -200,11 +200,11 @@ ignore_imports = [
 
 [tool.mypy]
 warn_unused_configs = true
+warn_redundant_casts = true
 warn_unused_ignores = true
-
-[[tool.mypy.overrides]]
-module = "sqlfluff.*"
-implicit_reexport = true
+strict_equality = true
+extra_checks = true
+no_implicit_reexport = true
 
 # skip type checking for 3rd party packages for which stubs are not available
 [[tool.mypy.overrides]]
@@ -212,15 +212,11 @@ module = "diff_cover.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = "tqdm.*"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
 module = "tblib.*"
 ignore_missing_imports = true
 
 
-[tool.ruff]
+[tool.ruff.lint]
 extend-select = ["I", "D"]
 
 # D105: Missing docstring in magic method
@@ -228,7 +224,7 @@ extend-select = ["I", "D"]
 # D418: Function/ Method decorated with @overload shouldn’t contain a docstring
 ignore = ["D107", "D105", "D418"]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 # Mark sqlfluff, test and it's plugins as known first party
 known-first-party = [
     "sqlfluff",
@@ -237,7 +233,7 @@ known-first-party = [
     "test",
 ]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "google"
 
 
@@ -256,3 +252,28 @@ markers = [
 [tool.doc8]
 # Ignore auto-generated docs
 ignore-path = "docs/source/partials/"
+
+
+[tool.codespell]
+# The configuration must be kept here to ensure that
+# `codespell` can be run as a standalone program from the CLI
+# with the appropriate default options.
+
+skip = "*/test/fixtures/*,*/.*,*/pyproject.toml"
+
+check-hidden = true
+quiet-level=2
+# ignore-regex = '\\[fnrstv]'
+builtin = "clear,rare,informal,names"
+
+ignore-words-list = "fo,ws,falsy,coo,inout,deque,crate,trough,ro,mange,identifers,statment"
+
+# ignore-words = "dev/tools/codespell/codespell-ignore.txt"
+# exclude-file = "dev/tools/codespell/codespell-lines-ignore.txt"
+uri-ignore-words-list="crate"
+
+# For future reference: it is not currently possible to specify
+# the standard dictionary and the custom dictionary in the configuration
+# file
+#  D = "-"
+#  dictionary = "dev/tools/codespell/codespell-dict.txt"

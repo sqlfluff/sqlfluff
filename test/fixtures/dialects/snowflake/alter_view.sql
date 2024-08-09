@@ -38,3 +38,5 @@ alter view v1
 
 alter view v1
   modify column foo set masking policy my.scoped.policy;
+
+ALTER VIEW "my_table" ALTER COLUMN "my_column" SET MASKING POLICY my_masking_policy FORCE;

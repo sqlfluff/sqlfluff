@@ -1,4 +1,5 @@
 """Tests the python routines within LT01."""
+
 import sqlfluff
 
 

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ec9e5ef917d8d10cde31c8c09c7bfa140ec0982fbbfd96e6da705eced0c579c0
+_hash: 3e64045aceb3a87e24810b9785274a19c39f8b882348d9c56a8f7bb92c6cbc4a
 file:
   statement:
     select_statement:
@@ -13,27 +13,28 @@ file:
           wildcard_expression:
             wildcard_identifier:
               star: '*'
-          keyword: REPLACE
-          bracketed:
-          - start_bracket: (
-          - expression:
-              column_reference:
-                naked_identifier: movie_count
-              binary_operator: +
-              numeric_literal: '3'
-          - alias_expression:
-              keyword: as
-              naked_identifier: movie_count
-          - comma: ','
-          - expression:
-              column_reference:
-                naked_identifier: show_count
-              binary_operator: '*'
-              numeric_literal: '1000'
-          - alias_expression:
-              keyword: as
-              naked_identifier: show_count
-          - end_bracket: )
+            wildcard_replace:
+              keyword: REPLACE
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: movie_count
+                  binary_operator: +
+                  numeric_literal: '3'
+              - alias_expression:
+                  keyword: as
+                  naked_identifier: movie_count
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: show_count
+                  binary_operator: '*'
+                  numeric_literal: '1000'
+              - alias_expression:
+                  keyword: as
+                  naked_identifier: show_count
+              - end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:

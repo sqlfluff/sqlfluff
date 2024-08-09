@@ -1,4 +1,5 @@
 """Common Test Fixtures."""
+
 import hashlib
 import io
 import os

@@ -1,0 +1,111 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0c91a2276d5d611e727906a9c2b014e808dc5fb97fe6f238268b7fed429adb32
+file:
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '`test`'
+    - keyword: 'ON'
+    - table_reference:
+        quoted_identifier: '`table1`'
+    - keyword: LOCK
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '`test`'
+    - keyword: 'ON'
+    - table_reference:
+        quoted_identifier: '`table1`'
+    - keyword: LOCK
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: NONE
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '`test`'
+    - keyword: 'ON'
+    - table_reference:
+        quoted_identifier: '`table1`'
+    - keyword: LOCK
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: SHARED
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '`test`'
+    - keyword: 'ON'
+    - table_reference:
+        quoted_identifier: '`table1`'
+    - keyword: LOCK
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: EXCLUSIVE
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '`test`'
+    - keyword: 'ON'
+    - table_reference:
+        quoted_identifier: '`table1`'
+    - keyword: LOCK
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '`test`'
+    - keyword: 'ON'
+    - table_reference:
+        quoted_identifier: '`table1`'
+    - keyword: LOCK
+    - keyword: NONE
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '`test`'
+    - keyword: 'ON'
+    - table_reference:
+        quoted_identifier: '`table1`'
+    - keyword: LOCK
+    - keyword: SHARED
+- statement_terminator: ;
+- statement:
+    drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '`test`'
+    - keyword: 'ON'
+    - table_reference:
+        quoted_identifier: '`table1`'
+    - keyword: LOCK
+    - keyword: EXCLUSIVE
+- statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ddbf5f2d24bc7e37e3fec26d6145c5453334948627a94bff776d63464b9d8b08
+_hash: 04c26a43c4faafa0772295e3115f4e19ea26d52c194c8b82b924495e68915f0f
 file:
 - statement:
     create_view_statement:
@@ -427,5 +427,242 @@ file:
                   table_expression:
                     table_reference:
                       naked_identifier: most_current
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: view_with_rls
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: COL1
+      - comma: ','
+      - column_reference:
+          naked_identifier: COL2
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_policy
+    - keyword: 'ON'
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: COL1
+        end_bracket: )
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: COL1
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: COL2
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: view_with_rls
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: COL1
+      - keyword: WITH
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+        - naked_identifier: my_db
+        - dot: .
+        - naked_identifier: my_schema
+        - dot: .
+        - function_name_identifier: my_policy
+      - comma: ','
+      - column_reference:
+          naked_identifier: COL2
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_policy
+    - keyword: 'ON'
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: COL1
+        end_bracket: )
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: COL1
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: COL2
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: view_with_rls
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: COL1
+      - comma: ','
+      - column_reference:
+          naked_identifier: COL2
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_policy
+    - keyword: 'ON'
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: COL1
+        end_bracket: )
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: COL1
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: COL2
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: view_with_column_tags
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: COL1
+      - tag_bracketed_equals:
+        - keyword: WITH
+        - keyword: TAG
+        - bracketed:
+            start_bracket: (
+            tag_reference:
+            - naked_identifier: my_db
+            - dot: .
+            - naked_identifier: my_schema
+            - dot: .
+            - naked_identifier: my_policy
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'MY_TAG'"
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: COL2
+      - end_bracket: )
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: COL1
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: COL2
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
         end_bracket: )
 - statement_terminator: ;

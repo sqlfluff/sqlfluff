@@ -34,7 +34,7 @@ test_fail_implicit_alias_space:
   fix_str: select foo.bar from (select 1 as bar) AS foo
 
 test_fail_implicit_alias_explicit:
-  # Test when explicitly setting explict
+  # Test when explicitly setting explicit
   fail_str: select foo.bar from (select 1 as bar) foo
   fix_str: select foo.bar from (select 1 as bar) AS foo
   configs:
@@ -163,3 +163,16 @@ test_alias_expression_4089:
       type:
         alias_expression:
           spacing_before: align
+
+test_pass_alias_expression_oracle_tables:
+  # Test failing alias expressions
+  # https://github.com/sqlfluff/sqlfluff/issues/5038
+  # Skip aliasing with 'AS' for Oracle table expressions
+  pass_str:
+    SELECT
+        base.id,
+        base.customer_id
+    FROM {{ ref('customers') }} base
+  configs:
+    core:
+      dialect: oracle

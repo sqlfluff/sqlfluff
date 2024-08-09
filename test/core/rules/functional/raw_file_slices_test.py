@@ -1,4 +1,5 @@
 """Tests for the raw_file_slices module."""
+
 import pytest
 
 from sqlfluff.core.templaters.base import RawFileSlice

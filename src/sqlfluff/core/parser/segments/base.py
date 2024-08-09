@@ -7,6 +7,7 @@ Here we define:
   function failed on this block of segments and to prevent further
   analysis.
 """
+
 # Import annotations for py 3.7 to allow `weakref.ReferenceType["BaseSegment"]`
 from __future__ import annotations
 
@@ -372,10 +373,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
     ) -> List[Tuple["RawSegment", List[PathStep]]]:
         """Returns a list of raw segments in this segment with the ancestors."""
         buffer = []
-        code_idxs = tuple(idx for idx, seg in enumerate(self.segments) if seg.is_code)
         for idx, seg in enumerate(self.segments):
             # If it's a raw, yield it with this segment as the parent
-            new_step = [PathStep(self, idx, len(self.segments), code_idxs)]
+            new_step = [PathStep(self, idx, len(self.segments), self._code_indices)]
             if seg.is_type("raw"):
                 buffer.append((cast("RawSegment", seg), new_step))
             # If it's not, recurse - prepending self to the ancestor stack
@@ -930,6 +930,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """Iterate raw segments, mostly for searching."""
         return [item for s in self.segments for item in s.raw_segments]
 
+    def raw_normalized(self, casefold: bool = True) -> str:
+        """Iterate raw segments, return normalized value."""
+        return "".join(seg.raw_normalized(casefold) for seg in self.get_raw_segments())
+
     def iter_segments(
         self, expanding: Optional[Sequence[str]] = None, pass_through: bool = False
     ) -> Iterator["BaseSegment"]:
@@ -1009,7 +1013,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
         self,
         *seg_type: str,
         recurse_into: bool = True,
-        no_recursive_seg_type: Optional[str] = None,
+        no_recursive_seg_type: Optional[Union[str, List[str]]] = None,
         allow_self: bool = True,
     ) -> Iterator[BaseSegment]:
         """Recursively crawl for segments of a given type.
@@ -1019,13 +1023,16 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 to look for.
             recurse_into: :obj:`bool`: When an element of type "seg_type" is
                 found, whether to recurse into it.
-            no_recursive_seg_type: :obj:`str`: a type of segment
+            no_recursive_seg_type: :obj:`Union[str, List[str]]`: a type of segment
                 not to recurse further into. It is highly recommended
                 to set this argument where possible, as it can significantly
                 narrow the search pattern.
             allow_self: :obj:`bool`: Whether to allow the initial segment this
                 is called on to be one of the results.
         """
+        if isinstance(no_recursive_seg_type, str):
+            no_recursive_seg_type = [no_recursive_seg_type]
+
         # Assuming there is a segment to be found, first check self (if allowed):
         if allow_self and self.is_type(*seg_type):
             match = True
@@ -1046,7 +1053,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
                 # recurse into.
                 # NOTE: Setting no_recursive_seg_type can significantly
                 # improve performance in many cases.
-                if not no_recursive_seg_type or not seg.is_type(no_recursive_seg_type):
+                if not no_recursive_seg_type or not seg.is_type(*no_recursive_seg_type):
                     yield from seg.recursive_crawl(
                         *seg_type,
                         recurse_into=recurse_into,
@@ -1228,6 +1235,15 @@ class BaseSegment(metaclass=SegmentMetaclass):
     ) -> BaseSegment:
         """Stub."""
         raise NotImplementedError()
+
+    @classmethod
+    def from_result_segments(
+        cls,
+        result_segments: Tuple[BaseSegment, ...],
+        segment_kwargs: Dict[str, Any],
+    ) -> "BaseSegment":
+        """Create an instance of this class from a tuple of matched segments."""
+        return cls(segments=result_segments, **segment_kwargs)
 
 
 class UnparsableSegment(BaseSegment):
