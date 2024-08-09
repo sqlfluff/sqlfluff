@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 478ce354cedf63b95a71e94c62bf69f24a44522ad4bec29ecd797140959e4525
+_hash: 9ede1c8510ce85ebb5b557df5965166ceb4977e235fe64acc8cac90e30678bb7
 file:
 - statement:
     unload_statement:
@@ -259,4 +259,23 @@ file:
     - keyword: 'null'
     - keyword: as
     - quoted_literal: "'fred'"
+- statement_terminator: ;
+- statement:
+    unload_statement:
+    - keyword: unload
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'select * from tbl'"
+        end_bracket: )
+    - keyword: to
+    - quoted_literal: "'s3://mybucket/unload/'"
+    - keyword: csv
+    - keyword: header
+    - authorization_segment:
+        keyword: credentials
+        quoted_literal: "'aws_access_key_id=abc;aws_secret_access_key=def'"
+    - keyword: extension
+    - quoted_literal: "'csv'"
+    - keyword: parallel
+    - keyword: 'false'
 - statement_terminator: ;
