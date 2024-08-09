@@ -402,3 +402,24 @@ test_fail_nested_query_in_from_clause:
         *
     FROM
         stage
+
+test_pass_nested_with_cte:
+  pass_str: |
+    WITH
+    example_cte AS (
+        SELECT 1
+    ),
+
+    container_cte AS (
+        WITH
+        nested_cte AS (
+            SELECT *
+            FROM example_cte
+        )
+
+        SELECT *
+        FROM nested_cte
+    )
+
+    SELECT *
+    FROM container_cte
