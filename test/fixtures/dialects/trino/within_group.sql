@@ -17,3 +17,16 @@ FROM (VALUES
 ) t(id, o, value)
 GROUP BY id
 ORDER BY id;
+
+-- Handle a WITHIN GROUP followed by a FILTER
+SELECT id, LISTAGG(value, ',') WITHIN GROUP (ORDER BY o) FILTER (WHERE o IS NOT NULL) AS csv_value
+FROM (VALUES
+    (100, 2, 'a'),
+    (100, 1, 'b'),
+    (200, NULL, 'c'),
+    (200, 2, 'a'),
+    (300, NULL, 'b'),
+    (300, 1, 'c')
+) t(id, o, value)
+GROUP BY id
+ORDER BY id;

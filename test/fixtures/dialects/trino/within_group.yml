@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cd402a357356eace79b2dc1ae0f7d1915e1b42f0bb860dd9c483b51ea4ba5822
+_hash: 016faab7c8653d99929df73b008bfdf51c5bc3609a6ce6e3b79843e36092f735
 file:
 - statement:
     select_statement:
@@ -253,6 +253,143 @@ file:
                     - numeric_literal: '2'
                     - comma: ','
                     - quoted_literal: "'b'"
+                    - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              naked_identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: id
+                - comma: ','
+                - naked_identifier: o
+                - comma: ','
+                - naked_identifier: value
+                end_bracket: )
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: id
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LISTAGG
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  naked_identifier: value
+            - comma: ','
+            - expression:
+                quoted_literal: "','"
+            - end_bracket: )
+            withingroup_clause:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: o
+                end_bracket: )
+            - keyword: FILTER
+            - bracketed:
+                start_bracket: (
+                keyword: WHERE
+                expression:
+                - column_reference:
+                    naked_identifier: o
+                - keyword: IS
+                - keyword: NOT
+                - null_literal: 'NULL'
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: csv_value
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - expression:
+                    bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '100'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - comma: ','
+                    - quoted_literal: "'a'"
+                    - end_bracket: )
+                - comma: ','
+                - expression:
+                    bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '100'
+                    - comma: ','
+                    - numeric_literal: '1'
+                    - comma: ','
+                    - quoted_literal: "'b'"
+                    - end_bracket: )
+                - comma: ','
+                - expression:
+                    bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '200'
+                    - comma: ','
+                    - null_literal: 'NULL'
+                    - comma: ','
+                    - quoted_literal: "'c'"
+                    - end_bracket: )
+                - comma: ','
+                - expression:
+                    bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '200'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - comma: ','
+                    - quoted_literal: "'a'"
+                    - end_bracket: )
+                - comma: ','
+                - expression:
+                    bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '300'
+                    - comma: ','
+                    - null_literal: 'NULL'
+                    - comma: ','
+                    - quoted_literal: "'b'"
+                    - end_bracket: )
+                - comma: ','
+                - expression:
+                    bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '300'
+                    - comma: ','
+                    - numeric_literal: '1'
+                    - comma: ','
+                    - quoted_literal: "'c'"
                     - end_bracket: )
               end_bracket: )
             alias_expression:
