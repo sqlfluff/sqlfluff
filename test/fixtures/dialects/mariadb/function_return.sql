@@ -1,0 +1,6 @@
+CREATE FUNCTION `testfunction`(var1 int)
+RETURNS int
+DETERMINISTIC
+BEGIN
+RETURN (var1 + 1);
+END~

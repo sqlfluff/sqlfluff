@@ -2,9 +2,18 @@
 
 import csv
 import time
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union, overload
-
-from typing_extensions import Literal
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Set,
+    Tuple,
+    Union,
+    overload,
+)
 
 from sqlfluff.core.errors import CheckTuple
 from sqlfluff.core.linter.linted_dir import LintedDir, LintingRecord

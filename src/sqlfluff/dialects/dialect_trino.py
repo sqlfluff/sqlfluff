@@ -10,8 +10,10 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     CodeSegment,
+    Dedent,
     Delimited,
     IdentifierSegment,
+    Indent,
     LiteralSegment,
     Matchable,
     Nothing,
@@ -354,7 +356,10 @@ class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
-        insert=[Ref("AnalyzeStatementSegment")],
+        insert=[
+            Ref("AnalyzeStatementSegment"),
+            Ref("CommentOnStatementSegment"),
+        ],
         remove=[
             Ref("TransactionStatementSegment"),
         ],
@@ -391,6 +396,11 @@ class WithinGroupClauseSegment(BaseSegment):
     """An WITHIN GROUP clause for window functions.
 
     https://trino.io/docs/current/functions/aggregate.html#array_agg
+
+    Trino supports an optional FILTER during aggregation that comes
+    immediately after the WITHIN GROUP clause.
+
+    https://trino.io/docs/current/functions/aggregate.html#filtering-during-aggregation
     """
 
     type = "withingroup_clause"
@@ -398,6 +408,7 @@ class WithinGroupClauseSegment(BaseSegment):
         "WITHIN",
         "GROUP",
         Bracketed(Ref("OrderByClauseSegment", optional=False)),
+        Ref("FilterClauseGrammar", optional=True),
     )
 
 
@@ -431,3 +442,66 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
 
     type = "array_type"
     match_grammar = Ref.keyword("ARRAY")
+
+
+class GroupByClauseSegment(BaseSegment):
+    """A `GROUP BY` clause like in `SELECT`."""
+
+    type = "groupby_clause"
+
+    match_grammar: Matchable = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        OneOf(
+            "ALL",
+            Ref("CubeRollupClauseSegment"),
+            # Add GROUPING SETS support
+            Ref("GroupingSetsClauseSegment"),
+            Sequence(
+                Delimited(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        # Can `GROUP BY 1`
+                        Ref("NumericLiteralSegment"),
+                        # Can `GROUP BY coalesce(col, 1)`
+                        Ref("ExpressionSegment"),
+                    ),
+                    terminators=[Ref("GroupByClauseTerminatorGrammar")],
+                ),
+            ),
+        ),
+        Dedent,
+    )
+
+
+class CommentOnStatementSegment(BaseSegment):
+    """`COMMENT ON` statement.
+
+    https://trino.io/docs/current/sql/comment.html
+    """
+
+    type = "comment_clause"
+
+    match_grammar = Sequence(
+        "COMMENT",
+        "ON",
+        Sequence(
+            OneOf(
+                Sequence(
+                    OneOf(
+                        "TABLE",
+                        # TODO: Create a ViewReferenceSegment
+                        "VIEW",
+                    ),
+                    Ref("TableReferenceSegment"),
+                ),
+                Sequence(
+                    "COLUMN",
+                    # TODO: Does this correctly emit a Table Reference?
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+            Sequence("IS", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
+        ),
+    )

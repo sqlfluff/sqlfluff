@@ -325,3 +325,177 @@ fail_but_dont_fix_templated_table_name_qualified:
     rules:
       references.consistent:
         single_table_references: qualified
+
+pass_tsql_subselect_merge_statement:
+  pass_str: |
+    INSERT INTO [DIL].[md_GLAccount_HIST] (
+      [ChartOfAccounts_KEY]
+      , [GLAccount_KEY]
+      , [ValidFrom]
+      , [ValidTo]
+      , [GLAccount_DESC_short]
+    )
+    SELECT
+      MRG.[ChartOfAccounts_KEY]
+      , MRG.[GLAccount_KEY]
+      , MRG.[ValidFrom]
+      , MRG.[ValidTo]
+      , MRG.[GLAccount_DESC_short]
+    FROM (
+      MERGE [DIL].[md_GLAccount_HIST] WITH (TABLOCK) t
+      USING [INTERNAL_MERGE].[DIL_md_GLAccount_HIST] s
+        ON (
+          t.[ChartOfAccounts_KEY] = s.[ChartOfAccounts_KEY]
+          AND t.[GLAccount_KEY] = s.[GLAccount_KEY]
+        )
+      WHEN NOT MATCHED BY TARGET
+        THEN
+        INSERT (
+          [ChartOfAccounts_KEY]
+          , [GLAccount_KEY]
+          , [ValidFrom]
+          , [ValidTo]
+          , [GLAccount_DESC_short]
+        )
+        VALUES (
+          s.[ChartOfAccounts_KEY]
+          , s.[GLAccount_KEY]
+          , '19900101'
+          , '99991231'
+          , s.[GLAccount_DESC_short]
+        )
+      OUTPUT
+        $ACTION AS [Action_OUT]
+        , s.[ChartOfAccounts_KEY]
+        , s.[GLAccount_KEY]
+        , '19900101'
+        , '99991231'
+        , s.[GLAccount_DESC_short]
+    ) MRG
+    WHERE
+      MRG.Action_OUT = 'UPDATE'
+      AND MRG.[ChartOfAccounts_KEY] IS NOT NULL
+      AND MRG.[GLAccount_KEY] IS NOT NULL;
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_subselect_unqualified_one_reference_3987:
+  pass_str: |
+    SELECT 1
+    FROM mydataset.table1 AS a
+    WHERE EXISTS (
+        SELECT 1
+        FROM mydataset.table2
+        WHERE a.id = id
+    );
+  configs:
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_subselect_unqualified_two_references_3987:
+  pass_str: |
+    SELECT 1
+    FROM mydataset.table1 AS a
+    WHERE EXISTS (
+        SELECT 1
+        FROM mydataset.table2 AS b
+        WHERE a.id = b.id
+    );
+  configs:
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_subselect_qualified_reference_5599:
+  pass_str: |
+    insert into dim.clients
+    (
+        data_source
+    )
+    select s.data_source
+    from
+        dim.clients_stg as s
+    where
+        not exists (
+            select 1 from dim.clients as t
+            where s.id = t.id
+        )
+    ;
+  configs:
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_no_fix_unqualified_correlated_subquery_5983:
+  fail_str: |
+    SELECT
+        *,
+        (
+          SELECT C.JobId FROM customer AS C WHERE C.Id = CustomerId LIMIT 1
+        ) AS CustomerId
+    FROM (
+    SELECT
+        F.*,
+        B.*
+    FROM
+        foo AS F
+        LEFT JOIN bar AS B ON P.Id = B.ParentId
+    );
+
+test_fail_cte_qualified_to_unqualified_6014:
+  fail_str: |
+    with
+    final as (
+        select
+            my_table.first,
+            second
+        from my_table
+    )
+
+    select *
+    from final
+  fix_str: |
+    with
+    final as (
+        select
+            first,
+            second
+        from my_table
+    )
+
+    select *
+    from final
+  configs:
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_fail_cte_unqualified_to_qualified_6014:
+  fail_str: |
+    with
+    final as (
+        select
+            my_table.first,
+            second
+        from my_table
+    )
+
+    select *
+    from final
+  fix_str: |
+    with
+    final as (
+        select
+            my_table.first,
+            my_table.second
+        from my_table
+    )
+
+    select *
+    from final
+  configs:
+    rules:
+      references.consistent:
+        single_table_references: qualified

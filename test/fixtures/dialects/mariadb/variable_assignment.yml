@@ -1,0 +1,71 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: bb42313b72d36da00df4839494e6e7357c200742df78c658ddbbbe051746a937
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            variable: '@var1'
+            assignment_operator: :=
+            function:
+              function_name:
+                function_name_identifier: COUNT
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - variable: '@var1'
+    - assignment_operator: :=
+    - variable: '0'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: '@var1'
+      assignment_operator: :=
+      expression:
+        variable: '@var2'
+        assignment_operator: :=
+        numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: t1
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            naked_identifier: c1
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '2'
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: c1
+          comparison_operator:
+            raw_comparison_operator: '='
+          variable: '@var1'
+          assignment_operator: :=
+          numeric_literal: '1'
+- statement_terminator: ;

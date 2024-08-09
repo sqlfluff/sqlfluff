@@ -383,6 +383,7 @@ class ArrayTypeSegment(ansi.ArrayTypeSegment):
             Ref("DatatypeSegment"),
             bracket_type="angle",
             bracket_pairs_set="angle_bracket_pairs",
+            optional=True,
         ),
     )
 
@@ -500,6 +501,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ExportStatementSegment"),
             Ref("CreateExternalTableStatementSegment"),
             Ref("CreateSnapshotTableStatementSegment"),
+            Ref("ExecuteImmediateSegment"),
             Ref("AssertStatementSegment"),
             Ref("CallStatementSegment"),
             Ref("ReturnStatementSegment"),
@@ -508,9 +510,32 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ContinueStatementSegment"),
             Ref("RaiseStatementSegment"),
             Ref("AlterViewStatementSegment"),
+            Ref("AlterSchemaStatementSegment"),
             Ref("CreateMaterializedViewStatementSegment"),
+            Ref("CreateMaterializedViewAsReplicaOfStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
             Ref("DropMaterializedViewStatementSegment"),
+            Ref("DropProcedureStatementSegment"),
+            Ref("UndropSchemaStatementSegment"),
+            Ref("AlterOrganizationStatementSegment"),
+            Ref("AlterProjectStatementSegment"),
+            Ref("CreateSearchIndexStatementSegment"),
+            Ref("DropSearchIndexStatementSegment"),
+            Ref("CreateVectorIndexStatementSegment"),
+            Ref("DropVectorIndexStatementSegment"),
+            Ref("CreateRowAccessPolicyStatementSegment"),
+            Ref("DropRowAccessPolicyStatementSegment"),
+            Ref("AlterBiCapacityStatementSegment"),
+            Ref("CreateCapacityStatementSegment"),
+            Ref("AlterCapacityStatementSegment"),
+            Ref("DropCapacityStatementSegment"),
+            Ref("CreateReservationStatementSegment"),
+            Ref("AlterReservationStatementSegment"),
+            Ref("DropReservationStatementSegment"),
+            Ref("CreateAssignmentStatementSegment"),
+            Ref("DropAssignmentStatementSegment"),
+            Ref("DropTableFunctionStatementSegment"),
+            Ref("CreateTableFunctionStatementSegment"),
         ],
     )
 
@@ -549,7 +574,7 @@ class ForInStatementsSegment(BaseSegment):
             Ref("DelimiterGrammar"),
         ),
         terminators=[Sequence("END", "FOR")],
-        parse_mode=ParseMode.GREEDY,
+        reset_terminators=True,
     )
 
 
@@ -592,7 +617,7 @@ class RepeatStatementsSegment(BaseSegment):
             Ref("DelimiterGrammar"),
         ),
         terminators=["UNTIL"],
-        parse_mode=ParseMode.GREEDY,
+        reset_terminators=True,
     )
 
 
@@ -635,7 +660,7 @@ class IfStatementsSegment(BaseSegment):
             "ELSEIF",
             Sequence("END", "IF"),
         ],
-        parse_mode=ParseMode.GREEDY,
+        reset_terminators=True,
     )
 
 
@@ -691,7 +716,7 @@ class LoopStatementsSegment(BaseSegment):
             Ref("DelimiterGrammar"),
         ),
         terminators=[Sequence("END", "LOOP")],
-        parse_mode=ParseMode.GREEDY,
+        reset_terminators=True,
     )
 
 
@@ -725,7 +750,7 @@ class WhileStatementsSegment(BaseSegment):
             Ref("DelimiterGrammar"),
         ),
         terminators=[Sequence("END", "WHILE")],
-        parse_mode=ParseMode.GREEDY,
+        reset_terminators=True,
     )
 
 
@@ -1063,6 +1088,7 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                     ),
                 ),
             ),
+            Ref("OptionsSegment", optional=True),
         )
     )
 
@@ -1090,6 +1116,16 @@ class ExceptClauseSegment(BaseSegment):
     )
 
 
+class TransactionStatementSegment(ansi.TransactionStatementSegment):
+    """A `BEGIN`, `COMMIT`, or `ROLLBACK` statement."""
+
+    match_grammar = Sequence(
+        OneOf("BEGIN", "COMMIT", "ROLLBACK"),
+        Ref.keyword("TRANSACTION", optional=True),
+        terminators=[Ref("DelimiterGrammar")],
+    )
+
+
 class BeginStatementSegment(BaseSegment):
     """A `BEGIN...EXCEPTION...END` statement.
 
@@ -1099,37 +1135,45 @@ class BeginStatementSegment(BaseSegment):
     type = "begin_statement"
 
     match_grammar = Sequence(
-        "BEGIN",
-        Indent,
-        AnyNumberOf(
-            Sequence(
-                Ref("StatementSegment"),
-                Ref("DelimiterGrammar"),
-            ),
-            min_times=1,
-            terminators=["END", "EXCEPTION"],
-            parse_mode=ParseMode.GREEDY,
-        ),
-        Dedent,
         Sequence(
-            "EXCEPTION",
-            "WHEN",
-            "ERROR",
-            "THEN",
+            Ref("SingleIdentifierFullGrammar"), Ref("ColonSegment"), optional=True
+        ),
+        "BEGIN",
+        Sequence(
             Indent,
             AnyNumberOf(
                 Sequence(
-                    Ref("StatementSegment"),
+                    OneOf(Ref("StatementSegment"), Ref("MultiStatementSegment")),
                     Ref("DelimiterGrammar"),
                 ),
+                # We can't terminate on `END` due to possible nesting
+                terminators=["EXCEPTION"],
+                reset_terminators=True,
                 min_times=1,
-                terminators=["END"],
-                parse_mode=ParseMode.GREEDY,
             ),
             Dedent,
+            Sequence(
+                "EXCEPTION",
+                "WHEN",
+                "ERROR",
+                "THEN",
+                Indent,
+                AnyNumberOf(
+                    Sequence(
+                        OneOf(Ref("StatementSegment"), Ref("MultiStatementSegment")),
+                        Ref("DelimiterGrammar"),
+                    ),
+                    min_times=1,
+                    # We can't terminate on `END` due to possible nesting
+                    reset_terminators=True,
+                ),
+                Dedent,
+                optional=True,
+            ),
             optional=True,
         ),
         "END",
+        Ref("SingleIdentifierFullGrammar", optional=True),
     )
 
 
@@ -1503,6 +1547,40 @@ class SetStatementSegment(BaseSegment):
     )
 
 
+class ExecuteImmediateSegment(BaseSegment):
+    """An EXECUTE IMMEDIATE statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#execute_immediate
+    """
+
+    type = "execute_immediate"
+    match_grammar = Sequence(
+        "EXECUTE",
+        "IMMEDIATE",
+        OptionallyBracketed(
+            OneOf(
+                Ref("QuotedLiteralSegment"),  # String
+                Ref("SingleIdentifierFullGrammar"),  # Variable
+                Ref("FunctionSegment"),  # Function
+                Ref("CaseExpressionSegment"),  # Conditional Expression
+                Bracketed(Ref("SelectableGrammar")),  # Expression Subquery
+            )
+        ),
+        Sequence("INTO", Delimited(Ref("SingleIdentifierFullGrammar")), optional=True),
+        Sequence(
+            "USING",
+            Delimited(
+                Sequence(
+                    Ref("BaseExpressionElementGrammar"),
+                    # The `AS` is required when using an alias in this context
+                    Sequence("AS", Ref("SingleIdentifierFullGrammar"), optional=True),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
 class PartitionBySegment(BaseSegment):
     """PARTITION BY partition_expression."""
 
@@ -1522,6 +1600,38 @@ class ClusterBySegment(BaseSegment):
         "CLUSTER",
         "BY",
         Delimited(Ref("ExpressionSegment")),
+    )
+
+
+class DefaultCollateSegment(BaseSegment):
+    """DEFAULT COLLATE clause for a table or a dataset.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/collation-concepts#default_collation
+    """
+
+    type = "default_collate"
+    match_grammar: Matchable = Sequence(
+        "DEFAULT",
+        "COLLATE",
+        Ref("LiteralGrammar"),
+    )
+
+
+class GrantToSegment(BaseSegment):
+    """GRANT TO (grantee_list).
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_row_access_policy_statement
+    """
+
+    type = "grant_to_segment"
+    match_grammar: Matchable = Sequence(
+        "GRANT",
+        "TO",
+        Bracketed(
+            Delimited(
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
     )
 
 
@@ -1593,6 +1703,84 @@ class ViewColumnDefinitionSegment(ansi.ColumnDefinitionSegment):
     )
 
 
+class CreateSchemaStatementSegment(ansi.CreateSchemaStatementSegment):
+    """A `CREATE SCHEMA` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_schema_statement
+    """
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("DefaultCollateSegment", optional=True),
+        Ref("OptionsSegment", optional=True),
+    )
+
+
+class CreateTableFunctionStatementSegment(BaseSegment):
+    """A `CREATE TABLE FUNCTION` statement."""
+
+    # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_table_function_statement
+
+    type = "create_table_function_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "TABLE",
+        "FUNCTION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        # Column list for input parameters
+        Sequence(
+            Bracketed(
+                Delimited(
+                    Ref("ColumnDefinitionSegment"),
+                    allow_trailing=True,
+                    optional=True,
+                )
+            ),
+            optional=True,
+        ),
+        # Column list for the schema of the table that the function returns
+        Sequence(
+            "RETURNS",
+            "TABLE",
+            Bracketed(
+                Delimited(  # Comma-separated list of field names/types
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("DatatypeSegment"),
+                    ),
+                ),
+                bracket_type="angle",
+                bracket_pairs_set="angle_bracket_pairs",
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "AS",
+            OptionallyBracketed(Ref("SelectableGrammar")),
+        ),
+    )
+
+
+class DropTableFunctionStatementSegment(BaseSegment):
+    """A `DROP TABLE FUNCTION` statement."""
+
+    type = "drop_table_function_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "TABLE",
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("TableReferenceSegment")),
+    )
+
+
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """`CREATE TABLE` statement.
 
@@ -1609,6 +1797,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Sequence(
             OneOf("COPY", "LIKE", "CLONE"),
             Ref("TableReferenceSegment"),
+            Ref("ForSystemTimeAsOfSegment", optional=True),
             optional=True,
         ),
         # Column list
@@ -1624,6 +1813,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
             ),
             optional=True,
         ),
+        Ref("DefaultCollateSegment", optional=True),
         Ref("PartitionBySegment", optional=True),
         Ref("ClusterBySegment", optional=True),
         Ref("OptionsSegment", optional=True),
@@ -1646,9 +1836,13 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
         Ref("TableReferenceSegment"),
         OneOf(
             # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_set_options_statement
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_collate_statement
             Sequence(
                 "SET",
-                Ref("OptionsSegment"),
+                OneOf(
+                    Ref("OptionsSegment"),
+                    Ref("DefaultCollateSegment"),
+                ),
             ),
             # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_add_column_statement
             Delimited(
@@ -1657,6 +1851,50 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     "COLUMN",
                     Ref("IfNotExistsGrammar", optional=True),
                     Ref("ColumnDefinitionSegment"),
+                ),
+                allow_trailing=True,
+            ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_add_foreign_key_statement
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_add_primary_key_statement
+            Delimited(
+                OneOf(
+                    Sequence(
+                        "ADD",
+                        Sequence(
+                            "CONSTRAINT",
+                            Ref("IfNotExistsGrammar", optional=True),
+                            Ref("SingleIdentifierGrammar"),
+                            optional=True,
+                        ),
+                        "FOREIGN",
+                        "KEY",
+                        Bracketed(
+                            Delimited(
+                                Ref("SingleIdentifierGrammar"),
+                            ),
+                        ),
+                        "REFERENCES",
+                        Ref("TableReferenceSegment"),
+                        Bracketed(
+                            Delimited(
+                                Ref("SingleIdentifierGrammar"),
+                            ),
+                        ),
+                        "NOT",
+                        "ENFORCED",
+                    ),
+                    Sequence(
+                        "ADD",
+                        "PRIMARY",
+                        "KEY",
+                        Bracketed(
+                            Delimited(
+                                Ref("SingleIdentifierGrammar"),
+                            ),
+                        ),
+                        "NOT",
+                        "ENFORCED",
+                    ),
                 ),
                 allow_trailing=True,
             ),
@@ -1685,6 +1923,24 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     "COLUMN",
                     Ref("IfExistsGrammar", optional=True),
                     Ref("SingleIdentifierGrammar"),  # Column name
+                ),
+            ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_drop_constraint_statement
+            Delimited(
+                Sequence(
+                    "DROP",
+                    "CONSTRAINT",
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("SingleIdentifierGrammar"),  # Constraint name
+                ),
+            ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_table_drop_primary_key_statement
+            Delimited(
+                Sequence(
+                    "DROP",
+                    "PRIMARY",
+                    "KEY",
+                    Ref("IfExistsGrammar", optional=True),
                 ),
             ),
             # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_column_set_options_statement
@@ -1716,6 +1972,43 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                         Sequence("DROP", OneOf("DEFAULT", Sequence("NOT", "NULL"))),
                     ),
                 ),
+            ),
+        ),
+    )
+
+
+class AlterSchemaStatementSegment(BaseSegment):
+    """A `ALTER SCHEMA` statement."""
+
+    type = "alter_schema_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                OneOf(
+                    # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_schema_collate_statement
+                    Ref("DefaultCollateSegment"),
+                    # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_schema_set_options_statement
+                    Ref("OptionsSegment"),
+                ),
+            ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_schema_add_replica_statement
+            Sequence(
+                "ADD",
+                "REPLICA",
+                Ref("BaseExpressionElementGrammar"),
+                Ref("OptionsSegment", optional=True),
+            ),
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_schema_drop_replica_statement
+            Sequence(
+                "DROP",
+                "REPLICA",
+                Ref("BaseExpressionElementGrammar"),
             ),
         ),
     )
@@ -1816,6 +2109,7 @@ class AlterViewStatementSegment(BaseSegment):
     """A `ALTER VIEW` statement.
 
     https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_view_set_options_statement
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_column_set_options_statement
     """
 
     type = "alter_view_statement"
@@ -1825,8 +2119,22 @@ class AlterViewStatementSegment(BaseSegment):
         "VIEW",
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        "SET",
-        Ref("OptionsSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                Ref("OptionsSegment"),
+            ),
+            Delimited(
+                Sequence(
+                    "ALTER",
+                    "COLUMN",
+                    Ref("IfExistsGrammar", optional=True),
+                    Ref("SingleIdentifierGrammar"),  # Column name
+                    "SET",
+                    Ref("OptionsSegment"),
+                ),
+            ),
+        ),
     )
 
 
@@ -1853,6 +2161,27 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
     )
 
 
+class CreateMaterializedViewAsReplicaOfStatementSegment(BaseSegment):
+    """A `CREATE MATERIALIZED VIEW AS REPLICA OF` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_materialized_view_as_replica_of_statement
+    """
+
+    type = "create_materialized_view_as_replica_of_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        Ref("OptionsSegment", optional=True),
+        "AS",
+        "REPLICA",
+        "OF",
+        Ref("TableReferenceSegment"),
+    )
+
+
 class AlterMaterializedViewStatementSegment(BaseSegment):
     """A `ALTER MATERIALIZED VIEW SET OPTIONS` statement.
 
@@ -1869,6 +2198,74 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         "SET",
         Ref("OptionsSegment"),
+    )
+
+
+class DropTableStatementSegment(BaseSegment):
+    """A `DROP [SNAPSHOT | EXTERNAL] TABLE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_table_statement
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_snapshot_table_statement
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_external_table_statement
+    """
+
+    type = "drop_table_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        OneOf("SNAPSHOT", "EXTERNAL", optional=True),
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("TableReferenceSegment")),
+    )
+
+
+class DropFunctionStatementSegment(BaseSegment):
+    """A `DROP [TABLE] FUNCTION` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_function_statement
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_table_function
+    """
+
+    type = "drop_function_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        Sequence("TABLE", optional=True),
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+    )
+
+
+class DropProcedureStatementSegment(BaseSegment):
+    """A `DROP PROCEDURE` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_procedure_statement
+    """
+
+    type = "drop_procedure_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "PROCEDURE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ProcedureNameSegment"),
+    )
+
+
+class UndropSchemaStatementSegment(BaseSegment):
+    """A `UNDROP SCHEMA` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#undrop_schema_statement
+    """
+
+    type = "undrop_schema_statement"
+    match_grammar: Matchable = Sequence(
+        "UNDROP",
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SchemaReferenceSegment"),
     )
 
 
@@ -2177,13 +2574,28 @@ class ExportStatementSegment(BaseSegment):
                             type="export_option",
                         ),
                         StringParser(
+                            "header",
+                            CodeSegment,
+                            type="export_option",
+                        ),
+                        StringParser(
+                            "overwrite",
+                            CodeSegment,
+                            type="export_option",
+                        ),
+                        StringParser(
                             "uri",
+                            CodeSegment,
+                            type="export_option",
+                        ),
+                        StringParser(
+                            "use_avro_logical_types",
                             CodeSegment,
                             type="export_option",
                         ),
                     ),
                     Ref("EqualsSegment"),
-                    Ref("QuotedLiteralSegment"),
+                    Ref("BaseExpressionElementGrammar"),
                 ),
                 # Bool options
                 # Note: adding as own type, rather than keywords as convention with
@@ -2251,23 +2663,6 @@ class ProcedureParameterListSegment(BaseSegment):
     )
 
 
-class ProcedureStatements(BaseSegment):
-    """Statements within a CREATE PROCEDURE statement.
-
-    https://cloud.google.com/bigquery/docs/procedures
-    """
-
-    type = "procedure_statements"
-    match_grammar = AnyNumberOf(
-        Sequence(
-            Ref("StatementSegment"),
-            Ref("DelimiterGrammar"),
-        ),
-        terminators=["END"],
-        parse_mode=ParseMode.GREEDY,
-    )
-
-
 class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE PROCEDURE` statement.
 
@@ -2283,19 +2678,8 @@ class CreateProcedureStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ProcedureNameSegment"),
         Ref("ProcedureParameterListSegment"),
-        Sequence(
-            "OPTIONS",
-            "strict_mode",
-            StringParser("strict_mode", CodeSegment, type="procedure_option"),
-            Ref("EqualsSegment"),
-            Ref("BooleanLiteralGrammar"),
-            optional=True,
-        ),
-        "BEGIN",
-        Indent,
-        Ref("ProcedureStatements"),
-        Dedent,
-        "END",
+        Ref("OptionsSegment", optional=True),
+        Ref("BeginStatementSegment", reset_terminators=True),
     )
 
 
@@ -2389,4 +2773,321 @@ class RaiseStatementSegment(BaseSegment):
             Ref("ExpressionSegment"),
             optional=True,
         ),
+    )
+
+
+class AlterOrganizationStatementSegment(BaseSegment):
+    """A `ALTER ORGANIZATION` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_organization_set_options_statement
+    """
+
+    type = "alter_organization_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "ORGANIZATION",
+        "SET",
+        Ref("OptionsSegment"),
+    )
+
+
+class AlterProjectStatementSegment(BaseSegment):
+    """A `ALTER PROJECT` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_project_set_options_statement
+    """
+
+    type = "alter_project_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "PROJECT",
+        Ref("TableReferenceSegment"),  # project_id
+        "SET",
+        Ref("OptionsSegment"),
+    )
+
+
+class CreateSearchIndexStatementSegment(BaseSegment):
+    """A `CREATE SEARCH INDEX` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_search_index_statement
+    """
+
+    type = "create_search_index_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "SEARCH",
+        "INDEX",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Bracketed(
+            OneOf(
+                Sequence("ALL", "COLUMNS"),
+                Delimited(
+                    Ref("IndexColumnDefinitionSegment"),
+                ),
+            )
+        ),
+        Ref("OptionsSegment", optional=True),
+    )
+
+
+class DropSearchIndexStatementSegment(BaseSegment):
+    """A `DROP SEARCH INDEX` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_search_index
+    """
+
+    type = "drop_search_index_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "SEARCH",
+        "INDEX",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+    )
+
+
+class CreateVectorIndexStatementSegment(BaseSegment):
+    """A `CREATE VECTOR INDEX` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_vector_index_statement
+    """
+
+    type = "create_vector_index_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "VECTOR",
+        "INDEX",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Ref("IndexColumnDefinitionSegment"),
+            ),
+        ),
+        Ref("OptionsSegment"),
+    )
+
+
+class DropVectorIndexStatementSegment(BaseSegment):
+    """A `DROP VECTOR INDEX` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_vector_index
+    """
+
+    type = "drop_vector_index_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "VECTOR",
+        "INDEX",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+    )
+
+
+class CreateRowAccessPolicyStatementSegment(BaseSegment):
+    """A `CREATE ROW ACCESS POLICY` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_row_access_policy_statement
+    """
+
+    type = "create_row_access_policy_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "ROW",
+        "ACCESS",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("NakedIdentifierSegment"),  # row_access_policy_name
+        "ON",
+        Ref("TableReferenceSegment"),
+        Ref("GrantToSegment", optional=True),
+        "FILTER",
+        "USING",
+        Bracketed(
+            Ref("ExpressionSegment"),
+        ),
+    )
+
+
+class DropRowAccessPolicyStatementSegment(BaseSegment):
+    """A `DROP ROW ACCESS POLICY` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_row_access_policy_statement
+    """
+
+    type = "drop_row_access_policy_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "ROW",
+        "ACCESS",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("NakedIdentifierSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+    )
+
+
+class AlterBiCapacityStatementSegment(BaseSegment):
+    """A `ALTER BI_CAPACITY` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_bi_capacity_set_options_statement
+    """
+
+    type = "alter_bi_capacity_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "BI_CAPACITY",
+        Ref("TableReferenceSegment"),
+        "SET",
+        Ref("OptionsSegment"),
+    )
+
+
+class CreateCapacityStatementSegment(BaseSegment):
+    """A `CREATE CAPACITY` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_capacity_statement
+    """
+
+    type = "create_capacity_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "CAPACITY",
+        Ref("TableReferenceSegment"),
+        Ref("OptionsSegment"),
+    )
+
+
+class AlterCapacityStatementSegment(BaseSegment):
+    """A `ALTER CAPACITY` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_capacity_set_options_statement
+    """
+
+    type = "alter_capacity_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "CAPACITY",
+        Ref("TableReferenceSegment"),
+        "SET",
+        Ref("OptionsSegment"),
+    )
+
+
+class DropCapacityStatementSegment(BaseSegment):
+    """A `DROP CAPACITY` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_capacity_statement
+    """
+
+    type = "drop_capacity_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "CAPACITY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
+class CreateReservationStatementSegment(BaseSegment):
+    """A `CREATE RESERVATION` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_reservation_statement
+    """
+
+    type = "create_reservation_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "RESERVATION",
+        Ref("TableReferenceSegment"),
+        Ref("OptionsSegment"),
+    )
+
+
+class AlterReservationStatementSegment(BaseSegment):
+    """A `ALTER RESERVATION` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#alter_reservation_set_options_statement
+    """
+
+    type = "alter_reservation_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "RESERVATION",
+        Ref("TableReferenceSegment"),
+        "SET",
+        Ref("OptionsSegment"),
+    )
+
+
+class DropReservationStatementSegment(BaseSegment):
+    """A `DROP RESERVATION` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_reservation_statement
+    """
+
+    type = "drop_reservation_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "RESERVATION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
+class CreateAssignmentStatementSegment(BaseSegment):
+    """A `CREATE ASSIGNMENT` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_assignment_statement
+    """
+
+    type = "create_assignment_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        "ASSIGNMENT",
+        Ref("TableReferenceSegment"),
+        Ref("OptionsSegment"),
+    )
+
+
+class DropAssignmentStatementSegment(BaseSegment):
+    """A `DROP ASSIGNMENT` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#drop_assignment_statement
+    """
+
+    type = "drop_assignment_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "ASSIGNMENT",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
     )

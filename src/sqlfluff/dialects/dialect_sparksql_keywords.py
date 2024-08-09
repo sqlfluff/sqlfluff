@@ -258,6 +258,8 @@ UNRESERVED_KEYWORDS = [
     "TEMPORARY",
     "TERMINATED",
     "TIME",
+    "TIMESTAMP_LTZ",
+    "TIMESTAMP_NTZ",
     "TOUCH",
     "TRANSACTION",
     "TRANSACTIONS",
@@ -312,6 +314,8 @@ UNRESERVED_KEYWORDS = [
     "STREAMING",
     "UPDATES",
     "VIOLATION",
+    "TRACK",
+    "HISTORY",
     # Databricks widget
     "WIDGET",
     "DROPDOWN",

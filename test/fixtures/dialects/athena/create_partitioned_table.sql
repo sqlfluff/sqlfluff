@@ -18,7 +18,7 @@ SELECT l_orderkey,
 FROM tpch100.lineitem_parq_partitioned
 WHERE cast(l_shipdate as timestamp) < DATE('1992-02-01');
 
-CREATE TABLE ctas_iceberg
+CREATE TABLE db.ctas_iceberg
 WITH (
     table_type = 'ICEBERG',
     format = 'PARQUET',
@@ -26,6 +26,6 @@ WITH (
     is_external = false,
     partitioning = ARRAY['month(dt)'],
     vacuum_min_snapshots_to_keep = 10,
-    vacuum_max_snapshot_age_ms = 259200
+    vacuum_max_snapshot_age_seconds = 259200
 )
-AS SELECT key1, name1, 'date' FROM table1;
+AS SELECT key1, name1, 'date' FROM db.table1;
