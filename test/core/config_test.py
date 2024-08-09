@@ -598,3 +598,39 @@ def test__process_inline_config():
     # Check that Windows paths don't get mangled
     cfg.process_inline_config("-- sqlfluff:jinja:my_path:c:\\foo", "test.sql")
     assert cfg.get("my_path", section="jinja") == "c:\\foo"
+
+
+@pytest.mark.parametrize(
+    "raw_sql",
+    [
+        (
+            "-- sqlfluff:max_line_length:25\n"
+            "-- sqlfluff:rules:LT05,LT06\n"
+            "-- sqlfluff:exclude_rules:LT01,LT02\n"
+            "SELECT 1"
+        )
+    ],
+)
+def test__process_raw_file_for_config(raw_sql):
+    """Test the processing of a file inline directives."""
+    cfg = FluffConfig(config_b)
+
+    # verify initial attributes based on the preloaded configuration
+    assert cfg.get("max_line_length") == 80
+    assert cfg.get("rules") == "LT03"
+    assert cfg.get("exclude_rules") is None
+
+    # internal list attributes should have corresponding exploded list values
+    assert cfg.get("rule_allowlist") == ["LT03"]
+    assert cfg.get("rule_denylist") == []
+
+    cfg.process_raw_file_for_config(raw_sql, "test.sql")
+
+    # verify overrides based on the file inline directives
+    assert cfg.get("max_line_length") == 25
+    assert cfg.get("rules") == "LT05,LT06"
+    assert cfg.get("exclude_rules") == "LT01,LT02"
+
+    # internal list attributes should have overridden exploded list values
+    assert cfg.get("rule_allowlist") == ["LT05", "LT06"]
+    assert cfg.get("rule_denylist") == ["LT01", "LT02"]
