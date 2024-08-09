@@ -535,7 +535,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateAssignmentStatementSegment"),
             Ref("DropAssignmentStatementSegment"),
             Ref("DropTableFunctionStatementSegment"),
-            Ref("CreateTableFunctionStatementSegment"),            
+            Ref("CreateTableFunctionStatementSegment"),
         ],
     )
 
@@ -1750,10 +1750,10 @@ class CreateTableFunctionStatementSegment(BaseSegment):
             "TABLE",
             Bracketed(
                 Delimited(  # Comma-separated list of field names/types
-                        Sequence(
-                            Ref("ParameterNameSegment"),
-                            Ref("DatatypeSegment"),
-                        ),
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("DatatypeSegment"),
+                    ),
                 ),
                 bracket_type="angle",
                 bracket_pairs_set="angle_bracket_pairs",
