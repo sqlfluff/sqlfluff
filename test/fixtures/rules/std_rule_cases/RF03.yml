@@ -379,3 +379,123 @@ pass_tsql_subselect_merge_statement:
   configs:
     core:
       dialect: tsql
+
+test_pass_subselect_unqualified_one_reference_3987:
+  pass_str: |
+    SELECT 1
+    FROM mydataset.table1 AS a
+    WHERE EXISTS (
+        SELECT 1
+        FROM mydataset.table2
+        WHERE a.id = id
+    );
+  configs:
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_subselect_unqualified_two_references_3987:
+  pass_str: |
+    SELECT 1
+    FROM mydataset.table1 AS a
+    WHERE EXISTS (
+        SELECT 1
+        FROM mydataset.table2 AS b
+        WHERE a.id = b.id
+    );
+  configs:
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_pass_subselect_qualified_reference_5599:
+  pass_str: |
+    insert into dim.clients
+    (
+        data_source
+    )
+    select s.data_source
+    from
+        dim.clients_stg as s
+    where
+        not exists (
+            select 1 from dim.clients as t
+            where s.id = t.id
+        )
+    ;
+  configs:
+    rules:
+      references.consistent:
+        single_table_references: qualified
+
+test_fail_no_fix_unqualified_correlated_subquery_5983:
+  fail_str: |
+    SELECT
+        *,
+        (
+          SELECT C.JobId FROM customer AS C WHERE C.Id = CustomerId LIMIT 1
+        ) AS CustomerId
+    FROM (
+    SELECT
+        F.*,
+        B.*
+    FROM
+        foo AS F
+        LEFT JOIN bar AS B ON P.Id = B.ParentId
+    );
+
+test_fail_cte_qualified_to_unqualified_6014:
+  fail_str: |
+    with
+    final as (
+        select
+            my_table.first,
+            second
+        from my_table
+    )
+
+    select *
+    from final
+  fix_str: |
+    with
+    final as (
+        select
+            first,
+            second
+        from my_table
+    )
+
+    select *
+    from final
+  configs:
+    rules:
+      references.consistent:
+        single_table_references: unqualified
+
+test_fail_cte_unqualified_to_qualified_6014:
+  fail_str: |
+    with
+    final as (
+        select
+            my_table.first,
+            second
+        from my_table
+    )
+
+    select *
+    from final
+  fix_str: |
+    with
+    final as (
+        select
+            my_table.first,
+            my_table.second
+        from my_table
+    )
+
+    select *
+    from final
+  configs:
+    rules:
+      references.consistent:
+        single_table_references: qualified

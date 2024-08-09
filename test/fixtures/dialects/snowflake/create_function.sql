@@ -131,3 +131,15 @@ def get_translation(sentence, language):
   response = session.post(url, json = data, headers = {"Authorization": "Bearer " + token})
   return response.json()['data']['translations'][0]['translatedText']
 $$;
+
+
+create or replace aggregate function addone(i int)
+returns int
+language python
+runtime_version = '3.8'
+handler = 'addone_py'
+as
+$$
+def addone_py(i):
+  return i+1
+$$;

@@ -6,6 +6,8 @@ ALTER TABLE my_table ADD COLUMN IF NOT EXISTS my_column INTEGER;
 
 ------ Multiple columns
 ALTER TABLE my_table ADD COLUMN column_1 varchar, column_2 integer;
+ALTER TABLE my_table ADD COLUMN IF NOT EXISTS column_1 varchar, IF NOT EXISTS column_2 integer;
+ALTER TABLE my_table ADD COLUMN IF NOT EXISTS column_1 varchar, column_2 integer;
 
 ---- Default, auto-increment & identity
 ALTER TABLE my_table ADD COLUMN my_column INTEGER DEFAULT 1;
