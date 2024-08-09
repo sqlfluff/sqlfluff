@@ -232,6 +232,8 @@ snowflake_dialect.add(
         CodeSegment,
         type="semi_structured_element",
     ),
+    # Normally, double quotes can't be used for literals. But in a few
+    # cases they can (e.g. Tags).
     DoubleQuotedLiteralSegment=TypedParser(
         "double_quote", LiteralSegment, type="quoted_literal"
     ),
@@ -5002,17 +5004,6 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
     )
 
 
-class ColumnQuoteSegment(BaseSegment):
-    """Double quotes column segment overriding default ColumnReferenceSegment."""
-
-    type = "column_reference"
-    match_grammar = OneOf(
-        Ref("SingleQuotedIdentifierSegment"),
-        Ref("ColumnReferenceSegment"),
-        Ref("NakedIdentifierSegment"),
-    )
-
-
 class AlterViewStatementSegment(BaseSegment):
     """An `ALTER VIEW` statement, specifically for Snowflake's dialect.
 
@@ -5055,7 +5046,7 @@ class AlterViewStatementSegment(BaseSegment):
                     "POLICY",
                     Ref("FunctionNameSegment"),
                     "ON",
-                    Bracketed(Delimited(Ref("ColumnQuoteSegment"))),
+                    Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
                 ),
                 Sequence(
                     "DROP",
@@ -5270,7 +5261,7 @@ class CsvFileFormatTypeParameters(BaseSegment):
         Sequence(
             "NULL_IF",
             Ref("EqualsSegment"),
-            OptionallyBracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
+            Bracketed(Delimited(Ref("QuotedLiteralSegment"), optional=True)),
         ),
         Sequence(
             OneOf(

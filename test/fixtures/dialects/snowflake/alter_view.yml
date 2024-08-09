@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ac763dfaae986fb227de4e21813e2a7e9f7f9b46d710102f0acd345d426955f9
+_hash: 3f2b506daf1713ff9acc73d48c9d4fde98eed33469dc6229bb26856750e07cf7
 file:
 - statement:
     alter_view_statement:
@@ -126,8 +126,7 @@ file:
     - bracketed:
         start_bracket: (
         column_reference:
-          column_reference:
-            naked_identifier: empl_id
+          naked_identifier: empl_id
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -166,8 +165,7 @@ file:
     - bracketed:
         start_bracket: (
         column_reference:
-          column_reference:
-            naked_identifier: empl_id
+          naked_identifier: empl_id
         end_bracket: )
     - comma: ','
     - keyword: add
@@ -180,21 +178,7 @@ file:
     - bracketed:
         start_bracket: (
         column_reference:
-          column_reference:
-            quoted_identifier: '"empl_id"'
-        end_bracket: )
-    - comma: ','
-    - keyword: add
-    - keyword: row
-    - keyword: access
-    - keyword: policy
-    - function_name:
-        function_name_identifier: rap_v1_version_4
-    - keyword: 'on'
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          quoted_identifier: "'empl_id'"
+          quoted_identifier: '"empl_id"'
         end_bracket: )
 - statement_terminator: ;
 - statement:
