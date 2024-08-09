@@ -1,0 +1,431 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a421a80640fe4e013133432ce6fccf9e145397ba3c8bedcc36d8b1da64981e17
+file:
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: delete_members_after_transactions
+    - keyword: AFTER
+    - keyword: DELETE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: transactions
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - statement:
+        delete_statement:
+          keyword: DELETE
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: members
+          where_clause:
+            keyword: WHERE
+            expression:
+            - column_reference:
+                naked_identifier: username
+            - keyword: NOT
+            - keyword: IN
+            - bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      function:
+                        function_name:
+                          function_name_identifier: UNIQUE
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: username
+                          end_bracket: )
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: transactions
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: some_trigger
+    - keyword: AFTER
+    - keyword: DELETE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - statement:
+        transaction_statement:
+          keyword: BEGIN
+          statement:
+            delete_statement:
+              keyword: DELETE
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: some_table
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: some_table
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: END
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: ins_sum
+    - keyword: BEFORE
+    - keyword: INSERT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: account
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - statement:
+        set_statement:
+          keyword: SET
+          variable: '@sum'
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            variable: '@sum'
+            binary_operator: +
+            column_reference:
+            - naked_identifier: NEW
+            - dot: .
+            - naked_identifier: amount
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: some_trigger
+    - keyword: AFTER
+    - keyword: DELETE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - statement:
+        delete_statement:
+          keyword: DELETE
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: other_table
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: some_trigger
+    - keyword: BEFORE
+    - keyword: DELETE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - statement:
+        delete_statement:
+          keyword: DELETE
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: other_table
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: some_trigger
+    - keyword: AFTER
+    - keyword: UPDATE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - statement:
+        delete_statement:
+          keyword: DELETE
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: other_table
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: some_trigger
+    - keyword: BEFORE
+    - keyword: UPDATE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - statement:
+        delete_statement:
+          keyword: DELETE
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: other_table
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: some_trigger
+    - keyword: AFTER
+    - keyword: INSERT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - statement:
+        delete_statement:
+          keyword: DELETE
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: other_table
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: some_trigger
+    - keyword: BEFORE
+    - keyword: INSERT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - statement:
+        delete_statement:
+          keyword: DELETE
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: other_table
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - trigger_reference:
+        naked_identifier: some_trigger
+    - keyword: AFTER
+    - keyword: DELETE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - statement:
+        delete_statement:
+          keyword: DELETE
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: other_table
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: some_trigger
+    - keyword: AFTER
+    - keyword: DELETE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - keyword: FOLLOWS
+    - naked_identifier: some_other_trigger
+    - statement:
+        delete_statement:
+          keyword: DELETE
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: other_table
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: some_trigger
+    - keyword: AFTER
+    - keyword: DELETE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - keyword: PRECEDES
+    - naked_identifier: some_other_trigger
+    - statement:
+        delete_statement:
+          keyword: DELETE
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: other_table
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - definer_segment:
+        keyword: DEFINER
+        comparison_operator:
+          raw_comparison_operator: '='
+        role_reference:
+        - quoted_identifier: '`root`'
+        - at_sign_literal: '@'
+        - quoted_identifier: '`127.0.0.1`'
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: ins_sum
+    - keyword: BEFORE
+    - keyword: INSERT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: account
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - statement:
+        set_statement:
+          keyword: SET
+          variable: '@sum'
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            variable: '@sum'
+            binary_operator: +
+            column_reference:
+            - naked_identifier: NEW
+            - dot: .
+            - naked_identifier: amount
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - definer_segment:
+        keyword: DEFINER
+        comparison_operator:
+          raw_comparison_operator: '='
+        role_reference:
+          keyword: CURRENT_USER
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: ins_sum
+    - keyword: BEFORE
+    - keyword: INSERT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: account
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - statement:
+        set_statement:
+          keyword: SET
+          variable: '@sum'
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            variable: '@sum'
+            binary_operator: +
+            column_reference:
+            - naked_identifier: NEW
+            - dot: .
+            - naked_identifier: amount
+- statement_terminator: ;

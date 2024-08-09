@@ -1,0 +1,1 @@
+SELECT * FROM t1 test USE INDEX FOR GROUP BY (i2);

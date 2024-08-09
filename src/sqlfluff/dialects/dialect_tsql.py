@@ -67,6 +67,9 @@ tsql_dialect.sets("datetime_units").update(
         "DY",
         "HH",
         "HOUR",
+        "ISO_WEEK",
+        "ISOWK",
+        "ISOWW",
         "INFINITE",
         "M",
         "MCS",
@@ -87,6 +90,8 @@ tsql_dialect.sets("datetime_units").update(
         "S",
         "SECOND",
         "SS",
+        "TZ",
+        "TZOFFSET",
         "W",
         "WEEK",
         "WEEKS",
@@ -4158,6 +4163,7 @@ class TableExpressionSegment(BaseSegment):
     type = "table_expression"
     match_grammar: Matchable = OneOf(
         Ref("ValuesClauseSegment"),
+        Sequence(Ref("TableReferenceSegment"), Ref("PostTableExpressionGrammar")),
         Ref("BareFunctionSegment"),
         Ref("FunctionSegment"),
         Ref("OpenRowSetSegment"),

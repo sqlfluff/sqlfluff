@@ -112,7 +112,9 @@ class LintedFile(NamedTuple):
                 dedupe_buffer.add(signature)
             else:
                 linter_logger.debug("Removing duplicate source violation: %r", v)
-        return new_violations
+        # Sort on return so that if any are out of order, they're now ordered
+        # appropriately. This happens most often when linting multiple variants.
+        return sorted(new_violations, key=lambda v: (v.line_no, v.line_pos))
 
     def get_violations(
         self,

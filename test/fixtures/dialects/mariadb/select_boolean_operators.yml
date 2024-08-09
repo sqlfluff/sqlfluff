@@ -1,0 +1,87 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d21bd7c1927fa694dafe5d0812e99cabeeffb6fd21b122189c8c7dbb79328f70
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            not_operator: '!'
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '1'
+          - binary_operator: '&&'
+          - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '1'
+          - binary_operator: '&&'
+          - numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '1'
+          - binary_operator: XOR
+          - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - numeric_literal: '1'
+          - binary_operator: '||'
+          - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: col_1
+            binary_operator: '&&'
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                  naked_identifier: col_1
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                  naked_identifier: col_2
+              end_bracket: )
+            binary_operator: '||'
+            column_reference:
+              naked_identifier: col_3
+- statement_terminator: ;

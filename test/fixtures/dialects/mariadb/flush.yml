@@ -1,0 +1,129 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8f22cb8fd34961fa5b7befb14683818ae9bf139e7d2c24e85db74c4a4731e714
+file:
+- statement:
+    flush_statement:
+    - keyword: FLUSH
+    - keyword: LOGS
+- statement_terminator: ;
+- statement:
+    flush_statement:
+    - keyword: FLUSH
+    - keyword: NO_WRITE_TO_BINLOG
+    - keyword: BINARY
+    - keyword: LOGS
+    - comma: ','
+    - keyword: ENGINE
+    - keyword: LOGS
+    - comma: ','
+    - keyword: ERROR
+    - keyword: LOGS
+    - comma: ','
+    - keyword: GENERAL
+    - keyword: LOGS
+    - comma: ','
+    - keyword: HOSTS
+- statement_terminator: ;
+- statement:
+    flush_statement:
+    - keyword: FLUSH
+    - keyword: LOCAL
+    - keyword: HOSTS
+    - comma: ','
+    - keyword: QUERY
+    - keyword: CACHE
+    - comma: ','
+    - keyword: TABLE_STATISTICS
+    - comma: ','
+    - keyword: INDEX_STATISTICS
+    - comma: ','
+    - keyword: USER_STATISTICS
+- statement_terminator: ;
+- statement:
+    flush_statement:
+    - keyword: FLUSH
+    - keyword: STATUS
+- statement_terminator: ;
+- statement:
+    flush_statement:
+    - keyword: FLUSH
+    - keyword: RELAY
+    - keyword: LOGS
+    - object_reference:
+        naked_identifier: my_channel
+- statement_terminator: ;
+- statement:
+    flush_statement:
+    - keyword: FLUSH
+    - keyword: RELAY
+    - keyword: LOGS
+    - keyword: FOR
+    - keyword: CHANNEL
+    - object_reference:
+        naked_identifier: my_channel
+- statement_terminator: ;
+- statement:
+    flush_statement:
+    - keyword: FLUSH
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+    flush_statement:
+    - keyword: FLUSH
+    - keyword: TABLES
+    - keyword: WITH
+    - keyword: READ
+    - keyword: LOCK
+- statement_terminator: ;
+- statement:
+    flush_statement:
+    - keyword: FLUSH
+    - keyword: TABLES
+    - table_reference:
+        naked_identifier: table1
+- statement_terminator: ;
+- statement:
+    flush_statement:
+    - keyword: FLUSH
+    - keyword: TABLES
+    - table_reference:
+        naked_identifier: table1
+    - comma: ','
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+- statement_terminator: ;
+- statement:
+    flush_statement:
+    - keyword: FLUSH
+    - keyword: TABLES
+    - table_reference:
+        naked_identifier: table1
+    - comma: ','
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: WITH
+    - keyword: READ
+    - keyword: LOCK
+- statement_terminator: ;
+- statement:
+    flush_statement:
+    - keyword: FLUSH
+    - keyword: TABLES
+    - table_reference:
+        naked_identifier: table1
+    - comma: ','
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: FOR
+    - keyword: EXPORT
+- statement_terminator: ;

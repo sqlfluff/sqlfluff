@@ -1259,6 +1259,21 @@ class UnloadStatementSegment(BaseSegment):
                 ),
                 optional=True,
             ),
+            Sequence(
+                "EXTENSION",
+                Ref("QuotedLiteralSegment"),
+                Sequence(
+                    "PARALLEL",
+                    OneOf(
+                        "ON",
+                        "OFF",
+                        "TRUE",
+                        "FALSE",
+                    ),
+                    optional=True,
+                ),
+                optional=True,
+            ),
             OneOf(
                 Sequence(
                     "DELIMITER",
