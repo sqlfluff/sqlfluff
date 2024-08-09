@@ -127,7 +127,11 @@ class JinjaTemplater(PythonTemplater):
 
     @classmethod
     def _extract_macros_from_path(
-        cls, path: List[str], env: Environment, ctx: Dict
+        cls,
+        path: List[str],
+        env: Environment,
+        ctx: Dict,
+        exclude_paths: Optional[List[str]] = None,
     ) -> dict:
         """Take a path and extract macros from it.
 
@@ -135,6 +139,7 @@ class JinjaTemplater(PythonTemplater):
             path (List[str]): A list of paths.
             env (Environment): The environment object.
             ctx (Dict): The context dictionary.
+            exclude_paths (Optional[[List][str]]): A list of paths to exclude
 
         Returns:
             dict: A dictionary containing the extracted macros.
@@ -150,6 +155,11 @@ class JinjaTemplater(PythonTemplater):
                 raise ValueError(f"Path does not exist: {path_entry}")
 
             if os.path.isfile(path_entry):
+                if exclude_paths:
+                    if cls._exclude_macros(
+                        macro_path=path_entry, exclude_macros_path=exclude_paths
+                    ):
+                        continue
                 # It's a file. Extract macros from it.
                 with open(path_entry) as opened_file:
                     template = opened_file.read()
@@ -172,7 +182,10 @@ class JinjaTemplater(PythonTemplater):
                         if fname.endswith(".sql"):
                             macro_ctx.update(
                                 cls._extract_macros_from_path(
-                                    [os.path.join(dirpath, fname)], env=env, ctx=ctx
+                                    [os.path.join(dirpath, fname)],
+                                    env=env,
+                                    ctx=ctx,
+                                    exclude_paths=exclude_paths,
                                 )
                             )
         return macro_ctx
@@ -352,7 +365,7 @@ class JinjaTemplater(PythonTemplater):
         Returns:
             jinja2.Environment: A properly configured jinja environment.
         """
-        macros_path = self._get_macros_path(config)
+        macros_path = self._get_macros_path(config, "load_macros_from_path")
         loader_search_path = self._get_loader_search_path(config)
         final_search_path = (loader_search_path or []) + (macros_path or [])
 
@@ -393,11 +406,11 @@ class JinjaTemplater(PythonTemplater):
             loader=loader,
         )
 
-    def _get_macros_path(self, config: FluffConfig) -> Optional[List[str]]:
+    def _get_macros_path(self, config: FluffConfig, key: str) -> Optional[List[str]]:
         """Get the list of macros paths from the provided config object.
 
         This method searches for a config section specified by the
-        templater_selector, name, and 'load_macros_from_path' keys. If the section is
+        templater_selector, name, and key specified. If the section is
         found, it retrieves the value associated with that section and splits it into
         a list of strings using a comma as the delimiter. The resulting list is
         stripped of whitespace and empty strings and returned. If the section is not
@@ -406,14 +419,14 @@ class JinjaTemplater(PythonTemplater):
         Args:
             config (FluffConfig): The config object to search for the macros path
                 section.
+            key (str): Key to load the macros path from the config file.
+                Also used for loading the excluding macros path from config.
 
         Returns:
             Optional[List[str]]: The list of macros paths if found, None otherwise.
         """
         if config:
-            macros_path = config.get_section(
-                (self.templater_selector, self.name, "load_macros_from_path")
-            )
+            macros_path = config.get_section((self.templater_selector, self.name, key))
             if macros_path:
                 result = [s.strip() for s in macros_path.split(",") if s.strip()]
                 if result:
@@ -513,11 +526,17 @@ class JinjaTemplater(PythonTemplater):
 
         # Load macros from path (if applicable)
         if config:
-            macros_path = self._get_macros_path(config)
+            macros_path = self._get_macros_path(config, "load_macros_from_path")
+            exclude_macros_path = self._get_macros_path(
+                config, "exclude_macros_from_path"
+            )
             if macros_path:
                 live_context.update(
                     self._extract_macros_from_path(
-                        macros_path, env=env, ctx=live_context
+                        macros_path,
+                        env=env,
+                        ctx=live_context,
+                        exclude_paths=exclude_macros_path,
                     )
                 )
 
@@ -1023,6 +1042,27 @@ class JinjaTemplater(PythonTemplater):
                 ),
                 violations,
             )
+
+    @staticmethod
+    def _exclude_macros(macro_path: str, exclude_macros_path: List[str]) -> bool:
+        """Determines if a macro is within the exclude macros path.
+
+        These macros will be ignored and not loaded into context
+
+        Args:
+            macro_path (str): The raw string to be sliced.
+            exclude_macros_path (List[str]): The rendering function to be used.
+
+        Returns:
+            bool: True if the macro should be excluded
+        """
+        for exclude_path in exclude_macros_path:
+            macro_path_abs = os.path.abspath(macro_path)
+            exclude_path_abs = os.path.abspath(exclude_path)
+            if exclude_path_abs in macro_path_abs:
+                templater_logger.debug("Skipping this macro file: %s", macro_path)
+                return True
+        return False
 
 
 class DummyUndefined(jinja2.Undefined):
