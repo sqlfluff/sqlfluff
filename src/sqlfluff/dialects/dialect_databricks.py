@@ -449,5 +449,9 @@ class DeclareOrReplaceVariableStatementSegment(BaseSegment):
         Ref.keyword("VARIABLE", optional=True),
         Ref("SingleIdentifierGrammar"),  # Variable name
         Ref("DatatypeSegment", optional=True),  # Variable type
-        Sequence(OneOf("DEFAULT", Ref("EqualsSegment")), Ref("ExpressionSegment"), optional=True)
+        Sequence(
+            OneOf("DEFAULT", Ref("EqualsSegment")),
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
     )
