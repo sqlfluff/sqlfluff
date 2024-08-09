@@ -2734,21 +2734,19 @@ class SetTransactionStatementSegment(BaseSegment):
         OneOf("GLOBAL", "SESSION", optional=True),
         "TRANSACTION",
         Delimited(
-            AnySetOf(
-                Sequence(
-                    "ISOLATION",
-                    "LEVEL",
-                    OneOf(
-                        Sequence(
-                            "READ",
-                            OneOf("COMMITTED", "UNCOMMITTED"),
-                        ),
-                        Sequence("REPEATABLE", "READ"),
-                        "SERIALIZABLE",
+            Sequence(
+                "ISOLATION",
+                "LEVEL",
+                OneOf(
+                    Sequence(
+                        "READ",
+                        OneOf("COMMITTED", "UNCOMMITTED"),
                     ),
+                    Sequence("REPEATABLE", "READ"),
+                    "SERIALIZABLE",
                 ),
-                Sequence("READ", OneOf("WRITE", "ONLY")),
             ),
+            Sequence("READ", OneOf("WRITE", "ONLY")),
         ),
     )
 
