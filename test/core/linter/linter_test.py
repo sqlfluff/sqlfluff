@@ -19,6 +19,7 @@ from sqlfluff.core.errors import (
     SQLTemplaterError,
 )
 from sqlfluff.core.linter import LintingResult, runner
+from sqlfluff.core.linter.linter import _find_ignore_config_files
 from sqlfluff.core.linter.runner import get_runner
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 
@@ -168,6 +169,18 @@ def test__linter__path_from_paths__dot():
         "test.fixtures.lexer.block_comment.sql",
         "test.fixtures.lexer.inline_comment.sql",
         "test.fixtures.lexer.basic.sql",
+    }
+
+
+def test__config__find_sqlfluffignore_in_same_directory():
+    """Test find ignore file in the same directory as sql file."""
+    ignore_files = _find_ignore_config_files(
+        path="test/fixtures/linter/sqlfluffignore/path_b/query_b.sql",
+        working_path="test/fixtures/linter/sqlfluffignore/",
+    )
+    assert ignore_files == {
+        os.path.abspath("test/fixtures/linter/sqlfluffignore/path_b/.sqlfluffignore"),
+        os.path.abspath("test/fixtures/linter/sqlfluffignore/.sqlfluffignore"),
     }
 
 

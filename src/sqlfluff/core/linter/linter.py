@@ -3,6 +3,7 @@
 import logging
 import os
 import time
+from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -14,6 +15,7 @@ from typing import (
     Set,
     Tuple,
     Type,
+    Union,
     cast,
 )
 
@@ -21,7 +23,7 @@ import pathspec
 import regex
 from tqdm import tqdm
 
-from sqlfluff.core.config import ConfigLoader, FluffConfig, progress_bar_configuration
+from sqlfluff.core.config import FluffConfig, progress_bar_configuration
 from sqlfluff.core.errors import (
     SQLBaseError,
     SQLFluffSkipFile,
@@ -31,7 +33,7 @@ from sqlfluff.core.errors import (
     SQLParseError,
     SQLTemplaterError,
 )
-from sqlfluff.core.helpers.file import get_encoding
+from sqlfluff.core.helpers.file import get_encoding, iter_intermediate_paths
 from sqlfluff.core.linter.common import (
     ParsedString,
     ParsedVariant,
@@ -62,6 +64,26 @@ RuleTimingsType = List[Tuple[str, str, float]]
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
+
+
+def _find_ignore_config_files(
+    path: str,
+    working_path: Union[str, Path] = Path.cwd(),
+    ignore_file_name: str = ".sqlfluffignore",
+) -> Set[str]:
+    """Finds sqlfluff ignore files from both the path and its parent paths."""
+    _working_path: Path = (
+        Path(working_path) if isinstance(working_path, str) else working_path
+    )
+    return set(
+        filter(
+            os.path.isfile,
+            map(
+                lambda x: os.path.join(x, ignore_file_name),
+                iter_intermediate_paths(Path(path).absolute(), _working_path),
+            ),
+        )
+    )
 
 
 class Linter:
@@ -983,7 +1005,7 @@ class Linter:
         else:
             path_walk = list(os.walk(path))
 
-        ignore_file_paths = ConfigLoader.find_ignore_config_files(
+        ignore_file_paths = _find_ignore_config_files(
             path=path, working_path=working_path, ignore_file_name=ignore_file_name
         )
         # Add paths that could contain "ignore files"
