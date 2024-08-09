@@ -993,7 +993,7 @@ class Linter:
                 path,
                 ignore_non_existent_files=ignore_non_existent_files,
                 ignore_files=ignore_files,
-                target_file_exts=sql_exts
+                target_file_exts=sql_exts,
             ):
                 expanded_paths.append(fname)
                 expanded_path_to_linted_dir[fname] = linted_dir
@@ -1001,6 +1001,7 @@ class Linter:
         files_count = len(expanded_paths)
         if processes is None:
             processes = self.config.get("processes", default=1)
+        assert processes is not None
         # Hard set processes to 1 if only 1 file is queued.
         # The overhead will never be worth it with one file.
         if files_count == 1:
