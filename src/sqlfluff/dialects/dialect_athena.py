@@ -469,7 +469,14 @@ class CreateTableStatementSegment(BaseSegment):
                     Bracketed(
                         Delimited(
                             Sequence(
-                                Ref("NakedIdentifierSegment"),
+                                OneOf(
+                                    # External tables expect types...
+                                    Ref("ColumnDefinitionSegment"),
+                                    # Iceberg tables don't expect types.
+                                    Ref("SingleIdentifierGrammar"),
+                                    # Iceberg tables also allow partition transforms
+                                    Ref("FunctionSegment"),
+                                ),
                                 Ref("CommentGrammar", optional=True),
                             ),
                         ),
