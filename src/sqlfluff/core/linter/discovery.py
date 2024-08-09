@@ -1,3 +1,11 @@
+"""Discovery methods for sql files.
+
+The main public method here is `paths_from_path` which takes
+potentially ambiguous paths and file input and resolves them
+into specific file references. The method also processes the
+`.sqlfluffignore` functionality in the process.
+"""
+
 import logging
 import os
 from pathlib import Path
@@ -15,8 +23,6 @@ linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
 WalkableType = Iterable[Tuple[str, Optional[List[str]], List[str]]]
 
-
-#self.config.get("sql_file_exts", default=".sql").lower().split(",")
 
 def _find_ignore_config_files(
     path: str,
@@ -55,7 +61,6 @@ def paths_from_path(
 
     If the current directory is not a parent of the file we only
     look for an ignore file in the direct parent of the file.
-
     """
     if not os.path.exists(path):
         if ignore_non_existent_files:
