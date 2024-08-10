@@ -8,6 +8,7 @@ It also has some extensions.
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    Anything,
     BaseSegment,
     Bracketed,
     CodeSegment,
@@ -227,6 +228,7 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("OptimizeTableStatementSegment"),
             Ref("CreateDatabricksFunctionStatementSegment"),
             Ref("FunctionParameterListGrammarWithComments"),
+            Ref("DeclareOrReplaceVariableStatementSegment"),
         ]
     )
 
@@ -375,5 +377,81 @@ class AliasExpressionSegment(sparksql.AliasExpressionSegment):
                 "FROM",
                 "FOR",
             ),
+        ),
+    )
+
+
+class GeneratedColumnDefinitionSegment(sparksql.GeneratedColumnDefinitionSegment):
+    """A generated column definition, e.g. for CREATE TABLE or ALTER TABLE.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-using.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        Ref("DatatypeSegment"),  # Column type
+        Bracketed(Anything(), optional=True),  # For types like DECIMAL(3, 2)
+        OneOf(
+            Sequence(
+                "GENERATED",
+                "ALWAYS",
+                "AS",
+                Bracketed(
+                    OneOf(
+                        Ref("FunctionSegment"),
+                        Ref("BareFunctionSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "GENERATED",
+                OneOf(
+                    "ALWAYS",
+                    Sequence("BY", "DEFAULT"),
+                ),
+                "AS",
+                "IDENTITY",
+                Bracketed(
+                    Sequence(
+                        Sequence(
+                            "START",
+                            "WITH",
+                            Ref("NumericLiteralSegment"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "INCREMENT",
+                            "BY",
+                            Ref("NumericLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+        AnyNumberOf(
+            Ref("ColumnConstraintSegment", optional=True),
+        ),
+    )
+
+
+class DeclareOrReplaceVariableStatementSegment(BaseSegment):
+    """A `DECLARE [OR REPLACE] VARIABLE` statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-declare-variable.html
+    """
+
+    type = "declare_or_replace_variable_statement"
+    match_grammar = Sequence(
+        Ref.keyword("DECLARE"),
+        Ref("OrReplaceGrammar", optional=True),
+        Ref.keyword("VARIABLE", optional=True),
+        Ref("SingleIdentifierGrammar"),  # Variable name
+        Ref("DatatypeSegment", optional=True),  # Variable type
+        Sequence(
+            OneOf("DEFAULT", Ref("EqualsSegment")),
+            Ref("ExpressionSegment"),
+            optional=True,
         ),
     )

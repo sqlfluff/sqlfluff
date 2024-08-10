@@ -22,6 +22,11 @@ WITH TAG (foo = 'bar', hello = 'world')
 COPY GRANTS
 AS SELECT col1, col2 FROM src_table;
 
+CREATE OR REPLACE VIEW view_with_tags_and_copy_grants
+WITH TAG (foo = "bar", hello = "world")
+COPY GRANTS
+AS SELECT col1, col2 FROM src_table;
+
 CREATE OR REPLACE VIEW view_with_column_comment
 (
     col1,

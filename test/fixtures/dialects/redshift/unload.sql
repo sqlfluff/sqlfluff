@@ -86,3 +86,8 @@ unload ('select * from venue')
 to 's3://mybucket/nulls/'
 iam_role 'arn:aws:iam::0123456789012:role/MyRedshiftRole'
 null as 'fred';
+
+unload ('select * from tbl')
+to 's3://mybucket/unload/'
+csv header credentials 'aws_access_key_id=abc;aws_secret_access_key=def'
+extension 'csv' parallel false;

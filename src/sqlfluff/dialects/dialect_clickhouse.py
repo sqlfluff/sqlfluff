@@ -296,6 +296,28 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     )
 
 
+class WithFillSegment(ansi.WithFillSegment):
+    """Enhances `ORDER BY` clauses to include WITH FILL.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/select/order-by#order-by-expr-with-fill-modifier
+    """
+
+    match_grammar: Matchable = Sequence(
+        "WITH",
+        "FILL",
+        Sequence("FROM", Ref("ExpressionSegment"), optional=True),
+        Sequence("TO", Ref("ExpressionSegment"), optional=True),
+        Sequence(
+            "STEP",
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Ref("IntervalExpressionSegment"),
+            ),
+            optional=True,
+        ),
+    )
+
+
 class BracketedArguments(ansi.BracketedArguments):
     """A series of bracketed arguments.
 

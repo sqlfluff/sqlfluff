@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c85d9c9b4e7809f2ce4267b0c22a559222502108af30d8658cee5612afc58e7f
+_hash: 6b6be4c38e8ffd163c442b919055ed308ab0a0d1a8cb4c24c314600a2f0d056f
 file:
 - statement:
     alter_table_statement:
@@ -67,6 +67,53 @@ file:
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
+      - column_reference:
+          naked_identifier: column_1
+      - data_type:
+          data_type_identifier: varchar
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_2
+      - data_type:
+          data_type_identifier: integer
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: column_1
+      - data_type:
+          data_type_identifier: varchar
+      - comma: ','
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: column_2
+      - data_type:
+          data_type_identifier: integer
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
       - column_reference:
           naked_identifier: column_1
       - data_type:

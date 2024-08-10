@@ -1344,6 +1344,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DelimiterStatement"),
             Ref("CreateProcedureStatementSegment"),
             Ref("DeclareStatement"),
+            Ref("SetTransactionStatementSegment"),
             Ref("SetAssignmentStatementSegment"),
             Ref("IfExpressionStatement"),
             Ref("WhileStatementSegment"),
@@ -2946,6 +2947,35 @@ class ReturnStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "RETURN",
         Ref("ExpressionSegment"),
+    )
+
+
+class SetTransactionStatementSegment(BaseSegment):
+    """A `SET TRANSACTION` statement.
+
+    As specified in https://dev.mysql.com/doc/refman/8.0/en/set-transaction.html
+    """
+
+    type = "set_transaction_statement"
+    match_grammar: Matchable = Sequence(
+        "SET",
+        OneOf("GLOBAL", "SESSION", optional=True),
+        "TRANSACTION",
+        Delimited(
+            Sequence(
+                "ISOLATION",
+                "LEVEL",
+                OneOf(
+                    Sequence(
+                        "READ",
+                        OneOf("COMMITTED", "UNCOMMITTED"),
+                    ),
+                    Sequence("REPEATABLE", "READ"),
+                    "SERIALIZABLE",
+                ),
+            ),
+            Sequence("READ", OneOf("WRITE", "ONLY")),
+        ),
     )
 
 

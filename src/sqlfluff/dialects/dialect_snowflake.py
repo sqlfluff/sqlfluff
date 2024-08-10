@@ -232,6 +232,11 @@ snowflake_dialect.add(
         CodeSegment,
         type="semi_structured_element",
     ),
+    # Normally, double quotes can't be used for literals. But in a few
+    # cases they can (e.g. Tags).
+    DoubleQuotedLiteralSegment=TypedParser(
+        "double_quote", LiteralSegment, type="quoted_literal"
+    ),
     ColumnIndexIdentifierSegment=RegexParser(
         r"\$[0-9]+",
         IdentifierSegment,
@@ -2019,6 +2024,7 @@ class AlterTableTableColumnActionSegment(BaseSegment):
             # Handle Multiple Columns
             Delimited(
                 Sequence(
+                    Ref("IfNotExistsGrammar", optional=True),
                     Ref("ColumnReferenceSegment"),
                     Ref("DatatypeSegment"),
                     OneOf(
@@ -2603,7 +2609,9 @@ class TagBracketedEqualsSegment(BaseSegment):
                 Sequence(
                     Ref("TagReferenceSegment"),
                     Ref("EqualsSegment"),
-                    Ref("QuotedLiteralSegment"),
+                    OneOf(
+                        Ref("QuotedLiteralSegment"), Ref("DoubleQuotedLiteralSegment")
+                    ),
                 )
             ),
         ),
@@ -2723,7 +2731,7 @@ class TagEqualsSegment(BaseSegment):
             Sequence(
                 Ref("TagReferenceSegment"),
                 Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("DoubleQuotedLiteralSegment")),
             )
         ),
     )
@@ -3431,6 +3439,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         Sequence("SECURE", optional=True),
+        Sequence("AGGREGATE", optional=True),
         "FUNCTION",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
