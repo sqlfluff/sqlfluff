@@ -1299,6 +1299,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateProcedureStatementSegment"),
             Ref("AlterProcedureStatementSegment"),
             Ref("ScriptingLetStatementSegment"),
+            Ref("ScriptingDeclareStatementSegment"),
             Ref("ReturnStatementSegment"),
             Ref("ShowStatementSegment"),
             Ref("AlterAccountStatementSegment"),
@@ -8299,4 +8300,51 @@ class BindVariableSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("ColonSegment"),
         Ref("LocalVariableNameSegment"),
+    )
+
+class ScriptingDeclareStatementSegment(BaseSegment):
+    """A snowflake `Declare` statement for SQL scripting.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/declare
+    https://docs.snowflake.com/en/developer-guide/snowflake-scripting/variables
+    """
+
+    type = "scripting_declare_statement"
+    match_grammar = Sequence(
+        "DECLARE",
+        Indent,
+        AnyNumberOf(
+            Sequence(
+                Ref("LocalVariableNameSegment"),
+                OneOf(
+                    # Variable assignment
+                    OneOf(
+                        Sequence(
+                            Ref("DatatypeSegment"),
+                            OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
+                            Ref("ExpressionSegment"),
+                        ),
+                        Sequence(
+                            OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
+                            Ref("ExpressionSegment"),
+                        ),
+                    ),
+                    # Cursor assignment
+                    Sequence(
+                        "CURSOR",
+                        "FOR",
+                        OneOf(Ref("LocalVariableNameSegment"), Ref("SelectableGrammar")),
+                    ),
+                    # Resultset assignment
+                    Sequence(
+                        "RESULTSET",
+                        Ref("WalrusOperatorSegment"),
+                        Bracketed(Ref("SelectableGrammar")),
+                    ),
+                ),
+                Ref("DelimiterGrammar")
+            ),
+            min_times=1
+        ),
+        Dedent,
     )

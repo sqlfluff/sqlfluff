@@ -1,0 +1,55 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 71558b777a06224059496ce410b875574020e17090e1c5b823d77cabbe27bf82
+file:
+  statement:
+    scripting_declare_statement:
+    - keyword: DECLARE
+    - variable: profit
+    - data_type:
+        data_type_identifier: number
+        bracketed_arguments:
+          bracketed:
+          - start_bracket: (
+          - numeric_literal: '38'
+          - comma: ','
+          - numeric_literal: '2'
+          - end_bracket: )
+    - keyword: DEFAULT
+    - expression:
+        numeric_literal: '0.0'
+    - statement_terminator: ;
+    - variable: revenue
+    - data_type:
+        data_type_identifier: number
+        bracketed_arguments:
+          bracketed:
+          - start_bracket: (
+          - numeric_literal: '38'
+          - comma: ','
+          - numeric_literal: '2'
+          - end_bracket: )
+    - keyword: DEFAULT
+    - expression:
+        numeric_literal: '110.0'
+    - statement_terminator: ;
+    - variable: c1
+    - keyword: CURSOR
+    - keyword: FOR
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: price
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: invoices
+    - statement_terminator: ;
