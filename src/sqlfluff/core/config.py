@@ -25,7 +25,6 @@ from typing import (
     Iterator,
     List,
     Optional,
-    Set,
     Tuple,
     Type,
     Union,
@@ -716,27 +715,6 @@ class ConfigLoader:
             *parent_config_stack,
             *config_stack,
             extra_config,
-        )
-
-    @classmethod
-    def find_ignore_config_files(
-        cls,
-        path: str,
-        working_path: Union[str, Path] = Path.cwd(),
-        ignore_file_name: str = ".sqlfluffignore",
-    ) -> Set[str]:
-        """Finds sqlfluff ignore files from both the path and its parent paths."""
-        _working_path: Path = (
-            Path(working_path) if isinstance(working_path, str) else working_path
-        )
-        return set(
-            filter(
-                os.path.isfile,
-                map(
-                    lambda x: os.path.join(x, ignore_file_name),
-                    iter_intermediate_paths(Path(path).absolute(), _working_path),
-                ),
-            )
         )
 
 
