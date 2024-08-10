@@ -181,6 +181,7 @@ class Query(Generic[T]):
     subqueries: List[T] = field(default_factory=list)
     cte_definition_segment: Optional[BaseSegment] = field(default=None)
     cte_name_segment: Optional[BaseSegment] = field(default=None)
+    is_subquery: Optional[bool] = None
 
     def __post_init__(self):
         # Once instantiated, set the `parent` attribute of any
@@ -188,6 +189,8 @@ class Query(Generic[T]):
         # we'll reset them anyway here.
         for subquery in self.subqueries:
             subquery.parent = self
+            # We set this here to prevent a potential recursion error in RF03.
+            subquery.is_subquery = True
         # NOTE: In normal operation, CTEs are typically set after
         # instantiation, and so for this method there aren't normally
         # any present. It is included here for completeness but not
