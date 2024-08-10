@@ -228,6 +228,7 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("OptimizeTableStatementSegment"),
             Ref("CreateDatabricksFunctionStatementSegment"),
             Ref("FunctionParameterListGrammarWithComments"),
+            Ref("DeclareOrReplaceVariableStatementSegment"),
         ]
     )
 
@@ -431,5 +432,26 @@ class GeneratedColumnDefinitionSegment(sparksql.GeneratedColumnDefinitionSegment
         ),
         AnyNumberOf(
             Ref("ColumnConstraintSegment", optional=True),
+        ),
+    )
+
+
+class DeclareOrReplaceVariableStatementSegment(BaseSegment):
+    """A `DECLARE [OR REPLACE] VARIABLE` statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-declare-variable.html
+    """
+
+    type = "declare_or_replace_variable_statement"
+    match_grammar = Sequence(
+        Ref.keyword("DECLARE"),
+        Ref("OrReplaceGrammar", optional=True),
+        Ref.keyword("VARIABLE", optional=True),
+        Ref("SingleIdentifierGrammar"),  # Variable name
+        Ref("DatatypeSegment", optional=True),  # Variable type
+        Sequence(
+            OneOf("DEFAULT", Ref("EqualsSegment")),
+            Ref("ExpressionSegment"),
+            optional=True,
         ),
     )

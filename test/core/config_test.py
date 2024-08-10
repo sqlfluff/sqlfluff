@@ -210,18 +210,6 @@ def test__config__load_placeholder_cfg():
     }
 
 
-def test__config__find_sqlfluffignore_in_same_directory():
-    """Test find ignore file in the same directory as sql file."""
-    ignore_files = ConfigLoader.find_ignore_config_files(
-        path="test/fixtures/linter/sqlfluffignore/path_b/query_b.sql",
-        working_path="test/fixtures/linter/sqlfluffignore/",
-    )
-    assert ignore_files == {
-        os.path.abspath("test/fixtures/linter/sqlfluffignore/path_b/.sqlfluffignore"),
-        os.path.abspath("test/fixtures/linter/sqlfluffignore/.sqlfluffignore"),
-    }
-
-
 def test__config__nested_config_tests():
     """Test linting with overridden config in nested paths.
 

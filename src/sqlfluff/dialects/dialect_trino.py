@@ -396,6 +396,11 @@ class WithinGroupClauseSegment(BaseSegment):
     """An WITHIN GROUP clause for window functions.
 
     https://trino.io/docs/current/functions/aggregate.html#array_agg
+
+    Trino supports an optional FILTER during aggregation that comes
+    immediately after the WITHIN GROUP clause.
+
+    https://trino.io/docs/current/functions/aggregate.html#filtering-during-aggregation
     """
 
     type = "withingroup_clause"
@@ -403,6 +408,7 @@ class WithinGroupClauseSegment(BaseSegment):
         "WITHIN",
         "GROUP",
         Bracketed(Ref("OrderByClauseSegment", optional=False)),
+        Ref("FilterClauseGrammar", optional=True),
     )
 
 
