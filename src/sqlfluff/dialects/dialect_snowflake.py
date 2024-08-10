@@ -8315,7 +8315,7 @@ class ScriptingDeclareStatementSegment(BaseSegment):
         Indent,
         AnyNumberOf(
             Sequence(
-                Ref("LocalVariableNameSegment"),
+                Ref("LocalVariableNameSegment", exclude=OneOf("BEGIN")),
                 OneOf(
                     # Variable assignment
                     OneOf(
@@ -8342,9 +8342,10 @@ class ScriptingDeclareStatementSegment(BaseSegment):
                         Bracketed(Ref("SelectableGrammar")),
                     ),
                 ),
-                Ref("DelimiterGrammar")
+                Ref("DelimiterGrammar"),
             ),
-            min_times=1
+            min_times=1,
         ),
         Dedent,
+        Ref("ScriptingBlockStatementSegment")
     )

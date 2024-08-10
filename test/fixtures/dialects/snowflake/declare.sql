@@ -6,6 +6,9 @@ BEGIN
     profit := 1.0;
 END;
 
--- DECLARE
---     res RESULTSET DEFAULT (SELECT price FROM invoices);
---     c1 CURSOR FOR res;
+DECLARE
+    res RESULTSET DEFAULT (SELECT price FROM invoices);
+    c1 CURSOR FOR res;
+BEGIN
+    RETURN c1;
+END;
