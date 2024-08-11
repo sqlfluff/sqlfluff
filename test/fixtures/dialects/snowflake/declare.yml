@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 71558b777a06224059496ce410b875574020e17090e1c5b823d77cabbe27bf82
+_hash: 3bdd8876501aee03219dadd507ee45a9c591ab3e27bc5fb989e0661b8b6f3a96
 file:
-  statement:
+- statement:
     scripting_declare_statement:
     - keyword: DECLARE
     - variable: profit
@@ -53,3 +53,56 @@ file:
                 table_reference:
                   naked_identifier: invoices
     - statement_terminator: ;
+    - scripting_block_statement:
+      - keyword: BEGIN
+      - statement:
+          scripting_let_statement:
+            variable: profit
+            assignment_operator: :=
+            expression:
+              numeric_literal: '1.0'
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- statement:
+    scripting_declare_statement:
+    - keyword: DECLARE
+    - variable: res
+    - data_type:
+        data_type_identifier: RESULTSET
+    - keyword: DEFAULT
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: price
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: invoices
+          end_bracket: )
+    - statement_terminator: ;
+    - variable: c1
+    - keyword: CURSOR
+    - keyword: FOR
+    - variable: res
+    - statement_terminator: ;
+    - scripting_block_statement:
+      - keyword: BEGIN
+      - statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              column_reference:
+                naked_identifier: c1
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
