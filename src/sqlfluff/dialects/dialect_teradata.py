@@ -19,6 +19,7 @@ from sqlfluff.core.parser import (
     CompositeComparisonOperatorSegment,
     Dedent,
     Delimited,
+    IdentifierSegment,
     Indent,
     Matchable,
     OneOf,
@@ -27,6 +28,7 @@ from sqlfluff.core.parser import (
     RegexLexer,
     Sequence,
     StringParser,
+    TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 
@@ -122,7 +124,11 @@ teradata_dialect.replace(
         Ref("LikeOperatorSegment"),
         Sequence("IS", "DISTINCT", "FROM"),
         Sequence("IS", "NOT", "DISTINCT", "FROM"),
-    )
+    ),
+    # match ANSI's naked identifier casefold, teradata is case-insensitive.
+    QuotedIdentifierSegment=TypedParser(
+        "double_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
+    ),
 )
 
 teradata_dialect.add(
@@ -633,12 +639,12 @@ class CreateTableStatementSegment(BaseSegment):
     type = "create_table_statement"
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         # Adding Teradata specific [MULTISET| SET]
         OneOf("SET", "MULTISET", optional=True),
         OneOf(Sequence("GLOBAL", "TEMPORARY"), "VOLATILE", optional=True),
         "TABLE",
-        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         # , NO FALLBACK, NO BEFORE JOURNAL, NO AFTER JOURNAL
         Ref("TdCreateTableOptions", optional=True),

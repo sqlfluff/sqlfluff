@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 990d8f15823f8f62dc00f28663b53829fcfb81cd480f1cdccf6ad16b819589e1
+_hash: 2b10df3e69a7debbc1a210dd7b4818be38ee4aed4073963c4b8f3acb177f86fb
 file:
 - statement:
     describe_statement:
@@ -678,4 +678,12 @@ file:
         data_type:
           data_type_identifier: FLOAT
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - external_volume_reference:
+        naked_identifier: my_volume
 - statement_terminator: ;

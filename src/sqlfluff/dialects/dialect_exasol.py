@@ -27,13 +27,13 @@ from sqlfluff.core.parser import (
     Ref,
     RegexLexer,
     RegexParser,
+    SegmentGenerator,
     Sequence,
     StringLexer,
     StringParser,
     SymbolSegment,
     TypedParser,
 )
-from sqlfluff.core.parser.segments.generator import SegmentGenerator
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_exasol_keywords import (
     BARE_FUNCTIONS,
@@ -81,6 +81,9 @@ exasol_dialect.insert_lexer_matchers(
             "escaped_identifier",
             r"\[\w+\]",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"\[(\w+)\]", 1),
+            },
         ),
         RegexLexer(
             "udf_param_dot_syntax",
@@ -121,11 +124,19 @@ exasol_dialect.patch_lexer_matchers(
             "single_quote",
             r"'([^']|'')*'",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"'((?:[^']|'')*)'", 1),
+                "escape_replacements": [(r"''", "'")],
+            },
         ),
         RegexLexer(
             "double_quote",
             r'"([^"]|"")*"',
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"]|"")*)"', 1),
+                "escape_replacements": [(r'""', '"')],
+            },
         ),
         RegexLexer(
             "inline_comment",
@@ -143,7 +154,7 @@ exasol_dialect.add(
     UDFParameterDotSyntaxSegment=TypedParser(
         "udf_param_dot_syntax", SymbolSegment, type="identifier"
     ),
-    RangeOperator=TypedParser("range_operator", SymbolSegment),
+    RangeOperator=TypedParser("range_operator", SymbolSegment, type="range_operator"),
     UnknownSegment=StringParser(
         "unknown", LiteralKeywordSegment, type="boolean_literal"
     ),
@@ -203,6 +214,7 @@ exasol_dialect.add(
     FunctionScriptTerminatorSegment=TypedParser(
         "function_script_terminator",
         SymbolSegment,
+        type="function_script_terminator",
     ),
     WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
     VariableNameSegment=RegexParser(
@@ -223,11 +235,8 @@ exasol_dialect.replace(
         CodeSegment,
         type="parameter",
     ),
-    LikeGrammar=Ref.keyword("LIKE"),
-    IsClauseGrammar=OneOf(
-        "NULL",
-        Ref("BooleanLiteralGrammar"),
-    ),
+    LikeGrammar=OneOf("LIKE", "REGEXP_LIKE"),
+    NanLiteralSegment=Nothing(),
     SelectClauseTerminatorGrammar=OneOf(
         "FROM",
         "WHERE",
@@ -303,9 +312,6 @@ class UnorderedSelectStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         Ref("SelectClauseSegment"),
-        #     # Dedent for the indent in the select clause.
-        #     # It's here so that it can come AFTER any whitespace.
-        Dedent,
         Ref("FromClauseSegment", optional=True),
         Ref("ReferencingClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
@@ -375,9 +381,7 @@ class SelectClauseSegment(BaseSegment):
         Ref("WithInvalidForeignKeySegment", optional=True),
         Ref("WithInvalidUniquePKSegment", optional=True),
         Ref("IntoTableSegment", optional=True),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
+        Dedent,
         terminators=[Ref("SelectClauseTerminatorGrammar")],
         parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
@@ -1526,33 +1530,10 @@ class InsertStatementSegment(BaseSegment):
         Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
         AnyNumberOf(
-            Ref("ValuesInsertClauseSegment"),
             Ref("ValuesRangeClauseSegment"),
             Sequence("DEFAULT", "VALUES"),
             Ref("SelectableGrammar"),
             Ref("BracketedColumnReferenceListGrammar", optional=True),
-        ),
-    )
-
-
-class ValuesInsertClauseSegment(BaseSegment):
-    """A `VALUES` clause like in `INSERT`."""
-
-    type = "values_insert_clause"
-    match_grammar = Sequence(
-        "VALUES",
-        Delimited(
-            Bracketed(
-                Delimited(
-                    Ref("LiteralGrammar"),
-                    Ref("IntervalExpressionSegment"),
-                    Ref("FunctionSegment"),
-                    Ref("BareFunctionSegment"),
-                    "DEFAULT",
-                    Ref("SelectableGrammar"),
-                ),
-                parse_mode=ParseMode.GREEDY,
-            ),
         ),
     )
 

@@ -1,8 +1,9 @@
 """Implementation of Rule AL02."""
+
 from typing import Optional
 
-from sqlfluff.rules.aliasing.AL01 import Rule_AL01
 from sqlfluff.core.rules import LintResult, RuleContext
+from sqlfluff.rules.aliasing.AL01 import Rule_AL01
 from sqlfluff.utils.functional import FunctionalContext
 
 

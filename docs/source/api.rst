@@ -32,5 +32,34 @@ future release. If you come to rely on the internals of SQLFluff, please
 post an issue on GitHub to share what you're up to. This will help shape
 a more reliable, tidy and well documented public API for use.
 
+Configuring SQLFluff
+~~~~~~~~~~~~~~~~~~~~
+
+You can use :code:`FluffConfig()` class to configure SQLFluff behaviour.
+
+
+.. literalinclude:: ../../examples/04_config_overrides.py
+   :language: python
+
+
+Instances of :code:`FluffConfig()` can be created manually, or parsed.
+
+
+.. literalinclude:: ../../examples/05_simple_api_config.py
+   :language: python
+
+
+Supported dialects and rules are available through :code:`list_dialects()`
+and :code:`list_rules()`.
+
+
+.. literalinclude:: ../../examples/03_getting_rules_and_dialects.py
+   :language: python
+
+
+Advanced API reference
+~~~~~~~~~~~~~~~~~~~~~~
+
+
 .. automodule:: sqlfluff.core
    :members: Linter, Lexer, Parser, FluffConfig

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aeee2f396458b254c167e80035f3da42c44feeb3cb7ace72d3ccb39f9357113e
+_hash: 60742b98d9081885cbf3076cd3802c9bac4507c6570fa9d6b285a77debb0e290
 file:
 - statement:
     access_statement:
@@ -1191,4 +1191,147 @@ file:
     - keyword: ROLE
     - role_reference:
         naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: ADD
+    - keyword: SEARCH
+    - keyword: OPTIMIZATION
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: MY_SCHEMA
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: MY_ROLE
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: database
+    - keyword: role
+    - database_role_reference:
+      - naked_identifier: dbname
+      - dot: .
+      - naked_identifier: rolename
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: public
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: database
+    - keyword: role
+    - database_role_reference:
+        naked_identifier: dbrolename
+    - keyword: to
+    - keyword: role
+    - role_reference:
+        naked_identifier: public
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: revoke
+    - keyword: database
+    - keyword: role
+    - database_role_reference:
+      - naked_identifier: dbname
+      - dot: .
+      - naked_identifier: rolename
+    - keyword: from
+    - keyword: role
+    - object_reference:
+        naked_identifier: public
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: revoke
+    - keyword: database
+    - keyword: role
+    - database_role_reference:
+        naked_identifier: dbrolename
+    - keyword: from
+    - keyword: role
+    - object_reference:
+        naked_identifier: public
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: select
+    - keyword: 'on'
+    - keyword: table
+    - object_reference:
+      - naked_identifier: dbname
+      - dot: .
+      - naked_identifier: schemaname
+      - dot: .
+      - naked_identifier: tablename
+    - keyword: to
+    - keyword: database
+    - keyword: role
+    - database_role_reference:
+      - naked_identifier: dbname
+      - dot: .
+      - naked_identifier: rolename
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: select
+    - keyword: 'on'
+    - keyword: table
+    - object_reference:
+      - naked_identifier: dbname
+      - dot: .
+      - naked_identifier: schemaname
+      - dot: .
+      - naked_identifier: tablename
+    - keyword: to
+    - keyword: database
+    - keyword: role
+    - role_reference:
+        naked_identifier: dbrolename
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: revoke
+    - keyword: select
+    - keyword: 'on'
+    - keyword: table
+    - object_reference:
+      - naked_identifier: dbname
+      - dot: .
+      - naked_identifier: schemaname
+      - dot: .
+      - naked_identifier: tablename
+    - keyword: from
+    - keyword: database
+    - keyword: role
+    - object_reference:
+      - naked_identifier: dbname
+      - dot: .
+      - naked_identifier: rolename
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: revoke
+    - keyword: select
+    - keyword: 'on'
+    - keyword: table
+    - object_reference:
+      - naked_identifier: dbname
+      - dot: .
+      - naked_identifier: schemaname
+      - dot: .
+      - naked_identifier: tablename
+    - keyword: from
+    - keyword: database
+    - keyword: role
+    - object_reference:
+        naked_identifier: dbrolename
 - statement_terminator: ;

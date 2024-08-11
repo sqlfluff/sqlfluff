@@ -21,10 +21,11 @@ from sqlfluff.core.errors import (
     SQLParseError,
     SQLTemplaterError,
 )
-from sqlfluff.core.linter.noqa import IgnoreMask
+from sqlfluff.core.linter.patch import FixPatch, generate_source_patches
 
 # Classes needed only for type checking
-from sqlfluff.core.parser.segments import BaseSegment, FixPatch
+from sqlfluff.core.parser.segments import BaseSegment
+from sqlfluff.core.rules.noqa import IgnoreMask
 from sqlfluff.core.templaters import RawFileSlice, TemplatedFile
 
 # Instantiate the linter logger
@@ -68,7 +69,7 @@ class LintedFile(NamedTuple):
     timings: Optional[FileTimings]
     tree: Optional[BaseSegment]
     ignore_mask: Optional[IgnoreMask]
-    templated_file: TemplatedFile
+    templated_file: Optional[TemplatedFile]
     encoding: str
 
     def check_tuples(
@@ -81,7 +82,6 @@ class LintedFile(NamedTuple):
         raises that error.
         """
         vs: List[CheckTuple] = []
-        v: SQLLintError
         for v in self.get_violations():
             if isinstance(v, SQLLintError):
                 vs.append(v.check_tuple())
@@ -112,7 +112,9 @@ class LintedFile(NamedTuple):
                 dedupe_buffer.add(signature)
             else:
                 linter_logger.debug("Removing duplicate source violation: %r", v)
-        return new_violations
+        # Sort on return so that if any are out of order, they're now ordered
+        # appropriately. This happens most often when linting multiple variants.
+        return sorted(new_violations, key=lambda v: (v.line_no, v.line_pos))
 
     def get_violations(
         self,
@@ -122,7 +124,7 @@ class LintedFile(NamedTuple):
         filter_warning: bool = True,
         warn_unused_ignores: bool = False,
         fixable: Optional[bool] = None,
-    ) -> list:
+    ) -> List[SQLBaseError]:
         """Get a list of violations, respecting filters and ignore options.
 
         Optionally now with filters.
@@ -176,31 +178,7 @@ class LintedFile(NamedTuple):
         """Return True if there are no ignorable violations."""
         return not any(self.get_violations(filter_ignore=True))
 
-    @staticmethod
-    def _log_hints(patch: FixPatch, templated_file: TemplatedFile):
-        """Log hints for debugging during patch generation."""
-        # This next bit is ALL FOR LOGGING AND DEBUGGING
-        max_log_length = 10
-        if patch.templated_slice.start >= max_log_length:
-            pre_hint = templated_file.templated_str[
-                patch.templated_slice.start
-                - max_log_length : patch.templated_slice.start
-            ]
-        else:
-            pre_hint = templated_file.templated_str[: patch.templated_slice.start]
-        if patch.templated_slice.stop + max_log_length < len(
-            templated_file.templated_str
-        ):
-            post_hint = templated_file.templated_str[
-                patch.templated_slice.stop : patch.templated_slice.stop + max_log_length
-            ]
-        else:
-            post_hint = templated_file.templated_str[patch.templated_slice.stop :]
-        linter_logger.debug(
-            "        Templated Hint: ...%r <> %r...", pre_hint, post_hint
-        )
-
-    def fix_string(self) -> Tuple[Any, bool]:
+    def fix_string(self) -> Tuple[str, bool]:
         """Obtain the changes to a path as a string.
 
         We use the source mapping features of TemplatedFile
@@ -218,8 +196,9 @@ class LintedFile(NamedTuple):
         completely dialect agnostic. A Segment is determined by the
         Lexer from portions of strings after templating.
         """
+        assert self.templated_file, "Fixing a string requires successful templating."
         linter_logger.debug("Original Tree: %r", self.templated_file.templated_str)
-        assert self.tree
+        assert self.tree, "Fixing a string requires successful parsing."
         linter_logger.debug("Fixed Tree: %r", self.tree.raw)
 
         # The sliced file is contiguous in the TEMPLATED space.
@@ -242,7 +221,7 @@ class LintedFile(NamedTuple):
         # Generate patches from the fixed tree. In the process we sort
         # and deduplicate them so that the resultant list is in the
         # the right order for the source file without any duplicates.
-        filtered_source_patches = self._generate_source_patches(
+        filtered_source_patches = generate_source_patches(
             self.tree, self.templated_file
         )
         linter_logger.debug("Filtered source patches:")
@@ -269,89 +248,6 @@ class LintedFile(NamedTuple):
 
         # The success metric here is whether anything ACTUALLY changed.
         return fixed_source_string, fixed_source_string != original_source
-
-    @classmethod
-    def _generate_source_patches(
-        cls, tree: BaseSegment, templated_file: TemplatedFile
-    ) -> List[FixPatch]:
-        """Use the fixed tree to generate source patches.
-
-        Importantly here we deduplicate and sort the patches
-        from their position in the templated file into their
-        intended order in the source file.
-        """
-        # Iterate patches, filtering and translating as we go:
-        linter_logger.debug("### Beginning Patch Iteration.")
-        filtered_source_patches = []
-        dedupe_buffer = []
-        # We use enumerate so that we get an index for each patch. This is entirely
-        # so when debugging logs we can find a given patch again!
-        for idx, patch in enumerate(tree.iter_patches(templated_file=templated_file)):
-            linter_logger.debug("  %s Yielded patch: %s", idx, patch)
-            cls._log_hints(patch, templated_file)
-
-            # Check for duplicates
-            if patch.dedupe_tuple() in dedupe_buffer:
-                linter_logger.info(
-                    "      - Skipping. Source space Duplicate: %s",
-                    patch.dedupe_tuple(),
-                )
-                continue
-
-            # We now evaluate patches in the source-space for whether they overlap
-            # or disrupt any templated sections.
-            # The intent here is that unless explicitly stated, a fix should never
-            # disrupt a templated section.
-            # NOTE: We rely here on the patches being generated in order.
-            # TODO: Implement a mechanism for doing templated section fixes. Given
-            # these patches are currently generated from fixed segments, there will
-            # likely need to be an entirely different mechanism
-
-            # Get the affected raw slices.
-            local_raw_slices = templated_file.raw_slices_spanning_source_slice(
-                patch.source_slice
-            )
-            local_type_list = [slc.slice_type for slc in local_raw_slices]
-
-            # Deal with the easy cases of 1) New code at end 2) only literals
-            if not local_type_list or set(local_type_list) == {"literal"}:
-                linter_logger.info(
-                    "      * Keeping patch on new or literal-only section.",
-                )
-                filtered_source_patches.append(patch)
-                dedupe_buffer.append(patch.dedupe_tuple())
-            # Handle the easy case of an explicit source fix
-            elif patch.patch_category == "source":
-                linter_logger.info(
-                    "      * Keeping explicit source fix patch.",
-                )
-                filtered_source_patches.append(patch)
-                dedupe_buffer.append(patch.dedupe_tuple())
-            # Is it a zero length patch.
-            elif (
-                patch.source_slice.start == patch.source_slice.stop
-                and patch.source_slice.start == local_raw_slices[0].source_idx
-            ):
-                linter_logger.info(
-                    "      * Keeping insertion patch on slice boundary.",
-                )
-                filtered_source_patches.append(patch)
-                dedupe_buffer.append(patch.dedupe_tuple())
-            else:  # pragma: no cover
-                # We've got a situation where the ends of our patch need to be
-                # more carefully mapped. This used to happen with greedy template
-                # element matching, but should now never happen. In the event that
-                # it does, we'll warn but carry on.
-                linter_logger.warning(
-                    "Skipping edit patch on uncertain templated section [%s], "
-                    "Please report this warning on GitHub along with the query "
-                    "that produced it.",
-                    (patch.patch_category, patch.source_slice),
-                )
-                continue
-
-        # Sort the patches before building up the file.
-        return sorted(filtered_source_patches, key=lambda x: x.source_slice.start)
 
     @staticmethod
     def _slice_source_file_using_patches(
@@ -498,20 +394,6 @@ class LintedFile(NamedTuple):
             formatter.dispatch_persist_filename(filename=self.path, result=result_label)
 
         return success
-
-    def discard_fixes_if_tmp_or_prs_errors(self) -> None:
-        """Discard lint fixes for files with templating or parse errors."""
-        num_errors = self.num_violations(
-            types=TMP_PRS_ERROR_TYPES,
-            filter_ignore=False,
-            filter_warning=False,
-        )
-        if num_errors:
-            # File has errors. Discard all the SQLLintError fixes:
-            # they are potentially unsafe.
-            for violation in self.violations:
-                if isinstance(violation, SQLLintError):
-                    violation.fixes = []
 
     @staticmethod
     def _safe_create_replace_file(

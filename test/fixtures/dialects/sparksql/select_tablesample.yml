@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 72061fbe559f92d245812e9660a400734186a91f7df06debb3482e677a634e83
+_hash: aa2de3c3c7eaba041db80af0c490ce901c7b373c8e4b20973eb9288cff6515db
 file:
 - statement:
     select_statement:
@@ -53,8 +53,6 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: test
-            alias_expression:
-              naked_identifier: t
             sample_expression:
               keyword: TABLESAMPLE
               bracketed:
@@ -62,6 +60,8 @@ file:
                 numeric_literal: '50'
                 keyword: PERCENT
                 end_bracket: )
+            alias_expression:
+              naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -85,9 +85,6 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: test
-            alias_expression:
-              keyword: AS
-              naked_identifier: t
             sample_expression:
               keyword: TABLESAMPLE
               bracketed:
@@ -95,6 +92,9 @@ file:
                 numeric_literal: '50'
                 keyword: PERCENT
                 end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: t
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -220,8 +220,6 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: test_1
-            alias_expression:
-              naked_identifier: t1
             sample_expression:
               keyword: TABLESAMPLE
               bracketed:
@@ -229,6 +227,8 @@ file:
                 numeric_literal: '5'
                 keyword: ROWS
                 end_bracket: )
+            alias_expression:
+              naked_identifier: t1
           join_clause:
           - keyword: NATURAL
           - keyword: JOIN
@@ -236,8 +236,6 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: test_2
-              alias_expression:
-                naked_identifier: t2
               sample_expression:
                 keyword: TABLESAMPLE
                 bracketed:
@@ -248,6 +246,8 @@ file:
                 - keyword: OF
                 - numeric_literal: '10'
                 - end_bracket: )
+              alias_expression:
+                naked_identifier: t2
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -271,9 +271,6 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: test_1
-            alias_expression:
-              keyword: AS
-              naked_identifier: t1
             sample_expression:
               keyword: TABLESAMPLE
               bracketed:
@@ -281,6 +278,9 @@ file:
                 numeric_literal: '5'
                 keyword: ROWS
                 end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: t1
           join_clause:
           - keyword: NATURAL
           - keyword: JOIN
@@ -288,9 +288,6 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: test_2
-              alias_expression:
-                keyword: AS
-                naked_identifier: t2
               sample_expression:
                 keyword: TABLESAMPLE
                 bracketed:
@@ -301,4 +298,7 @@ file:
                 - keyword: OF
                 - numeric_literal: '10'
                 - end_bracket: )
+              alias_expression:
+                keyword: AS
+                naked_identifier: t2
 - statement_terminator: ;

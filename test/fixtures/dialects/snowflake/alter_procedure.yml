@@ -1,0 +1,279 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: bb4ee28109f4aa3f4dc5576bafb9381642778daf92a88cfe77f7a288391a9b87
+file:
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - keyword: IF
+    - keyword: EXISTS
+    - function_name:
+        function_name_identifier: procedure1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: FLOAT
+          end_bracket: )
+    - keyword: RENAME
+    - keyword: TO
+    - function_name:
+        function_name_identifier: procedure2
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - keyword: IF
+    - keyword: EXISTS
+    - function_name:
+        function_name_identifier: procedure1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: FLOAT
+          end_bracket: )
+    - keyword: EXECUTE
+    - keyword: AS
+    - keyword: CALLER
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - keyword: IF
+    - keyword: EXISTS
+    - function_name:
+        function_name_identifier: procedure1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: FLOAT
+          end_bracket: )
+    - keyword: EXECUTE
+    - keyword: AS
+    - keyword: OWNER
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: procedure1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: FLOAT_PARAM1
+          data_type:
+            data_type_identifier: FLOAT
+          end_bracket: )
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'a_comment'"
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: procedure1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: FLOAT_PARAM1
+          data_type:
+            data_type_identifier: FLOAT
+          end_bracket: )
+    - keyword: SET
+    - tag_equals:
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: TAG1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value1'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: TAG2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value2'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: TAG3
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value3'"
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: procedure1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: procedure1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: TAG1
+    - comma: ','
+    - tag_reference:
+        naked_identifier: TAG2
+    - comma: ','
+    - tag_reference:
+        naked_identifier: TAG3
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: procedure1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: varchar
+          end_bracket: )
+    - keyword: SET
+    - log_level_equals:
+      - keyword: LOG_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: WARN
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: procedure1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: varchar
+          end_bracket: )
+    - keyword: SET
+    - trace_level_equals:
+      - keyword: TRACE_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ALWAYS
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        naked_identifier: mirror
+        dot: .
+        function_name_identifier: procedure1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: varchar
+          end_bracket: )
+    - keyword: SET
+    - log_level_equals:
+      - keyword: LOG_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: WARN
+    - comma: ','
+    - trace_level_equals:
+      - keyword: TRACE_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ON_EVENT
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: example_procedure
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: SET
+    - external_access_integration_equals:
+        keyword: EXTERNAL_ACCESS_INTEGRATIONS
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+          start_bracket: (
+          naked_identifier: my_external_access_integration
+          end_bracket: )
+    - comma: ','
+    - log_level_equals:
+      - keyword: LOG_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DEBUG
+    - comma: ','
+    - trace_level_equals:
+      - keyword: TRACE_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ON_EVENT
+    - comma: ','
+    - external_access_integration_equals:
+        keyword: SECRETS
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+          start_bracket: (
+          quoted_literal: "'cred'"
+          comparison_operator:
+            raw_comparison_operator: '='
+          naked_identifier: oauth_token
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_procedure_statement:
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: example_procedure
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: SET
+    - external_access_integration_equals:
+        keyword: EXTERNAL_ACCESS_INTEGRATIONS
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+          start_bracket: (
+          naked_identifier: my_external_access_integration
+          end_bracket: )
+- statement_terminator: ;

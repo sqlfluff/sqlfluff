@@ -1,7 +1,7 @@
 """Define FunctionalContext class."""
 
-from sqlfluff.utils.functional import Segments
 from sqlfluff.core.rules import RuleContext
+from sqlfluff.utils.functional.segments import Segments
 
 
 class FunctionalContext:

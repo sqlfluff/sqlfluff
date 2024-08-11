@@ -1,42 +1,40 @@
 """Methods for deducing and understanding indents."""
 
-from collections import defaultdict
-from itertools import chain
 import logging
+from collections import defaultdict
+from dataclasses import dataclass
+from itertools import chain
 from typing import (
+    DefaultDict,
+    Dict,
+    FrozenSet,
     Iterator,
     List,
     Optional,
     Set,
     Tuple,
     cast,
-    Dict,
-    DefaultDict,
-    FrozenSet,
 )
-from dataclasses import dataclass
+
 from sqlfluff.core.errors import SQLFluffUserError
-
-from sqlfluff.core.parser.segments import Indent, SourceFix
-
+from sqlfluff.core.helpers.slice import slice_length
 from sqlfluff.core.parser import (
-    RawSegment,
     BaseSegment,
     NewlineSegment,
+    RawSegment,
     WhitespaceSegment,
 )
+from sqlfluff.core.parser.segments import Indent, SourceFix
 from sqlfluff.core.parser.segments.meta import MetaSegment, TemplateSegment
-from sqlfluff.core.rules.base import LintFix, LintResult
-from sqlfluff.core.slice_helpers import slice_length
+from sqlfluff.core.rules import LintFix, LintResult
 from sqlfluff.utils.reflow.elements import (
+    IndentStats,
     ReflowBlock,
     ReflowPoint,
     ReflowSequenceType,
-    IndentStats,
 )
 from sqlfluff.utils.reflow.helpers import fixes_from_results
-from sqlfluff.utils.reflow.rebreak import identify_rebreak_spans, _RebreakSpan
-
+from sqlfluff.utils.reflow.rebreak import _RebreakSpan, identify_rebreak_spans
 
 # We're in the utils module, but users will expect reflow
 # logs to appear in the context of rules. Hence it's a subset
@@ -338,16 +336,32 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
                 # strangely.
                 continue
 
-            for seg in elements[first_point_idx].segments[::-1]:
-                if seg.is_type("indent"):
-                    # If it's the one straight away, after a block_end or
-                    # block_mid, skip it. We know this because it will have
-                    # block_uuid.
-                    if cast(Indent, seg).block_uuid:
-                        continue
-                    # Minus because we're going backward.
-                    indent_balance -= cast(Indent, seg).indent_val
-                    steps.add(indent_balance)
+            for i in range(first_point_idx, 0, -1):
+                if isinstance(elements[i], ReflowPoint):
+                    for seg in elements[i].segments[::-1]:
+                        if seg.is_type("indent"):
+                            # If it's the one straight away, after a block_end or
+                            # block_mid, skip it. We know this because it will have
+                            # block_uuid.
+                            if cast(Indent, seg).block_uuid:
+                                continue
+                            # Minus because we're going backward.
+                            indent_balance -= cast(Indent, seg).indent_val
+                            steps.add(indent_balance)
+                # if it's anything other than a blank placeholder, break.
+                # NOTE: We still need the forward version of this.
+                elif not elements[i].segments[0].is_type("placeholder"):
+                    break
+                elif cast(TemplateSegment, elements[i].segments[0]).block_type not in (
+                    "block_start",
+                    "block_end",
+                    "skipped_source",
+                    "block_mid",
+                ):
+                    # Recreating this condition is hard, but we shouldn't allow any
+                    # rendered content here.
+                    break  # pragma: no cover
+
             # Run forward through the post point.
             indent_balance = line.initial_indent_balance
             last_point_idx = line.indent_points[-1].idx
@@ -501,10 +515,8 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
                     net_balance += ip.indent_impulse
 
         # Evaluate options.
-        # NOTE: We don't use the _last_ option, because it tends to be trailing
-        # and have strange effects.
         reflow_logger.debug("    Options: %s", options)
-        overlap = set.intersection(*options[:-1])
+        overlap = set.intersection(*options)
         reflow_logger.debug("    Simple Overlap: %s", overlap)
         # Remove any options above the limit option.
         # We minus one from the limit, because if it comes into effect
@@ -552,7 +564,9 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
             lines.remove(line)
 
 
-def _revise_comment_lines(lines: List[_IndentLine], elements: ReflowSequenceType):
+def _revise_comment_lines(
+    lines: List[_IndentLine], elements: ReflowSequenceType, ignore_comment_lines: bool
+):
     """Given an initial set of individual lines. Revise comment ones.
 
     NOTE: This mutates the `lines` argument.
@@ -566,7 +580,12 @@ def _revise_comment_lines(lines: List[_IndentLine], elements: ReflowSequenceType
     # Slice to avoid copying
     for idx, line in enumerate(lines[:]):
         if line.is_all_comments(elements):
-            comment_line_buffer.append(idx)
+            if ignore_comment_lines:
+                # If we're removing comment lines, purge this line from the buffer.
+                reflow_logger.debug("Ignoring comment line idx: %s", idx)
+                lines.remove(line)
+            else:
+                comment_line_buffer.append(idx)
         else:
             # Not a comment only line, if there's a buffer anchor
             # to this one.
@@ -575,9 +594,9 @@ def _revise_comment_lines(lines: List[_IndentLine], elements: ReflowSequenceType
                     "  Comment Only Line: %s. Anchoring to %s", comment_line_idx, idx
                 )
                 # Mutate reference lines to match this one.
-                lines[
-                    comment_line_idx
-                ].initial_indent_balance = line.initial_indent_balance
+                lines[comment_line_idx].initial_indent_balance = (
+                    line.initial_indent_balance
+                )
             # Reset the buffer
             comment_line_buffer = []
 
@@ -806,7 +825,17 @@ def _crawl_indent_points(
 
             # Is the next element a comment? If so - delay the decision until we've
             # got any indents from after the comment too.
-            if "comment" in elements[idx + 1].class_types:
+            #
+            # Also, some templaters might insert custom marker slices that are of zero
+            # source string length as a way of marking locations in the middle of
+            # templated output.  These don't correspond to real source code, so we
+            # can't meaningfully indent before them.  We can safely handle them similar
+            # to the comment case.
+            if "comment" in elements[idx + 1].class_types or (
+                "placeholder" in elements[idx + 1].class_types
+                and cast(TemplateSegment, elements[idx + 1].segments[0]).source_str
+                == ""
+            ):
                 cached_indent_stats = indent_stats
                 # Create parts of a point to use later.
                 cached_point = indent_point
@@ -1457,6 +1486,7 @@ def lint_indent_points(
     single_indent: str,
     skip_indentation_in: FrozenSet[str] = frozenset(),
     allow_implicit_indents: bool = False,
+    ignore_comment_lines: bool = False,
 ) -> Tuple[ReflowSequenceType, List[LintResult]]:
     """Lint the indent points to check we have line breaks where we should.
 
@@ -1488,7 +1518,7 @@ def lint_indent_points(
     # Revise templated indents
     _revise_templated_lines(lines, elements)
     # Revise comment indents
-    _revise_comment_lines(lines, elements)
+    _revise_comment_lines(lines, elements, ignore_comment_lines=ignore_comment_lines)
 
     # Skip elements we're configured to not touch (i.e. scripts)
     for line in lines[:]:
@@ -1845,12 +1875,10 @@ def _fix_long_line_with_comment(
         prev_elems = []
         anchor = first_seg
     else:
-        new_point = ReflowPoint(
-            (
-                NewlineSegment(),
-                WhitespaceSegment(current_indent),
-            )
-        )
+        new_segments: Tuple[RawSegment, ...] = (NewlineSegment(),)
+        if current_indent:
+            new_segments += (WhitespaceSegment(current_indent),)
+        new_point = ReflowPoint(new_segments)
         prev_elems = elements[: last_indent_idx + 1]
         anchor = elements[last_indent_idx + 1].segments[0]
 
@@ -2033,7 +2061,7 @@ def lint_line_length(
             # we know there's always a trailing block.
             "end_of_file" in elem_buffer[i + 1].class_types
             # Or is there a newline?
-            or has_untemplated_newline(cast(ReflowPoint, elem))
+            or has_untemplated_newline(elem)
         ):
             # In either case we want to process this, so carry on.
             pass

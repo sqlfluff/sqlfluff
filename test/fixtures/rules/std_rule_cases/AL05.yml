@@ -242,7 +242,7 @@ test_pass_snowflake_values:
       dialect: snowflake
 
 test_pass_tsql_values_clause_in_parentheses:
-  # Tests a fix for issue 3522. In tsql, the parentheses surrouding "values" are
+  # Tests a fix for issue 3522. In tsql, the parentheses surrounding "values" are
   # required (otherwise syntax error). SQLFluff was incorrectly complaining that
   # the alias 't' was unused.
   pass_str: |
@@ -347,6 +347,833 @@ test_pass_redshift_semi_structured_op:
     SELECT tt.resource_id
     FROM top_table AS tt
     , tt.nested_column AS co
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_postgres_values_clause:
+  pass_str: |
+    SELECT *
+    FROM (
+        VALUES
+        (1, 2),
+        (3, 4)
+    ) AS t (x, y)
+  configs:
+    core:
+      dialect: postgres
+
+# Quoted identifiers case-sensitive tests
+test_pass_naked_select_single_quoted_table:
+  pass_str: |
+    SELECT a.col1
+    FROM tab1 as 'A'
+
+test_fail_naked_select_single_quoted_table_wrong_case:
+  fail_str: |
+    SELECT a.col1
+    FROM tab1 as 'a'
+  fix_str: |
+    SELECT a.col1
+    FROM tab1
+
+test_pass_naked_select_single_quoted_table_ci:
+  pass_str: |
+    SELECT a.col1
+    FROM tab1 as 'a'
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: case_insensitive
+
+test_pass_naked_select_single_quoted_table_qcs_nup:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS 'A'
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: quoted_cs_naked_upper
+
+test_fail_naked_select_single_quoted_table_wrong_case_qcs_nup:
+  fail_str: |
+    SELECT a.col_1
+    FROM table_a AS 'a'
+  fix_str: |
+    SELECT a.col_1
+    FROM table_a
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: quoted_cs_naked_upper
+
+test_pass_naked_select_single_quoted_table_qcs_nlow:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS 'a'
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: quoted_cs_naked_lower
+
+test_fail_naked_select_single_quoted_table_wrong_case_qcs_nlow:
+  fail_str: |
+    SELECT a.col_1
+    FROM table_a AS 'A'
+  fix_str: |
+    SELECT a.col_1
+    FROM table_a
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: quoted_cs_naked_lower
+
+test_pass_naked_select_single_quoted_table_lower_cs:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS 'a'
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: case_sensitive
+
+test_pass_naked_select_single_quoted_table_upper_cs:
+  pass_str: |
+    SELECT A.col_1
+    FROM table_a AS 'A'
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: case_sensitive
+
+test_fail_naked_select_single_quoted_table_wrong_case_cs:
+  fail_str: |
+    SELECT a.col_1
+    FROM table_a AS 'A'
+  fix_str: |
+    SELECT a.col_1
+    FROM table_a
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: case_sensitive
+
+test_pass_naked_select_quoted_table:
+  pass_str: |
+    SELECT a.col1
+    FROM tab1 as "A"
+
+test_pass_quoted_select_naked_table:
+  pass_str: |
+    SELECT "A".col1
+    FROM tab1 as a
+
+test_pass_naked_select_quoted_table_subquery:
+  pass_str: |
+    SELECT col_1
+    FROM table_a AS "A"
+    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE a.col_4 = b.col_1)
+
+test_pass_quoted_select_naked_table_subquery:
+  pass_str: |
+    SELECT col_1
+    FROM table_a AS a
+    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE "A".col_4 = b.col_1)
+
+test_pass_naked_select_double_quoted_table_ci:
+  pass_str: |
+    SELECT a.col1
+    FROM tab1 as "a"
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: case_insensitive
+
+test_pass_naked_select_double_quoted_table_qcs_nup:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS "A"
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: quoted_cs_naked_upper
+
+test_fail_naked_select_double_quoted_table_wrong_case_qcs_nup:
+  fail_str: |
+    SELECT a.col_1
+    FROM table_a AS "a"
+  fix_str: |
+    SELECT a.col_1
+    FROM table_a
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: quoted_cs_naked_upper
+
+test_pass_naked_select_double_quoted_table_qcs_nlow:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS "a"
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: quoted_cs_naked_lower
+
+test_fail_naked_select_double_quoted_table_wrong_case_qcs_nlow:
+  fail_str: |
+    SELECT a.col_1
+    FROM table_a AS "A"
+  fix_str: |
+    SELECT a.col_1
+    FROM table_a
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: quoted_cs_naked_lower
+
+test_pass_naked_select_double_quoted_table_lower_cs:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS "a"
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: case_sensitive
+
+test_pass_naked_select_double_quoted_table_upper_cs:
+  pass_str: |
+    SELECT A.col_1
+    FROM table_a AS "A"
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: case_sensitive
+
+test_fail_naked_select_double_quoted_table_wrong_case_cs:
+  fail_str: |
+    SELECT a.col_1
+    FROM table_a AS "A"
+  fix_str: |
+    SELECT a.col_1
+    FROM table_a
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: case_sensitive
+
+test_pass_athena_naked_select_quoted_table:
+  pass_str: |
+    SELECT a.col1
+    FROM tab1 as "A"
+  configs:
+    core:
+      dialect: athena
+
+test_pass_athena_quoted_select_naked_table:
+  pass_str: |
+    SELECT "A".col1
+    FROM tab1 as a
+  configs:
+    core:
+      dialect: athena
+
+test_pass_athena_naked_select_back_quoted_table:
+  pass_str: |
+    SELECT a.col1
+    FROM tab1 as `A`
+  configs:
+    core:
+      dialect: athena
+
+test_pass_athena_back_quoted_select_naked_table:
+  pass_str: |
+    SELECT `A`.col1
+    FROM tab1 as a
+  configs:
+    core:
+      dialect: athena
+
+test_pass_bigquery_naked_select_quoted_table:
+  pass_str: |
+    SELECT a.col1
+    FROM tab1 as `A`
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_quoted_select_naked_table:
+  pass_str: |
+    SELECT `A`.col1
+    FROM tab1 as a
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_quoted_escapes:
+  pass_str: |
+    SELECT `\`a`.col1
+    FROM tab1 as `\`A`
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_clickhouse_naked_select_quoted_table:
+  pass_str: |
+    SELECT a.col1, b.col2
+    FROM tab1 as `a`
+    CROSS JOIN tab2 as "b"
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_clickhouse_quoted_select_naked_table:
+  pass_str: |
+    SELECT `a`.col1, "b".col2
+    FROM tab1 as a
+    CROSS JOIN tab2 as b
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_clickhouse_quoted_escapes:
+  pass_str: |
+    SELECT "\"`a`""".col1,
+    FROM tab1 as `"\`a``"`
+  configs:
+    core:
+      dialect: clickhouse
+
+test_fail_clickhouse_naked_select_quoted_table_cs:
+  fail_str: |
+    SELECT a.col1
+    FROM tab1 as `A`
+  fix_str: |
+    SELECT a.col1
+    FROM tab1
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_clickhouse_quoted_select_naked_table_cs:
+  fail_str: |
+    SELECT `A`.col1
+    FROM tab1 as a
+  fix_str: |
+    SELECT `A`.col1
+    FROM tab1
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_db2_naked_select_double_quoted_table:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS "A"
+  configs:
+    core:
+      dialect: db2
+
+test_fail_db2_naked_select_double_quoted_table_wrong_case:
+  fail_str: |
+    SELECT a.col_1
+    FROM table_a AS "a"
+  fix_str: |
+    SELECT a.col_1
+    FROM table_a
+  configs:
+    core:
+      dialect: db2
+
+test_pass_duckdb_naked_select_double_quoted_table:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS "A"
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_quoted_select_naked_table:
+  pass_str: |
+    SELECT "a".col_1
+    FROM table_a AS A
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_quoted_select_single_quote_table:
+  pass_str: |
+    SELECT "'""a""'".col_1
+    FROM table_a AS '''"A"'''
+  configs:
+    core:
+      dialect: duckdb
+
+test_fail_duckdb_single_quote_select_naked_table:
+  fail_str: |
+    SELECT 'a'[1]
+    FROM table_a AS A
+  fix_str: |
+    SELECT 'a'[1]
+    FROM table_a
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_exasol_naked_select_double_quoted_table:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS "A"
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_exasol_quoted_select_naked_table:
+  pass_str: |
+    SELECT "A".col_1
+    FROM table_a AS a
+  configs:
+    core:
+      dialect: exasol
+
+test_fail_exasol_quoted_select_naked_table_wrong_case:
+  fail_str: |
+    SELECT "a".col_1
+    FROM table_a AS A
+  fix_str: |
+    SELECT "a".col_1
+    FROM table_a
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_exasol_quoted_select_single_quote_table:
+  pass_str: |
+    SELECT "'""A""'".col_1
+    FROM table_a AS '''"A"'''
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_hive_naked_select_quoted_table:
+  pass_str: |
+    SELECT a.col1
+    FROM tab1 as `A`
+  configs:
+    core:
+      dialect: hive
+
+test_pass_hive_quoted_select_naked_table:
+  pass_str: |
+    SELECT `a`.col1
+    FROM tab1 as A
+  configs:
+    core:
+      dialect: hive
+
+test_pass_mysql_quoted_select_quoted_table:
+  pass_str: |
+    SELECT `nih`.`userID`
+    FROM `flight_notification_item_history` AS `nih`
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_mysql_naked_select_quoted_table:
+  pass_str: |
+    SELECT nih.`userID`
+    FROM `flight_notification_item_history` AS `nih`
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_mysql_quoted_select_naked_table:
+  pass_str: |
+    SELECT `nih`.`userID`
+    FROM `flight_notification_item_history` AS nih
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_oracle_naked_select_double_quoted_table:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS "A"
+  configs:
+    core:
+      dialect: oracle
+
+test_fail_oracle_naked_select_double_quoted_table_wrong_case:
+  fail_str: |
+    SELECT a.col_1
+    FROM table_a AS "a"
+  fix_str: |
+    SELECT a.col_1
+    FROM table_a
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_postgres_naked_select_double_quoted_table:
+  pass_str: |
+    SELECT A.col_1
+    FROM table_a AS "a"
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_postgres_naked_select_double_quoted_table:
+  fail_str: |
+    SELECT a.col_1
+    FROM table_a AS "A"
+  fix_str: |
+    SELECT a.col_1
+    FROM table_a
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_quoted_select_naked_table:
+  pass_str: |
+    SELECT "a".col_1
+    FROM table_a AS a
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_quoted_select_single_quote_table:
+  pass_str: |
+    SELECT "A""".col_1
+    FROM table_a AS "A"""
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_redshift_naked_select_double_quoted_table:
+  pass_str: |
+    SELECT A.col_1
+    FROM table_a AS "a"
+  configs:
+    core:
+      dialect: redshift
+
+test_fail_redshift_naked_select_double_quoted_table:
+  fail_str: |
+    SELECT a.col_1
+    FROM table_a AS "A"
+  fix_str: |
+    SELECT a.col_1
+    FROM table_a
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_redshift_quoted_select_naked_table:
+  pass_str: |
+    SELECT "a".col_1
+    FROM table_a AS a
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_redshift_quoted_select_single_quote_table:
+  pass_str: |
+    SELECT "A""".col_1
+    FROM table_a AS "A"""
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_snowflake_naked_select_double_quoted_table:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS "A"
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_naked_select_double_quoted_table_wrong_case:
+  fail_str: |
+    SELECT a.col_1
+    FROM table_a AS "a"
+  fix_str: |
+    SELECT a.col_1
+    FROM table_a
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_sparksql_naked_select_double_quoted_table:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS `A`
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_sparksql_quoted_select_naked_table:
+  pass_str: |
+    SELECT `a`.col_1
+    FROM table_a AS A
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_sqlite_naked_select_quoted_table:
+  pass_str: |
+    SELECT a.col1
+    FROM tab1 as `a`
+  configs:
+    core:
+      dialect: sqlite
+
+test_pass_sqlite_quoted_select_naked_table:
+  pass_str: |
+    SELECT `a`.col1
+    FROM tab1 as a
+  configs:
+    core:
+      dialect: sqlite
+
+test_pass_sqlite_naked_select_quoted_table_subquery:
+  pass_str: |
+    SELECT col_1
+    FROM table_a AS `a`
+    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE a.col_4 = b.col_1)
+  configs:
+    core:
+      dialect: sqlite
+
+test_pass_sqlite_quoted_select_naked_table_subquery:
+  pass_str: |
+    SELECT col_1
+    FROM table_a AS a
+    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE `a`.col_4 = b.col_1)
+  configs:
+    core:
+      dialect: sqlite
+
+test_pass_sqlite_different_escaped_quotes:
+  pass_str: |
+    SELECT
+    "`'a""".id,
+    '`''a"'.id
+    FROM table_a AS ```'A"`
+  configs:
+    core:
+      dialect: sqlite
+
+test_pass_teradata_naked_select_double_quoted_table:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS "A"
+  configs:
+    core:
+      dialect: teradata
+
+test_pass_teradata_quoted_select_naked_table:
+  pass_str: |
+    SELECT "a".col_1
+    FROM table_a AS A
+  configs:
+    core:
+      dialect: teradata
+
+test_pass_trino_naked_select_double_quoted_table:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS "A"
+  configs:
+    core:
+      dialect: trino
+
+test_pass_trino_quoted_select_naked_table:
+  pass_str: |
+    SELECT "a".col_1
+    FROM table_a AS A
+  configs:
+    core:
+      dialect: trino
+
+test_pass_tsql_naked_select_quoted_table:
+  pass_str: |
+    SELECT a.col1
+    FROM tab1 as [a]
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_quoted_select_naked_table:
+  pass_str: |
+    SELECT [a].col1
+    FROM tab1 as a
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_vertica_naked_select_double_quoted_table:
+  pass_str: |
+    SELECT a.col_1
+    FROM table_a AS "A"
+  configs:
+    core:
+      dialect: vertica
+
+test_pass_vertica_quoted_select_naked_table:
+  pass_str: |
+    SELECT "a".col_1
+    FROM table_a AS A
+  configs:
+    core:
+      dialect: vertica
+
+# Tables referenced multiple times without a select reference
+test_pass_repeat_referenced_table:
+  pass_str: |
+    SELECT ROW_NUMBER() OVER(PARTITION BY a.object_id ORDER BY a.object_id)
+    FROM sys.objects a
+    CROSS JOIN sys.objects b
+    CROSS JOIN sys.objects c
+
+test_pass_case_insensitive:
+  pass_str: |
+    SELECT
+      a.foo
+      , b.bar
+    FROM foo.baz a
+    INNER JOIN foo.qux B
+      ON a.thing = b.thing
+    ;
+
+test_pass_quoted_case_insensitive:
+  pass_str: |
+    SELECT
+      a.foo
+      , b.bar
+    FROM foo.bar a
+    INNER JOIN foo.qux 'B'
+      ON a.thing = b.thing
+    ;
+
+test_pass_postgres_different_quoted_case_insensitive:
+  pass_str: |
+    SELECT
+      a.col1
+      , B.id
+    FROM prd.tbl1 a
+    INNER JOIN tbl1 "b"
+      ON a.col1 = B.id
+    ;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_snowflake_flatten_lateral:
+  pass_str: |
+    SELECT
+      a.test1,
+      a.test2,
+      b.test3,
+      f.test4
+    FROM table1 AS a,
+      LATERAL flatten(input => some_field) AS b,
+      LATERAL flatten(input => b.value) AS c,
+      LATERAL flatten(input => c.value) AS d,
+      LATERAL flatten(input => d.value) AS e,
+      LATERAL flatten(input => e.value) AS f;
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_flatten_lateral:
+  fail_str: |
+    SELECT
+      a.test1,
+      a.test2,
+      b.test3
+    FROM table1 AS a,
+      LATERAL flatten(input => some_field) AS b,
+      LATERAL flatten(input => b.value) AS c,
+      LATERAL flatten(input => c.value) AS d,
+      LATERAL flatten(input => d.value) AS e,
+      LATERAL flatten(input => e.value) AS f;
+  fix_str: |
+    SELECT
+      a.test1,
+      a.test2,
+      b.test3
+    FROM table1 AS a,
+      LATERAL flatten(input => some_field) AS b,
+      LATERAL flatten(input => b.value) AS c,
+      LATERAL flatten(input => c.value) AS d,
+      LATERAL flatten(input => d.value) AS e,
+      LATERAL flatten(input => e.value);
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_bigquery_cross_join_unnest:
+  pass_str: |
+    with
+    sequences as (
+      select [0, 1, 1, 2] as some_numbers
+      union all
+      select [2, 4, 8]
+    )
+    select
+      num
+    from sequences as s
+    cross join unnest(s.some_numbers) as num
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_cross_join_array:
+  pass_str: |
+    with table_arr as (select [1,2,4,2] as arr)
+    SELECT arr
+    FROM table_arr t, t.arr
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_redshift_qualify_follows_from:
+  pass_str: |
+    SELECT *
+    FROM #store_sales AS ss
+    QUALIFY row_number() OVER (PARTITION BY ss_sold_date ORDER BY ss_sales_price DESC) <= 2
+  configs:
+    core:
+      dialect: redshift
+
+# Redshift requires an alias when a qualify clause follows from
+test_fail_redshift_qualify_follows_from:
+  fail_str: |
+    SELECT *
+    FROM #store as s
+    INNER JOIN #store_sales AS ss
+    QUALIFY row_number() OVER (PARTITION BY ss_sold_date ORDER BY ss_sales_price DESC) <= 2
+  fix_str: |
+    SELECT *
+    FROM #store
+    INNER JOIN #store_sales AS ss
+    QUALIFY row_number() OVER (PARTITION BY ss_sold_date ORDER BY ss_sales_price DESC) <= 2
+  configs:
+    core:
+      dialect: redshift
+
+test_fail_redshift_qualify_does_not_follows_from:
+  fail_str: |
+    SELECT *
+    FROM #store as s
+    INNER JOIN #store_sales AS ss
+    WHERE col = 1
+    QUALIFY row_number() OVER (PARTITION BY ss_sold_date ORDER BY ss_sales_price DESC) <= 2
+  fix_str: |
+    SELECT *
+    FROM #store
+    INNER JOIN #store_sales
+    WHERE col = 1
+    QUALIFY row_number() OVER (PARTITION BY ss_sold_date ORDER BY ss_sales_price DESC) <= 2
   configs:
     core:
       dialect: redshift

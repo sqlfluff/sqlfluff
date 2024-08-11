@@ -1,4 +1,5 @@
 """Tests the python routines within AM06."""
+
 import sqlfluff
 
 

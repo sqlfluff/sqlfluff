@@ -1,6 +1,6 @@
 """Tests the python routines within CV09."""
-from sqlfluff.core import FluffConfig
-from sqlfluff.core import Linter
+
+from sqlfluff.core import FluffConfig, Linter
 
 
 def test__rules__std_CV09_raised() -> None:

@@ -1,9 +1,10 @@
 """Implementation of Rule ST01."""
+
 from typing import Optional, Tuple
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import sp, FunctionalContext
+from sqlfluff.utils.functional import FunctionalContext, sp
 
 
 class Rule_ST01(BaseRule):

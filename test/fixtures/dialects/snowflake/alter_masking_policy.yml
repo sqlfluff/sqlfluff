@@ -1,0 +1,137 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 586ef71891d2af700f48ec15e2f7b1db821952f7cdb249162cf1dfe465f82e61
+file:
+- statement:
+    alter_masking_policy:
+    - keyword: ALTER
+    - keyword: MASKING
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        quoted_identifier: '"a quoted policy name"'
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: a_sane_name
+- statement_terminator: ;
+- statement:
+    alter_masking_policy:
+    - keyword: ALTER
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: email_mask
+    - keyword: SET
+    - keyword: BODY
+    - function_assigner: ->
+    - expression:
+        case_expression:
+        - keyword: CASE
+        - when_clause:
+          - keyword: WHEN
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: current_role
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+              keyword: IN
+              bracketed:
+                start_bracket: (
+                quoted_literal: "'ANALYST'"
+                end_bracket: )
+          - keyword: THEN
+          - expression:
+              column_reference:
+                naked_identifier: VAL
+        - else_clause:
+            keyword: ELSE
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: sha2
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: VAL
+                - comma: ','
+                - expression:
+                    numeric_literal: '512'
+                - end_bracket: )
+        - keyword: END
+- statement_terminator: ;
+- statement:
+    alter_masking_policy:
+    - keyword: ALTER
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: aggressively_mask_pii
+    - keyword: SET
+    - tag_equals:
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: environment
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'silver'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: silo
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'sales'"
+- statement_terminator: ;
+- statement:
+    alter_masking_policy:
+    - keyword: ALTER
+    - keyword: MASKING
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: mask_pii_policy
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: environment
+    - comma: ','
+    - tag_reference:
+        naked_identifier: billing
+- statement_terminator: ;
+- statement:
+    alter_masking_policy:
+    - keyword: ALTER
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sch
+      - dot: .
+      - naked_identifier: fully_redacted_policy
+    - keyword: SET
+    - keyword: COMMENT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'A super strict policy'"
+- statement_terminator: ;
+- statement:
+    alter_masking_policy:
+    - keyword: ALTER
+    - keyword: MASKING
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: mask_pii_policy
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;

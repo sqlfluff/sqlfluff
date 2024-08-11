@@ -1,6 +1,7 @@
 """This is an example of how to use the simple sqlfluff api."""
 
 from typing import Any, Dict, Iterator, List, Union
+
 import sqlfluff
 
 #  -------- LINTING ----------

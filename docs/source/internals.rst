@@ -22,8 +22,8 @@ internal flow is largely the same.
 Stage 1, the templater
 ^^^^^^^^^^^^^^^^^^^^^^
 
-This stage only applies to templated SQL, most commonly Jinja and dbt. Vanilla
-SQL is sent straight to stage 2, the lexer.
+This stage only applies to templated SQL. Vanilla SQL is sent straight to
+stage 2, the lexer.
 
 In order to lint templated SQL, SQLFluff must first convert the 'raw' or
 pre-templated code into valid SQL, which can then be parsed. The templater
@@ -33,8 +33,14 @@ original line location for user feedback.
 
 .. _Jinja: https://jinja.palletsprojects.com/
 .. _dbt: https://docs.getdbt.com/
+.. _`Python format strings`: https://docs.python.org/3/library/string.html#format-string-syntax
 
-*SQLFluff* supports two templating engines: Jinja_ and dbt_.
+*SQLFluff* supports multiple templating engines:
+
+   * Jinja_
+   * SQL placeholders (e.g. SQLAlchemy parameters)
+   * `Python format strings`_
+   * dbt_ (via plugin)
 
 Under the hood dbt also uses Jinja, but in *SQLFluff* uses a separate
 mechanism which interfaces directly with the dbt python package.
@@ -46,7 +52,9 @@ Stage 2, the lexer
 ^^^^^^^^^^^^^^^^^^
 
 The lexer takes SQL and separates it into segments of whitespace and
-code. No meaning is imparted; that is the job of the parser.
+code. Where we can impart some high level meaning to segments, we
+do, but the result of this operation is still a flat sequence of
+typed segments (all subclasses of :code:`RawSegment`).
 
 
 Stage 3, the parser
@@ -67,24 +75,12 @@ lifting.
    and named according to their type, they are 'raw', meaning they have no
    classification other than their literal value.
 
-#. The three key components to the parser are segments,
-   :code:`match_grammar`\ s and :code:`parse_grammar`\ s. A segment can be a
-   leaf in the parse tree, such as a :code:`NumericLiteralSegment`, which is
-   simply a number, or can contain many other segments, such as a
-   :code:`SelectStatementSegment`. Each segment can specify a
-   :code:`parse_grammar`, and a :code:`match_grammar`. If both a
-   :code:`match_grammar` and :code:`parse_grammar` are defined in a segment,
-   :code:`match_grammar` is used to quickly prune the tree for branches which
-   do not match segments being parsed, and the :code:`parse_grammar` is then
-   used to refine the branch identified as correct. If only a
-   :code:`match_grammar` is defined, then it serves the purpose of both pruning
-   and refining.
-
-#. A segment's :code:`.parse()` method uses the :code:`parse_grammar`, on
-   which :code:`.match()` is called. The *match* method of this grammar will
-   return a potentially refined structure of the segments within the
-   segment in greater detail. In the example of a :code:`FileSegment`, it
-   first divides up the query into statements and then finishes.
+#. A segment's :code:`.match()` method uses the :code:`match_grammar`, on
+   which :code:`.match()` is called. SQLFluff parses in a single pass through
+   the file, so segments will recursively match the file based on their
+   respective grammars. In the example of a :code:`FileSegment`, it
+   first divides up the query into statements, and then the :code:`.match()`
+   method of those segments works out the structure within them.
 
    * *Segments* must implement a :code:`match_grammar`. When :code:`.match()`
       is called on a segment, this is the grammar which is used to decide
@@ -94,20 +90,24 @@ lifting.
       pre-defined way. For example the :code:`OneOf` grammar will match if any
       one of its child elements match.
 
-   #. Regardless of whether the :code:`parse_grammar` was used, the next step
-      is to recursively call the :code:`.parse()` method of each of the child
-      segments of the grammar. This operation is wrapped in a method called
-      :code:`.expand()`. In the :code:`FileSegment`, the first step will have
-      transformed a series of raw tokens into :code:`StatementSegment`
-      segments, and the *expand* step will let each of those segments refine
-      the content within them.
-
    #. During the recursion, the parser eventually reaches segments which have
       no children (raw segments containing a single token), and so the
       recursion naturally finishes.
 
 #. If no match is found for a segment, the contents will be wrapped in an
-:code:`UnparsableSegment` which is picked up as a *parsing* error later.
+   :code:`UnparsableSegment` which is picked up as a *parsing* error later.
+   This is usually facilitated by the :code:`ParseMode` on some grammars
+   which can be set to :code:`GREEDY`, allowing the grammar to capture
+   additional segments as unparsable. As an example, bracketed sections
+   are often configured to capture anything unexpected as unparsable rather
+   than simply failing to match if there is more than expected (which would
+   be the default, :code:`STRICT`, behaviour).
+
+#. The result of the :code:`.match()` method is a :code:`MatchResult` which
+   contains the instructions on how to turn the flat sequence of raw segments
+   into a nested tree of segments. Calling :code:`.apply()` on this result
+   at the end of the matching process is what finally creates the nested
+   structure.
 
 When working on the parser there are a couple of design principles
 to keep in mind.
@@ -152,6 +152,7 @@ way this is achieved is through some centralised utilities in the
 `sqlfluff.utils.reflow` module.
 
 This module aims to achieve several things:
+
 * Less code duplication by implementing reflow logic in only one place.
 
 * Provide a streamlined interface for rules to easily utilise reflow logic.

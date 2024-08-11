@@ -1,10 +1,11 @@
 """Implementation of Rule ST08."""
+
 from typing import Optional, Tuple
 
-from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment, BaseSegment
+from sqlfluff.core.parser import BaseSegment, KeywordSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import sp, FunctionalContext, Segments
+from sqlfluff.utils.functional import FunctionalContext, Segments, sp
 from sqlfluff.utils.reflow.sequence import ReflowSequence
 
 

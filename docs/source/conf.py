@@ -7,7 +7,12 @@ https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 import os
 import sys
-import configparser
+
+# tomllib is only in the stdlib from 3.11+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:  # pragma: no cover
+    import toml as tomllib
 
 # -- Path setup --------------------------------------------------------------
 
@@ -19,9 +24,9 @@ sys.path.append(os.path.abspath("./_ext"))
 
 # Get the global config info as currently stated
 # (we use the config file to avoid actually loading any python here)
-config = configparser.ConfigParser()
-config.read(["../../setup.cfg"])
-stable_version = config.get("sqlfluff_docs", "stable_version")
+with open("../../pyproject.toml", "rb") as config_file:
+    config = tomllib.load(config_file)
+stable_version = config.get("tool.sqlfluff_docs", "stable_version")
 
 # -- Project information -----------------------------------------------------
 
@@ -100,8 +105,6 @@ html_theme_options = {
     "github_type": "star",
     # Use `"true"` instead of `True` for counting GitHub star, see https://ghbtns.com
     "github_count": "true",
-    # Codecov button
-    "codecov_button": True,
 }
 
 # -- Options for redirects ---------------------------------------------

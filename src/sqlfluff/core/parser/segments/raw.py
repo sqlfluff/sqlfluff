@@ -4,8 +4,10 @@ This is designed to be the root segment, without
 any children, and the output of the lexer.
 """
 
-from typing import Any, List, Optional, Set, Tuple
-from uuid import UUID, uuid4
+from typing import Any, Callable, Dict, FrozenSet, List, Optional, Tuple, Union, cast
+from uuid import uuid4
+
+import regex as re
 
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments.base import BaseSegment, SourceFix
@@ -34,7 +36,10 @@ class RawSegment(BaseSegment):
         trim_start: Optional[Tuple[str, ...]] = None,
         trim_chars: Optional[Tuple[str, ...]] = None,
         source_fixes: Optional[List[SourceFix]] = None,
-        uuid: Optional[UUID] = None,
+        uuid: Optional[int] = None,
+        quoted_value: Optional[Tuple[str, Union[int, str]]] = None,
+        escape_replacements: Optional[List[Tuple[str, str]]] = None,
+        casefold: Optional[Callable[[str], str]] = None,
     ):
         """Initialise raw segment.
 
@@ -64,11 +69,15 @@ class RawSegment(BaseSegment):
         self.trim_chars = trim_chars
         # Keep track of any source fixes
         self._source_fixes = source_fixes
-        # UUID for matching
-        self.uuid = uuid or uuid4()
+        # UUID for matching (the int attribute of it)
+        self.uuid = uuid or uuid4().int
         self.representation = "<{}: ({}) {!r}>".format(
             self.__class__.__name__, self.pos_marker, self.raw
         )
+        self.quoted_value = quoted_value
+        self.escape_replacements = escape_replacements
+        self.casefold = casefold
+        self._raw_value: str = self._raw_normalized()
 
     def __repr__(self) -> str:
         # This is calculated at __init__, because all elements are immutable
@@ -81,11 +90,6 @@ class RawSegment(BaseSegment):
         super(BaseSegment, self).__setattr__(key, value)
 
     # ################ PUBLIC PROPERTIES
-
-    @property
-    def matched_length(self) -> int:
-        """Return the length of the segment in characters."""
-        return len(self._raw)
 
     @property
     def is_code(self) -> bool:
@@ -118,12 +122,12 @@ class RawSegment(BaseSegment):
         return [self]
 
     @property
-    def class_types(self) -> Set[str]:
+    def class_types(self) -> FrozenSet[str]:
         """The set of full types for this segment, including inherited.
 
         Add the surrogate type for raw segments.
         """
-        return set(self.instance_types) | super().class_types
+        return frozenset(self.instance_types) | super().class_types
 
     @property
     def source_fixes(self) -> List[SourceFix]:
@@ -153,7 +157,11 @@ class RawSegment(BaseSegment):
         return [self]
 
     def raw_trimmed(self) -> str:
-        """Return a trimmed version of the raw content."""
+        """Return a trimmed version of the raw content.
+
+        Returns:
+            str: The trimmed version of the raw content.
+        """
         raw_buff = self.raw
         if self.trim_start:
             for seq in self.trim_start:
@@ -172,10 +180,54 @@ class RawSegment(BaseSegment):
             return raw_buff
         return raw_buff
 
+    def _raw_normalized(self) -> str:
+        """Returns the string of the raw content's value.
+
+        E.g. This removes leading and trailing quote characters, removes escapes
+
+        Return:
+        str: The raw content's value
+        """
+        raw_buff = self.raw
+        if self.quoted_value:
+            _match = re.match(self.quoted_value[0], raw_buff)
+            if _match:
+                _group_match = _match.group(self.quoted_value[1])
+                if isinstance(_group_match, str):
+                    raw_buff = _group_match
+        if self.escape_replacements:
+            for old, new in self.escape_replacements:
+                raw_buff = re.sub(old, new, raw_buff)
+        return raw_buff
+
+    def raw_normalized(self, casefold: bool = True) -> str:
+        """Returns a normalized string of the raw content.
+
+        E.g. This removes leading and trailing quote characters, removes escapes,
+        optionally casefolds to the dialect's casing
+
+        Return:
+        str: The normalized version of the raw content
+        """
+        raw_buff = self._raw_value
+        if self.casefold and casefold:
+            raw_buff = self.casefold(raw_buff)
+        return raw_buff
+
     def stringify(
         self, ident: int = 0, tabsize: int = 4, code_only: bool = False
     ) -> str:
-        """Use indentation to render this segment and its children as a string."""
+        """Use indentation to render this segment and its children as a string.
+
+        Args:
+            ident (int, optional): The indentation level. Defaults to 0.
+            tabsize (int, optional): The size of each tab. Defaults to 4.
+            code_only (bool, optional): Whether to render only the code.
+                Defaults to False.
+
+        Returns:
+            str: The rendered string.
+        """
         preface = self._preface(ident=ident, tabsize=tabsize)
         return preface + "\n"
 
@@ -183,6 +235,9 @@ class RawSegment(BaseSegment):
         """Return any extra output required at the end when logging.
 
         NB Override this for specific subclasses if we want extra output.
+
+        Returns:
+            str: The extra output.
         """
         return f"{self.raw!r}"
 
@@ -191,12 +246,18 @@ class RawSegment(BaseSegment):
     ) -> "RawSegment":
         """Create a new segment, with exactly the same position but different content.
 
+        Args:
+            raw (Optional[str]): The new content for the segment.
+            source_fixes (Optional[List[SourceFix]]): A list of fixes to be applied to
+                the segment.
+
         Returns:
-            A copy of this object with new contents.
+            RawSegment: A copy of this object with new contents.
 
         Used mostly by fixes.
 
-        NOTE: This *doesn't* copy the uuid. The edited segment is a new segment.
+        NOTE: This *doesn't* copy the uuid. The edited segment is a new
+        segment.
 
         """
         return self.__class__(
@@ -205,5 +266,41 @@ class RawSegment(BaseSegment):
             instance_types=self.instance_types,
             trim_start=self.trim_start,
             trim_chars=self.trim_chars,
+            quoted_value=self.quoted_value,
+            escape_replacements=self.escape_replacements,
+            casefold=self.casefold,
             source_fixes=source_fixes or self.source_fixes,
         )
+
+    def _get_raw_segment_kwargs(self) -> Dict[str, Any]:
+        return {
+            "quoted_value": self.quoted_value,
+            "escape_replacements": self.escape_replacements,
+            "casefold": self.casefold,
+        }
+
+    # ################ CLASS METHODS
+
+    @classmethod
+    def from_result_segments(
+        cls,
+        result_segments: Tuple[BaseSegment, ...],
+        segment_kwargs: Dict[str, Any],
+    ) -> "RawSegment":
+        """Create a RawSegment from result segments."""
+        assert len(result_segments) == 1
+        raw_seg = cast("RawSegment", result_segments[0])
+        new_segment_kwargs = raw_seg._get_raw_segment_kwargs()
+        new_segment_kwargs.update(segment_kwargs)
+        return cls(
+            raw=raw_seg.raw,
+            pos_marker=raw_seg.pos_marker,
+            **new_segment_kwargs,
+        )
+
+
+__all__ = [
+    "PositionMarker",
+    "RawSegment",
+    "SourceFix",
+]

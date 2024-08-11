@@ -9,14 +9,21 @@ from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
     Bracketed,
+    CodeSegment,
     Dedent,
     Delimited,
+    IdentifierSegment,
+    Indent,
     LiteralSegment,
     Matchable,
     Nothing,
     OneOf,
     Ref,
+    RegexLexer,
     Sequence,
+    StringLexer,
+    StringParser,
+    SymbolSegment,
     TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -42,6 +49,32 @@ trino_dialect.update_keywords_set_from_multiline_string(
 trino_dialect.sets("reserved_keywords").clear()
 trino_dialect.update_keywords_set_from_multiline_string(
     "reserved_keywords", trino_reserved_keywords
+)
+
+trino_dialect.insert_lexer_matchers(
+    # Regexp Replace w/ Lambda: https://trino.io/docs/422/functions/regexp.html
+    [
+        StringLexer("right_arrow", "->", CodeSegment),
+    ],
+    before="like_operator",
+)
+
+trino_dialect.add(
+    RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
+)
+
+trino_dialect.patch_lexer_matchers(
+    [
+        RegexLexer(
+            "double_quote",
+            r'"([^"]|"")*"',
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"]|"")*)"', 1),
+                "escape_replacements": [(r'""', '"')],
+            },
+        ),
+    ]
 )
 
 trino_dialect.replace(
@@ -116,6 +149,11 @@ trino_dialect.replace(
         Ref("TildeSegment"),
         Ref("NotOperatorGrammar"),
     ),
+    PostFunctionGrammar=ansi_dialect.get_grammar("PostFunctionGrammar").copy(
+        insert=[
+            Ref("WithinGroupClauseSegment"),
+        ],
+    ),
     FunctionContentsGrammar=AnyNumberOf(
         Ref("ExpressionSegment"),
         # A Cast-like function
@@ -164,6 +202,19 @@ trino_dialect.replace(
         Ref("IgnoreRespectNullsGrammar"),
         Ref("IndexColumnDefinitionSegment"),
         Ref("EmptyStructLiteralSegment"),
+        Ref("ListaggOverflowClauseSegment"),
+    ),
+    BinaryOperatorGrammar=OneOf(
+        Ref("ArithmeticBinaryOperatorGrammar"),
+        Ref("StringBinaryOperatorGrammar"),
+        Ref("BooleanBinaryOperatorGrammar"),
+        Ref("ComparisonOperatorGrammar"),
+        # Add arrow operators for functions (e.g. regexp_replace)
+        Ref("RightArrowOperator"),
+    ),
+    # match ANSI's naked identifier casefold, trino is case-insensitive.
+    QuotedIdentifierSegment=TypedParser(
+        "double_quote", IdentifierSegment, type="quoted_identifier", casefold=str.upper
     ),
 )
 
@@ -182,6 +233,7 @@ class DatatypeSegment(BaseSegment):
         "TINYINT",
         "SMALLINT",
         "INTEGER",
+        "INT",
         "BIGINT",
         # Floating-point
         "REAL",
@@ -202,7 +254,7 @@ class DatatypeSegment(BaseSegment):
         "DATE",
         Sequence(
             OneOf("TIME", "TIMESTAMP"),
-            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            Ref("BracketedArguments", optional=True),
             Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
         ),
         # Structural
@@ -227,9 +279,6 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
 
     match_grammar: Matchable = Sequence(
         Ref("SelectClauseSegment"),
-        # Dedent for the indent in the select clause.
-        # It's here so that it can come AFTER any whitespace.
-        Dedent,
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("GroupByClauseSegment", optional=True),
@@ -307,7 +356,152 @@ class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
+        insert=[
+            Ref("AnalyzeStatementSegment"),
+            Ref("CommentOnStatementSegment"),
+        ],
         remove=[
             Ref("TransactionStatementSegment"),
         ],
+    )
+
+
+class AnalyzeStatementSegment(BaseSegment):
+    """An 'ANALYZE' statement.
+
+    As per docs https://trino.io/docs/current/sql/analyze.html
+    """
+
+    type = "analyze_statement"
+    match_grammar = Sequence(
+        "ANALYZE",
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class WithinGroupClauseSegment(BaseSegment):
+    """An WITHIN GROUP clause for window functions.
+
+    https://trino.io/docs/current/functions/aggregate.html#array_agg
+
+    Trino supports an optional FILTER during aggregation that comes
+    immediately after the WITHIN GROUP clause.
+
+    https://trino.io/docs/current/functions/aggregate.html#filtering-during-aggregation
+    """
+
+    type = "withingroup_clause"
+    match_grammar = Sequence(
+        "WITHIN",
+        "GROUP",
+        Bracketed(Ref("OrderByClauseSegment", optional=False)),
+        Ref("FilterClauseGrammar", optional=True),
+    )
+
+
+class ListaggOverflowClauseSegment(BaseSegment):
+    """ON OVERFLOW clause of listagg function.
+
+    https://trino.io/docs/current/functions/aggregate.html#array_agg
+    """
+
+    type = "listagg_overflow_clause"
+    match_grammar = Sequence(
+        "ON",
+        "OVERFLOW",
+        OneOf(
+            "ERROR",
+            Sequence(
+                "TRUNCATE",
+                Ref("SingleQuotedIdentifierSegment", optional=True),
+                OneOf("WITH", "WITHOUT", optional=True),
+                Ref.keyword("COUNT", optional=True),
+            ),
+        ),
+    )
+
+
+class ArrayTypeSegment(ansi.ArrayTypeSegment):
+    """Prefix for array literals.
+
+    Trino supports "ARRAY"
+    """
+
+    type = "array_type"
+    match_grammar = Ref.keyword("ARRAY")
+
+
+class GroupByClauseSegment(BaseSegment):
+    """A `GROUP BY` clause like in `SELECT`."""
+
+    type = "groupby_clause"
+
+    match_grammar: Matchable = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        OneOf(
+            "ALL",
+            Ref("CubeRollupClauseSegment"),
+            # Add GROUPING SETS support
+            Ref("GroupingSetsClauseSegment"),
+            Sequence(
+                Delimited(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        # Can `GROUP BY 1`
+                        Ref("NumericLiteralSegment"),
+                        # Can `GROUP BY coalesce(col, 1)`
+                        Ref("ExpressionSegment"),
+                    ),
+                    terminators=[Ref("GroupByClauseTerminatorGrammar")],
+                ),
+            ),
+        ),
+        Dedent,
+    )
+
+
+class CommentOnStatementSegment(BaseSegment):
+    """`COMMENT ON` statement.
+
+    https://trino.io/docs/current/sql/comment.html
+    """
+
+    type = "comment_clause"
+
+    match_grammar = Sequence(
+        "COMMENT",
+        "ON",
+        Sequence(
+            OneOf(
+                Sequence(
+                    OneOf(
+                        "TABLE",
+                        # TODO: Create a ViewReferenceSegment
+                        "VIEW",
+                    ),
+                    Ref("TableReferenceSegment"),
+                ),
+                Sequence(
+                    "COLUMN",
+                    # TODO: Does this correctly emit a Table Reference?
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+            Sequence("IS", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
+        ),
     )

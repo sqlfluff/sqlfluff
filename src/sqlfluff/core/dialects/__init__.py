@@ -31,6 +31,7 @@ _dialect_lookup = {
     "greenplum": ("dialect_greenplum", "greenplum_dialect"),
     "hive": ("dialect_hive", "hive_dialect"),
     "materialize": ("dialect_materialize", "materialize_dialect"),
+    "mariadb": ("dialect_mariadb", "mariadb_dialect"),
     "mysql": ("dialect_mysql", "mysql_dialect"),
     "oracle": ("dialect_oracle", "oracle_dialect"),
     "postgres": ("dialect_postgres", "postgres_dialect"),
@@ -42,6 +43,7 @@ _dialect_lookup = {
     "teradata": ("dialect_teradata", "teradata_dialect"),
     "trino": ("dialect_trino", "trino_dialect"),
     "tsql": ("dialect_tsql", "tsql_dialect"),
+    "vertica": ("dialect_vertica", "vertica_dialect"),
 }
 
 _legacy_dialects = {
@@ -95,3 +97,13 @@ def dialect_selector(s: str) -> Dialect:
     # Expand any callable references at this point.
     # NOTE: The result of .expand() is a new class.
     return dialect.expand()
+
+
+__all__ = [
+    "Dialect",
+    "DialectTuple",
+    "SQLFluffUserError",
+    "load_raw_dialect",
+    "dialect_readout",
+    "dialect_selector",
+]

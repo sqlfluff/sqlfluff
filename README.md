@@ -8,7 +8,6 @@
 [![PyPi Status](https://img.shields.io/pypi/status/sqlfluff.svg?style=flat-square)](https://pypi.org/project/sqlfluff/)
 [![PyPi Downloads](https://img.shields.io/pypi/dm/sqlfluff?style=flat-square)](https://pypi.org/project/sqlfluff/)
 
-[![codecov](https://img.shields.io/codecov/c/gh/sqlfluff/sqlfluff.svg?style=flat-square&logo=Codecov)](https://codecov.io/gh/sqlfluff/sqlfluff)
 [![Coveralls](https://img.shields.io/coverallsCoverage/github/sqlfluff/sqlfluff?logo=coveralls&style=flat-square)](https://coveralls.io/github/sqlfluff/sqlfluff?branch=main)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/sqlfluff/sqlfluff/.github/workflows/ci-tests.yml?logo=github&style=flat-square)](https://github.com/sqlfluff/sqlfluff/actions/workflows/ci-tests.yml?query=branch%3Amain)
 [![ReadTheDocs](https://img.shields.io/readthedocs/sqlfluff?style=flat-square&logo=Read%20the%20Docs)](https://sqlfluff.readthedocs.io)
@@ -49,6 +48,8 @@ currently supports the following SQL dialects (though perhaps not in full):
 - [SQLite](https://www.sqlite.org/)
 - [Teradata](https://www.teradata.com/)
 - [Transact-SQL](https://docs.microsoft.com/en-us/sql/t-sql/language-reference) (aka T-SQL)
+- [Trino](https://trino.io/)
+- [Vertica](https://www.vertica.com/)
 
 We aim to make it easy to expand on the support of these dialects and also
 add other, currently unsupported, dialects. Please [raise issues](https://github.com/sqlfluff/sqlfluff/issues)
@@ -68,7 +69,10 @@ as discussed more in [our modularity documentation](https://docs.sqlfluff.com/en
 
 **SQLFluff** supports the following templates:
 - [Jinja](https://jinja.palletsprojects.com/) (aka Jinja2)
-- [dbt](https://www.getdbt.com/)
+- SQL placeholders (e.g. SQLAlchemy parameters)
+- [Python format strings](https://docs.python.org/3/library/string.html#format-string-syntax)
+- [dbt](https://www.getdbt.com/) (requires plugin)
+
 
 Again, please raise issues if you wish to support more templating languages/syntaxes.
 

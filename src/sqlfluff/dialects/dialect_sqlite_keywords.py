@@ -85,7 +85,6 @@ RESERVED_KEYWORDS = [
     "IS",
     "ISNULL",
     "JOIN",
-    "KEY",
     "LAST",
     "LEFT",
     "LIKE",
@@ -135,7 +134,6 @@ RESERVED_KEYWORDS = [
     "TEMP",
     "TEMPORARY",
     "THEN",
-    "TIES",
     "TO",
     "TRANSACTION",
     "TRIGGER",
@@ -156,6 +154,7 @@ RESERVED_KEYWORDS = [
 ]
 
 UNRESERVED_KEYWORDS = [
+    "KEY",
     "INT",
     "INTEGER",
     "TINYINT",
@@ -171,6 +170,7 @@ UNRESERVED_KEYWORDS = [
     "NCHAR",
     "NATIVE",
     "NVARCHAR",
+    "TIES",
     "TEXT",
     "CLOB",
     "BLOB",
@@ -204,4 +204,5 @@ UNRESERVED_KEYWORDS = [
     "BINARY",
     "NOCASE",
     "RTRIM",
+    "STORED",  # https://sqlite.org/forum/forumpost/91127ba3db
 ]

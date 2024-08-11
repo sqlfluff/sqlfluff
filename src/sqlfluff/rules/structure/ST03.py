@@ -1,4 +1,5 @@
 """Implementation of Rule ST03."""
+
 from sqlfluff.core.rules import BaseRule, EvalResultType, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.analysis.query import Query
@@ -51,13 +52,11 @@ class Rule_ST03(BaseRule):
         query: Query = Query.from_root(context.segment, dialect=context.dialect)
 
         # Build up a dict of remaining CTEs (uppercased as not case sensitive).
-        remaining_ctes = {k.upper(): k for k in query.ctes.keys()}
+        remaining_ctes = {k.upper(): k for k in query.ctes}
 
         # Work through all the references in the file, checking off CTES as the
-        # are referenced. We don't recurse inside inner WITH statements.
-        for reference in context.segment.recursive_crawl(
-            "table_reference", no_recursive_seg_type="with_compound_statement"
-        ):
+        # are referenced.
+        for reference in context.segment.recursive_crawl("table_reference"):
             remaining_ctes.pop(reference.raw.upper(), None)
 
         # For any left un-referenced at the end. Raise an issue about them.

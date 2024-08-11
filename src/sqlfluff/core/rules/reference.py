@@ -1,4 +1,5 @@
 """Components for working with object and table references."""
+
 from typing import Sequence, Tuple
 
 

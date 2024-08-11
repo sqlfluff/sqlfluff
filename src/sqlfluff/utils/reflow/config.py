@@ -1,10 +1,9 @@
 """Methods to set up appropriate reflow config from file."""
 
-
 # Until we have a proper structure this will work.
 # TODO: Migrate this to the config file.
 from dataclasses import dataclass
-from typing import AbstractSet, Dict, FrozenSet, Set, Optional
+from typing import AbstractSet, Dict, FrozenSet, Optional, Set
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.utils.reflow.depthmap import DepthInfo
@@ -67,6 +66,7 @@ class ReflowConfig:
     skip_indentation_in: FrozenSet[str] = frozenset()
     allow_implicit_indents: bool = False
     trailing_comments: str = "before"
+    ignore_comment_lines: bool = False
 
     @classmethod
     def from_dict(cls, config_dict: ConfigDictType, **kwargs):
@@ -102,6 +102,7 @@ class ReflowConfig:
                 "allow_implicit_indents", ["indentation"]
             ),
             trailing_comments=config.get("trailing_comments", ["indentation"]),
+            ignore_comment_lines=config.get("ignore_comment_lines", ["indentation"]),
         )
 
     def get_block_config(

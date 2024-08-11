@@ -196,18 +196,18 @@ def test__dialect__ansi_is_whitespace():
         (
             "select field_1 from my_table as alias_1",
             True,
-            (1, 5, 8, 11, 15, 16, 17, 18, 19),
+            (1, 4, 8, 11, 15, 16, 17, 18, 19),
         ),
-        ("select field_1 from my_table as alias_1", False, (1, 5, 8, 11, 15, 16, 17)),
+        ("select field_1 from my_table as alias_1", False, (1, 4, 8, 11, 15, 16, 17)),
         (
             "select field_1 from my_table as alias_1 join foo using (field_1)",
             True,
-            (1, 5, 8, 11, 15, 17, 18, 20, 24, 25, 27, 30, 32, 34, 35, 36, 37),
+            (1, 4, 8, 11, 15, 17, 18, 20, 24, 25, 27, 30, 32, 34, 35, 36, 37),
         ),
         (
             "select field_1 from my_table as alias_1 join foo using (field_1)",
             False,
-            (1, 5, 8, 11, 15, 17, 19, 23, 24, 26, 29, 31, 33, 34, 35),
+            (1, 4, 8, 11, 15, 17, 19, 23, 24, 26, 29, 31, 33, 34, 35),
         ),
     ],
 )
@@ -220,13 +220,12 @@ def test__dialect__ansi_parse_indented_joins(sql_string, indented_joins, meta_lo
         )
     )
     parsed = lnt.parse_string(sql_string)
+    tree = parsed.tree
     # Check that there's nothing unparsable
-    assert "unparsable" not in parsed.tree.type_set()
+    assert "unparsable" not in tree.type_set()
     # Check all the segments that *should* be metas, ARE.
     # NOTE: This includes the end of file marker.
     res_meta_locs = tuple(
-        idx
-        for idx, raw_seg in enumerate(parsed.tree.get_raw_segments())
-        if raw_seg.is_meta
+        idx for idx, raw_seg in enumerate(tree.get_raw_segments()) if raw_seg.is_meta
     )
     assert res_meta_locs == meta_loc

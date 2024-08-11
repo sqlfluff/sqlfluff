@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 348309b797f6429b65e4a5f06569e534d325fefae4c392fe07f6d38a3f7c7a16
+_hash: 1818827714798203d7a569062b75aadd8498d9821b0246ee35253d494bd7b45e
 file:
 - statement:
     select_statement:
@@ -422,8 +422,8 @@ file:
           join_clause:
           - keyword: CROSS
           - keyword: JOIN
-          - keyword: LATERAL
           - from_expression_element:
+              keyword: LATERAL
               table_expression:
                 function:
                   function_name:
@@ -906,4 +906,34 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1'
+          alias_expression:
+            keyword: AS
+            naked_identifier: bar
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            quoted_identifier: '"""t"'
+            dot: .
+            naked_identifier: col1
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl1
+            alias_expression:
+              keyword: AS
+              quoted_identifier: '"""t"'
 - statement_terminator: ;

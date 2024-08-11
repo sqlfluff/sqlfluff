@@ -13,6 +13,7 @@ SF:.tox/py/lib/python3.10/site-packages/sqlfluff/__init__.py
 to this:
 SF:src/sqlfluff/__init__.py
 """
+
 import re
 from pathlib import Path
 

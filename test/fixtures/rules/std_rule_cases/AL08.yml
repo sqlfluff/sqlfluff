@@ -29,19 +29,37 @@ test_fail_locs:
   violations:
     - code: AL08
       description: Reuse of column alias 'foo' from line 2.
-      line_no: 3
-      line_pos: 8
       name: aliasing.unique.column
+      warning: false
+      fixes: []
+      start_line_no: 3
+      start_line_pos: 8
+      start_file_pos: 21
+      end_line_no: 3
+      end_line_pos: 11
+      end_file_pos: 24
     - code: AL08
       description: Reuse of column alias 'bar' from line 4.
-      line_no: 5
-      line_pos: 3
       name: aliasing.unique.column
+      warning: false
+      fixes: []
+      start_line_no: 5
+      start_line_pos: 3
+      start_file_pos: 40
+      end_line_no: 5
+      end_line_pos: 6
+      end_file_pos: 43
     - code: AL08
       description: Reuse of column alias 'foo' from line 2.
-      line_no: 6
-      line_pos: 5
       name: aliasing.unique.column
+      warning: false
+      fixes: []
+      start_line_no: 6
+      start_line_pos: 5
+      start_file_pos: 49
+      end_line_no: 6
+      end_line_pos: 8
+      end_file_pos: 52
 
 test_fail_alias_quoted:
   fail_str: |

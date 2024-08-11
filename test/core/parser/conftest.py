@@ -25,11 +25,3 @@ def test_segments(generate_test_segments):
         block_type="comment",
     )
     return main_list + (ts,)
-
-
-@pytest.fixture(scope="function")
-def bracket_segments(generate_test_segments):
-    """Another preset list of segments for testing."""
-    return generate_test_segments(
-        ["bar", " \t ", "(", "foo", "    ", ")", "baar", " \t ", "foo"]
-    )

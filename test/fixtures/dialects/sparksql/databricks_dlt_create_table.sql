@@ -33,3 +33,14 @@ AS SELECT
     a,
     b
 FROM STREAM(live.customers_bronze);
+
+CREATE OR REFRESH LIVE TABLE taxi_raw(
+    a STRING COMMENT 'a',
+    b INT COMMENT 'b',
+    CONSTRAINT valid_a EXPECT (a IS NOT NULL),
+    CONSTRAINT valid_b EXPECT (b > 0)
+)
+AS SELECT
+    a,
+    b
+FROM JSON.`/databricks-datasets/nyctaxi/sample/json/`;

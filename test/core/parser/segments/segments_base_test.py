@@ -163,35 +163,6 @@ def test__parser_base_segments_validate_non_code_ends(
         seg.validate_non_code_ends()
 
 
-def test__parser_base_segments_compute_anchor_edit_info(raw_segments):
-    """Test BaseSegment.compute_anchor_edit_info()."""
-    # Construct a fix buffer, intentionally with:
-    # - one duplicate.
-    # - two different incompatible fixes on the same segment.
-    fixes = [
-        LintFix.replace(raw_segments[0], [raw_segments[0].edit(raw="a")]),
-        LintFix.replace(raw_segments[0], [raw_segments[0].edit(raw="a")]),
-        LintFix.replace(raw_segments[0], [raw_segments[0].edit(raw="b")]),
-    ]
-    anchor_info_dict = BaseSegment.compute_anchor_edit_info(fixes)
-    # Check the target segment is the only key we have.
-    assert list(anchor_info_dict.keys()) == [raw_segments[0].uuid]
-    anchor_info = anchor_info_dict[raw_segments[0].uuid]
-    # Check that the duplicate as been deduplicated.
-    # i.e. this isn't 3.
-    assert anchor_info.replace == 2
-    # Check the fixes themselves.
-    # NOTE: There's no duplicated first fix.
-    assert anchor_info.fixes == [
-        LintFix.replace(raw_segments[0], [raw_segments[0].edit(raw="a")]),
-        LintFix.replace(raw_segments[0], [raw_segments[0].edit(raw="b")]),
-    ]
-    # Check the first replace
-    assert anchor_info._first_replace == LintFix.replace(
-        raw_segments[0], [raw_segments[0].edit(raw="a")]
-    )
-
-
 def test__parser__base_segments_path_to(raw_segments, DummySegment, DummyAuxSegment):
     """Test the .path_to() method."""
     test_seg_a = DummyAuxSegment(raw_segments)
@@ -303,7 +274,7 @@ def test__parser__base_segments_pickle_safe(raw_segments):
     result_seg = pickle.loads(pickled)
     assert test_seg == result_seg
     # Check specifically the treatment of the parent position.
-    assert result_seg.segments[0].get_parent() is result_seg
+    assert result_seg.segments[0].get_parent()[0] is result_seg
 
 
 def test__parser__base_segments_copy_isolation(DummySegment, raw_segments):
@@ -344,8 +315,10 @@ def test__parser__base_segments_parent_ref(DummySegment, raw_segments):
     assert not raw_segments[0].get_parent()
     # Add it to a segment (which also sets the parent value)
     seg = DummySegment(segments=raw_segments)
-    assert seg.segments[0].get_parent() is seg
-    assert seg.segments[1].get_parent() is seg
+    # The DummySegment shouldn't have a parent.
+    assert seg.get_parent() is None
+    assert seg.segments[0].get_parent()[0] is seg
+    assert seg.segments[1].get_parent()[0] is seg
     # Remove segment from parent, but don't unset.
     # Should still check an return None.
     seg_0 = seg.segments[0]
@@ -353,4 +326,46 @@ def test__parser__base_segments_parent_ref(DummySegment, raw_segments):
     assert seg_0 not in seg.segments
     assert not seg_0.get_parent()
     # Check the other still works.
-    assert seg.segments[0].get_parent()
+    assert seg.segments[0].get_parent()[0]
+
+
+def test__parser__raw_segment_raw_normalized():
+    """Test comparison of raw segments."""
+    template = TemplatedFile.from_string('"a"""."e"')
+    rs1 = RawSegment(
+        '"a"""',
+        PositionMarker(slice(0, 5), slice(0, 5), template),
+        quoted_value=(r'"((?:[^"]|"")*)"', 1),
+        escape_replacements=[('""', '"')],
+        casefold=str.upper,
+    )
+    rs2 = RawSegment(
+        ".",
+        PositionMarker(slice(6, 7), slice(6, 7), template),
+    )
+    rs3 = RawSegment(
+        '"e"',
+        PositionMarker(slice(8, 10), slice(8, 10), template),
+        quoted_value=(r'"((?:[^"]|"")*)"', 1),
+        escape_replacements=[('""', '"')],
+        casefold=str.upper,
+    )
+    bs1 = BaseSegment(
+        (
+            rs1,
+            rs2,
+            rs3,
+        ),
+        PositionMarker(slice(0, 10), slice(0, 10), template),
+    )
+    assert rs1.raw == '"a"""'
+    assert rs1.raw_normalized(False) == 'a"'
+    assert rs1.raw_normalized() == 'A"'
+    assert rs2.raw == "."
+    assert rs2.raw_normalized(False) == "."
+    assert rs2.raw_normalized() == "."
+    assert rs3.raw == '"e"'
+    assert rs3.raw_normalized(False) == "e"
+    assert rs3.raw_normalized() == "E"
+    assert bs1.raw == '"a"""."e"'
+    assert bs1.raw_normalized() == 'A".E'

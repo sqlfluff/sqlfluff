@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a1f163734c1f7921014ea72eb0a17ffb2920056606e41b6337e1bae29722ab8e
+_hash: b66f843d0133bfe7a04efcc239117af11a71bf239d49a6014709c260d448769d
 file:
 - statement:
     alter_table_statement:
@@ -310,4 +310,46 @@ file:
           column_reference:
             quoted_identifier: '"SPECIAL_OFFER_ID"'
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '"my_table"'
+    - alter_table_table_column_action:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          quoted_identifier: '"my_column"'
+      - keyword: SET
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+          function_name_identifier: my_masking_policy
+      - keyword: FORCE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: SAMPLE_DB
+      - dot: .
+      - naked_identifier: SAMPLE_SCHEMA
+      - dot: .
+      - naked_identifier: TBL
+    - keyword: UNSET
+    - parameter: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - keyword: UNSET
+    - parameter: COMMENT
+    - comma: ','
+    - parameter: DATA_RETENTION_TIME_IN_DAYS
 - statement_terminator: ;

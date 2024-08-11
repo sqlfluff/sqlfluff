@@ -1,4 +1,5 @@
 """Implementation of Rule CV07."""
+
 from typing import List
 
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext

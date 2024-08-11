@@ -10,6 +10,61 @@ of each individual release, see the detailed changelog_.
 
 .. _changelog: https://github.com/sqlfluff/sqlfluff/blob/main/CHANGELOG.md
 
+Upgrading to 3.x
+----------------
+
+This release makes a couple of potentially breaking changes:
+
+* It drops support for python 3.7, which reached end of life in June 2023.
+
+* It migrates to :code:`pyproject.toml` rather than :code:`setup.cfg` as
+  the python packaging configuration file (although keeping :code:`setuptools`
+  as the default backend).
+
+* The serialised output for :code:`sqlfluff lint` now contains more information
+  about the span of linting issues and initial proposed fixes. Beside the *new*
+  fields, the original fields of :code:`line_pos` and :code:`line_no` have been
+  renamed to :code:`start_line_pos` and :code:`start_line_no`, to distinguish
+  them from the new fields starting :code:`end_*`.
+
+* When linting from stdin, if there are no violations found - before this version,
+  the serialised response would be simply an empty list (:code:`[]`). From 3.0
+  onwards, there will now  be a record for the *file* with some statistics,
+  but the *violations* section of the response for that file will still be an
+  empty list.
+
+* The default :code:`annotation_level` set by the :code:`--annotation-level`
+  option on the :code:`sqlfluff lint` command has been changed from :code:`notice`
+  to :code:`warning`, to better distinguish linting errors from warnings, which
+  always now have the level of :code:`notice`. This is only relevant when using
+  the :code:`github-annotation` or :code:`github-annotation-native` formats.
+
+* The previously deprecated :code:`--disable_progress_bar` on `:code:lint`,
+  :code:`fix` and :code:`format` has now been removed entirely. Please migrate
+  to :code:`--disable-progress-bar` to continue using this option.
+
+* The :code:`--force` option on :code:`sqlfluff fix` is now the default behaviour
+  and so the option has been deprecated. A new :code:`--check` option has been
+  introduced which mimics the old default behaviour. This has been changed as it
+  enables significantly lower memory overheads when linting and fixing large
+  projects.
+
+Upgrading to 2.3
+----------------
+
+This release include two minor breaking changes which will only affect
+users engaged in performance optimisation of SQLFluff itself.
+
+* The :code:`--profiler` option on :code:`sqlfluff parse` has been removed.
+  It was only present on the `parse` command and not `lint` or `fix`, and
+  it is just as simple to invoke the python `cProfiler` directly.
+
+* The :code:`--recurse` cli option and :code:`sqlfluff.recurse` configuration
+  option have both been removed. They both existed purely for debugging the
+  parser, and were never used in a production setting. The improvement in
+  other debugging messages when unparsable sections are found means that
+  this option is no longer necessary.
+
 Upgrading to 2.2
 ----------------
 

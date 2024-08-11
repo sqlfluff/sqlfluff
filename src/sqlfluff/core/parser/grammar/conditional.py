@@ -1,11 +1,10 @@
 """Conditional Grammar."""
 
-from typing import Tuple, Type, Union
+from typing import Sequence, Type, Union
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.grammar.base import BaseGrammar
 from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.segments import BaseSegment, Indent
 
 
@@ -45,8 +44,19 @@ class Conditional(BaseGrammar):
         self,
         meta: Type[Indent],
         config_type: str = "indentation",
-        **rules: Union[str, bool]
+        **rules: Union[str, bool],
     ):
+        """Initialize a new instance of the class.
+
+        This method initializes an instance of the class with the provided
+        arguments.
+
+        Args:
+            meta (Type[Indent]): The meta argument.
+            config_type (str, optional): The config_type argument. Defaults to
+                "indentation".
+            **rules (Union[str, bool]): The rules argument.
+        """
         assert issubclass(
             meta, Indent
         ), "Conditional is only designed to work with Indent/Dedent segments."
@@ -82,13 +92,16 @@ class Conditional(BaseGrammar):
                 return False
         return True
 
-    @match_wrapper()
     def match(
-        self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+        self,
+        segments: Sequence["BaseSegment"],
+        idx: int,
+        parse_context: "ParseContext",
     ) -> MatchResult:
-        """Evaluate conditionals and return content."""
-        if not self.is_enabled(parse_context):  # pragma: no cover TODO?
-            return MatchResult.from_unmatched(segments)
+        """If enabled, return a single insert of the new segment."""
+        if not self.is_enabled(parse_context):
+            return MatchResult.empty_at(idx)
 
-        # Instantiate the new element and return
-        return MatchResult((self._meta(),), segments)
+        return MatchResult(
+            matched_slice=slice(idx, idx), insert_segments=((idx, self._meta),)
+        )

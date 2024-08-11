@@ -2,13 +2,21 @@
 
 import csv
 import time
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union, overload
-
-from typing_extensions import Literal
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Set,
+    Tuple,
+    Union,
+    overload,
+)
 
 from sqlfluff.core.errors import CheckTuple
-from sqlfluff.core.linter.linted_dir import LintedDir
-from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES
+from sqlfluff.core.linter.linted_dir import LintedDir, LintingRecord
 from sqlfluff.core.timing import RuleTimingSummary, TimingSummary
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -94,12 +102,6 @@ class LintingResult:
             buff += path.get_violations(**kwargs)
         return buff
 
-    def violation_dict(self, **kwargs) -> dict:
-        """Return a dict of paths and violations."""
-        return self.combine_dicts(
-            *(path.violation_dict(**kwargs) for path in self.paths)
-        )
-
     def stats(self, fail_code: int, success_code: int) -> Dict[str, Any]:
         """Return a stats dictionary of this result."""
         all_stats: Dict[str, Any] = dict(files=0, clean=0, unclean=0, violations=0)
@@ -126,10 +128,11 @@ class LintingResult:
         timing = TimingSummary()
         rules_timing = RuleTimingSummary()
         for dir in self.paths:
-            for file in dir.files:
-                if file.timings:
-                    timing.add(file.timings.step_timings)
-                    rules_timing.add(file.timings.rule_timings)
+            # Add timings from cached values.
+            # NOTE: This is so we don't rely on having the raw file objects any more.
+            for t in dir.step_timings:
+                timing.add(t)
+            rules_timing.add(dir.rule_timings)
         return {**timing.summary(), **rules_timing.summary()}
 
     def persist_timing_records(self, filename: str) -> None:
@@ -146,74 +149,47 @@ class LintingResult:
         # Iterate through all the files to get rule timing information so
         # we know what headings we're going to need.
         rule_codes: Set[str] = set()
-        file_timing_dicts: Dict[str, dict] = {}
-        for dir in self.paths:
-            for file in dir.files:
-                if not file.timings:  # pragma: no cover
+        for path in self.paths:
+            for record in path.as_records():
+                if "timings" not in record:  # pragma: no cover
                     continue
-                file_timing_dicts[file.path] = file.timings.get_rule_timing_dict()
-                rule_codes.update(file_timing_dicts[file.path].keys())
+                rule_codes.update(record["timings"].keys())
 
         with open(filename, "w", newline="") as f:
             writer = csv.DictWriter(
-                f, fieldnames=meta_fields + timing_fields + sorted(rule_codes)
+                # Metadata first, then step timings and then _sorted_ rule codes.
+                f,
+                fieldnames=meta_fields + timing_fields + sorted(rule_codes),
             )
 
+            # Write the header
             writer.writeheader()
 
-            for dir in self.paths:
-                for file in dir.files:
-                    if not file.timings:  # pragma: no cover
+            for path in self.paths:
+                for record in path.as_records():
+                    if "timings" not in record:  # pragma: no cover
                         continue
+
                     writer.writerow(
                         {
-                            "path": file.path,
-                            "source_chars": (
-                                len(file.templated_file.source_str)
-                                if file.templated_file
-                                else ""
-                            ),
-                            "templated_chars": (
-                                len(file.templated_file.templated_str)
-                                if file.templated_file
-                                else ""
-                            ),
-                            "segments": (
-                                file.tree.count_segments(raw_only=False)
-                                if file.tree
-                                else ""
-                            ),
-                            "raw_segments": (
-                                file.tree.count_segments(raw_only=True)
-                                if file.tree
-                                else ""
-                            ),
-                            **file.timings.step_timings,
-                            **file_timing_dicts[file.path],
+                            "path": record["filepath"],
+                            **record["statistics"],  # character and segment lengths.
+                            **record["timings"],  # step and rule timings.
                         }
                     )
 
-    def as_records(self) -> List[dict]:
+    def as_records(self) -> List[LintingRecord]:
         """Return the result as a list of dictionaries.
 
         Each record contains a key specifying the filepath, and a list of violations.
         This method is useful for serialization as all objects will be builtin python
         types (ints, strs).
         """
-        return [
-            {
-                "filepath": path,
-                "violations": sorted(
-                    # Sort violations by line and then position
-                    (v.get_info_dict() for v in violations),
-                    # The tuple allows sorting by line number, then position, then code
-                    key=lambda v: (v["line_no"], v["line_pos"], v["code"]),
-                ),
-            }
-            for LintedDir in self.paths
-            for path, violations in LintedDir.violation_dict().items()
-            if violations
-        ]
+        return sorted(
+            (record for linted_dir in self.paths for record in linted_dir.as_records()),
+            # Sort records by filename
+            key=lambda record: record["filepath"],
+        )
 
     def persist_changes(self, formatter, fixed_file_suffix: str = "") -> dict:
         """Run all the fixes for all the files and return a dict."""
@@ -238,27 +214,11 @@ class LintingResult:
 
     def count_tmp_prs_errors(self) -> Tuple[int, int]:
         """Count templating or parse errors before and after filtering."""
-        total_errors = self.num_violations(
-            types=TMP_PRS_ERROR_TYPES,
-            filter_ignore=False,
-            filter_warning=False,
-        )
-        num_filtered_errors = 0
-        for linted_dir in self.paths:
-            for linted_file in linted_dir.files:
-                num_filtered_errors += linted_file.num_violations(
-                    types=TMP_PRS_ERROR_TYPES
-                )
+        total_errors = sum(path.num_unfiltered_tmp_prs_errors for path in self.paths)
+        num_filtered_errors = sum(path.num_tmp_prs_errors for path in self.paths)
         return total_errors, num_filtered_errors
 
     def discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors(self) -> None:
         """Discard lint fixes for files with templating or parse errors."""
-        total_errors = self.num_violations(
-            types=TMP_PRS_ERROR_TYPES,
-            filter_ignore=False,
-            filter_warning=False,
-        )
-        if total_errors:
-            for linted_dir in self.paths:
-                for linted_file in linted_dir.files:
-                    linted_file.discard_fixes_if_tmp_or_prs_errors()
+        for path in self.paths:
+            path.discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors()

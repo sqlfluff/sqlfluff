@@ -11,3 +11,5 @@ create table `tickets` (
     `date_created` date not null default (current_date),
     `date_closed` date default null
 );
+
+create table _ (a int);

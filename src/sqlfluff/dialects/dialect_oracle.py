@@ -2,6 +2,7 @@
 
 This inherits from the ansi dialect.
 """
+
 from typing import cast
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -14,10 +15,12 @@ from sqlfluff.core.parser import (
     BracketedSegment,
     CodeSegment,
     CommentSegment,
+    CompositeComparisonOperatorSegment,
     Delimited,
     IdentifierSegment,
     LiteralSegment,
     Matchable,
+    Nothing,
     OneOf,
     OptionallyBracketed,
     ParseMode,
@@ -54,6 +57,9 @@ oracle_dialect.sets("reserved_keywords").update(
         "SIBLINGS",
         "START",
         "CONNECT_BY_ROOT",
+        "PIVOT",
+        "FOR",
+        "UNPIVOT",
     ]
 )
 
@@ -78,6 +84,24 @@ oracle_dialect.sets("bare_functions").update(
 oracle_dialect.patch_lexer_matchers(
     [
         RegexLexer("word", r"[a-zA-Z][0-9a-zA-Z_$#]*", WordSegment),
+        RegexLexer(
+            "single_quote",
+            r"'([^'\\]|\\|\\.|'')*'",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"'((?:[^'\\]|\\|\\.|'')*)'", 1),
+                "escape_replacements": [(r"''", "'")],
+            },
+        ),
+        RegexLexer(
+            "double_quote",
+            r'"([^"]|"")*"',
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"]|"")*)"', 1),
+                "escape_replacements": [(r'""', '"')],
+            },
+        ),
     ]
 )
 
@@ -118,7 +142,7 @@ oracle_dialect.add(
     ),
     PlusJoinGrammar=OneOf(
         Sequence(
-            Ref("ColumnReferenceSegment"),
+            OneOf(Ref("ColumnReferenceSegment"), Ref("FunctionSegment")),
             Ref("EqualsSegment"),
             Ref("ColumnReferenceSegment"),
             Ref("PlusJoinSegment"),
@@ -127,10 +151,24 @@ oracle_dialect.add(
             Ref("ColumnReferenceSegment"),
             Ref("PlusJoinSegment"),
             Ref("EqualsSegment"),
-            Ref("ColumnReferenceSegment"),
+            OneOf(Ref("ColumnReferenceSegment"), Ref("FunctionSegment")),
         ),
     ),
     IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
+    PivotForInGrammar=Sequence(
+        "FOR",
+        OptionallyBracketed(Delimited(Ref("ColumnReferenceSegment"))),
+        "IN",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("Expression_D_Grammar"),
+                    Ref("AliasExpressionSegment", optional=True),
+                )
+            )
+        ),
+    ),
+    UnpivotNullsGrammar=Sequence(OneOf("INCLUDE", "EXCLUDE"), "NULLS"),
 )
 
 oracle_dialect.replace(
@@ -150,6 +188,7 @@ oracle_dialect.replace(
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.upper,
         )
     ),
     PostFunctionGrammar=AnyNumberOf(
@@ -257,6 +296,9 @@ oracle_dialect.replace(
             Sequence("TO", Ref("IntervalUnitsGrammar"), optional=True),
         ),
     ),
+    PreTableFunctionKeywordsGrammar=OneOf("LATERAL"),
+    ConditionalCrossJoinKeywordsGrammar=Nothing(),
+    UnconditionalCrossJoinKeywordsGrammar=Ref.keyword("CROSS"),
 )
 
 
@@ -354,7 +396,7 @@ class AlterTableColumnClausesSegment(BaseSegment):
             Ref("ColumnReferenceSegment"),
             "TO",
             Ref("ColumnReferenceSegment"),
-        )
+        ),
         # @TODO: modify_collection_retrieval
         # @TODO: modify_LOB_storage_clause
         # @TODO: alter_varray_col_properties
@@ -567,6 +609,7 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
             "NONEDITIONABLE",
             optional=True,
         ),
+        Ref.keyword("MATERIALIZED", optional=True),
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
@@ -680,7 +723,18 @@ class ColumnDefinitionSegment(BaseSegment):
             ),
             Sequence(
                 Ref("DatatypeSegment"),  # Column type
-                Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+                # For types like VARCHAR(100), VARCHAR(100 BYTE), VARCHAR (100 CHAR)
+                Bracketed(
+                    Sequence(
+                        Anything(),
+                        OneOf(
+                            "BYTE",
+                            "CHAR",
+                            optional=True,
+                        ),
+                    ),
+                    optional=True,
+                ),
                 AnyNumberOf(
                     Ref("ColumnConstraintSegment", optional=True),
                 ),
@@ -737,7 +791,7 @@ class StartWithClauseSegment(BaseSegment):
 
 
 class HierarchicalQueryClauseSegment(BaseSegment):
-    """Hiearchical Query.
+    """Hierarchical Query.
 
     https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Hierarchical-Queries.html
     """
@@ -773,9 +827,17 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     """
 
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
-        insert=[Ref("HierarchicalQueryClauseSegment", optional=True)],
+        insert=[
+            Ref("HierarchicalQueryClauseSegment", optional=True),
+            Ref("PivotSegment", optional=True),
+            Ref("UnpivotSegment", optional=True),
+        ],
         before=Ref("GroupByClauseSegment", optional=True),
-        terminators=[Ref("HierarchicalQueryClauseSegment")],
+        terminators=[
+            Ref("HierarchicalQueryClauseSegment"),
+            Ref("PivotSegment", optional=True),
+            Ref("UnpivotSegment", optional=True),
+        ],
     )
 
 
@@ -796,7 +858,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
     )
 
 
-class GreaterThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class GreaterThanOrEqualToSegment(CompositeComparisonOperatorSegment):
     """Allow spaces between operators."""
 
     match_grammar = OneOf(
@@ -811,7 +873,7 @@ class GreaterThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class LessThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class LessThanOrEqualToSegment(CompositeComparisonOperatorSegment):
     """Allow spaces between operators."""
 
     match_grammar = OneOf(
@@ -826,10 +888,92 @@ class LessThanOrEqualToSegment(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class NotEqualToSegment(ansi.CompositeComparisonOperatorSegment):
+class NotEqualToSegment(CompositeComparisonOperatorSegment):
     """Allow spaces between operators."""
 
     match_grammar = OneOf(
         Sequence(Ref("RawNotSegment"), Ref("RawEqualsSegment")),
         Sequence(Ref("RawLessThanSegment"), Ref("RawGreaterThanSegment")),
+    )
+
+
+class PivotSegment(BaseSegment):
+    """Pivot clause.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/SELECT.html
+    """
+
+    type = "pivot_clause"
+
+    match_grammar: Matchable = Sequence(
+        "PIVOT",
+        Ref.keyword("XML", optional=True),
+        Bracketed(
+            Delimited(
+                Ref("FunctionSegment"), Ref("AliasExpressionSegment", optional=True)
+            ),
+            Ref("PivotForInGrammar"),
+        ),
+    )
+
+
+class UnpivotSegment(BaseSegment):
+    """Unpivot clause.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/SELECT.html
+    """
+
+    type = "unpivot_clause"
+
+    match_grammar: Matchable = Sequence(
+        "UNPIVOT",
+        Ref("UnpivotNullsGrammar", optional=True),
+        Bracketed(
+            OptionallyBracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            Ref("PivotForInGrammar"),
+        ),
+    )
+
+
+class ObjectReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to an object."""
+
+    # Allow whitespace
+    match_grammar: Matchable = Delimited(
+        Ref("SingleIdentifierGrammar"),
+        delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+        terminators=[Ref("ObjectReferenceTerminatorGrammar")],
+        allow_gaps=True,
+    )
+
+
+class ColumnReferenceSegment(ObjectReferenceSegment):
+    """A reference to column, field or alias."""
+
+    type = "column_reference"
+
+
+class FunctionNameSegment(BaseSegment):
+    """Function name, including any prefix bits, e.g. project or schema."""
+
+    type = "function_name"
+    match_grammar: Matchable = Sequence(
+        # Project name, schema identifier, etc.
+        AnyNumberOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DotSegment"),
+            ),
+            terminators=[Ref("BracketedSegment")],
+        ),
+        # Base function name
+        Delimited(
+            OneOf(
+                Ref("FunctionNameIdentifierSegment"),
+                Ref("QuotedIdentifierSegment"),
+                terminators=[Ref("BracketedSegment")],
+            ),
+            delimiter=Ref("AtSignSegment"),
+        ),
+        allow_gaps=False,
     )

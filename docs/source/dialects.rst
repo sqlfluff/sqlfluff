@@ -143,6 +143,15 @@ The dialect for `Materialize`_.
 
 .. _`Materialize`: https://materialize.com/
 
+.. _mariadb_dialect_ref:
+
+MariaDB
+-------
+
+The dialect for `MariaDB`_.
+
+.. _`MariaDB`: https://www.mariadb.org/
+
 .. _mysql_dialect_ref:
 
 MySQL
@@ -256,3 +265,12 @@ Trino
 The dialect for `Trino`_.
 
 .. _`Trino`: https://trino.io/docs/current/
+
+.. _vertica_dialect_ref:
+
+Vertica
+--------
+
+The dialect for `Vertica`_.
+
+.. _`Vertica`: https://www.vertica.com/documentation/vertica/all/

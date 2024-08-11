@@ -1,12 +1,11 @@
 """Indent and Dedent classes."""
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Sequence, Tuple
 from uuid import UUID
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import RawSegment, SourceFix
 from sqlfluff.core.templaters.base import TemplatedFile
@@ -58,9 +57,8 @@ class MetaSegment(RawSegment):
         return ""
 
     @classmethod
-    @match_wrapper()
     def match(
-        cls, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
+        cls, segments: Sequence["BaseSegment"], idx: int, parse_context: ParseContext
     ) -> MatchResult:  # pragma: no cover
         """This will never be called. If it is then we're using it wrong."""
         raise NotImplementedError(

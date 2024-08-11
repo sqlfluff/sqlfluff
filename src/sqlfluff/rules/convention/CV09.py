@@ -1,7 +1,8 @@
 """Implementation of Rule CV09."""
 
-import regex
 from typing import List, Optional
+
+import regex
 
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler

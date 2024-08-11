@@ -23,6 +23,9 @@ RESERVED_KEYWORDS = [
 ]
 
 UNRESERVED_KEYWORDS = [
-    # Unity Catalog
-    "CATALOG"
+    "CATALOG",
+    "OPTIMIZE",
+    "ZORDER",
+    "PYTHON",
+    "SQL",
 ]

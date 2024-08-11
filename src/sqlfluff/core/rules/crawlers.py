@@ -55,7 +55,7 @@ class SegmentSeekerCrawler(BaseCrawler):
         types: Set[str],
         provide_raw_stack: bool = False,
         allow_recurse: bool = True,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         self.types = types
         # Tracking a raw stack involves a lot of tuple manipulation, so we

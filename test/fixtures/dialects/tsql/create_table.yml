@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cfcae343a1e7dffe16887fb99acfec87e64823d1dbbe32c94bd4a971757073cb
+_hash: 79da78c613cc371329828508a62c84ef826111bc98cd7e8b884f337a29bc91cc
 file:
   batch:
   - statement:
@@ -100,5 +100,135 @@ file:
               naked_identifier: sch
               dot: .
               quoted_identifier: '[custom udt]'
+        - end_bracket: )
+      - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Products
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: ProductID
+          - data_type:
+              data_type_identifier: int
+          - column_constraint_segment:
+              identity_grammar:
+                keyword: IDENTITY
+                bracketed:
+                - start_bracket: (
+                - numeric_literal: '1'
+                - comma: ','
+                - numeric_literal: '1'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            naked_identifier: InventoryTs
+            data_type:
+              data_type_identifier: datetime2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '0'
+                  end_bracket: )
+        - comma: ','
+        - column_definition:
+            naked_identifier: QtyAvailable
+            data_type:
+              data_type_identifier: smallint
+        - comma: ','
+        - column_definition:
+            naked_identifier: QtySold
+            data_type:
+              data_type_identifier: smallint
+        - comma: ','
+        - column_definition:
+            naked_identifier: UnitPrice
+            data_type:
+              data_type_identifier: money
+        - comma: ','
+        - computed_column_definition:
+          - naked_identifier: InventoryValue1
+          - keyword: AS
+          - expression:
+            - column_reference:
+                naked_identifier: QtyAvailable
+            - binary_operator: '*'
+            - column_reference:
+                naked_identifier: UnitPrice
+          - keyword: PERSISTED
+        - comma: ','
+        - computed_column_definition:
+          - naked_identifier: InventoryValue2
+          - keyword: AS
+          - expression:
+            - column_reference:
+                naked_identifier: QtyAvailable
+            - binary_operator: '*'
+            - column_reference:
+                naked_identifier: UnitPrice
+          - keyword: PERSISTED
+          - keyword: NOT
+          - keyword: 'NULL'
+        - comma: ','
+        - computed_column_definition:
+            naked_identifier: InventoryValue3
+            keyword: AS
+            expression:
+            - column_reference:
+                naked_identifier: QtyAvailable
+            - binary_operator: '*'
+            - column_reference:
+                naked_identifier: UnitPrice
+        - comma: ','
+        - computed_column_definition:
+            naked_identifier: InventoryValue4
+            keyword: AS
+            expression:
+            - column_reference:
+                naked_identifier: QtyAvailable
+            - binary_operator: '*'
+            - column_reference:
+                naked_identifier: UnitPrice
+            column_constraint_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+        - comma: ','
+        - computed_column_definition:
+            quoted_identifier: '[SoldValue]'
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                  naked_identifier: QtySold
+              - binary_operator: '*'
+              - column_reference:
+                  naked_identifier: UnitPrice
+              end_bracket: )
+        - comma: ','
+        - computed_column_definition:
+            naked_identifier: InventoyDate
+            keyword: AS
+            function:
+              function_name:
+                keyword: CAST
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: InventoryTs
+                keyword: AS
+                data_type:
+                  data_type_identifier: date
+                end_bracket: )
         - end_bracket: )
       - statement_terminator: ;

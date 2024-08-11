@@ -28,6 +28,9 @@ greenplum:
 hive:
   - "/(hive)/i"
 
+materialize:
+  - "/(materialize)/i"
+
 mysql:
   - "/(mysql)/i"
 
@@ -60,3 +63,6 @@ teradata:
 
 trino:
   - "/(trino)/i"
+
+vertica:
+  - "/(vertica)/i"

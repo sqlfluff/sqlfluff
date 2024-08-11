@@ -38,16 +38,14 @@ WHERE EXISTS (
         WHERE person.id = person.id AND person.age IS NULL
     );
 
-SELECT 
+SELECT
     name,
     age
 FROM person
 WHERE person.id is distinct from person.age;
 
-SELECT 
+SELECT
     name,
     age
 FROM person
 WHERE person.id is not distinct from person.age
-
-

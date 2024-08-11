@@ -1,0 +1,251 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: dcbd9bfcc9e05a033877b3f76a67825a9ab37555142c74489bd1ce02db587e1c
+file:
+  statement:
+    values_clause:
+      keyword: VALUES
+      bracketed:
+      - start_bracket: (
+      - expression:
+          bare_function:
+            keyword: CURRENT_DATE
+      - comma: ','
+      - expression:
+          bare_function:
+            keyword: CURRENT_PATH
+      - comma: ','
+      - expression:
+          bare_function:
+            keyword: CURRENT_SCHEMA
+      - comma: ','
+      - expression:
+          bare_function:
+            keyword: CURRENT_SERVER
+      - comma: ','
+      - expression:
+          bare_function:
+            keyword: CURRENT_TIME
+      - comma: ','
+      - expression:
+          bare_function:
+            keyword: CURRENT_TIMESTAMP
+      - comma: ','
+      - expression:
+          bare_function:
+            keyword: CURRENT_TIMEZONE
+      - comma: ','
+      - expression:
+          bare_function:
+            keyword: CURRENT_USER
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: CLIENT_ACCTNG
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: CLIENT_APPLNAME
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: CLIENT_USERID
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: CLIENT_WRKSTNNAME
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: DATE
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: DBPARTITIONNUM
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: DECFLOAT
+          - keyword: ROUNDING
+          - keyword: MODE
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: DEFAULT
+          - keyword: TRANSFORM
+          - keyword: GROUP
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: DEGREE
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: EXPLAIN
+          - keyword: MODE
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: EXPLAIN
+          - keyword: SNAPSHOT
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: FEDERATED
+          - keyword: ASYNCHRONY
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: IMPLICIT
+          - keyword: XMLPARSE
+          - keyword: OPTION
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: ISOLATION
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: LOCALE
+          - keyword: LC_MESSAGES
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: LOCALE
+          - keyword: LC_TIME
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: LOCK
+          - keyword: TIMEOUT
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: MAINTAINED
+          - keyword: TABLE
+          - keyword: TYPES
+          - keyword: FOR
+          - keyword: OPTIMIZATION
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: MDC
+          - keyword: ROLLOUT
+          - keyword: MODE
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: MEMBER
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: OPTIMIZATION
+          - keyword: PROFILE
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: PACKAGE
+          - keyword: PATH
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: PATH
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: QUERY
+          - keyword: OPTIMIZATION
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: REFRESH
+          - keyword: AGE
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: SCHEMA
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: SERVER
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: SQL_CCFLAGS
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: TEMPORAL
+          - keyword: BUSINESS_TIME
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: TEMPORAL
+          - keyword: SYSTEM_TIME
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: TIME
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: TIMESTAMP
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: TIMEZONE
+      - comma: ','
+      - expression:
+          bare_function:
+          - keyword: CURRENT
+          - keyword: USER
+      - comma: ','
+      - expression:
+          bare_function:
+            keyword: SESSION_USER
+      - comma: ','
+      - expression:
+          bare_function:
+            keyword: SYSTEM_USER
+      - comma: ','
+      - expression:
+          bare_function:
+            keyword: USER
+      - end_bracket: )
+  statement_terminator: ;

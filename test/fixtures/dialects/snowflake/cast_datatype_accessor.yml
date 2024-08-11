@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b4d0dd3efafa1a377726c160270be1d9204731518fd317a69985974fa30ac1b8
+_hash: 265b7e1c7c92d729cd3d21ef525adfd5980b488d8ecdafa9af0fef2b6d3a9d57
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -92,4 +92,151 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: my_table
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+            - column_reference:
+                naked_identifier: foo
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: variant
+            - semi_structured_expression:
+                colon: ':'
+                semi_structured_element: field
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: array
+            - array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '0'
+                end_square_bracket: ']'
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: string
+          alias_expression:
+            keyword: AS
+            naked_identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          keyword: DISTINCT
+      - select_clause_element:
+          expression:
+            cast_expression:
+            - column_reference:
+                naked_identifier: payload
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: variant
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: object
+            - semi_structured_expression:
+                colon: ':'
+                semi_structured_element: name
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: text
+          alias_expression:
+            keyword: AS
+            naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+            - column_reference:
+                naked_identifier: payload
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: variant
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: object
+          alias_expression:
+            keyword: AS
+            naked_identifier: details
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+            - column_reference:
+                naked_identifier: payload
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: variant
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: object
+            - semi_structured_expression:
+                colon: ':'
+                semi_structured_element: createdAt
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: timestamp_ntz
+          alias_expression:
+            keyword: AS
+            naked_identifier: created
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+            - column_reference:
+                naked_identifier: payload
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: variant
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: object
+            - semi_structured_expression:
+                colon: ':'
+                semi_structured_element: updatedAt
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: timestamp_ntz
+          alias_expression:
+            keyword: AS
+            naked_identifier: updated
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+            - column_reference:
+                naked_identifier: payload
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: variant
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: object
+            - semi_structured_expression:
+                colon: ':'
+                semi_structured_element: id
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: number
+          alias_expression:
+            keyword: AS
+            naked_identifier: id
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: raw_source_table

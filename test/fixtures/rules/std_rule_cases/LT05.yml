@@ -150,9 +150,15 @@ test_compute_line_length_before_template_expansion_2:
   violations_after_fix:
     # Even after fixing, the final line is still too long.
     - description: Line is too long (86 > 80).
-      line_no: 4
-      line_pos: 9
       name: layout.long_lines
+      warning: false
+      fixes: []
+      start_line_no: 4
+      start_line_pos: 9
+      start_file_pos: 78
+      end_line_no: 4
+      end_line_pos: 11
+      end_file_pos: 80
   configs:
     core:
       dialect: bigquery
@@ -602,6 +608,71 @@ test_fail_do_not_fix_noqa:
     FROM
         really_really_really_really_really_really_long_schema_name.TABLE1 -- noqa: L014
 
+test_block_comment_single_line_noqa:
+  # Ignore long line in block comment
+  pass_str: |
+    /* A very long single-line block comment which is ignored --noqa: LT05 */
+    /* Another single-line block comment which is also ignored. I'm too lazy to specify which rule to ignore though. -- noqa */
+    /*
+    A very long multi-line block comment which is ignored -- noqa: LT05
+    */
+    /* noqa: disable=all */
+    -- A noqa by itself in a block comment is followed
+    /* noqa: enable=all */
+    /* -- noqa: disable=all */
+    -- A noqa in a block comment preceded by a single line comment marker (--) is followed
+    /* noqa: enable=all */
+    /* Ignore warnings for a bit! -- noqa: disable=all */
+    -- If the noqa is accompanied by preceding text in a block comment it
+    -- must be preceded by a single-line comment marker, and it must be
+    -- the last part of the line.
+    /* noqa: enable=all */
+    select 1
+  configs:
+    core:
+      max_line_length: 30
+
+test_fail_block_comment_single_line_noqa:
+  # Don't ignore long line in single-line block comment
+  fail_str: |
+    /* A very long single-line block comment which is not ignored */
+  configs:
+    core:
+      max_line_length: 30
+
+test_fail_block_comment_multi_line_noqa:
+  # Don't ignore long line in multi-line block comment
+  fail_str: |
+    /*
+    A very long multi-line block comment which is not ignored
+    */
+  configs:
+    core:
+      max_line_length: 30
+
+test_fail_block_comment_noqa_following_preceding_text_noqa:
+  # Don't follow noqa if it follows preceding text and is not
+  # immediately preceded by a single line comment marker (--)
+  fail_str: |
+    /* This won't work: noqa: disable=all */
+    -- A noqa will NOT be followed if it follows preceding text, and is
+    -- not immediately preceded by a single-line comment marker (--).
+    /* noqa: enable=all */
+  configs:
+    core:
+      max_line_length: 30
+
+test_fail_block_comment_noqa_not_at_end_of_line_noqa:
+  # Don't follow noqa if it is not at the end of the line
+  fail_str: |
+    /* -- noqa: disable=all Invalid noqa declaration */
+    -- A noqa will NOT be followed if it is not the last part of the line.
+    /* noqa: enable=all */
+    select 1
+  configs:
+    core:
+      max_line_length: 55
+
 test_operator_precedence:
   fail_str: |
     SELECT *
@@ -691,13 +762,25 @@ test_trailing_semicolon_moves:
   # the comma and semicolon where they are.
   violations_after_fix:
     - description: Line is too long (23 > 20).
-      line_no: 2
-      line_pos: 5
       name: layout.long_lines
+      warning: false
+      fixes: []
+      start_line_no: 2
+      start_line_pos: 5
+      start_file_pos: 11
+      end_line_no: 2
+      end_line_pos: 23
+      end_file_pos: 29
     - description: Line is too long (23 > 20).
-      line_no: 5
-      line_pos: 5
       name: layout.long_lines
+      warning: false
+      fixes: []
+      start_line_no: 5
+      start_line_pos: 5
+      start_file_pos: 53
+      end_line_no: 5
+      end_line_pos: 23
+      end_file_pos: 71
 
 test_pass_window_function:
   # Test that we don't flag too eagerly on window functions.
@@ -709,3 +792,9 @@ test_pass_window_function:
             order by d desc
         ) as rnk
     from foo
+
+test_fail_no_fix_long_templated:
+  # Test we fail but don't try and fix a long templated line
+  fail_str: |
+    select
+        '{{ "', '".join(["foo", "bar", "whatever", "whatever", "whatever", "whatever"]) }}'

@@ -40,8 +40,8 @@ class Parser:
         # instantiation.
         ctx = ParseContext.from_config(config=self.config)
         # Kick off parsing with the root segment. The BaseFileSegment has
-        # a unique entry point to facilitate exaclty this. All other segments
-        # will use the standard .match()/.parse() route.
+        # a unique entry point to facilitate exactly this. All other segments
+        # will use the standard .match() route.
         root = self.RootSegment.root_parse(
             tuple(segments), fname=fname, parse_context=ctx
         )

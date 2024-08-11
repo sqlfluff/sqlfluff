@@ -1,0 +1,128 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 239a8345bf5a129ab923e9daa7100b71b1ce4d9f17d737d949fcde022171e019
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+            data_type_identifier: INT
+            keyword: UNSIGNED
+        - column_constraint_segment:
+            keyword: AUTO_INCREMENT
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: TEXT
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '500'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: c
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+        - index_option:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: "'primary key (id)'"
+      - comma: ','
+      - table_constraint:
+          keyword: FULLTEXT
+          index_reference:
+            quoted_identifier: '`idx_a`'
+          bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: a
+            end_bracket: )
+          index_option:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: "'index (a)'"
+      - comma: ','
+      - table_constraint:
+          keyword: INDEX
+          index_reference:
+            quoted_identifier: '`idx_prefix_a`'
+          bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: a
+            bracketed:
+              start_bracket: (
+              numeric_literal: '20'
+              end_bracket: )
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+          keyword: INDEX
+          index_reference:
+            quoted_identifier: '`idx_b`'
+          bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: b
+            end_bracket: )
+          index_option:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: "'index (b)'"
+      - comma: ','
+      - table_constraint:
+          keyword: INDEX
+          index_reference:
+            quoted_identifier: '`idx_desc_b`'
+          bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: b
+            keyword: DESC
+            end_bracket: )
+      - comma: ','
+      - table_constraint:
+          keyword: INDEX
+          index_reference:
+            quoted_identifier: '`idx_asc_c`'
+          bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: c
+            keyword: ASC
+            end_bracket: )
+      - end_bracket: )
+    - parameter: ENGINE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: InnoDB
+  statement_terminator: ;

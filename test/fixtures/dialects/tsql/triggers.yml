@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cd35978be7ba6609d00c6c3fab646c1ad57806dfc4fbeb7fc4d04ef40784acba
+_hash: 876d3e99f9a162ad647cc28a39d0eaa9c9e5e52570c8248c9e4ae9eb87ce2c90
 file:
 - batch:
     statement:
@@ -629,5 +629,38 @@ file:
       - keyword: 'ON'
       - keyword: DATABASE
     statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      create_trigger:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: ALTER
+      - keyword: TRIGGER
+      - trigger_reference:
+          naked_identifier: reminder1
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: Sales
+        - dot: .
+        - naked_identifier: Customer
+      - keyword: AFTER
+      - keyword: INSERT
+      - comma: ','
+      - keyword: UPDATE
+      - keyword: AS
+      - statement:
+          raiserror_statement:
+            keyword: RAISERROR
+            bracketed:
+            - start_bracket: (
+            - quoted_literal: "'Notify Customer Relations'"
+            - comma: ','
+            - numeric_literal: '16'
+            - comma: ','
+            - numeric_literal: '10'
+            - end_bracket: )
+      - statement_terminator: ;
 - go_statement:
     keyword: GO

@@ -1,13 +1,16 @@
 """Runs the rule test cases."""
-import os
+
 import logging
+import os
+
 import pytest
+
+from sqlfluff.core.config import FluffConfig
 from sqlfluff.utils.testing.rules import (
+    get_rule_from_set,
     load_test_cases,
     rules__test_helper,
-    get_rule_from_set,
 )
-from sqlfluff.core.config import FluffConfig
 
 
 def pytest_generate_tests(metafunc):

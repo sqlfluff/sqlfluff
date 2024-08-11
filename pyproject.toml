@@ -1,0 +1,279 @@
+[build-system]
+requires = ["setuptools>=40.8.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "sqlfluff"
+version = "3.1.0"
+description = "The SQL Linter for Humans"
+readme = {file = "README.md", content-type = "text/markdown"}
+requires-python = ">=3.8"
+authors = [
+  {name = "Alan Cruickshank", email = "alan@designingoverload.com"},
+]
+license = {file = "LICENSE.md"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Unix",
+    "Operating System :: POSIX",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: SQL",
+    "Topic :: Utilities",
+    "Topic :: Software Development :: Quality Assurance",
+]
+keywords = [
+    "sqlfluff",
+    "sql",
+    "linter",
+    "formatter",
+    "athena",
+    "bigquery",
+    "clickhouse",
+    "databricks",
+    "db2",
+    "duckdb",
+    "exasol",
+    "greenplum",
+    "hive",
+    "materialize",
+    "mariadb",
+    "mysql",
+    "postgres",
+    "redshift",
+    "snowflake",
+    "soql",
+    "sparksql",
+    "sqlite",
+    "teradata",
+    "trino",
+    "tsql",
+    "vertica",
+    "dbt",
+]
+dependencies = [
+    # Used for finding os-specific application config dirs
+    "appdirs",
+    # To get the encoding of files.
+    "chardet",
+    "click",
+    "colorama>=0.3",
+    # Used for diffcover plugin
+    "diff-cover>=2.5.0",
+    "importlib_resources; python_version < '3.9'",
+    "Jinja2",
+    # Used for .sqlfluffignore
+    "pathspec",
+    # We provide a testing library for plugins in sqlfluff.utils.testing
+    "pytest",
+    # We require pyyaml >= 5.1 so that we can preserve the ordering of keys.
+    "pyyaml>=5.1",
+    # The new regex module to allow for more complex pattern matching,
+    # whilst remaining backwards compatible with existing regex use cases.
+    # e.g. capturing repeated groups in nested tsql block comments.
+    # This was introduced in https://github.com/sqlfluff/sqlfluff/pull/2027
+    # and further details can be found in that PR.
+    "regex",
+    # For returning exceptions from multiprocessing.Pool.map()
+    "tblib",
+    # For parsing pyproject.toml
+    "toml; python_version < '3.11'",
+    # For handling progress bars
+    "tqdm",
+]
+
+[project.urls]
+Homepage = "https://www.sqlfluff.com"
+Documentation = "https://docs.sqlfluff.com"
+Source = "https://github.com/sqlfluff/sqlfluff"
+Changes = "https://github.com/sqlfluff/sqlfluff/blob/main/CHANGELOG.md"
+"Issue Tracker" = "https://github.com/sqlfluff/sqlfluff/issues"
+Twitter = "https://twitter.com/SQLFluff"
+Chat = "https://github.com/sqlfluff/sqlfluff#sqlfluff-on-slack"
+
+[project.scripts]
+sqlfluff = "sqlfluff.cli.commands:cli"
+
+[project.entry-points.diff_cover]
+sqlfluff = "sqlfluff.diff_quality_plugin"
+
+[project.entry-points.sqlfluff]
+sqlfluff = "sqlfluff.core.plugin.lib"
+# NOTE: We namespace the rules plugins with `rules`, because some
+# of them might later collide with other types of plugins. In particular
+# `tsql` may eventually refer to a dialect plugin and `jinja` may refer
+# to a templater plugin.
+sqlfluff_rules_capitalisation = "sqlfluff.rules.capitalisation"
+sqlfluff_rules_aliasing = "sqlfluff.rules.aliasing"
+sqlfluff_rules_layout = "sqlfluff.rules.layout"
+sqlfluff_rules_references = "sqlfluff.rules.references"
+sqlfluff_rules_ambiguous = "sqlfluff.rules.ambiguous"
+sqlfluff_rules_structure = "sqlfluff.rules.structure"
+sqlfluff_rules_convention = "sqlfluff.rules.convention"
+sqlfluff_rules_jinja = "sqlfluff.rules.jinja"
+sqlfluff_rules_tsql = "sqlfluff.rules.tsql"
+
+
+[tool.sqlfluff_docs]
+# NOTE: Stable version is used by docs/conf.py
+stable_version = "3.1.0"
+
+
+[tool.setuptools.package-data]
+sqlfluff = ["core/default_config.cfg", "py.typed"]
+
+
+[tool.importlinter]
+root_package = "sqlfluff"
+
+[[tool.importlinter.contracts]]
+name = "Forbid dependencies outside core"
+type = "forbidden"
+source_modules = [
+    "sqlfluff.core",
+]
+forbidden_modules = [
+    "sqlfluff.api",
+    "sqlfluff.cli",
+    "sqlfluff.dialects",
+    "sqlfluff.rules",
+    "sqlfluff.utils",
+]
+
+[[tool.importlinter.contracts]]
+name = "API may not depend on CLI"
+type = "forbidden"
+source_modules = [
+    "sqlfluff.api",
+]
+forbidden_modules = [
+    "sqlfluff.cli",
+]
+
+[[tool.importlinter.contracts]]
+name = "Helper methods must be internally independent"
+type = "independence"
+modules = [
+    "sqlfluff.core.helpers.string",
+    "sqlfluff.core.helpers.slice",
+    "sqlfluff.core.helpers.dict",
+]
+
+[[tool.importlinter.contracts]]
+name = "Dependency layers within core"
+# NOTE: Several modules within core currently have somewhat more
+# convoluted dependency loops, especially when it comes to type checking.
+# Those are currently excluded from this work, but might be picked up in
+# future work to help with better isolation.
+type = "layers"
+layers = [
+    # `linter` references many things, including rules.
+    "sqlfluff.core.linter",
+    # `rules` should be independent from linter, but can reference the others.
+    "sqlfluff.core.rules",
+    # `parser` should be independent of `rules` and `linter`.
+    "sqlfluff.core.parser",
+    # `errors` should be a utility library, which can be referenced by the others.
+    "sqlfluff.core.errors",
+    # `helpers` should be independent and not reference any of the above.
+    "sqlfluff.core.helpers",
+]
+ignore_imports = [
+    # `errors` references `rules` and `parser`, but only for type checking.
+    # Splitting it up seems overkill for now, so an allowable exception.
+    "sqlfluff.core.errors -> sqlfluff.core.rules",
+    "sqlfluff.core.errors -> sqlfluff.core.parser",
+]
+
+
+[tool.mypy]
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+strict_equality = true
+extra_checks = true
+no_implicit_reexport = true
+
+# skip type checking for 3rd party packages for which stubs are not available
+[[tool.mypy.overrides]]
+module = "diff_cover.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "tblib.*"
+ignore_missing_imports = true
+
+
+[tool.ruff.lint]
+extend-select = ["I", "D"]
+
+# D105: Missing docstring in magic method
+# D107: Missing docstring in __init__
+# D418: Function/ Method decorated with @overload shouldn’t contain a docstring
+ignore = ["D107", "D105", "D418"]
+
+[tool.ruff.lint.isort]
+# Mark sqlfluff, test and it's plugins as known first party
+known-first-party = [
+    "sqlfluff",
+    "sqlfluff_plugin_example",
+    "sqlfluff_templater_dbt",
+    "test",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+
+[tool.pytest.ini_options]
+python_files = "*_test.py"
+testpaths = "test"
+markers = [
+    "dbt: Marks tests needing the \"dbt\" plugin (deselect with '-m \"not dbt\"').",
+    "integration: Marks tests outside of the core suite.",
+    "parse_suite: Marks the suite of parsing tests across a range of dialects (part of integration).",
+    "fix_suite: Marks the suite of fixing tests across a range of dialects (part of integration).",
+    "rules_suite: Marks the suite of rules tests. Also known as the yaml tests (part of integration).",
+]
+
+
+[tool.doc8]
+# Ignore auto-generated docs
+ignore-path = "docs/source/partials/"
+
+
+[tool.codespell]
+# The configuration must be kept here to ensure that
+# `codespell` can be run as a standalone program from the CLI
+# with the appropriate default options.
+
+skip = "*/test/fixtures/*,*/.*,*/pyproject.toml"
+
+check-hidden = true
+quiet-level=2
+# ignore-regex = '\\[fnrstv]'
+builtin = "clear,rare,informal,names"
+
+ignore-words-list = "fo,ws,falsy,coo,inout,deque,crate,trough,ro,mange,identifers,statment"
+
+# ignore-words = "dev/tools/codespell/codespell-ignore.txt"
+# exclude-file = "dev/tools/codespell/codespell-lines-ignore.txt"
+uri-ignore-words-list="crate"
+
+# For future reference: it is not currently possible to specify
+# the standard dictionary and the custom dictionary in the configuration
+# file
+#  D = "-"
+#  dictionary = "dev/tools/codespell/codespell-dict.txt"

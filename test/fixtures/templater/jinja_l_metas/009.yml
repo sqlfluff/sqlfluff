@@ -16,8 +16,8 @@ file:
       - comma: ','
       - select_clause_element:
           numeric_literal: '2'
+      - dedent: ""
     - newline: "\n"
-    - dedent: ""
     - from_clause:
       - keyword: FROM
       - whitespace: ' '

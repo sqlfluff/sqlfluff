@@ -3,12 +3,14 @@
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    AnySetOf,
     Anything,
     BaseSegment,
     Bracketed,
     BracketedSegment,
     CodeSegment,
     CommentSegment,
+    CompositeComparisonOperatorSegment,
     Dedent,
     Delimited,
     IdentifierSegment,
@@ -16,6 +18,7 @@ from sqlfluff.core.parser import (
     LiteralSegment,
     Matchable,
     NewlineSegment,
+    Nothing,
     OneOf,
     OptionallyBracketed,
     ParseMode,
@@ -24,13 +27,13 @@ from sqlfluff.core.parser import (
     RegexParser,
     SegmentGenerator,
     Sequence,
+    StringLexer,
     StringParser,
     SymbolSegment,
     TypedParser,
+    WhitespaceSegment,
     WordSegment,
 )
-from sqlfluff.core.parser.grammar.anyof import AnySetOf
-from sqlfluff.core.parser.lexer import StringLexer
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_postgres_keywords import (
     get_keywords,
@@ -56,19 +59,11 @@ postgres_dialect.insert_lexer_matchers(
         # Explanation for the regex
         # - (?s) Switch - .* includes newline characters
         # - U& - must start with U&
-        # - (('')+?(?!')|('.*?(?<!')(?:'')*'(?!')))
-        #    ('')+?                                 Any non-zero number of pairs of
-        #                                           single quotes -
-        #          (?!')                            that are not then followed by a
-        #                                           single quote
-        #               |                           OR
-        #                ('.*?(?<!')(?:'')*'(?!'))
-        #                 '.*?                      A single quote followed by anything
-        #                                           (non-greedy)
-        #                     (?<!')(?:'')*         Any even number of single quotes,
-        #                                           including zero
-        #                                  '(?!')   Followed by a single quote, which is
-        #                                           not followed by a single quote
+        # - '([^']|'')*'
+        #   '                                       Begin single quote
+        #    ([^']|'')*                             Any number of non-single quote
+        #                                           characters or two single quotes
+        #              '                            End single quote
         # - (\s*UESCAPE\s*'[^0-9A-Fa-f'+\-\s)]')?
         #    \s*UESCAPE\s*                          Whitespace, followed by UESCAPE,
         #                                           followed by whitespace
@@ -77,8 +72,7 @@ postgres_dialect.insert_lexer_matchers(
         #                                       ?   This last block is optional
         RegexLexer(
             "unicode_single_quote",
-            r"(?s)U&(('')+?(?!')|('.*?(?<!')(?:'')*'(?!')))(\s*UESCAPE\s*'"
-            r"[^0-9A-Fa-f'+\-\s)]')?",
+            r"(?si)U&'([^']|'')*'(\s*UESCAPE\s*'[^0-9A-Fa-f'+\-\s)]')?",
             CodeSegment,
         ),
         # This is similar to the Unicode regex, the key differences being:
@@ -92,19 +86,41 @@ postgres_dialect.insert_lexer_matchers(
         # There is no UESCAPE block
         RegexLexer(
             "escaped_single_quote",
-            r"(?s)E(('')+?(?!')|'.*?((?<!\\)(?:\\\\)*(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\"
+            r"(?si)E(('')+?(?!')|'.*?((?<!\\)(?:\\\\)*(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\"
             r"(?<!')(?:'')*')'(?!'))",
             CodeSegment,
         ),
         # Double quote Unicode string cannot be empty, and have no single quote escapes
         RegexLexer(
             "unicode_double_quote",
-            r'(?s)U&".+?"(\s*UESCAPE\s*\'[^0-9A-Fa-f\'+\-\s)]\')?',
+            r'(?si)U&".+?"(\s*UESCAPE\s*\'[^0-9A-Fa-f\'+\-\s)]\')?',
             CodeSegment,
         ),
         RegexLexer(
             "json_operator",
             r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-",
+            SymbolSegment,
+        ),
+        # r"|".join(
+        #     re.escape(operator)
+        #     for operator in [
+        #         "&&&",
+        #         "&<|",
+        #         "<<|",
+        #         "@",
+        #         "|&>",
+        #         "|>>",
+        #         "~=",
+        #         "<->",
+        #         "|=|",
+        #         "<#>",
+        #         "<<->>",
+        #         "<<#>>",
+        #     ]
+        # )
+        RegexLexer(
+            "postgis_operator",
+            r"\&\&\&|\&<\||<<\||@|\|\&>|\|>>|\~=|<\->|\|=\||<\#>|<<\->>|<<\#>>",
             SymbolSegment,
         ),
         StringLexer("at", "@", CodeSegment),
@@ -157,6 +173,13 @@ postgres_dialect.insert_lexer_matchers(
     before="word",  # Final thing to search for - as psql specific
 )
 
+postgres_dialect.insert_lexer_matchers(
+    [
+        StringLexer("walrus_operator", ":=", CodeSegment),
+    ],
+    before="equals",
+)
+
 postgres_dialect.patch_lexer_matchers(
     [
         # Patching comments to remove hash comments
@@ -169,14 +192,60 @@ postgres_dialect.patch_lexer_matchers(
         # In Postgres, the only escape character is ' for single quote strings
         RegexLexer(
             "single_quote",
-            r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))",
+            r"'([^']|'')*'",
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"'((?:[^']|'')*)'", 1),
+                "escape_replacements": [(r"''", "'")],
+            },
         ),
-        # In Postgres, there is no escape character for double quote strings
+        # In Postgres, the escape character is "" for double quote strings
         RegexLexer(
             "double_quote",
-            r'(?s)".+?"',
+            r'"([^"]|"")*"',
             CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"]|"")*)"', 1),
+                "escape_replacements": [(r'""', '"')],
+            },
+        ),
+        # Patching block comments to account for nested blocks.
+        # N.B. this syntax is only possible via the non-standard-library
+        # (but still backwards compatible) `regex` package.
+        # https://pypi.org/project/regex/
+        # Pattern breakdown:
+        # /\*                    Match opening slash.
+        #   (?>                  Atomic grouping
+        #                        (https://www.regular-expressions.info/atomic.html).
+        #       [^*/]+           Non forward-slash or asterisk characters.
+        #       |\*(?!\/)        Negative lookahead assertion to match
+        #                        asterisks not followed by a forward-slash.
+        #       |/[^*]           Match lone forward-slashes not followed by an asterisk.
+        #   )*                   Match any number of the atomic group contents.
+        #   (?>
+        #       (?R)             Recursively match the block comment pattern
+        #                        to match nested block comments.
+        #       (?>
+        #           [^*/]+
+        #           |\*(?!\/)
+        #           |/[^*]
+        #       )*
+        #   )*
+        # \*/                    Match closing slash.
+        RegexLexer(
+            "block_comment",
+            r"/\*(?>[^*/]+|\*(?!\/)|/[^*])*(?>(?R)(?>[^*/]+|\*(?!\/)|/[^*])*)*\*/",
+            CommentSegment,
+            subdivider=RegexLexer(
+                "newline",
+                r"\r\n|\n",
+                NewlineSegment,
+            ),
+            trim_post_subdivide=RegexLexer(
+                "whitespace",
+                r"[^\S\r\n]+",
+                WhitespaceSegment,
+            ),
         ),
         RegexLexer("word", r"[a-zA-Z_][0-9a-zA-Z_$]*", WordSegment),
     ]
@@ -231,6 +300,9 @@ postgres_dialect.sets("value_table_functions").update(["UNNEST", "GENERATE_SERIE
 postgres_dialect.add(
     JsonOperatorSegment=TypedParser(
         "json_operator", SymbolSegment, type="binary_operator"
+    ),
+    PostgisOperatorSegment=TypedParser(
+        "postgis_operator", SymbolSegment, type="binary_operator"
     ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
     # N.B. this MultilineConcatenateDelimiterGrammar is only created
@@ -299,6 +371,9 @@ postgres_dialect.add(
         "USER", "CURRENT_ROLE", "CURRENT_USER", "SESSION_USER"
     ),
     ImportForeignSchemaGrammar=Sequence("IMPORT", "FOREIGN", "SCHEMA"),
+    CreateForeignTableGrammar=Sequence("CREATE", "FOREIGN", "TABLE"),
+    IntervalUnitsGrammar=OneOf("YEAR", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND"),
+    WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
 )
 
 postgres_dialect.replace(
@@ -318,6 +393,7 @@ postgres_dialect.replace(
         Ref("NotExtendRightSegment"),
         Ref("NotExtendLeftSegment"),
         Ref("AdjacentSegment"),
+        Ref("PostgisOperatorSegment"),
     ),
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
@@ -328,7 +404,12 @@ postgres_dialect.replace(
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            casefold=str.lower,
         )
+    ),
+    Expression_C_Grammar=Sequence(
+        Ref("WalrusOperatorSegment", optional=True),
+        ansi_dialect.get_grammar("Expression_C_Grammar"),
     ),
     ParameterNameSegment=RegexParser(
         r'[A-Z_][A-Z0-9_$]*|"[^"]*"', CodeSegment, type="parameter"
@@ -342,6 +423,61 @@ postgres_dialect.replace(
         Ref("ExpressionSegment"),
         Ref("NamedArgumentSegment"),
     ),
+    FunctionContentsGrammar=AnyNumberOf(
+        Ref("ExpressionSegment"),
+        OptionallyBracketed(Ref("SetExpressionSegment")),
+        # A Cast-like function
+        Sequence(Ref("ExpressionSegment"), "AS", Ref("DatatypeSegment")),
+        # Trim function
+        Sequence(
+            Ref("TrimParametersGrammar"),
+            Ref("ExpressionSegment", optional=True, exclude=Ref.keyword("FROM")),
+            "FROM",
+            Ref("ExpressionSegment"),
+        ),
+        # An extract-like or substring-like function
+        # https://www.postgresql.org/docs/current/functions-string.html
+        Sequence(
+            OneOf(Ref("DatetimeUnitSegment"), Ref("ExpressionSegment")),
+            AnySetOf(
+                Sequence("FROM", Ref("ExpressionSegment")),
+                Sequence("FOR", Ref("ExpressionSegment")),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            # Allow an optional distinct keyword here.
+            Ref.keyword("DISTINCT", optional=True),
+            OneOf(
+                # Most functions will be using the delimited route
+                # but for COUNT(*) or similar we allow the star segment
+                # here.
+                Ref("StarSegment"),
+                Delimited(Ref("FunctionContentsExpressionGrammar")),
+            ),
+        ),
+        Ref(
+            "AggregateOrderByClause"
+        ),  # used by string_agg (postgres), group_concat (exasol),listagg (snowflake)..
+        Sequence(Ref.keyword("SEPARATOR"), Ref("LiteralGrammar")),
+        # like a function call: POSITION ( 'QL' IN 'SQL')
+        Sequence(
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("SingleIdentifierGrammar"),
+                Ref("ColumnReferenceSegment"),
+            ),
+            "IN",
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("SingleIdentifierGrammar"),
+                Ref("ColumnReferenceSegment"),
+            ),
+        ),
+        Ref("IgnoreRespectNullsGrammar"),
+        Ref("IndexColumnDefinitionSegment"),
+        Ref("EmptyStructLiteralSegment"),
+    ),
     QuotedLiteralSegment=OneOf(
         # Postgres allows newline-concatenated string literals (#1488).
         # Since these string literals can have comments between them,
@@ -349,10 +485,17 @@ postgres_dialect.replace(
         # Note we CANNOT use Delimited as it's greedy and swallows the
         # last Newline - see #2495
         Sequence(
-            TypedParser(
-                "single_quote",
-                LiteralSegment,
-                type="quoted_literal",
+            OneOf(
+                TypedParser(
+                    "single_quote",
+                    LiteralSegment,
+                    type="quoted_literal",
+                ),
+                TypedParser(
+                    "escaped_single_quote",
+                    LiteralSegment,
+                    type="quoted_literal",
+                ),
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
@@ -371,14 +514,14 @@ postgres_dialect.replace(
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
-                TypedParser(
-                    "bit_string_literal",
+                RegexParser(
+                    r"(?i)'[0-9a-f]*'",
                     LiteralSegment,
                     type="quoted_literal",
                 ),
             ),
         ),
-        Delimited(
+        Sequence(
             TypedParser(
                 "unicode_single_quote",
                 LiteralSegment,
@@ -386,26 +529,18 @@ postgres_dialect.replace(
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
-                TypedParser(
-                    "unicode_single_quote",
+                RegexParser(
+                    r"'([^']|'')*'",
                     LiteralSegment,
                     type="quoted_literal",
                 ),
             ),
-        ),
-        Delimited(
-            TypedParser(
-                "escaped_single_quote",
-                LiteralSegment,
-                type="quoted_literal",
-            ),
-            AnyNumberOf(
-                Ref("MultilineConcatenateDelimiterGrammar"),
-                TypedParser(
-                    "escaped_single_quote",
-                    LiteralSegment,
-                    type="quoted_literal",
+            Sequence(
+                "UESCAPE",
+                RegexParser(
+                    r"'[^0-9A-Fa-f'+\-\s)]'", CodeSegment, "unicode_escape_value"
                 ),
+                optional=True,
             ),
         ),
         Delimited(
@@ -449,7 +584,7 @@ postgres_dialect.replace(
             Sequence(Ref("ParameterNameSegment"), Ref("DatatypeSegment")),
         ),
         Sequence(
-            OneOf("DEFAULT", Ref("EqualsSegment")),
+            OneOf("DEFAULT", Ref("EqualsSegment"), Ref("WalrusOperatorSegment")),
             Ref("ExpressionSegment"),
             optional=True,
         ),
@@ -459,7 +594,9 @@ postgres_dialect.replace(
     # https://www.postgresql.org/docs/14/functions-comparison.html
     IsNullGrammar=Ref.keyword("ISNULL"),
     NotNullGrammar=Ref.keyword("NOTNULL"),
-    JoinKeywordsGrammar=Sequence("JOIN", Sequence("LATERAL", optional=True)),
+    PreTableFunctionKeywordsGrammar=OneOf("LATERAL"),
+    ConditionalCrossJoinKeywordsGrammar=Nothing(),
+    UnconditionalCrossJoinKeywordsGrammar=Ref.keyword("CROSS"),
     SelectClauseTerminatorGrammar=OneOf(
         "INTO",
         "FROM",
@@ -521,10 +658,33 @@ postgres_dialect.replace(
         Ref("DeleteStatementSegment"),
     ),
     NonWithNonSelectableGrammar=OneOf(),
+    # https://www.postgresql.org/docs/current/functions-datetime.html
+    DateTimeLiteralGrammar=Sequence(
+        OneOf("DATE", "TIME", "TIMESTAMP", "INTERVAL"),
+        TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
+        Sequence(
+            Ref("IntervalUnitsGrammar"),
+            Sequence("TO", Ref("IntervalUnitsGrammar"), optional=True),
+        ),
+    ),
+    BracketedSetExpressionGrammar=Bracketed(Ref("SetExpressionSegment")),
+    ReferentialActionGrammar=OneOf(
+        "CASCADE",
+        Sequence(
+            "SET",
+            OneOf("DEFAULT", "NULL"),
+            Bracketed(
+                Delimited(Ref("ColumnReferenceSegment")),
+                optional=True,
+            ),
+        ),
+        "RESTRICT",
+        Sequence("NO", "ACTION"),
+    ),
 )
 
 
-class OverlapSegment(ansi.CompositeComparisonOperatorSegment):
+class OverlapSegment(CompositeComparisonOperatorSegment):
     """Overlaps range operator."""
 
     match_grammar = Sequence(
@@ -532,7 +692,7 @@ class OverlapSegment(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class NotExtendRightSegment(ansi.CompositeComparisonOperatorSegment):
+class NotExtendRightSegment(CompositeComparisonOperatorSegment):
     """Not extend right range operator."""
 
     match_grammar = Sequence(
@@ -540,7 +700,7 @@ class NotExtendRightSegment(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class NotExtendLeftSegment(ansi.CompositeComparisonOperatorSegment):
+class NotExtendLeftSegment(CompositeComparisonOperatorSegment):
     """Not extend left range operator."""
 
     match_grammar = Sequence(
@@ -548,7 +708,7 @@ class NotExtendLeftSegment(ansi.CompositeComparisonOperatorSegment):
     )
 
 
-class AdjacentSegment(ansi.CompositeComparisonOperatorSegment):
+class AdjacentSegment(CompositeComparisonOperatorSegment):
     """Adjacent range operator."""
 
     match_grammar = Sequence(
@@ -732,6 +892,11 @@ class DatatypeSegment(ansi.DatatypeSegment):
                     "DATERANGE",
                     # pg_lsn type
                     "PG_LSN",
+                    # pgvector types
+                    Sequence(
+                        "VECTOR",
+                        Ref("BracketedArguments", optional=True),
+                    ),
                 ),
             ),
             # user defined data types
@@ -846,13 +1011,59 @@ class DropCastStatementSegment(ansi.DropCastStatementSegment):
     match_grammar: Matchable = Sequence(
         "DROP",
         "CAST",
-        Sequence("IF", "EXISTS", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Bracketed(
             Ref("DatatypeSegment"),
             "AS",
             Ref("DatatypeSegment"),
         ),
         Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class DropAggregateStatementSegment(BaseSegment):
+    """A `DROP AGGREGATE` statement.
+
+    https://www.postgresql.org/docs/15/sql-dropaggregate.html
+    """
+
+    type = "drop_aggregate_statement"
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        "AGGREGATE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(
+            Sequence(
+                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    Ref("FunctionParameterListGrammar"),
+                    # TODO: Is this too permissive?
+                    Anything(),
+                    Ref("StarSegment"),
+                ),
+            ),
+        ),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class CreateAggregateStatementSegment(BaseSegment):
+    """A `CREATE AGGREGATE` statement.
+
+    https://www.postgresql.org/docs/16/sql-createaggregate.html
+    """
+
+    type = "create_aggregate_statement"
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "AGGREGATE",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(
+            # TODO: Is this too permissive?
+            Anything(),
+        ),
+        Ref("FunctionParameterListGrammar"),
     )
 
 
@@ -906,7 +1117,7 @@ class CreateFunctionStatementSegment(ansi.CreateFunctionStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         Ref("TemporaryGrammar", optional=True),
         "FUNCTION",
         Ref("IfNotExistsGrammar", optional=True),
@@ -956,7 +1167,7 @@ class DropFunctionStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Delimited(
             Sequence(
-                Ref("FunctionNameSegment"),
+                Ref("ObjectReferenceSegment"),
                 Ref("FunctionParameterListGrammar", optional=True),
             )
         ),
@@ -1160,7 +1371,7 @@ class CreateProcedureStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         "PROCEDURE",
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
@@ -1309,6 +1520,34 @@ class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
                     ),
                 ),
             ),
+            Sequence(
+                "RETURN",
+                Ref("ExpressionSegment"),
+            ),
+            Sequence(
+                "BEGIN",
+                "ATOMIC",
+                AnyNumberOf(
+                    Sequence(
+                        Ref("InsertStatementSegment"),
+                        Ref("SemicolonSegment"),
+                    ),
+                    Sequence(
+                        Ref("UpdateStatementSegment"),
+                        Ref("SemicolonSegment"),
+                    ),
+                    Sequence(
+                        Ref("SelectStatementSegment"),
+                        Ref("SemicolonSegment"),
+                    ),
+                    Sequence(
+                        "RETURN",
+                        Ref("ExpressionSegment"),
+                        Ref("SemicolonSegment"),
+                    ),
+                ),
+                "END",
+            ),
         ),
         Sequence(
             "WITH",
@@ -1422,9 +1661,7 @@ class SelectClauseSegment(ansi.SelectClauseSegment):
             optional=True,
             allow_trailing=True,
         ),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
+        Dedent,
         terminators=[
             "INTO",
             "FROM",
@@ -1876,10 +2113,8 @@ class CreateTableAsStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         AnyNumberOf(
-            Sequence(
-                Bracketed(
-                    Delimited(Ref("ColumnReferenceSegment")),
-                ),
+            Bracketed(
+                Delimited(Ref("ColumnReferenceSegment")),
                 optional=True,
             ),
             Sequence("USING", Ref("ParameterNameSegment"), optional=True),
@@ -2201,6 +2436,7 @@ class CreateExtensionStatementSegment(BaseSegment):
         Sequence("SCHEMA", Ref("SchemaReferenceSegment"), optional=True),
         Sequence("VERSION", Ref("VersionIdentifierSegment"), optional=True),
         Sequence("FROM", Ref("VersionIdentifierSegment"), optional=True),
+        Ref.keyword("CASCADE", optional=True),
     )
 
 
@@ -2217,6 +2453,138 @@ class DropExtensionStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Ref("ExtensionReferenceSegment"),
         Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+class AlterExtensionStatementSegment(BaseSegment):
+    """An `ALTER EXTENSION` statement.
+
+    https://www.postgresql.org/docs/16/sql-alterextension.html
+    """
+
+    type = "alter_extension_statement"
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        "EXTENSION",
+        Ref("ExtensionReferenceSegment"),
+        OneOf(
+            Sequence(
+                "UPDATE",
+                Sequence(
+                    "TO",
+                    Ref("LiteralGrammar"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "SET",
+                "SCHEMA",
+                OneOf(Ref("SchemaReferenceSegment"), "CURRENT_SCHEMA"),
+            ),
+            Sequence(
+                OneOf(
+                    "ADD",
+                    "DROP",
+                ),
+                OneOf(
+                    Sequence(
+                        OneOf(
+                            Sequence("ACCESS", "METHOD"),
+                            "COLLATION",
+                            "CONVERSION",
+                            "DOMAIN",
+                            Sequence("EVENT", "TRIGGER"),
+                            Sequence("FOREIGN", "DATA", "WRAPPER"),
+                            Sequence("FOREIGN", "TABLE"),
+                            Sequence(
+                                Ref.keyword("PROCEDURAL", optional=True),
+                                "LANGUAGE",
+                            ),
+                            "SCHEMA",
+                            "SEQUENCE",
+                            "SERVER",
+                            Sequence(
+                                "TEXT",
+                                "SEARCH",
+                                OneOf(
+                                    "CONFIGURATION",
+                                    "DICTIONARY",
+                                    "PARSER",
+                                    "TEMPLATE",
+                                ),
+                            ),
+                            "TYPE",
+                        ),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                    Sequence(
+                        OneOf(
+                            Sequence("MATERIALIZED", "VIEW"),
+                            "TABLE",
+                            "VIEW",
+                        ),
+                        Ref("TableReferenceSegment"),
+                    ),
+                    Sequence(
+                        "AGGREGATE",
+                        Ref("ObjectReferenceSegment"),
+                        Bracketed(
+                            Sequence(
+                                # TODO: Is this too permissive?
+                                Anything(),
+                                optional=True,
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        "CAST",
+                        Bracketed(
+                            Sequence(
+                                Ref("ObjectReferenceSegment"),
+                                "AS",
+                                Ref("ObjectReferenceSegment"),
+                            ),
+                        ),
+                    ),
+                    Sequence(
+                        OneOf(
+                            "FUNCTION",
+                            "PROCEDURE",
+                            "ROUTINE",
+                        ),
+                        Delimited(
+                            Sequence(
+                                Ref("FunctionNameSegment"),
+                                Ref("FunctionParameterListGrammar", optional=True),
+                            ),
+                        ),
+                    ),
+                    Sequence(
+                        "OPERATOR",
+                        OneOf(
+                            Sequence(
+                                Ref("ObjectReferenceSegment"),
+                                Bracketed(
+                                    Delimited(
+                                        Ref("DatatypeSegment"),
+                                        Ref("CommaSegment"),
+                                        Ref("DatatypeSegment"),
+                                    ),
+                                ),
+                            ),
+                            Sequence(
+                                OneOf("CLASS", "FAMILY"),
+                                Ref("ObjectReferenceSegment"),
+                                "USING",
+                                Ref("IndexAccessMethodSegment"),
+                            ),
+                        ),
+                    ),
+                    Sequence("TRANSFORM", "FOR", "TYPE", Ref("ParameterNameSegment")),
+                ),
+            ),
+        ),
     )
 
 
@@ -2245,7 +2613,7 @@ class PublicationObjectsSegment(BaseSegment):
     so requires one to track the previous object type if it's a "continuation object
     type", this grammar groups together the continuation objects, e.g.
     "TABLE a, b, TABLE c, d" results in two segments: one containing references
-    "a, b", and the other contianing "c, d".
+    "a, b", and the other containing "c, d".
 
     https://www.postgresql.org/docs/15/sql-createpublication.html
     https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L10435-L10530
@@ -2566,22 +2934,26 @@ class AlterPolicyStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         OneOf(
             Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
-            Sequence(
-                "TO",
-                Delimited(
-                    OneOf(
-                        Ref("RoleReferenceSegment"),
-                        "PUBLIC",
-                        "CURRENT_ROLE",
-                        "CURRENT_USER",
-                        "SESSION_USER",
-                    )
+            AnySetOf(
+                Sequence(
+                    "TO",
+                    Delimited(
+                        OneOf(
+                            Ref("RoleReferenceSegment"),
+                            "PUBLIC",
+                            "CURRENT_ROLE",
+                            "CURRENT_USER",
+                            "SESSION_USER",
+                        )
+                    ),
                 ),
-                optional=True,
-            ),
-            Sequence("USING", Bracketed(Ref("ExpressionSegment")), optional=True),
-            Sequence(
-                "WITH", "CHECK", Bracketed(Ref("ExpressionSegment")), optional=True
+                Sequence("USING", Bracketed(Ref("ExpressionSegment"))),
+                Sequence(
+                    "WITH",
+                    "CHECK",
+                    Bracketed(Ref("ExpressionSegment")),
+                ),
+                min_times=1,
             ),
         ),
     )
@@ -3010,6 +3382,47 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
     )
 
 
+class ForeignTableColumnConstraintSegment(ansi.ColumnConstraintSegment):
+    """A column option for a foreign table.
+
+    Each CREATE FOREIGN TABLE column can have 0 or more.
+
+    https://www.postgresql.org/docs/16/sql-createforeigntable.html
+    """
+
+    match_grammar = Sequence(
+        # [ CONSTRAINT constraint_name ]
+        Sequence(
+            "CONSTRAINT",
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        OneOf(
+            # NOT NULL | NULL
+            Sequence(Ref.keyword("NOT", optional=True), "NULL"),
+            # CHECK ( expression ) [ NO INHERIT ]
+            Sequence(
+                "CHECK",
+                Bracketed(Ref("ExpressionSegment")),
+                Sequence("NO", "INHERIT", optional=True),
+            ),
+            # DEFAULT default_expr
+            Sequence(
+                "DEFAULT",
+                OneOf(
+                    Ref("ShorthandCastSegment"),
+                    Ref("LiteralGrammar"),
+                    Ref("FunctionSegment"),
+                    Ref("BareFunctionSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            # GENERATED ALWAYS AS ( generation_expr ) STORED
+            Sequence("GENERATED", "ALWAYS", "AS", Ref("ExpressionSegment"), "STORED"),
+        ),
+    )
+
+
 class PartitionBoundSpecSegment(BaseSegment):
     """Partition bound spec.
 
@@ -3113,6 +3526,28 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
     )
 
 
+class ForeignTableTableConstraintSegment(ansi.TableConstraintSegment):
+    """A table constraint on a foreign table, e.g. for CREATE FOREIGN TABLE.
+
+    As specified in https://www.postgresql.org/docs/16/sql-createforeigntable.html
+    """
+
+    match_grammar = Sequence(
+        # [ CONSTRAINT constraint_name ]
+        Sequence(
+            "CONSTRAINT",
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        # CHECK ( expression ) [ NO INHERIT ]
+        Sequence(
+            "CHECK",
+            Bracketed(Ref("ExpressionSegment")),
+            Sequence("NO", "INHERIT", optional=True),
+        ),
+    )
+
+
 class TableConstraintUsingIndexSegment(BaseSegment):
     """table_constraint_using_index.
 
@@ -3157,23 +3592,6 @@ class IndexParametersSegment(BaseSegment):
             Ref("TablespaceReferenceSegment"),
             optional=True,
         ),
-    )
-
-
-class ReferentialActionSegment(BaseSegment):
-    """Foreign Key constraints.
-
-    https://www.postgresql.org/docs/13/infoschema-referential-constraints.html
-    """
-
-    type = "referential_action"
-
-    match_grammar = OneOf(
-        "CASCADE",
-        Sequence("SET", "NULL"),
-        Sequence("SET", "DEFAULT"),
-        "RESTRICT",
-        Sequence("NO", "ACTION"),
     )
 
 
@@ -3866,6 +4284,112 @@ class DropSequenceStatementSegment(ansi.DropSequenceStatementSegment):
     )
 
 
+class StatisticsReferenceSegment(ansi.ObjectReferenceSegment):
+    """Statistics Reference."""
+
+    type = "statistics_reference"
+
+
+class CreateStatisticsStatementSegment(BaseSegment):
+    """Create Statistics Segment.
+
+    As specified in https://www.postgresql.org/docs/16/sql-createstatistics.html
+    """
+
+    type = "create_statistics_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "STATISTICS",
+        Sequence(
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("StatisticsReferenceSegment"),
+            optional=True,
+        ),
+        Bracketed(
+            Delimited(
+                "DEPENDENCIES",
+                "MCV",
+                "NDISTINCT",
+            ),
+            optional=True,
+        ),
+        "ON",
+        Delimited(
+            Ref("ColumnReferenceSegment"),
+            Ref("ExpressionSegment"),
+        ),
+        "FROM",
+        Ref("TableReferenceSegment"),
+    )
+
+
+class AlterStatisticsStatementSegment(BaseSegment):
+    """Alter Statistics Segment.
+
+    As specified in https://www.postgresql.org/docs/16/sql-alterstatistics.html
+    """
+
+    type = "alter_statistics_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "STATISTICS",
+        Ref("StatisticsReferenceSegment"),
+        OneOf(
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("StatisticsReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                OneOf(
+                    Sequence(
+                        "SCHEMA",
+                        Ref("SchemaReferenceSegment"),
+                    ),
+                    Sequence(
+                        "STATISTICS",
+                        Ref("NumericLiteralSegment"),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class DropStatisticsStatementSegment(BaseSegment):
+    """Alter Statistics Segment.
+
+    As specified in https://www.postgresql.org/docs/16/sql-dropstatistics.html
+    """
+
+    type = "drop_statistics_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "STATISTICS",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("StatisticsReferenceSegment")),
+        OneOf(
+            "CASCADE",
+            "RESTRICT",
+            optional=True,
+        ),
+    )
+
+
 class AnalyzeStatementSegment(BaseSegment):
     """Analyze Statement Segment.
 
@@ -3936,6 +4460,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterRoleStatementSegment"),
             Ref("CreateExtensionStatementSegment"),
             Ref("DropExtensionStatementSegment"),
+            Ref("AlterExtensionStatementSegment"),
             Ref("CreatePublicationStatementSegment"),
             Ref("AlterPublicationStatementSegment"),
             Ref("DropPublicationStatementSegment"),
@@ -3949,6 +4474,12 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateServerStatementSegment"),
             Ref("CreateUserMappingStatementSegment"),
             Ref("ImportForeignSchemaStatementSegment"),
+            Ref("CreateForeignTableStatementSegment"),
+            Ref("DropAggregateStatementSegment"),
+            Ref("CreateAggregateStatementSegment"),
+            Ref("CreateStatisticsStatementSegment"),
+            Ref("AlterStatisticsStatementSegment"),
+            Ref("DropStatisticsStatementSegment"),
         ],
     )
 
@@ -3961,7 +4492,7 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         Ref.keyword("CONSTRAINT", optional=True),
         "TRIGGER",
         Ref("TriggerReferenceSegment"),
@@ -4177,6 +4708,7 @@ class ConflictTargetSegment(BaseSegment):
                         OneOf(
                             Ref("ColumnReferenceSegment"),
                             Bracketed(Ref("ExpressionSegment")),
+                            Ref("FunctionSegment"),
                         ),
                         Sequence(
                             "COLLATE",
@@ -5424,4 +5956,129 @@ class ImportForeignSchemaStatementSegment(BaseSegment):
         "INTO",
         Ref("SchemaReferenceSegment"),
         Ref("OptionsGrammar", optional=True),
+    )
+
+
+class CreateForeignTableStatementSegment(BaseSegment):
+    """Create foreign table statement.
+
+    https://www.postgresql.org/docs/current/sql-createforeigntable.html
+    """
+
+    type = "create_foreign_table_statement"
+
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            Ref("CreateForeignTableGrammar"),
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("TableReferenceSegment"),
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        Sequence(
+                            Ref("ColumnReferenceSegment"),
+                            Ref("DatatypeSegment"),
+                            Ref("OptionsGrammar", optional=True),
+                            Sequence(
+                                "COLLATE",
+                                Ref("CollationReferenceSegment"),
+                                optional=True,
+                            ),
+                            AnyNumberOf(Ref("ForeignTableColumnConstraintSegment")),
+                        ),
+                        Ref("ForeignTableTableConstraintSegment"),
+                    ),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "INHERITS",
+                Bracketed(Delimited(Ref("TableReferenceSegment"))),
+                optional=True,
+            ),
+            Sequence(
+                "SERVER",
+                Ref("ServerReferenceSegment"),
+            ),
+            Ref("OptionsGrammar", optional=True),
+        ),
+        Sequence(
+            Ref("CreateForeignTableGrammar"),
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("TableReferenceSegment"),
+            Sequence(
+                "PARTITION",
+                "OF",
+                Ref("TableReferenceSegment"),
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Sequence(
+                                Ref("ColumnReferenceSegment"),
+                                Sequence("WITH", "OPTIONS", optional=True),
+                                AnyNumberOf(Ref("ForeignTableColumnConstraintSegment")),
+                            ),
+                            Ref("ForeignTableTableConstraintSegment"),
+                        )
+                    ),
+                    optional=True,
+                ),
+                OneOf(
+                    Sequence("FOR", "VALUES", Ref("PartitionBoundSpecSegment")),
+                    "DEFAULT",
+                ),
+            ),
+            Sequence(
+                "SERVER",
+                Ref("ServerReferenceSegment"),
+            ),
+            Ref("OptionsGrammar", optional=True),
+        ),
+    )
+
+
+class OverlapsClauseSegment(ansi.OverlapsClauseSegment):
+    """An `OVERLAPS` clause.
+
+    https://www.postgresql.org/docs/current/functions-datetime.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        OneOf(
+            Sequence(
+                Bracketed(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("DateTimeLiteralGrammar"),
+                        Ref("ShorthandCastSegment"),
+                    ),
+                    Ref("CommaSegment"),
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("DateTimeLiteralGrammar"),
+                        Ref("ShorthandCastSegment"),
+                    ),
+                )
+            ),
+            Ref("ColumnReferenceSegment"),
+        ),
+        "OVERLAPS",
+        OneOf(
+            Sequence(
+                Bracketed(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("DateTimeLiteralGrammar"),
+                        Ref("ShorthandCastSegment"),
+                    ),
+                    Ref("CommaSegment"),
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("DateTimeLiteralGrammar"),
+                        Ref("ShorthandCastSegment"),
+                    ),
+                )
+            ),
+            Ref("ColumnReferenceSegment"),
+        ),
     )

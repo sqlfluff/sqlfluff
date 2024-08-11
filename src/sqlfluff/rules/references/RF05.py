@@ -1,5 +1,6 @@
 """Implementation of Rule RF05."""
-from typing import Optional, Set, List
+
+from typing import List, Optional, Set
 
 import regex
 

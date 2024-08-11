@@ -1,6 +1,6 @@
 """This is an example of providing config overrides."""
 
-from sqlfluff.core import Linter, FluffConfig
+from sqlfluff.core import FluffConfig, Linter
 
 sql = "SELECT 1\n"
 

@@ -66,15 +66,15 @@ For example, a snippet from a :code:`pyproject.toml` file:
     sql_file_exts = ".sql,.sql.j2,.dml,.ddl"
 
     [tool.sqlfluff.indentation]
-    indented_joins = False
-    indented_using_on = True
-    template_blocks_indent = False
+    indented_joins = false
+    indented_using_on = true
+    template_blocks_indent = false
 
     [tool.sqlfluff.templater]
-    unwrap_wrapped_queries = True
+    unwrap_wrapped_queries = true
 
     [tool.sqlfluff.templater.jinja]
-    apply_dbt_builtins = True
+    apply_dbt_builtins = true
 
     # For rule specific configuration, use dots between the names exactly
     # as you would in .sqlfluff. In the background, SQLFluff will unpack the
@@ -135,11 +135,14 @@ steps overriding those from earlier:
    above in the main :ref:`config` section. If multiple are present, they will
    *patch*/*override* each other in the order above.
 2. It will look for the same files in the user's home directory (~).
-3. It will look for the same files in the current working directory.
-4. *[if parsing a file in a subdirectory of the current working directory]*
+3. *[if the current working directory is a subdirectory of the user's home directory (~)]*
+   It will look for the same files in all directories between the
+   user's home directory (~), and the current working directory.
+4. It will look for the same files in the current working directory.
+5. *[if parsing a file in a subdirectory of the current working directory]*
    It will look for the same files in every subdirectory between the
    current working dir and the file directory.
-5. It will look for the same files in the directory containing the file
+6. It will look for the same files in the directory containing the file
    being linted.
 
 This whole structure leads to efficient configuration, in particular
@@ -161,7 +164,7 @@ configuration.
 
 To use these, the syntax must start as an *inline sql comment* beginning
 with :code:`sqlfluff` (i.e. :code:`-- sqlfluff`). The line is then interpreted
-as a colon-seperated address of the configuation value you wish to set.
+as a colon-separated address of the configuration value you wish to set.
 A few common examples are shown below:
 
 .. code-block:: sql
@@ -408,6 +411,8 @@ Also, SQLFluff has an integration to use :code:`dbt` as a templater.
 
     This is functionality we hope to support in future.
 
+.. _generic_variable_templating:
+
 Generic Variable Templating
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -415,10 +420,10 @@ Variables are available in all the templaters.
 By default the templating engine will expect variables for templating to be
 available in the config, and the templater will be look in the section
 corresponding to the context for that templater. By convention, the config for
-the *jinja* templater is found in the *sqlfluff:templater:jinja:context
-section, the config for the *python* templater is found in the
-*sqlfluff:templater:python:context* section, the one for the *placeholder*
-templater is found in the *sqlfluff:templater:placeholder:context* section
+the ``jinja`` templater is found in the ``sqlfluff:templater:jinja:context``
+section, the config for the ``python`` templater is found in the
+``sqlfluff:templater:python:context`` section, the one for the ``placeholder``
+templater is found in the ``sqlfluff:templater:placeholder:context`` section.
 
 For example, if passed the following *.sql* file:
 
@@ -495,7 +500,9 @@ options:
     [sqlfluff:templater:jinja]
     apply_dbt_builtins = True
     load_macros_from_path = my_macros
+    loader_search_path = included_templates
     library_path = sqlfluff_libs
+    exclude_macros_from_path = my_macros_exclude
 
     [sqlfluff:templater:jinja:context]
     my_list = ['a', 'b', 'c']
@@ -593,31 +600,39 @@ loaded from files or folders. This is specified in the config file:
 .. code-block:: cfg
 
     [sqlfluff:templater:jinja]
-    load_macros_from_path = my_macros
+    load_macros_from_path = my_macros,other_macros
 
 ``load_macros_from_path`` is a comma-separated list of :code:`.sql` files or
 folders. Locations are *relative to the config file*. For example, if the
 config file above was found at :code:`/home/my_project/.sqlfluff`, then
-SQLFluff will look for macros in the folder :code:`/home/my_project/my_macros/`
-(but not subfolders). Any macros defined in the config will always take
-precedence over a macro defined in the path.
+SQLFluff will look for macros in the folders :code:`/home/my_project/my_macros/`
+and  :code:`/home/my_project/other_macros/`, including any of their subfolders.
+Any macros defined in the config will always take precedence over a macro
+defined in the path.
 
-* :code:`.sql` files: Macros in these files are available in every :code:`.sql`
-  file without requiring a Jinja :code:`include` or :code:`import`.
-* Folders: To use macros from the :code:`.sql` files in folders, use Jinja
-  :code:`include` or :code:`import` as explained below.
+``exclude_macros_from_path`` works in the same manner as ``load_macros_from_path`` but
+allows you to have sqlfluff ignore certain macros. This can be useful if you have
+custom jinja tags.
+
+Macros loaded from these files are available in every :code:`.sql` file without
+requiring a Jinja :code:`include` or :code:`import`.  They are loaded into the
+`Jinja Global Namespace <https://jinja.palletsprojects.com/en/3.1.x/api/#global-namespace>`_.
 
 **Note:** The :code:`load_macros_from_path` setting also defines the search
 path for Jinja
-`include <https://jinja.palletsprojects.com/en/3.0.x/templates/#include>`_ or
-`import <https://jinja.palletsprojects.com/en/3.0.x/templates/#import>`_.
-Unlike with macros (as noted above), subdirectories are supported. For example,
+`include <https://jinja.palletsprojects.com/en/3.1.x/templates/#include>`_ or
+`import <https://jinja.palletsprojects.com/en/3.1.x/templates/#import>`_.
+As with loaded macros, subdirectories are also supported. For example,
 if :code:`load_macros_from_path` is set to :code:`my_macros`, and there is a
 file :code:`my_macros/subdir/my_file.sql`, you can do:
 
 .. code-block:: jinja
 
-   {% include 'subdir/include_comment.sql' %}
+   {% include 'subdir/my_file.sql' %}
+
+If you would like to define the Jinja search path without also loading the
+macros into the global namespace, use the :code:`loader_search_path` setting
+instead.
 
 .. note::
 
@@ -753,6 +768,42 @@ Now, ``ds`` can be used in SQL
 
     SELECT "{{ "2000-01-01" | ds }}";
 
+Jinja loader search path
+""""""""""""""""""""""""
+
+The Jinja environment can be configured to search for files included with
+`include <https://jinja.palletsprojects.com/en/3.1.x/templates/#include>`_ or
+`import <https://jinja.palletsprojects.com/en/3.1.x/templates/#import>`_ in a
+list of folders. This is specified in the config file:
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:jinja]
+    loader_search_path = included_templates,other_templates
+
+``loader_search_path`` is a comma-separated list of folders. Locations are
+*relative to the config file*. For example, if the config file above was found
+at :code:`/home/my_project/.sqlfluff`, then SQLFluff will look for included
+files in the folders :code:`/home/my_project/included_templates/` and
+:code:`/home/my_project/other_templates/`, including any of their subfolders.
+For example, this will read from
+:code:`/home/my_project/included_templates/my_template.sql`:
+
+.. code-block:: jinja
+
+   {% include 'included_templates/my_template.sql' %}
+
+Any folders specified in the :code:`load_macros_from_path` setting are
+automatically appended to the ``loader_search_path``.  It is not necessary to
+specify a given directory in both settings.
+
+Unlike the :code:`load_macros_from_path` setting, any macros within these
+folders are *not* automatically loaded into the global namespace.  They must be
+explicitly imported using the
+`import <https://jinja.palletsprojects.com/en/3.1.x/templates/#import>`_ Jinja
+directive.  If you would like macros to be automatically included in the
+global Jinja namespace, use the :code:`load_macros_from_path` setting instead.
+
 Interaction with ``--ignore=templating``
 """"""""""""""""""""""""""""""""""""""""
 
@@ -773,8 +824,9 @@ Here's how it works:
 * If you do: ``{% include query %}``, and the variable ``query`` is not
   defined, it returns a “file” containing the string ``query``.
 * If you do: ``{% include "query_file.sql" %}``, and that file does not exist
-  or you haven’t configured a setting for ``load_macros_from_path``, it
-  returns a “file” containing the text ``query_file``.
+  or you haven’t configured a setting for ``load_macros_from_path`` or
+  ``loader_search_path``, it returns a “file” containing the text
+  ``query_file``.
 
 For example:
 
@@ -796,7 +848,7 @@ mixture of several types:
 * ``str``
 * ``int``
 * ``list``
-* Jinja's ``Undefined`` `class <https://jinja.palletsprojects.com/en/3.0.x/api/#jinja2.Undefined>`_
+* Jinja's ``Undefined`` `class <https://jinja.palletsprojects.com/en/3.1.x/api/#jinja2.Undefined>`_
 
 Because the values behave like ``Undefined``, it's possible to replace them
 using Jinja's ``default()`` `filter <https://jinja.palletsprojects.com/en/3.1.x/templates/#jinja-filters.default>`_.
@@ -851,6 +903,9 @@ A few common styles are supported:
     -- colon_nospaces
     -- (use with caution as more prone to false positives)
     WHERE bla = table:my_name
+
+    -- colon_optional_quotes
+    SELECT :"column" FROM :table WHERE bla = :'my_name'
 
     -- numeric_colon
     WHERE bla = :2
@@ -919,7 +974,32 @@ it may be useful to other people and simplify your configuration.
 Python templater
 ^^^^^^^^^^^^^^^^
 
-Uses native Python f-strings.
+Uses native Python f-strings. As described in
+:ref:`generic_variable_templating`, an example usage would look be
+configured as follows:
+
+If passed the following *.sql* file:
+
+.. code-block::
+
+    SELECT * FROM {tbl_name}
+
+...and the following configuration in *.sqlfluff* in the same directory:
+
+.. code-block:: cfg
+
+    [sqlfluff]
+    templater = python
+
+    [sqlfluff:templater:python:context]
+    tbl_name = my_table
+
+...then before parsing, the sql will be transformed to:
+
+.. code-block:: sql
+
+    SELECT * FROM my_table
+
 
 :code:`dbt` templater
 ^^^^^^^^^^^^^^^^^^^^^

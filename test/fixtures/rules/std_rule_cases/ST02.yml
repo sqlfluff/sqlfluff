@@ -107,6 +107,19 @@ test_pass_case_cannot_be_reduced_13:
   configs:
     core:
       dialect: postgres
+test_pass_array_accessors:
+  pass_str: |
+    SELECT
+    CASE
+        WHEN genres[0] IS NULL
+           THEN 'x'
+        ELSE genres
+    END
+    AS g
+    FROM table_t
+  configs:
+    core:
+      dialect: snowflake
 test_fail_unnecessary_case_1:
   fail_str: |
     select

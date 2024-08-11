@@ -1,11 +1,12 @@
 """Defines the placeholder template."""
 
 import logging
-from typing import Dict, Optional, Tuple
+from typing import Dict, List, Tuple
 
 import regex
 
-from sqlfluff.core.slice_helpers import offset_slice
+from sqlfluff.core.errors import SQLTemplaterError
+from sqlfluff.core.helpers.slice import offset_slice
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
     RawTemplater,
@@ -20,6 +21,10 @@ templater_logger = logging.getLogger("sqlfluff.templater")
 KNOWN_STYLES = {
     # e.g. WHERE bla = :name
     "colon": regex.compile(r"(?<![:\w\x5c]):(?P<param_name>\w+)(?!:)", regex.UNICODE),
+    # e.g. SELECT :"column" FROM :table WHERE bla = :'name'
+    "colon_optional_quotes": regex.compile(
+        r"(?<!:):(?P<quotation>['\"]?)(?P<param_name>[\w_]+)\1", regex.UNICODE
+    ),
     # e.g. WHERE bla = table:name - use with caution as more prone to false positives
     "colon_nospaces": regex.compile(r"(?<!:):(?P<param_name>\w+)", regex.UNICODE),
     # e.g. WHERE bla = :2
@@ -114,7 +119,7 @@ class PlaceholderTemplater(RawTemplater):
     @large_file_check
     def process(
         self, *, in_str: str, fname: str, config=None, formatter=None
-    ) -> Tuple[Optional[TemplatedFile], list]:
+    ) -> Tuple[TemplatedFile, List[SQLTemplaterError]]:
         """Process a string and return a TemplatedFile.
 
         Note that the arguments are enforced as keywords
@@ -155,6 +160,9 @@ class PlaceholderTemplater(RawTemplater):
                 replacement = str(context[param_name])
             else:
                 replacement = param_name
+            if "quotation" in found_param.groupdict():
+                quotation = found_param["quotation"]
+                replacement = quotation + replacement + quotation
             # add the literal to the slices
             template_slices.append(
                 TemplatedFileSlice(

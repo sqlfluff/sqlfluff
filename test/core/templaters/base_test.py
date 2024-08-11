@@ -6,11 +6,10 @@ from sqlfluff.core.templaters import (
     RawTemplater,
     TemplatedFile,
 )
-
 from sqlfluff.core.templaters.base import (
-    iter_indices_of_newlines,
     RawFileSlice,
     TemplatedFileSlice,
+    iter_indices_of_newlines,
 )
 
 

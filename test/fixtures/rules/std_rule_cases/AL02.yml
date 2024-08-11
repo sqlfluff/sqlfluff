@@ -110,3 +110,22 @@ test_alias_expression_align_4515_3:
           spacing_before: align
           align_within: select_clause
           align_scope: bracketed
+
+test_fail_alias_expression_oracle_columns:
+  # Test failing alias expressions
+  # https://github.com/sqlfluff/sqlfluff/issues/5038
+  # Skip aliasing with 'AS' for Oracle table expressions
+  # Still alias the columns with 'AS'
+  fail_str:
+    SELECT
+        base.id id,
+        base.customer_id cust_id
+    FROM {{ ref('customers') }} base
+  fix_str:
+    SELECT
+        base.id AS id,
+        base.customer_id AS cust_id
+    FROM {{ ref('customers') }} base
+  configs:
+    core:
+      dialect: oracle

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 838d75cabfaa26669ef8ee2837f2c286b8b34c3cb9a06cd10612193b6ed2e1dc
+_hash: c47d8836ce8905ed2c4d306b94fd4a67c05d8968dc55da83ce18f543281f1688
 file:
 - statement:
     undrop_statement:
@@ -25,4 +25,12 @@ file:
     - keyword: table
     - table_reference:
         naked_identifier: t2
+- statement_terminator: ;
+- statement:
+    undrop_statement:
+    - keyword: UNDROP
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - external_volume_reference:
+        naked_identifier: my_external_volume
 - statement_terminator: ;

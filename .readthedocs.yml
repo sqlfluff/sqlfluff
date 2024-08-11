@@ -16,9 +16,8 @@ formats: []
 # In our case we need both the docs requirements and the package itself.
 python:
   install:
-    - requirements: requirements.txt
     - requirements: docs/requirements.txt
-    - method: setuptools
+    - method: pip
       path: .
 
 build:

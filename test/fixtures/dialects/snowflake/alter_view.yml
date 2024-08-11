@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a420dc4999c43a235f958ae912f431afd817a6b0dd44737ccf8f002256e62eeb
+_hash: 3f2b506daf1713ff9acc73d48c9d4fde98eed33469dc6229bb26856750e07cf7
 file:
 - statement:
     alter_view_statement:
@@ -167,6 +167,19 @@ file:
         column_reference:
           naked_identifier: empl_id
         end_bracket: )
+    - comma: ','
+    - keyword: add
+    - keyword: row
+    - keyword: access
+    - keyword: policy
+    - function_name:
+        function_name_identifier: rap_v1_version_3
+    - keyword: 'on'
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          quoted_identifier: '"empl_id"'
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_view_statement:
@@ -187,4 +200,21 @@ file:
       - naked_identifier: scoped
       - dot: .
       - function_name_identifier: policy
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        quoted_identifier: '"my_table"'
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        quoted_identifier: '"my_column"'
+    - keyword: SET
+    - keyword: MASKING
+    - keyword: POLICY
+    - function_name:
+        function_name_identifier: my_masking_policy
+    - keyword: FORCE
 - statement_terminator: ;

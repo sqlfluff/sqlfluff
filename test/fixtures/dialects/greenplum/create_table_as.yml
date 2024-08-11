@@ -1,0 +1,126 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6742893d9a97264770df8987f07fbaf1496aa561ec1d237b550d15320e3da307
+file:
+- statement:
+    create_table_as_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: new_table
+    - keyword: as
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: old_table
+    - distributed_by:
+      - keyword: distributed
+      - keyword: randomly
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: new_table
+    - keyword: as
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: old_table
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: test_with_union
+    - keyword: as
+    - set_expression:
+      - select_statement:
+          select_clause:
+          - keyword: select
+          - select_clause_modifier:
+              keyword: distinct
+          - select_clause_element:
+              column_reference:
+                naked_identifier: f1
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: f2
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: table_1
+      - set_operator:
+        - keyword: union
+        - keyword: all
+      - select_statement:
+          select_clause:
+          - keyword: select
+          - select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: unnest
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    typed_array_literal:
+                      array_type:
+                        keyword: array
+                      array_literal:
+                      - start_square_bracket: '['
+                      - quoted_literal: "'1'"
+                      - comma: ','
+                      - quoted_literal: "'2'"
+                      - end_square_bracket: ']'
+                  end_bracket: )
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: unnest
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    typed_array_literal:
+                      array_type:
+                        keyword: array
+                      array_literal:
+                      - start_square_bracket: '['
+                      - quoted_literal: "'_total_'"
+                      - comma: ','
+                      - quoted_literal: "'_total_'"
+                      - end_square_bracket: ']'
+                  end_bracket: )
+    - distributed_by:
+      - keyword: distributed
+      - keyword: randomly
+- statement_terminator: ;
