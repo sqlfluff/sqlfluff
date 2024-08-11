@@ -5182,7 +5182,7 @@ class CopyStatementSegment(BaseSegment):
         optional=True,
     )
 
-    postgres9_compatible_stdin = Sequence(
+    _postgres9_compatible_stdin_options = Sequence(
         Ref.keyword("WITH", optional=True),
         AnySetOf(
             Sequence("BINARY"),
@@ -5222,7 +5222,7 @@ class CopyStatementSegment(BaseSegment):
         optional=True,
     )
 
-    postgres9_compatible_stdout = Sequence(
+    _postgres9_compatible_stdout_options = Sequence(
         Ref.keyword("WITH", optional=True),
         AnySetOf(
             Sequence("BINARY"),
@@ -5264,8 +5264,6 @@ class CopyStatementSegment(BaseSegment):
         optional=True,
     )
 
-    # Add the compatibility code to see if it fixes the issue before refactoring.
-
     match_grammar = Sequence(
         "COPY",
         OneOf(
@@ -5286,7 +5284,7 @@ class CopyStatementSegment(BaseSegment):
                     Ref("QuotedLiteralSegment"),
                     Sequence("STDIN"),
                 ),
-                postgres9_compatible_stdin,
+                _postgres9_compatible_stdin_options,
             ),
             Sequence(
                 OneOf(
@@ -5308,7 +5306,7 @@ class CopyStatementSegment(BaseSegment):
                     Ref("QuotedLiteralSegment"),
                     Sequence("STDOUT"),
                 ),
-                postgres9_compatible_stdout,
+                _postgres9_compatible_stdout_options,
             ),
         ),
     )
