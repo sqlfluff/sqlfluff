@@ -346,6 +346,12 @@ class DatatypeSegment(BaseSegment):
 
     type = "data_type"
     match_grammar = OneOf(
+        Sequence(
+            StringParser("NULLABLE", CodeSegment, type="data_type_identifier"),
+            Bracketed(
+                Ref("DatatypeSegment")
+            ),
+        ),
         Ref("TupleTypeSegment"),
         Ref("DatatypeIdentifierSegment"),
         Ref("NumericLiteralSegment"),
