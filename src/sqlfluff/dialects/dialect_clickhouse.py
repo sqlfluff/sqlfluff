@@ -28,6 +28,7 @@ from sqlfluff.core.parser import (
     SegmentGenerator,
     Sequence,
     StringLexer,
+    StringParser,
     SymbolSegment,
     TypedParser,
 )
@@ -328,12 +329,68 @@ class BracketedArguments(ansi.BracketedArguments):
         Delimited(
             OneOf(
                 # Dataypes like Nullable allow optional datatypes here.
-                Ref("DatatypeIdentifierSegment"),
-                Ref("NumericLiteralSegment"),
+                Ref("DatatypeSegment"),
             ),
             # The brackets might be empty for some cases...
             optional=True,
         ),
+    )
+
+
+class DatatypeSegment(BaseSegment):
+    """Support complex Clickhouse data types.
+
+    Complex data types are typically used in either DDL statements or as
+    the target type in casts.
+    """
+
+    type = "data_type"
+    match_grammar = OneOf(
+        Sequence(
+            StringParser("NULLABLE", CodeSegment, type="data_type_identifier"),
+            Bracketed(Ref("DatatypeSegment")),
+        ),
+        Ref("TupleTypeSegment"),
+        Ref("DatatypeIdentifierSegment"),
+        Ref("NumericLiteralSegment"),
+        Sequence(
+            StringParser("DATETIME64", CodeSegment, type="data_type_identifier"),
+            Bracketed(
+                Delimited(
+                    Ref("NumericLiteralSegment"),  # precision
+                    Ref("QuotedLiteralSegment", optional=True),  # timezone
+                    # The brackets might be empty as well
+                    optional=True,
+                ),
+                optional=True,
+            ),
+        ),
+    )
+
+
+class TupleTypeSegment(ansi.StructTypeSegment):
+    """Expression to construct a Tuple datatype."""
+
+    match_grammar = Sequence(
+        "TUPLE",
+        Ref("TupleTypeSchemaSegment"),  # Tuple() can't be empty
+    )
+
+
+class TupleTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a Tuple datatype."""
+
+    type = "tuple_type_schema"
+    match_grammar = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DatatypeSegment"),
+            ),
+            bracket_pairs_set="bracket_pairs",
+        ),
+        bracket_pairs_set="bracket_pairs",
+        bracket_type="round",
     )
 
 
