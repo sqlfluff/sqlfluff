@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 40af01c32a850281bf8430a314977e72f7bed6c3dd0e9389517b373dd8cb80fd
+_hash: 21229aedcf3c2f7bbc08f000918f35e29eb04cad440579c2cc54c485feafb031
 file:
 - statement:
     select_statement:
@@ -30,7 +30,7 @@ file:
               quoted_literal: "'2024-01-01'"
               casting_operator: '::'
               data_type:
-                keyword: DateTime64
+                data_type_identifier: DateTime64
                 bracketed:
                   start_bracket: (
                   end_bracket: )
@@ -48,7 +48,7 @@ file:
               quoted_literal: "'2024-01-01'"
               casting_operator: '::'
               data_type:
-                keyword: DateTime64
+                data_type_identifier: DateTime64
                 bracketed:
                   start_bracket: (
                   numeric_literal: '3'
@@ -67,7 +67,7 @@ file:
               quoted_literal: "'2024-01-01'"
               casting_operator: '::'
               data_type:
-                keyword: DateTime64
+                data_type_identifier: DateTime64
                 bracketed:
                   start_bracket: (
                   numeric_literal: '3'
@@ -88,7 +88,7 @@ file:
               quoted_literal: "'2024-01-01'"
               casting_operator: '::'
               data_type:
-                keyword: DateTime64
+                data_type_identifier: DateTime64
                 bracketed:
                   start_bracket: (
                   numeric_literal: '6'

@@ -30,6 +30,7 @@ from sqlfluff.core.parser import (
     StringLexer,
     SymbolSegment,
     TypedParser,
+    StringParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_clickhouse_keywords import UNRESERVED_KEYWORDS
@@ -349,7 +350,7 @@ class DatatypeSegment(BaseSegment):
         Ref("DatatypeIdentifierSegment"),
         Ref("NumericLiteralSegment"),
         Sequence(
-            OneOf("DATETIME64"),
+            StringParser("DATETIME64", CodeSegment, type="data_type_identifier"),
             Bracketed(
                 Delimited(
                     Ref("NumericLiteralSegment"), # precision
