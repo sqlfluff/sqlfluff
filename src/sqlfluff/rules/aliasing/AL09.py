@@ -60,10 +60,13 @@ class Rule_AL09(BaseRule):
 
         children: Segments = FunctionalContext(context).segment.children()
 
-        # The dialect supports case insensitive naming for a column name, (e.g. COL1
-        # is the same as col1) but the value in the result set name is case sensitive.
-        # We use this to replace the column reference with the alias instead of just
-        # removing the alias.
+        # Some dialects are case insensitive when referencing columns (e.g. COL1 is
+        # the same as col1), but the case of the reference does follow through into
+        # the result set (i.e. where COL1 and col1 refer to the same column, the column
+        # label in the result set will be different). In these cases, if the alias and
+        # the column compare equal (case insensitive), but have a different case, we
+        # replace the reference with the alias to achieve a simpler but consistent
+        # result.
         dialect_supports_ci_names_cs_result = ["tsql", "bigquery"]
 
         ci_names_cs_result = context.dialect.name in dialect_supports_ci_names_cs_result
@@ -103,8 +106,8 @@ class Rule_AL09(BaseRule):
                     # Column self-aliased
                     if (
                         column_identifier.raw_normalized()
-                        # We casefold the alias only if it relevant in the result set.
-                        == alias_identifier.raw_normalized(ci_names_cs_result)
+                        # We casefold the alias only for relevant dialects.
+                        == alias_identifier.raw_normalized(casefold=ci_names_cs_result)
                     ):
                         fixes: List[LintFix] = []
 
