@@ -28,9 +28,9 @@ from sqlfluff.core.parser import (
     SegmentGenerator,
     Sequence,
     StringLexer,
+    StringParser,
     SymbolSegment,
     TypedParser,
-    StringParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_clickhouse_keywords import UNRESERVED_KEYWORDS
@@ -348,9 +348,7 @@ class DatatypeSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             StringParser("NULLABLE", CodeSegment, type="data_type_identifier"),
-            Bracketed(
-                Ref("DatatypeSegment")
-            ),
+            Bracketed(Ref("DatatypeSegment")),
         ),
         Ref("TupleTypeSegment"),
         Ref("DatatypeIdentifierSegment"),
@@ -359,11 +357,12 @@ class DatatypeSegment(BaseSegment):
             StringParser("DATETIME64", CodeSegment, type="data_type_identifier"),
             Bracketed(
                 Delimited(
-                    Ref("NumericLiteralSegment"), # precision
-                    Ref("QuotedLiteralSegment", optional=True), # timezone
+                    Ref("NumericLiteralSegment"),  # precision
+                    Ref("QuotedLiteralSegment", optional=True),  # timezone
                     # The brackets might be empty as well
                     optional=True,
-                ), optional=True
+                ),
+                optional=True,
             ),
         ),
     )
@@ -374,7 +373,7 @@ class TupleTypeSegment(ansi.StructTypeSegment):
 
     match_grammar = Sequence(
         "TUPLE",
-        Ref("TupleTypeSchemaSegment"), # Tuple() can't be empty
+        Ref("TupleTypeSchemaSegment"),  # Tuple() can't be empty
     )
 
 
