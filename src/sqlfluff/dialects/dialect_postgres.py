@@ -5182,6 +5182,88 @@ class CopyStatementSegment(BaseSegment):
         optional=True,
     )
 
+    _postgres9_compatible_stdin_options = Sequence(
+        Ref.keyword("WITH", optional=True),
+        AnySetOf(
+            Sequence("BINARY"),
+            Sequence(
+                "DELIMITER",
+                Ref.keyword("AS", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "NULL", Ref.keyword("AS", optional=True), Ref("QuotedLiteralSegment")
+            ),
+            Sequence(
+                "CSV",
+                OneOf(
+                    "HEADER",
+                    Sequence(
+                        "QUOTE",
+                        Ref.keyword("AS", optional=True),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "ESCAPE",
+                        Ref.keyword("AS", optional=True),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "FORCE",
+                        "NOT",
+                        "NULL",
+                        Delimited(Ref("ColumnReferenceSegment")),
+                    ),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+        optional=True,
+    )
+
+    _postgres9_compatible_stdout_options = Sequence(
+        Ref.keyword("WITH", optional=True),
+        AnySetOf(
+            Sequence("BINARY"),
+            Sequence(
+                "DELIMITER",
+                Ref.keyword("AS", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "NULL", Ref.keyword("AS", optional=True), Ref("QuotedLiteralSegment")
+            ),
+            Sequence(
+                "CSV",
+                OneOf(
+                    "HEADER",
+                    Sequence(
+                        "QUOTE",
+                        Ref.keyword("AS", optional=True),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "ESCAPE",
+                        Ref.keyword("AS", optional=True),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "FORCE",
+                        "QUOTE",
+                        OneOf(
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            Ref("StarSegment"),
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+        optional=True,
+    )
+
     match_grammar = Sequence(
         "COPY",
         OneOf(
@@ -5196,6 +5278,15 @@ class CopyStatementSegment(BaseSegment):
                 Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
             ),
             Sequence(
+                _table_definition,
+                "FROM",
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Sequence("STDIN"),
+                ),
+                _postgres9_compatible_stdin_options,
+            ),
+            Sequence(
                 OneOf(
                     _table_definition, Bracketed(Ref("UnorderedSelectStatementSegment"))
                 ),
@@ -5205,6 +5296,17 @@ class CopyStatementSegment(BaseSegment):
                     Sequence("STDOUT"),
                 ),
                 _option,
+            ),
+            Sequence(
+                OneOf(
+                    _table_definition, Bracketed(Ref("UnorderedSelectStatementSegment"))
+                ),
+                "TO",
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Sequence("STDOUT"),
+                ),
+                _postgres9_compatible_stdout_options,
             ),
         ),
     )
