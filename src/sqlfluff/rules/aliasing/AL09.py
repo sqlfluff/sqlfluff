@@ -63,6 +63,8 @@ class Rule_AL09(BaseRule):
         assert context.segment.is_type("select_clause")
 
         violations = []
+        dialect = context.dialect.name
+        DIALECTS_WITH_STRICT_COLUMN_CASE = ["snowflake", "oracle"]
 
         children: Segments = FunctionalContext(context).segment.children()
 
@@ -113,11 +115,35 @@ class Rule_AL09(BaseRule):
 
                     assert whitespace and column_identifier and alias_identifier
 
-                    if column_identifier.raw == alias_identifier.raw:
+                    column_identifier_naked = column_identifier.raw.strip("\"'`")
+                    alias_identifier_naked = alias_identifier.raw.strip("\"'`")
 
-                        # Self Alias when raw of column and alias is same
-                        # and both are either naked or quoted
-                        if is_column_quoted == is_alias_quoted:
+                    # Case of column and alias is same
+                    if column_identifier_naked == alias_identifier_naked:
+
+                        # Allow Case Sensitivity change for dialects with strict case
+                        if dialect in DIALECTS_WITH_STRICT_COLUMN_CASE and (
+                            is_column_quoted != is_alias_quoted
+                        ):
+                            continue
+
+                        # For dialects that allow columns to be queried using
+                        # any case, the initial case of the column should be
+                        # reflected during case change.
+                        if (
+                            (not is_column_quoted)
+                            and (is_alias_quoted)
+                            and (dialect not in DIALECTS_WITH_STRICT_COLUMN_CASE)
+                        ):
+                            violations.append(
+                                LintResult(
+                                    anchor=clause_element,
+                                    description="The original case of column should \
+                                        be reflected when case is changed.",
+                                )
+                            )
+                        else:
+                            # Self Alias
                             fixes: List[LintFix] = []
 
                             fixes.append(LintFix.delete(whitespace))
@@ -134,7 +160,8 @@ class Rule_AL09(BaseRule):
                     # When case is changed, the alias should be quoted
                     # Example: column AS "CoLuMn"
                     elif (
-                        column_identifier.raw_upper == alias_identifier.raw_upper
+                        column_identifier_naked.upper()
+                        == alias_identifier_naked.upper()
                     ) and not is_alias_quoted:
                         violations.append(
                             LintResult(
