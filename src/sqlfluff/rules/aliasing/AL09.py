@@ -18,7 +18,7 @@ class Rule_AL09(BaseRule):
     .. note::
         Note that this rule allows self-alias to change case sensitivity.
 
-        However, when the case is changed without quoting the alias, the rule is
+        However, when the case is changed without using quotes, the rule is
         not ``sqlfluff fix`` compatible.
 
     **Anti-pattern**
@@ -29,7 +29,9 @@ class Rule_AL09(BaseRule):
 
         SELECT
             col AS col,
-            casechange AS CaseChange
+            anycase AS "AnYcAsE",        -- Original case of column should be mentioned
+            casechange AS CaseChange     -- Original case of column should be mentioned,
+                                         -- and alias should be quoted
         FROM table;
 
     **Best practice**
@@ -41,7 +43,8 @@ class Rule_AL09(BaseRule):
 
         SELECT
             col,
-            casechange AS "CaseChange"  -- 'sqlfluff fix' won't do this
+            "ANYCASE" AS "AnYcAsE",         -- Not fix compatible
+            "casechange" AS "CaseChange"    -- Not fix compatible
         FROM table;
     """
 
@@ -166,8 +169,8 @@ class Rule_AL09(BaseRule):
                         violations.append(
                             LintResult(
                                 anchor=clause_element,
-                                description="The alias should be quoted \
-                                    when case of column is changed.",
+                                description="The column and alias should be \
+                                    quoted when case of column is changed.",
                             )
                         )
 
