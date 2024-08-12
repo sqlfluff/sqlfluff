@@ -564,6 +564,14 @@ snowflake_dialect.add(
         "LOCALTIME",
         "LOCALTIMESTAMP",
     ),
+    ExceptionCodeSegment=Sequence(
+        Ref("NegativeSegment"),
+        RegexParser(
+            r"20[0-9]{3}",
+            LiteralSegment,
+            type="exception_code",
+        ),
+    ),
 )
 
 snowflake_dialect.replace(
@@ -8302,6 +8310,7 @@ class BindVariableSegment(BaseSegment):
         Ref("LocalVariableNameSegment"),
     )
 
+
 class ScriptingDeclareStatementSegment(BaseSegment):
     """A snowflake `Declare` statement for SQL scripting.
 
@@ -8334,7 +8343,9 @@ class ScriptingDeclareStatementSegment(BaseSegment):
                     Sequence(
                         "CURSOR",
                         "FOR",
-                        OneOf(Ref("LocalVariableNameSegment"), Ref("SelectableGrammar")),
+                        OneOf(
+                            Ref("LocalVariableNameSegment"), Ref("SelectableGrammar")
+                        ),
                     ),
                     # Resultset assignment
                     Sequence(
@@ -8342,11 +8353,15 @@ class ScriptingDeclareStatementSegment(BaseSegment):
                         Ref("WalrusOperatorSegment"),
                         Bracketed(Ref("SelectableGrammar")),
                     ),
+                    # Exception assignment
+                    Sequence(
+                        "EXCEPTION", Bracketed(Delimited(Ref("ExceptionCodeSegment"), Ref("QuotedLiteralSegment")))
+                    ),
                 ),
                 Ref("DelimiterGrammar"),
             ),
             min_times=1,
         ),
         Dedent,
-        Ref("ScriptingBlockStatementSegment")
+        Ref("ScriptingBlockStatementSegment"),
     )
