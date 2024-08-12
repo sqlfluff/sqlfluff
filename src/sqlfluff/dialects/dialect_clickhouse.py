@@ -1501,3 +1501,56 @@ class StatementSegment(ansi.StatementSegment):
             Ref("SystemStatementSegment"),
         ]
     )
+
+
+class LimitClauseComponentSegment(BaseSegment):
+    """A component of a `LIMIT` clause.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/select/limit
+    """
+
+    type = "limit_clause_component"
+
+    match_grammar = OptionallyBracketed(
+        OneOf(
+            # Allow a number by itself OR
+            Ref("NumericLiteralSegment"),
+            # An arbitrary expression
+            Ref("ExpressionSegment"),
+        )
+    )
+
+
+class LimitClauseSegment(ansi.LimitClauseSegment):
+    """Overriding LimitClauseSegment to allow for additional segment parsing."""
+
+    match_grammar: Matchable = Sequence(
+        "LIMIT",
+        Indent,
+        Sequence(
+            Ref("LimitClauseComponentSegment"),
+            OneOf(
+                Sequence(
+                    "OFFSET",
+                    Ref("LimitClauseComponentSegment"),
+                ),
+                Sequence(
+                    # LIMIT 1,2 only accepts constants
+                    # and can't be bracketed like that LIMIT (1, 2)
+                    # but can be bracketed like that LIMIT (1), (2)
+                    Ref("CommaSegment"),
+                    Ref("LimitClauseComponentSegment"),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "BY",
+                OneOf(
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    Ref("ColumnReferenceSegment"),
+                ),
+                optional=True,
+            ),
+        ),
+        Dedent,
+    )
