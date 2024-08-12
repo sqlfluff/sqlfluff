@@ -861,3 +861,40 @@ test_two_ctes_with_same_named_nested_subquery:
     rules:
       structure.subquery:
         forbid_subquery_in: both
+
+test_fail_set_subquery_in_second_query:
+  fail_str: |
+    SELECT 1 AS value_name
+    UNION
+    SELECT value
+    FROM (SELECT 2 AS value_name);
+  fix_str: |
+    WITH prep_1 AS (SELECT 2 AS value_name)
+    SELECT 1 AS value_name
+    UNION
+    SELECT value
+    FROM prep_1;
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+test_fail_set_subquery_in_second_query_join:
+  fail_str: |
+    SELECT 1 AS value_name
+    UNION
+    SELECT value
+    FROM (SELECT 2 AS value_name)
+    CROSS JOIN (SELECT 1 as v2);
+  fix_str: |
+    WITH prep_1 AS (SELECT 2 AS value_name),
+    prep_2 AS (SELECT 1 as v2)
+    SELECT 1 AS value_name
+    UNION
+    SELECT value
+    FROM prep_1
+    CROSS JOIN prep_2;
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both

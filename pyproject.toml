@@ -251,7 +251,7 @@ markers = [
 
 [tool.doc8]
 # Ignore auto-generated docs
-ignore-path = "docs/source/partials/"
+ignore-path = "docs/source/_partials/"
 
 
 [tool.codespell]
