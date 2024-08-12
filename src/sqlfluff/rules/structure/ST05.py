@@ -269,19 +269,18 @@ class Rule_ST05(BaseRule):
             anchor = next(anchor.recursive_crawl("keyword", "symbol"))
             res = LintResult(
                 anchor=anchor,
-                description=f"{nsq.query.selectables[0].selectable.type} clauses "
+                description=f"{nsq.selectable.selectable.type} clauses "
                 "should not contain subqueries. Use CTEs instead",
                 fixes=[],
             )
-            if len(nsq.query.selectables) == 1:
-                yield (
-                    res,
-                    # FromExpressionElementSegment, parent of original "anchor" segment
-                    nsq.table_alias.from_expression_element,
-                    alias_name,  # Name of CTE we're creating from the nested query
-                    # Query with the subquery: 'select a from (select x from b)'
-                    nsq.query.selectables[0].selectable,
-                )
+            yield (
+                res,
+                # FromExpressionElementSegment, parent of original "anchor" segment
+                nsq.table_alias.from_expression_element,
+                alias_name,  # Name of CTE we're creating from the nested query
+                # Query with the subquery: 'select a from (select x from b)'
+                nsq.selectable.selectable,
+            )
 
 
 def _get_first_select_statement_descendant(
