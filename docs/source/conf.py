@@ -148,7 +148,8 @@ redirects = {
     **{
         f"perma/rule/{code}": (
             f"../../reference/rules.html#sqlfluff.rules.sphinx.Rule_{code}"
-        ) for code, _ in rule_list
+        )
+        for code, _ in rule_list
     },
     # These are legacy links which used to exist in different parts of the
     # SQLFluff code base, and which we continue to support so those links
