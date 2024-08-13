@@ -5,6 +5,7 @@ list see the documentation:
 https://www.sphinx-doc.org/en/master/usage/configuration.html
 """
 
+import json
 import os
 import sys
 
@@ -110,6 +111,10 @@ html_theme_options = {
 # -- Options for redirects ---------------------------------------------
 # https://documatt.gitlab.io/sphinx-reredirects/usage.html
 
+# Load the rule lists to generate rule permalinks
+with open("_partials/rule_list.json", "r") as rule_file:
+    rule_list = json.load(rule_file)
+
 redirects = {
     # Where there are references to the docs in any of the codebase (whether in
     # places like the README or in error messages), they should all reference
@@ -139,6 +144,12 @@ redirects = {
     "perma/why": "../why_sqlfluff.html",
     "perma/plugin_dev": "../development/plugins.html",
     "perma/variables": "../configuration/templating/index.html",
+    # Add permalinks for rule codes
+    **{
+        f"perma/rule/{code}": (
+            f"../../reference/rules.html#sqlfluff.rules.sphinx.Rule_{code}"
+        ) for code, _ in rule_list
+    },
     # These are legacy links which used to exist in different parts of the
     # SQLFluff code base, and which we continue to support so those links
     # aren't dead ends. They should redirect to permalinks.
@@ -149,6 +160,9 @@ redirects = {
     "layout": "perma/layout.html",
     "releasenotes": "perma/releasenotes.html",
     "realworld": "perma/why.html",
+    # This is a legacy link to support older versions of the VSCode plugin.
+    # https://github.com/sqlfluff/vscode-sqlfluff/blob/master/src/features/providers/linter/actions/hover.ts
+    "rules": "perma/rules.html",
 }
 
 
