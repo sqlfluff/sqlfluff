@@ -26,7 +26,7 @@ if errorlevel 9009 (
 )
 
 REM Generate the rule docs
-py generate-rule-docs.py
+python generate-rule-docs.py
 
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 goto end

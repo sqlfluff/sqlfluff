@@ -350,6 +350,24 @@ class DatatypeSegment(BaseSegment):
             StringParser("NULLABLE", CodeSegment, type="data_type_identifier"),
             Bracketed(Ref("DatatypeSegment")),
         ),
+        # double args
+        Sequence(
+            OneOf(
+                StringParser("DECIMAL", CodeSegment, type="data_type_identifier"),
+                StringParser("NUMERIC", CodeSegment, type="data_type_identifier"),
+            ),
+            Ref("BracketedArguments", optional=True),
+        ),
+        # single args
+        Sequence(
+            OneOf(
+                StringParser("DECIMAL32", CodeSegment, type="data_type_identifier"),
+                StringParser("DECIMAL64", CodeSegment, type="data_type_identifier"),
+                StringParser("DECIMAL128", CodeSegment, type="data_type_identifier"),
+                StringParser("DECIMAL256", CodeSegment, type="data_type_identifier"),
+            ),
+            Bracketed(Ref("NumericLiteralSegment")),  # scale
+        ),
         Ref("TupleTypeSegment"),
         Ref("DatatypeIdentifierSegment"),
         Ref("NumericLiteralSegment"),
@@ -1500,4 +1518,57 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropSettingProfileStatementSegment"),
             Ref("SystemStatementSegment"),
         ]
+    )
+
+
+class LimitClauseComponentSegment(BaseSegment):
+    """A component of a `LIMIT` clause.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/select/limit
+    """
+
+    type = "limit_clause_component"
+
+    match_grammar = OptionallyBracketed(
+        OneOf(
+            # Allow a number by itself OR
+            Ref("NumericLiteralSegment"),
+            # An arbitrary expression
+            Ref("ExpressionSegment"),
+        )
+    )
+
+
+class LimitClauseSegment(ansi.LimitClauseSegment):
+    """Overriding LimitClauseSegment to allow for additional segment parsing."""
+
+    match_grammar: Matchable = Sequence(
+        "LIMIT",
+        Indent,
+        Sequence(
+            Ref("LimitClauseComponentSegment"),
+            OneOf(
+                Sequence(
+                    "OFFSET",
+                    Ref("LimitClauseComponentSegment"),
+                ),
+                Sequence(
+                    # LIMIT 1,2 only accepts constants
+                    # and can't be bracketed like that LIMIT (1, 2)
+                    # but can be bracketed like that LIMIT (1), (2)
+                    Ref("CommaSegment"),
+                    Ref("LimitClauseComponentSegment"),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "BY",
+                OneOf(
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    Ref("ColumnReferenceSegment"),
+                ),
+                optional=True,
+            ),
+        ),
+        Dedent,
     )

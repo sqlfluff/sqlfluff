@@ -252,7 +252,7 @@ sets only the values which differ from the default config.
 
     [sqlfluff:indentation]
     # Enabling implicit indents for this project.
-    # See https://docs.sqlfluff.com/en/stable/layout.html#configuring-indent-locations
+    # See https://docs.sqlfluff.com/en/stable/perma/indent_locations.html
     allow_implicit_indents = True
 
     # Add a few specific rule configurations, referenced by the rule names
