@@ -8,6 +8,7 @@ This is not necessarily a complete set of predicates covering all possible
 requirements. Rule authors can define their own predicates as needed, either
 as regular functions, `lambda`, etc.
 """
+
 from typing import Callable, Optional
 
 from sqlfluff.core.parser import BaseSegment
@@ -157,7 +158,7 @@ def raw_slices(
         *templated_file.raw_slices_spanning_source_slice(
             segment.pos_marker.source_slice
         ),
-        templated_file=templated_file
+        templated_file=templated_file,
     )
 
 

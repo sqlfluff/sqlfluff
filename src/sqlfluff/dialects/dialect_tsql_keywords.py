@@ -1,6 +1,29 @@
-"""A list of all SQL key words.
+r"""A list of all SQL key words.
 
-https://docs.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql?view=sql-server-ver15
+https://docs.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql?view=sql-server-ver16
+
+Run the script in a browser console to extract all reserved keywords:
+
+```js
+(function () {
+    const xpathResult = document.evaluate(
+        '//div[@class=\'column\']/p[not(descendant::strong)]',
+        document,
+        null,
+        XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+        null
+    );
+    const list = new Set();
+
+    for (let index = 0; index < xpathResult.snapshotLength; ++index) {
+        const node = xpathResult.snapshotItem(index);
+        list.add(node.textContent.trim());
+    }
+    console.log([...list].sort().map(value => `    "${value}"`).join(',\n'));
+})();
+```
+
+Be careful, some keywords are present in `UNRESERVED_KEYWORDS`.
 """
 
 RESERVED_KEYWORDS = [
@@ -23,9 +46,9 @@ RESERVED_KEYWORDS = [
     "BY",
     "CASCADE",
     "CASE",
+    "CHECK_CONSTRAINTS",
     "CHECK",
     "CHECKPOINT",
-    "CHECK_CONSTRAINTS",
     "CLOSE",
     "CLUSTERED",
     "COALESCE",
@@ -40,11 +63,17 @@ RESERVED_KEYWORDS = [
     "CONVERT",
     "CREATE",
     "CROSS",
-    "CURRENT",
+    "CURRENT_CATALOG",  # *future*
     "CURRENT_DATE",
+    "CURRENT_DEFAULT_TRANSFORM_GROUP",  # *future*
+    "CURRENT_PATH",  # *future*
+    "CURRENT_ROLE",  # *future*
+    "CURRENT_SCHEMA",  # *future*
     "CURRENT_TIME",
     "CURRENT_TIMESTAMP",
+    "CURRENT_TRANSFORM_GROUP_FOR_TYPE",  # *future*
     "CURRENT_USER",
+    "CURRENT",
     "CURSOR",
     "DATABASE",
     "DBCC",
@@ -74,8 +103,8 @@ RESERVED_KEYWORDS = [
     "FILE",
     "FILLFACTOR",
     "FOR",
-    "FORWARD_ONLY",
     "FOREIGN",
+    "FORWARD_ONLY",
     "FREETEXT",
     "FREETEXTTABLE",
     "FROM",
@@ -132,6 +161,7 @@ RESERVED_KEYWORDS = [
     "ORDER",
     "OUTER",
     "OVER",
+    "OVERLAY",  # *future*
     "PERCENT",
     "PIVOT",
     "PLAN",
@@ -139,11 +169,10 @@ RESERVED_KEYWORDS = [
     "PRINT",
     "PROC",
     "PROCEDURE",
-    "PROPERTY",
     "PUBLIC",
     "RAISERROR",
-    "READ",
     "READ_ONLY",
+    "READ",
     "READTEXT",
     "RECONFIGURE",
     "REFERENCES",
@@ -161,8 +190,8 @@ RESERVED_KEYWORDS = [
     "RULE",
     "SAVE",
     "SCHEMA",
-    "SCROLL",
     "SCROLL_LOCKS",
+    "SCROLL",
     "SELECT",
     "SEMANTICKEYPHRASETABLE",
     "SEMANTICSIMILARITYDETAILSTABLE",
@@ -182,8 +211,8 @@ RESERVED_KEYWORDS = [
     "TO",
     "TOP",
     "TRAN",
-    "TRANSACTION",
     "TRAN",
+    "TRANSACTION",
     "TRIGGER",
     "TRUNCATE",
     "TRY_CONVERT",
@@ -207,15 +236,27 @@ RESERVED_KEYWORDS = [
     "WRITETEXT",
 ]
 
+# Future reserved keywords extracted from the documentation
+FUTURE_RESERVED_KEYWORDS = [
+    "ALIAS",
+    "ARRAY",
+    "CLASS",
+    "DESTROY",
+    "END-EXEC",
+    "EVERY",
+    "LIKE_REGEX",
+]
 
 UNRESERVED_KEYWORDS = [
     "ABORT_AFTER_WAIT",
     "ABORT",
     "ABSENT",
+    "ACTION",
     "AFTER",
     "ALGORITHM",
     "ALLOW_PAGE_LOCKS",
     "ALLOW_ROW_LOCKS",
+    "ALLOWED",
     "ALWAYS",
     "ANSI_DEFAULTS",
     "ANSI_NULL_DFLT_OFF",
@@ -228,8 +269,10 @@ UNRESERVED_KEYWORDS = [
     "ARITHABORT",
     "ARITHIGNORE",
     "AT",
+    "ATOMIC",
     "AUTO_CREATE_TABLE",
     "AUTO",
+    "BEFORE",  # *future*
     "BERNOULLI",
     "BINARY",
     "BLOCKERS",
@@ -254,8 +297,8 @@ UNRESERVED_KEYWORDS = [
     "CONTAINED",
     "CONTINUE",
     "CONTROL",
-    "CREDENTIAL",
     "COPY",
+    "CREDENTIAL",
     "CURSOR_CLOSE_ON_COMMIT",
     "CYCLE",
     "DATA_COMPRESSION",
@@ -273,6 +316,7 @@ UNRESERVED_KEYWORDS = [
     "DAYS",
     "DEADLOCK_PRIORITY",
     "DELAY",
+    "DELAYED_DURABILITY",
     "DELIMITEDTEXT",
     "DELTA",
     "DENSE_RANK",
@@ -283,6 +327,7 @@ UNRESERVED_KEYWORDS = [
     "DROP_EXISTING",
     "DUMP",  # listed as reserved but functionally unreserved
     "DURABILITY",
+    "ELEMENT",  # *future*
     "ELEMENTS",
     "ENCODING",
     "ENCRYPTED",
@@ -300,11 +345,11 @@ UNRESERVED_KEYWORDS = [
     "FIELDQUOTE",
     "FIELDTERMINATOR",
     "FILE_FORMAT",
+    "FILE_TYPE",
     "FILEGROUP",
-    "FILESTREAM",
     "FILESTREAM_ON",
     "FILESTREAM",
-    "FILE_TYPE",
+    "FILESTREAM",
     "FILETABLE_COLLATE_FILENAME",
     "FILETABLE_DIRECTORY",
     "FILETABLE_FULLPATH_UNIQUE_CONSTRAINT_NAME",
@@ -320,8 +365,8 @@ UNRESERVED_KEYWORDS = [
     "FIRSTROW",
     "FMTONLY",
     "FOLLOWING",
-    "FOR",
     "FORCE",
+    "FORCED",
     "FORCEPLAN",
     "FORCESCAN",
     "FORCESEEK",
@@ -368,6 +413,7 @@ UNRESERVED_KEYWORDS = [
     "LASTROW",
     "LEDGER_VIEW",
     "LEDGER",
+    "LEGACY_CARDINALITY_ESTIMATION",
     "LEVEL",
     "LOAD",  # listed as reserved but functionally unreserved
     "LOB_COMPACTION",
@@ -379,6 +425,7 @@ UNRESERVED_KEYWORDS = [
     "LOW",
     "MANUAL",
     "MASKED",
+    "MASTER",
     "MATCHED",
     "MAX_DURATION",
     "MAX_GRANT_PERCENT",
@@ -392,7 +439,9 @@ UNRESERVED_KEYWORDS = [
     "MIN_GRANT_PERCENT",
     "MINUTES",
     "MINVALUE",
+    "MONTH",
     "MONTHS",
+    "NAME",
     "NEXT",
     "NO_PERFORMANCE_SPOOL",
     "NO",
@@ -417,17 +466,21 @@ UNRESERVED_KEYWORDS = [
     "OUT",
     "OUTBOUND",
     "OUTPUT",
+    "OVERRIDE",
     "OWNER",
     "PAD_INDEX",
     "PAGE",
     "PAGLOCK",
     "PARAMETER",
     "PARAMETERIZATION",
+    "PARAMETERS",  # *future*
     "PARQUET",
     "PARSEONLY",
     "PARSER_VERSION",
+    "PARTIAL",  # *future*
     "PARTITION",
     "PARTITIONS",
+    "PASSWORD",
     "PATH",
     "PAUSE",
     "PAUSED",
@@ -441,6 +494,7 @@ UNRESERVED_KEYWORDS = [
     "PRECISION",  # listed as reserved but functionally unreserved
     "PRIOR",
     "PROFILE",
+    "PROPERTY",
     "PUSHDOWN",
     "QUERY_GOVERNOR_COST_LIMIT",
     "QUERYTRACEON",
@@ -460,6 +514,16 @@ UNRESERVED_KEYWORDS = [
     "RECEIVE",
     "RECOMPILE",
     "RECURSIVE",
+    "REGENERATE",
+    "REGR_AVGX",  # *future*
+    "REGR_AVGY",  # *future*
+    "REGR_COUNT",  # *future*
+    "REGR_INTERCEPT",  # *future*
+    "REGR_R2",  # *future*
+    "REGR_SLOPE",  # *future*
+    "REGR_SXX",  # *future*
+    "REGR_SXY",  # *future*
+    "REGR_SYY",  # *future*
     "REJECT_SAMPLE_VALUE",
     "REJECT_TYPE",
     "REJECT_VALUE",
@@ -494,6 +558,7 @@ UNRESERVED_KEYWORDS = [
     "SCHEMA_AND_DATA",
     "SCHEMA_ONLY",
     "SCHEMABINDING",
+    "SCHEME",
     "SCOPED",
     "SEARCH",
     "SECRET",
@@ -505,6 +570,7 @@ UNRESERVED_KEYWORDS = [
     "SERDE_METHOD",
     "SERIALIZABLE",
     "SERVER",
+    "SERVICE",
     "SETERROR",
     "SETVAR",  # sqlcmd command
     "SHOWPLAN_ALL",
@@ -518,6 +584,7 @@ UNRESERVED_KEYWORDS = [
     "SOURCE",
     "SPARSE",
     "SPATIAL_WINDOW_MAX_CELLS",
+    "SPLIT",
     "START",
     "STATISTICAL_SEMANTICS",
     "STATISTICS_INCREMENTAL",
@@ -550,12 +617,14 @@ UNRESERVED_KEYWORDS = [
     "UNKNOWN",
     "UPDLOCK",
     "USE_TYPE_DEFAULT",
+    "USED",
     "USER_DB",  # Azure Synapse Analytics specific, deprecated
     "USING",
     "VALUE",
     "VIEW_METADATA",
     "WAIT_AT_LOW_PRIORITY",
     "WAITFOR",
+    "WEEK",
     "WEEKS",
     "WHILE",
     "WITHIN",
@@ -565,9 +634,29 @@ UNRESERVED_KEYWORDS = [
     "XLOCK",
     "XML_COMPRESSION",
     "XML",
+    "XMLAGG",  # *future*
+    "XMLATTRIBUTES",  # *future*
+    "XMLBINARY",  # *future*
+    "XMLCAST",  # *future*
+    "XMLCOMMENT",  # *future*
+    "XMLCONCAT",  # *future*
     "XMLDATA",
+    "XMLDOCUMENT",  # *future*
+    "XMLELEMENT",  # *future*
+    "XMLEXISTS",  # *future*
+    "XMLFOREST",  # *future*
+    "XMLITERATE",  # *future*
+    "XMLNAMESPACES",  # *future*
+    "XMLPARSE",  # *future*
+    "XMLPI",  # *future*
+    "XMLQUERY",  # *future*
     "XMLSCHEMA",
+    "XMLSERIALIZE",  # *future*
+    "XMLTABLE",  # *future*
+    "XMLTEXT",  # *future*
+    "XMLVALIDATE",  # *future*
     "XSINIL",
+    "YEAR",
     "YEARS",
     "ZONE",
 ]

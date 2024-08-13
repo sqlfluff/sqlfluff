@@ -1,12 +1,12 @@
 """Implementation of Rule CV05."""
+
 from typing import List, Optional, Union
 
 from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment
-from sqlfluff.core.rules import LintResult, RuleContext, BaseRule
+from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.functional import sp, Segments
+from sqlfluff.utils.functional import Segments, sp
 from sqlfluff.utils.reflow import ReflowSequence
-
 
 CorrectionListType = List[Union[WhitespaceSegment, KeywordSegment]]
 

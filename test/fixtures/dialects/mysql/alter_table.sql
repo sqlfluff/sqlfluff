@@ -3,6 +3,8 @@ ALTER TABLE `users`
     `name` varchar(255) NOT NULL,
     COMMENT "name of user";
 
+ALTER TABLE `users` MODIFY `name` varchar(255) NOT NULL FIRST;
+
 ALTER TABLE `users` RENAME TO `user`;
 
 ALTER TABLE `user` RENAME AS `users`;
@@ -61,3 +63,13 @@ ALTER TABLE `users`
 
 ALTER TABLE `users`
     ADD COLUMN IF NOT EXISTS `active` tinyint(1) DEFAULT '0';
+
+ALTER TABLE `foo` ADD `bar` INT FIRST;
+
+ALTER TABLE `foo` ADD COLUMN d INT GENERATED ALWAYS AS (a*abs(b)) VIRTUAL;
+
+ALTER TABLE `foo` ADD COLUMN e TEXT GENERATED ALWAYS AS (substr(c,b,b+1)) STORED;
+
+ALTER TABLE `foo` ADD COLUMN d INT AS (a*abs(b));
+
+ALTER TABLE `foo` ADD COLUMN e TEXT AS (substr(c,b,b+1)) STORED;

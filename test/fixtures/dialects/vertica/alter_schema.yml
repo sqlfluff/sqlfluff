@@ -1,0 +1,60 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e5bbe0352bad903acf977be524ef15ccd8464a03a67b54d46dad5610a49a5012
+file:
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: ms
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: dbadmin
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - comma: ','
+    - schema_reference:
+        naked_identifier: s2
+    - keyword: RENAME
+    - keyword: TO
+    - schema_reference:
+        naked_identifier: s3
+    - comma: ','
+    - schema_reference:
+        naked_identifier: s4
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: DEFAULT
+    - schema_privileges_segment:
+      - keyword: INCLUDE
+      - keyword: SCHEMA
+      - keyword: PRIVILEGES
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: DEFAULT
+    - schema_privileges_segment:
+      - keyword: EXCLUDE
+      - keyword: SCHEMA
+      - keyword: PRIVILEGES
+- statement_terminator: ;

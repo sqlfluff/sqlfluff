@@ -145,3 +145,70 @@ as $$
     return x;
   end;
 $$;
+
+CREATE OR REPLACE FUNCTION data_wrapper()
+RETURNS SETOF data
+STABLE PARALLEL SAFE LEAKPROOF
+BEGIN ATOMIC
+  SELECT *
+  FROM data;
+END;
+
+create or replace function tz_date(timestamp with time zone, text) returns date
+    language sql
+    immutable strict
+    return ($1 at time zone $2)::date;
+
+CREATE FUNCTION storage.insert_dimension
+(in_ordinality int, in_fieldname varchar, in_default_val varchar,
+ in_valid_from timestamp, in_valid_until timestamp)
+returns storage.dimensions language sql
+BEGIN ATOMIC
+    UPDATE storage.dimensions
+       SET ordinality = ordinality + 1
+     WHERE ordinality >= in_ordinality;
+
+    INSERT INTO storage.dimensions
+                (ordinality, fieldname, default_val, valid_from, valid_until)
+         VALUES (in_ordinality, in_fieldname,
+                coalesce(in_default_val, 'notexist'),
+                coalesce(in_valid_from, '-infinity'),
+                coalesce(in_valid_until, 'infinity'))
+    RETURNING *;
+END;
+
+CREATE OR REPLACE FUNCTION time_bucket(
+    _time timestamp without time zone,
+    _from timestamp without time zone,
+    _to timestamp without time zone,
+    _buckets integer DEFAULT 200,
+    _offset integer DEFAULT 0
+)
+RETURNS timestamp without time zone
+IMMUTABLE PARALLEL SAFE
+BEGIN ATOMIC
+SELECT date_bin(((_to - _from) / greatest((_buckets - 1), 1)), _time, _from) + ((_to - _from) / greatest((_buckets - 1), 1)) * (_offset + 1);
+END;
+
+CREATE OR REPLACE FUNCTION time_bucket_limited(_time timestamp, _from timestamp, _to timestamp, _buckets int = 200)
+    RETURNS timestamp
+    IMMUTABLE PARALLEL SAFE
+BEGIN ATOMIC
+    RETURN CASE WHEN _time <= _from THEN _from
+      WHEN _time >= _to THEN _to
+      ELSE DATE_BIN((_to - _from) / GREATEST(_buckets - 1, 1), _time, _from) + ((_to - _from) / GREATEST(_buckets - 1, 1))
+    end;
+END;
+
+CREATE OR REPLACE FUNCTION time_series(
+    _from timestamp without time zone,
+    _to timestamp without time zone,
+    _buckets integer DEFAULT 200
+)
+RETURNS TABLE ("time" timestamp without time zone)
+IMMUTABLE PARALLEL SAFE
+BEGIN ATOMIC
+-- ATTENTION: use integer to generate series, since with timestamps there are rounding issues
+SELECT time_bucket(_from, _from, _to, _buckets, g.ofs - 1)
+FROM generate_series(0, greatest((_buckets - 1), 1)) AS g (ofs);
+END;

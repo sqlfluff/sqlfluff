@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 71c5e26841b7b96426ef4127afa93633f3f29bab63d71888bbe5ce951edf4a47
+_hash: 1d054a4501b36dd0006dc6e682760051d612bf5ad29ee4f907259886819b57d5
 file:
 - statement:
     set_statement:
@@ -42,4 +42,31 @@ file:
       - properties_naked_identifier: variable
       - dot: .
       - properties_naked_identifier: substitute
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - property_name_identifier:
+      - properties_naked_identifier: spark
+      - dot: .
+      - properties_naked_identifier: sql
+      - dot: .
+      - properties_naked_identifier: cache
+      - dot: .
+      - properties_naked_identifier: serializer
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - properties_naked_identifier: org
+    - dot: .
+    - properties_naked_identifier: apache
+    - dot: .
+    - properties_naked_identifier: spark
+    - dot: .
+    - properties_naked_identifier: sql
+    - dot: .
+    - properties_naked_identifier: execution
+    - dot: .
+    - properties_naked_identifier: columnar
+    - dot: .
+    - properties_naked_identifier: DefaultCachedBatchSerializer
 - statement_terminator: ;

@@ -4,6 +4,7 @@ These are mostly on the ReflowPoint class.
 """
 
 import logging
+
 import pytest
 
 from sqlfluff.core import Linter
@@ -95,7 +96,7 @@ def test_reflow__point_respace_point(
             next_block=seq.elements[point_idx + 1],
             root_segment=root,
             lint_results=[],
-            **kwargs
+            **kwargs,
         )
 
     assert new_pnt.raw == raw_point_sql_out

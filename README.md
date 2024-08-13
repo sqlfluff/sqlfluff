@@ -8,7 +8,6 @@
 [![PyPi Status](https://img.shields.io/pypi/status/sqlfluff.svg?style=flat-square)](https://pypi.org/project/sqlfluff/)
 [![PyPi Downloads](https://img.shields.io/pypi/dm/sqlfluff?style=flat-square)](https://pypi.org/project/sqlfluff/)
 
-[![codecov](https://img.shields.io/codecov/c/gh/sqlfluff/sqlfluff.svg?style=flat-square&logo=Codecov)](https://codecov.io/gh/sqlfluff/sqlfluff)
 [![Coveralls](https://img.shields.io/coverallsCoverage/github/sqlfluff/sqlfluff?logo=coveralls&style=flat-square)](https://coveralls.io/github/sqlfluff/sqlfluff?branch=main)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/sqlfluff/sqlfluff/.github/workflows/ci-tests.yml?logo=github&style=flat-square)](https://github.com/sqlfluff/sqlfluff/actions/workflows/ci-tests.yml?query=branch%3Amain)
 [![ReadTheDocs](https://img.shields.io/readthedocs/sqlfluff?style=flat-square&logo=Read%20the%20Docs)](https://sqlfluff.readthedocs.io)
@@ -49,6 +48,8 @@ currently supports the following SQL dialects (though perhaps not in full):
 - [SQLite](https://www.sqlite.org/)
 - [Teradata](https://www.teradata.com/)
 - [Transact-SQL](https://docs.microsoft.com/en-us/sql/t-sql/language-reference) (aka T-SQL)
+- [Trino](https://trino.io/)
+- [Vertica](https://www.vertica.com/)
 
 We aim to make it easy to expand on the support of these dialects and also
 add other, currently unsupported, dialects. Please [raise issues](https://github.com/sqlfluff/sqlfluff/issues)
@@ -64,11 +65,14 @@ fit for this project before spending time on this work.
 
 SQL itself does not lend itself well to [modularity](https://docs.getdbt.com/docs/viewpoint#section-modularity),
 so to introduce some flexibility and reusability it is often [templated](https://en.wikipedia.org/wiki/Template_processor)
-as discussed more in [our modularity documentation](https://docs.sqlfluff.com/en/stable/realworld.html#modularity).
+as discussed more in [our modularity documentation](https://docs.sqlfluff.com/en/stable/perma/modularity.html).
 
 **SQLFluff** supports the following templates:
 - [Jinja](https://jinja.palletsprojects.com/) (aka Jinja2)
-- [dbt](https://www.getdbt.com/)
+- SQL placeholders (e.g. SQLAlchemy parameters)
+- [Python format strings](https://docs.python.org/3/library/string.html#format-string-syntax)
+- [dbt](https://www.getdbt.com/) (requires plugin)
+
 
 Again, please raise issues if you wish to support more templating languages/syntaxes.
 
@@ -108,8 +112,8 @@ All Finished 📜 🎉!
 Alternatively, you can use the [**Official SQLFluff Docker Image**](https://hub.docker.com/r/sqlfluff/sqlfluff)
 or have a play using [**SQLFluff online**](https://online.sqlfluff.com/).
 
-For full [CLI usage](https://docs.sqlfluff.com/en/stable/cli.html) and
-[rules reference](https://docs.sqlfluff.com/en/stable/rules.html), see
+For full [CLI usage](https://docs.sqlfluff.com/en/stable/perma/cli.html) and
+[rules reference](https://docs.sqlfluff.com/en/stable/perma/rules.html), see
 [the SQLFluff docs](https://docs.sqlfluff.com/en/stable/).
 
 # Documentation
@@ -126,7 +130,7 @@ so breaking changes should be restricted to major versions releases. Some
 elements (such as the python API) are in a less stable state and may see more
 significant changes more often. For details on breaking changes and how
 to migrate between versions, see our
-[release notes](https://docs.sqlfluff.com/en/latest/releasenotes.html). See the
+[release notes](https://docs.sqlfluff.com/en/latest/perma/releasenotes.html). See the
 [changelog](CHANGELOG.md) for more details. If you would like to join in, please
 consider [contributing](CONTRIBUTING.md).
 
@@ -150,7 +154,7 @@ We are grateful to all our [contributors](https://github.com/sqlfluff/sqlfluff/g
 There is a lot to do in this project, and we are just getting started.
 
 If you want to understand more about the architecture of **SQLFluff**, you can
-find [more here](https://docs.sqlfluff.com/en/latest/internals.html#architecture).
+find [more here](https://docs.sqlfluff.com/en/latest/perma/architecture.html).
 
 If you would like to contribute, check out the
 [open issues on GitHub](https://github.com/sqlfluff/sqlfluff/issues). You can also see

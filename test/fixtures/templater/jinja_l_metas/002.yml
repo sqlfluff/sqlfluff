@@ -88,12 +88,12 @@ file:
       - select_clause_element:
           column_reference:
             naked_identifier: campaign_count_c
+      - dedent: ''
     - newline: "\n"
     - whitespace: '    '
     - dedent: ''
     - placeholder: '{% endfor %}'
     - newline: "\n"
-    - dedent: ''
     - from_clause:
       - keyword: FROM
       - newline: "\n"

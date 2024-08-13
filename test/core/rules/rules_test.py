@@ -1,7 +1,6 @@
 """Tests for the standard set of rules."""
+
 import logging
-from test.fixtures.rules.custom.L000 import Rule_L000
-from test.fixtures.rules.custom.S000 import Rule_S000
 
 import pytest
 
@@ -22,6 +21,8 @@ from sqlfluff.core.rules.loader import get_rules_from_path
 from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 from sqlfluff.utils.testing.rules import get_rule_from_set
+from test.fixtures.rules.custom.L000 import Rule_L000
+from test.fixtures.rules.custom.S000 import Rule_S000
 
 
 class Rule_T042(BaseRule):
@@ -228,10 +229,26 @@ def test__rules__result_unparsable():
     assert res.tree.raw == raw_sql
 
 
-def test__rules__runaway_fail_catch():
+@pytest.mark.parametrize(
+    "sql_query, check_tuples",
+    [
+        (
+            "SELECT * FROM foo",
+            # Even though there's a runaway fix, we should still
+            # find each issue once and not duplicates of them.
+            [
+                ("T001", 1, 7),
+                ("T001", 1, 9),
+                ("T001", 1, 14),
+            ],
+        ),
+        # If the errors are disabled, they shouldn't come through.
+        ("-- noqa: disable=all\nSELECT * FROM foo", []),
+    ],
+)
+def test__rules__runaway_fail_catch(sql_query, check_tuples):
     """Test that we catch runaway rules."""
     runaway_limit = 5
-    my_query = "SELECT * FROM foo"
     # Set up the config to only use the rule we are testing.
     cfg = FluffConfig(
         overrides={"rules": "T001", "runaway_limit": runaway_limit, "dialect": "ansi"}
@@ -240,9 +257,11 @@ def test__rules__runaway_fail_catch():
     linter = Linter(config=cfg, user_rules=[Rule_T001])
     # In theory this step should result in an infinite
     # loop, but the loop limit should catch it.
-    linted = linter.lint_string(my_query, fix=True)
+    result = linter.lint_string(sql_query, fix=True)
     # When the linter hits the runaway limit, it returns the original SQL tree.
-    assert linted.tree.raw == my_query
+    assert result.tree.raw == sql_query
+    # Check the issues found.
+    assert result.check_tuples() == check_tuples
 
 
 def test_rules_cannot_be_instantiated_without_declared_configs():

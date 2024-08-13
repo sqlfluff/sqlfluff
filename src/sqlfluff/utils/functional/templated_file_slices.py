@@ -1,7 +1,8 @@
 """Surrogate class for working with TemplatedFileSlice collections."""
+
 from typing import Callable, Optional
 
-from sqlfluff.core.templaters.base import TemplatedFileSlice, TemplatedFile
+from sqlfluff.core.templaters.base import TemplatedFile, TemplatedFileSlice
 
 
 class TemplatedFileSlices(tuple):

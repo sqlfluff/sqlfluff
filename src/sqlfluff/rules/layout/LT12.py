@@ -1,10 +1,11 @@
 """Implementation of Rule LT12."""
+
 from typing import List, Optional, Tuple
 
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
-from sqlfluff.core.rules import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
-from sqlfluff.utils.functional import Segments, sp, tsp, FunctionalContext
+from sqlfluff.utils.functional import FunctionalContext, Segments, sp, tsp
 
 
 def get_trailing_newlines(segment: BaseSegment) -> List[BaseSegment]:

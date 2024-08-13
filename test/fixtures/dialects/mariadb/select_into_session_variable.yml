@@ -1,0 +1,76 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3d90396fce3fe718549e0cb44f0a32d13f527711a1a3b6edddfb6f9f76d674dc
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          numeric_literal: '1'
+      into_clause:
+        keyword: into
+        variable: '@dumpfile'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: name
+      into_clause:
+        keyword: INTO
+        variable: '@name'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: id
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: id
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+      into_clause:
+        keyword: INTO
+        variable: '@name'
+- statement_terminator: ;

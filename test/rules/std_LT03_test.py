@@ -1,8 +1,8 @@
 """Tests the python routines within LT03."""
 
 import sqlfluff
-from sqlfluff.core.config import FluffConfig
 from sqlfluff.core import Linter
+from sqlfluff.core.config import FluffConfig
 
 EXPECTED_LEADING_MESSAGE = (
     "Found trailing binary operator. Expected only leading near line breaks."

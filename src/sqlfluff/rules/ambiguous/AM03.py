@@ -1,11 +1,9 @@
 """Implementation of Rule AM03."""
 
-from typing import NamedTuple, Optional, List, Tuple
+from typing import List, NamedTuple, Optional, Tuple
 
-from sqlfluff.core.parser import WhitespaceSegment, KeywordSegment
-
+from sqlfluff.core.parser import BaseSegment, KeywordSegment, WhitespaceSegment
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
 

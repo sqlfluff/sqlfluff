@@ -2,24 +2,33 @@
 
 https://clickhouse.com/
 """
+
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
     BaseSegment,
     Bracketed,
+    CodeSegment,
     Conditional,
     Dedent,
     Delimited,
+    IdentifierSegment,
+    ImplicitIndent,
     Indent,
     LiteralSegment,
     Matchable,
+    Nothing,
     OneOf,
     OptionallyBracketed,
     ParseMode,
     Ref,
+    RegexLexer,
+    RegexParser,
+    SegmentGenerator,
     Sequence,
     StringLexer,
+    StringParser,
     SymbolSegment,
     TypedParser,
 )
@@ -30,25 +39,6 @@ ansi_dialect = load_raw_dialect("ansi")
 
 clickhouse_dialect = ansi_dialect.copy_as("clickhouse")
 clickhouse_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
-clickhouse_dialect.replace(
-    SingleIdentifierGrammar=OneOf(
-        Ref("NakedIdentifierSegment"),
-        Ref("QuotedIdentifierSegment"),
-        Ref("SingleQuotedIdentifierSegment"),
-    ),
-    QuotedLiteralSegment=OneOf(
-        TypedParser(
-            "single_quote",
-            LiteralSegment,
-            type="quoted_literal",
-        ),
-        TypedParser(
-            "dollar_quote",
-            LiteralSegment,
-            type="quoted_literal",
-        ),
-    ),
-)
 
 clickhouse_dialect.insert_lexer_matchers(
     # https://clickhouse.com/docs/en/sql-reference/functions#higher-order-functions---operator-and-lambdaparams-expr-function
@@ -56,74 +46,34 @@ clickhouse_dialect.insert_lexer_matchers(
     before="newline",
 )
 
+clickhouse_dialect.patch_lexer_matchers(
+    [
+        RegexLexer(
+            "double_quote",
+            r'"([^"\\]|""|\\.)*"',
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"\\]|""|\\.)*)"', 1),
+                "escape_replacements": [(r'(""|\\")', '"')],
+            },
+        ),
+        RegexLexer(
+            "back_quote",
+            r"`(?:[^`\\]|``|\\.)*`",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"`((?:[^`\\]|``|\\.)*)`", 1),
+                "escape_replacements": [(r"(``|\\`)", "`")],
+            },
+        ),
+    ]
+)
+
 clickhouse_dialect.add(
-    JoinTypeKeywords=OneOf(
-        # This case INNER [ANY,ALL] JOIN
-        Sequence("INNER", OneOf("ALL", "ANY", optional=True)),
-        # This case [ANY,ALL] INNER JOIN
-        Sequence(OneOf("ALL", "ANY", optional=True), "INNER"),
-        # This case FULL ALL OUTER JOIN
-        Sequence(
-            "FULL",
-            Ref.keyword("ALL", optional=True),
-            Ref.keyword("OUTER", optional=True),
-        ),
-        # This case ALL FULL OUTER JOIN
-        Sequence(
-            Ref.keyword("ALL", optional=True),
-            "FULL",
-            Ref.keyword("OUTER", optional=True),
-        ),
-        # This case LEFT [OUTER,ANTI,SEMI,ANY,ASOF] JOIN
-        Sequence(
-            "LEFT",
-            OneOf(
-                "ANTI",
-                "SEMI",
-                OneOf("ANY", "ALL", optional=True),
-                "ASOF",
-                optional=True,
-            ),
-            Ref.keyword("OUTER", optional=True),
-        ),
-        # This case [ANTI,SEMI,ANY,ASOF] LEFT JOIN
-        Sequence(
-            OneOf(
-                "ANTI",
-                "SEMI",
-                OneOf("ANY", "ALL", optional=True),
-                "ASOF",
-            ),
-            "LEFT",
-        ),
-        # This case RIGHT [OUTER,ANTI,SEMI,ANY,ASOF] JOIN
-        Sequence(
-            "RIGHT",
-            OneOf(
-                "OUTER",
-                "ANTI",
-                "SEMI",
-                OneOf("ANY", "ALL", optional=True),
-                optional=True,
-            ),
-            Ref.keyword("OUTER", optional=True),
-        ),
-        # This case [OUTER,ANTI,SEMI,ANY] RIGHT JOIN
-        Sequence(
-            OneOf(
-                "ANTI",
-                "SEMI",
-                OneOf("ANY", "ALL", optional=True),
-                optional=True,
-            ),
-            "RIGHT",
-        ),
-        # This case CROSS JOIN
-        "CROSS",
-        # This case ANY JOIN
-        "ANY",
-        # This case ALL JOIN
-        "ALL",
+    BackQuotedIdentifierSegment=TypedParser(
+        "back_quote",
+        IdentifierSegment,
+        type="quoted_identifier",
     ),
     LambdaFunctionSegment=TypedParser("lambda", SymbolSegment, type="lambda"),
 )
@@ -137,9 +87,102 @@ clickhouse_dialect.replace(
         # Add Lambda Function
         Ref("LambdaFunctionSegment"),
     ),
-)
-
-clickhouse_dialect.replace(
+    # https://clickhouse.com/docs/en/sql-reference/statements/select/join/#supported-types-of-join
+    JoinTypeKeywordsGrammar=Sequence(
+        Ref.keyword("GLOBAL", optional=True),
+        OneOf(
+            # This case INNER [ANY,ALL] JOIN
+            Sequence("INNER", OneOf("ALL", "ANY", optional=True)),
+            # This case [ANY,ALL] INNER JOIN
+            Sequence(OneOf("ALL", "ANY", optional=True), "INNER"),
+            # This case FULL ALL OUTER JOIN
+            Sequence(
+                "FULL",
+                Ref.keyword("ALL", optional=True),
+                Ref.keyword("OUTER", optional=True),
+            ),
+            # This case ALL FULL OUTER JOIN
+            Sequence(
+                Ref.keyword("ALL", optional=True),
+                "FULL",
+                Ref.keyword("OUTER", optional=True),
+            ),
+            # This case LEFT [OUTER,ANTI,SEMI,ANY,ASOF] JOIN
+            Sequence(
+                "LEFT",
+                OneOf(
+                    "ANTI",
+                    "SEMI",
+                    OneOf("ANY", "ALL", optional=True),
+                    "ASOF",
+                    optional=True,
+                ),
+                Ref.keyword("OUTER", optional=True),
+            ),
+            # This case [ANTI,SEMI,ANY,ASOF] LEFT JOIN
+            Sequence(
+                OneOf(
+                    "ANTI",
+                    "SEMI",
+                    OneOf("ANY", "ALL", optional=True),
+                    "ASOF",
+                ),
+                "LEFT",
+            ),
+            # This case RIGHT [OUTER,ANTI,SEMI,ANY,ASOF] JOIN
+            Sequence(
+                "RIGHT",
+                OneOf(
+                    "OUTER",
+                    "ANTI",
+                    "SEMI",
+                    OneOf("ANY", "ALL", optional=True),
+                    optional=True,
+                ),
+                Ref.keyword("OUTER", optional=True),
+            ),
+            # This case [OUTER,ANTI,SEMI,ANY] RIGHT JOIN
+            Sequence(
+                OneOf(
+                    "ANTI",
+                    "SEMI",
+                    OneOf("ANY", "ALL", optional=True),
+                    optional=True,
+                ),
+                "RIGHT",
+            ),
+            # This case ASOF JOIN
+            "ASOF",
+            # This case ANY JOIN
+            "ANY",
+            # This case ALL JOIN
+            "ALL",
+        ),
+    ),
+    JoinUsingConditionGrammar=Sequence(
+        "USING",
+        Conditional(Indent, indented_using_on=False),
+        Delimited(
+            OneOf(
+                Bracketed(
+                    Delimited(Ref("SingleIdentifierGrammar")),
+                    parse_mode=ParseMode.GREEDY,
+                ),
+                Delimited(Ref("SingleIdentifierGrammar")),
+            ),
+        ),
+        Conditional(Dedent, indented_using_on=False),
+    ),
+    ConditionalCrossJoinKeywordsGrammar=Nothing(),
+    UnconditionalCrossJoinKeywordsGrammar=Sequence(
+        Ref.keyword("GLOBAL", optional=True),
+        Ref.keyword("CROSS"),
+    ),
+    HorizontalJoinKeywordsGrammar=Sequence(
+        Ref.keyword("GLOBAL", optional=True),
+        Ref.keyword("PASTE"),
+    ),
+    NaturalJoinKeywordsGrammar=Nothing(),
     JoinLikeClauseGrammar=Sequence(
         AnyNumberOf(
             Ref("ArrayJoinClauseSegment"),
@@ -147,7 +190,133 @@ clickhouse_dialect.replace(
         ),
         Ref("AliasExpressionSegment", optional=True),
     ),
+    QuotedLiteralSegment=OneOf(
+        TypedParser(
+            "single_quote",
+            LiteralSegment,
+            type="quoted_literal",
+        ),
+        TypedParser(
+            "dollar_quote",
+            LiteralSegment,
+            type="quoted_literal",
+        ),
+    ),
+    # Drop casefold from ANSI
+    NakedIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"[a-zA-Z_][0-9a-zA-Z_]*",
+            IdentifierSegment,
+            type="naked_identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
+    ),
+    SingleIdentifierGrammar=OneOf(
+        Ref("NakedIdentifierSegment"),
+        Ref("QuotedIdentifierSegment"),
+        Ref("SingleQuotedIdentifierSegment"),
+        Ref("BackQuotedIdentifierSegment"),
+    ),
+    InOperatorGrammar=ansi_dialect.get_grammar("InOperatorGrammar").copy(
+        insert=[Ref.keyword("GLOBAL", optional=True)],
+        before=Ref.keyword("NOT", optional=True),
+    ),
+    SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "SelectClauseTerminatorGrammar"
+    ).copy(
+        insert=[Ref.keyword("PREWHERE")],
+        before=Ref.keyword("WHERE"),
+    ),
+    FromClauseTerminatorGrammar=ansi_dialect.get_grammar("FromClauseTerminatorGrammar")
+    .copy(insert=[Ref.keyword("PREWHERE")], before=Ref.keyword("WHERE"))
+    .copy(insert=[Ref("SettingsClauseSegment")]),
 )
+
+
+class PreWhereClauseSegment(BaseSegment):
+    """A `PREWHERE` clause like in `SELECT` or `INSERT`."""
+
+    type = "prewhere_clause"
+    match_grammar: Matchable = Sequence(
+        "PREWHERE",
+        # NOTE: The indent here is implicit to allow
+        # constructions like:
+        #
+        #    PREWHERE a
+        #        AND b
+        #
+        # to be valid without forcing an indent between
+        # "PREWHERE" and "a".
+        ImplicitIndent,
+        OptionallyBracketed(Ref("ExpressionSegment")),
+        Dedent,
+    )
+
+
+class SettingsClauseSegment(BaseSegment):
+    """A `SETTINGS` clause for engines or query-level settings."""
+
+    type = "settings_clause"
+    match_grammar: Matchable = Sequence(
+        "SETTINGS",
+        Delimited(
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                ),
+                optional=True,
+            ),
+        ),
+        optional=True,
+    )
+
+
+class SelectStatementSegment(ansi.SelectStatementSegment):
+    """Enhance `SELECT` statement to include QUALIFY."""
+
+    match_grammar = ansi.SelectStatementSegment.match_grammar.copy(
+        insert=[Ref("PreWhereClauseSegment", optional=True)],
+        before=Ref("WhereClauseSegment", optional=True),
+    ).copy(
+        insert=[Ref("SettingsClauseSegment", optional=True)],
+    )
+
+
+class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
+    """Enhance unordered `SELECT` statement to include QUALIFY."""
+
+    match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[Ref("PreWhereClauseSegment", optional=True)],
+        before=Ref("WhereClauseSegment", optional=True),
+    )
+
+
+class WithFillSegment(ansi.WithFillSegment):
+    """Enhances `ORDER BY` clauses to include WITH FILL.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/select/order-by#order-by-expr-with-fill-modifier
+    """
+
+    match_grammar: Matchable = Sequence(
+        "WITH",
+        "FILL",
+        Sequence("FROM", Ref("ExpressionSegment"), optional=True),
+        Sequence("TO", Ref("ExpressionSegment"), optional=True),
+        Sequence(
+            "STEP",
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Ref("IntervalExpressionSegment"),
+            ),
+            optional=True,
+        ),
+    )
 
 
 class BracketedArguments(ansi.BracketedArguments):
@@ -160,8 +329,7 @@ class BracketedArguments(ansi.BracketedArguments):
         Delimited(
             OneOf(
                 # Dataypes like Nullable allow optional datatypes here.
-                Ref("DatatypeIdentifierSegment"),
-                Ref("NumericLiteralSegment"),
+                Ref("DatatypeSegment"),
             ),
             # The brackets might be empty for some cases...
             optional=True,
@@ -169,43 +337,60 @@ class BracketedArguments(ansi.BracketedArguments):
     )
 
 
-class JoinClauseSegment(ansi.JoinClauseSegment):
-    """Any number of join clauses, including the `JOIN` keyword.
+class DatatypeSegment(BaseSegment):
+    """Support complex Clickhouse data types.
 
-    https://clickhouse.com/docs/en/sql-reference/statements/select/join/#supported-types-of-join
+    Complex data types are typically used in either DDL statements or as
+    the target type in casts.
     """
 
+    type = "data_type"
     match_grammar = OneOf(
         Sequence(
-            Ref("JoinTypeKeywords", optional=True),
-            Ref("JoinKeywordsGrammar"),
-            Indent,
-            Ref("FromExpressionElementSegment"),
-            Dedent,
-            Conditional(Indent, indented_using_on=True),
-            OneOf(
-                # ON clause
-                Ref("JoinOnConditionSegment"),
-                # USING clause
-                Sequence(
-                    "USING",
-                    Conditional(Indent, indented_using_on=False),
-                    Delimited(
-                        OneOf(
-                            Bracketed(
-                                Delimited(Ref("SingleIdentifierGrammar")),
-                                parse_mode=ParseMode.GREEDY,
-                            ),
-                            Delimited(Ref("SingleIdentifierGrammar")),
-                        ),
-                    ),
-                    Conditional(Dedent, indented_using_on=False),
+            StringParser("NULLABLE", CodeSegment, type="data_type_identifier"),
+            Bracketed(Ref("DatatypeSegment")),
+        ),
+        Ref("TupleTypeSegment"),
+        Ref("DatatypeIdentifierSegment"),
+        Ref("NumericLiteralSegment"),
+        Sequence(
+            StringParser("DATETIME64", CodeSegment, type="data_type_identifier"),
+            Bracketed(
+                Delimited(
+                    Ref("NumericLiteralSegment"),  # precision
+                    Ref("QuotedLiteralSegment", optional=True),  # timezone
+                    # The brackets might be empty as well
+                    optional=True,
                 ),
-                # Requires True for CROSS JOIN
                 optional=True,
             ),
-            Conditional(Dedent, indented_using_on=True),
         ),
+    )
+
+
+class TupleTypeSegment(ansi.StructTypeSegment):
+    """Expression to construct a Tuple datatype."""
+
+    match_grammar = Sequence(
+        "TUPLE",
+        Ref("TupleTypeSchemaSegment"),  # Tuple() can't be empty
+    )
+
+
+class TupleTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a Tuple datatype."""
+
+    type = "tuple_type_schema"
+    match_grammar = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DatatypeSegment"),
+            ),
+            bracket_pairs_set="bracket_pairs",
+        ),
+        bracket_pairs_set="bracket_pairs",
+        bracket_type="round",
     )
 
 
@@ -277,6 +462,52 @@ class AliasExpressionSegment(ansi.AliasExpressionSegment):
             ),
         ),
         Dedent,
+    )
+
+
+class WildcardExpressionSegment(ansi.WildcardExpressionSegment):
+    """An extension of the star expression for Clickhouse."""
+
+    match_grammar = ansi.WildcardExpressionSegment.match_grammar.copy(
+        insert=[
+            Ref("ExceptClauseSegment", optional=True),
+        ]
+    )
+
+
+class ExceptClauseSegment(BaseSegment):
+    """A Clickhouse SELECT EXCEPT clause.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/select#except
+    """
+
+    type = "select_except_clause"
+    match_grammar = Sequence(
+        "EXCEPT",
+        OneOf(
+            Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+            Ref("SingleIdentifierGrammar"),
+        ),
+    )
+
+
+class SelectClauseModifierSegment(ansi.SelectClauseModifierSegment):
+    """Things that come after SELECT but before the columns.
+
+    Overridden from ANSI to allow DISTINCT ON ()
+    https://clickhouse.com/docs/en/sql-reference/statements/select/distinct
+    """
+
+    match_grammar = OneOf(
+        Sequence(
+            "DISTINCT",
+            Sequence(
+                "ON",
+                Bracketed(Delimited(Ref("ExpressionSegment"))),
+                optional=True,
+            ),
+        ),
+        "ALL",
     )
 
 
@@ -384,21 +615,8 @@ class TableEngineSegment(BaseSegment):
                     "BY",
                     Ref("ExpressionSegment"),
                 ),
-                Sequence(
-                    "SETTINGS",
-                    Delimited(
-                        Sequence(
-                            Ref("NakedIdentifierSegment"),
-                            Ref("EqualsSegment"),
-                            OneOf(
-                                Ref("NumericLiteralSegment"),
-                                Ref("QuotedLiteralSegment"),
-                            ),
-                            optional=True,
-                        ),
-                    ),
-                ),
             ),
+            Ref("SettingsClauseSegment", optional=True),
         ),
     )
 
@@ -474,24 +692,8 @@ class DatabaseEngineSegment(BaseSegment):
                     Ref("ExpressionSegment"),
                     optional=True,
                 ),
-                Sequence(
-                    "SETTINGS",
-                    Delimited(
-                        AnyNumberOf(
-                            Sequence(
-                                Ref("NakedIdentifierSegment"),
-                                Ref("EqualsSegment"),
-                                OneOf(
-                                    Ref("NumericLiteralSegment"),
-                                    Ref("QuotedLiteralSegment"),
-                                ),
-                                optional=True,
-                            ),
-                        )
-                    ),
-                    optional=True,
-                ),
             ),
+            Ref("SettingsClauseSegment", optional=True),
         ),
     )
 
@@ -620,23 +822,6 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
                 Ref("SingleIdentifierGrammar"),
                 optional=True,
             ),
-            Sequence(
-                "SETTINGS",
-                Delimited(
-                    Sequence(
-                        Ref("NakedIdentifierSegment"),
-                        Ref("EqualsSegment"),
-                        OneOf(
-                            Ref("NakedIdentifierSegment"),
-                            Ref("NumericLiteralSegment"),
-                            Ref("QuotedLiteralSegment"),
-                            Ref("BooleanLiteralGrammar"),
-                        ),
-                        optional=True,
-                    ),
-                ),
-                optional=True,
-            ),
         ),
         AnyNumberOf(
             "TABLE",
@@ -664,62 +849,141 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
 
     type = "create_table_statement"
 
-    match_grammar: Matchable = Sequence(
-        "CREATE",
-        OneOf(
-            Ref("OrReplaceGrammar"),
-            Ref.keyword("TEMPORARY"),
-            optional=True,
-        ),
-        "TABLE",
-        Ref("IfNotExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
-        Ref("OnClusterClauseSegment", optional=True),
-        OneOf(
-            # CREATE TABLE (...):
-            Sequence(
-                Bracketed(
-                    Delimited(
-                        OneOf(
-                            Ref("TableConstraintSegment"),
-                            Ref("ColumnDefinitionSegment"),
-                            Ref("ColumnConstraintSegment"),
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            "CREATE",
+            Ref("OrReplaceGrammar", optional=True),
+            "TABLE",
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("TableReferenceSegment"),
+            Ref("OnClusterClauseSegment", optional=True),
+            OneOf(
+                # CREATE TABLE (...):
+                Sequence(
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("TableConstraintSegment"),
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("ColumnConstraintSegment"),
+                            ),
                         ),
+                        # Column definition may be missing if using AS SELECT
+                        optional=True,
                     ),
-                    # Column definition may be missing if using AS SELECT
-                    optional=True,
+                    Ref("TableEngineSegment"),
+                    # CREATE TABLE (...) AS SELECT:
+                    Sequence(
+                        "AS",
+                        Ref("SelectableGrammar"),
+                        optional=True,
+                    ),
                 ),
-                Ref("TableEngineSegment"),
-                # CREATE TABLE (...) AS SELECT:
+                # CREATE TABLE AS other_table:
+                Sequence(
+                    "AS",
+                    Ref("TableReferenceSegment"),
+                    Ref("TableEngineSegment", optional=True),
+                ),
+                # CREATE TABLE AS table_function():
+                Sequence(
+                    "AS",
+                    Ref("FunctionSegment"),
+                ),
+            ),
+            AnySetOf(
+                Sequence(
+                    "COMMENT",
+                    OneOf(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("QuotedIdentifierSegment"),
+                    ),
+                ),
+                Ref("TableTTLSegment"),
+                optional=True,
+            ),
+            Ref("TableEndClauseSegment", optional=True),
+        ),
+        # CREATE TEMPORARY TABLE
+        Sequence(
+            "CREATE",
+            Ref.keyword("TEMPORARY"),
+            "TABLE",
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("TableReferenceSegment"),
+            OneOf(
+                # CREATE TEMPORARY TABLE (...):
+                Sequence(
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("TableConstraintSegment"),
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("ColumnConstraintSegment"),
+                            ),
+                        ),
+                        # Column definition may be missing if using AS SELECT
+                        optional=True,
+                    ),
+                    Ref("TableEngineSegment"),
+                    # CREATE TEMPORARY TABLE (...) AS SELECT:
+                    Sequence(
+                        "AS",
+                        Ref("SelectableGrammar"),
+                        optional=True,
+                    ),
+                ),
+                # CREATE TEMPORARY TABLE AS other_table:
+                Sequence(
+                    "AS",
+                    Ref("TableReferenceSegment"),
+                    Ref("TableEngineSegment", optional=True),
+                ),
+                # CREATE TEMPORARY TABLE AS table_function():
+                Sequence(
+                    "AS",
+                    Ref("FunctionSegment"),
+                ),
+                # CREATE TEMPORARY TABLE AS
                 Sequence(
                     "AS",
                     Ref("SelectableGrammar"),
                     optional=True,
                 ),
             ),
-            # CREATE TABLE AS other_table:
-            Sequence(
-                "AS",
-                Ref("TableReferenceSegment"),
-                Ref("TableEngineSegment", optional=True),
-            ),
-            # CREATE TABLE AS table_function():
-            Sequence(
-                "AS",
-                Ref("FunctionSegment"),
-            ),
-        ),
-        AnySetOf(
-            Sequence(
-                "COMMENT",
-                OneOf(
-                    Ref("SingleIdentifierGrammar"),
-                    Ref("QuotedIdentifierSegment"),
+            AnySetOf(
+                Sequence(
+                    "COMMENT",
+                    OneOf(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("QuotedIdentifierSegment"),
+                    ),
                 ),
+                Ref("TableTTLSegment"),
+                optional=True,
             ),
-            Ref("TableTTLSegment"),
-            optional=True,
+            Ref("TableEndClauseSegment", optional=True),
         ),
+    )
+
+
+class CreateViewStatementSegment(BaseSegment):
+    """A `CREATE VIEW` statement.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/create/view
+    """
+
+    type = "create_view_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("OnClusterClauseSegment", optional=True),
+        "AS",
+        Ref("SelectableGrammar"),
         Ref("TableEndClauseSegment", optional=True),
     )
 
@@ -1236,4 +1500,57 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropSettingProfileStatementSegment"),
             Ref("SystemStatementSegment"),
         ]
+    )
+
+
+class LimitClauseComponentSegment(BaseSegment):
+    """A component of a `LIMIT` clause.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/select/limit
+    """
+
+    type = "limit_clause_component"
+
+    match_grammar = OptionallyBracketed(
+        OneOf(
+            # Allow a number by itself OR
+            Ref("NumericLiteralSegment"),
+            # An arbitrary expression
+            Ref("ExpressionSegment"),
+        )
+    )
+
+
+class LimitClauseSegment(ansi.LimitClauseSegment):
+    """Overriding LimitClauseSegment to allow for additional segment parsing."""
+
+    match_grammar: Matchable = Sequence(
+        "LIMIT",
+        Indent,
+        Sequence(
+            Ref("LimitClauseComponentSegment"),
+            OneOf(
+                Sequence(
+                    "OFFSET",
+                    Ref("LimitClauseComponentSegment"),
+                ),
+                Sequence(
+                    # LIMIT 1,2 only accepts constants
+                    # and can't be bracketed like that LIMIT (1, 2)
+                    # but can be bracketed like that LIMIT (1), (2)
+                    Ref("CommaSegment"),
+                    Ref("LimitClauseComponentSegment"),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "BY",
+                OneOf(
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    Ref("ColumnReferenceSegment"),
+                ),
+                optional=True,
+            ),
+        ),
+        Dedent,
     )

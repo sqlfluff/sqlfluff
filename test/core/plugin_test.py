@@ -1,10 +1,19 @@
 """Plugin related tests."""
+
+import importlib.metadata
 import logging
-import pytest
 import sys
 
-from sqlfluff.core.plugin.host import get_plugin_manager, purge_plugin_manager
+import pytest
+
+from sqlfluff import __version__ as pkg_version
 from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.plugin.host import (
+    _get_sqlfluff_version,
+    _load_plugin,
+    get_plugin_manager,
+    purge_plugin_manager,
+)
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 
 
@@ -88,3 +97,30 @@ def test__plugin_default_config_read(rule_ref, config_option):
     print(f"Detected config sections: {fluff_config._configs['rules'].keys()}")
     # Check V1
     assert config_option in fluff_config._configs["rules"][rule_ref]
+
+
+class MockEntryPoint(importlib.metadata.EntryPoint):
+    """Fake Entry Point which just raises an exception on load."""
+
+    def load(self):
+        """Raise an exception on load."""
+        raise ValueError("TEST ERROR")
+
+
+def test__plugin_handle_bad_load():
+    """Test that we can safely survive a plugin which fails to load."""
+    # Mock fake plugin
+    ep = MockEntryPoint("test_name", "test_value", "sqlfluff")
+
+    plugin_manager = get_plugin_manager()
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.plugin") as caplog:
+        _load_plugin(plugin_manager, ep, "plugin_name", "v1.2.3")
+    # Assert that there was a warning
+    assert "ERROR: Failed to load SQLFluff plugin" in caplog.text
+    assert "plugin_name" in caplog.text
+    assert "TEST ERROR" in caplog.text
+
+
+def test__plugin_get_version():
+    """Test the plugin method of getting the version gets the right version."""
+    assert _get_sqlfluff_version() == pkg_version

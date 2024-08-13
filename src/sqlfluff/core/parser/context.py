@@ -12,7 +12,17 @@ import logging
 import uuid
 from collections import defaultdict
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Dict, Iterator, List, Optional, Sequence, Tuple
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Iterator,
+    List,
+    NoReturn,
+    Optional,
+    Sequence,
+    Tuple,
+)
 
 from tqdm import tqdm
 
@@ -23,7 +33,6 @@ if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.dialects.base import Dialect
     from sqlfluff.core.parser.match_result import MatchResult
     from sqlfluff.core.parser.matchable import Matchable
-    from sqlfluff.core.parser.segments import BaseSegment
 
 # Get the parser logger
 parser_logger = logging.getLogger("sqlfluff.parser")
@@ -56,6 +65,14 @@ class ParseContext:
         dialect: "Dialect",
         indentation_config: Optional[Dict[str, Any]] = None,
     ) -> None:
+        """Initialize a new instance of the class.
+
+        Args:
+            dialect (Dialect): The dialect used for parsing.
+            indentation_config (Optional[Dict[str, Any]], optional): The indentation
+                configuration used by Indent and Dedent to control the intended
+                indentation of certain features. Defaults to None.
+        """
         self.dialect = dialect
         # Indentation config is used by Indent and Dedent and used to control
         # the intended indentation of certain features. Specifically it is
@@ -90,7 +107,7 @@ class ParseContext:
         # NOTE: Includes inherited parent terminators.
         self.terminators: Tuple["Matchable", ...] = ()
         # Value for holding a reference to the progress bar.
-        self._tqdm: Optional[tqdm] = None
+        self._tqdm: Optional[tqdm[NoReturn]] = None
         # Variable to store whether we're tracking progress. When looking
         # ahead to terminators or suchlike, we set this to False so as not
         # to confuse the progress bar.
@@ -100,7 +117,14 @@ class ParseContext:
 
     @classmethod
     def from_config(cls, config: "FluffConfig") -> "ParseContext":
-        """Construct a `ParseContext` from a `FluffConfig`."""
+        """Construct a `ParseContext` from a `FluffConfig`.
+
+        Args:
+            config (FluffConfig): The configuration object.
+
+        Returns:
+            ParseContext: The constructed ParseContext object.
+        """
         indentation_config = config.get_section("indentation") or {}
         try:
             indentation_config = {k: bool(v) for k, v in indentation_config.items()}
@@ -119,6 +143,25 @@ class ParseContext:
         clear_terminators: bool = False,
         push_terminators: Optional[Sequence["Matchable"]] = None,
     ) -> Tuple[int, Tuple["Matchable", ...]]:
+        """Set the terminators used in the class.
+
+        This private method sets the terminators used in the class. If
+        `clear_terminators` is True and the existing terminators are not
+        already cleared, the method clears the terminators. If `push_terminators` is
+        provided, the method appends them to the existing terminators if they are not
+        already present.
+
+        Args:
+            clear_terminators (bool, optional): A flag indicating whether to clear the
+                existing terminators. Defaults to False.
+            push_terminators (Optional[Sequence["Matchable"]], optional): A sequence of
+                `Matchable` objects to be added as terminators.
+            Defaults to None.
+
+        Returns:
+            Tuple[int, Tuple["Matchable", ...]]: A tuple containing the
+            number of terminators appended and the original terminators.
+        """
         _appended = 0
         # Retain a reference to the original terminators.
         _terminators = self.terminators
@@ -143,6 +186,20 @@ class ParseContext:
         terminators: Tuple["Matchable", ...],
         clear_terminators: bool = False,
     ) -> None:
+        """Reset the terminators attribute of the class.
+
+        This method is used to reset the terminators attribute of the
+        class. If the clear_terminators parameter is True, the terminators attribute
+        is set to the provided terminators. If the clear_terminators parameter is
+        False and the appended parameter is non-zero, the terminators attribute is
+        trimmed to its original length minus the value of the appended parameter.
+
+        Args:
+            appended (int): The number of terminators that were appended.
+            terminators (Tuple["Matchable", ...]): The original terminators.
+            clear_terminators (bool, optional): If True, clear the terminators attribute
+                completely. Defaults to False.
+        """
         # If we totally reset them, just reinstate the old object.
         if clear_terminators:
             self.terminators = terminators
@@ -224,13 +281,13 @@ class ParseContext:
             disable=progress_bar_configuration.disable_progress_bar,
             leave=False,
         )
-        self._current_line = 0
+
         try:
             yield self
         finally:
             self._tqdm.close()
 
-    def update_progress(self, matched_segments: Sequence["BaseSegment"]) -> None:
+    def update_progress(self, char_idx: int) -> None:
         """Update the progress bar if configured.
 
         If progress isn't configured, we do nothing.
@@ -238,17 +295,10 @@ class ParseContext:
         """
         if not self._tqdm or not self.track_progress:
             return None
-        for _idx in range(len(matched_segments) - 1, -1, -1):
-            _seg = matched_segments[_idx]
-            if _seg.pos_marker:
-                current_char = _seg.pos_marker.templated_slice.stop
-                break
-        else:  # pragma: no cover
-            raise ValueError("Could not find progress position!")
-        if current_char <= self._current_char:
+        if char_idx <= self._current_char:
             return None
-        self._tqdm.update(current_char - self._current_char)
-        self._current_char = current_char
+        self._tqdm.update(char_idx - self._current_char)
+        self._current_char = char_idx
         return None
 
     def stack(self) -> Tuple[Tuple[str, ...], Tuple[str, ...]]:  # pragma: no cover
@@ -269,7 +319,3 @@ class ParseContext:
     ) -> None:
         """Store a match in the cache for later retrieval."""
         self._parse_cache[(loc_key, matcher_key)] = match
-
-    def increment(self, key: str, default: int = 0) -> None:
-        """Increment one of the parse stats by name."""
-        self.parse_stats[key] = self.parse_stats.get(key, 0) + 1

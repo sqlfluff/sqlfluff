@@ -1,0 +1,120 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2e318327637f8ff0d1e4cbbe1c338b2d39724e040ffffd39dde1aa208cd310ea
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_table1
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INT64
+        comma: ','
+        table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: x
+            end_bracket: )
+        - keyword: NOT
+        - keyword: ENFORCED
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: y
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - table_constraint:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: y
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: t_table2
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: y
+            end_bracket: )
+        - keyword: NOT
+        - keyword: ENFORCED
+      - comma: ','
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INT64
+      - comma: ','
+      - table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: x
+            end_bracket: )
+        - keyword: NOT
+        - keyword: ENFORCED
+      - comma: ','
+      - column_definition:
+          naked_identifier: y
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - table_constraint:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: y
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: t_table2
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: y
+            end_bracket: )
+        - keyword: NOT
+        - keyword: ENFORCED
+      - comma: ','
+      - column_definition:
+          naked_identifier: _other
+          data_type:
+            data_type_identifier: STRING
+      - end_bracket: )
+- statement_terminator: ;

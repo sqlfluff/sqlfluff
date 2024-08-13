@@ -27,12 +27,18 @@ test_pass_default_consistent_capitalised:
         ts Time With Time Zone
     );
 
-test_pass_default_consistent_pascal:
-  # Test that we don't have the "inconsistent" bug
-  pass_str: |
+test_fail_default_consistent_pascal:
+  # Attempting Pascal without config defaults to capitalize
+  fail_str: |
     CREATE TABLE distributors (
         did Integer,
         name VarChar(40),
+        ts Time With Time Zone
+    );
+  fix_str: |
+    CREATE TABLE distributors (
+        did Integer,
+        name Varchar(40),
         ts Time With Time Zone
     );
 

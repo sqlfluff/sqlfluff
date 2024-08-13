@@ -15,8 +15,8 @@ https://github.com/pytest-dev/pytest/issues/3697#issuecomment-792129636
 """
 
 import logging
-from typing import Iterator
 from contextlib import contextmanager
+from typing import Iterator
 
 from _pytest.logging import LogCaptureHandler, _remove_ansi_escape_sequences
 

@@ -1,4 +1,5 @@
 """Sharing fixtures to test the dialects."""
+
 import logging
 
 import pytest
@@ -56,11 +57,12 @@ def _dialect_specific_segment_parses(dialect, segmentref, raw, caplog):
 
     ctx = ParseContext.from_config(config)
     with caplog.at_level(logging.DEBUG):
-        parsed = Seg.match(segments=segments, parse_context=ctx)
-    assert isinstance(parsed, MatchResult)
-    assert len(parsed.matched_segments) == 1
+        result = Seg.match(segments, 0, parse_context=ctx)
+    assert isinstance(result, MatchResult)
+    parsed = result.apply(segments)
+    assert len(parsed) == 1
     print(parsed)
-    parsed = parsed.matched_segments[0]
+    parsed = parsed[0]
 
     # Check we get a good response
     print(parsed)
@@ -85,7 +87,7 @@ def _dialect_specific_segment_not_match(dialect, segmentref, raw, caplog):
 
     ctx = ParseContext.from_config(config)
     with caplog.at_level(logging.DEBUG):
-        match = Seg.match(segments=segments, parse_context=ctx)
+        match = Seg.match(segments, 0, parse_context=ctx)
 
     assert not match
 

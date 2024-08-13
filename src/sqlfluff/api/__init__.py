@@ -1,8 +1,8 @@
 """Elements which wrap the sqlfluff core library for public use."""
 
 # Expose the simple api
-from sqlfluff.api.simple import lint, fix, parse, APIParsingError
-from sqlfluff.api.info import list_rules, list_dialects
+from sqlfluff.api.info import list_dialects, list_rules
+from sqlfluff.api.simple import APIParsingError, fix, lint, parse
 
 __all__ = (
     "lint",

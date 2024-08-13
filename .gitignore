@@ -54,3 +54,6 @@ plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/packages.yml
 # VSCode
 .vscode
 *.code-workspace
+
+# Emacs
+*~

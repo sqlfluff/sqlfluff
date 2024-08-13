@@ -15,8 +15,8 @@ use one or the other for readability.
 
 __all__ = ("Segments", "rsp", "sp", "tsp", "FunctionalContext")
 
-from sqlfluff.utils.functional.segments import Segments
 import sqlfluff.utils.functional.raw_file_slice_predicates as rsp
-import sqlfluff.utils.functional.templated_file_slice_predicates as tsp
 import sqlfluff.utils.functional.segment_predicates as sp
+import sqlfluff.utils.functional.templated_file_slice_predicates as tsp
 from sqlfluff.utils.functional.context import FunctionalContext
+from sqlfluff.utils.functional.segments import Segments

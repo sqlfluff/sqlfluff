@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 87790be6cd29e35d6b49f004079316a4d1a8ce524ff8545019db85b2247c4b25
+_hash: cfacf70b0c87e02e01f2f37fb7245aa6fc0198a223525e4794283cafa7bf27bd
 file:
 - statement:
     select_statement:
@@ -148,4 +148,101 @@ file:
                 - comma: ','
                 - naked_identifier: row_num
                 end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table_1
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: utc_activity_start_dttm
+        - binary_operator: +
+        - function:
+            function_name:
+              function_name_identifier: make_interval
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  naked_identifier: mins
+            - expression:
+                assignment_operator: :=
+                column_reference:
+                  naked_identifier: activity_dur_mnt
+            - end_bracket: )
+        - keyword: BETWEEN
+        - cast_expression:
+            quoted_literal: "'2024-01-07T00:00:00'"
+            casting_operator: '::'
+            data_type:
+              datetime_type_identifier:
+                keyword: timestamp
+        - keyword: AND
+        - cast_expression:
+            quoted_literal: "'2024-01-14T23:59:59.999999'"
+            casting_operator: '::'
+            data_type:
+              datetime_type_identifier:
+                keyword: timestamp
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: ARRAY
+            bracketed:
+              start_bracket: (
+              set_expression:
+              - select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      function:
+                        function_name:
+                          function_name_identifier: UNNEST
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: list_field_1
+                          end_bracket: )
+              - set_operator:
+                  keyword: INTERSECT
+              - select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      function:
+                        function_name:
+                          function_name_identifier: UNNEST
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: list_field_2
+                          end_bracket: )
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table_1
 - statement_terminator: ;

@@ -10,13 +10,27 @@ tracking.
 
 https://stackoverflow.com/questions/49715881/how-to-pickle-inherited-exceptions
 """
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
+
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union, cast
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser import BaseSegment, PositionMarker
     from sqlfluff.core.rules import BaseRule, LintFix
 
 CheckTuple = Tuple[str, int, int]
+SerializedObject = Dict[str, Union[str, int, bool, List["SerializedObject"]]]
+
+
+def _extract_position(segment: Optional["BaseSegment"]) -> Dict[str, int]:
+    """If a segment is present and is a literal, return it's source length."""
+    if segment:
+        position = segment.pos_marker
+        assert position
+        if position.is_literal():
+            return position.to_source_dict()
+    # An empty location is an indicator of not being able to accurately
+    # represent the location.
+    return {}  # pragma: no cover
 
 
 class SQLBaseError(ValueError):
@@ -83,17 +97,18 @@ class SQLBaseError(ValueError):
 
         return self.__class__.__name__  # pragma: no cover
 
-    def get_info_dict(self) -> Dict[str, Union[str, int]]:
+    def to_dict(self) -> SerializedObject:
         """Return a dict of properties.
 
         This is useful in the API for outputting violations.
         """
         return {
-            "line_no": self.line_no,
-            "line_pos": self.line_pos,
+            "start_line_no": self.line_no,
+            "start_line_pos": self.line_pos,
             "code": self.rule_code(),
             "description": self.desc(),
             "name": getattr(self, "rule").name if hasattr(self, "rule") else "",
+            "warning": self.warning,
         }
 
     def check_tuple(self) -> CheckTuple:
@@ -118,6 +133,13 @@ class SQLBaseError(ValueError):
 
         Designed for rule codes so works with L001, LL0X but also TMP or PRS
         for templating and parsing errors.
+
+        Args:
+            warning_iterable (List[str]): A list of strings representing the warning
+                codes to check.
+
+        Returns:
+            None
         """
         if self.rule_code() in warning_iterable:
             self.warning = True
@@ -205,6 +227,19 @@ class SQLParseError(SQLBaseError):
             self.warning,
         )
 
+    def to_dict(self) -> SerializedObject:
+        """Return a dict of properties.
+
+        This is useful in the API for outputting violations.
+
+        For parsing errors we additionally add the length of the unparsable segment.
+        """
+        _base_dict = super().to_dict()
+        _base_dict.update(
+            **_extract_position(self.segment),
+        )
+        return _base_dict
+
 
 class SQLLintError(SQLBaseError):
     """An error which occurred during linting.
@@ -257,6 +292,40 @@ class SQLLintError(SQLBaseError):
             self.warning,
         )
 
+    def to_dict(self) -> SerializedObject:
+        """Return a dict of properties.
+
+        This is useful in the API for outputting violations.
+
+        For linting errors we additionally add details of any fixes.
+        """
+        _base_dict = super().to_dict()
+        _base_dict.update(
+            fixes=[fix.to_dict() for fix in self.fixes],
+            **_extract_position(self.segment),
+        )
+        # Edge case: If the base error doesn't have an end position
+        # but we only have one fix and it _does_. Then use use that in the
+        # overall fix.
+        _fixes = cast(List[SerializedObject], _base_dict.get("fixes", []))
+        if "end_line_pos" not in _base_dict and len(_fixes) == 1:
+            _fix = _fixes[0]
+            # If the mandatory keys match...
+            if (
+                _fix["start_line_no"] == _base_dict["start_line_no"]
+                and _fix["start_line_pos"] == _base_dict["start_line_pos"]
+            ):
+                # ...then hoist all the optional ones from the fix.
+                for key in [
+                    "start_file_pos",
+                    "end_line_no",
+                    "end_line_pos",
+                    "end_file_pos",
+                ]:
+                    _base_dict[key] = _fix[key]
+
+        return _base_dict
+
     @property
     def fixable(self) -> bool:
         """Should this error be considered fixable?"""
@@ -278,11 +347,23 @@ class SQLLintError(SQLBaseError):
         fix_raws = tuple(
             tuple(e.raw for e in f.edit) if f.edit else None for f in self.fixes
         )
-        source_fixes = tuple(
-            tuple(tuple(e.source_fixes) for e in f.edit) if f.edit else None
-            for f in self.fixes
-        )
-        return (self.check_tuple(), self.description, fix_raws, source_fixes)
+        _source_fixes: List[Tuple[str, int, int]] = []
+        for fix in self.fixes:
+            if not fix.edit:
+                continue
+            for edit in fix.edit:
+                for source_edit in edit.source_fixes:
+                    # NOTE: It's important that we don't dedupe on the
+                    # templated slice for the source fix, because that will
+                    # be different for different locations in any loop.
+                    _source_fixes.append(
+                        (
+                            source_edit.edit,
+                            source_edit.source_slice.start,
+                            source_edit.source_slice.stop,
+                        )
+                    )
+        return (self.check_tuple(), self.description, fix_raws, tuple(_source_fixes))
 
     def __repr__(self) -> str:
         return "<SQLLintError: rule {} pos:{!r}, #fixes: {}, description: {}>".format(

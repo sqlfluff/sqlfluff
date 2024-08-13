@@ -1,4 +1,5 @@
 """Marker to be imported and used in plugins (and for own implementations)."""
+
 from typing import Any, Callable, TypeVar, cast
 
 import pluggy

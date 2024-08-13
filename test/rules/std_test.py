@@ -1,8 +1,9 @@
 """Tests for the standard set of rules."""
+
 import pytest
 
-from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.rules import get_ruleset
 from sqlfluff.utils.testing.rules import assert_rule_raises_violations_in_file
 
 

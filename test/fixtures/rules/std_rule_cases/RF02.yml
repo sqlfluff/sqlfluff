@@ -217,6 +217,19 @@ test_pass_column_and_alias_same_name_2_mysql:
     core:
       dialect: mysql
 
+test_pass_variable_reference_in_where_clause_mysql:
+  pass_str: |
+    SET @someVar = 1;
+    SELECT
+        Table1.Col1,
+        Table2.Col2
+    FROM Table1
+    LEFT JOIN Table2 ON Table1.Join1 = Table2.Join1
+    WHERE Table1.FilterCol = @someVar;
+  configs:
+    core:
+      dialect: mysql
+
 test_pass_qualified_references_multi_table_statements_tsql:
   pass_str: |
     SELECT foo.a, vee.b
@@ -289,7 +302,7 @@ test_fail_table_plus_flatten_snowflake_1:
     SELECT
         r.rec:foo::string AS foo,
         value:bar::string AS bar
-    FROM foo.bar AS r, LATERAL FLATTEN(input => rec:result) AS x
+    FROM foo.bar AS r, LATERAL FLATTEN(input => r.rec:result) AS x
   configs:
     core:
       dialect: snowflake
@@ -301,7 +314,7 @@ test_fail_table_plus_flatten_snowflake_2:
     SELECT
         r.rec:foo::string AS foo,
         value:bar::string AS bar
-    FROM foo.bar AS r, LATERAL FLATTEN(input => rec:result)
+    FROM foo.bar AS r, LATERAL FLATTEN(input => r.rec:result)
   configs:
     core:
       dialect: snowflake
@@ -313,7 +326,7 @@ test_pass_table_plus_flatten_snowflake_1:
     SELECT
         r.rec:foo::string AS foo,
         x.value:bar::string AS bar
-    FROM foo.bar AS r, LATERAL FLATTEN(input => rec:result) AS x
+    FROM foo.bar AS r, LATERAL FLATTEN(input => r.rec:result) AS x
   configs:
     core:
       dialect: snowflake

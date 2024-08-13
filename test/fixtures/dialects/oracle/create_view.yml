@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 69b5ba640daef659deac176b55e74ae38bb6322a61da319ed2bc8a11e65f24d8
+_hash: f00daf451a52a782296944b6de0c981ed0b2d02a3a1c265b1cf9ed09972247a7
 file:
 - statement:
     create_view_statement:
@@ -259,6 +259,62 @@ file:
     - keyword: OR
     - keyword: REPLACE
     - keyword: EDITIONING
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: NEW_VIEW
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              column_reference:
+                naked_identifier: PERSON_ID
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: PERSONS
+                alias_expression:
+                  naked_identifier: p
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: NEW_VIEW
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              column_reference:
+                naked_identifier: PERSON_ID
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: PERSONS
+                alias_expression:
+                  naked_identifier: p
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
         naked_identifier: NEW_VIEW

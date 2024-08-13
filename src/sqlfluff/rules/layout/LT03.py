@@ -11,9 +11,20 @@ from sqlfluff.utils.reflow import ReflowSequence
 class Rule_LT03(BaseRule):
     """Operators should follow a standard for being before/after newlines.
 
+    The configuration for whether operators should be ``trailing`` or
+    ``leading`` is part of :ref:`layoutconfig`. The default configuration is:
+
+    .. code-block:: cfg
+
+        [sqlfluff:layout:type:binary_operator]
+        line_position = leading
+
+        [sqlfluff:layout:type:comparison_operator]
+        line_position = leading
+
     **Anti-pattern**
 
-    In this example, if ``operator_new_lines = after`` (or unspecified, as is the
+    In this example, if ``line_position = leading`` (or unspecified, as is the
     default), then the operator ``+`` should not be at the end of the second line.
 
     .. code-block:: sql
@@ -26,7 +37,7 @@ class Rule_LT03(BaseRule):
 
     **Best practice**
 
-    If ``operator_new_lines = after`` (or unspecified, as this is the default),
+    If ``line_position = leading`` (or unspecified, as this is the default),
     place the operator after the newline.
 
     .. code-block:: sql
@@ -36,7 +47,7 @@ class Rule_LT03(BaseRule):
             + b
         FROM foo
 
-    If ``operator_new_lines = before``, place the operator before the newline.
+    If ``line_position = trailing``, place the operator before the newline.
 
     .. code-block:: sql
 

@@ -27,9 +27,9 @@ file:
               - select_clause_element:
                   column_reference:
                     naked_identifier: SNAPSHOT_DATE
+              - dedent: ''
             - newline: "\n"
             - whitespace: '    '
-            - dedent: ''
             - from_clause:
               - keyword: FROM
               - whitespace: ' '
@@ -70,8 +70,8 @@ file:
               - naked_identifier: cust
               - dot: .
               - naked_identifier: SNAPSHOT_DATE
+          - dedent: ''
           newline: "\n"
-          dedent: ''
           from_clause:
             keyword: FROM
             whitespace: ' '

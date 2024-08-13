@@ -1,13 +1,18 @@
 """Implementation of Rule JJ01."""
+
 from typing import List, Tuple
 
 from sqlfluff.core.parser.segments import BaseSegment, SourceFix
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
+from sqlfluff.core.templaters import JinjaTemplater
 
 
 class Rule_JJ01(BaseRule):
     """Jinja tags should have a single whitespace on either side.
+
+    This rule is only active if the ``jinja`` templater (or one of it's
+    subclasses, like the ``dbt`` templater) are used for the current file.
 
     **Anti-pattern**
 
@@ -118,6 +123,13 @@ class Rule_JJ01(BaseRule):
         # We'll need the templated file. If for whatever reason it's
         # not present, abort.
         if not context.templated_file:  # pragma: no cover
+            return []
+
+        # We also only work with setups which use the jinja templater
+        # or a derivative of that. Otherwise return empty.
+        _templater = context.config.get("templater_obj")
+        if not isinstance(_templater, JinjaTemplater):
+            self.logger.debug(f"Detected non-jinja templater: {_templater}")
             return []
 
         results = []

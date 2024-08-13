@@ -1,0 +1,63 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 00eb6fa93f2ae835ca22ec8341e326cea9a7130833fb0fd8a458f0a77cef68ef
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            naked_identifier: applicant_verification_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: etl_created_at
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: etl_updated_at
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: mapkeys
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: some_data
+              end_bracket: )
+            over_clause:
+              keyword: over
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: partition
+                  - keyword: by
+                  - expression:
+                      column_reference:
+                        naked_identifier: col_1
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: col2
+                end_bracket: )
+          alias_expression:
+            keyword: as
+            bracketed:
+              start_bracket: (
+              identifier_list:
+                naked_identifier: json_table_keys
+              end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: json_table

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5f028ef635cbb9c766ad3b82ae3dffb38d47f1bb204455cd04172af9cfd4d0cc
+_hash: 4c9fda9662efe66848333fec74b43dbc72ccc1bca146a4b743cc4c4f9bceebe8
 file:
 - statement:
     insert_statement:
@@ -425,4 +425,146 @@ file:
       - end_bracket: )
     - keyword: DEFAULT
     - keyword: VALUES
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - comma: ','
+      - column_reference:
+          naked_identifier: c
+      - end_bracket: )
+    - keyword: DEFAULT
+    - keyword: VALUES
+    - returning_clause:
+        keyword: RETURNING
+        wildcard_expression:
+          wildcard_identifier:
+            star: '*'
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - comma: ','
+      - column_reference:
+          naked_identifier: c
+      - end_bracket: )
+    - keyword: DEFAULT
+    - keyword: VALUES
+    - returning_clause:
+        keyword: RETURNING
+        expression:
+          column_reference:
+            naked_identifier: a
+        alias_expression:
+          naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - comma: ','
+      - column_reference:
+          naked_identifier: c
+      - end_bracket: )
+    - keyword: DEFAULT
+    - keyword: VALUES
+    - returning_clause:
+        keyword: RETURNING
+        expression:
+          column_reference:
+            naked_identifier: a
+        alias_expression:
+          keyword: AS
+          naked_identifier: foo
+        comma: ','
+        wildcard_expression:
+          wildcard_identifier:
+            star: '*'
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - comma: ','
+      - column_reference:
+          naked_identifier: c
+      - end_bracket: )
+    - keyword: DEFAULT
+    - keyword: VALUES
+    - returning_clause:
+        keyword: RETURNING
+        expression:
+          column_reference:
+            naked_identifier: a
+        alias_expression:
+          keyword: AS
+          naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: users
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: name
+      - comma: ','
+      - column_reference:
+          naked_identifier: email
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            numeric_literal: '2'
+        - end_bracket: )
+    - returning_clause:
+        keyword: RETURNING
+        wildcard_expression:
+          wildcard_identifier:
+            star: '*'
 - statement_terminator: ;

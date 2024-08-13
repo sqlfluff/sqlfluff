@@ -1,10 +1,11 @@
 """Implementation of Rule AM02."""
-from typing import Tuple
-from sqlfluff.core.parser import (
-    WhitespaceSegment,
-    KeywordSegment,
-)
 
+from typing import Tuple
+
+from sqlfluff.core.parser import (
+    KeywordSegment,
+    WhitespaceSegment,
+)
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 
@@ -58,6 +59,10 @@ class Rule_AM02(BaseRule):
         """
         if context.dialect.name not in [
             "ansi",
+            "bigquery",
+            "clickhouse",
+            "databricks",
+            "db2",
             "hive",
             "mysql",
             "redshift",

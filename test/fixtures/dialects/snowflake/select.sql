@@ -14,3 +14,9 @@ FROM my_table;
 SELECT
     customer_id
 FROM my_table cross join my_table2;
+
+select notify from foo;
+
+select
+    coalesce(do.a, do.b) as value
+from delivery_override as do

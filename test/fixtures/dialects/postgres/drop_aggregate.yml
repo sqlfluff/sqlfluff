@@ -1,0 +1,58 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e379ce62be0a5953110b5fd48cbfa49fbe176a85ced651cdb7afa0c4bc03474a
+file:
+- statement:
+    drop_aggregate_statement:
+    - keyword: DROP
+    - keyword: AGGREGATE
+    - object_reference:
+        naked_identifier: myavg
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: integer
+          end_bracket: )
+    - comma: ','
+    - object_reference:
+        naked_identifier: myavg
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: bigint
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_aggregate_statement:
+    - keyword: DROP
+    - keyword: AGGREGATE
+    - object_reference:
+        naked_identifier: myrank
+    - bracketed:
+      - start_bracket: (
+      - word: VARIADIC
+      - double_quote: '"any"'
+      - word: ORDER
+      - word: BY
+      - word: VARIADIC
+      - double_quote: '"any"'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_aggregate_statement:
+    - keyword: DROP
+    - keyword: AGGREGATE
+    - object_reference:
+        naked_identifier: myavg
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: integer
+          end_bracket: )
+- statement_terminator: ;

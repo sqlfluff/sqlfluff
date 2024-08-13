@@ -1,4 +1,5 @@
 """Common Test Fixtures."""
+
 import hashlib
 import io
 import os
@@ -159,6 +160,76 @@ def yaml_loader():
     return load_yaml
 
 
+def _generate_test_segments_func(elems):
+    """Roughly generate test segments.
+
+    This function isn't totally robust, but good enough
+    for testing. Use with caution.
+    """
+    buff = []
+    raw_file = "".join(elems)
+    templated_file = TemplatedFile.from_string(raw_file)
+    idx = 0
+
+    for elem in elems:
+        if elem == "<indent>":
+            buff.append(
+                Indent(pos_marker=PositionMarker.from_point(idx, idx, templated_file))
+            )
+            continue
+        elif elem == "<dedent>":
+            buff.append(
+                Dedent(pos_marker=PositionMarker.from_point(idx, idx, templated_file))
+            )
+            continue
+
+        seg_kwargs = {}
+
+        if set(elem) <= {" ", "\t"}:
+            SegClass = WhitespaceSegment
+        elif set(elem) <= {"\n"}:
+            SegClass = NewlineSegment
+        elif elem == "(":
+            SegClass = SymbolSegment
+            seg_kwargs = {"instance_types": ("start_bracket",)}
+        elif elem == ")":
+            SegClass = SymbolSegment
+            seg_kwargs = {"instance_types": ("end_bracket",)}
+        elif elem == "[":
+            SegClass = SymbolSegment
+            seg_kwargs = {"instance_types": ("start_square_bracket",)}
+        elif elem == "]":
+            SegClass = SymbolSegment
+            seg_kwargs = {"instance_types": ("end_square_bracket",)}
+        elif elem.startswith("--"):
+            SegClass = CommentSegment
+            seg_kwargs = {"instance_types": ("inline_comment",)}
+        elif elem.startswith('"'):
+            SegClass = CodeSegment
+            seg_kwargs = {"instance_types": ("double_quote",)}
+        elif elem.startswith("'"):
+            SegClass = CodeSegment
+            seg_kwargs = {"instance_types": ("single_quote",)}
+        else:
+            SegClass = CodeSegment
+
+        # Set a none position marker which we'll realign at the end.
+        buff.append(
+            SegClass(
+                raw=elem,
+                pos_marker=PositionMarker(
+                    slice(idx, idx + len(elem)),
+                    slice(idx, idx + len(elem)),
+                    templated_file,
+                ),
+                **seg_kwargs,
+            )
+        )
+        idx += len(elem)
+
+    return tuple(buff)
+
+
 @pytest.fixture(scope="module")
 def generate_test_segments():
     """Roughly generate test segments.
@@ -167,76 +238,7 @@ def generate_test_segments():
     but when actually used, this will return the inner function
     which is what you actually need.
     """
-
-    def generate_test_segments_func(elems):
-        """Roughly generate test segments.
-
-        This function isn't totally robust, but good enough
-        for testing. Use with caution.
-        """
-        buff = []
-        raw_file = "".join(elems)
-        templated_file = TemplatedFile.from_string(raw_file)
-        idx = 0
-
-        for elem in elems:
-            if elem == "<indent>":
-                buff.append(
-                    Indent(
-                        pos_marker=PositionMarker.from_point(idx, idx, templated_file)
-                    )
-                )
-                continue
-            elif elem == "<dedent>":
-                buff.append(
-                    Dedent(
-                        pos_marker=PositionMarker.from_point(idx, idx, templated_file)
-                    )
-                )
-                continue
-
-            seg_kwargs = {}
-
-            if set(elem) <= {" ", "\t"}:
-                SegClass = WhitespaceSegment
-            elif set(elem) <= {"\n"}:
-                SegClass = NewlineSegment
-            elif elem == "(":
-                SegClass = SymbolSegment
-                seg_kwargs = {"instance_types": ("start_bracket",)}
-            elif elem == ")":
-                SegClass = SymbolSegment
-                seg_kwargs = {"instance_types": ("end_bracket",)}
-            elif elem.startswith("--"):
-                SegClass = CommentSegment
-                seg_kwargs = {"instance_types": ("inline_comment",)}
-            elif elem.startswith('"'):
-                SegClass = CodeSegment
-                seg_kwargs = {"instance_types": ("double_quote",)}
-            elif elem.startswith("'"):
-                SegClass = CodeSegment
-                seg_kwargs = {"instance_types": ("single_quote",)}
-            else:
-                SegClass = CodeSegment
-
-            # Set a none position marker which we'll realign at the end.
-            buff.append(
-                SegClass(
-                    raw=elem,
-                    pos_marker=PositionMarker(
-                        slice(idx, idx + len(elem)),
-                        slice(idx, idx + len(elem)),
-                        templated_file,
-                    ),
-                    **seg_kwargs,
-                )
-            )
-            idx += len(elem)
-
-        return tuple(buff)
-
-    # Return the function
-    return generate_test_segments_func
+    return _generate_test_segments_func
 
 
 @pytest.fixture

@@ -307,19 +307,173 @@ test_violation_locations:
   violations:
     - code: AL07
       description: Avoid aliases in from clauses and join conditions.
-      line_no: 6
-      line_pos: 15
       name: aliasing.forbid
+      warning: false
+      start_line_no: 6
+      start_line_pos: 15
+      start_file_pos: 87
+      end_line_no: 6
+      end_line_pos: 16
+      end_file_pos: 88
+      fixes:
+      - edit: ''
+        end_file_pos: 88
+        end_line_no: 6
+        end_line_pos: 16
+        start_file_pos: 84
+        start_line_no: 6
+        start_line_pos: 12
+        type: delete
+      - edit: ''
+        end_file_pos: 84
+        end_line_no: 6
+        end_line_pos: 12
+        start_file_pos: 83
+        start_line_no: 6
+        start_line_pos: 11
+        type: delete
+      - edit: users
+        end_file_pos: 88
+        end_line_no: 6
+        end_line_pos: 16
+        start_file_pos: 87
+        start_line_no: 6
+        start_line_pos: 15
+        type: replace
+      - edit: users
+        end_file_pos: 12
+        end_line_no: 2
+        end_line_pos: 6
+        start_file_pos: 11
+        start_line_no: 2
+        start_line_pos: 5
+        type: replace
+      - edit: users
+        end_file_pos: 113
+        end_line_no: 7
+        end_line_pos: 25
+        start_file_pos: 112
+        start_line_no: 7
+        start_line_pos: 24
+        type: replace
+      - edit: users
+        end_file_pos: 150
+        end_line_no: 8
+        end_line_pos: 22
+        start_file_pos: 149
+        start_line_no: 8
+        start_line_pos: 21
+        type: replace
     - code: AL07
       description: Avoid aliases in from clauses and join conditions.
-      line_no: 7
-      line_pos: 19
       name: aliasing.forbid
+      warning: false
+      start_line_no: 7
+      start_line_pos: 19
+      start_file_pos: 107
+      end_line_no: 7
+      end_line_pos: 20
+      end_file_pos: 108
+      fixes:
+      - edit: ''
+        end_file_pos: 108
+        end_line_no: 7
+        end_line_pos: 20
+        start_file_pos: 104
+        start_line_no: 7
+        start_line_pos: 16
+        type: delete
+      - edit: ''
+        end_file_pos: 104
+        end_line_no: 7
+        end_line_pos: 16
+        start_file_pos: 103
+        start_line_no: 7
+        start_line_pos: 15
+        type: delete
+      - edit: customers
+        end_file_pos: 108
+        end_line_no: 7
+        end_line_pos: 20
+        start_file_pos: 107
+        start_line_no: 7
+        start_line_pos: 19
+        type: replace
+      - edit: customers
+        end_file_pos: 22
+        end_line_no: 3
+        end_line_pos: 6
+        start_file_pos: 21
+        start_line_no: 3
+        start_line_pos: 5
+        type: replace
+      - edit: customers
+        end_file_pos: 40
+        end_line_no: 4
+        end_line_pos: 6
+        start_file_pos: 39
+        start_line_no: 4
+        start_line_pos: 5
+        type: replace
+      - edit: customers
+        end_file_pos: 120
+        end_line_no: 7
+        end_line_pos: 32
+        start_file_pos: 119
+        start_line_no: 7
+        start_line_pos: 31
+        type: replace
     - code: AL07
       description: Avoid aliases in from clauses and join conditions.
-      line_no: 8
-      line_pos: 16
       name: aliasing.forbid
+      warning: false
+      start_line_no: 8
+      start_line_pos: 16
+      start_file_pos: 144
+      end_line_no: 8
+      end_line_pos: 17
+      end_file_pos: 145
+      fixes:
+      - edit: ''
+        end_file_pos: 145
+        end_line_no: 8
+        end_line_pos: 17
+        start_file_pos: 141
+        start_line_no: 8
+        start_line_pos: 13
+        type: delete
+      - edit: ''
+        end_file_pos: 141
+        end_line_no: 8
+        end_line_pos: 13
+        start_file_pos: 140
+        start_line_no: 8
+        start_line_pos: 12
+        type: delete
+      - edit: orders
+        end_file_pos: 145
+        end_line_no: 8
+        end_line_pos: 17
+        start_file_pos: 144
+        start_line_no: 8
+        start_line_pos: 16
+        type: replace
+      - edit: orders
+        end_file_pos: 63
+        end_line_no: 5
+        end_line_pos: 12
+        start_file_pos: 62
+        start_line_no: 5
+        start_line_pos: 11
+        type: replace
+      - edit: orders
+        end_file_pos: 157
+        end_line_no: 8
+        end_line_pos: 29
+        start_file_pos: 156
+        start_line_no: 8
+        start_line_pos: 28
+        type: replace
 
 test_fail_fix_command:
   # Test originally from commands_test.py
@@ -331,6 +485,68 @@ test_fail_fix_command:
     SELECT users.id, customers.first_name, customers.last_name, COUNT(orders.user_id)
     FROM users JOIN customers on users.id = customers.user_id JOIN orders
     on users.id = orders.user_id;
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
+
+test_fail_fix_self_aliased_table_5954:
+  fail_str: |
+    with
+    foo as (
+        select * from vee
+    ),
+
+    bar as (
+        select * from baz
+    ),
+
+    final as (
+        select
+            foo.col1,
+            foo.col2,
+            foo.col3,
+            bar.col4,
+            bar.col5,
+            bar.col6,
+            bar.col7
+        from
+            foo as foo
+        left join
+            bar
+            on
+                foo.col1 = bar.col2
+    )
+
+    select * from final
+  fix_str: |
+    with
+    foo as (
+        select * from vee
+    ),
+
+    bar as (
+        select * from baz
+    ),
+
+    final as (
+        select
+            foo.col1,
+            foo.col2,
+            foo.col3,
+            bar.col4,
+            bar.col5,
+            bar.col6,
+            bar.col7
+        from
+            foo
+        left join
+            bar
+            on
+                foo.col1 = bar.col2
+    )
+
+    select * from final
   configs:
     rules:
       aliasing.forbid:

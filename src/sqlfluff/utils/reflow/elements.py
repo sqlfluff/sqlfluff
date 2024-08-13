@@ -1,31 +1,31 @@
 """Dataclasses for reflow work."""
 
-from itertools import chain
 import logging
 from dataclasses import dataclass, field
+from itertools import chain
 from typing import Dict, List, Optional, Sequence, Set, Tuple, Type, Union, cast
 
+from sqlfluff.core.helpers.slice import slice_overlaps
 from sqlfluff.core.parser import PositionMarker
 from sqlfluff.core.parser.segments import (
     BaseSegment,
-    RawSegment,
-    NewlineSegment,
-    WhitespaceSegment,
-    TemplateSegment,
     Indent,
+    NewlineSegment,
+    RawSegment,
     SourceFix,
+    TemplateSegment,
+    WhitespaceSegment,
 )
-from sqlfluff.core.rules.base import LintFix, LintResult
-
+from sqlfluff.core.rules import LintFix, LintResult
 from sqlfluff.utils.reflow.config import ReflowConfig
 from sqlfluff.utils.reflow.depthmap import DepthInfo
 
 # Respace Algorithms
 from sqlfluff.utils.reflow.respace import (
     determine_constraints,
-    process_spacing,
     handle_respace__inline_with_space,
     handle_respace__inline_without_space,
+    process_spacing,
 )
 
 # We're in the utils module, but users will expect reflow
@@ -388,13 +388,21 @@ class ReflowPoint(ReflowElement):
             # makes slicing later easier.
             current_indent = indent_seg.source_str.split("\n")[-1]
             source_slice = slice(
-                # Minus _one more_ for to cover the newline too.
-                indent_seg.pos_marker.source_slice.stop - len(current_indent) - 1,
+                indent_seg.pos_marker.source_slice.stop - len(current_indent),
                 indent_seg.pos_marker.source_slice.stop,
             )
+            for existing_source_fix in indent_seg.source_fixes:  # pragma: no cover
+                if slice_overlaps(existing_source_fix.source_slice, source_slice):
+                    reflow_logger.warning(
+                        "Creating overlapping source fix. Results may be "
+                        "unpredictable and this might be a sign of a bug. "
+                        "Please report this along with your query.\n"
+                        f"({existing_source_fix.source_slice} overlaps "
+                        f"{source_slice})"
+                    )
 
             new_source_fix = SourceFix(
-                "\n" + desired_indent,
+                desired_indent,
                 source_slice,
                 # The templated slice is going to be a zero slice _anyway_.
                 indent_seg.pos_marker.templated_slice,
@@ -413,10 +421,16 @@ class ReflowPoint(ReflowElement):
                 fixes = []
                 new_segments = self.segments
             else:
+                if current_indent:
+                    new_source_str = (
+                        indent_seg.source_str[: -len(current_indent)] + desired_indent
+                    )
+                else:
+                    new_source_str = indent_seg.source_str + desired_indent
+                assert "\n" in new_source_str
                 new_placeholder = indent_seg.edit(
                     source_fixes=[new_source_fix],
-                    source_str=indent_seg.source_str[: -len(current_indent) + 1]
-                    + desired_indent,
+                    source_str=new_source_str,
                 )
                 fixes = [LintFix.replace(indent_seg, [new_placeholder])]
                 new_segments = tuple(
@@ -517,15 +531,20 @@ class ReflowPoint(ReflowElement):
         else:
             # There isn't currently a newline.
             new_newline = NewlineSegment()
+            new_segs: List[RawSegment]
             # Check for whitespace
             ws_seg = None
             for seg in self.segments[::-1]:
                 if seg.is_type("whitespace"):
                     ws_seg = seg
             if not ws_seg:
+                # Work out the new segments. Always a newline, only whitespace if
+                # there's a non zero indent.
+                new_segs = [new_newline] + (
+                    [WhitespaceSegment(desired_indent)] if desired_indent else []
+                )
                 # There isn't a whitespace segment either. We need to insert one.
                 # Do we have an anchor?
-                new_indent = WhitespaceSegment(desired_indent)
                 if not before and not after:  # pragma: no cover
                     raise NotImplementedError(
                         "Not set up to handle empty points in this "
@@ -540,10 +559,7 @@ class ReflowPoint(ReflowElement):
                         if before.is_type("placeholder")
                         else before.raw
                     )
-                    fix = LintFix.create_before(
-                        before,
-                        [new_newline, new_indent],
-                    )
+                    fix = LintFix.create_before(before, new_segs)
                     description = description or (
                         "Expected line break and "
                         f"{_indent_description(desired_indent)} "
@@ -556,23 +572,19 @@ class ReflowPoint(ReflowElement):
                         if after.is_type("placeholder")
                         else after.raw
                     )
-                    fix = LintFix.create_after(
-                        after,
-                        [new_newline, new_indent],
-                    )
+                    fix = LintFix.create_after(after, new_segs)
                     description = description or (
                         "Expected line break and "
                         f"{_indent_description(desired_indent)} "
                         f"after {after_raw!r}."
                     )
-                new_point = ReflowPoint((new_newline, new_indent))
+                new_point = ReflowPoint(tuple(new_segs))
                 anchor = before
             else:
                 # There is whitespace. Coerce it to the right indent and add
                 # a newline _before_. In the edge case that we're coercing to
                 # _no indent_, edit existing indent to be the newline and leave
                 # it there.
-                new_segs: List[RawSegment]
                 if desired_indent == "":
                     new_segs = [new_newline]
                 else:

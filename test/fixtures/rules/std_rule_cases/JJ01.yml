@@ -58,3 +58,13 @@ test_fail_jinja_tags_no_space_no_content:
 test_fail_jinja_tags_across_segment_boundaries:
   fail_str: SELECT a{{-"1 + b"}}2
   fix_str: SELECT a{{- "1 + b" }}2
+
+test_pass_python_templater:
+  pass_str: SELECT * FROM hello.{my_table};
+  configs:
+    core:
+      templater: python
+    templater:
+      python:
+        context:
+          my_table: foo

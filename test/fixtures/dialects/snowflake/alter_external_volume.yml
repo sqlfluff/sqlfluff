@@ -1,0 +1,135 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 05de2d1cd77835b8aa9645b33d09ec595f068c0b16fba8541a8268f21fb1814b
+file:
+- statement:
+    alter_external_volume_statement:
+    - keyword: ALTER
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - external_volume_reference:
+        naked_identifier: exvol1
+    - keyword: ADD
+    - keyword: STORAGE_LOCATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: NAME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my-s3-us-central-2'"
+      - keyword: STORAGE_PROVIDER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'S3'"
+      - keyword: STORAGE_BASE_URL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'s3://my_bucket_us_central-1/'"
+      - keyword: STORAGE_AWS_ROLE_ARN
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'arn:aws:iam::123456789012:role/myrole'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_external_volume_statement:
+    - keyword: ALTER
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - external_volume_reference:
+        naked_identifier: exvol2
+    - keyword: ADD
+    - keyword: STORAGE_LOCATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: NAME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my-gcs-europe-west4'"
+      - keyword: STORAGE_PROVIDER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'GCS'"
+      - keyword: STORAGE_BASE_URL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'gcs://my_bucket_europe-west4/'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_external_volume_statement:
+    - keyword: ALTER
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - external_volume_reference:
+        naked_identifier: exvol3
+    - keyword: ADD
+    - keyword: STORAGE_LOCATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: NAME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'my-azure-japaneast'"
+      - keyword: STORAGE_PROVIDER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'AZURE'"
+      - keyword: STORAGE_BASE_URL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'azure://sfcdev1.blob.core.windows.net/my_container_japaneast/'"
+      - keyword: AZURE_TENANT_ID
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'a9876545-4321-987b-b23c-2kz436789d0'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_external_volume_statement:
+    - keyword: ALTER
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - external_volume_reference:
+        naked_identifier: exvol4
+    - keyword: REMOVE
+    - keyword: STORAGE_LOCATION
+    - quoted_literal: "'foo'"
+- statement_terminator: ;
+- statement:
+    alter_external_volume_statement:
+    - keyword: ALTER
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - external_volume_reference:
+        naked_identifier: exvol5
+    - keyword: SET
+    - keyword: ALLOW_WRITES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    alter_external_volume_statement:
+    - keyword: ALTER
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - keyword: IF
+    - keyword: EXISTS
+    - external_volume_reference:
+        naked_identifier: exvol6
+    - keyword: SET
+    - keyword: COMMENT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'bar'"
+- statement_terminator: ;

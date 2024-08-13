@@ -4,10 +4,10 @@ from typing import Optional
 
 import regex
 
+from sqlfluff.core.parser import LiteralSegment
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.dialects.dialect_ansi import LiteralSegment
 from sqlfluff.utils.functional import FunctionalContext, rsp
 
 
@@ -145,9 +145,9 @@ class Rule_CV10(BaseRule):
                     if context.segment.raw[-1] == '"'
                     else "single_quotes"
                 )
-                memory[
-                    "preferred_quoted_literal_style"
-                ] = preferred_quoted_literal_style
+                memory["preferred_quoted_literal_style"] = (
+                    preferred_quoted_literal_style
+                )
                 self.logger.debug(
                     "Preferred string quotes is set to `consistent`. Derived quoting "
                     "style %s from first quoted literal.",

@@ -34,7 +34,10 @@ alter view v1
 
 alter view v1
   drop row access policy rap_v1_version_1,
-  add row access policy rap_v1_version_2 on (empl_id);
+  add row access policy rap_v1_version_2 on (empl_id),
+  add row access policy rap_v1_version_3 on ("empl_id");
 
 alter view v1
   modify column foo set masking policy my.scoped.policy;
+
+ALTER VIEW "my_table" ALTER COLUMN "my_column" SET MASKING POLICY my_masking_policy FORCE;

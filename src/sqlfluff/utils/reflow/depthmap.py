@@ -2,12 +2,11 @@
 
 import logging
 from dataclasses import dataclass
-from typing import FrozenSet, List, Sequence, Tuple, Type, Dict
+from typing import Dict, FrozenSet, List, Sequence, Tuple, Type
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.parser.segments.base import PathStep
 from sqlfluff.core.parser.segments.raw import RawSegment
-
 
 reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 
@@ -29,10 +28,12 @@ class StackPosition:
         # If there's only one code element, this must be it.
         elif len(path_step.code_idxs) == 1:
             return "solo"
-        # Check for whether first or last code element
-        elif path_step.idx == min(path_step.code_idxs):
+        # Check for whether first or last code element.
+        # NOTE: code_idxs is always sorted because of how it's constructed.
+        # That means the lowest is always as the start and the highest at the end.
+        elif path_step.idx == path_step.code_idxs[0]:
             return "start"
-        elif path_step.idx == max(path_step.code_idxs):
+        elif path_step.idx == path_step.code_idxs[-1]:
             return "end"
         else:
             return ""  # NOTE: Empty string evaluates as falsy.
@@ -72,9 +73,11 @@ class DepthInfo:
             stack_depth=len(stack),
             stack_hashes=stack_hashes,
             stack_hash_set=frozenset(stack_hashes),
-            stack_class_types=tuple(frozenset(ps.segment.class_types) for ps in stack),
+            stack_class_types=tuple(ps.segment.class_types for ps in stack),
             stack_positions={
-                hash(ps.segment): StackPosition.from_path_step(ps) for ps in stack
+                # Reuse the hash first calculated above.
+                stack_hashes[idx]: StackPosition.from_path_step(ps)
+                for idx, ps in enumerate(stack)
             },
         )
 
@@ -122,11 +125,8 @@ class DepthMap:
     """
 
     def __init__(self, raws_with_stack: Sequence[Tuple[RawSegment, List[PathStep]]]):
-        # TODO: decide whether we need the raw segments?
-        # self.raw_segments = []
         self.depth_info = {}
         for raw, stack in raws_with_stack:
-            # self.raw_segments.append(raw)
             self.depth_info[raw.uuid] = DepthInfo.from_raw_and_stack(raw, stack)
 
     @classmethod

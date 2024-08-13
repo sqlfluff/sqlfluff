@@ -1,8 +1,9 @@
 """The aliasing plugin bundle."""
 
+from typing import List, Type
+
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules import BaseRule
-from typing import List, Type
 
 
 @hookimpl
@@ -20,6 +21,7 @@ def get_rules() -> List[Type[BaseRule]]:
     from sqlfluff.rules.aliasing.AL06 import Rule_AL06
     from sqlfluff.rules.aliasing.AL07 import Rule_AL07
     from sqlfluff.rules.aliasing.AL08 import Rule_AL08
+    from sqlfluff.rules.aliasing.AL09 import Rule_AL09
 
     return [
         Rule_AL01,
@@ -30,4 +32,5 @@ def get_rules() -> List[Type[BaseRule]]:
         Rule_AL06,
         Rule_AL07,
         Rule_AL08,
+        Rule_AL09,
     ]

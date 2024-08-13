@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b3c2abf2748ab1cbf8d5a582342535eeac761ce1f11707456a06d1533b367b57
+_hash: 405ab9d1f5df047af29966b099705a1830b65db2c3918e8f4f78dadab5ffbc70
 file:
 - statement:
     select_statement:
@@ -291,9 +291,10 @@ file:
               - column_reference:
                   naked_identifier: store
               - comma: ','
-              - bracketed:
-                  start_bracket: (
-                  end_bracket: )
+              - expression:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -1795,4 +1796,96 @@ file:
                 identifier_list:
                   naked_identifier: v
                 end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+          - quoted_literal: "'abcd'"
+          - keyword: LIKE
+          - quoted_literal: "'a_d'"
+          alias_expression:
+            keyword: AS
+            naked_identifier: res1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - quoted_literal: "'%bcd'"
+          - keyword: like
+          - quoted_literal: "'%%d'"
+          alias_expression:
+            keyword: AS
+            naked_identifier: res2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+          - quoted_literal: "'abcd'"
+          - keyword: NOT
+          - keyword: LIKE
+          - quoted_literal: "'a_d'"
+          alias_expression:
+            keyword: AS
+            naked_identifier: res1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - quoted_literal: "'%bcd'"
+          - keyword: like
+          - quoted_literal: "'%%d'"
+          alias_expression:
+            keyword: AS
+            naked_identifier: res2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'My mail address is my_mail@exasol.com'"
+          - keyword: REGEXP_LIKE
+          - quoted_literal: "'(?i).*[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}.*'"
+          alias_expression:
+            keyword: AS
+            naked_identifier: contains_email
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'My mail address is my_mail@exasol.com'"
+          - keyword: NOT
+          - keyword: REGEXP_LIKE
+          - quoted_literal: "'(?i).*[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}.*'"
+          alias_expression:
+            keyword: AS
+            naked_identifier: contains_email
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bare_function: current_date
+            binary_operator: '-'
+            numeric_literal: '1'
+          alias_expression:
+            keyword: as
+            naked_identifier: dt
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: dual
 - statement_terminator: ;

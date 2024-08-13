@@ -8,6 +8,7 @@ default keyword definition, these keywords are, or have been, an ANSI keyword.
 There are also some keywords that are(n't) supported as types and function, but there
 isn't support for that distinction at present.
 """
+
 from typing import List, Tuple
 
 
@@ -86,7 +87,7 @@ postgres_docs_keywords = [
     ("ASYMMETRIC", "reserved"),
     ("AT", "non-reserved"),
     ("ATAN", "not-keyword"),
-    ("ATOMIC", "not-keyword"),
+    ("ATOMIC", "non-reserved"),
     ("ATTACH", "non-reserved"),
     ("ATTRIBUTE", "non-reserved"),
     ("ATTRIBUTES", "not-keyword"),
@@ -663,7 +664,8 @@ postgres_docs_keywords = [
     ("RESTRICT", "non-reserved"),
     ("RESTRICTIVE", "non-reserved"),
     ("RESULT", "not-keyword"),
-    ("RETURN", "not-keyword"),
+    ("RETRIEVE", "non-reserved"),
+    ("RETURN", "non-reserved"),
     ("RETURNED_CARDINALITY", "not-keyword"),
     ("RETURNED_LENGTH", "not-keyword"),
     ("RETURNED_OCTET_LENGTH", "not-keyword"),
@@ -925,6 +927,7 @@ postgres_nondocs_keywords = [
     ("CREATEDB", "non-reserved"),
     ("CREATEROLE", "non-reserved"),
     ("DATE", "non-reserved"),
+    ("DEPENDENCIES", "non-reserved"),
     ("DEPTH", "non-reserved"),
     ("DESCRIBE", "non-reserved"),
     ("DETERMINISTIC", "non-reserved"),
@@ -949,7 +952,9 @@ postgres_nondocs_keywords = [
     ("LOGIN", "non-reserved"),
     ("LOCALE", "non-reserved"),
     ("MAIN", "non-reserved"),
+    ("MCV", "non-reserved"),
     ("MODULUS", "non-reserved"),
+    ("NDISTINCT", "non-reserved"),
     ("NOBYPASSRLS", "non-reserved"),
     ("NOCREATEDB", "non-reserved"),
     ("NOCREATEROLE", "non-reserved"),
@@ -1023,9 +1028,14 @@ postgres_postgis_other_keywords = [
     ("EMPTY", "non-reserved"),
 ]
 
+postgres_pgvector_keywords = [
+    ("VECTOR", "non-reserved"),
+]
+
 postgres_keywords = priority_keyword_merge(
     postgres_docs_keywords,
     postgres_nondocs_keywords,
     postgres_postgis_datatype_keywords,
     postgres_postgis_other_keywords,
+    postgres_pgvector_keywords,
 )

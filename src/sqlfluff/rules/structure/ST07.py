@@ -1,15 +1,17 @@
 """Implementation of Rule ST07."""
+
 from typing import List, Optional, Tuple
 
 from sqlfluff.core.parser import (
     BaseSegment,
+    IdentifierSegment,
     KeywordSegment,
     SymbolSegment,
     WhitespaceSegment,
 )
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.dialects.dialect_ansi import ColumnReferenceSegment, IdentifierSegment
+from sqlfluff.dialects.dialect_ansi import ColumnReferenceSegment
 from sqlfluff.utils.analysis.select import get_select_statement_info
 from sqlfluff.utils.functional import FunctionalContext, Segments, sp
 

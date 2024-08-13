@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eeed743b0f3ee6e127b892a23031b17bc824eeb3d889397a2755b167a44cea34
+_hash: ddabe931655863f15126960566dd5c63b797b355e7e59f802c02d2a0c1d9989c
 file:
 - batch:
     statement:
@@ -38,7 +38,7 @@ file:
             - dot: .
             - naked_identifier: e_date_to
           - keyword: is
-          - keyword: 'null'
+          - null_literal: 'null'
           - binary_operator: and
           - column_reference:
             - naked_identifier: dst
@@ -126,7 +126,7 @@ file:
                 - column_reference:
                     naked_identifier: e_date_to
                 - keyword: is
-                - keyword: 'null'
+                - null_literal: 'null'
                 - binary_operator: and
                 - column_reference:
                     naked_identifier: l_id
@@ -348,7 +348,7 @@ file:
               - naked_identifier: c_id
             - keyword: is
             - keyword: not
-            - keyword: 'null'
+            - null_literal: 'null'
           - keyword: then
           - merge_insert_clause:
             - keyword: insert

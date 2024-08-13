@@ -1,0 +1,84 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 60789cae06a2f145c1e2bdf6ca3019aeabadf9f51a92f630f4cf644f6614db76
+file:
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: temp1
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: retail
+              - dot: .
+              - naked_identifier: customer
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: state
+          keyword: IN
+          bracketed:
+          - start_bracket: (
+          - quoted_literal: "'MA'"
+          - comma: ','
+          - quoted_literal: "'NH'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: new_addresses
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: new_cust_id
+          keyword: IN
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: cust_id
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: addresses
+              where_clause:
+                keyword: WHERE
+                expression:
+                  column_reference:
+                    naked_identifier: address
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  quoted_literal: "'New Address'"
+            end_bracket: )
+- statement_terminator: ;

@@ -1,28 +1,27 @@
 """Dataclasses for reflow work."""
 
-from itertools import chain
 import logging
-from typing import Iterator, List, Optional, Sequence, Tuple, cast, Type
-from sqlfluff.core.config import FluffConfig
+from itertools import chain
+from typing import Iterator, List, Optional, Sequence, Tuple, Type, cast
 
+from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser import BaseSegment, RawSegment
-from sqlfluff.core.rules.base import LintFix, LintResult
+from sqlfluff.core.rules import LintFix, LintResult
 from sqlfluff.utils.reflow.config import ReflowConfig
 from sqlfluff.utils.reflow.depthmap import DepthMap
-
 from sqlfluff.utils.reflow.elements import (
     ReflowBlock,
     ReflowPoint,
     ReflowSequenceType,
     get_consumed_whitespace,
 )
+from sqlfluff.utils.reflow.helpers import fixes_from_results
 from sqlfluff.utils.reflow.rebreak import rebreak_sequence
 from sqlfluff.utils.reflow.reindent import (
-    lint_indent_points,
     construct_single_indent,
+    lint_indent_points,
     lint_line_length,
 )
-from sqlfluff.utils.reflow.helpers import fixes_from_results
 
 # We're in the utils module, but users will expect reflow
 # logs to appear in the context of rules. Hence it's a subset
@@ -581,6 +580,7 @@ class ReflowSequence:
             single_indent=single_indent,
             skip_indentation_in=self.reflow_config.skip_indentation_in,
             allow_implicit_indents=self.reflow_config.allow_implicit_indents,
+            ignore_comment_lines=self.reflow_config.ignore_comment_lines,
         )
 
         return ReflowSequence(

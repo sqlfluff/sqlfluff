@@ -1,6 +1,8 @@
 """Test rules docstring."""
-import pytest
+
 import re
+
+import pytest
 
 from sqlfluff import lint
 from sqlfluff.core.plugin.host import get_plugin_manager

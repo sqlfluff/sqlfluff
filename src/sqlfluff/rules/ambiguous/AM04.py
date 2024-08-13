@@ -1,11 +1,11 @@
 """Implementation of Rule AM04."""
+
 from typing import Optional, Tuple
 
-from sqlfluff.utils.analysis.query import Query
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-
+from sqlfluff.utils.analysis.query import Query
 
 _START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
 

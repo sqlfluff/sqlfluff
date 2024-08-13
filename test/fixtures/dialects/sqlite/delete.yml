@@ -1,0 +1,111 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3f2c19b483d3d69bcfa443adca57d29f3340b18f788942ba2e535ed9d182e870
+file:
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table_name
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table_name
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '0'
+      returning_clause:
+        keyword: RETURNING
+        wildcard_expression:
+          wildcard_identifier:
+            star: '*'
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table_name
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '0'
+      returning_clause:
+        keyword: RETURNING
+        wildcard_expression:
+          wildcard_identifier:
+            star: '*'
+        comma: ','
+        expression:
+          column_reference:
+            naked_identifier: id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table_name
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '0'
+      returning_clause:
+      - keyword: RETURNING
+      - expression:
+          column_reference:
+            naked_identifier: id
+      - alias_expression:
+          naked_identifier: foo
+      - comma: ','
+      - expression:
+          column_reference:
+            naked_identifier: id_2
+      - alias_expression:
+          keyword: AS
+          naked_identifier: bar
+- statement_terminator: ;

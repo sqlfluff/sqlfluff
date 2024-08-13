@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3d5d968e7d844c55009ca239a2fb955cdb6893cd017f6437298dfc312a058a44
+_hash: 39b25c3e4d9f896b5bd66fb75f3c83feba7571bba564c90b8f36ec4b55504fbb
 file:
 - statement:
     select_statement:
@@ -290,9 +290,10 @@ file:
                       naked_identifier: car_model
                   end_bracket: )
             - comma: ','
-            - bracketed:
-                start_bracket: (
-                end_bracket: )
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
             end_bracket: )
       orderby_clause:
       - keyword: ORDER
@@ -372,9 +373,10 @@ file:
                       naked_identifier: car_model
                   end_bracket: )
             - comma: ','
-            - bracketed:
-                start_bracket: (
-                end_bracket: )
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
             end_bracket: )
       orderby_clause:
       - keyword: ORDER
@@ -455,9 +457,10 @@ file:
                       naked_identifier: car_model
                   end_bracket: )
             - comma: ','
-            - bracketed:
-                start_bracket: (
-                end_bracket: )
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
             end_bracket: )
       orderby_clause:
       - keyword: ORDER
@@ -645,6 +648,91 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: person
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: age
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            bracketed:
+              start_bracket: (
+              star: '*'
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: record_count
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: people
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - cube_rollup_clause:
+          function_name:
+            function_name_identifier: cube
+          bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - column_reference:
+                naked_identifier: name
+            - comma: ','
+            - column_reference:
+                naked_identifier: age
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            bracketed:
+              start_bracket: (
+              star: '*'
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: record_count
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: people
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - cube_rollup_clause:
+          function_name:
+            function_name_identifier: cube
+          bracketed:
+            start_bracket: (
+            grouping_expression_list:
+              column_reference:
+                naked_identifier: name
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:

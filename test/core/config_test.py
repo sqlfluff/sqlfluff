@@ -1,30 +1,27 @@
 """Tests for the configuration routines."""
 
+import logging
 import os
 import sys
-import logging
+from contextlib import contextmanager
+from unittest.mock import call, patch
 
-from sqlfluff.core import config, Linter, FluffConfig
-from sqlfluff.core.config import (
-    REMOVED_CONFIGS,
-    ConfigLoader,
-    nested_combine,
-    dict_diff,
-)
-from sqlfluff.core.errors import SQLFluffUserError
-from sqlfluff.core.templaters import (
-    RawTemplater,
-    PythonTemplater,
-    JinjaTemplater,
-    PlaceholderTemplater,
-)
-from sqlfluff.utils.testing.logging import fluff_log_catcher
-
-from pathlib import Path
-from unittest.mock import patch, call
 import appdirs
 import pytest
 
+from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.config import (
+    REMOVED_CONFIGS,
+    ConfigLoader,
+)
+from sqlfluff.core.errors import SQLFluffUserError
+from sqlfluff.core.templaters import (
+    JinjaTemplater,
+    PlaceholderTemplater,
+    PythonTemplater,
+    RawTemplater,
+)
+from sqlfluff.utils.testing.logging import fluff_log_catcher
 
 config_a = {
     "core": {"testing_val": "foobar", "testing_int": 4, "dialect": "mysql"},
@@ -58,28 +55,6 @@ def mock_xdg_home(monkeypatch):
     monkeypatch.setenv("XDG_CONFIG_HOME", "~/.config/my/special/path")
 
 
-def test__config__nested_combine():
-    """Test combination of two config dicts."""
-    a = {"a": {"b": {"c": 123, "d": 456}}}
-    b = {"b": {"b": {"c": 123, "d": 456}}}
-    c = {"a": {"b": {"c": 234, "e": 456}}}
-    r = nested_combine(a, b, c)
-    assert r == {
-        "a": {"b": {"c": 234, "e": 456, "d": 456}},
-        "b": {"b": {"c": 123, "d": 456}},
-    }
-
-
-def test__config__dict_diff():
-    """Test diffs between two config dicts."""
-    a = {"a": {"b": {"c": 123, "d": 456, "f": 6}}}
-    b = {"b": {"b": {"c": 123, "d": 456}}}
-    c = {"a": {"b": {"c": 234, "e": 456, "f": 6}}}
-    assert dict_diff(a, b) == a
-    assert dict_diff(a, c) == {"a": {"b": {"c": 123, "d": 456}}}
-    assert dict_diff(c, a) == {"a": {"b": {"c": 234, "e": 456}}}
-
-
 def test__config__load_file_dir():
     """Test loading config from a directory path."""
     c = ConfigLoader()
@@ -101,6 +76,19 @@ def test__config__load_from_string():
     assert cfg == config_a
 
 
+def test__config__from_strings():
+    """Test loading config from multiple strings."""
+    strings = [
+        "[sqlfluff]\ndialect=mysql\ntesting_val=foobar",
+        "[sqlfluff]\ndialect=postgres\ntesting_val2=bar",
+        "[sqlfluff]\ndialect=mysql\ntesting_val=foo",
+    ]
+    cfg = FluffConfig.from_strings(*strings)
+    assert cfg.get("dialect") == "mysql"
+    assert cfg.get("testing_val2") == "bar"
+    assert cfg.get("testing_val") == "foo"
+
+
 def test__config__load_file_f():
     """Test loading config from a file path."""
     c = ConfigLoader()
@@ -118,6 +106,40 @@ def test__config__load_nested():
             "test", "fixtures", "config", "inheritance_a", "nested", "blah.sql"
         )
     )
+    assert cfg == {
+        "core": {
+            "dialect": "mysql",
+            "testing_val": "foobar",
+            "testing_int": 1,
+            "testing_bar": 7.698,
+        },
+        "bar": {"foo": "foobar"},
+        "fnarr": {"fnarr": {"foo": "foobar"}},
+    }
+
+
+@contextmanager
+def change_dir(path):
+    """Set the current working directory to `path` for the duration of the context."""
+    original_dir = os.getcwd()
+    try:
+        os.chdir(path)
+        yield
+    finally:
+        os.chdir(original_dir)
+
+
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Seems test is not executed under home directory on Windows",
+)
+def test__config__load_parent():
+    """Test that config is loaded from parent directory of current working directory."""
+    c = ConfigLoader()
+    with change_dir(
+        os.path.join("test", "fixtures", "config", "inheritance_a", "nested")
+    ):
+        cfg = c.load_config_up_to_path("blah.sql")
     assert cfg == {
         "core": {
             "dialect": "mysql",
@@ -188,38 +210,6 @@ def test__config__load_placeholder_cfg():
     }
 
 
-def test__config__iter_config_paths_right_order():
-    """Test that config paths are fetched ordered by priority."""
-    c = ConfigLoader()
-    cfg_paths = c.iter_config_locations_up_to_path(
-        os.path.join(
-            "test", "fixtures", "config", "inheritance_a", "nested", "blah.sql"
-        ),
-        working_path="test/fixtures",
-    )
-    assert list(cfg_paths) == [
-        str(Path(p).resolve())
-        for p in [
-            "test/fixtures",
-            "test/fixtures/config",
-            "test/fixtures/config/inheritance_a",
-            "test/fixtures/config/inheritance_a/nested",
-        ]
-    ]
-
-
-def test__config__find_sqlfluffignore_in_same_directory():
-    """Test find ignore file in the same directory as sql file."""
-    ignore_files = ConfigLoader.find_ignore_config_files(
-        path="test/fixtures/linter/sqlfluffignore/path_b/query_b.sql",
-        working_path="test/fixtures/linter/sqlfluffignore/",
-    )
-    assert ignore_files == {
-        os.path.abspath("test/fixtures/linter/sqlfluffignore/path_b/.sqlfluffignore"),
-        os.path.abspath("test/fixtures/linter/sqlfluffignore/.sqlfluffignore"),
-    }
-
-
 def test__config__nested_config_tests():
     """Test linting with overridden config in nested paths.
 
@@ -248,7 +238,7 @@ def test__config__nested_config_tests():
             # re-enables CP01.
             # This may seem counter-intuitive but is in line with current
             # documentation on how to use `rules` and `exclude-rules`.
-            # https://docs.sqlfluff.com/en/latest/configuration.html#enabling-and-disabling-rules
+            # https://docs.sqlfluff.com/en/latest/perma/rule_disabling.html
             assert ("CP01", 1, 4) in violations[k]
             # CP02 is disabled because of the override above.
             assert "CP02" not in [c[0] for c in violations[k]]
@@ -288,26 +278,6 @@ def test__config__load_user_appdir_config(
             call(os.path.expanduser("~/Library/Application Support/sqlfluff")),
         ]
     )
-
-
-@pytest.mark.parametrize(
-    "raw_str, expected",
-    [
-        ("AL01,LT08,AL07", ["AL01", "LT08", "AL07"]),
-        ("\nAL01,\nLT08,\nAL07,", ["AL01", "LT08", "AL07"]),
-        (["AL01", "LT08", "AL07"], ["AL01", "LT08", "AL07"]),
-    ],
-)
-def test__config__split_comma_separated_string(raw_str, expected):
-    """Tests that string and lists are output correctly."""
-    assert config.split_comma_separated_string(raw_str) == expected
-
-
-def test__config__split_comma_separated_string_correct_type():
-    """Tests that invalid data types throw the correct error."""
-    with pytest.raises(SQLFluffUserError):
-        config.split_comma_separated_string(1)
-        config.split_comma_separated_string(True)
 
 
 def test__config__templater_selection():
@@ -616,3 +586,39 @@ def test__process_inline_config():
     # Check that Windows paths don't get mangled
     cfg.process_inline_config("-- sqlfluff:jinja:my_path:c:\\foo", "test.sql")
     assert cfg.get("my_path", section="jinja") == "c:\\foo"
+
+
+@pytest.mark.parametrize(
+    "raw_sql",
+    [
+        (
+            "-- sqlfluff:max_line_length:25\n"
+            "-- sqlfluff:rules:LT05,LT06\n"
+            "-- sqlfluff:exclude_rules:LT01,LT02\n"
+            "SELECT 1"
+        )
+    ],
+)
+def test__process_raw_file_for_config(raw_sql):
+    """Test the processing of a file inline directives."""
+    cfg = FluffConfig(config_b)
+
+    # verify initial attributes based on the preloaded configuration
+    assert cfg.get("max_line_length") == 80
+    assert cfg.get("rules") == "LT03"
+    assert cfg.get("exclude_rules") is None
+
+    # internal list attributes should have corresponding exploded list values
+    assert cfg.get("rule_allowlist") == ["LT03"]
+    assert cfg.get("rule_denylist") == []
+
+    cfg.process_raw_file_for_config(raw_sql, "test.sql")
+
+    # verify overrides based on the file inline directives
+    assert cfg.get("max_line_length") == 25
+    assert cfg.get("rules") == "LT05,LT06"
+    assert cfg.get("exclude_rules") == "LT01,LT02"
+
+    # internal list attributes should have overridden exploded list values
+    assert cfg.get("rule_allowlist") == ["LT05", "LT06"]
+    assert cfg.get("rule_denylist") == ["LT01", "LT02"]

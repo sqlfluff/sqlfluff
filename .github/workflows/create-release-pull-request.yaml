@@ -11,7 +11,7 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Abort if branch already exists
         run: |
             _check_branch=$(git ls-remote --heads origin prep-${{ github.event.inputs.newVersionNumber }})
@@ -23,7 +23,7 @@ jobs:
             fi
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -55,4 +55,17 @@ jobs:
 
             [1]: https://github.com/sqlfluff/sqlfluff/releases
             [2]: https://github.com/peter-evans/create-pull-request
-          labels: release
+          labels: |
+            release
+            skip-changelog
+
+      - name: Update release title and tag
+        uses: release-drafter/release-drafter@v5
+        with:
+          # NOTE: We should eventually actually populate the date here, but that
+          # will most likely change before the new pull request actually gets
+          # merged, so we just add "YYYY-MM-DD" for now as a placeholder.
+          name: "[${{ github.event.inputs.newVersionNumber }}] - YYYY-MM-DD"
+          tag: ${{ github.event.inputs.newVersionNumber }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

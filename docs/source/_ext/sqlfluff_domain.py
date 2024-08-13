@@ -1,8 +1,8 @@
 """The sqlfluff domain for documenting rules."""
 
 from sphinx import addnodes
-from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
+from sphinx.domains import Domain, ObjType
 from sphinx.roles import XRefRole
 from sphinx.util.nodes import make_refnode
 

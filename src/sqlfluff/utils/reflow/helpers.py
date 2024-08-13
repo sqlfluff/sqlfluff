@@ -1,11 +1,11 @@
 """Helper utilities for reflow."""
 
-from itertools import chain
 import logging
+from itertools import chain
 from typing import Iterable, List
 
-from sqlfluff.core.rules.base import LintFix, LintResult
-from sqlfluff.core.parser import RawSegment, BaseSegment
+from sqlfluff.core.parser import BaseSegment, RawSegment
+from sqlfluff.core.rules import LintFix, LintResult
 
 # We're in the utils module, but users will expect reflow
 # logs to appear in the context of rules. Hence it's a subset

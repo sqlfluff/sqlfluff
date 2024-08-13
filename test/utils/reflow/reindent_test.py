@@ -7,11 +7,18 @@ Specifically:
 """
 
 import logging
+import sys
+from typing import Callable, List, Tuple, Type
 
 import pytest
 
-from sqlfluff.core import Linter
-from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.linter.fix import apply_fixes, compute_anchor_edit_info
+from sqlfluff.core.plugin import hookimpl
+from sqlfluff.core.plugin.host import get_plugin_manager, purge_plugin_manager
+from sqlfluff.core.templaters import RawTemplater
+from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFileSlice
+from sqlfluff.core.templaters.jinja import JinjaTemplater
 from sqlfluff.utils.reflow.helpers import deduce_line_indent, fixes_from_results
 from sqlfluff.utils.reflow.reindent import (
     _crawl_indent_points,
@@ -26,6 +33,49 @@ def parse_ansi_string(sql, config):
     """Parse an ansi sql string for testing."""
     linter = Linter(config=config)
     return linter.parse_string(sql).tree
+
+
+class SpecialMarkerInserter(JinjaTemplater):
+    """Inserts special marker slices in a sliced file.
+
+    Some templater plugins might insert custom marker slices that are of zero source
+    string length, including an empty source string.  This mock templater simulates
+    this behavior by adding a marker slice like this after every block_start slice.
+    """
+
+    name = "special_marker_inserter"
+
+    def slice_file(
+        self, raw_str: str, render_func: Callable[[str], str], config=None, **kwargs
+    ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
+        """Patch a sliced file returned by the superclass."""
+        raw_sliced, sliced_file, templated_str = super().slice_file(
+            raw_str, render_func, config, **kwargs
+        )
+
+        patched_sliced_file = []
+        for templated_slice in sliced_file:
+            patched_sliced_file.append(templated_slice)
+            # Add an EMPTY special_marker slice after every block_start.
+            if templated_slice.slice_type == "block_start":
+                # Note that both the source_slice AND the templated_slice are empty.
+                source_pos = templated_slice.source_slice.stop
+                templated_pos = templated_slice.templated_slice.stop
+                patched_sliced_file.append(
+                    TemplatedFileSlice(
+                        "special_marker",
+                        slice(source_pos, source_pos),
+                        slice(templated_pos, templated_pos),
+                    )
+                )
+
+        return raw_sliced, patched_sliced_file, templated_str
+
+
+@hookimpl
+def get_templaters() -> List[Type[RawTemplater]]:
+    """Return templaters provided by this test module."""
+    return [SpecialMarkerInserter]
 
 
 @pytest.mark.parametrize(
@@ -128,11 +178,12 @@ def test_reflow__deduce_line_indent(
 
 
 @pytest.mark.parametrize(
-    "raw_sql_in,points_out",
+    "raw_sql_in,templater,points_out",
     [
         # Trivial
         (
             "select 1",
+            "raw",
             [
                 # No point at the start.
                 # Point after select (not newline)
@@ -159,6 +210,7 @@ def test_reflow__deduce_line_indent(
         ),
         (
             "\nselect 1\n",
+            "raw",
             [
                 # Start point
                 _IndentPoint(
@@ -194,6 +246,7 @@ def test_reflow__deduce_line_indent(
         ),
         (
             "select\n1",
+            "raw",
             [
                 # No point at the start.
                 # Point after select (not newline)
@@ -222,6 +275,7 @@ def test_reflow__deduce_line_indent(
         (
             "SELECT\n    r.a,\n    s.b\nFROM r\nJOIN s\n    "
             "ON\n        r.a = s.a\n        AND true",
+            "raw",
             [
                 # No point at the start.
                 # After SELECT
@@ -299,7 +353,7 @@ def test_reflow__deduce_line_indent(
                     untaken_indents=(1,),
                 ),
                 # After ON. Default is indented_on_contents = True, so there is
-                # an indent here. We *SHOULDNT* have an untaken indent here,
+                # an indent here. We *SHOULDN'T* have an untaken indent here,
                 # because while there was one at the last point, the trough
                 # of the last point should have cleared it.
                 _IndentPoint(
@@ -335,6 +389,7 @@ def test_reflow__deduce_line_indent(
         ),
         (
             "SELECT *\nFROM t1\nJOIN t2 ON true\nAND true",
+            "raw",
             [
                 # No point at the start.
                 # NOTE: Abbreviated notation given much is the same as above.
@@ -365,6 +420,40 @@ def test_reflow__deduce_line_indent(
                 _IndentPoint(19, -2, -2, 2, 15, False, (1, 2)),
             ],
         ),
+        # Trailing comment case: delays indent until after the comment
+        (
+            "SELECT -- comment\n    1;",
+            "raw",
+            [
+                # No point at the start.
+                # After SELECT
+                _IndentPoint(1, 0, 0, 0, None, False, ()),
+                # After comment
+                _IndentPoint(3, 1, 0, 0, None, True, ()),
+                # After 1
+                _IndentPoint(5, -1, -1, 1, 3, False, ()),
+                # After ;
+                _IndentPoint(7, 0, 0, 0, 3, False, ()),
+            ],
+        ),
+        # Two trailing comments
+        (
+            "SELECT /* first comment */ /* second comment */\n    1;",
+            "raw",
+            [
+                # No point at the start.
+                # After SELECT
+                _IndentPoint(1, 0, 0, 0, None, False, ()),
+                # After first comment
+                _IndentPoint(3, 0, 0, 0, None, False, ()),
+                # After second comment
+                _IndentPoint(5, 1, 0, 0, None, True, ()),
+                # After 1
+                _IndentPoint(7, -1, -1, 1, 5, False, ()),
+                # After ;
+                _IndentPoint(9, 0, 0, 0, 5, False, ()),
+            ],
+        ),
         # Templated case
         (
             "SELECT\n"
@@ -372,6 +461,7 @@ def test_reflow__deduce_line_indent(
             "    {% for c in ['d', 'e'] %}\n"
             "    ,{{ c }}_val\n"
             "    {% endfor %}\n",
+            "jinja",
             [
                 # No initial indent (this is the first newline).
                 _IndentPoint(1, 1, 0, 0, None, True, ()),
@@ -396,6 +486,7 @@ def test_reflow__deduce_line_indent(
             "FROM some_table\n"
             "{{ 'UNION ALL\n' if not loop.last }}\n"
             "{%- endfor %}",
+            "jinja",
             [
                 # No initial indent (this is the first newline).
                 # Importantly this first point - IS a newline
@@ -433,6 +524,7 @@ def test_reflow__deduce_line_indent(
         # Templated case (with templated newline and indent)
         (
             "SELECT\n  {{'1 \n, 2'}}\nFROM foo",
+            "jinja",
             [
                 # After SELECT
                 _IndentPoint(1, 1, 0, 0, None, True, ()),
@@ -445,13 +537,44 @@ def test_reflow__deduce_line_indent(
                 _IndentPoint(11, -1, -1, 1, 7, False, (1,)),
             ],
         ),
+        # Templated case (with special marker slice that has no source string)
+        (
+            # The invisible special marker slice will be inserted immediately after
+            # the first normal template section.
+            "{% if True %}\n    SELECT 1;\n{% endif %}\n",
+            "special_marker_inserter",
+            [
+                # No point at the start.
+                # After the {% if True %} block: this should not yet indent because
+                # there's still the upcoming zero-length special_marker
+                # TemplateSegment.  This is handled similar to the trailing comment
+                # test case.
+                _IndentPoint(1, 0, 0, 0, None, False, ()),
+                # After the zero-length special_marker TemplateSegment inserted by
+                # the special templater: only after this do we want to indent.
+                _IndentPoint(3, 1, 0, 0, None, True, ()),
+                # After SELECT
+                _IndentPoint(5, 1, 0, 1, 3, False, ()),
+                # After 1
+                _IndentPoint(7, -1, -1, 2, 3, False, (2,)),
+                # After ;
+                _IndentPoint(9, -1, -1, 1, 3, True, ()),
+                # After {% endif %}
+                _IndentPoint(11, 0, 0, 0, 9, True, ()),
+            ],
+        ),
     ],
 )
-def test_reflow__crawl_indent_points(raw_sql_in, points_out, default_config, caplog):
+def test_reflow__crawl_indent_points(raw_sql_in, templater, points_out, caplog):
     """Test _crawl_indent_points directly."""
-    root = parse_ansi_string(raw_sql_in, default_config)
+    # Register the mock templater in this module.
+    purge_plugin_manager()
+    get_plugin_manager().register(sys.modules[__name__], name="reindent_test")
+
+    config = FluffConfig(overrides={"dialect": "ansi", "templater": templater})
+    root = parse_ansi_string(raw_sql_in, config)
     print(root.stringify())
-    seq = ReflowSequence.from_root(root, config=default_config)
+    seq = ReflowSequence.from_root(root, config=config)
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.rules.reflow"):
         points = list(_crawl_indent_points(seq.elements))
     assert points == points_out
@@ -639,9 +762,9 @@ def test_reflow__lint_indent_points(raw_sql_in, raw_sql_out, default_config, cap
     # Now we've checked the elements - check that applying the fixes gets us to
     # the same place.
     print("Results:", results)
-    anchor_info = BaseSegment.compute_anchor_edit_info(fixes_from_results(results))
-    fixed_tree, _, _, valid = root.apply_fixes(
-        default_config.get("dialect_obj"), "TEST", anchor_info
+    anchor_info = compute_anchor_edit_info(fixes_from_results(results))
+    fixed_tree, _, _, valid = apply_fixes(
+        root, default_config.get("dialect_obj"), "TEST", anchor_info
     )
     assert valid, f"Reparse check failed: {fixed_tree.raw!r}"
     assert fixed_tree.raw == raw_sql_out, "Element check passed - but fix check failed!"

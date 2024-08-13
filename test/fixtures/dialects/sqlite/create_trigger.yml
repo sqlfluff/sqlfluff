@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a6c6cd83844198daf4513a642932e69466dd2c90d887929b24e9d6577e8d120c
+_hash: d6e8c372e879f121ab751b63422e04ffdd820bed050b5dafa6f676096a9e017a
 file:
 - statement:
     create_trigger:
@@ -20,21 +20,19 @@ file:
         naked_identifier: customers
     - keyword: BEGIN
     - update_statement:
-        keyword: UPDATE
-        table_reference:
+      - keyword: UPDATE
+      - table_reference:
           naked_identifier: orders
-        set_clause_list:
-          keyword: SET
-          set_clause:
-          - column_reference:
-              naked_identifier: address
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - column_reference:
-            - naked_identifier: new
-            - dot: .
-            - naked_identifier: address
-        where_clause:
+      - keyword: SET
+      - naked_identifier: address
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+          - naked_identifier: new
+          - dot: .
+          - naked_identifier: address
+      - where_clause:
           keyword: WHERE
           expression:
           - column_reference:
@@ -65,21 +63,19 @@ file:
         naked_identifier: customer_address
     - keyword: BEGIN
     - update_statement:
-        keyword: UPDATE
-        table_reference:
+      - keyword: UPDATE
+      - table_reference:
           naked_identifier: customer
-        set_clause_list:
-          keyword: SET
-          set_clause:
-          - column_reference:
-              naked_identifier: cust_addr
-          - comparison_operator:
-              raw_comparison_operator: '='
-          - column_reference:
-            - naked_identifier: NEW
-            - dot: .
-            - naked_identifier: cust_addr
-        where_clause:
+      - keyword: SET
+      - naked_identifier: cust_addr
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+          - naked_identifier: NEW
+          - dot: .
+          - naked_identifier: cust_addr
+      - where_clause:
           keyword: WHERE
           expression:
           - column_reference:

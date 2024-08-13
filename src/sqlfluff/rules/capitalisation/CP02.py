@@ -1,11 +1,11 @@
 """Implementation of Rule CP02."""
 
-from typing import Optional, List
+from typing import List, Optional
 
 from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
-from sqlfluff.utils.identifers import identifiers_policy_applicable
 from sqlfluff.rules.capitalisation.CP01 import Rule_CP01
+from sqlfluff.utils.identifers import identifiers_policy_applicable
 
 
 class Rule_CP02(Rule_CP01):

@@ -1,15 +1,14 @@
 """Tests for templaters."""
 
-import pytest
 import logging
+
+import pytest
+
+from sqlfluff.core import FluffConfig, SQLTemplaterError
 from sqlfluff.core.errors import SQLFluffSkipFile
-
 from sqlfluff.core.templaters import PythonTemplater
-from sqlfluff.core import SQLTemplaterError, FluffConfig
-
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFileSlice
 from sqlfluff.core.templaters.python import IntermediateFileSlice
-
 
 PYTHON_STRING = "SELECT * FROM {blah}"
 

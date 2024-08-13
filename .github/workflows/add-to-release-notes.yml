@@ -7,11 +7,16 @@ on:
     branches:
       - main
 jobs:
-  release-notes:
+  draft-release:
     runs-on: ubuntu-20.04
     if: github.repository == 'sqlfluff/sqlfluff'
     steps:
     - name: Update release notes
       uses: release-drafter/release-drafter@v5
+      # If it's a release PR, then we should also update
+      # the header and title here too.
+      # with:
+      #   name: ${{    }}
+      #   header: ${{    }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

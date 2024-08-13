@@ -1,12 +1,12 @@
 """Implementation of Rule AL01."""
-from typing import cast, Optional, Tuple
+
+from typing import Optional, Tuple, cast
 
 from sqlfluff.core.parser import (
-    KeywordSegment,
     BaseSegment,
+    KeywordSegment,
     RawSegment,
 )
-
 from sqlfluff.core.rules import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.reflow import ReflowSequence
@@ -60,6 +60,10 @@ class Rule_AL01(BaseRule):
         """
         # Config type hints
         self.aliasing: str
+
+        # AL01 is disabled for Oracle, still run for AL02.
+        if context.dialect.name == "oracle" and self.name == "aliasing.table":
+            return None
 
         assert context.segment.is_type("alias_expression")
         if context.parent_stack[-1].is_type(*self._target_parent_types):

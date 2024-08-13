@@ -40,8 +40,8 @@ def test__rules__std_AL04_one_aliases_two_duplicate():
         == 2
     )
     # Test specific line number
-    assert result_filter[0]["line_no"] == 5
-    assert result_filter[1]["line_no"] == 6
+    assert result_filter[0]["start_line_no"] == 5
+    assert result_filter[1]["start_line_no"] == 6
 
 
 def test__rules__std_AL04_complex():
@@ -81,6 +81,6 @@ def test__rules__std_AL04_complex():
         == 1
     )
     # Test specific line number
-    assert result_filter[0]["line_no"] == 6
-    assert result_filter[1]["line_no"] == 8
-    assert result_filter[2]["line_no"] == 9
+    assert result_filter[0]["start_line_no"] == 6
+    assert result_filter[1]["start_line_no"] == 8
+    assert result_filter[2]["start_line_no"] == 9

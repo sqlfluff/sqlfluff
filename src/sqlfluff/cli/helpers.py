@@ -2,11 +2,11 @@
 
 import sys
 import textwrap
-from typing import Callable, List, Dict, Any
 from collections import abc
+from functools import cached_property
+from typing import Any, Callable, Dict, List
 
 from sqlfluff import __version__ as pkg_version
-from sqlfluff.core.cached_property import cached_property
 
 
 def get_python_version() -> str:

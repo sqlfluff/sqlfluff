@@ -57,6 +57,7 @@ SELECT
 	NUMERIC_ROUNDABORT ,
 	PARSEONLY ,
 	PRECISION ,
+	PROPERTY ,
 	QUERY_GOVERNOR_COST_LIMIT ,
 	QUOTED_IDENTIFIER ,
 	REMOTE_PROC_TRANSACTIONS ,
@@ -109,4 +110,11 @@ SELECT
     SYSTEM_USER
 
 
-FROM dbo . all_pop
+FROM dbo . all_pop;
+
+SELECT DISTINCT TOP 5 some_value FROM some_table;
+
+select
+    'Tabellen' as Objekt,
+    Count(*) as Anzahl
+from dbo.sql_modules;

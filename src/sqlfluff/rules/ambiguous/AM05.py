@@ -1,4 +1,5 @@
 """Implementation of Rule AM05."""
+
 from typing import Optional, Tuple
 
 from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment

@@ -2,7 +2,7 @@
 
 import timeit
 
-from sqlfluff.core import Lexer, Parser, Linter
+from sqlfluff.core import Lexer, Linter, Parser
 
 # Set up and output the query
 sql = "SeLEct  *, 1, blah as  fOO  from myTable"

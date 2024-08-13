@@ -1,4 +1,5 @@
 """The Test file for CLI Formatters."""
+
 import pathlib
 import re
 import textwrap
@@ -90,7 +91,7 @@ def test__cli__helpers__cli_table(tmpdir):
                 "rule VARCHAR(30)"
                 ");"
             ),
-            ["--force", "--dialect", "postgres", "--disable_progress_bar", "--nocolor"],
+            ["--force", "--dialect", "postgres", "--disable-progress-bar", "--nocolor"],
             (
                 "CREATE TABLE IF NOT EXISTS vuln.software_name_dictionary("
                 "id SERIAL PRIMARY KEY"
