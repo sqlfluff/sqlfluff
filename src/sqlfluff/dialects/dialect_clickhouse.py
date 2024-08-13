@@ -370,7 +370,7 @@ class DatatypeSegment(BaseSegment):
                     "DECIMAL256", CodeSegment, type="data_type_identifier"
                 ),
             ),
-            Bracketed(Ref("NumericLiteralSegment"), optional=True),  # precision
+            Bracketed(Ref("NumericLiteralSegment")),  # scale
         ),
         Ref("TupleTypeSegment"),
         Ref("DatatypeIdentifierSegment"),
