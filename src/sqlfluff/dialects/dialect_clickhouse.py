@@ -350,6 +350,24 @@ class DatatypeSegment(BaseSegment):
             StringParser("NULLABLE", CodeSegment, type="data_type_identifier"),
             Bracketed(Ref("DatatypeSegment")),
         ),
+        # double args
+        Sequence(
+            OneOf(
+                StringParser("DECIMAL", CodeSegment, type="data_type_identifier"),
+                StringParser("NUMERIC", CodeSegment, type="data_type_identifier"),
+            ),
+            Ref("BracketedArguments", optional=True),
+        ),
+        # single args
+        Sequence(
+            OneOf(
+                StringParser("DECIMAL32", CodeSegment, type="data_type_identifier"),
+                StringParser("DECIMAL64", CodeSegment, type="data_type_identifier"),
+                StringParser("DECIMAL128", CodeSegment, type="data_type_identifier"),
+                StringParser("DECIMAL256", CodeSegment, type="data_type_identifier"),
+            ),
+            Bracketed(Ref("NumericLiteralSegment")),  # scale
+        ),
         Ref("TupleTypeSegment"),
         Ref("DatatypeIdentifierSegment"),
         Ref("NumericLiteralSegment"),
