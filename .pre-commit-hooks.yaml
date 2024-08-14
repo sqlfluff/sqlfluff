@@ -1,7 +1,9 @@
 - id: sqlfluff-lint
   name: sqlfluff-lint
   # Set `--processes 0` to use maximum parallelism
-  entry: sqlfluff lint --processes 0
+  #  - `--disable-progress-bar` pre-commit suppresses logging already
+  #      this can cause an unneeded slow down.
+  entry: sqlfluff lint --processes 0 --disable-progress-bar
   language: python
   description: "Lints sql files with `SQLFluff`"
   types: [sql]
@@ -13,8 +15,10 @@
   # Set a couple of default flags:
   #  - `--show-lint-violations` shows issues to not require running `sqlfluff lint`
   #  - `--processes 0` to use maximum parallelism
+  #  - `--disable-progress-bar` pre-commit suppresses logging already
+  #      this can cause an unneeded slow down.
   # By default, this hook applies all rules.
-  entry: sqlfluff fix --show-lint-violations --processes 0
+  entry: sqlfluff fix --show-lint-violations --processes 0 --disable-progress-bar
   language: python
   description: "Fixes sql lint errors with `SQLFluff`"
   types: [sql]
