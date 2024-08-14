@@ -10,6 +10,62 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [3.1.1] - 2024-08-14
+
+## Highlights
+
+## What’s Changed
+
+* feat(clickhouse): add support for decimal(x,y), decimal32(x) and match [#6063](https://github.com/sqlfluff/sqlfluff/pull/6063) [@ogirardot](https://github.com/ogirardot)
+* Big docs refactor. [#6052](https://github.com/sqlfluff/sqlfluff/pull/6052) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* ST05: Handle set statement's subsequent queries [#6062](https://github.com/sqlfluff/sqlfluff/pull/6062) [@keraion](https://github.com/keraion)
+* fix(clickhouse): add support for limit by and bracketed format [#6061](https://github.com/sqlfluff/sqlfluff/pull/6061) [@ogirardot](https://github.com/ogirardot)
+* fix(clickhouse): add support for DateTime64(precision, tz) and Tuples() [#6060](https://github.com/sqlfluff/sqlfluff/pull/6060) [@ogirardot](https://github.com/ogirardot)
+* Copy statement postgres v9 compatibility support [#5181](https://github.com/sqlfluff/sqlfluff/pull/5181) [@Fullcure3](https://github.com/Fullcure3)
+* Run dbt tests in py312 by default [#5861](https://github.com/sqlfluff/sqlfluff/pull/5861) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Extract path discovery routines from config and linter. [#6057](https://github.com/sqlfluff/sqlfluff/pull/6057) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* MySQL: Added SET TRANSACTION parsing [#5781](https://github.com/sqlfluff/sqlfluff/pull/5781) [@Xemptuous](https://github.com/Xemptuous)
+* Support declare or replace variable statement for Databricks dialect [#6054](https://github.com/sqlfluff/sqlfluff/pull/6054) [@urosstan-db](https://github.com/urosstan-db)
+* Exclude Macros from a path provided [#6031](https://github.com/sqlfluff/sqlfluff/pull/6031) [@culpgrant](https://github.com/culpgrant)
+* ST03: Detect CTE usage in nested `WITH` clauses [#6017](https://github.com/sqlfluff/sqlfluff/pull/6017) [@keraion](https://github.com/keraion)
+* TRINO: support FILTER after WITHIN GROUP agg expression [#6056](https://github.com/sqlfluff/sqlfluff/pull/6056) [@rileymcdowell](https://github.com/rileymcdowell)
+* Fix/snowflake double quotes [#5727](https://github.com/sqlfluff/sqlfluff/pull/5727) [@Starstruckk](https://github.com/Starstruckk)
+* bq_table_function : Added functionality to parse table functionsin BigQuery [#5480](https://github.com/sqlfluff/sqlfluff/pull/5480) [@moh-lch](https://github.com/moh-lch)
+* Fix Athena Partitioned By format for iceberg tables [#5399](https://github.com/sqlfluff/sqlfluff/pull/5399) [@jverhoeks](https://github.com/jverhoeks)
+* fix: redshift dialect, EXTENSION added [#6025](https://github.com/sqlfluff/sqlfluff/pull/6025) [@rafalbog](https://github.com/rafalbog)
+* Fix ignored inline rule overrides (#5697) [#6010](https://github.com/sqlfluff/sqlfluff/pull/6010) [@alesbukovsky](https://github.com/alesbukovsky)
+* Update the docs on RF03 [#6051](https://github.com/sqlfluff/sqlfluff/pull/6051) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* RF03: Fixed some subquery reference scenarios [#6046](https://github.com/sqlfluff/sqlfluff/pull/6046) [@keraion](https://github.com/keraion)
+* CV11: Remove rogue print statement [#6047](https://github.com/sqlfluff/sqlfluff/pull/6047) [@keraion](https://github.com/keraion)
+* Snowflake: fixes parsing for AGGREGATE in CREATE FUNCTION statement [#6049](https://github.com/sqlfluff/sqlfluff/pull/6049) [@hawle](https://github.com/hawle)
+* Snowflake:adds optional IF NOT EXISTS to ADD COLUMN [#6050](https://github.com/sqlfluff/sqlfluff/pull/6050) [@hawle](https://github.com/hawle)
+* Replace types-pkg-resources with types-setuptools [#6039](https://github.com/sqlfluff/sqlfluff/pull/6039) [@keraion](https://github.com/keraion)
+* Remove old deps for dbt templater [#6028](https://github.com/sqlfluff/sqlfluff/pull/6028) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Added GENERATED AS IDENTITY support to DataBricks dialect [#6004](https://github.com/sqlfluff/sqlfluff/pull/6004) [@nicolb2305](https://github.com/nicolb2305)
+* Add support for Clickhouse ORDER BY WITH FILL [#6018](https://github.com/sqlfluff/sqlfluff/pull/6018) [@snikch](https://github.com/snikch)
+* Parse API example [#6021](https://github.com/sqlfluff/sqlfluff/pull/6021) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add additional dateparts from DATEPART() [#6012](https://github.com/sqlfluff/sqlfluff/pull/6012) [@yorickbouma](https://github.com/yorickbouma)
+* MariaDB: Add support for GROUP BY ... ASC/DESC and GROUP BY ... WITH ROLLUP [#6009](https://github.com/sqlfluff/sqlfluff/pull/6009) [@pprkut](https://github.com/pprkut)
+* AM07: Handle set expressions with bracketed selects [#6005](https://github.com/sqlfluff/sqlfluff/pull/6005) [@keraion](https://github.com/keraion)
+* MariaDB: Add support for DELETE/INSERT/REPLACE ... RETURNING [#6008](https://github.com/sqlfluff/sqlfluff/pull/6008) [@pprkut](https://github.com/pprkut)
+* MariaDB: Add mariadb specific syntax for generated columns [#6007](https://github.com/sqlfluff/sqlfluff/pull/6007) [@pprkut](https://github.com/pprkut)
+* Snowflake: fixes drop column if exists parsing rules [#5999](https://github.com/sqlfluff/sqlfluff/pull/5999) [@hawle](https://github.com/hawle)
+* Fix TSQL Post Table Expr intrepreted as function [#6001](https://github.com/sqlfluff/sqlfluff/pull/6001) [@ulixius9](https://github.com/ulixius9)
+
+## New Contributors
+
+* [@yorickbouma](https://github.com/yorickbouma) made their first contribution in [#6012](https://github.com/sqlfluff/sqlfluff/pull/6012)
+* [@snikch](https://github.com/snikch) made their first contribution in [#6018](https://github.com/sqlfluff/sqlfluff/pull/6018)
+* [@nicolb2305](https://github.com/nicolb2305) made their first contribution in [#6004](https://github.com/sqlfluff/sqlfluff/pull/6004)
+* [@alesbukovsky](https://github.com/alesbukovsky) made their first contribution in [#6010](https://github.com/sqlfluff/sqlfluff/pull/6010)
+* [@rafalbog](https://github.com/rafalbog) made their first contribution in [#6025](https://github.com/sqlfluff/sqlfluff/pull/6025)
+* [@jverhoeks](https://github.com/jverhoeks) made their first contribution in [#5399](https://github.com/sqlfluff/sqlfluff/pull/5399)
+* [@moh-lch](https://github.com/moh-lch) made their first contribution in [#5480](https://github.com/sqlfluff/sqlfluff/pull/5480)
+* [@Starstruckk](https://github.com/Starstruckk) made their first contribution in [#5727](https://github.com/sqlfluff/sqlfluff/pull/5727)
+* [@culpgrant](https://github.com/culpgrant) made their first contribution in [#6031](https://github.com/sqlfluff/sqlfluff/pull/6031)
+* [@urosstan-db](https://github.com/urosstan-db) made their first contribution in [#6054](https://github.com/sqlfluff/sqlfluff/pull/6054)
+* [@ogirardot](https://github.com/ogirardot) made their first contribution in [#6060](https://github.com/sqlfluff/sqlfluff/pull/6060)
+
 ## [3.1.0] - 2024-07-03
 
 ## Highlights
