@@ -899,6 +899,53 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
     )
 
 
+class RenameStatementSegment(BaseSegment):
+    """A `RENAME TABLE` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/rename/
+    """
+
+    type = "rename_table_statement"
+
+    match_grammar = Sequence(
+        "RENAME",
+        OneOf(
+            Sequence(
+                "TABLE",
+                Delimited(
+                    Sequence(
+                        Ref("TableReferenceSegment"),
+                        "TO",
+                        Ref("TableReferenceSegment"),
+                    )
+                ),
+            ),
+            Sequence(
+                "DATABASE",
+                Delimited(
+                    Sequence(
+                        Ref("DatabaseReferenceSegment"),
+                        "TO",
+                        Ref("DatabaseReferenceSegment"),
+                    )
+                ),
+            ),
+            Sequence(
+                "DICTIONARY",
+                Delimited(
+                    Sequence(
+                        Ref("ObjectReferenceSegment"),
+                        "TO",
+                        Ref("ObjectReferenceSegment"),
+                    )
+                ),
+            ),
+        ),
+        Ref("OnClusterClauseSegment", optional=True),
+    )
+
+
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """A `CREATE TABLE` statement.
 
@@ -1558,6 +1605,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropQuotaStatementSegment"),
             Ref("DropSettingProfileStatementSegment"),
             Ref("SystemStatementSegment"),
+            Ref("RenameStatementSegment"),
         ]
     )
 
