@@ -381,7 +381,8 @@ def rebreak_sequence(
                 # the _preceding_ point.
                 fixes.append(LintFix.delete(loc.target))
                 for seg in elem_buff[loc.prev.adj_pt_idx].segments:
-                    fixes.append(LintFix.delete(seg))
+                    if not seg.is_type("dedent"):
+                        fixes.append(LintFix.delete(seg))
 
                 # We always reinsert after the first point, but respace
                 # the inserted point to ensure it's the right size given
