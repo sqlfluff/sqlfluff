@@ -23,6 +23,12 @@ def test__parser__grammar__ref_eq():
     assert r1 not in check_list
 
 
+def test__parser__grammar__ref_repr():
+    """Test the __repr__ method of Ref."""
+    assert repr(Ref("foo")) == "<Ref: 'foo'>"
+    assert repr(Ref("bar", optional=True)) == "<Ref: 'bar' [opt]>"
+
+
 def test__parser__grammar_ref_exclude(generate_test_segments, fresh_ansi_dialect):
     """Test the Ref grammar exclude option."""
     ni = Ref("NakedIdentifierSegment", exclude=Ref.keyword("ABS"))

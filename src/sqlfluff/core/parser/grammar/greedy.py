@@ -8,7 +8,7 @@ from sqlfluff.core.parser.grammar.base import (
     BaseSegment,
     cached_method_for_parse_context,
 )
-from sqlfluff.core.parser.helpers import trim_non_code_segments
+from sqlfluff.core.parser.match_algorithms import greedy_match
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.segments import allow_ephemeral
@@ -50,111 +50,12 @@ class GreedyUntil(BaseGrammar):
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
     ) -> MatchResult:
         """Matching for GreedyUntil works just how you'd expect."""
-        return self.greedy_match(
+        return greedy_match(
             segments,
             parse_context,
             matchers=self._elements,
             include_terminator=False,
         )
-
-    @classmethod
-    def greedy_match(
-        cls,
-        segments: Tuple[BaseSegment, ...],
-        parse_context: ParseContext,
-        matchers: Sequence[MatchableType],
-        include_terminator: bool = False,
-    ) -> MatchResult:
-        """Matching for GreedyUntil works just how you'd expect."""
-        seg_buff = segments
-        seg_bank: Tuple[BaseSegment, ...] = ()  # Empty tuple
-
-        while True:
-            with parse_context.deeper_match(name="GreedyUntil") as ctx:
-                pre, mat, matcher = cls._bracket_sensitive_look_ahead_match(
-                    seg_buff, list(matchers), parse_context=ctx
-                )
-
-            if not mat:
-                # No terminator match? Return everything
-                return MatchResult.from_matched(segments)
-
-            # NOTE: For some terminators we only count them if they're preceded
-            # by whitespace, and others we don't. In principle, we aim that for
-            # _keywords_ we require whitespace, and for symbols we don't.
-            # We do this by looking at the `simple` method of the returned
-            # matcher, and if it's entirely alphabetical (as defined by
-            # str.isalpha()) then we infer that it's a keyword, and therefore
-            # _does_ require whitespace before it.
-            assert matcher, f"Match without matcher: {mat}"
-            _simple = matcher.simple(parse_context)
-            assert _simple, f"Terminators require a simple method: {matcher}"
-            _strings, _types = _simple
-            # NOTE: Typed matchers aren't common here, but we assume that they
-            # _don't_ require preceding whitespace.
-            # Do we need to enforce whitespace preceding?
-            if all(_s.isalpha() for _s in _strings) and not _types:
-                # Does the match include some whitespace already?
-                # Work forward
-                idx = 0
-                while True:
-                    elem = mat.matched_segments[idx]
-                    if elem.is_meta:  # pragma: no cover TODO?
-                        idx += 1
-                        continue
-                    elif elem.is_type(
-                        "whitespace", "newline"
-                    ):  # pragma: no cover TODO?
-                        allowable_match = True
-                        break
-                    else:
-                        # No whitespace before. Not allowed.
-                        allowable_match = False
-                        break
-
-                # If we're not ok yet, work backward to the preceding sections.
-                if not allowable_match:
-                    idx = -1
-                    while True:
-                        if len(pre) < abs(idx):  # pragma: no cover TODO?
-                            # If we're at the start, it's ok
-                            allowable_match = True
-                            break
-                        if pre[idx].is_meta:  # pragma: no cover TODO?
-                            idx -= 1
-                            continue
-                        elif pre[idx].is_type("whitespace", "newline"):
-                            allowable_match = True
-                            break
-                        else:
-                            # No whitespace before. Not allowed.
-                            allowable_match = False
-                            break
-
-                # If this match isn't preceded by whitespace and that is
-                # a requirement, then we can't use it. Carry on...
-                if not allowable_match:
-                    # Update our buffers and continue onward
-                    seg_bank = seg_bank + pre + mat.matched_segments
-                    seg_buff = mat.unmatched_segments
-                    # Loop around, don't return yet
-                    continue
-
-            # Return everything up to the match unless it's a gap matcher.
-            if include_terminator:
-                return MatchResult(
-                    seg_bank + pre + mat.matched_segments,
-                    mat.unmatched_segments,
-                )
-
-            # We can't claim any non-code segments, so we trim them off the end.
-            leading_nc, pre_seg_mid, trailing_nc = trim_non_code_segments(
-                seg_bank + pre
-            )
-            return MatchResult(
-                leading_nc + pre_seg_mid,
-                trailing_nc + mat.all_segments(),
-            )
 
 
 T = TypeVar("T", bound="StartsWith")
@@ -232,7 +133,7 @@ class StartsWith(GreedyUntil):
         # with, then we can still used the unmatched parts on the end.
         # We still need to deal with any non-code segments at the start.
         assert self.terminators
-        greedy_match = self.greedy_match(
+        greedy_matched = greedy_match(
             match.unmatched_segments,
             parse_context,
             # We match up to the terminators for this segment, but _also_
@@ -243,12 +144,12 @@ class StartsWith(GreedyUntil):
 
         # NB: If all we matched in the greedy match was non-code then we can't
         # claim it.
-        if not any(seg.is_code for seg in greedy_match.matched_segments):
+        if not any(seg.is_code for seg in greedy_matched.matched_segments):
             # So just return the original match.
             return match
 
         # Otherwise Combine the results.
         return MatchResult(
-            match.matched_segments + greedy_match.matched_segments,
-            greedy_match.unmatched_segments,
+            match.matched_segments + greedy_matched.matched_segments,
+            greedy_matched.unmatched_segments,
         )
