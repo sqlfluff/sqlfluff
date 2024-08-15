@@ -271,6 +271,24 @@ class FormatClauseSegment(BaseSegment):
     )
 
 
+class MergeTreesOrderByClauseSegment(BaseSegment):
+    """A `ORDER BY` clause for the MergeTree family engine."""
+
+    type = "merge_tree_order_by_clause"
+    match_grammar: Matchable = Sequence(
+        "ORDER",
+        "BY",
+        OneOf(
+            Sequence(
+                "TUPLE",
+                Bracketed(),  # tuple() not tuple
+            ),
+            Ref("BracketedColumnReferenceListGrammar"),
+            Ref("ColumnReferenceSegment"),
+        ),
+    )
+
+
 class PreWhereClauseSegment(BaseSegment):
     """A `PREWHERE` clause like in `SELECT` or `INSERT`."""
 
@@ -647,18 +665,11 @@ class TableEngineSegment(BaseSegment):
     type = "engine"
     match_grammar = Sequence(
         "ENGINE",
-        Ref("EqualsSegment"),
+        Ref("EqualsSegment", optional=True),
         Sequence(
             Ref("TableEngineFunctionSegment"),
             AnySetOf(
-                Sequence(
-                    "ORDER",
-                    "BY",
-                    OneOf(
-                        Ref("BracketedColumnReferenceListGrammar"),
-                        Ref("ColumnReferenceSegment"),
-                    ),
-                ),
+                Ref("MergeTreesOrderByClauseSegment"),
                 Sequence(
                     "PARTITION",
                     "BY",
@@ -724,15 +735,7 @@ class DatabaseEngineSegment(BaseSegment):
         Sequence(
             Ref("DatabaseEngineFunctionSegment"),
             AnySetOf(
-                Sequence(
-                    "ORDER",
-                    "BY",
-                    OneOf(
-                        Ref("BracketedColumnReferenceListGrammar"),
-                        Ref("ColumnReferenceSegment"),
-                    ),
-                    optional=True,
-                ),
+                Ref("MergeTreesOrderByClauseSegment"),
                 Sequence(
                     "PARTITION",
                     "BY",
