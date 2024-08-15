@@ -9,7 +9,7 @@ into specific file references. The method also processes the
 import logging
 import os
 from pathlib import Path
-from typing import Iterable, Iterator, List, Optional, Sequence, Tuple
+from typing import Container, Iterable, Iterator, List, Optional, Sequence, Tuple
 
 import pathspec
 
@@ -29,7 +29,7 @@ IgnoreSpecRecords = List[IgnoreSpecRecord]
 def _iter_config_files(
     target_path: Path,
     working_path: Path,
-    config_filenames: Tuple[str],
+    config_filenames: Container[str],
 ) -> Iterator[str]:
     """Iterate through paths looking for valid config files."""
     for search_path in iter_intermediate_paths(target_path.absolute(), working_path):
@@ -44,7 +44,7 @@ def _check_ignore_specs(
     absolute_filepath: str, ignore_specs: IgnoreSpecRecords
 ) -> Optional[str]:
     """Check a filepath against the loaded ignore files.
-    
+
     Returns:
         The path of an ignorefile if found, None otherwise.
     """
@@ -61,6 +61,18 @@ def _load_ignorefile(filepath: str) -> IgnoreSpecRecord:
     with open(filepath) as f:
         spec = pathspec.PathSpec.from_lines("gitwildmatch", f)
     return dirname, filename, spec
+
+
+def _match_file_extension(filepath: str, valid_extensions: Sequence[str]) -> bool:
+    """Match file path against extensions.
+
+    Assumes that valid_extensions is already all lowercase.
+
+    Returns:
+        True if the file has an extension in `valid_extensions`.
+    """
+    _, file_ext = os.path.splitext(filepath)
+    return file_ext.lower() in valid_extensions
 
 
 def paths_from_path(
@@ -83,6 +95,8 @@ def paths_from_path(
     of the two. This might be counterintuitive, but supports an appropriate solution
     for the dbt templater without having to additionally pass the project root path.
     """
+    ignore_filename_set = frozenset((".sqlfluffignore",))
+
     if not os.path.exists(path):
         if ignore_non_existent_files:
             return []
@@ -96,8 +110,6 @@ def paths_from_path(
     # First load any ignore files from outside the path.
     # These will be applied to every file within the path, because we know that
     # they're in a parent folder.
-    # NOTE: ARE THEY? What about no common path!?
-    # (ignore_path, ignore_filename, ignore_spec)
     outer_ignore_specs: IgnoreSpecRecords = []
     # Only load them if we're using ignorefiles. NOTE: That if ignore_files
     # is False, we keep the routines for _checking_ we just never load the
@@ -106,15 +118,14 @@ def paths_from_path(
         for outer_ignore_file in _iter_config_files(
             Path(path).absolute(),
             Path(working_path) if isinstance(working_path, str) else working_path,
-            (".sqlfluffignore",),
+            ignore_filename_set,
         ):
             outer_ignore_specs.append(_load_ignorefile(outer_ignore_file))
 
     # Handle being passed an exact file first.
     if os.path.isfile(path):
         # Does it have a relevant extension? If not, just return an empty list.
-        _, file_ext = os.path.splitext(path)
-        if file_ext.lower() not in lower_file_exts:
+        if not _match_file_extension(path, lower_file_exts):
             return []
 
         # It's an exact file. We only need to handle the outer ignore files,
@@ -135,8 +146,6 @@ def paths_from_path(
 
     # Otherwise, it's not an exact path and we're going to walk the path
     # progressively, processing ignore files as we go.
-    ignore_filename_set = frozenset((".sqlfluffignore",))
-    # (ignore_path, ignore_filename, ignore_spec)
     inner_ignore_specs: IgnoreSpecRecords = []
     # Set up the filename buffer
     sql_file_buffer: List[str] = []
@@ -163,14 +172,9 @@ def paths_from_path(
         # https://docs.python.org/3/library/os.html#os.walk
         for subdir in subdirs[:]:  # slice it so that we can modify it in the process.
             absolute_path = os.path.abspath(os.path.join(dirname, subdir))
-
-            # Outer specs
-            if _check_ignore_specs(absolute_path, outer_ignore_specs):
-                subdirs.remove(subdir)
-                continue
-
-            # Inner specs
-            if _check_ignore_specs(absolute_path, inner_ignore_specs):
+            if _check_ignore_specs(
+                absolute_path, outer_ignore_specs
+            ) or _check_ignore_specs(absolute_path, inner_ignore_specs):
                 subdirs.remove(subdir)
                 continue
 
@@ -180,19 +184,15 @@ def paths_from_path(
             absolute_path = os.path.abspath(relative_path)
 
             # Check file extension is relevant
-            _, file_ext = os.path.splitext(filename)
-            if file_ext.lower() not in lower_file_exts:
+            if not _match_file_extension(filename, lower_file_exts):
                 continue
-
-            # Check not ignored by outer ignore specs
+            # Check not ignored by outer & inner ignore specs
             if _check_ignore_specs(absolute_path, outer_ignore_specs):
                 continue
-
-            # Check not ignored by inner ignore specs
             if _check_ignore_specs(absolute_path, inner_ignore_specs):
                 continue
 
-            # If we get here, it's one we want, add it to a buffer for sorting.
+            # If we get here, it's one we want. Add it to a buffer for sorting.
             sql_file_buffer.append(os.path.normpath(relative_path))
 
     return sorted(sql_file_buffer)
