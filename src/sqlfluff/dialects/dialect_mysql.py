@@ -1649,12 +1649,7 @@ class AlterViewStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
-        OptionallyBracketed(
-            OneOf(
-                Ref("SelectStatementSegment"),
-                Ref("SetExpressionSegment"),
-            )
-        ),
+        OptionallyBracketed(Ref("SelectableGrammar")),
         Ref("WithCheckOptionSegment", optional=True),
     )
 
@@ -1682,12 +1677,7 @@ class CreateViewStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
-        OptionallyBracketed(
-            OneOf(
-                Ref("SelectStatementSegment"),
-                Ref("SetExpressionSegment"),
-            )
-        ),
+        OptionallyBracketed(Ref("SelectableGrammar")),
         Ref("WithCheckOptionSegment", optional=True),
     )
 
