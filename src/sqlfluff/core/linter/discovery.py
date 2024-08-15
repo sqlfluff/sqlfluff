@@ -22,7 +22,8 @@ from sqlfluff.core.helpers.file import iter_intermediate_paths
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
 WalkableType = Iterable[Tuple[str, Optional[List[str]], List[str]]]
-IgnoreSpecRecords = List[Tuple[str, str, pathspec.PathSpec]]
+IgnoreSpecRecord = Tuple[str, str, pathspec.PathSpec]
+IgnoreSpecRecords = List[IgnoreSpecRecord]
 
 
 def _iter_config_files(
@@ -41,11 +42,25 @@ def _iter_config_files(
 
 def _check_ignore_specs(
     absolute_filepath: str, ignore_specs: IgnoreSpecRecords
-) -> bool:
-    for dirname, _, spec in ignore_specs:
+) -> Optional[str]:
+    """Check a filepath against the loaded ignore files.
+    
+    Returns:
+        The path of an ignorefile if found, None otherwise.
+    """
+    for dirname, filename, spec in ignore_specs:
         if spec.match_file(os.path.relpath(absolute_filepath, dirname)):
-            return True
-    return False
+            return os.path.join(dirname, filename)
+    return None
+
+
+def _load_ignorefile(filepath: str) -> IgnoreSpecRecord:
+    """Load a sqlfluffignore file, returning the parsed spec."""
+    dirname = os.path.dirname(filepath)
+    filename = os.path.basename(filepath)
+    with open(filepath) as f:
+        spec = pathspec.PathSpec.from_lines("gitwildmatch", f)
+    return dirname, filename, spec
 
 
 def paths_from_path(
@@ -93,15 +108,7 @@ def paths_from_path(
             Path(working_path) if isinstance(working_path, str) else working_path,
             (".sqlfluffignore",),
         ):
-            outer_dirname = os.path.dirname(outer_ignore_file)
-            with open(outer_ignore_file) as f:
-                outer_ignore_specs.append(
-                    (
-                        outer_dirname,
-                        os.path.basename(outer_ignore_file),
-                        pathspec.PathSpec.from_lines("gitwildmatch", f),
-                    )
-                )
+            outer_ignore_specs.append(_load_ignorefile(outer_ignore_file))
 
     # Handle being passed an exact file first.
     if os.path.isfile(path):
@@ -113,17 +120,16 @@ def paths_from_path(
         # It's an exact file. We only need to handle the outer ignore files,
         # and that's only to warn if they're being applied.
         abs_fpath = os.path.abspath(path)
-        for outer_dirname, outer_file, outer_spec in outer_ignore_specs:
-            if outer_spec.match_file(os.path.relpath(abs_fpath, outer_dirname)):
-                ignore_file = os.path.join(outer_dirname, outer_file)
-                linter_logger.warning(
-                    f"Exact file path {path} was given but it was configured as"
-                    f"ignored by an ignore pattern in {ignore_file}, "
-                    "re-run with `--disregard-sqlfluffignores` to "
-                    f"skip {ignore_file}"
-                )
-                # Return no match, because the file is ignored.
-                return []
+        ignore_file = _check_ignore_specs(abs_fpath, outer_ignore_specs)
+        if ignore_file:
+            linter_logger.warning(
+                f"Exact file path {path} was given but it was configured as"
+                f"ignored by an ignore pattern in {ignore_file}, "
+                "re-run with `--disregard-sqlfluffignores` to "
+                f"skip {ignore_file}"
+            )
+            # Return no match, because the file is ignored.
+            return []
 
         return [os.path.normpath(path)]
 
@@ -149,15 +155,9 @@ def paths_from_path(
         # to the inner buffer if found.
         if ignore_files:
             for ignore_file in set(filenames) & ignore_filename_set:
-                with open(os.path.join(dirname, ignore_file)) as f:
-                    # Add them to the buffer
-                    inner_ignore_specs.append(
-                        (
-                            dirname,
-                            ignore_file,
-                            pathspec.PathSpec.from_lines("gitwildmatch", f),
-                        )
-                    )
+                inner_ignore_specs.append(
+                    _load_ignorefile(os.path.join(dirname, ignore_file))
+                )
 
         # Then prune any subdirectories which are ignored (by modifying `subdirs`)
         # https://docs.python.org/3/library/os.html#os.walk
