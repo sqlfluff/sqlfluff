@@ -33,7 +33,10 @@ from sqlfluff.core.parser import (
     TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
-from sqlfluff.dialects.dialect_clickhouse_keywords import UNRESERVED_KEYWORDS
+from sqlfluff.dialects.dialect_clickhouse_keywords import (
+    FORMAT_KEYWORDS,
+    UNRESERVED_KEYWORDS,
+)
 
 ansi_dialect = load_raw_dialect("ansi")
 
@@ -225,13 +228,47 @@ clickhouse_dialect.replace(
     SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "SelectClauseTerminatorGrammar"
     ).copy(
-        insert=[Ref.keyword("PREWHERE")],
+        insert=[
+            Ref.keyword("PREWHERE"),
+            Ref.keyword("INTO"),
+            Ref.keyword("FORMAT"),
+        ],
         before=Ref.keyword("WHERE"),
     ),
     FromClauseTerminatorGrammar=ansi_dialect.get_grammar("FromClauseTerminatorGrammar")
-    .copy(insert=[Ref.keyword("PREWHERE")], before=Ref.keyword("WHERE"))
+    .copy(
+        insert=[
+            Ref.keyword("PREWHERE"),
+            Ref.keyword("INTO"),
+            Ref.keyword("FORMAT"),
+        ],
+        before=Ref.keyword("WHERE"),
+    )
     .copy(insert=[Ref("SettingsClauseSegment")]),
 )
+
+
+class IntoOutfileClauseSegment(BaseSegment):
+    """An `INTO OUTFILE` clause like in `SELECT`."""
+
+    type = "into_outfile_clause"
+    match_grammar: Matchable = Sequence(
+        "INTO",
+        "OUTFILE",
+        Ref("QuotedLiteralSegment"),
+        Ref("FormatClauseSegment", optional=True),
+    )
+
+
+class FormatClauseSegment(BaseSegment):
+    """A `FORMAT` clause like in `SELECT`."""
+
+    type = "format_clause"
+    match_grammar: Matchable = Sequence(
+        "FORMAT",
+        OneOf(*[Ref.keyword(allowed_format) for allowed_format in FORMAT_KEYWORDS]),
+        Ref("SettingsClauseSegment", optional=True),
+    )
 
 
 class PreWhereClauseSegment(BaseSegment):
@@ -284,7 +321,11 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
         insert=[Ref("PreWhereClauseSegment", optional=True)],
         before=Ref("WhereClauseSegment", optional=True),
     ).copy(
-        insert=[Ref("SettingsClauseSegment", optional=True)],
+        insert=[
+            Ref("FormatClauseSegment", optional=True),
+            Ref("IntoOutfileClauseSegment", optional=True),
+            Ref("SettingsClauseSegment", optional=True),
+        ],
     )
 
 
@@ -855,6 +896,53 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
             ),
             optional=True,
         ),
+    )
+
+
+class RenameStatementSegment(BaseSegment):
+    """A `RENAME TABLE` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/rename/
+    """
+
+    type = "rename_table_statement"
+
+    match_grammar = Sequence(
+        "RENAME",
+        OneOf(
+            Sequence(
+                "TABLE",
+                Delimited(
+                    Sequence(
+                        Ref("TableReferenceSegment"),
+                        "TO",
+                        Ref("TableReferenceSegment"),
+                    )
+                ),
+            ),
+            Sequence(
+                "DATABASE",
+                Delimited(
+                    Sequence(
+                        Ref("DatabaseReferenceSegment"),
+                        "TO",
+                        Ref("DatabaseReferenceSegment"),
+                    )
+                ),
+            ),
+            Sequence(
+                "DICTIONARY",
+                Delimited(
+                    Sequence(
+                        Ref("ObjectReferenceSegment"),
+                        "TO",
+                        Ref("ObjectReferenceSegment"),
+                    )
+                ),
+            ),
+        ),
+        Ref("OnClusterClauseSegment", optional=True),
     )
 
 
@@ -1517,6 +1605,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropQuotaStatementSegment"),
             Ref("DropSettingProfileStatementSegment"),
             Ref("SystemStatementSegment"),
+            Ref("RenameStatementSegment"),
         ]
     )
 
