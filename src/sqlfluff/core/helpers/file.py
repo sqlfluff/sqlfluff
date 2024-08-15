@@ -29,7 +29,7 @@ def iter_intermediate_paths(inner_path: Path, outer_path: Path) -> Iterator[Path
     Instead, we look for the lowest *common path* between the inner and outer
     paths. This is a superset of the originally intended logic, but is convenient
     until we have a good solution for the dbt templater project root path.
-    
+
     * If there is not common path, the outer path and inner path are yielded *only*.
     * If there is a common path, then that common path is yielded first, and then
       paths leading up to the inner path are yielded. Unless the inner path is a
