@@ -9,7 +9,7 @@ into specific file references. The method also processes the
 import logging
 import os
 from pathlib import Path
-from typing import Container, Iterable, Iterator, List, Optional, Sequence, Tuple
+from typing import Collection, Iterable, Iterator, List, Optional, Sequence, Tuple
 
 import pathspec
 
@@ -29,7 +29,7 @@ IgnoreSpecRecords = List[IgnoreSpecRecord]
 def _iter_config_files(
     target_path: Path,
     working_path: Path,
-    config_filenames: Container[str],
+    config_filenames: Collection[str],
 ) -> Iterator[str]:
     """Iterate through paths looking for valid config files."""
     for search_path in iter_intermediate_paths(target_path.absolute(), working_path):
