@@ -46,7 +46,6 @@ def _check_ignore_specs(absolute_filepath: str, ignore_specs: IgnoreSpecRecords)
     return False
 
 
-
 def paths_from_path(
     path: str,
     ignore_non_existent_files: bool = False,
@@ -92,8 +91,6 @@ def paths_from_path(
             with open(outer_ignore_file) as f:
                 outer_ignore_specs.append((outer_dirname, os.path.basename(outer_ignore_file), pathspec.PathSpec.from_lines("gitwildmatch", f)))
 
-    print(outer_ignore_specs)
-
     # Handle being passed an exact file first.
     if os.path.isfile(path):
         # Does it have a relevant extension? If not, just return an empty list.
@@ -104,7 +101,6 @@ def paths_from_path(
         # It's an exact file. We only need to handle the outer ignore files,
         # and that's only to warn if they're being applied.
         abs_fpath = os.path.abspath(path)
-        print(abs_fpath)
         for outer_dirname, outer_file, outer_spec in outer_ignore_specs:
             if outer_spec.match_file(os.path.relpath(abs_fpath, outer_dirname)):
                 ignore_file = os.path.join(outer_dirname, outer_file)
@@ -121,7 +117,7 @@ def paths_from_path(
 
     # Otherwise, it's not an exact path and we're going to walk the path
     # progressively, processing ignore files as we go.
-    ignore_filename_set = frozenset(".sqlfluffignore",)
+    ignore_filename_set = frozenset((".sqlfluffignore",))
     # (ignore_path, ignore_filename, ignore_spec)
     inner_ignore_specs: IgnoreSpecRecords = []
     # Set up the filename buffer
@@ -133,7 +129,6 @@ def paths_from_path(
                 with open(os.path.join(dirname, ignore_file)) as f:
                     # Add them to the buffer
                     inner_ignore_specs.append((dirname, ignore_file, pathspec.PathSpec.from_lines("gitwildmatch", f)))
-                    print("adding:", inner_ignore_specs[-1])
 
         # Then prune any subdirectories which are ignored (by modifying `subdirs`)
         # https://docs.python.org/3/library/os.html#os.walk
@@ -142,13 +137,11 @@ def paths_from_path(
             # Outer specs
             if _check_ignore_specs(abs_fpath, outer_ignore_specs):
                 subdirs.remove(subdir)
-                print("outer pruning:", subdir)
                 continue
 
             # Inner specs
             if _check_ignore_specs(abs_fpath, inner_ignore_specs):
                 subdirs.remove(subdir)
-                print("inner pruning:", subdir)
                 continue
 
             for inner_dirname, inner_file, inner_spec in inner_ignore_specs[:]:
@@ -159,7 +152,6 @@ def paths_from_path(
                     or dirname.startswith(os.path.abspath(inner_dirname) + os.sep)
                 ):
                     inner_ignore_specs.remove((inner_dirname, inner_file, inner_spec))
-                    print("inner pruning spec:", inner_dirname, inner_file)
 
         # Then look for any relevant sql files in the path.
         for filename in filenames:
@@ -169,17 +161,13 @@ def paths_from_path(
             _, file_ext = os.path.splitext(filename)
             if file_ext.lower() not in lower_file_exts:
                 continue
-
-            print(relative_path)
             
             # Check outer ignore specs
             if _check_ignore_specs(absolute_path, outer_ignore_specs):
-                print("outer ignore")
                 continue
                 
             # Check inner ignore specs
             if _check_ignore_specs(absolute_path, inner_ignore_specs):
-                print("inner ignore")
                 continue
             
             # If we get here, it's one we want, add it to a buffer for sorting.
