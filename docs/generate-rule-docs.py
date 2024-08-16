@@ -1,5 +1,6 @@
 """Generate rule documentation automatically."""
 
+import json
 from collections import defaultdict
 from pathlib import Path
 
@@ -27,10 +28,17 @@ table_header = f"""
 # Extract all the rules.
 print("Rule Docs Generation: Reading Rules...")
 rule_bundles = defaultdict(list)
+rule_list = []
 for plugin_rules in get_plugin_manager().hook.get_rules():
     for rule in plugin_rules:
         _bundle_name = rule.name.split(".")[0]
         rule_bundles[_bundle_name].append(rule)
+        rule_list.append((rule.code, rule.name))
+
+# Write them into a json file for use by redirects.
+print("Rule Docs Generation: Writing Rule JSON...")
+with open(base_path / "source/_partials/rule_list.json", "w", encoding="utf8") as f:
+    json.dump(rule_list, f)
 
 # Write them into the table. Bundle by bundle.
 print("Rule Docs Generation: Writing Rule Table...")
