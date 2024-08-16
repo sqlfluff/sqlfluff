@@ -10,12 +10,35 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [3.1.1] - 2024-08-14
+## [3.1.1] - 2024-08-16
 
 ## Highlights
 
+This release brings a bumper lot of bugfixes, dialect improvements and other
+minor improvements across the board. Most notably:
+
+* A rework of the structure of the docs. **NOTE**: This does change the url
+  of some docs pages, but to prevent future moves, we've also provided
+  permalinks to most important pages and rules. See the `conf.py` file in
+  the `docs` folder for a full list of permalinks.
+* Solving rule conflicts between LT02 & LT02.
+* Bugfixes to AM07, CV11, ST03, ST05 & RF03,
+* Removes some redundant dependencies in for the dbt templater (which haven't
+  been required for some time, but have been included in the install dependencies).
+  Specifically: `markupsafe`, `ruamel.yaml`, `pydantic` & `rich`.
+* And too many dialect improvements to summarise!
+
+We've also seen **eleven** new contributors to the project! Thanks to all of them
+for taking the time to contribute. 🎉🎉🏆🎉🎉
+
 ## What’s Changed
 
+* fix(clickhouse): add support for tuple() and ENGINE MergeTree [#6079](https://github.com/sqlfluff/sqlfluff/pull/6079) [@ogirardot](https://github.com/ogirardot)
+* Add perma-links for rules [#6066](https://github.com/sqlfluff/sqlfluff/pull/6066) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* fix(clickhouse): add support for rename statement [#6073](https://github.com/sqlfluff/sqlfluff/pull/6073) [@ogirardot](https://github.com/ogirardot)
+* fix(clickhouse): add support for INTO OUTFILE and supported FORMATs [#6065](https://github.com/sqlfluff/sqlfluff/pull/6065) [@ogirardot](https://github.com/ogirardot)
+* LT04: Fix indentation conflict with LT02 [#6068](https://github.com/sqlfluff/sqlfluff/pull/6068) [@keraion](https://github.com/keraion)
+* pre-commit: Disable progress bar [#6069](https://github.com/sqlfluff/sqlfluff/pull/6069) [@keraion](https://github.com/keraion)
 * feat(clickhouse): add support for decimal(x,y), decimal32(x) and match [#6063](https://github.com/sqlfluff/sqlfluff/pull/6063) [@ogirardot](https://github.com/ogirardot)
 * Big docs refactor. [#6052](https://github.com/sqlfluff/sqlfluff/pull/6052) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * ST05: Handle set statement's subsequent queries [#6062](https://github.com/sqlfluff/sqlfluff/pull/6062) [@keraion](https://github.com/keraion)
@@ -52,8 +75,8 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * Snowflake: fixes drop column if exists parsing rules [#5999](https://github.com/sqlfluff/sqlfluff/pull/5999) [@hawle](https://github.com/hawle)
 * Fix TSQL Post Table Expr intrepreted as function [#6001](https://github.com/sqlfluff/sqlfluff/pull/6001) [@ulixius9](https://github.com/ulixius9)
 
-## New Contributors
 
+## New Contributors
 * [@yorickbouma](https://github.com/yorickbouma) made their first contribution in [#6012](https://github.com/sqlfluff/sqlfluff/pull/6012)
 * [@snikch](https://github.com/snikch) made their first contribution in [#6018](https://github.com/sqlfluff/sqlfluff/pull/6018)
 * [@nicolb2305](https://github.com/nicolb2305) made their first contribution in [#6004](https://github.com/sqlfluff/sqlfluff/pull/6004)
