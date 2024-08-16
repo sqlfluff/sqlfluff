@@ -176,6 +176,7 @@ mysql_dialect.replace(
             Ref("ForClauseSegment"),
             Ref("SetOperatorSegment"),
             Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithCheckOptionSegment"),
             Ref("IntoClauseSegment"),
         ]
     ),
@@ -1918,6 +1919,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
                 Ref("IntoClauseSegment"),
                 Ref("ForClauseSegment"),
                 Ref("IndexHintClauseSegment"),
+                Ref("WithCheckOptionSegment"),
                 Ref("SelectPartitionClauseSegment"),
                 Ref("UpsertClauseListSegment"),
             ],
