@@ -172,7 +172,10 @@ def paths_from_path(
         # Then prune any subdirectories which are ignored (by modifying `subdirs`)
         # https://docs.python.org/3/library/os.html#os.walk
         for subdir in subdirs[:]:  # slice it so that we can modify it in the process.
-            absolute_path = os.path.abspath(os.path.join(dirname, subdir))
+            # NOTE: The "*" in this next section is a bit of a hack, but pathspec
+            # doesn't like matching _directories_ directly, but if we instead match
+            # `directory/*` we get the same effect.
+            absolute_path = os.path.abspath(os.path.join(dirname, subdir, "*"))
             if _check_ignore_specs(
                 absolute_path, outer_ignore_specs
             ) or _check_ignore_specs(absolute_path, inner_ignore_specs):
