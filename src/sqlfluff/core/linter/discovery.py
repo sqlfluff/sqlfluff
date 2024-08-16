@@ -133,11 +133,12 @@ def paths_from_path(
         abs_fpath = os.path.abspath(path)
         ignore_file = _check_ignore_specs(abs_fpath, outer_ignore_specs)
         if ignore_file:
+            ignore_rel_path = os.path.relpath(ignore_file, working_path)
             linter_logger.warning(
-                f"Exact file path {path} was given but it was configured as"
-                f"ignored by an ignore pattern in {ignore_file}, "
-                "re-run with `--disregard-sqlfluffignores` to "
-                f"skip {ignore_file}"
+                f"Exact file path {path} was given but it was "
+                f"ignored by an ignore pattern set in {ignore_rel_path}, "
+                "re-run with `--disregard-sqlfluffignores` to not process "
+                "ignore files."
             )
             # Return no match, because the file is ignored.
             return []
