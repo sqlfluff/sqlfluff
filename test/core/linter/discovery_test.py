@@ -114,3 +114,8 @@ def test__linter__path_from_paths__ignore(path):
     assert normalise_paths(paths_from_path(path)) == {
         "test.fixtures.linter.sqlfluffignore.path_b.query_b.sql"
     }
+
+
+def test__linter__path_from_paths__specific_bad_ext():
+    """Test we get no match if a path with the wrong extension is passed."""
+    assert paths_from_path("README.md") == []
