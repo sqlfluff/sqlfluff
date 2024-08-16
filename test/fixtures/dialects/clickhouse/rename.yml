@@ -1,0 +1,111 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 32cb3df2680363456d330117023e944d7a69e5ce1abf31d133390c920da09fe6
+file:
+- statement:
+    rename_table_statement:
+    - keyword: RENAME
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_table
+    - keyword: TO
+    - table_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_new_table
+- statement_terminator: ;
+- statement:
+    rename_table_statement:
+    - keyword: RENAME
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: my_db
+    - keyword: TO
+    - database_reference:
+        naked_identifier: other_db
+- statement_terminator: ;
+- statement:
+    rename_table_statement:
+    - keyword: RENAME
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: my_db
+    - keyword: TO
+    - database_reference:
+        naked_identifier: other_db
+    - comma: ','
+    - database_reference:
+        naked_identifier: my_db2
+    - keyword: TO
+    - database_reference:
+        naked_identifier: other_pg
+- statement_terminator: ;
+- statement:
+    rename_table_statement:
+    - keyword: RENAME
+    - keyword: DICTIONARY
+    - object_reference:
+        naked_identifier: dict_A
+    - keyword: TO
+    - object_reference:
+        naked_identifier: dict_B
+- statement_terminator: ;
+- statement:
+    rename_table_statement:
+    - keyword: RENAME
+    - keyword: DICTIONARY
+    - object_reference:
+        naked_identifier: dict_A
+    - keyword: TO
+    - object_reference:
+        naked_identifier: dict_B
+    - comma: ','
+    - object_reference:
+        naked_identifier: dict_A
+    - keyword: TO
+    - object_reference:
+        naked_identifier: dict_B
+- statement_terminator: ;
+- statement:
+    rename_table_statement:
+    - keyword: RENAME
+    - keyword: DICTIONARY
+    - object_reference:
+      - naked_identifier: db0
+      - dot: .
+      - naked_identifier: dict_A
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: db1
+      - dot: .
+      - naked_identifier: dict_B
+- statement_terminator: ;
+- statement:
+    rename_table_statement:
+    - keyword: RENAME
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_table
+    - keyword: TO
+    - table_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_new_table
+    - comma: ','
+    - table_reference:
+        naked_identifier: my_table2
+    - keyword: TO
+    - table_reference:
+        naked_identifier: my_new_table2
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: toto
+- statement_terminator: ;
