@@ -8324,7 +8324,7 @@ class ScriptingDeclareStatementSegment(BaseSegment):
         Indent,
         AnyNumberOf(
             Sequence(
-                # to avoid treating the BEGIN as a variable from the subsequent scripting block
+                # Avoid BEGIN as a variable from the subsequent scripting block
                 Ref("LocalVariableNameSegment", exclude=Ref.keyword("BEGIN")),
                 OneOf(
                     # Variable assignment
