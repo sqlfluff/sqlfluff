@@ -2588,6 +2588,12 @@ class AlterExtensionStatementSegment(BaseSegment):
     )
 
 
+class SubscriptionReferenceSegment(ansi.ObjectReferenceSegment):
+    """A subscription reference."""
+
+    type = "subscription_reference"
+
+
 class PublicationReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to a publication."""
 
@@ -3218,6 +3224,118 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
             Ref.keyword("WITH", optional=True),
             Bracketed("FORCE"),
             optional=True,
+        ),
+    )
+
+
+class CreateSubscriptionSegment(BaseSegment):
+    """A `CREATE SUBSCRIPTION` statement.
+
+    https://www.postgresql.org/docs/current/sql-createsubscription.html
+    """
+
+    type = "create_subscription"
+    match_grammar = Sequence(
+        "CREATE",
+        "SUBSCRIPTION",
+        Ref("SubscriptionObjectReference"),
+        "CONNECTION",
+        Ref("QuotedLiteralSegment"),
+        "PUBLICATION",
+        Delimited(Ref("PublicationReferenceSegment")),
+        Sequence(
+            "WITH",
+            Bracketed(
+                Delimited(
+                    Ref("ParameterNameSegment"),
+                    Ref("RawEqualsSegment"),
+                    Ref("ExpressionSegment"),
+                )
+            ),
+            optional=True,
+        ),
+    )
+
+
+class AlterSubscriptionSegment(BaseSegment):
+    """An `ALTER SUBSCRIPTION` statement.
+
+    https://www.postgresql.org/docs/current/sql-altersubscription.html
+    """
+
+    type = "alter_subscription"
+    match_grammar = Sequence(
+        "ALTER",
+        "SUBSCRIPTION",
+        Ref("SubscriptionObjectReference"),
+        OneOf(
+            Sequence("CONNECTION", Ref("QuotedLiteralSegment")),
+            Sequence(
+                OneOf(
+                    "SET",
+                    "ADD",
+                    "DROP",
+                ),
+                "PUBLICATION",
+                Delimited(Ref("PublicationReferenceSegment")),
+                Sequence(
+                    "WITH",
+                    Bracketed(
+                        Delimited(
+                            Ref("ParameterNameSegment"),
+                            Ref("RawEqualsSegment"),
+                            Ref("ExpressionSegment"),
+                        )
+                    ),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "REFRESH",
+                "PUBLICATION",
+                Sequence(
+                    "WITH",
+                    Bracketed(
+                        Delimited(
+                            Ref("ParameterNameSegment"),
+                            Ref("RawEqualsSegment"),
+                            Ref("ExpressionSegment"),
+                        )
+                    ),
+                    optional=True,
+                ),
+            ),
+            "ENABLE",
+            "DISABLE",
+            Sequence(
+                "SET",
+                Bracketed(
+                    Delimited(
+                        Ref("ParameterNameSegment"),
+                        Ref("RawEqualsSegment"),
+                        Ref("ExpressionSegment"),
+                    )
+                ),
+            ),
+            Sequence(
+                "SKIP",
+                Bracketed(
+                    Ref("ParameterNameSegment"),
+                    Ref("RawEqualsSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "CURRENT_SESSION",
+                ),
+            ),
+            Sequence("RENAME", "TO", Ref("SubscriptionObjectReference")),
         ),
     )
 
