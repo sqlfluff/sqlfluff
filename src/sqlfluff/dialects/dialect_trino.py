@@ -297,6 +297,7 @@ class RowTypeSchemaSegment(BaseSegment):
         )
     )
 
+
 class OverlapsClauseSegment(BaseSegment):
     """An `OVERLAPS` clause like in `SELECT."""
 
