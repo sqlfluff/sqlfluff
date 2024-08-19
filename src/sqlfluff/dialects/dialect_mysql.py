@@ -176,6 +176,7 @@ mysql_dialect.replace(
             Ref("ForClauseSegment"),
             Ref("SetOperatorSegment"),
             Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithCheckOptionSegment"),
             Ref("IntoClauseSegment"),
         ]
     ),
@@ -1649,12 +1650,7 @@ class AlterViewStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
-        OptionallyBracketed(
-            OneOf(
-                Ref("SelectStatementSegment"),
-                Ref("SetExpressionSegment"),
-            )
-        ),
+        OptionallyBracketed(Ref("SelectableGrammar")),
         Ref("WithCheckOptionSegment", optional=True),
     )
 
@@ -1682,12 +1678,7 @@ class CreateViewStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
-        OptionallyBracketed(
-            OneOf(
-                Ref("SelectStatementSegment"),
-                Ref("SetExpressionSegment"),
-            )
-        ),
+        OptionallyBracketed(Ref("SelectableGrammar")),
         Ref("WithCheckOptionSegment", optional=True),
     )
 
@@ -1928,6 +1919,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
                 Ref("IntoClauseSegment"),
                 Ref("ForClauseSegment"),
                 Ref("IndexHintClauseSegment"),
+                Ref("WithCheckOptionSegment"),
                 Ref("SelectPartitionClauseSegment"),
                 Ref("UpsertClauseListSegment"),
             ],
