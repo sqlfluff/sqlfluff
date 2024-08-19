@@ -48,3 +48,8 @@ AS
         column1,
         column2
     FROM table_kafka;
+
+CREATE MATERIALIZED VIEW db.mv_table
+ENGINE MergeTree
+ORDER BY ()
+AS SELECT * FROM db.table;
