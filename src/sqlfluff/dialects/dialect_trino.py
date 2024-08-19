@@ -260,10 +260,41 @@ class DatatypeSegment(BaseSegment):
         # Structural
         "ARRAY",
         "MAP",
-        "ROW",
+        Ref("RowTypeSegment"),
         # Others
         "IPADDRESS",
         "UUID",
+    )
+
+
+class RowTypeSegment(ansi.StructTypeSegment):
+    """Expression to construct a ROW datatype."""
+
+    match_grammar = Sequence(
+        "ROW",
+        Ref("RowTypeSchemaSegment", optional=True),
+    )
+
+
+class RowTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a ROW datatype."""
+
+    type = "struct_type_schema"
+    match_grammar = Bracketed(
+        Delimited(  # Comma-separated list of field names/types
+            Sequence(
+                OneOf(
+                    # ParameterNames can look like Datatypes so can't use
+                    # Optional=True here and instead do a OneOf in order
+                    # with DataType only first, followed by both.
+                    Ref("DatatypeSegment"),
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("DatatypeSegment"),
+                    ),
+                )
+            )
+        )
     )
 
 
