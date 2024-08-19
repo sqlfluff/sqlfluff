@@ -342,6 +342,39 @@ test_pass_ignore_words_column_name:
       references.qualification:
         ignore_words: test1,test2
 
+test_pass_ignore_words_column_name_as_list:
+  pass_str: |
+    SELECT test1, test2
+    FROM t_table1
+    LEFT JOIN t_table_2
+        ON TRUE
+  configs:
+    rules:
+      references.qualification:
+        ignore_words:
+          - test1
+          - test2
+
+test_fail_ignore_words_column_name_as_list:
+  fail_str: |
+    SELECT test1, test2
+    FROM t_table1
+    LEFT JOIN t_table_2
+        ON TRUE
+  configs:
+    rules:
+      references.qualification:
+        ignore_words:
+          - test1
+
+test_pass_ignore_words_column_name_as_bool:
+  pass_str: |
+    SELECT "false" FROM foo
+  configs:
+    rules:
+      references.qualification:
+        ignore_words: false
+
 test_pass_ignore_words_regex_column_name:
   pass_str: |
     SELECT _test1, _test2

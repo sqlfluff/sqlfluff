@@ -122,7 +122,6 @@ test_pass_ignore_word1:
       references.keywords:
         ignore_words: create
 
-
 test_pass_ignore_word2:
   pass_str: SELECT col1 AS date FROM table1
   configs:
@@ -130,13 +129,36 @@ test_pass_ignore_word2:
       references.keywords:
         ignore_words: date
 
+test_pass_ignore_word3:
+  pass_str: SELECT false.col1 AS false FROM table1 AS false
+  configs:
+    rules:
+      references.keywords:
+        ignore_words: false
+
+test_pass_ignore_multiple_words_as_list:
+  pass_str: SELECT col1 AS date, col2 AS parameter FROM table1
+  configs:
+    rules:
+      references.keywords:
+        ignore_words:
+          - date
+          - parameter
+
+test_fail_ignore_multiple_words_as_list:
+  fail_str: SELECT col1 AS date, col2 AS parameter FROM table1
+  configs:
+    rules:
+      references.keywords:
+        ignore_words:
+          - date
+
 test_pass_ignore_words_regex1:
   pass_str: CREATE TABLE artist(create TEXT)
   configs:
     rules:
       references.keywords:
         ignore_words_regex: ^cr
-
 
 test_pass_ignore_words_regex2:
   pass_str: SELECT col1 AS date FROM table1

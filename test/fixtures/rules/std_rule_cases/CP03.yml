@@ -54,6 +54,34 @@ test_pass_ignore_word:
       capitalisation.functions:
         ignore_words: min
 
+test_pass_ignore_multiple_words:
+  pass_str: SELECT max(id), min(id) FROM TABLE1
+  configs:
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+        ignore_words: max, min
+
+test_pass_ignore_multiple_words_as_list:
+  pass_str: SELECT max(id), min(id) FROM TABLE1
+  configs:
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+        ignore_words:
+          - max
+          - min
+
+test_fail_ignore_multiple_words_as_list:
+  fail_str: SELECT max(id), min(id) FROM TABLE1
+  fix_str: SELECT max(id), MIN(id) FROM TABLE1
+  configs:
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+        ignore_words:
+          - max
+
 test_pass_ignore_templated_code_true:
   pass_str: |
     SELECT

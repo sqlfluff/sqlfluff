@@ -286,11 +286,12 @@ class Rule_CP01(BaseRule):
             if opt != "consistent"
         ]
         # Use str() as CP04 uses bools which might otherwise be read as bool
-        ignore_words_config = str(getattr(self, "ignore_words"))
+        ignore_words_config = getattr(self, "ignore_words")
+        if not isinstance(ignore_words_config, (str, list)):
+            ignore_words_config = str(ignore_words_config)
         if ignore_words_config and ignore_words_config != "None":
-            self.ignore_words_list = self.split_comma_separated_string(
-                ignore_words_config.lower()
-            )
+            words_list = self.split_comma_separated_string(ignore_words_config)
+            self.ignore_words_list = [str(word).lower() for word in words_list]
         else:
             self.ignore_words_list = []
         self.ignore_templated_areas = context.config.get("ignore_templated_areas")

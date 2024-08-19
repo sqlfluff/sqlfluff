@@ -253,6 +253,26 @@ test_pass_ignore_word:
         capitalisation_policy: upper
         ignore_words: b
 
+test_pass_ignore_word_as_list:
+  pass_str: SELECT A, b, c
+  configs:
+    rules:
+      capitalisation.identifiers:
+        capitalisation_policy: upper
+        ignore_words:
+          - b
+          - c
+
+test_fail_ignore_word_as_list:
+  fail_str: SELECT A, b, c
+  fix_str: SELECT A, b, C
+  configs:
+    rules:
+      capitalisation.identifiers:
+        capitalisation_policy: upper
+        ignore_words:
+          - b
+
 test_pass_consistent_capitalisation_properties_naked_identifier:
   pass_str: SHOW TBLPROPERTIES customer (created.by.user)
   configs:

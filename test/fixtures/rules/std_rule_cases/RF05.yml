@@ -349,9 +349,44 @@ test_pass_ignore_lists_quoted:
       references.special_chars:
         ignore_words: aliashash#
 
-test_pass_ignore_lists_quoted_fail:
+test_fail_ignore_lists_quoted:
   fail_str:
     SELECT a as 'aliashash#'
+
+test_fail_ignore_lists_quoted2:
+  fail_str:
+    SELECT a as 'aliashash#', b as 'alias$'
+  configs:
+    rules:
+      references.special_chars:
+        ignore_words: false
+
+test_pass_ignore_lists_multiple_quoted:
+  pass_str:
+    SELECT a as 'aliashash#', b as 'alias$'
+  configs:
+    rules:
+      references.special_chars:
+        ignore_words: aliashash#, alias$
+
+test_pass_ignore_lists_multiple_quoted_as_list:
+  pass_str:
+    SELECT a as 'aliashash#', b as 'alias$'
+  configs:
+    rules:
+      references.special_chars:
+        ignore_words:
+          - aliashash#
+          - alias$
+
+test_fail_ignore_lists_multiple_quoted_as_list:
+  fail_str:
+    SELECT a as 'aliashash#', b as 'alias$'
+  configs:
+    rules:
+      references.special_chars:
+        ignore_words:
+          - aliashash#
 
 test_pass_ignore_lists_quoted_mixed_case:
   pass_str:
@@ -371,7 +406,7 @@ test_pass_ignore_lists_unquoted:
       references.special_chars:
         ignore_words: alias$
 
-test_pass_ignore_lists_unquoted_fail:
+test_fail_ignore_lists_unquoted:
   fail_str:
     SELECT a as alias$
   configs:

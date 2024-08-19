@@ -416,6 +416,80 @@ test_pass_ignore_lists_tsql:
       references.quoting:
         ignore_words: foo
 
+test_pass_ignore_lists_multiple:
+  pass_str:
+    SELECT 123 AS "foo", 456 AS "bar";
+  configs:
+    rules:
+      references.quoting:
+        ignore_words: foo, bar
+
+test_fail_ignore_lists_multiple:
+  fail_str:
+    SELECT 123 AS "foo", 456 AS "bar";
+  fix_str:
+    SELECT 123 AS foo, 456 AS bar;
+  configs:
+    rules:
+      references.quoting:
+        ignore_words: false
+
+test_pass_ignore_lists_multiple_tsql:
+  pass_str:
+    SELECT 123 AS [foo], 456 AS [bar];
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        ignore_words: foo, bar
+
+test_pass_ignore_lists_multiple_as_list:
+  pass_str:
+    SELECT 123 AS "foo", 456 AS "bar";
+  configs:
+    rules:
+      references.quoting:
+        ignore_words:
+          - foo
+          - bar
+
+test_pass_ignore_lists_multiple_as_list_tsql:
+  pass_str:
+    SELECT 123 AS [foo], 456 AS [bar];
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        ignore_words:
+          - foo
+          - bar
+
+test_fail_ignore_lists_multiple_as_list:
+  fail_str:
+    SELECT 123 AS "foo", 456 AS "bar";
+  fix_str:
+    SELECT 123 AS "foo", 456 AS bar;
+  configs:
+    rules:
+      references.quoting:
+        ignore_words:
+          - foo
+
+test_fail_ignore_lists_multiple_as_list_tsql:
+  fail_str:
+    SELECT 123 AS [foo], 456 AS [bar];
+  fix_str:
+    SELECT 123 AS [foo], 456 AS bar;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        ignore_words:
+          - foo
+
 test_pass_ignore_lists_mixed_case:
   pass_str:
     SELECT 123 AS "Foo";

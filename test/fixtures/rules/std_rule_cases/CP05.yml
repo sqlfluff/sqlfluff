@@ -154,7 +154,7 @@ test_pass_bigquery_struct_params:
         extended_capitalisation_policy: upper
 
 # See https://github.com/sqlfluff/sqlfluff/issues/3277
-test_pass_typless_structs_dont_trigger_rule:
+test_pass_typeless_structs_dont_trigger_rule:
   pass_str: |
     SELECT
         STRUCT(
@@ -168,3 +168,31 @@ test_pass_typless_structs_dont_trigger_rule:
     rules:
       capitalisation.types:
         extended_capitalisation_policy: upper
+
+test_pass_ignore_words:
+  pass_str: CREATE TABLE table1 (account_id BiGinT, ts TimE);
+  configs:
+    rules:
+      capitalisation.types:
+        extended_capitalisation_policy: upper
+        ignore_words: bigint, time
+
+test_pass_ignore_words_as_list:
+  pass_str: CREATE TABLE table1 (account_id BiGinT, ts TimE);
+  configs:
+    rules:
+      capitalisation.types:
+        extended_capitalisation_policy: upper
+        ignore_words:
+          - bigint
+          - time
+
+test_fail_ignore_words_as_list:
+  fail_str: CREATE TABLE table1 (account_id BiGinT, ts TimE);
+  fix_str: CREATE TABLE table1 (account_id BiGinT, ts TIME);
+  configs:
+    rules:
+      capitalisation.types:
+        extended_capitalisation_policy: upper
+        ignore_words:
+          - bigint

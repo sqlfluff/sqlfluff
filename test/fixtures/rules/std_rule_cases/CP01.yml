@@ -97,6 +97,26 @@ test_pass_ignore_words:
         capitalisation_policy: upper
         ignore_words: select,from
 
+test_pass_ignore_words_as_list:
+  pass_str: SeleCT 1 From blah
+  configs:
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: upper
+        ignore_words:
+          - select
+          - from
+
+test_fail_ignore_words_as_list:
+  fail_str: SeleCT 1 From blah
+  fix_str: SELECT 1 From blah
+  configs:
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: upper
+        ignore_words:
+          - from
+
 test_pass_ignore_words_regex_simple:
   pass_str: SeleCT 1
   configs:

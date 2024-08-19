@@ -12,6 +12,14 @@ test_fail_deny_word:
       convention.blocked_words:
         blocked_words: deprecated_table
 
+test_fail_deny_bool:
+  fail_str: |
+    SELECT false
+  configs:
+    rules:
+      convention.blocked_words:
+        blocked_words: false
+
 test_fail_deny_word_case_difference1:
   fail_str: |
     SELECT col1 FROM deprecated_table
@@ -43,6 +51,26 @@ test_fail_multiple_deny_words2:
     rules:
       convention.blocked_words:
         blocked_words: deprecated_table,myoldFunction
+
+test_pass_multiple_deny_words_as_list:
+  pass_str: |
+    SELECT col1 FROM table1
+  configs:
+    rules:
+      convention.blocked_words:
+        blocked_words:
+          - deprecated_table
+          - myoldFunction
+
+test_fail_multiple_deny_words_as_list:
+  fail_str: |
+    SELECT myOldFunction(col1) FROM table1
+  configs:
+    rules:
+      convention.blocked_words:
+        blocked_words:
+          - deprecated_table
+          - myoldFunction
 
 test_pass_not_complete_match:
   pass_str: |

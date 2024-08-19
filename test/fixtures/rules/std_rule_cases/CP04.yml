@@ -10,3 +10,19 @@ test_pass_ignore_word:
     rules:
       capitalisation.literals:
         ignore_words: true
+
+test_pass_ignore_multiple_words:
+  pass_str: SELECT True, false, NULL
+  configs:
+    rules:
+      capitalisation.literals:
+        ignore_words: true, false
+
+test_pass_ignore_multiple_words_as_list:
+  pass_str: SELECT true, FALSE, NULL
+  configs:
+    rules:
+      capitalisation.literals:
+        ignore_words:
+          - true
+          - false

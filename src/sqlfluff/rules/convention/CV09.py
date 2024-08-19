@@ -1,6 +1,6 @@
 """Implementation of Rule CV09."""
 
-from typing import List, Optional
+from typing import List, Optional, Union
 
 import regex
 
@@ -59,12 +59,12 @@ class Rule_CV09(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         # Config type hints
-        self.blocked_words: Optional[str]
+        self.blocked_words: Union[str, bool, List[str], List[bool]]
         self.blocked_regex: Optional[str]
         self.match_source: Optional[bool]
 
         # Exit early if no block list set
-        if not self.blocked_words and not self.blocked_regex:
+        if self.blocked_words in [None, "", []] and not self.blocked_regex:
             return None
 
         if context.segment.type == "comment":
@@ -104,11 +104,13 @@ class Rule_CV09(BaseRule):
 
     def _init_blocked_words(self) -> List[str]:
         """Called first time rule is evaluated to fetch & cache the blocked_words."""
+        # Use str() in case bools are passed which might otherwise be read as bool
         blocked_words_config = getattr(self, "blocked_words")
-        if blocked_words_config:
-            self.blocked_words_list = self.split_comma_separated_string(
-                blocked_words_config.upper()
-            )
+        if not isinstance(blocked_words_config, (str, list)):
+            blocked_words_config = str(blocked_words_config)
+        if blocked_words_config and blocked_words_config != "None":
+            words_list = self.split_comma_separated_string(blocked_words_config)
+            self.blocked_words_list = [str(word).upper() for word in words_list]
         else:  # pragma: no cover
             # Shouldn't get here as we exit early if no block list
             self.blocked_words_list = []
