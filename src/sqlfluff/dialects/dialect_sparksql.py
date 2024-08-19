@@ -131,6 +131,16 @@ sparksql_dialect.patch_lexer_matchers(
 sparksql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
+            "raw_single_quote",
+            r"[rR]'([^'\\]|\\.)*'",
+            CodeSegment,
+        ),
+        RegexLexer(
+            "raw_double_quote",
+            r'[rR]"([^"\\]|\\.)*"',
+            CodeSegment,
+        ),
+        RegexLexer(
             "bytes_single_quote",
             r"X'([^'\\]|\\.)*'",
             CodeSegment,
@@ -292,6 +302,7 @@ sparksql_dialect.replace(
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
+            Ref("RawQuotedLiteralSegment"),
             Ref("BytesQuotedLiteralSegment"),
         ]
     ),
@@ -669,6 +680,18 @@ sparksql_dialect.add(
     ),
     TablePropertiesGrammar=Sequence(
         "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
+    ),
+    RawQuotedLiteralSegment=OneOf(
+        TypedParser(
+            "raw_single_quote",
+            LiteralSegment,
+            type="raw_quoted_literal",
+        ),
+        TypedParser(
+            "raw_double_quote",
+            LiteralSegment,
+            type="raw_quoted_literal",
+        ),
     ),
     BytesQuotedLiteralSegment=OneOf(
         TypedParser(
