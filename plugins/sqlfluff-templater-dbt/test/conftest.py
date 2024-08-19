@@ -77,7 +77,7 @@ def dbt_project_folder():
             "--profiles-dir",
             f"{tmp}/profiles_yml",
         ]
-    ).wait(10)
+    ).wait(120)
 
     # Placeholder value for testing
     os.environ["passed_through_env"] = "_"
