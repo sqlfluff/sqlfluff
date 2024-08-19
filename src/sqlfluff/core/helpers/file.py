@@ -24,6 +24,18 @@ def iter_intermediate_paths(inner_path: Path, outer_path: Path) -> Iterator[Path
     in between the two are yielded as Path objects, from outer to inner including
     the two at each end. If not, then the just the `outer_path` and `inner_path`
     are returned (in that order).
+
+    NOTE: The current behaviour is not currently precisely as described above.
+    Instead, we look for the lowest *common path* between the inner and outer
+    paths. This is a superset of the originally intended logic, but is convenient
+    until we have a good solution for the dbt templater project root path.
+
+    * If there is not common path, the outer path and inner path are yielded *only*.
+    * If there is a common path, then that common path is yielded first, and then
+      paths leading up to the inner path are yielded. Unless the inner path is a
+      subdirectory of the outer path, the *outer path is not yielded*.
+
+    In both scenarios, the inner path is always the last path to be yielded.
     """
     inner_path = inner_path.absolute()
     outer_path = outer_path.absolute()
