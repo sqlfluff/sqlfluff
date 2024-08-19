@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3bb1e638499d52434c20d168ce195274b3a557ac2b38cf7244b16d97e841d3aa
+_hash: 3e9bbd59a0d1ce854d53cbe5270251f1551a34b005c745aa4d0df38434202969
 file:
 - statement:
     create_view_statement:
@@ -206,4 +206,54 @@ file:
             keyword: SELECT
             select_clause_element:
               numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: vw_test
+    - keyword: AS
+    - with_compound_statement:
+        keyword: WITH
+        common_table_expression:
+          naked_identifier: testing_cte
+          keyword: as
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: a
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: b
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: t1
+            end_bracket: )
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: a
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: b
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: testing_cte
 - statement_terminator: ;
