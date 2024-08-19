@@ -8355,7 +8355,12 @@ class ScriptingDeclareStatementSegment(BaseSegment):
                     ),
                     # Exception assignment
                     Sequence(
-                        "EXCEPTION", Bracketed(Delimited(Ref("ExceptionCodeSegment"), Ref("QuotedLiteralSegment")))
+                        "EXCEPTION",
+                        Bracketed(
+                            Delimited(
+                                Ref("ExceptionCodeSegment"), Ref("QuotedLiteralSegment")
+                            )
+                        ),
                     ),
                 ),
                 Ref("DelimiterGrammar"),
