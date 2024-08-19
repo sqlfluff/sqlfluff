@@ -564,6 +564,14 @@ snowflake_dialect.add(
         "LOCALTIME",
         "LOCALTIMESTAMP",
     ),
+    ExceptionCodeSegment=Sequence(
+        Ref("NegativeSegment"),
+        RegexParser(
+            r"20[0-9]{3}",
+            LiteralSegment,
+            type="exception_code",
+        ),
+    ),
 )
 
 snowflake_dialect.replace(
@@ -1299,6 +1307,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateProcedureStatementSegment"),
             Ref("AlterProcedureStatementSegment"),
             Ref("ScriptingLetStatementSegment"),
+            Ref("ScriptingDeclareStatementSegment"),
             Ref("ReturnStatementSegment"),
             Ref("ShowStatementSegment"),
             Ref("AlterAccountStatementSegment"),
@@ -8299,4 +8308,65 @@ class BindVariableSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("ColonSegment"),
         Ref("LocalVariableNameSegment"),
+    )
+
+
+class ScriptingDeclareStatementSegment(BaseSegment):
+    """A snowflake `Declare` statement for SQL scripting.
+
+    https://docs.snowflake.com/en/sql-reference/snowflake-scripting/declare
+    https://docs.snowflake.com/en/developer-guide/snowflake-scripting/variables
+    """
+
+    type = "scripting_declare_statement"
+    match_grammar = Sequence(
+        "DECLARE",
+        Indent,
+        AnyNumberOf(
+            Sequence(
+                # Avoid BEGIN as a variable from the subsequent scripting block
+                Ref("LocalVariableNameSegment", exclude=Ref.keyword("BEGIN")),
+                OneOf(
+                    # Variable assignment
+                    OneOf(
+                        Sequence(
+                            Ref("DatatypeSegment"),
+                            OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
+                            Ref("ExpressionSegment"),
+                        ),
+                        Sequence(
+                            OneOf("DEFAULT", Ref("WalrusOperatorSegment")),
+                            Ref("ExpressionSegment"),
+                        ),
+                    ),
+                    # Cursor assignment
+                    Sequence(
+                        "CURSOR",
+                        "FOR",
+                        OneOf(
+                            Ref("LocalVariableNameSegment"), Ref("SelectableGrammar")
+                        ),
+                    ),
+                    # Resultset assignment
+                    Sequence(
+                        "RESULTSET",
+                        Ref("WalrusOperatorSegment"),
+                        Bracketed(Ref("SelectableGrammar")),
+                    ),
+                    # Exception assignment
+                    Sequence(
+                        "EXCEPTION",
+                        Bracketed(
+                            Delimited(
+                                Ref("ExceptionCodeSegment"), Ref("QuotedLiteralSegment")
+                            )
+                        ),
+                    ),
+                ),
+                Ref("DelimiterGrammar"),
+            ),
+            min_times=1,
+        ),
+        Dedent,
+        Ref("ScriptingBlockStatementSegment"),
     )
