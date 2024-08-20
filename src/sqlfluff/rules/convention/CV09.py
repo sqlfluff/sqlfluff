@@ -108,7 +108,7 @@ class Rule_CV09(BaseRule):
         blocked_words_config = getattr(self, "blocked_words")
         if not isinstance(blocked_words_config, (str, list)):
             blocked_words_config = str(blocked_words_config)
-        if blocked_words_config and blocked_words_config != "None":
+        if blocked_words_config:
             words_list = self.split_comma_separated_string(blocked_words_config)
             self.blocked_words_list = [str(word).upper() for word in words_list]
         else:  # pragma: no cover
