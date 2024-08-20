@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [3.1.1] - 2024-08-16
+## [3.1.1] - 2024-08-20
 
 ## Highlights
 
@@ -33,6 +33,13 @@ for taking the time to contribute. 🎉🎉🏆🎉🎉
 
 ## What’s Changed
 
+* dbt Templater: Increase `dbt deps` test fixture timeout [#6088](https://github.com/sqlfluff/sqlfluff/pull/6088) [@keraion](https://github.com/keraion)
+* SparkSQL + Databricks: Add support for raw string literals [#6089](https://github.com/sqlfluff/sqlfluff/pull/6089) [@D-to-the-K](https://github.com/D-to-the-K)
+* fixes #4855 - Add DECLARE statement in snowflake dialect [#6059](https://github.com/sqlfluff/sqlfluff/pull/6059) [@YungChunLu](https://github.com/YungChunLu)
+* Adding CTE to mysql views [#6077](https://github.com/sqlfluff/sqlfluff/pull/6077) [@gone](https://github.com/gone)
+* Rationalise config discovery routines. [#6080](https://github.com/sqlfluff/sqlfluff/pull/6080) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* fix(dialect-trino): Trino ROW datatype definition in queries [#6085](https://github.com/sqlfluff/sqlfluff/pull/6085) [@bonisb](https://github.com/bonisb)
+* Databricks: Add support for GROUP BY ALL [#6082](https://github.com/sqlfluff/sqlfluff/pull/6082) [@D-to-the-K](https://github.com/D-to-the-K)
 * fix(clickhouse): add support for tuple() and ENGINE MergeTree [#6079](https://github.com/sqlfluff/sqlfluff/pull/6079) [@ogirardot](https://github.com/ogirardot)
 * Add perma-links for rules [#6066](https://github.com/sqlfluff/sqlfluff/pull/6066) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * fix(clickhouse): add support for rename statement [#6073](https://github.com/sqlfluff/sqlfluff/pull/6073) [@ogirardot](https://github.com/ogirardot)
@@ -88,6 +95,10 @@ for taking the time to contribute. 🎉🎉🏆🎉🎉
 * [@culpgrant](https://github.com/culpgrant) made their first contribution in [#6031](https://github.com/sqlfluff/sqlfluff/pull/6031)
 * [@urosstan-db](https://github.com/urosstan-db) made their first contribution in [#6054](https://github.com/sqlfluff/sqlfluff/pull/6054)
 * [@ogirardot](https://github.com/ogirardot) made their first contribution in [#6060](https://github.com/sqlfluff/sqlfluff/pull/6060)
+* [@D-to-the-K](https://github.com/D-to-the-K) made their first contribution in [#6082](https://github.com/sqlfluff/sqlfluff/pull/6082)
+* [@bonisb](https://github.com/bonisb) made their first contribution in [#6085](https://github.com/sqlfluff/sqlfluff/pull/6085)
+* [@gone](https://github.com/gone) made their first contribution in [#6077](https://github.com/sqlfluff/sqlfluff/pull/6077)
+* [@YungChunLu](https://github.com/YungChunLu) made their first contribution in [#6059](https://github.com/sqlfluff/sqlfluff/pull/6059)
 
 ## [3.1.0] - 2024-07-03
 
