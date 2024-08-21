@@ -12,7 +12,9 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     CodeSegment,
+    Dedent,
     Delimited,
+    Indent,
     Matchable,
     OneOf,
     Ref,
@@ -378,6 +380,45 @@ class AliasExpressionSegment(sparksql.AliasExpressionSegment):
                 "FOR",
             ),
         ),
+    )
+
+
+class GroupByClauseSegment(sparksql.GroupByClauseSegment):
+    """Enhance `GROUP BY` clause like in `SELECT` for `CUBE`, `ROLLUP`, and `ALL`.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-qry-select-groupby.html
+    """
+
+    match_grammar = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        OneOf(
+            "ALL",
+            Delimited(
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingSetsClauseSegment"),
+                Ref("ColumnReferenceSegment"),
+                # Can `GROUP BY 1`
+                Ref("NumericLiteralSegment"),
+                # Can `GROUP BY coalesce(col, 1)`
+                Ref("ExpressionSegment"),
+            ),
+            Sequence(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `GROUP BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can `GROUP BY coalesce(col, 1)`
+                    Ref("ExpressionSegment"),
+                ),
+                OneOf(
+                    Ref("WithCubeRollupClauseSegment"),
+                    Ref("GroupingSetsClauseSegment"),
+                ),
+            ),
+        ),
+        Dedent,
     )
 
 

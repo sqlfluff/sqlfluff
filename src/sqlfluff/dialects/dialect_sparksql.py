@@ -131,6 +131,16 @@ sparksql_dialect.patch_lexer_matchers(
 sparksql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
+            "raw_single_quote",
+            r"[rR]'([^'\\]|\\.)*'",
+            CodeSegment,
+        ),
+        RegexLexer(
+            "raw_double_quote",
+            r'[rR]"([^"\\]|\\.)*"',
+            CodeSegment,
+        ),
+        RegexLexer(
             "bytes_single_quote",
             r"X'([^'\\]|\\.)*'",
             CodeSegment,
@@ -292,6 +302,7 @@ sparksql_dialect.replace(
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
+            Ref("RawQuotedLiteralSegment"),
             Ref("BytesQuotedLiteralSegment"),
         ]
     ),
@@ -669,6 +680,18 @@ sparksql_dialect.add(
     ),
     TablePropertiesGrammar=Sequence(
         "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
+    ),
+    RawQuotedLiteralSegment=OneOf(
+        TypedParser(
+            "raw_single_quote",
+            LiteralSegment,
+            type="raw_quoted_literal",
+        ),
+        TypedParser(
+            "raw_double_quote",
+            LiteralSegment,
+            type="raw_quoted_literal",
+        ),
     ),
     BytesQuotedLiteralSegment=OneOf(
         TypedParser(
@@ -1900,7 +1923,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
 
 
 class GroupByClauseSegment(ansi.GroupByClauseSegment):
-    """Enhance `GROUP BY` clause like in `SELECT` for 'CUBE' and 'ROLLUP`.
+    """Enhance `GROUP BY` clause like in `SELECT` for `CUBE` and `ROLLUP`.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
     """
@@ -1911,12 +1934,12 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
         Indent,
         OneOf(
             Delimited(
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingSetsClauseSegment"),
                 Ref("ColumnReferenceSegment"),
                 # Can `GROUP BY 1`
                 Ref("NumericLiteralSegment"),
                 # Can `GROUP BY coalesce(col, 1)`
-                Ref("CubeRollupClauseSegment"),
-                Ref("GroupingSetsClauseSegment"),
                 Ref("ExpressionSegment"),
             ),
             Sequence(
@@ -1928,7 +1951,8 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                     Ref("ExpressionSegment"),
                 ),
                 OneOf(
-                    Ref("WithCubeRollupClauseSegment"), Ref("GroupingSetsClauseSegment")
+                    Ref("WithCubeRollupClauseSegment"),
+                    Ref("GroupingSetsClauseSegment"),
                 ),
             ),
         ),
