@@ -33,6 +33,8 @@ from sqlfluff.core.parser import (
     RegexParser,
     SegmentGenerator,
     Sequence,
+    StringParser,
+    SymbolSegment,
     TypedParser,
     WhitespaceSegment,
     WordSegment,
@@ -379,6 +381,9 @@ tsql_dialect.add(
             type="date_format",
         )
     ),
+    # Here we add a special case for a DotSegment where we don't want to apply
+    # LT01's respace rule.
+    LeadingDotSegment=StringParser(".", SymbolSegment, type="leading_dot"),
 )
 
 tsql_dialect.replace(
@@ -2058,6 +2063,33 @@ class TableReferenceSegment(ObjectReferenceSegment):
     """
 
     type = "table_reference"
+    match_grammar: Matchable = OneOf(
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            AnyNumberOf(
+                Sequence(
+                    Ref("DotSegment"),
+                    Ref("SingleIdentifierGrammar", optional=True),
+                ),
+                min_times=0,
+                max_times=3,
+            ),
+        ),
+        # This can have a leading number of dots. If the table reference starts with a
+        # dot segment, apply a special type of DotSegment to prevent removal of spaces
+        Sequence(
+            Ref("LeadingDotSegment"),
+            AnyNumberOf(
+                Sequence(
+                    Ref("SingleIdentifierGrammar", optional=True),
+                    Ref("DotSegment"),
+                ),
+                min_times=0,
+                max_times=2,
+            ),
+            Ref("SingleIdentifierGrammar"),
+        ),
+    )
 
 
 class SchemaReferenceSegment(ObjectReferenceSegment):
