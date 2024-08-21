@@ -74,6 +74,11 @@ databricks_dialect.add(
         trim_chars=("$",),
     ),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    BracketedTagReferenceListGrammar=Bracketed(
+        Delimited(
+            Ref("TagReferenceSegment"),
+        ),
+    ),
 )
 
 databricks_dialect.replace(
@@ -174,6 +179,51 @@ class UseDatabaseStatementSegment(sparksql.UseDatabaseStatementSegment):
         OneOf("DATABASE", "SCHEMA", optional=True),
         Ref("DatabaseReferenceSegment"),
     )
+
+
+class AlterDatabaseStatementSegment(sparksql.AlterDatabaseStatementSegment):
+    """An `ALTER DATABASE/SCHEMA` statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-alter-schema.html
+    """
+
+    type = "alter_database_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        OneOf("DATABASE", "SCHEMA"),
+        Ref("DatabaseReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                Ref("DatabasePropertiesGrammar"),
+            ),
+            Sequence(
+                "SET"
+                "OWNER",
+                "TO",
+                Ref("SingleIdentifierGrammar"),
+            ),
+            Sequence(
+                "OWNER",
+                "TO",
+                Ref("SingleIdentifierGrammar"),
+            ),
+            Sequence(
+                "SET",
+                "TAGS",
+                Ref("BracketedPropertyListGrammar"),
+            ),
+            Sequence(
+                "UNSET",
+                "TAGS",
+                Ref("BracketedTagReferenceListGrammar"),
+            ),
+            Sequence(
+                OneOf("ENABLE", "DISABLE", "INHERIT"),
+                "PREDICTIVE",
+                "OPTIMIZATION",
+            ),
+        )
 
 
 class SetTimeZoneStatementSegment(BaseSegment):
