@@ -198,7 +198,7 @@ class AlterDatabaseStatementSegment(sparksql.AlterDatabaseStatementSegment):
                 Ref("DatabasePropertiesGrammar"),
             ),
             Sequence(
-                "SET"
+                "SET",
                 "OWNER",
                 "TO",
                 Ref("SingleIdentifierGrammar"),
