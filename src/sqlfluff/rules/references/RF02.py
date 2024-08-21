@@ -6,8 +6,9 @@ import regex
 
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules import LintResult
+from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.rules.aliasing.AL04 import Rule_AL04
+from sqlfluff.utils.analysis.select import get_select_statement_info
 
 
 class Rule_RF02(Rule_AL04):
@@ -51,9 +52,18 @@ class Rule_RF02(Rule_AL04):
         col_aliases: List[ColumnAliasInfo],
         using_cols: List[BaseSegment],
         parent_select: Optional[BaseSegment],
+        rule_context: RuleContext,
     ) -> Optional[List[LintResult]]:
         # Config type hints
         self.ignore_words_regex: str
+
+        if parent_select:
+            parent_select_info = get_select_statement_info(
+                parent_select, rule_context.dialect
+            )
+            if parent_select_info:
+                # If we are looking at a subquery, include any table references
+                table_aliases += parent_select_info.table_aliases
 
         # Do we have more than one? If so, all references should be qualified.
         if len(table_aliases) <= 1:
