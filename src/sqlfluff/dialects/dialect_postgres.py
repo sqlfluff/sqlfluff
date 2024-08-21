@@ -683,7 +683,7 @@ postgres_dialect.replace(
         Sequence("NO", "ACTION"),
     ),
     UnknownLiteralSegment=StringParser(
-        "unknown", LiteralKeywordSegment, type="null_literal"
+        "UNKNOWN", LiteralKeywordSegment, type="null_literal"
     ),
 )
 
