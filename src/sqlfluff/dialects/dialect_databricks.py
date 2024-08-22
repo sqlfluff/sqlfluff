@@ -74,10 +74,25 @@ databricks_dialect.add(
         trim_chars=("$",),
     ),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    # https://docs.databricks.com/en/sql/language-manual/sql-ref-principal.html
+    PrincipalIdentifierSegment=OneOf(
+        Ref("NakedIdentifierSegment"),
+        Ref("BackQuotedIdentifierSegment"),
+    ),
     BracketedTagReferenceListGrammar=Bracketed(
         Delimited(
             Ref("TagReferenceSegment"),
         ),
+    ),
+    PredictiveOptimizationGrammar=Sequence(
+      OneOf("ENABLE", "DISABLE", "INHERIT"),
+      "PREDICTIVE",
+      "OPTIMIZATION",
+    ),
+    OwnerGrammar=Sequence(
+        "OWNER",
+        "TO",
+        Ref("PrincipalIdentifierSegment"),
     ),
 )
 
@@ -112,12 +127,23 @@ class AlterCatalogStatementSegment(BaseSegment):
         "ALTER",
         "CATALOG",
         Ref("CatalogReferenceSegment"),
-        Ref.keyword("SET", optional=True),
-        Sequence(
-            "OWNER",
-            "TO",
-            Ref("SingleIdentifierGrammar"),
-        ),
+        OneOf(
+            Sequence(
+                Ref.keyword("SET", optional=True),
+                Ref("OwnerGrammar"),
+            ),
+            Sequence(
+                "SET",
+                "TAGS",
+                Ref("BracketedPropertyListGrammar"),
+            ),
+            Sequence(
+                "UNSET",
+                "TAGS",
+                Ref("BracketedTagReferenceListGrammar"),
+            ),
+            Ref("PredictiveOptimizationGrammar"),
+        )
     )
 
 
@@ -187,7 +213,6 @@ class AlterDatabaseStatementSegment(sparksql.AlterDatabaseStatementSegment):
     https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-alter-schema.html
     """
 
-    type = "alter_database_statement"
     match_grammar = Sequence(
         "ALTER",
         OneOf("DATABASE", "SCHEMA"),
@@ -198,15 +223,8 @@ class AlterDatabaseStatementSegment(sparksql.AlterDatabaseStatementSegment):
                 Ref("DatabasePropertiesGrammar"),
             ),
             Sequence(
-                "SET",
-                "OWNER",
-                "TO",
-                Ref("SingleIdentifierGrammar"),
-            ),
-            Sequence(
-                "OWNER",
-                "TO",
-                Ref("SingleIdentifierGrammar"),
+                Ref.keyword("SET", optional=True),
+                Ref("OwnerGrammar"),
             ),
             Sequence(
                 "SET",
@@ -218,12 +236,9 @@ class AlterDatabaseStatementSegment(sparksql.AlterDatabaseStatementSegment):
                 "TAGS",
                 Ref("BracketedTagReferenceListGrammar"),
             ),
-            Sequence(
-                OneOf("ENABLE", "DISABLE", "INHERIT"),
-                "PREDICTIVE",
-                "OPTIMIZATION",
-            ),
+            Ref("PredictiveOptimizationGrammar"),
         )
+    )
 
 
 class SetTimeZoneStatementSegment(BaseSegment):

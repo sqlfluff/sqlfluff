@@ -3,33 +3,33 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 24d90f29e34f465c1e1bb672edf2b3d60f29da2d12dc0b7d6acf6e98dd7fdaca
+_hash: 817bfcbeb6eb6a676dd299cdbc852fffbfac98eb9dc054342c95711b0c272920
 file:
 - statement:
-    alter_catalog_statement:
+    alter_database_statement:
     - keyword: ALTER
-    - keyword: CATALOG
-    - catalog_reference:
+    - keyword: SCHEMA
+    - database_reference:
         naked_identifier: some_cat
     - keyword: OWNER
     - keyword: TO
     - quoted_identifier: '`alf@melmak.et`'
 - statement_terminator: ;
 - statement:
-    alter_catalog_statement:
+    alter_database_statement:
     - keyword: ALTER
-    - keyword: CATALOG
-    - catalog_reference:
+    - keyword: SCHEMA
+    - database_reference:
         naked_identifier: some_cat
     - keyword: OWNER
     - keyword: TO
     - naked_identifier: my_group
 - statement_terminator: ;
 - statement:
-    alter_catalog_statement:
+    alter_database_statement:
     - keyword: ALTER
-    - keyword: CATALOG
-    - catalog_reference:
+    - keyword: SCHEMA
+    - database_reference:
         naked_identifier: some_cat
     - keyword: SET
     - keyword: OWNER
@@ -37,10 +37,10 @@ file:
     - quoted_identifier: '`alf@melmak.et`'
 - statement_terminator: ;
 - statement:
-    alter_catalog_statement:
+    alter_database_statement:
     - keyword: ALTER
-    - keyword: CATALOG
-    - catalog_reference:
+    - keyword: SCHEMA
+    - database_reference:
         naked_identifier: some_cat
     - keyword: SET
     - keyword: OWNER
@@ -48,10 +48,52 @@ file:
     - naked_identifier: my_group
 - statement_terminator: ;
 - statement:
-    alter_catalog_statement:
+    alter_database_statement:
     - keyword: ALTER
-    - keyword: CATALOG
-    - catalog_reference:
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: some_cat
+    - keyword: OWNER
+    - keyword: TO
+    - quoted_identifier: '`alf@melmak.et`'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: some_cat
+    - keyword: SET
+    - keyword: OWNER
+    - keyword: TO
+    - quoted_identifier: '`alf@melmak.et`'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: some_cat
+    - keyword: OWNER
+    - keyword: TO
+    - naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: some_cat
+    - keyword: SET
+    - keyword: OWNER
+    - keyword: TO
+    - naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - database_reference:
         naked_identifier: some_cat
     - keyword: SET
     - keyword: TAGS
@@ -65,10 +107,10 @@ file:
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    alter_catalog_statement:
+    alter_database_statement:
     - keyword: ALTER
-    - keyword: CATALOG
-    - catalog_reference:
+    - keyword: DATABASE
+    - database_reference:
         naked_identifier: some_cat
     - keyword: SET
     - keyword: TAGS
@@ -88,10 +130,10 @@ file:
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    alter_catalog_statement:
+    alter_database_statement:
     - keyword: ALTER
-    - keyword: CATALOG
-    - catalog_reference:
+    - keyword: DATABASE
+    - database_reference:
         naked_identifier: some_cat
     - keyword: UNSET
     - keyword: TAGS
@@ -102,10 +144,10 @@ file:
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    alter_catalog_statement:
+    alter_database_statement:
     - keyword: ALTER
-    - keyword: CATALOG
-    - catalog_reference:
+    - keyword: SCHEMA
+    - database_reference:
         naked_identifier: some_cat
     - keyword: UNSET
     - keyword: TAGS
@@ -119,32 +161,55 @@ file:
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    alter_catalog_statement:
+    alter_database_statement:
     - keyword: ALTER
-    - keyword: CATALOG
-    - catalog_reference:
+    - keyword: SCHEMA
+    - database_reference:
         naked_identifier: some_cat
     - keyword: ENABLE
     - keyword: PREDICTIVE
     - keyword: OPTIMIZATION
 - statement_terminator: ;
 - statement:
-    alter_catalog_statement:
+    alter_database_statement:
     - keyword: ALTER
-    - keyword: CATALOG
-    - catalog_reference:
+    - keyword: DATABASE
+    - database_reference:
         naked_identifier: some_cat
     - keyword: INHERIT
     - keyword: PREDICTIVE
     - keyword: OPTIMIZATION
 - statement_terminator: ;
 - statement:
-    alter_catalog_statement:
+    alter_database_statement:
     - keyword: ALTER
-    - keyword: CATALOG
-    - catalog_reference:
+    - keyword: SCHEMA
+    - database_reference:
         naked_identifier: some_cat
     - keyword: DISABLE
     - keyword: PREDICTIVE
     - keyword: OPTIMIZATION
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: some_cat
+    - keyword: SET
+    - keyword: DBPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: "'Edited-by'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'John Doe'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'Edit-date'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'2020-01-01'"
+      - end_bracket: )
 - statement_terminator: ;

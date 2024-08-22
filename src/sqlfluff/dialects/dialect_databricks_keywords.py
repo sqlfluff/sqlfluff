@@ -24,8 +24,11 @@ RESERVED_KEYWORDS = [
 
 UNRESERVED_KEYWORDS = [
     "CATALOG",
+    "OPTIMIZATION",
     "OPTIMIZE",
-    "ZORDER",
+    "PREDICTIVE",
     "PYTHON",
     "SQL",
+    "TAGS",
+    "ZORDER",
 ]

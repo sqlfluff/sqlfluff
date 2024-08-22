@@ -1028,7 +1028,10 @@ class AlterDatabaseStatementSegment(BaseSegment):
         OneOf("DATABASE", "SCHEMA"),
         Ref("DatabaseReferenceSegment"),
         "SET",
-        Ref("DatabasePropertiesGrammar"),
+        OneOf(
+            Ref("DatabasePropertiesGrammar"),
+            Ref("LocationGrammar"),
+        )
     )
 
 
