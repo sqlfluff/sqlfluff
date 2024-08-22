@@ -822,6 +822,15 @@ sparksql_dialect.add(
             optional=True,
         ),
     ),
+    FirstOrAfterGrammar=Sequence(
+        OneOf(
+            "FIRST",
+            Sequence(
+                "AFTER",
+                Ref("ColumnReferenceSegment"),
+            ),
+        ),
+    )
 )
 
 # Adding Hint related grammar before comment `block_comment` and
@@ -1080,14 +1089,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     Delimited(
                         Sequence(
                             Ref("ColumnFieldDefinitionSegment"),
-                            OneOf(
-                                "FIRST",
-                                Sequence(
-                                    "AFTER",
-                                    Ref("ColumnReferenceSegment"),
-                                ),
-                                optional=True,
-                            ),
+                            Ref("FirstOrAfterGrammar", optional=True),
                         ),
                     ),
                 ),
@@ -1116,14 +1118,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 Ref.keyword("TYPE", optional=True),
                 Ref("DatatypeSegment", optional=True),
                 Ref("CommentGrammar", optional=True),
-                OneOf(
-                    "FIRST",
-                    Sequence(
-                        "AFTER",
-                        Ref("ColumnReferenceSegment"),
-                    ),
-                    optional=True,
-                ),
+                Ref("FirstOrAfterGrammar", optional=True),
                 Sequence(OneOf("SET", "DROP"), "NOT", "NULL", optional=True),
                 Dedent,
             ),

@@ -79,11 +79,6 @@ databricks_dialect.add(
         Ref("NakedIdentifierSegment"),
         Ref("BackQuotedIdentifierSegment"),
     ),
-    BracketedTagReferenceListGrammar=Bracketed(
-        Delimited(
-            Ref("TagReferenceSegment"),
-        ),
-    ),
     PredictiveOptimizationGrammar=Sequence(
       OneOf("ENABLE", "DISABLE", "INHERIT"),
       "PREDICTIVE",
@@ -93,6 +88,59 @@ databricks_dialect.add(
         "OWNER",
         "TO",
         Ref("PrincipalIdentifierSegment"),
+    ),
+    CommentGrammar=Sequence(
+        "COMMENT",
+        Ref("QuotedLiteralSegment"),
+    ),
+    SetTagsGrammar=Sequence(
+        "SET",
+        "TAGS",
+        Ref("BracketedPropertyListGrammar"),
+    ),
+    UnsetTagsGrammar=Sequence(
+        "UNSET",
+        "TAGS",
+        Ref("BracketedPropertyNameListGrammar"),
+    ),
+    ColumnDefaultGrammar=Sequence(
+        "DEFAULT",
+        Ref("LiteralGrammar"),
+    ),
+    DropConstraintGrammar=Sequence(
+        "DROP",
+        OneOf(
+          Sequence(
+            "PRIMARY",
+            "KEY",
+            Ref("IfExistsGrammar", optional=True),
+            OneOf(
+              "RESTRICT",
+              "CASCADE",
+              optional=True,
+            ),
+          ),
+            Sequence(
+                "FOREIGN",
+                "KEY",
+                Ref("IfExistsGrammar", optional=True),
+                Bracketed(
+                  Delimited(
+                    Ref("ColumnReferenceSegment"),
+                  )
+                ),
+            ),
+            Sequence(
+                "CONSTRAINT",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("ConstraintNameSegment"),
+                OneOf(
+                    "RESTRICT",
+                    "CASCADE",
+                    optional=True,
+                ),
+            ),
+        ),
     ),
 )
 
@@ -132,16 +180,8 @@ class AlterCatalogStatementSegment(BaseSegment):
                 Ref.keyword("SET", optional=True),
                 Ref("OwnerGrammar"),
             ),
-            Sequence(
-                "SET",
-                "TAGS",
-                Ref("BracketedPropertyListGrammar"),
-            ),
-            Sequence(
-                "UNSET",
-                "TAGS",
-                Ref("BracketedTagReferenceListGrammar"),
-            ),
+            Ref("SetTagsGrammar"),
+            Ref("UnsetTagsGrammar"),
             Ref("PredictiveOptimizationGrammar"),
         )
     )
@@ -226,17 +266,146 @@ class AlterDatabaseStatementSegment(sparksql.AlterDatabaseStatementSegment):
                 Ref.keyword("SET", optional=True),
                 Ref("OwnerGrammar"),
             ),
-            Sequence(
-                "SET",
-                "TAGS",
-                Ref("BracketedPropertyListGrammar"),
-            ),
-            Sequence(
-                "UNSET",
-                "TAGS",
-                Ref("BracketedTagReferenceListGrammar"),
-            ),
+            Ref("SetTagsGrammar"),
+            Ref("UnsetTagsGrammar"),
             Ref("PredictiveOptimizationGrammar"),
+        )
+    )
+
+
+class MaskStatementSegment(BaseSegment):
+    """A `MASK` statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-column-mask.html
+    """
+    
+    type = "mask_statement"
+    match_grammar = Sequence(
+        "MASK",
+        Ref("FunctionNameSegment"),
+        Sequence(
+            "USING",
+            "COLUMNS",
+            Bracketed(
+                AnyNumberOf(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+class AlterTableStatementSegment(sparksql.AlterTableStatementSegment):
+    """An `ALTER TABLE` statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-alter-table.html
+    """
+
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Indent,
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "ADD",
+                OneOf("COLUMNS", "COLUMN"),
+                Indent,
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ColumnFieldDefinitionSegment"),
+                            Ref("ColumnDefaultGrammar", optional=True),
+                            Ref("CommentGrammar", optional=True),
+                            Ref("FirstOrAfterGrammar", optional=True),
+                            Ref("MaskStatementSegment", optional=True),
+                        ),
+                    ),
+                ),
+                Dedent,
+            ),
+            Sequence(
+                OneOf("ALTER", "CHANGE"),
+                Ref.keyword("COLUMN", optional=True),
+                Ref("ColumnReferenceSegment"),
+                OneOf(
+                    Ref("CommentGrammar"),
+                    Ref("FirstOrAfterGrammar"),
+                    Sequence(
+                        OneOf("SET", "DROP"),
+                        "NOT",
+                        "NULL",
+                    ),
+                    Sequence(
+                        "TYPE",
+                        Ref("DatatypeSegment"),
+                    ),
+                    Sequence(
+                        "SET",
+                        Ref("ColumnDefaultGrammar"),
+                    ),
+                    Sequence(
+                        "DROP",
+                        "DEFAULT",
+                    ),
+                    Sequence(
+                        "SYNC",
+                        "IDENTITY",
+                    ),
+                    Sequence(
+                        "SET",
+                        Ref("MaskStatementSegment"),
+                    ),
+                    Sequence(
+                        "DROP",
+                        "MASK",
+                    ),
+                    Ref("SetTagsGrammar"),
+                    Ref("UnsetTagsGrammar"),
+                ),
+            ),
+            Sequence(
+                "DROP",
+                OneOf("COLUMN", "COLUMNS", optional=True),
+                Ref("IfExistsGrammar", optional=True),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                "COLUMN",
+                Ref("ColumnReferenceSegment"),
+                "TO",
+                Ref("ColumnReferenceSegment"),
+            ),
+            Sequence(
+                "ADD",
+                Ref("TableConstraintSegment"),
+            ),
+            Ref("DropConstraintGrammar"),
+            Sequence(
+                "DROP",
+                "FEATURE",
+                Ref("SingleIdentifierGrammar"),
+                Sequence(
+                    "TRUNCATE",
+                    "HISTORY",
+                    optional=True,
+                ),
+            ),
+            
+        Dedent,
         )
     )
 
