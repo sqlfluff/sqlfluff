@@ -357,6 +357,7 @@ ansi_dialect.add(
     # type
     NullLiteralSegment=StringParser("null", LiteralKeywordSegment, type="null_literal"),
     NanLiteralSegment=StringParser("nan", LiteralKeywordSegment, type="null_literal"),
+    UnknownLiteralSegment=Nothing(),
     TrueSegment=StringParser("true", LiteralKeywordSegment, type="boolean_literal"),
     FalseSegment=StringParser("false", LiteralKeywordSegment, type="boolean_literal"),
     # We use a GRAMMAR here not a Segment. Otherwise, we get an unnecessary layer
@@ -451,6 +452,7 @@ ansi_dialect.add(
     IsClauseGrammar=OneOf(
         Ref("NullLiteralSegment"),
         Ref("NanLiteralSegment"),
+        Ref("UnknownLiteralSegment"),
         Ref("BooleanLiteralGrammar"),
     ),
     InOperatorGrammar=Sequence(

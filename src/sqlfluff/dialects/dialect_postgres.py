@@ -15,6 +15,7 @@ from sqlfluff.core.parser import (
     Delimited,
     IdentifierSegment,
     Indent,
+    LiteralKeywordSegment,
     LiteralSegment,
     Matchable,
     NewlineSegment,
@@ -680,6 +681,9 @@ postgres_dialect.replace(
         ),
         "RESTRICT",
         Sequence("NO", "ACTION"),
+    ),
+    UnknownLiteralSegment=StringParser(
+        "UNKNOWN", LiteralKeywordSegment, type="null_literal"
     ),
 )
 
