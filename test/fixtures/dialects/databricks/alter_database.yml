@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 817bfcbeb6eb6a676dd299cdbc852fffbfac98eb9dc054342c95711b0c272920
+_hash: a3ae9eb63598ff24944fc488b6cd31bf218a8349495a201c7f73ab0f19801ef3
 file:
 - statement:
     alter_database_statement:
@@ -139,7 +139,7 @@ file:
     - keyword: TAGS
     - bracketed:
         start_bracket: (
-        tag_reference:
+        property_name_identifier:
           quoted_identifier: "'tag1'"
         end_bracket: )
 - statement_terminator: ;
@@ -153,10 +153,10 @@ file:
     - keyword: TAGS
     - bracketed:
       - start_bracket: (
-      - tag_reference:
+      - property_name_identifier:
           quoted_identifier: "'tag2'"
       - comma: ','
-      - tag_reference:
+      - property_name_identifier:
           quoted_identifier: "'tag3'"
       - end_bracket: )
 - statement_terminator: ;
