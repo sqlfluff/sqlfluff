@@ -53,7 +53,7 @@ class Rule_LT06(BaseRule):
         children = segment.children()
 
         function_name = children.first(sp.is_type("function_name"))[0]
-        start_bracket = children.first(sp.is_type("bracketed"))[0]
+        start_bracket = children.first(sp.is_type("function_contents"))[0]
 
         intermediate_segments = children.select(
             start_seg=function_name, stop_seg=start_bracket
