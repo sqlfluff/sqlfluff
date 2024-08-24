@@ -1397,6 +1397,7 @@ class FunctionNameSegment(BaseSegment):
 
 
 class DateTimeFunctionContentsSegment(BaseSegment):
+    """Datetime function contents."""
 
     type = "function_contents"
 
@@ -1416,6 +1417,7 @@ class DateTimeFunctionContentsSegment(BaseSegment):
 
 
 class FunctionContentsSegment(BaseSegment):
+    "Function Contents."
 
     type = "function_contents"
 
