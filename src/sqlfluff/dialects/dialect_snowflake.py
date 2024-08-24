@@ -7889,6 +7889,7 @@ class FrameClauseSegment(ansi.FrameClauseSegment):
             OneOf(
                 Ref("NumericLiteralSegment"),
                 Ref("ReferencedVariableNameSegment"),
+                Sequence("INTERVAL", Ref("QuotedLiteralSegment")),
                 "UNBOUNDED",
             ),
             OneOf("PRECEDING", "FOLLOWING"),
