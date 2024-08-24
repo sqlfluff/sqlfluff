@@ -357,6 +357,7 @@ ansi_dialect.add(
     # type
     NullLiteralSegment=StringParser("null", LiteralKeywordSegment, type="null_literal"),
     NanLiteralSegment=StringParser("nan", LiteralKeywordSegment, type="null_literal"),
+    UnknownLiteralSegment=Nothing(),
     TrueSegment=StringParser("true", LiteralKeywordSegment, type="boolean_literal"),
     FalseSegment=StringParser("false", LiteralKeywordSegment, type="boolean_literal"),
     # We use a GRAMMAR here not a Segment. Otherwise, we get an unnecessary layer
@@ -451,6 +452,7 @@ ansi_dialect.add(
     IsClauseGrammar=OneOf(
         Ref("NullLiteralSegment"),
         Ref("NanLiteralSegment"),
+        Ref("UnknownLiteralSegment"),
         Ref("BooleanLiteralGrammar"),
     ),
     InOperatorGrammar=Sequence(
@@ -2191,6 +2193,15 @@ ansi_dialect.add(
         Ref("ShorthandCastSegment"),
         terminators=[Ref("CommaSegment")],
     ),
+    Expression_D_Potential_Select_Statement_Without_Brackets=OneOf(
+        Ref("SelectStatementSegment"),
+        Ref("LiteralGrammar"),
+        Ref("IntervalExpressionSegment"),
+        Ref("TypedStructLiteralSegment"),
+        Ref("ArrayExpressionSegment"),
+        Ref("ColumnReferenceSegment"),
+        Ref("OverlapsClauseSegment"),
+    ),
     # Expression_D_Grammar
     # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#d_expr
     Expression_D_Grammar=Sequence(
@@ -2217,13 +2228,7 @@ ansi_dialect.add(
                 parse_mode=ParseMode.GREEDY,
             ),
             # Allow potential select statement without brackets
-            Ref("SelectStatementSegment"),
-            Ref("LiteralGrammar"),
-            Ref("IntervalExpressionSegment"),
-            Ref("TypedStructLiteralSegment"),
-            Ref("ArrayExpressionSegment"),
-            Ref("ColumnReferenceSegment"),
-            Ref("OverlapsClauseSegment"),
+            Ref("Expression_D_Potential_Select_Statement_Without_Brackets"),
             # For triggers, we allow "NEW.*" but not just "*" nor "a.b.*"
             # So can't use WildcardIdentifierSegment nor WildcardExpressionSegment
             Sequence(
@@ -2402,6 +2407,7 @@ class OrderByClauseSegment(BaseSegment):
                 # is supported in enough other dialects for it to make sense here
                 # for now.
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+                Ref("WithFillSegment", optional=True),
             ),
             terminators=["LIMIT", Ref("FrameClauseUnitGrammar")],
         ),
@@ -4341,3 +4347,13 @@ class PathSegment(BaseSegment):
         ),
         Ref("QuotedLiteralSegment"),
     )
+
+
+class WithFillSegment(BaseSegment):
+    """Prefix for WITH FILL clause.
+
+    A hookpoint for other dialects e.g. ClickHouse.
+    """
+
+    type = "with_fill"
+    match_grammar: Matchable = Nothing()

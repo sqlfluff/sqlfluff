@@ -136,7 +136,7 @@ class Rule_ST05(BaseRule):
 
         # If there are offending elements calculate fixes
         clone_map = SegmentCloneMap(segment[0])
-        result = self._lint_query(
+        results = self._lint_query(
             dialect=context.dialect,
             query=query,
             ctes=ctes,
@@ -144,7 +144,9 @@ class Rule_ST05(BaseRule):
             clone_map=clone_map,
         )
 
-        if result:
+        lint_results: List[LintResult] = []
+        is_fixable = True
+        for result in results:
             lint_result, from_expression, alias_name, subquery_parent = result
             assert any(
                 from_expression is seg for seg in subquery_parent.recursive_crawl_all()
@@ -166,8 +168,14 @@ class Rule_ST05(BaseRule):
             if bracketed_ctas or ctes.has_duplicate_aliases() or is_recursive:
                 # If we have duplicate CTE names just don't fix anything
                 # Return the lint warnings anyway
-                return lint_result
+                is_fixable = False
+            lint_results.append(lint_result)
 
+        # All lint_results visited, now return if not fixable.
+        if not is_fixable:
+            return lint_results
+
+        for lint_result in lint_results:
             # Compute fix.
             output_select_clone = clone_map[output_select[0]]
             fixes = ctes.ensure_space_after_from(
@@ -182,15 +190,14 @@ class Rule_ST05(BaseRule):
                     edit_segments=[new_select],
                 )
             ]
-            lint_result.fixes.extend(fixes)
-            return lint_result
-        return None
+            lint_result.fixes += fixes
+        return lint_results
 
     def _nested_subqueries(
         self, query: Query, dialect: Dialect
     ) -> Iterator[_NestedSubQuerySummary]:
         parent_types = self._config_mapping[self.forbid_subquery_in]
-        for q in [query] + list(query.ctes.values()):
+        for i, q in enumerate([query] + list(query.ctes.values())):
             for selectable in q.selectables:
                 if not selectable.select_info:
                     continue  # pragma: no cover
@@ -229,6 +236,9 @@ class Rule_ST05(BaseRule):
                     yield _NestedSubQuerySummary(
                         q, selectable, table_alias, select_source_names
                     )
+                    # Recursively find nested queries in CTEs
+                    if i > 0:
+                        yield from self._nested_subqueries(query, dialect)
 
     def _lint_query(
         self,
@@ -237,7 +247,7 @@ class Rule_ST05(BaseRule):
         ctes: "_CTEBuilder",
         case_preference: str,
         clone_map,
-    ) -> Optional[Tuple[LintResult, BaseSegment, str, BaseSegment]]:
+    ) -> Iterator[Tuple[LintResult, BaseSegment, str, BaseSegment]]:
         """Given the root query, compute lint warnings."""
         nsq: _NestedSubQuerySummary
         for nsq in self._nested_subqueries(query, dialect):
@@ -259,20 +269,18 @@ class Rule_ST05(BaseRule):
             anchor = next(anchor.recursive_crawl("keyword", "symbol"))
             res = LintResult(
                 anchor=anchor,
-                description=f"{nsq.query.selectables[0].selectable.type} clauses "
+                description=f"{nsq.selectable.selectable.type} clauses "
                 "should not contain subqueries. Use CTEs instead",
                 fixes=[],
             )
-            if len(nsq.query.selectables) == 1:
-                return (
-                    res,
-                    # FromExpressionElementSegment, parent of original "anchor" segment
-                    nsq.table_alias.from_expression_element,
-                    alias_name,  # Name of CTE we're creating from the nested query
-                    # Query with the subquery: 'select a from (select x from b)'
-                    nsq.query.selectables[0].selectable,
-                )
-        return None
+            yield (
+                res,
+                # FromExpressionElementSegment, parent of original "anchor" segment
+                nsq.table_alias.from_expression_element,
+                alias_name,  # Name of CTE we're creating from the nested query
+                # Query with the subquery: 'select a from (select x from b)'
+                nsq.selectable.selectable,
+            )
 
 
 def _get_first_select_statement_descendant(

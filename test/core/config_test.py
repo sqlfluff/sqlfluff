@@ -3,6 +3,7 @@
 import logging
 import os
 import sys
+from contextlib import contextmanager
 from unittest.mock import call, patch
 
 import appdirs
@@ -117,6 +118,40 @@ def test__config__load_nested():
     }
 
 
+@contextmanager
+def change_dir(path):
+    """Set the current working directory to `path` for the duration of the context."""
+    original_dir = os.getcwd()
+    try:
+        os.chdir(path)
+        yield
+    finally:
+        os.chdir(original_dir)
+
+
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Seems test is not executed under home directory on Windows",
+)
+def test__config__load_parent():
+    """Test that config is loaded from parent directory of current working directory."""
+    c = ConfigLoader()
+    with change_dir(
+        os.path.join("test", "fixtures", "config", "inheritance_a", "nested")
+    ):
+        cfg = c.load_config_up_to_path("blah.sql")
+    assert cfg == {
+        "core": {
+            "dialect": "mysql",
+            "testing_val": "foobar",
+            "testing_int": 1,
+            "testing_bar": 7.698,
+        },
+        "bar": {"foo": "foobar"},
+        "fnarr": {"fnarr": {"foo": "foobar"}},
+    }
+
+
 def test__config__iter_config_elems_from_dict():
     """Test nested overwrite and order of precedence of config files."""
     c = ConfigLoader._iter_config_elems_from_dict(
@@ -175,18 +210,6 @@ def test__config__load_placeholder_cfg():
     }
 
 
-def test__config__find_sqlfluffignore_in_same_directory():
-    """Test find ignore file in the same directory as sql file."""
-    ignore_files = ConfigLoader.find_ignore_config_files(
-        path="test/fixtures/linter/sqlfluffignore/path_b/query_b.sql",
-        working_path="test/fixtures/linter/sqlfluffignore/",
-    )
-    assert ignore_files == {
-        os.path.abspath("test/fixtures/linter/sqlfluffignore/path_b/.sqlfluffignore"),
-        os.path.abspath("test/fixtures/linter/sqlfluffignore/.sqlfluffignore"),
-    }
-
-
 def test__config__nested_config_tests():
     """Test linting with overridden config in nested paths.
 
@@ -215,7 +238,7 @@ def test__config__nested_config_tests():
             # re-enables CP01.
             # This may seem counter-intuitive but is in line with current
             # documentation on how to use `rules` and `exclude-rules`.
-            # https://docs.sqlfluff.com/en/latest/configuration.html#enabling-and-disabling-rules
+            # https://docs.sqlfluff.com/en/latest/perma/rule_disabling.html
             assert ("CP01", 1, 4) in violations[k]
             # CP02 is disabled because of the override above.
             assert "CP02" not in [c[0] for c in violations[k]]
@@ -563,3 +586,39 @@ def test__process_inline_config():
     # Check that Windows paths don't get mangled
     cfg.process_inline_config("-- sqlfluff:jinja:my_path:c:\\foo", "test.sql")
     assert cfg.get("my_path", section="jinja") == "c:\\foo"
+
+
+@pytest.mark.parametrize(
+    "raw_sql",
+    [
+        (
+            "-- sqlfluff:max_line_length:25\n"
+            "-- sqlfluff:rules:LT05,LT06\n"
+            "-- sqlfluff:exclude_rules:LT01,LT02\n"
+            "SELECT 1"
+        )
+    ],
+)
+def test__process_raw_file_for_config(raw_sql):
+    """Test the processing of a file inline directives."""
+    cfg = FluffConfig(config_b)
+
+    # verify initial attributes based on the preloaded configuration
+    assert cfg.get("max_line_length") == 80
+    assert cfg.get("rules") == "LT03"
+    assert cfg.get("exclude_rules") is None
+
+    # internal list attributes should have corresponding exploded list values
+    assert cfg.get("rule_allowlist") == ["LT03"]
+    assert cfg.get("rule_denylist") == []
+
+    cfg.process_raw_file_for_config(raw_sql, "test.sql")
+
+    # verify overrides based on the file inline directives
+    assert cfg.get("max_line_length") == 25
+    assert cfg.get("rules") == "LT05,LT06"
+    assert cfg.get("exclude_rules") == "LT01,LT02"
+
+    # internal list attributes should have overridden exploded list values
+    assert cfg.get("rule_allowlist") == ["LT05", "LT06"]
+    assert cfg.get("rule_denylist") == ["LT01", "LT02"]

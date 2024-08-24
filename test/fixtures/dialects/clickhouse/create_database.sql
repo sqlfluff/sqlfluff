@@ -1,10 +1,12 @@
 CREATE DATABASE db_name;
+CREATE DATABASE _123;
 CREATE DATABASE db_name COMMENT 'SingleQuoted';
 CREATE DATABASE db_name COMMENT "DoubleQuoted";
 CREATE DATABASE db_name COMMENT 'SingleQuoted three words';
 CREATE DATABASE db_name COMMENT "DoubleQuoted three words";
 CREATE DATABASE db_name COMMENT 'Weird characters: !@#$%^&*()_+{}|:"<>?';
 CREATE DATABASE db_name ON CLUSTER cluster;
+CREATE DATABASE db_name ON CLUSTER _123;
 CREATE DATABASE db_name ON CLUSTER "cluster";
 CREATE DATABASE db_name ON CLUSTER "underscore_cluster";
 CREATE DATABASE db_name ON CLUSTER 'cluster';

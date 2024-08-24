@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b2c3cc157211631bf681fb486c2acfbe8a05f377b12eef199b5f5fe7e89d1653
+_hash: 5ae9466354f14bd27c81ab733286658cf0954d0eefe200aeb4b58895acadcd7e
 file:
 - statement:
     create_materialized_view_statement:
@@ -225,4 +225,42 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: table_kafka
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: mv_table
+    - engine:
+        keyword: ENGINE
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - bracketed:
+            start_bracket: (
+            end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: db
+                - dot: .
+                - naked_identifier: table
 - statement_terminator: ;

@@ -72,8 +72,8 @@ def test__dialect__base_file_parse(dialect, file):
     # Check we're all there.
     assert parsed.tree.raw == raw
     # Check that there's nothing unparsable
-    typs = parsed.tree.type_set()
-    assert "unparsable" not in typs
+    types = parsed.tree.type_set()
+    assert "unparsable" not in types
     # When testing the validity of fixes we re-parse sections of the file.
     # To ensure this is safe - here we re-parse the unfixed file to ensure
     # it's still valid even in the case that no fixes have been applied.
@@ -107,8 +107,7 @@ def test__dialect__base_broad_fix(
     parsed: Optional[ParsedString] = lex_and_parse(config_overrides, raw)
     if not parsed:  # Empty file case
         return
-    else:
-        print(parsed.tree.stringify())
+    print(parsed.tree.stringify())
 
     config = FluffConfig(overrides=config_overrides)
     linter = Linter(config=config)

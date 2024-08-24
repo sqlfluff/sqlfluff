@@ -3,6 +3,7 @@
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    AnySetOf,
     Anything,
     BaseSegment,
     Bracketed,
@@ -14,6 +15,7 @@ from sqlfluff.core.parser import (
     Delimited,
     IdentifierSegment,
     Indent,
+    LiteralKeywordSegment,
     LiteralSegment,
     Matchable,
     NewlineSegment,
@@ -26,14 +28,13 @@ from sqlfluff.core.parser import (
     RegexParser,
     SegmentGenerator,
     Sequence,
+    StringLexer,
     StringParser,
     SymbolSegment,
     TypedParser,
     WhitespaceSegment,
     WordSegment,
 )
-from sqlfluff.core.parser.grammar.anyof import AnySetOf
-from sqlfluff.core.parser.lexer import StringLexer
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_postgres_keywords import (
     get_keywords,
@@ -59,19 +60,11 @@ postgres_dialect.insert_lexer_matchers(
         # Explanation for the regex
         # - (?s) Switch - .* includes newline characters
         # - U& - must start with U&
-        # - (('')+?(?!')|('.*?(?<!')(?:'')*'(?!')))
-        #    ('')+?                                 Any non-zero number of pairs of
-        #                                           single quotes -
-        #          (?!')                            that are not then followed by a
-        #                                           single quote
-        #               |                           OR
-        #                ('.*?(?<!')(?:'')*'(?!'))
-        #                 '.*?                      A single quote followed by anything
-        #                                           (non-greedy)
-        #                     (?<!')(?:'')*         Any even number of single quotes,
-        #                                           including zero
-        #                                  '(?!')   Followed by a single quote, which is
-        #                                           not followed by a single quote
+        # - '([^']|'')*'
+        #   '                                       Begin single quote
+        #    ([^']|'')*                             Any number of non-single quote
+        #                                           characters or two single quotes
+        #              '                            End single quote
         # - (\s*UESCAPE\s*'[^0-9A-Fa-f'+\-\s)]')?
         #    \s*UESCAPE\s*                          Whitespace, followed by UESCAPE,
         #                                           followed by whitespace
@@ -80,8 +73,7 @@ postgres_dialect.insert_lexer_matchers(
         #                                       ?   This last block is optional
         RegexLexer(
             "unicode_single_quote",
-            r"(?s)U&(('')+?(?!')|('.*?(?<!')(?:'')*'(?!')))(\s*UESCAPE\s*'"
-            r"[^0-9A-Fa-f'+\-\s)]')?",
+            r"(?si)U&'([^']|'')*'(\s*UESCAPE\s*'[^0-9A-Fa-f'+\-\s)]')?",
             CodeSegment,
         ),
         # This is similar to the Unicode regex, the key differences being:
@@ -95,19 +87,41 @@ postgres_dialect.insert_lexer_matchers(
         # There is no UESCAPE block
         RegexLexer(
             "escaped_single_quote",
-            r"(?s)E(('')+?(?!')|'.*?((?<!\\)(?:\\\\)*(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\"
+            r"(?si)E(('')+?(?!')|'.*?((?<!\\)(?:\\\\)*(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\"
             r"(?<!')(?:'')*')'(?!'))",
             CodeSegment,
         ),
         # Double quote Unicode string cannot be empty, and have no single quote escapes
         RegexLexer(
             "unicode_double_quote",
-            r'(?s)U&".+?"(\s*UESCAPE\s*\'[^0-9A-Fa-f\'+\-\s)]\')?',
+            r'(?si)U&".+?"(\s*UESCAPE\s*\'[^0-9A-Fa-f\'+\-\s)]\')?',
             CodeSegment,
         ),
         RegexLexer(
             "json_operator",
             r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-",
+            SymbolSegment,
+        ),
+        # r"|".join(
+        #     re.escape(operator)
+        #     for operator in [
+        #         "&&&",
+        #         "&<|",
+        #         "<<|",
+        #         "@",
+        #         "|&>",
+        #         "|>>",
+        #         "~=",
+        #         "<->",
+        #         "|=|",
+        #         "<#>",
+        #         "<<->>",
+        #         "<<#>>",
+        #     ]
+        # )
+        RegexLexer(
+            "postgis_operator",
+            r"\&\&\&|\&<\||<<\||@|\|\&>|\|>>|\~=|<\->|\|=\||<\#>|<<\->>|<<\#>>",
             SymbolSegment,
         ),
         StringLexer("at", "@", CodeSegment),
@@ -288,6 +302,9 @@ postgres_dialect.add(
     JsonOperatorSegment=TypedParser(
         "json_operator", SymbolSegment, type="binary_operator"
     ),
+    PostgisOperatorSegment=TypedParser(
+        "postgis_operator", SymbolSegment, type="binary_operator"
+    ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
     # N.B. this MultilineConcatenateDelimiterGrammar is only created
     # to parse multiline-concatenated string literals
@@ -377,6 +394,7 @@ postgres_dialect.replace(
         Ref("NotExtendRightSegment"),
         Ref("NotExtendLeftSegment"),
         Ref("AdjacentSegment"),
+        Ref("PostgisOperatorSegment"),
     ),
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
@@ -468,10 +486,17 @@ postgres_dialect.replace(
         # Note we CANNOT use Delimited as it's greedy and swallows the
         # last Newline - see #2495
         Sequence(
-            TypedParser(
-                "single_quote",
-                LiteralSegment,
-                type="quoted_literal",
+            OneOf(
+                TypedParser(
+                    "single_quote",
+                    LiteralSegment,
+                    type="quoted_literal",
+                ),
+                TypedParser(
+                    "escaped_single_quote",
+                    LiteralSegment,
+                    type="quoted_literal",
+                ),
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
@@ -490,14 +515,14 @@ postgres_dialect.replace(
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
-                TypedParser(
-                    "bit_string_literal",
+                RegexParser(
+                    r"(?i)'[0-9a-f]*'",
                     LiteralSegment,
                     type="quoted_literal",
                 ),
             ),
         ),
-        Delimited(
+        Sequence(
             TypedParser(
                 "unicode_single_quote",
                 LiteralSegment,
@@ -505,26 +530,18 @@ postgres_dialect.replace(
             ),
             AnyNumberOf(
                 Ref("MultilineConcatenateDelimiterGrammar"),
-                TypedParser(
-                    "unicode_single_quote",
+                RegexParser(
+                    r"'([^']|'')*'",
                     LiteralSegment,
                     type="quoted_literal",
                 ),
             ),
-        ),
-        Delimited(
-            TypedParser(
-                "escaped_single_quote",
-                LiteralSegment,
-                type="quoted_literal",
-            ),
-            AnyNumberOf(
-                Ref("MultilineConcatenateDelimiterGrammar"),
-                TypedParser(
-                    "escaped_single_quote",
-                    LiteralSegment,
-                    type="quoted_literal",
+            Sequence(
+                "UESCAPE",
+                RegexParser(
+                    r"'[^0-9A-Fa-f'+\-\s)]'", CodeSegment, "unicode_escape_value"
                 ),
+                optional=True,
             ),
         ),
         Delimited(
@@ -664,6 +681,9 @@ postgres_dialect.replace(
         ),
         "RESTRICT",
         Sequence("NO", "ACTION"),
+    ),
+    UnknownLiteralSegment=StringParser(
+        "UNKNOWN", LiteralKeywordSegment, type="null_literal"
     ),
 )
 
@@ -2420,6 +2440,7 @@ class CreateExtensionStatementSegment(BaseSegment):
         Sequence("SCHEMA", Ref("SchemaReferenceSegment"), optional=True),
         Sequence("VERSION", Ref("VersionIdentifierSegment"), optional=True),
         Sequence("FROM", Ref("VersionIdentifierSegment"), optional=True),
+        Ref.keyword("CASCADE", optional=True),
     )
 
 
@@ -5165,6 +5186,88 @@ class CopyStatementSegment(BaseSegment):
         optional=True,
     )
 
+    _postgres9_compatible_stdin_options = Sequence(
+        Ref.keyword("WITH", optional=True),
+        AnySetOf(
+            Sequence("BINARY"),
+            Sequence(
+                "DELIMITER",
+                Ref.keyword("AS", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "NULL", Ref.keyword("AS", optional=True), Ref("QuotedLiteralSegment")
+            ),
+            Sequence(
+                "CSV",
+                OneOf(
+                    "HEADER",
+                    Sequence(
+                        "QUOTE",
+                        Ref.keyword("AS", optional=True),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "ESCAPE",
+                        Ref.keyword("AS", optional=True),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "FORCE",
+                        "NOT",
+                        "NULL",
+                        Delimited(Ref("ColumnReferenceSegment")),
+                    ),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+        optional=True,
+    )
+
+    _postgres9_compatible_stdout_options = Sequence(
+        Ref.keyword("WITH", optional=True),
+        AnySetOf(
+            Sequence("BINARY"),
+            Sequence(
+                "DELIMITER",
+                Ref.keyword("AS", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "NULL", Ref.keyword("AS", optional=True), Ref("QuotedLiteralSegment")
+            ),
+            Sequence(
+                "CSV",
+                OneOf(
+                    "HEADER",
+                    Sequence(
+                        "QUOTE",
+                        Ref.keyword("AS", optional=True),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "ESCAPE",
+                        Ref.keyword("AS", optional=True),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "FORCE",
+                        "QUOTE",
+                        OneOf(
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            Ref("StarSegment"),
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+        optional=True,
+    )
+
     match_grammar = Sequence(
         "COPY",
         OneOf(
@@ -5179,6 +5282,15 @@ class CopyStatementSegment(BaseSegment):
                 Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
             ),
             Sequence(
+                _table_definition,
+                "FROM",
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Sequence("STDIN"),
+                ),
+                _postgres9_compatible_stdin_options,
+            ),
+            Sequence(
                 OneOf(
                     _table_definition, Bracketed(Ref("UnorderedSelectStatementSegment"))
                 ),
@@ -5188,6 +5300,17 @@ class CopyStatementSegment(BaseSegment):
                     Sequence("STDOUT"),
                 ),
                 _option,
+            ),
+            Sequence(
+                OneOf(
+                    _table_definition, Bracketed(Ref("UnorderedSelectStatementSegment"))
+                ),
+                "TO",
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Sequence("STDOUT"),
+                ),
+                _postgres9_compatible_stdout_options,
             ),
         ),
     )

@@ -8,14 +8,20 @@ It also has some extensions.
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    Anything,
     BaseSegment,
     Bracketed,
     CodeSegment,
+    Dedent,
     Delimited,
+    Indent,
     Matchable,
     OneOf,
     Ref,
     Sequence,
+    StringLexer,
+    StringParser,
+    SymbolSegment,
     TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
@@ -39,6 +45,15 @@ databricks_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 databricks_dialect.sets("date_part_function_name").update(["TIMEDIFF"])
 
 
+databricks_dialect.insert_lexer_matchers(
+    # Named Function Parameters:
+    # https://docs.databricks.com/en/sql/language-manual/sql-ref-function-invocation.html#named-parameter-invocation
+    [
+        StringLexer("right_arrow", "=>", CodeSegment),
+    ],
+    before="equals",
+)
+
 databricks_dialect.add(
     DoubleQuotedUDFBody=TypedParser(
         "double_quote",
@@ -57,6 +72,14 @@ databricks_dialect.add(
         CodeSegment,
         type="udf_body",
         trim_chars=("$",),
+    ),
+    RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+)
+
+databricks_dialect.replace(
+    FunctionContentsExpressionGrammar=OneOf(
+        Ref("ExpressionSegment"),
+        Ref("NamedArgumentSegment"),
     ),
 )
 
@@ -207,6 +230,7 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("OptimizeTableStatementSegment"),
             Ref("CreateDatabricksFunctionStatementSegment"),
             Ref("FunctionParameterListGrammarWithComments"),
+            Ref("DeclareOrReplaceVariableStatementSegment"),
         ]
     )
 
@@ -301,4 +325,174 @@ class CreateDatabricksFunctionStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("FunctionDefinitionGrammar"),
+    )
+
+
+class NamedArgumentSegment(BaseSegment):
+    """Named argument to a function.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-function-invocation.html#named-parameter-invocation
+    """
+
+    type = "named_argument"
+    match_grammar = Sequence(
+        Ref("NakedIdentifierSegment"),
+        Ref("RightArrowSegment"),
+        Ref("ExpressionSegment"),
+    )
+
+
+class AliasExpressionSegment(sparksql.AliasExpressionSegment):
+    """A reference to an object with an `AS` clause.
+
+    The optional AS keyword allows both implicit and explicit aliasing.
+    Note also that it's possible to specify just column aliases without aliasing the
+    table as well:
+    .. code-block:: sql
+
+        SELECT * FROM VALUES (1,2) as t (a, b);
+        SELECT * FROM VALUES (1,2) as (a, b);
+        SELECT * FROM VALUES (1,2) as t;
+
+    Note that in Spark SQL, identifiers are quoted using backticks (`my_table`) rather
+    than double quotes ("my_table"). Quoted identifiers are allowed in aliases, but
+    unlike ANSI which allows single quoted identifiers ('my_table') in aliases, this is
+    not allowed in Spark and so the definition of this segment must depart from ANSI.
+    """
+
+    match_grammar = Sequence(
+        Ref.keyword("AS", optional=True),
+        OneOf(
+            # maybe table alias and column aliases
+            Sequence(
+                Ref("SingleIdentifierGrammar", optional=True),
+                Bracketed(Ref("SingleIdentifierListSegment")),
+            ),
+            # just a table alias
+            Ref("SingleIdentifierGrammar"),
+            exclude=OneOf(
+                "LATERAL",
+                Ref("JoinTypeKeywords"),
+                "WINDOW",
+                "PIVOT",
+                "KEYS",
+                "FROM",
+                "FOR",
+            ),
+        ),
+    )
+
+
+class GroupByClauseSegment(sparksql.GroupByClauseSegment):
+    """Enhance `GROUP BY` clause like in `SELECT` for `CUBE`, `ROLLUP`, and `ALL`.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-qry-select-groupby.html
+    """
+
+    match_grammar = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        OneOf(
+            "ALL",
+            Delimited(
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingSetsClauseSegment"),
+                Ref("ColumnReferenceSegment"),
+                # Can `GROUP BY 1`
+                Ref("NumericLiteralSegment"),
+                # Can `GROUP BY coalesce(col, 1)`
+                Ref("ExpressionSegment"),
+            ),
+            Sequence(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `GROUP BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can `GROUP BY coalesce(col, 1)`
+                    Ref("ExpressionSegment"),
+                ),
+                OneOf(
+                    Ref("WithCubeRollupClauseSegment"),
+                    Ref("GroupingSetsClauseSegment"),
+                ),
+            ),
+        ),
+        Dedent,
+    )
+
+
+class GeneratedColumnDefinitionSegment(sparksql.GeneratedColumnDefinitionSegment):
+    """A generated column definition, e.g. for CREATE TABLE or ALTER TABLE.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-using.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        Ref("DatatypeSegment"),  # Column type
+        Bracketed(Anything(), optional=True),  # For types like DECIMAL(3, 2)
+        OneOf(
+            Sequence(
+                "GENERATED",
+                "ALWAYS",
+                "AS",
+                Bracketed(
+                    OneOf(
+                        Ref("FunctionSegment"),
+                        Ref("BareFunctionSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "GENERATED",
+                OneOf(
+                    "ALWAYS",
+                    Sequence("BY", "DEFAULT"),
+                ),
+                "AS",
+                "IDENTITY",
+                Bracketed(
+                    Sequence(
+                        Sequence(
+                            "START",
+                            "WITH",
+                            Ref("NumericLiteralSegment"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "INCREMENT",
+                            "BY",
+                            Ref("NumericLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+        AnyNumberOf(
+            Ref("ColumnConstraintSegment", optional=True),
+        ),
+    )
+
+
+class DeclareOrReplaceVariableStatementSegment(BaseSegment):
+    """A `DECLARE [OR REPLACE] VARIABLE` statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-declare-variable.html
+    """
+
+    type = "declare_or_replace_variable_statement"
+    match_grammar = Sequence(
+        Ref.keyword("DECLARE"),
+        Ref("OrReplaceGrammar", optional=True),
+        Ref.keyword("VARIABLE", optional=True),
+        Ref("SingleIdentifierGrammar"),  # Variable name
+        Ref("DatatypeSegment", optional=True),  # Variable type
+        Sequence(
+            OneOf("DEFAULT", Ref("EqualsSegment")),
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
     )

@@ -60,12 +60,25 @@ STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
         "definition": "The capitalisation policy to enforce.",
     },
     "extended_capitalisation_policy": {
-        "validation": ["consistent", "upper", "lower", "pascal", "capitalise", "snake"],
+        "validation": [
+            "consistent",
+            "upper",
+            "lower",
+            "pascal",
+            "capitalise",
+            "snake",
+            "camel",
+        ],
         "definition": (
-            "The capitalisation policy to enforce, extended with PascalCase "
-            "and snake_case. "
+            "The capitalisation policy to enforce, extended with PascalCase, "
+            "snake_case, and camelCase. "
             "This is separate from ``capitalisation_policy`` as it should not be "
             "applied to keywords."
+            "Camel, Pascal, and Snake will never be inferred when the policy is set"
+            "to consistent. This is because snake can cause destructive changes to"
+            "the identifier, and unlinted code is too easily mistaken for camel and "
+            "pascal. If, when set to consistent, no consistent case is found, it will"
+            "default to upper."
         ),
     },
     "select_clause_trailing_comma": {

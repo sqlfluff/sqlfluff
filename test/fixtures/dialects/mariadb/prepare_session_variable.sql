@@ -1,0 +1,1 @@
+PREPARE test FROM @test;

@@ -1364,19 +1364,24 @@ def parse(
             output_stream, bench, code_only, total_time, verbose, parsed_strings
         )
     else:
-        parsed_strings_dict = [
-            dict(
-                filepath=linted_result.fname,
-                segments=(
-                    linted_result.tree.as_record(
-                        code_only=code_only, show_raw=True, include_meta=include_meta
-                    )
-                    if linted_result.tree
-                    else None
-                ),
+        parsed_strings_dict = []
+        for parsed_string in parsed_strings:
+            # TODO: Multiple variants aren't yet supported here in the non-human
+            # output of the parse command.
+            root_variant = parsed_string.root_variant()
+            # Updating violation count ensures the correct return code below.
+            violations_count += len(parsed_string.violations)
+            if root_variant:
+                assert root_variant.tree
+                segments = root_variant.tree.as_record(
+                    code_only=code_only, show_raw=True, include_meta=include_meta
+                )
+            else:
+                # Parsing failed - return null for segments.
+                segments = None
+            parsed_strings_dict.append(
+                {"filepath": parsed_string.fname, "segments": segments}
             )
-            for linted_result in parsed_strings
-        ]
 
         if format == FormatType.yaml.value:
             # For yaml dumping always dump double quoted strings if they contain

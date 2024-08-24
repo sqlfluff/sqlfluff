@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sqlfluff"
-version = "3.0.5"
+version = "3.1.1"
 description = "The SQL Linter for Humans"
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.8"
@@ -49,6 +49,7 @@ keywords = [
     "greenplum",
     "hive",
     "materialize",
+    "mariadb",
     "mysql",
     "postgres",
     "redshift",
@@ -91,8 +92,6 @@ dependencies = [
     "toml; python_version < '3.11'",
     # For handling progress bars
     "tqdm",
-    # Literals and TypedDicts
-    "typing_extensions",
 ]
 
 [project.urls]
@@ -129,7 +128,7 @@ sqlfluff_rules_tsql = "sqlfluff.rules.tsql"
 
 [tool.sqlfluff_docs]
 # NOTE: Stable version is used by docs/conf.py
-stable_version = "3.0.5"
+stable_version = "3.1.1"
 
 
 [tool.setuptools.package-data]
@@ -252,7 +251,7 @@ markers = [
 
 [tool.doc8]
 # Ignore auto-generated docs
-ignore-path = "docs/source/partials/"
+ignore-path = "docs/source/_partials/"
 
 
 [tool.codespell]

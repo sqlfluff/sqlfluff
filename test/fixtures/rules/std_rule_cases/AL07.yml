@@ -489,3 +489,65 @@ test_fail_fix_command:
     rules:
       aliasing.forbid:
         force_enable: true
+
+test_fail_fix_self_aliased_table_5954:
+  fail_str: |
+    with
+    foo as (
+        select * from vee
+    ),
+
+    bar as (
+        select * from baz
+    ),
+
+    final as (
+        select
+            foo.col1,
+            foo.col2,
+            foo.col3,
+            bar.col4,
+            bar.col5,
+            bar.col6,
+            bar.col7
+        from
+            foo as foo
+        left join
+            bar
+            on
+                foo.col1 = bar.col2
+    )
+
+    select * from final
+  fix_str: |
+    with
+    foo as (
+        select * from vee
+    ),
+
+    bar as (
+        select * from baz
+    ),
+
+    final as (
+        select
+            foo.col1,
+            foo.col2,
+            foo.col3,
+            bar.col4,
+            bar.col5,
+            bar.col6,
+            bar.col7
+        from
+            foo
+        left join
+            bar
+            on
+                foo.col1 = bar.col2
+    )
+
+    select * from final
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true

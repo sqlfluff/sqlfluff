@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c5ce1d7c663f64372f59dfc0f2028db823240dbb4eeb85312cb99f45af4edca5
+_hash: 04650847aaf6d13ec9f7eeda27373b07e8bf359781941b55a84b140b812af252
 file:
 - statement:
     create_table_statement:
@@ -129,7 +129,9 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        naked_identifier: ctas_iceberg
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: ctas_iceberg
     - keyword: WITH
     - bracketed:
       - start_bracket: (
@@ -169,7 +171,7 @@ file:
           raw_comparison_operator: '='
       - numeric_literal: '10'
       - comma: ','
-      - keyword: vacuum_max_snapshot_age_ms
+      - keyword: vacuum_max_snapshot_age_seconds
       - comparison_operator:
           raw_comparison_operator: '='
       - numeric_literal: '259200'
@@ -194,5 +196,7 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  naked_identifier: table1
+                - naked_identifier: db
+                - dot: .
+                - naked_identifier: table1
 - statement_terminator: ;

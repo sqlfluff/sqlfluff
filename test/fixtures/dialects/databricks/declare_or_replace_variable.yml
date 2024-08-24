@@ -1,0 +1,67 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6a909a5d34c442da8af91bc06cc01ebc5cb8eee405f364a38d3f0ccb1831337a
+file:
+- statement:
+    declare_or_replace_variable_statement:
+      keyword: DECLARE
+      naked_identifier: var
+- statement_terminator: ;
+- statement:
+    declare_or_replace_variable_statement:
+    - keyword: DECLARE
+    - keyword: OR
+    - keyword: REPLACE
+    - naked_identifier: var
+- statement_terminator: ;
+- statement:
+    declare_or_replace_variable_statement:
+    - keyword: DECLARE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: VARIABLE
+    - naked_identifier: var
+- statement_terminator: ;
+- statement:
+    declare_or_replace_variable_statement:
+    - keyword: DECLARE
+    - naked_identifier: var
+    - data_type:
+        primitive_type:
+          keyword: INT
+    - keyword: DEFAULT
+    - expression:
+        numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    declare_or_replace_variable_statement:
+      keyword: DECLARE
+      naked_identifier: var
+      data_type:
+        primitive_type:
+          keyword: INT
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    declare_or_replace_variable_statement:
+      keyword: DECLARE
+      naked_identifier: var
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    declare_or_replace_variable_statement:
+    - keyword: DECLARE
+    - naked_identifier: var
+    - keyword: DEFAULT
+    - expression:
+        numeric_literal: '5'
+- statement_terminator: ;

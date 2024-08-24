@@ -21,7 +21,7 @@ _START_TYPES = ["select_statement", "set_expression", "with_compound_statement"]
 
 
 class Rule_RF03(BaseRule):
-    """References should be consistent in statements with a single table.
+    """Column references should be qualified consistently in single table statements.
 
     .. note::
         For BigQuery, Hive and Redshift this rule is disabled by default.
@@ -33,7 +33,7 @@ class Rule_RF03(BaseRule):
 
     **Anti-pattern**
 
-    In this example, only the field ``b`` is referenced.
+    In this example, only the reference to ``b`` is qualified.
 
     .. code-block:: sql
 
@@ -44,7 +44,7 @@ class Rule_RF03(BaseRule):
 
     **Best practice**
 
-    Add or remove references to all fields.
+    Either all column references should be qualified, or all unqualified.
 
     .. code-block:: sql
 
@@ -99,13 +99,21 @@ class Rule_RF03(BaseRule):
         # Recursively visit and check each query in the tree.
         return list(self._visit_queries(query, visited))
 
-    def _iter_available_targets(self, query) -> Iterator[str]:
+    def _iter_available_targets(
+        self, query: Query, subquery: Optional[Query] = None
+    ) -> Iterator[AliasInfo]:
         """Iterate along a list of valid alias targets."""
         for selectable in query.selectables:
             select_info = selectable.select_info
-            for alias in select_info.table_aliases:
-                if alias.ref_str:
-                    yield alias.ref_str
+            if select_info:
+                for alias in select_info.table_aliases:
+                    if subquery and alias.from_expression_element.path_to(
+                        subquery.selectables[0].selectable
+                    ):
+                        # Skip the subquery alias itself
+                        continue
+                    if (subquery and not alias.object_reference) or alias.ref_str:
+                        yield alias
 
     def _visit_queries(self, query: Query, visited: set) -> Iterator[LintResult]:
         select_info: Optional[SelectStatementColumnsAndTables] = None
@@ -117,11 +125,12 @@ class Rule_RF03(BaseRule):
                 fixable = True
                 # :TRICKY: Subqueries in the column list of a SELECT can see tables
                 # in the FROM list of the containing query. Thus, count tables at
-                # the *parent* query level.
+                # the *parent* query level. Only check if it is a subquery of the
+                # parent.
                 possible_ref_tables = list(self._iter_available_targets(query))
-                if query.parent:
+                if query.parent and query.is_subquery:
                     possible_ref_tables += list(
-                        self._iter_available_targets(query.parent)
+                        self._iter_available_targets(query.parent, query)
                     )
                 if len(possible_ref_tables) > 1:
                     # If more than one table name is visible, check for and report
@@ -268,13 +277,16 @@ def _validate_one_reference(
 
     # If not, it's the wrong type and we should handle it.
     if single_table_references == "unqualified":
+        # If unqualified and not fixable, there is no error.
+        if not fixable:
+            return None
         # If this is qualified we must have a "table", "."" at least
-        fixes = [LintFix.delete(el) for el in ref.segments[:2]] if fixable else None
         return LintResult(
             anchor=ref,
-            fixes=fixes,
-            description="{} reference {!r} found in single table "
-            "select.".format(this_ref_type.capitalize(), ref.raw),
+            fixes=[LintFix.delete(el) for el in ref.segments[:2]],
+            description="{} reference {!r} found in single table select.".format(
+                this_ref_type.capitalize(), ref.raw
+            ),
         )
 
     fixes = None
@@ -295,6 +307,7 @@ def _validate_one_reference(
     return LintResult(
         anchor=ref,
         fixes=fixes,
-        description="{} reference {!r} found in single table "
-        "select.".format(this_ref_type.capitalize(), ref.raw),
+        description="{} reference {!r} found in single table select.".format(
+            this_ref_type.capitalize(), ref.raw
+        ),
     )

@@ -25,7 +25,6 @@ from typing import (
     Iterator,
     List,
     Optional,
-    Set,
     Tuple,
     Type,
     Union,
@@ -88,7 +87,7 @@ REMOVED_CONFIGS = [
         (
             "Hanging indents are no longer supported in SQLFluff "
             "from version 2.0.0 onwards. See "
-            "https://docs.sqlfluff.com/en/stable/layout.html#hanging-indents"
+            "https://docs.sqlfluff.com/en/stable/perma/hanging_indents.html"
         ),
     ),
     _RemovedConfig(
@@ -395,7 +394,10 @@ class ConfigLoader:
                 v = coerce_value(val)
 
                 # Attempt to resolve paths
-                if name.lower() == "load_macros_from_path":
+                if (
+                    name.lower() == "load_macros_from_path"
+                    or name.lower() == "loader_search_path"
+                ):
                     # Comma-separated list of paths.
                     paths = split_comma_separated_string(val)
                     v_temp = []
@@ -482,8 +484,8 @@ class ConfigLoader:
                             f"value (`{removed_option.new_path}`) takes precedence. "
                             "Please update your configuration to remove this warning. "
                             f"\n\n{removed_option.warning}\n\n"
-                            "See https://docs.sqlfluff.com/en/stable/configuration.html"
-                            " for more details.\n"
+                            "See https://docs.sqlfluff.com/en/stable/perma/"
+                            "configuration.html for more details.\n"
                         )
                         # continue to NOT add this value in the set
                         continue
@@ -501,16 +503,16 @@ class ConfigLoader:
                         f"`{formatted_new_key}` set to a value of `{v}` for this run. "
                         "Please update your configuration to remove this warning. "
                         f"\n\n{removed_option.warning}\n\n"
-                        "See https://docs.sqlfluff.com/en/stable/configuration.html"
-                        " for more details.\n"
+                        "See https://docs.sqlfluff.com/en/stable/perma/"
+                        "configuration.html for more details.\n"
                     )
                 else:
                     # Raise an error.
                     raise SQLFluffUserError(
                         f"Config file {file_path!r} set an outdated config "
                         f"value {formatted_key}.\n\n{removed_option.warning}\n\n"
-                        "See https://docs.sqlfluff.com/en/stable/configuration.html"
-                        " for more details."
+                        "See https://docs.sqlfluff.com/en/stable/perma/"
+                        "configuration.html for more details."
                     )
 
             # Second validate any layout configs for validity.
@@ -534,7 +536,7 @@ class ConfigLoader:
                     raise SQLFluffUserError(
                         f"Config file {file_path!r} set an invalid `layout` option "
                         f"value {':'.join(k)}.\n"
-                        "See https://docs.sqlfluff.com/en/stable/layout.html"
+                        "See https://docs.sqlfluff.com/en/stable/perma/layout.html"
                         "#configuring-layout for more details."
                     )
 
@@ -682,42 +684,37 @@ class ConfigLoader:
             self.load_user_appdir_config() if not ignore_local_config else {}
         )
         user_config = self.load_user_config() if not ignore_local_config else {}
-        config_paths = (
-            iter_intermediate_paths(Path(path).absolute(), Path.cwd())
-            if not ignore_local_config
-            else {}
-        )
-        config_stack = (
-            [self.load_config_at_path(p) for p in config_paths]
-            if not ignore_local_config
-            else []
-        )
+        parent_config_stack = []
+        config_stack = []
+        if not ignore_local_config:
+            # Finding all paths between here and the home
+            # directory. We could start at the root of the filesystem,
+            # but depending on the user's setup, this might result in
+            # permissions errors.
+            parent_config_paths = list(
+                iter_intermediate_paths(
+                    Path(path).absolute(), Path(os.path.expanduser("~"))
+                )
+            )
+            # Stripping off the home directory and the current working
+            # directory, since they are both covered by other code
+            # here
+            parent_config_paths = parent_config_paths[1:-1]
+            parent_config_stack = [
+                self.load_config_at_path(p) for p in list(parent_config_paths)
+            ]
+
+            config_paths = iter_intermediate_paths(Path(path).absolute(), Path.cwd())
+            config_stack = [self.load_config_at_path(p) for p in config_paths]
         extra_config = (
             self.load_extra_config(extra_config_path) if extra_config_path else {}
         )
         return nested_combine(
-            user_appdir_config, user_config, *config_stack, extra_config
-        )
-
-    @classmethod
-    def find_ignore_config_files(
-        cls,
-        path: str,
-        working_path: Union[str, Path] = Path.cwd(),
-        ignore_file_name: str = ".sqlfluffignore",
-    ) -> Set[str]:
-        """Finds sqlfluff ignore files from both the path and its parent paths."""
-        _working_path: Path = (
-            Path(working_path) if isinstance(working_path, str) else working_path
-        )
-        return set(
-            filter(
-                os.path.isfile,
-                map(
-                    lambda x: os.path.join(x, ignore_file_name),
-                    iter_intermediate_paths(Path(path).absolute(), _working_path),
-                ),
-            )
+            user_appdir_config,
+            user_config,
+            *parent_config_stack,
+            *config_stack,
+            extra_config,
         )
 
 
@@ -777,22 +774,7 @@ class FluffConfig:
             False if self._configs["core"].get("nocolor", False) else None
         )
         # Handle inputs which are potentially comma separated strings
-        for in_key, out_key in [
-            # Deal with potential ignore & warning parameters
-            ("ignore", "ignore"),
-            ("warnings", "warnings"),
-            ("rules", "rule_allowlist"),
-            # Allowlists and denylistsignore_words
-            ("exclude_rules", "rule_denylist"),
-        ]:
-            if self._configs["core"].get(in_key, None):
-                # Checking if key is string as can potentially be a list to
-                self._configs["core"][out_key] = split_comma_separated_string(
-                    self._configs["core"][in_key]
-                )
-            else:
-                self._configs["core"][out_key] = []
-
+        self._handle_comma_separated_values()
         # Dialect and Template selection.
         dialect: Optional[str] = self._configs["core"]["dialect"]
         self._initialise_dialect(dialect, require_dialect)
@@ -800,6 +782,20 @@ class FluffConfig:
         self._configs["core"]["templater_obj"] = self.get_templater(
             self._configs["core"]["templater"]
         )
+
+    def _handle_comma_separated_values(self):
+        for in_key, out_key in [
+            ("ignore", "ignore"),
+            ("warnings", "warnings"),
+            ("rules", "rule_allowlist"),
+            ("exclude_rules", "rule_denylist"),
+        ]:
+            if self._configs["core"].get(in_key, None):
+                self._configs["core"][out_key] = split_comma_separated_string(
+                    self._configs["core"][in_key]
+                )
+            else:
+                self._configs["core"][out_key] = []
 
     def _initialise_dialect(
         self, dialect: Optional[str], require_dialect: bool = True
@@ -1162,6 +1158,8 @@ class FluffConfig:
             if raw_line.startswith(("-- sqlfluff", "--sqlfluff")):
                 # Found a in-file config command
                 self.process_inline_config(raw_line, fname)
+        # Deal with potential list-like inputs.
+        self._handle_comma_separated_values()
 
 
 class ProgressBarConfiguration:
