@@ -343,7 +343,7 @@ class MaskStatementSegment(BaseSegment):
 
 
 class PropertyNameSegment(sparksql.PropertyNameSegment):
-    """A property name segment. Databricks allows for back quoted segments"""
+    """A property name segment. Databricks allows for back quoted segments."""
 
     match_grammar = Sequence(
         OneOf(
