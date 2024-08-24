@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1cc3f76f81908a2db7d3f68afdd2a1a809278ca84a78ddd4610908fd24ce9c63
+_hash: 5f202fdea900e7c82ff1adc1d569175b94816309c56199c4a373b885e5731573
 file:
   statement:
     with_compound_statement:
@@ -33,55 +33,56 @@ file:
                   array_expression:
                     function_name:
                       function_name_identifier: ARRAY
-                    bracketed:
-                      start_bracket: (
-                      select_statement:
-                        select_clause:
-                          keyword: SELECT
-                          select_clause_element:
-                            function:
-                              function_name:
-                                function_name_identifier: CAST
-                              function_contents:
-                                bracketed:
-                                  start_bracket: (
-                                  expression:
-                                    column_reference:
-                                      naked_identifier: num
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        select_statement:
+                          select_clause:
+                            keyword: SELECT
+                            select_clause_element:
+                              function:
+                                function_name:
+                                  function_name_identifier: CAST
+                                function_contents:
+                                  bracketed:
+                                    start_bracket: (
+                                    expression:
+                                      column_reference:
+                                        naked_identifier: num
+                                    keyword: AS
+                                    data_type:
+                                      data_type_identifier: INT64
+                                    end_bracket: )
+                          from_clause:
+                            keyword: FROM
+                            from_expression:
+                              from_expression_element:
+                                table_expression:
+                                  function:
+                                    function_name:
+                                      function_name_identifier: UNNEST
+                                    function_contents:
+                                      bracketed:
+                                        start_bracket: (
+                                        expression:
+                                          function:
+                                            function_name:
+                                              function_name_identifier: SPLIT
+                                            function_contents:
+                                              bracketed:
+                                              - start_bracket: (
+                                              - expression:
+                                                  column_reference:
+                                                    naked_identifier: binary
+                                              - comma: ','
+                                              - expression:
+                                                  quoted_literal: "''"
+                                              - end_bracket: )
+                                        end_bracket: )
+                                alias_expression:
                                   keyword: AS
-                                  data_type:
-                                    data_type_identifier: INT64
-                                  end_bracket: )
-                        from_clause:
-                          keyword: FROM
-                          from_expression:
-                            from_expression_element:
-                              table_expression:
-                                function:
-                                  function_name:
-                                    function_name_identifier: UNNEST
-                                  function_contents:
-                                    bracketed:
-                                      start_bracket: (
-                                      expression:
-                                        function:
-                                          function_name:
-                                            function_name_identifier: SPLIT
-                                          function_contents:
-                                            bracketed:
-                                            - start_bracket: (
-                                            - expression:
-                                                column_reference:
-                                                  naked_identifier: binary
-                                            - comma: ','
-                                            - expression:
-                                                quoted_literal: "''"
-                                            - end_bracket: )
-                                      end_bracket: )
-                              alias_expression:
-                                keyword: AS
-                                naked_identifier: num
-                      end_bracket: )
+                                  naked_identifier: num
+                        end_bracket: )
                 alias_expression:
                   keyword: AS
                   naked_identifier: bits
