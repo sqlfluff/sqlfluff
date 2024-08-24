@@ -104,7 +104,7 @@ class Rule_ST08(BaseRule):
                     LintFix.replace(
                         anchor,
                         (KeywordSegment("DISTINCT"), WhitespaceSegment())
-                        + self.filter_meta(bracketed[0].segments)[1:-1],
+                        + self.filter_meta(bracketed.children()[0].segments)[1:-1],
                     )
                 ],
             )
