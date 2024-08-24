@@ -1248,6 +1248,18 @@ class StructTypeSchemaSegment(BaseSegment):
     )
 
 
+class ArrayFunctionContentsSegment(BaseSegment):
+    """Array function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref("SelectableGrammar"),
+        ),
+    )
+
+
 class ArrayExpressionSegment(ansi.ArrayExpressionSegment):
     """Expression to construct a ARRAY from a subquery.
 
@@ -1256,9 +1268,7 @@ class ArrayExpressionSegment(ansi.ArrayExpressionSegment):
 
     match_grammar = Sequence(
         Ref("ArrayFunctionNameSegment"),
-        Bracketed(
-            Ref("SelectableGrammar"),
-        ),
+        Ref("ArrayFunctionContentsSegment"),
     )
 
 
