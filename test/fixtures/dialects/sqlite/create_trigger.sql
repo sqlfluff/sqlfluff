@@ -46,3 +46,10 @@ BEGIN
 INSERT INTO emp_log(emp_id,salary,edittime)
          VALUES(NEW.employee_id,NEW.salary,current_date);
 END;
+
+CREATE TRIGGER x
+AFTER INSERT ON y
+WHEN new.z IS NULL   -- putting this expression in parens allows parsing
+BEGIN
+UPDATE y SET z = TRUE WHERE rowid = new.rowid;
+END;
