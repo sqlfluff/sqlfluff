@@ -315,6 +315,19 @@ sqlite_dialect.replace(
             ),
         ),
         Ref("IndexColumnDefinitionSegment"),
+        # Raise Function contents
+        OneOf(
+            "IGNORE",
+            Sequence(
+                OneOf(
+                    "ABORT",
+                    "FAIL",
+                    "ROLLBACK",
+                ),
+                Ref("CommaSegment"),
+                Ref("QuotedLiteralSegment"),
+            )
+        )
     ),
     # NOTE: This block was copy/pasted from dialect_ansi.py with these changes made:
     #  - "PRIOR" keyword removed from Expression_A_Unary_Operator_Grammar
