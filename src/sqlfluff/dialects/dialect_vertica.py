@@ -1831,17 +1831,7 @@ class FunctionSegment(ansi.FunctionSegment):
             # rather than identifiers.
             Sequence(
                 Ref("DatePartFunctionNameSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("DatetimeUnitSegment"),
-                        Ref(
-                            "FunctionContentsGrammar",
-                            # The brackets might be empty for some functions...
-                            optional=True,
-                        ),
-                    ),
-                    parse_mode=ParseMode.GREEDY,
-                ),
+                Ref("DateTimeFunctionContentsSegment"),
             ),
         ),
         Ref("ColumnsExpressionGrammar"),
@@ -1855,14 +1845,7 @@ class FunctionSegment(ansi.FunctionSegment):
                         Ref("ValuesClauseSegment"),
                     ),
                 ),
-                Bracketed(
-                    Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                    ),
-                    parse_mode=ParseMode.GREEDY,
-                ),
+                Ref("FunctionContentsSegment"),
             ),
             AnySetOf(Ref("PostFunctionGrammar")),
         ),

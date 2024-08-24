@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a11413e830bedaaf0cca51fff2b6b60ae867242d6da2e118846a7769420d6f01
+_hash: 03481a28ececc7763681666a4a85b185d545088650dfcb14809c79938d4769ab
 file:
 - statement:
     create_table_statement:
@@ -45,12 +45,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: abs
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: b
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: b
+                      end_bracket: )
               end_bracket: )
           - keyword: VIRTUAL
       - comma: ','
@@ -68,22 +69,23 @@ file:
                 function:
                   function_name:
                     function_name_identifier: substr
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        naked_identifier: c
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                        naked_identifier: b
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                        naked_identifier: b
-                      binary_operator: +
-                      numeric_literal: '1'
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: c
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: b
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: b
+                        binary_operator: +
+                        numeric_literal: '1'
+                    - end_bracket: )
               end_bracket: )
           - keyword: STORED
       - comma: ','
@@ -137,12 +139,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: abs
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: b
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: b
+                      end_bracket: )
               end_bracket: )
           - keyword: VIRTUAL
       - comma: ','
@@ -160,22 +163,23 @@ file:
                 function:
                   function_name:
                     function_name_identifier: substr
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        naked_identifier: c
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                        naked_identifier: b
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                        naked_identifier: b
-                      binary_operator: +
-                      numeric_literal: '1'
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: c
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: b
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: b
+                        binary_operator: +
+                        numeric_literal: '1'
+                    - end_bracket: )
               end_bracket: )
           - keyword: PERSISTENT
       - comma: ','
@@ -227,12 +231,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: abs
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: b
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: b
+                      end_bracket: )
               end_bracket: )
       - comma: ','
       - column_definition:
@@ -247,22 +252,23 @@ file:
                 function:
                   function_name:
                     function_name_identifier: substr
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        naked_identifier: c
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                        naked_identifier: b
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                        naked_identifier: b
-                      binary_operator: +
-                      numeric_literal: '1'
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: c
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: b
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: b
+                        binary_operator: +
+                        numeric_literal: '1'
+                    - end_bracket: )
               end_bracket: )
           - keyword: STORED
         - column_constraint_segment:
@@ -318,12 +324,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: abs
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: b
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: b
+                      end_bracket: )
               end_bracket: )
       - comma: ','
       - column_definition:
@@ -338,22 +345,23 @@ file:
                 function:
                   function_name:
                     function_name_identifier: substr
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        naked_identifier: c
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                        naked_identifier: b
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                        naked_identifier: b
-                      binary_operator: +
-                      numeric_literal: '1'
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: c
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: b
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: b
+                        binary_operator: +
+                        numeric_literal: '1'
+                    - end_bracket: )
               end_bracket: )
           - keyword: PERSISTENT
         - column_constraint_segment:

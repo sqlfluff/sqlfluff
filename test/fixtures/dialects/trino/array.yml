@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dcc622c0648aef07203d023a12caf0dbdba82f5165d5908f2a116b6ac662d3dd
+_hash: 08a22fad6dd8609d2246337125972253f4c412c21f1df040fd2349a0e9e4a85c
 file:
 - statement:
     select_statement:
@@ -79,19 +79,20 @@ file:
               function:
                 function_name:
                   function_name_identifier: UNNEST
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    typed_array_literal:
-                      array_type:
-                        keyword: ARRAY
-                      array_literal:
-                      - start_square_bracket: '['
-                      - numeric_literal: '1'
-                      - comma: ','
-                      - numeric_literal: '2'
-                      - end_square_bracket: ']'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      typed_array_literal:
+                        array_type:
+                          keyword: ARRAY
+                        array_literal:
+                        - start_square_bracket: '['
+                        - numeric_literal: '1'
+                        - comma: ','
+                        - numeric_literal: '2'
+                        - end_square_bracket: ']'
+                    end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -101,35 +102,36 @@ file:
           function:
             function_name:
               function_name_identifier: FILTER
-            bracketed:
-            - start_bracket: (
-            - expression:
-                typed_array_literal:
-                  array_type:
-                    keyword: ARRAY
-                  array_literal:
-                  - start_square_bracket: '['
-                  - numeric_literal: '5'
-                  - comma: ','
-                  - numeric_literal:
-                      sign_indicator: '-'
-                      numeric_literal: '6'
-                  - comma: ','
-                  - null_literal: 'NULL'
-                  - comma: ','
-                  - numeric_literal: '7'
-                  - end_square_bracket: ']'
-            - comma: ','
-            - expression:
-              - column_reference:
-                  naked_identifier: x
-              - binary_operator: ->
-              - column_reference:
-                  naked_identifier: x
-              - comparison_operator:
-                  raw_comparison_operator: '>'
-              - numeric_literal: '0'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '5'
+                    - comma: ','
+                    - numeric_literal:
+                        sign_indicator: '-'
+                        numeric_literal: '6'
+                    - comma: ','
+                    - null_literal: 'NULL'
+                    - comma: ','
+                    - numeric_literal: '7'
+                    - end_square_bracket: ']'
+              - comma: ','
+              - expression:
+                - column_reference:
+                    naked_identifier: x
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: x
+                - comparison_operator:
+                    raw_comparison_operator: '>'
+                - numeric_literal: '0'
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -139,35 +141,36 @@ file:
           function:
             function_name:
               function_name_identifier: ANY_MATCH
-            bracketed:
-            - start_bracket: (
-            - expression:
-                typed_array_literal:
-                  array_type:
-                    keyword: ARRAY
-                  array_literal:
-                  - start_square_bracket: '['
-                  - numeric_literal: '5'
-                  - comma: ','
-                  - numeric_literal:
-                      sign_indicator: '-'
-                      numeric_literal: '6'
-                  - comma: ','
-                  - null_literal: 'NULL'
-                  - comma: ','
-                  - numeric_literal: '7'
-                  - end_square_bracket: ']'
-            - comma: ','
-            - expression:
-              - column_reference:
-                  naked_identifier: x
-              - binary_operator: ->
-              - column_reference:
-                  naked_identifier: x
-              - comparison_operator:
-                  raw_comparison_operator: '>'
-              - numeric_literal: '0'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '5'
+                    - comma: ','
+                    - numeric_literal:
+                        sign_indicator: '-'
+                        numeric_literal: '6'
+                    - comma: ','
+                    - null_literal: 'NULL'
+                    - comma: ','
+                    - numeric_literal: '7'
+                    - end_square_bracket: ']'
+              - comma: ','
+              - expression:
+                - column_reference:
+                    naked_identifier: x
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: x
+                - comparison_operator:
+                    raw_comparison_operator: '>'
+                - numeric_literal: '0'
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -177,22 +180,23 @@ file:
           function:
             function_name:
               function_name_identifier: ELEMENT_AT
-            bracketed:
-            - start_bracket: (
-            - expression:
-                typed_array_literal:
-                  array_type:
-                    keyword: ARRAY
-                  array_literal:
-                  - start_square_bracket: '['
-                  - quoted_literal: "'apple'"
-                  - comma: ','
-                  - quoted_literal: "'banana'"
-                  - comma: ','
-                  - quoted_literal: "'orange'"
-                  - end_square_bracket: ']'
-            - comma: ','
-            - expression:
-                numeric_literal: '2'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - quoted_literal: "'apple'"
+                    - comma: ','
+                    - quoted_literal: "'banana'"
+                    - comma: ','
+                    - quoted_literal: "'orange'"
+                    - end_square_bracket: ']'
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - end_bracket: )
 - statement_terminator: ;

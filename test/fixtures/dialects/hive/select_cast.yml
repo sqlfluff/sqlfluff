@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5ffab9520bca3181f57fc2f9cd06f404e2fcf543b9939c8e11725b69357e14c6
+_hash: 91a27b7028ffcb210898d69aa62b528121df8aa267f606cf63f933dcadb61303
 file:
 - statement:
     select_statement:
@@ -13,41 +13,42 @@ file:
           function:
             function_name:
               function_name_identifier: cast
-            bracketed:
-              start_bracket: (
-              expression:
-                function:
-                - function_name: row
-                - bracketed:
-                  - start_bracket: (
-                  - column_reference:
-                      naked_identifier: col1
-                  - comma: ','
-                  - column_reference:
-                      naked_identifier: col2
-                  - end_bracket: )
-                - keyword: as
-                - keyword: row
-                - bracketed:
-                  - start_bracket: (
-                  - naked_identifier: a
-                  - data_type:
-                      primitive_type:
-                        keyword: bigint
-                  - comma: ','
-                  - naked_identifier: b
-                  - data_type:
-                      primitive_type:
-                        keyword: decimal
-                        bracketed_arguments:
-                          bracketed:
-                          - start_bracket: (
-                          - numeric_literal: '23'
-                          - comma: ','
-                          - numeric_literal: '2'
-                          - end_bracket: )
-                  - end_bracket: )
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                  - function_name: row
+                  - bracketed:
+                    - start_bracket: (
+                    - column_reference:
+                        naked_identifier: col1
+                    - comma: ','
+                    - column_reference:
+                        naked_identifier: col2
+                    - end_bracket: )
+                  - keyword: as
+                  - keyword: row
+                  - bracketed:
+                    - start_bracket: (
+                    - naked_identifier: a
+                    - data_type:
+                        primitive_type:
+                          keyword: bigint
+                    - comma: ','
+                    - naked_identifier: b
+                    - data_type:
+                        primitive_type:
+                          keyword: decimal
+                          bracketed_arguments:
+                            bracketed:
+                            - start_bracket: (
+                            - numeric_literal: '23'
+                            - comma: ','
+                            - numeric_literal: '2'
+                            - end_bracket: )
+                    - end_bracket: )
+                end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -66,16 +67,17 @@ file:
           function:
             function_name:
               function_name_identifier: cast
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: a
-              keyword: as
-              data_type:
-                primitive_type:
-                  keyword: json
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: a
+                keyword: as
+                data_type:
+                  primitive_type:
+                    keyword: json
+                end_bracket: )
       from_clause:
         keyword: from
         from_expression:

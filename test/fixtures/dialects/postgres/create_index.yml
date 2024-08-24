@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0a68c64141d43e375847c6dabd5d5cd128636a78296754feb4f2d13ba33ee451
+_hash: 3602c55455ac43460eca366febc2dafabe4ea91c85fcc2dccd657d2b177fa0c7
 file:
 - statement:
     create_index_statement:
@@ -92,12 +92,13 @@ file:
               function:
                 function_name:
                   function_name_identifier: lower
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: title
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: title
+                    end_bracket: )
             end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -252,16 +253,17 @@ file:
           function:
             function_name:
               function_name_identifier: box
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: location
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: location
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: location
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: location
+              - end_bracket: )
         end_bracket: )
 - statement_terminator: ;
 - statement:

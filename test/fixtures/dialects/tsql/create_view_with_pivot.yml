@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: df4715f63f5dd0a56000567de395eb865dc0e1eeef7e2570651814e8e78f023c
+_hash: 3bbdf52beb070b86608dcf953a1266f873d7be7f6d3fb38487a5ae70c6af2ebb
 file:
   batch:
     statement:
@@ -82,12 +82,13 @@ file:
                 - function:
                     function_name:
                       function_name_identifier: AVG
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: StandardCost
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: StandardCost
+                        end_bracket: )
                 - keyword: FOR
                 - column_reference:
                     naked_identifier: DaysToManufacture

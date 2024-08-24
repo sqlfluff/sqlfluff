@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1780bc1b0a80daf11a8cf042139cb566504f310f930cc6dce88febf2470b40b4
+_hash: 4ad092b2ba642b39122460ccb748ee0ab56fb2797e81f677d7d7c70a46a75c94
 file:
   statement:
     select_statement:
@@ -17,49 +17,51 @@ file:
           function:
             function_name:
               function_name_identifier: coalesce
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                - function_name:
-                    function_name_identifier: first_value
-                - bracketed:
-                    start_bracket: (
-                    expression:
-                      case_expression:
-                      - keyword: case
-                      - when_clause:
-                        - keyword: when
-                        - expression:
-                            column_reference:
-                              naked_identifier: a
-                        - keyword: then
-                        - expression:
-                            column_reference:
-                              naked_identifier: b
-                      - else_clause:
-                          keyword: else
-                          expression:
-                            null_literal: 'null'
-                      - keyword: end
-                    end_bracket: )
-                - keyword: ignore
-                - keyword: nulls
-                - over_clause:
-                    keyword: over
-                    bracketed:
-                      start_bracket: (
-                      window_specification:
-                        orderby_clause:
-                        - keyword: order
-                        - keyword: by
-                        - column_reference:
-                            naked_identifier: e
-                      end_bracket: )
-            - comma: ','
-            - expression:
-                boolean_literal: 'false'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                  - function_name:
+                      function_name_identifier: first_value
+                  - function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          case_expression:
+                          - keyword: case
+                          - when_clause:
+                            - keyword: when
+                            - expression:
+                                column_reference:
+                                  naked_identifier: a
+                            - keyword: then
+                            - expression:
+                                column_reference:
+                                  naked_identifier: b
+                          - else_clause:
+                              keyword: else
+                              expression:
+                                null_literal: 'null'
+                          - keyword: end
+                        end_bracket: )
+                  - keyword: ignore
+                  - keyword: nulls
+                  - over_clause:
+                      keyword: over
+                      bracketed:
+                        start_bracket: (
+                        window_specification:
+                          orderby_clause:
+                          - keyword: order
+                          - keyword: by
+                          - column_reference:
+                              naked_identifier: e
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  boolean_literal: 'false'
+              - end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: c

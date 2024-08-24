@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1e6fdbf904841a7c9fbd6fe5dcf1ab2040db9586004d93354c40afa0cf3ab84c
+_hash: b34c9265de799012319e8433fbae9c22e7904cbb2b895d145e5548d4b2c411c8
 file:
 - statement:
     select_statement:
@@ -77,10 +77,11 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -99,10 +100,11 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -125,10 +127,11 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -151,10 +154,11 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -170,19 +174,21 @@ file:
             - function:
                 function_name:
                   function_name_identifier: date_sub
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    function:
-                      function_name:
-                        function_name_identifier: current_date
-                      bracketed:
-                        start_bracket: (
-                        end_bracket: )
-                - comma: ','
-                - expression:
-                    numeric_literal: '1'
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      function:
+                        function_name:
+                          function_name_identifier: current_date
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            end_bracket: )
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '1'
+                  - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -192,10 +198,11 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -240,10 +247,11 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -266,10 +274,11 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -289,10 +298,11 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -311,10 +321,11 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:

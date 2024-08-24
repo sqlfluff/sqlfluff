@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ae3b8347b6d652d4e75500c1e5661774581425658e7aa09b5b9ef4fee40a49f4
+_hash: 6e33b940b5535a42e0946f8868e8651a2b76653e887f1ed4834b08c15812ece1
 file:
 - statement:
     insert_statement:
@@ -123,12 +123,13 @@ file:
             function:
               function_name:
                 function_name_identifier: max
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: j
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: j
+                  end_bracket: )
         from_clause:
           keyword: FROM
           from_expression:
@@ -295,16 +296,17 @@ file:
             function:
               function_name:
                 function_name_identifier: add_days
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  bare_function: current_date
-              - comma: ','
-              - expression:
-                  numeric_literal:
-                    sign_indicator: '-'
-                    numeric_literal: '1'
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    bare_function: current_date
+                - comma: ','
+                - expression:
+                    numeric_literal:
+                      sign_indicator: '-'
+                      numeric_literal: '1'
+                - end_bracket: )
         - comma: ','
         - numeric_literal: '15.0'
         - comma: ','

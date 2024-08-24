@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5033aac4dba9632028d262eee7824a0f4b7c269ed7829c6aca2b74bf0a7c23ca
+_hash: 6679e8cbab16e1ab64f1c847ed792a57970c38eba528b528ba330b32c43a370d
 file:
 - statement:
     select_statement:
@@ -178,46 +178,47 @@ file:
               function:
                 function_name:
                   function_name_identifier: UNNEST
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    typed_array_literal:
-                      array_type:
-                        keyword: ARRAY
-                        start_angle_bracket: <
-                        data_type:
-                          struct_type:
-                            keyword: STRUCT
-                            struct_type_schema:
-                            - start_angle_bracket: <
-                            - parameter: col_1
-                            - data_type:
-                                data_type_identifier: STRING
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      typed_array_literal:
+                        array_type:
+                          keyword: ARRAY
+                          start_angle_bracket: <
+                          data_type:
+                            struct_type:
+                              keyword: STRUCT
+                              struct_type_schema:
+                              - start_angle_bracket: <
+                              - parameter: col_1
+                              - data_type:
+                                  data_type_identifier: STRING
+                              - comma: ','
+                              - parameter: col_2
+                              - data_type:
+                                  data_type_identifier: STRING
+                              - end_angle_bracket: '>'
+                          end_angle_bracket: '>'
+                        array_literal:
+                        - start_square_bracket: '['
+                        - expression:
+                            bracketed:
+                            - start_bracket: (
+                            - quoted_literal: "'hello'"
                             - comma: ','
-                            - parameter: col_2
-                            - data_type:
-                                data_type_identifier: STRING
-                            - end_angle_bracket: '>'
-                        end_angle_bracket: '>'
-                      array_literal:
-                      - start_square_bracket: '['
-                      - expression:
-                          bracketed:
-                          - start_bracket: (
-                          - quoted_literal: "'hello'"
-                          - comma: ','
-                          - quoted_literal: "'world'"
-                          - end_bracket: )
-                      - comma: ','
-                      - expression:
-                          bracketed:
-                          - start_bracket: (
-                          - quoted_literal: "'hi'"
-                          - comma: ','
-                          - quoted_literal: "'there'"
-                          - end_bracket: )
-                      - end_square_bracket: ']'
-                  end_bracket: )
+                            - quoted_literal: "'world'"
+                            - end_bracket: )
+                        - comma: ','
+                        - expression:
+                            bracketed:
+                            - start_bracket: (
+                            - quoted_literal: "'hi'"
+                            - comma: ','
+                            - quoted_literal: "'there'"
+                            - end_bracket: )
+                        - end_square_bracket: ']'
+                    end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -335,17 +336,18 @@ file:
           function:
             function_name:
               function_name_identifier: TO_JSON
-            bracketed:
-              start_bracket: (
-              expression:
-                typed_struct_literal:
-                  struct_type:
-                    keyword: STRUCT
-                  struct_literal:
-                    bracketed:
-                      start_bracket: (
-                      end_bracket: )
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  typed_struct_literal:
+                    struct_type:
+                      keyword: STRUCT
+                    struct_literal:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: col

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a5271434fad9c0fc8179d1d20aa2e12e28c987a080b772e31302b01979e43e82
+_hash: b5315b03dd9c57b826f84896716536c72bddc50c4859abf815e717c51e09967d
 file:
   statement:
     create_trigger:
@@ -27,12 +27,13 @@ file:
             function:
               function_name:
                 function_name_identifier: RAISE
-              bracketed:
-                start_bracket: (
-                keyword: ROLLBACK
-                comma: ','
-                quoted_literal: "'updating z not allowed'"
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  keyword: ROLLBACK
+                  comma: ','
+                  quoted_literal: "'updating z not allowed'"
+                  end_bracket: )
     - statement_terminator: ;
     - keyword: END
   statement_terminator: ;

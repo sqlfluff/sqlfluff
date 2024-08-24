@@ -12,3 +12,9 @@ test_fail_spaced_function:
   configs:
     core:
       dialect: postgres
+
+test_pass_rebalance_hint:
+  pass: SELECT /*+ REBALANCE */ 1 AS a FROM xxx.yyy;
+  configs:
+    core:
+      dialect: sparksql

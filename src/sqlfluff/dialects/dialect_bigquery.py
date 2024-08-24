@@ -962,6 +962,22 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
     )
 
 
+class DateTimeFunctionContentsSegment(ansi.DateTimeFunctionContentsSegment):
+    """Datetime function contents segment."""
+
+    match_grammar = Sequence(
+        Bracketed(
+            Delimited(
+                Ref("DatetimeUnitSegment"),
+                Ref("DatePartWeekSegment"),
+                Ref(
+                    "FunctionContentsGrammar",
+                ),
+            ),
+            # parse_mode=ParseMode.GREEDY,
+        )
+    )
+
 class FunctionSegment(ansi.FunctionSegment):
     """A scalar or aggregate function.
 
@@ -1007,16 +1023,7 @@ class FunctionSegment(ansi.FunctionSegment):
                     "DatePartFunctionNameSegment",
                     exclude=Ref("ExtractFunctionNameSegment"),
                 ),
-                Bracketed(
-                    Delimited(
-                        Ref("DatetimeUnitSegment"),
-                        Ref("DatePartWeekSegment"),
-                        Ref(
-                            "FunctionContentsGrammar",
-                        ),
-                    ),
-                    parse_mode=ParseMode.GREEDY,
-                ),
+                Ref("DateTimeFunctionContentsSegment"),
             ),
             Sequence(
                 Sequence(
@@ -1028,14 +1035,7 @@ class FunctionSegment(ansi.FunctionSegment):
                             Ref("ValuesClauseSegment"),
                         ),
                     ),
-                    Bracketed(
-                        Ref(
-                            "FunctionContentsGrammar",
-                            # The brackets might be empty for some functions...
-                            optional=True,
-                        ),
-                        parse_mode=ParseMode.GREEDY,
-                    ),
+                    Ref("FunctionContentsSegment"),
                 ),
                 # Functions returning ARRAYS in BigQuery can have optional
                 # Array Accessor clauses

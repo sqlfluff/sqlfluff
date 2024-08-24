@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cd07c5fe6f5104e9a01bfaa3e1436dd646b13baedf7513db4d1a52ae601358c0
+_hash: 95767e7911cd4765407b5e0d8c27f225c831d7b4d6dda06aca62b83fab3e6a45
 file:
 - statement:
     select_statement:
@@ -155,22 +155,23 @@ file:
                     function:
                       function_name:
                         function_name_identifier: UNNEST
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          array_literal:
-                          - start_square_bracket: '['
-                          - quoted_literal: "'Jane\\u2004Doe'"
-                          - comma: ','
-                          - quoted_literal: "'John\\u2004Smith'"
-                          - comma: ','
-                          - quoted_literal: "'Jane\\u2005Doe'"
-                          - comma: ','
-                          - quoted_literal: "'Jane\\u2006Doe'"
-                          - comma: ','
-                          - quoted_literal: "'John Smith'"
-                          - end_square_bracket: ']'
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            array_literal:
+                            - start_square_bracket: '['
+                            - quoted_literal: "'Jane\\u2004Doe'"
+                            - comma: ','
+                            - quoted_literal: "'John\\u2004Smith'"
+                            - comma: ','
+                            - quoted_literal: "'Jane\\u2005Doe'"
+                            - comma: ','
+                            - quoted_literal: "'Jane\\u2006Doe'"
+                            - comma: ','
+                            - quoted_literal: "'John Smith'"
+                            - end_square_bracket: ']'
+                          end_bracket: )
                   alias_expression:
                     keyword: AS
                     naked_identifier: name
@@ -198,10 +199,11 @@ file:
             function:
               function_name:
                 function_name_identifier: COUNT
-              bracketed:
-                start_bracket: (
-                star: '*'
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  star: '*'
+                  end_bracket: )
             alias_expression:
               keyword: AS
               naked_identifier: name_count

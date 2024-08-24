@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b7898d09c48c4c4c7fde05ee5e305b1383740d944c650937456b1cf46f384938
+_hash: 91fc6873d95f4b00c948212e6f5236f220fa78e715d74fc899deb539b652ea71
 file:
   statement:
     select_statement:
@@ -17,38 +17,40 @@ file:
           function:
             function_name:
               function_name_identifier: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: ROW
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        naked_identifier: price
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                        naked_identifier: store
-                  - end_bracket: )
-              keyword: AS
-              data_type:
-                struct_type:
-                  keyword: ROW
-                  struct_type_schema:
-                    bracketed:
-                    - start_bracket: (
-                    - parameter: price
-                    - data_type:
-                        keyword: REAL
-                    - comma: ','
-                    - parameter: store
-                    - data_type:
-                        keyword: VARCHAR
-                    - end_bracket: )
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: ROW
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: price
+                      - comma: ','
+                      - expression:
+                          column_reference:
+                            naked_identifier: store
+                      - end_bracket: )
+                keyword: AS
+                data_type:
+                  struct_type:
+                    keyword: ROW
+                    struct_type_schema:
+                      bracketed:
+                      - start_bracket: (
+                      - parameter: price
+                      - data_type:
+                          keyword: REAL
+                      - comma: ','
+                      - parameter: store
+                      - data_type:
+                          keyword: VARCHAR
+                      - end_bracket: )
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: data_row

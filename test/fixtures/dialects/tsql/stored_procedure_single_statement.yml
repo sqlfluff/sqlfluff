@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3e7b1bb873be22b78273c31cc7f23750f41e2ccc8bcac842a2ffcccdb1027d2b
+_hash: cec4d1650b0649b41cedf5b624fa2c4598f5fde40010108b9bc9d7d433bbd295
 file:
   batch:
     create_procedure_statement:
@@ -149,36 +149,39 @@ file:
                             quoted_identifier: '[dbo]'
                             dot: .
                             function_name_identifier: '[CONVERT_ISO_WEEK_TO_DATETIME]'
-                          bracketed:
-                          - start_bracket: (
-                          - expression:
-                              function:
-                                function_name:
-                                  keyword: LEFT
-                                bracketed:
-                                - start_bracket: (
-                                - expression:
-                                    column_reference:
-                                      naked_identifier: YEAR_WEEK
-                                - comma: ','
-                                - expression:
-                                    numeric_literal: '4'
-                                - end_bracket: )
-                          - comma: ','
-                          - expression:
-                              function:
-                                function_name:
-                                  keyword: RIGHT
-                                bracketed:
-                                - start_bracket: (
-                                - expression:
-                                    column_reference:
-                                      naked_identifier: YEAR_WEEK
-                                - comma: ','
-                                - expression:
-                                    numeric_literal: '2'
-                                - end_bracket: )
-                          - end_bracket: )
+                          function_contents:
+                            bracketed:
+                            - start_bracket: (
+                            - expression:
+                                function:
+                                  function_name:
+                                    keyword: LEFT
+                                  function_contents:
+                                    bracketed:
+                                    - start_bracket: (
+                                    - expression:
+                                        column_reference:
+                                          naked_identifier: YEAR_WEEK
+                                    - comma: ','
+                                    - expression:
+                                        numeric_literal: '4'
+                                    - end_bracket: )
+                            - comma: ','
+                            - expression:
+                                function:
+                                  function_name:
+                                    keyword: RIGHT
+                                  function_contents:
+                                    bracketed:
+                                    - start_bracket: (
+                                    - expression:
+                                        column_reference:
+                                          naked_identifier: YEAR_WEEK
+                                    - comma: ','
+                                    - expression:
+                                        numeric_literal: '2'
+                                    - end_bracket: )
+                            - end_bracket: )
                       keyword: AS
                       data_type:
                         data_type_identifier: DATE
@@ -199,45 +202,49 @@ file:
                             quoted_identifier: '[dbo]'
                             dot: .
                             function_name_identifier: '[WEEK_END]'
-                          bracketed:
-                            start_bracket: (
-                            expression:
-                              function:
-                                function_name:
-                                  quoted_identifier: '[dbo]'
-                                  dot: .
-                                  function_name_identifier: '[CONVERT_ISO_WEEK_TO_DATETIME]'
-                                bracketed:
-                                - start_bracket: (
-                                - expression:
-                                    function:
-                                      function_name:
-                                        keyword: LEFT
-                                      bracketed:
-                                      - start_bracket: (
-                                      - expression:
-                                          column_reference:
-                                            naked_identifier: YEAR_WEEK
-                                      - comma: ','
-                                      - expression:
-                                          numeric_literal: '4'
-                                      - end_bracket: )
-                                - comma: ','
-                                - expression:
-                                    function:
-                                      function_name:
-                                        keyword: RIGHT
-                                      bracketed:
-                                      - start_bracket: (
-                                      - expression:
-                                          column_reference:
-                                            naked_identifier: YEAR_WEEK
-                                      - comma: ','
-                                      - expression:
-                                          numeric_literal: '2'
-                                      - end_bracket: )
-                                - end_bracket: )
-                            end_bracket: )
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                function:
+                                  function_name:
+                                    quoted_identifier: '[dbo]'
+                                    dot: .
+                                    function_name_identifier: '[CONVERT_ISO_WEEK_TO_DATETIME]'
+                                  function_contents:
+                                    bracketed:
+                                    - start_bracket: (
+                                    - expression:
+                                        function:
+                                          function_name:
+                                            keyword: LEFT
+                                          function_contents:
+                                            bracketed:
+                                            - start_bracket: (
+                                            - expression:
+                                                column_reference:
+                                                  naked_identifier: YEAR_WEEK
+                                            - comma: ','
+                                            - expression:
+                                                numeric_literal: '4'
+                                            - end_bracket: )
+                                    - comma: ','
+                                    - expression:
+                                        function:
+                                          function_name:
+                                            keyword: RIGHT
+                                          function_contents:
+                                            bracketed:
+                                            - start_bracket: (
+                                            - expression:
+                                                column_reference:
+                                                  naked_identifier: YEAR_WEEK
+                                            - comma: ','
+                                            - expression:
+                                                numeric_literal: '2'
+                                            - end_bracket: )
+                                    - end_bracket: )
+                              end_bracket: )
                       keyword: AS
                       data_type:
                         data_type_identifier: DATE

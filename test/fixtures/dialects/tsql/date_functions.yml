@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 76ffb6c247bc1ab4862e89a0b33e56c584e6a7f02a4c60a987ee3b4c748402b0
+_hash: 1ed318fbead0cecccf696e61991eb105c4184ed17b81932013f2f9ddaa45a83f
 file:
   batch:
     statement:
@@ -23,31 +23,33 @@ file:
                   function:
                     function_name:
                       function_name_identifier: dateadd
-                    bracketed:
-                    - start_bracket: (
-                    - date_part: month
-                    - comma: ','
-                    - expression:
-                        function:
-                          function_name:
-                            function_name_identifier: datediff
-                          bracketed:
-                          - start_bracket: (
-                          - date_part: month
-                          - comma: ','
-                          - expression:
-                              numeric_literal: '0'
-                          - comma: ','
-                          - expression:
-                              column_reference:
-                              - naked_identifier: t
-                              - dot: .
-                              - naked_identifier: valid_from_date
-                          - end_bracket: )
-                    - comma: ','
-                    - expression:
-                        numeric_literal: '0'
-                    - end_bracket: )
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - date_part: month
+                      - comma: ','
+                      - expression:
+                          function:
+                            function_name:
+                              function_name_identifier: datediff
+                            function_contents:
+                              bracketed:
+                              - start_bracket: (
+                              - date_part: month
+                              - comma: ','
+                              - expression:
+                                  numeric_literal: '0'
+                              - comma: ','
+                              - expression:
+                                  column_reference:
+                                  - naked_identifier: t
+                                  - dot: .
+                                  - naked_identifier: valid_from_date
+                              - end_bracket: )
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '0'
+                      - end_bracket: )
                 end_bracket: )
             alias_expression:
               keyword: as
@@ -84,33 +86,36 @@ file:
                   function:
                     function_name:
                       function_name_identifier: dateadd
-                    bracketed:
-                    - start_bracket: (
-                    - date_part: yy
-                    - comma: ','
-                    - expression:
-                        function:
-                          function_name:
-                            function_name_identifier: datediff
-                          bracketed:
-                          - start_bracket: (
-                          - date_part: yy
-                          - comma: ','
-                          - expression:
-                              numeric_literal: '0'
-                          - comma: ','
-                          - expression:
-                              function:
-                                function_name:
-                                  function_name_identifier: getdate
-                                bracketed:
-                                  start_bracket: (
-                                  end_bracket: )
-                          - end_bracket: )
-                        binary_operator: '-'
-                        numeric_literal: '1'
-                    - comma: ','
-                    - expression:
-                        numeric_literal: '0'
-                    - end_bracket: )
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - date_part: yy
+                      - comma: ','
+                      - expression:
+                          function:
+                            function_name:
+                              function_name_identifier: datediff
+                            function_contents:
+                              bracketed:
+                              - start_bracket: (
+                              - date_part: yy
+                              - comma: ','
+                              - expression:
+                                  numeric_literal: '0'
+                              - comma: ','
+                              - expression:
+                                  function:
+                                    function_name:
+                                      function_name_identifier: getdate
+                                    function_contents:
+                                      bracketed:
+                                        start_bracket: (
+                                        end_bracket: )
+                              - end_bracket: )
+                          binary_operator: '-'
+                          numeric_literal: '1'
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '0'
+                      - end_bracket: )
                 end_bracket: )

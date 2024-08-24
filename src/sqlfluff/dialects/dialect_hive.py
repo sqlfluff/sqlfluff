@@ -865,17 +865,7 @@ class FunctionSegment(BaseSegment):
             # rather than identifiers.
             Sequence(
                 Ref("DatePartFunctionNameSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("DatetimeUnitSegment"),
-                        Ref(
-                            "FunctionContentsGrammar",
-                            # The brackets might be empty for some functions...
-                            optional=True,
-                        ),
-                    ),
-                    parse_mode=ParseMode.GREEDY,
-                ),
+                Ref("DateTimeFunctionContentsSegment"),
             ),
         ),
         Sequence(
@@ -909,14 +899,7 @@ class FunctionSegment(BaseSegment):
                         Ref("ValuesClauseSegment"),
                     ),
                 ),
-                Bracketed(
-                    Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                    ),
-                    parse_mode=ParseMode.GREEDY,
-                ),
+                Ref("FunctionContentsSegment"),
             ),
             Ref("PostFunctionGrammar", optional=True),
         ),

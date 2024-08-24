@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f9c009740fd13350526c115479fe223a5375d63df546038453248221abcf1ba9
+_hash: cedf526485e575559776efe600e371a3ccc894536f6bc55d78a1c07acc6ac518
 file:
 - statement:
     select_statement:
@@ -21,12 +21,13 @@ file:
           function:
             function_name:
               function_name_identifier: sum
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: total_count
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: total_count
+                end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: cnt
@@ -71,12 +72,13 @@ file:
           function:
             function_name:
               function_name_identifier: sum
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: total_count
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: total_count
+                end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: cnt
@@ -121,12 +123,13 @@ file:
           function:
             function_name:
               function_name_identifier: sum
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: total_count
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: total_count
+                end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: cnt
@@ -171,12 +174,13 @@ file:
           function:
             function_name:
               function_name_identifier: sum
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: total_count
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: total_count
+                end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: cnt
@@ -242,12 +246,13 @@ file:
           function:
             function_name:
               function_name_identifier: sum
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: total_count
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: total_count
+                end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: cnt

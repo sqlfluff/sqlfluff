@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: be520ab6d2ddd160941f3e0d32350789d379962421dc595d087c5044efd59f2e
+_hash: c9954d49c4baf332c6be5453ae00590c60c05141a1f2d0102c1e1a5718da9144
 file:
 - statement:
     create_snapshot_table_statement:
@@ -38,11 +38,12 @@ file:
           function:
             function_name:
               function_name_identifier: TIMESTAMP
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: '"2024-01-01 12:00:00"'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: '"2024-01-01 12:00:00"'
+                end_bracket: )
     - options_segment:
         keyword: OPTIONS
         bracketed:
@@ -53,11 +54,12 @@ file:
         - function:
             function_name:
               function_name_identifier: TIMESTAMP
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: '"2024-02-01 12:00:00"'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: '"2024-02-01 12:00:00"'
+                end_bracket: )
         - comma: ','
         - parameter: friendly_name
         - comparison_operator:

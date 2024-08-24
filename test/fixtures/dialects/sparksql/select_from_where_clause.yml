@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3544556730f04d72062eb7ec28274e358afa322a87613e945abdc49c46934198
+_hash: 80e74ea077fbe390734f811dae5188f03bfed89927a630aff64616e782787cb0
 file:
 - statement:
     select_statement:
@@ -99,12 +99,13 @@ file:
           function:
             function_name:
               function_name_identifier: length
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: name
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: name
+                end_bracket: )
           comparison_operator:
             raw_comparison_operator: '>'
           numeric_literal: '3'
@@ -182,12 +183,13 @@ file:
                     function:
                       function_name:
                         function_name_identifier: avg
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                            naked_identifier: age
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: age
+                          end_bracket: )
                 from_clause:
                   keyword: FROM
                   from_expression:

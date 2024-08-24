@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 935199c7ac89c3a42afe824da3a00b3541e19ed276476b2ef8cd50e05ab7c023
+_hash: 3b2bee889a46cf3cd40600c97bdc259192e60d0301e93532b2aa43de6ddb7c1e
 file:
   batch:
   - statement:
@@ -18,33 +18,37 @@ file:
           function:
             function_name:
               function_name_identifier: ISNULL
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    naked_identifier: Shared
-                    dot: .
-                    function_name_identifier: GetESTDateTime
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      function:
-                        function_name:
-                          function_name_identifier: GETDATE
-                        bracketed:
-                          start_bracket: (
-                          end_bracket: )
-                    end_bracket: )
-            - comma: ','
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: GETDATE
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      naked_identifier: Shared
+                      dot: .
+                      function_name_identifier: GetESTDateTime
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          function:
+                            function_name:
+                              function_name_identifier: GETDATE
+                            function_contents:
+                              bracketed:
+                                start_bracket: (
+                                end_bracket: )
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: GETDATE
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+              - end_bracket: )
   - statement:
       select_statement:
         select_clause:

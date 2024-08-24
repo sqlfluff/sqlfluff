@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b1ad1348e7f28ff11211e11d120f56e880fc3d3b822ef6a6009b6ed0ecefb301
+_hash: 308caa37ec39cbdb64edc12afab36804adb12007dffeecf153921ff92c0b53b2
 file:
 - statement:
     select_statement:
@@ -52,10 +52,11 @@ file:
           function:
             function_name:
               function_name_identifier: COUNT
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -104,19 +105,20 @@ file:
                 function:
                   function_name:
                     function_name_identifier: JSON_TYPEOF
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: c_orders
-                      array_accessor:
-                        start_square_bracket: '['
-                        numeric_literal: '0'
-                        end_square_bracket: ']'
-                      semi_structured_expression:
-                        dot: .
-                        naked_identifier: o_orderstatus
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: c_orders
+                        array_accessor:
+                          start_square_bracket: '['
+                          numeric_literal: '0'
+                          end_square_bracket: ']'
+                        semi_structured_expression:
+                          dot: .
+                          naked_identifier: o_orderstatus
+                      end_bracket: )
                 comparison_operator:
                   raw_comparison_operator: '='
                 quoted_literal: "'string'"
@@ -304,19 +306,20 @@ file:
           function:
             function_name:
               function_name_identifier: COUNT
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: messages
-                array_accessor:
-                  start_square_bracket: '['
-                  numeric_literal: '0'
-                  end_square_bracket: ']'
-                semi_structured_expression:
-                  dot: .
-                  naked_identifier: topic
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: messages
+                  array_accessor:
+                    start_square_bracket: '['
+                    numeric_literal: '0'
+                    end_square_bracket: ']'
+                  semi_structured_expression:
+                    dot: .
+                    naked_identifier: topic
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:

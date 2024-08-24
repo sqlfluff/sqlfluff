@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c852b601d9814ce5cc69aba1cd38aa6e92d722ff6def75317012752ff14eb557
+_hash: 846662c040f27c95a6da4d17ae6a4c57d7eab1f9757b1e66608e955d9e199cb7
 file:
 - statement:
     select_statement:
@@ -13,12 +13,13 @@ file:
           function:
             function_name:
               function_name_identifier: uniq
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: col1
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -65,12 +66,13 @@ file:
           function:
             function_name:
               function_name_identifier: uniq
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: col1
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -118,12 +120,13 @@ file:
           function:
             function_name:
               function_name_identifier: uniq
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: col1
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -171,12 +174,13 @@ file:
           function:
             function_name:
               function_name_identifier: uniq
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: col1
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -225,12 +229,13 @@ file:
           function:
             function_name:
               function_name_identifier: uniq
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: col1
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -247,14 +252,15 @@ file:
           function:
             function_name:
               function_name_identifier: tuple
-            bracketed:
-            - start_bracket: (
-            - expression:
-                numeric_literal: '1'
-            - comma: ','
-            - expression:
-                numeric_literal: '2'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -264,12 +270,13 @@ file:
           function:
             function_name:
               function_name_identifier: uniq
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: col1
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -287,14 +294,15 @@ file:
         - function:
             function_name:
               function_name_identifier: tuple
-            bracketed:
-            - start_bracket: (
-            - expression:
-                numeric_literal: '1'
-            - comma: ','
-            - expression:
-                numeric_literal: '2'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -304,12 +312,13 @@ file:
           function:
             function_name:
               function_name_identifier: uniq
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: col1
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -327,14 +336,15 @@ file:
         - function:
             function_name:
               function_name_identifier: tuple
-            bracketed:
-            - start_bracket: (
-            - expression:
-                numeric_literal: '1'
-            - comma: ','
-            - expression:
-                numeric_literal: '2'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -344,12 +354,13 @@ file:
           function:
             function_name:
               function_name_identifier: uniq
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: col1
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -368,12 +379,13 @@ file:
         - function:
             function_name:
               function_name_identifier: tuple
-            bracketed:
-            - start_bracket: (
-            - expression:
-                numeric_literal: '1'
-            - comma: ','
-            - expression:
-                numeric_literal: '2'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - end_bracket: )
 - statement_terminator: ;

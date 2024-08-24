@@ -3166,17 +3166,7 @@ class FunctionSegment(BaseSegment):
             # So those functions parse date parts as DatetimeUnitSegment
             # rather than identifiers.
             Ref("DatePartFunctionNameSegment"),
-            Bracketed(
-                Delimited(
-                    Ref("DatetimeUnitSegment"),
-                    Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                    ),
-                ),
-                parse_mode=ParseMode.GREEDY,
-            ),
+            Ref("DateTimeFunctionContentsSegment"),
         ),
         Sequence(
             Ref("RankFunctionNameSegment"),
@@ -3213,16 +3203,7 @@ class FunctionSegment(BaseSegment):
         ),
         Sequence(
             Ref("WithinGroupFunctionNameSegment"),
-            Bracketed(
-                Delimited(
-                    Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                    ),
-                ),
-                parse_mode=ParseMode.GREEDY,
-            ),
+            Ref("FunctionContentsSegment"),
             Ref("WithinGroupClause", optional=True),
         ),
         Sequence(
@@ -3241,14 +3222,7 @@ class FunctionSegment(BaseSegment):
                 ),
                 Ref("ReservedKeywordFunctionNameSegment"),
             ),
-            Bracketed(
-                Ref(
-                    "FunctionContentsGrammar",
-                    # The brackets might be empty for some functions...
-                    optional=True,
-                ),
-                parse_mode=ParseMode.GREEDY,
-            ),
+            Ref("FunctionContentsSegment"),
             Ref("PostFunctionGrammar", optional=True),
         ),
     )

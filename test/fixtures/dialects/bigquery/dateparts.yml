@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: da0054010e44144fc453c616dacc58c6a075bb91364b9f45bb9fb901ed30bf84
+_hash: 848def650a99eacbc614b8ac6c15b0a99eed78bbe44f2a26b8b23e35dc720b34
 file:
   statement:
     select_statement:
@@ -257,56 +257,60 @@ file:
                 function:
                   function_name:
                     function_name_identifier: TIMESTAMP_SECONDS
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        numeric_literal: '1651135778'
+                      end_bracket: )
+              end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_DAY
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                comma: ','
+                date_part: MONTH
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_DAY
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                comma: ','
+                date_part: WEEK
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_DAY
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                comma: ','
+                date_part_week:
+                  keyword: WEEK
                   bracketed:
                     start_bracket: (
-                    expression:
-                      numeric_literal: '1651135778'
+                    keyword: SUNDAY
                     end_bracket: )
-              end_bracket: )
-      - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: LAST_DAY
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: col1
-              comma: ','
-              date_part: MONTH
-              end_bracket: )
-      - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: LAST_DAY
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: col1
-              comma: ','
-              date_part: WEEK
-              end_bracket: )
-      - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: LAST_DAY
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: col1
-              comma: ','
-              date_part_week:
-                keyword: WEEK
-                bracketed:
-                  start_bracket: (
-                  keyword: SUNDAY
-                  end_bracket: )
-              end_bracket: )
+                end_bracket: )
       - comma: ','
       from_clause:
         keyword: FROM

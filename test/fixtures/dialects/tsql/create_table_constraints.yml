@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c75e9d7b8dd1b4bafaa40bb49ba25f4732ecef4cc1c4adc176a43dc05b9dabbe
+_hash: 1f1ebe53a51d1100f7cc7fd4cb8e9e8f88e5ce10a0d516b257b57af02b256fc6
 file:
 - batch:
     statement:
@@ -64,9 +64,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: GETDATE
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnUser]'

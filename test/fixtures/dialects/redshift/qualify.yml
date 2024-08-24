@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5f8ec90aabd90231d62011306ce630348533b303dcde77e4ebcd094b905215b8
+_hash: 3f0a42280a795d08b62a39ccb65d134c5e11ae94744d4a8305878314b31a90ae
 file:
 - statement:
     select_statement:
@@ -39,9 +39,10 @@ file:
           function:
             function_name:
               function_name_identifier: row_number
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -88,12 +89,13 @@ file:
           function:
             function_name:
               function_name_identifier: last_value
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: ss_item
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: ss_item
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -152,12 +154,13 @@ file:
                       function:
                         function_name:
                           function_name_identifier: last_value
-                        bracketed:
-                          start_bracket: (
-                          expression:
-                            column_reference:
-                              naked_identifier: ss_item
-                          end_bracket: )
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: ss_item
+                            end_bracket: )
                         over_clause:
                           keyword: OVER
                           bracketed:

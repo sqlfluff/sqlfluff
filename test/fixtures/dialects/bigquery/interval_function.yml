@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d676d56a69954ae04fd98affa2f043e777209f36bcc8e3a1d896d48ff8a3c139
+_hash: 1bcf5446534430f11ec43cb6a85a68e107edf91b48b933777b3e640b901ed642
 file:
   statement:
     select_statement:
@@ -13,60 +13,64 @@ file:
           function:
             function_name:
               function_name_identifier: TIMESTAMP_TRUNC
-            bracketed:
-              start_bracket: (
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: TIMESTAMP_ADD
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                      - naked_identifier: session_start
-                      - dot: .
-                      - naked_identifier: eventTimestamp
-                  - comma: ','
-                  - expression:
-                      interval_expression:
-                        keyword: INTERVAL
-                        expression:
-                          function:
-                            function_name:
-                              function_name_identifier: cast
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                                function:
-                                  function_name:
-                                    function_name_identifier: TIMESTAMP_DIFF
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: TIMESTAMP_ADD
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                          - naked_identifier: session_start
+                          - dot: .
+                          - naked_identifier: eventTimestamp
+                      - comma: ','
+                      - expression:
+                          interval_expression:
+                            keyword: INTERVAL
+                            expression:
+                              function:
+                                function_name:
+                                  function_name_identifier: cast
+                                function_contents:
                                   bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                      column_reference:
-                                      - naked_identifier: session_end
-                                      - dot: .
-                                      - naked_identifier: eventTimestamp
-                                  - comma: ','
-                                  - expression:
-                                      column_reference:
-                                      - naked_identifier: session_start
-                                      - dot: .
-                                      - naked_identifier: eventTimestamp
-                                  - comma: ','
-                                  - date_part: SECOND
-                                  - end_bracket: )
-                                binary_operator: /
-                                numeric_literal: '2'
-                              keyword: AS
-                              data_type:
-                                data_type_identifier: int64
-                              end_bracket: )
-                        date_part: second
-                  - end_bracket: )
-              comma: ','
-              date_part: HOUR
-              end_bracket: )
+                                    start_bracket: (
+                                    expression:
+                                      function:
+                                        function_name:
+                                          function_name_identifier: TIMESTAMP_DIFF
+                                        function_contents:
+                                          bracketed:
+                                          - start_bracket: (
+                                          - expression:
+                                              column_reference:
+                                              - naked_identifier: session_end
+                                              - dot: .
+                                              - naked_identifier: eventTimestamp
+                                          - comma: ','
+                                          - expression:
+                                              column_reference:
+                                              - naked_identifier: session_start
+                                              - dot: .
+                                              - naked_identifier: eventTimestamp
+                                          - comma: ','
+                                          - date_part: SECOND
+                                          - end_bracket: )
+                                      binary_operator: /
+                                      numeric_literal: '2'
+                                    keyword: AS
+                                    data_type:
+                                      data_type_identifier: int64
+                                    end_bracket: )
+                            date_part: second
+                      - end_bracket: )
+                comma: ','
+                date_part: HOUR
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: avgAtHour
@@ -75,19 +79,20 @@ file:
           function:
             function_name:
               function_name_identifier: TIME_ADD
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: time1
-            - comma: ','
-            - expression:
-                interval_expression:
-                  keyword: INTERVAL
-                  expression:
-                    numeric_literal: '10'
-                  date_part: MINUTE
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: time1
+              - comma: ','
+              - expression:
+                  interval_expression:
+                    keyword: INTERVAL
+                    expression:
+                      numeric_literal: '10'
+                    date_part: MINUTE
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: after
@@ -96,19 +101,20 @@ file:
           function:
             function_name:
               function_name_identifier: DATE_SUB
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: time2
-            - comma: ','
-            - expression:
-                interval_expression:
-                  keyword: INTERVAL
-                  expression:
-                    numeric_literal: '5'
-                  date_part: YEAR
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: time2
+              - comma: ','
+              - expression:
+                  interval_expression:
+                    keyword: INTERVAL
+                    expression:
+                      numeric_literal: '5'
+                    date_part: YEAR
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: before

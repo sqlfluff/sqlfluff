@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f6ebeb0f2e31eb62b7cbec5f29559737c406d958eabb7334ce5f9c6d66b20700
+_hash: 3aa5672c7a2fb68da237334a7026316a73e840160880f199782658b8ecc4cb30
 file:
   statement:
     select_statement:
@@ -61,32 +61,35 @@ file:
           function:
             function_name:
               function_name_identifier: DATE_TRUNC
-            bracketed:
-              start_bracket: (
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: DATE_SUB
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      function:
-                        function_name:
-                          function_name_identifier: CURRENT_DATE
-                        bracketed:
-                          start_bracket: (
-                          end_bracket: )
-                  - comma: ','
-                  - expression:
-                      interval_expression:
-                        keyword: INTERVAL
-                        expression:
-                          numeric_literal: '2'
-                        date_part: YEAR
-                  - end_bracket: )
-              comma: ','
-              date_part: year
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: DATE_SUB
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          function:
+                            function_name:
+                              function_name_identifier: CURRENT_DATE
+                            function_contents:
+                              bracketed:
+                                start_bracket: (
+                                end_bracket: )
+                      - comma: ','
+                      - expression:
+                          interval_expression:
+                            keyword: INTERVAL
+                            expression:
+                              numeric_literal: '2'
+                            date_part: YEAR
+                      - end_bracket: )
+                comma: ','
+                date_part: year
+                end_bracket: )
       limit_clause:
         keyword: LIMIT
         numeric_literal: '1'

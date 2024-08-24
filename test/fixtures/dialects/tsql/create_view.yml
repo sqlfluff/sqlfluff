@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a1c91938da11ffd5936f7cae72bc57c3e7cd19437f6a0335210c8ab2b9dd3d72
+_hash: 73ed096bcb9ee73050fa202f5703ca77fa9ce9edaacbf68e6bc204374f9fd11d
 file:
   batch:
   - statement:
@@ -35,12 +35,13 @@ file:
               function:
                 function_name:
                   function_name_identifier: SUM
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: TotalDue
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: TotalDue
+                    end_bracket: )
               alias_expression:
                 keyword: AS
                 naked_identifier: TotalSales
@@ -108,12 +109,13 @@ file:
               function:
                 function_name:
                   function_name_identifier: SUM
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: TotalDue
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: TotalDue
+                    end_bracket: )
               alias_expression:
                 keyword: AS
                 naked_identifier: TotalSales

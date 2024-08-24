@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2f7c7fbea97f596f00fbfad9866143b45ed3da0c51215624d8aaab358f0dde42
+_hash: b3c0baaaf29082228cf7043d04a729b396064ea9ac1720b3c6e102fe1662d0e8
 file:
   statement:
     select_statement:
@@ -27,11 +27,12 @@ file:
           function:
             function_name:
               function_name_identifier: UNNEST
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                - naked_identifier: t
-                - dot: .
-                - naked_identifier: c
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                  - naked_identifier: t
+                  - dot: .
+                  - naked_identifier: c
+                end_bracket: )
