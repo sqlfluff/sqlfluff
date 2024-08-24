@@ -880,7 +880,7 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
         "ON",
         Ref("TableReferenceSegment"),
         Sequence("FOR", "EACH", "ROW", optional=True),
-        Sequence("WHEN", Bracketed(Ref("ExpressionSegment")), optional=True),
+        Sequence("WHEN", OptionallyBracketed(Ref("ExpressionSegment")), optional=True),
         "BEGIN",
         Delimited(
             Ref("UpdateStatementSegment"),
