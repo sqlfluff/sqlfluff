@@ -238,9 +238,10 @@ class Rule_CV11(BaseRule):
             if prior_type_casting_style == "cast":
                 if current_type_casting_style == "convert":
                     # Get the content of CONVERT
-                    convert_content = self._get_children(
-                        functional_context.segment.children(sp.is_type("bracketed"))
-                    )
+                    bracketed = functional_context.segment.children(
+                        sp.is_type("function_contents")
+                    ).children(sp.is_type("bracketed"))
+                    convert_content = self._get_children(bracketed)
                     # We only care about 2-arguments convert
                     # some dialects allow an optional 3rd argument e.g TSQL
                     # which cannot be rewritten into CAST
@@ -275,10 +276,11 @@ class Rule_CV11(BaseRule):
                     )
 
             elif prior_type_casting_style == "convert":
+                bracketed = functional_context.segment.children(
+                    sp.is_type("function_contents")
+                ).children(sp.is_type("bracketed"))
                 if current_type_casting_style == "cast":
-                    cast_content = self._get_children(
-                        functional_context.segment.children(sp.is_type("bracketed"))
-                    )
+                    cast_content = self._get_children(bracketed)
                     if len(cast_content) > 2:
                         return None
 
@@ -298,11 +300,12 @@ class Rule_CV11(BaseRule):
                         expression_datatype_segment[2:],
                     )
             elif prior_type_casting_style == "shorthand":
+                bracketed = functional_context.segment.children(
+                    sp.is_type("function_contents")
+                ).children(sp.is_type("bracketed"))
                 if current_type_casting_style == "cast":
                     # Get the content of CAST
-                    cast_content = self._get_children(
-                        functional_context.segment.children(sp.is_type("bracketed"))
-                    )
+                    cast_content = self._get_children(bracketed)
                     if len(cast_content) > 2:
                         return None
 
@@ -312,9 +315,7 @@ class Rule_CV11(BaseRule):
                         cast_content[1],
                     )
                 elif current_type_casting_style == "convert":
-                    convert_content = self._get_children(
-                        functional_context.segment.children(sp.is_type("bracketed"))
-                    )
+                    convert_content = self._get_children(bracketed)
                     if len(convert_content) > 2:
                         return None
 
@@ -348,9 +349,10 @@ class Rule_CV11(BaseRule):
             cast_content = None
             if self.preferred_type_casting_style == "cast":
                 if current_type_casting_style == "convert":
-                    convert_content = self._get_children(
-                        functional_context.segment.children(sp.is_type("bracketed"))
-                    )
+                    bracketed = functional_context.segment.children(
+                        sp.is_type("function_contents")
+                    ).children(sp.is_type("bracketed"))
+                    convert_content = self._get_children(bracketed)
 
                     fixes = self._cast_fix_list(
                         context,
@@ -375,9 +377,10 @@ class Rule_CV11(BaseRule):
 
             elif self.preferred_type_casting_style == "convert":
                 if current_type_casting_style == "cast":
-                    cast_content = self._get_children(
-                        functional_context.segment.children(sp.is_type("bracketed"))
-                    )
+                    bracketed = functional_context.segment.children(
+                        sp.is_type("function_contents")
+                    ).children(sp.is_type("bracketed"))
+                    cast_content = self._get_children(bracketed)
                     fixes = self._convert_fix_list(
                         context,
                         cast_content[1],
@@ -394,20 +397,19 @@ class Rule_CV11(BaseRule):
                         expression_datatype_segment[2:],
                     )
             elif self.preferred_type_casting_style == "shorthand":
+
+                bracketed = functional_context.segment.children(
+                    sp.is_type("function_contents")
+                ).children(sp.is_type("bracketed"))
                 if current_type_casting_style == "cast":
-                    cast_content = self._get_children(
-                        functional_context.segment.children(sp.is_type("bracketed"))
-                    )
+                    cast_content = self._get_children(bracketed)
                     fixes = self._shorthand_fix_list(
                         context,
                         cast_content[0],
                         cast_content[1],
                     )
                 elif current_type_casting_style == "convert":
-                    convert_content = self._get_children(
-                        functional_context.segment.children(sp.is_type("bracketed"))
-                    )
-
+                    convert_content = self._get_children(bracketed)
                     fixes = self._shorthand_fix_list(
                         context,
                         convert_content[1],
