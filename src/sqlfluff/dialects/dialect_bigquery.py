@@ -978,6 +978,7 @@ class DateTimeFunctionContentsSegment(ansi.DateTimeFunctionContentsSegment):
         )
     )
 
+
 class FunctionSegment(ansi.FunctionSegment):
     """A scalar or aggregate function.
 

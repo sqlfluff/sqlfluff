@@ -1395,6 +1395,7 @@ class FunctionNameSegment(BaseSegment):
         allow_gaps=False,
     )
 
+
 class DateTimeFunctionContentsSegment(BaseSegment):
 
     type = "function_contents"
@@ -1411,8 +1412,7 @@ class DateTimeFunctionContentsSegment(BaseSegment):
             ),
             # parse_mode=ParseMode.GREEDY,
         ),
-
-        )
+    )
 
 
 class FunctionContentsSegment(BaseSegment):
@@ -1421,14 +1421,15 @@ class FunctionContentsSegment(BaseSegment):
 
     match_grammar = Sequence(
         Bracketed(
-        Ref(
-            "FunctionContentsGrammar",
-            # The brackets might be empty for some functions...
-            optional=True,
+            Ref(
+                "FunctionContentsGrammar",
+                # The brackets might be empty for some functions...
+                optional=True,
+            ),
+            # parse_mode=ParseMode.GREEDY,
         ),
-        # parse_mode=ParseMode.GREEDY,
-    ),
-        )
+    )
+
 
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
@@ -1444,7 +1445,6 @@ class FunctionSegment(BaseSegment):
         Sequence(
             Ref("DatePartFunctionNameSegment"),
             Ref("DateTimeFunctionContentsSegment"),
-
         ),
         Ref("ColumnsExpressionGrammar"),
         Sequence(
@@ -1457,7 +1457,7 @@ class FunctionSegment(BaseSegment):
                         Ref("ValuesClauseSegment"),
                     ),
                 ),
-                Ref("FunctionContentsSegment")
+                Ref("FunctionContentsSegment"),
             ),
             Ref("PostFunctionGrammar", optional=True),
         ),
