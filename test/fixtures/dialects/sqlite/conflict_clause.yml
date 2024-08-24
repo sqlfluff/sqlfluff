@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d5d2a2c34404e3fb22e85dbbb556e4170ef4080beeb62fc5220de978e41e5c40
+_hash: ad491a3736ca6192fa02974d8ebb4fecb73b54637c6299f2b8284dfe52b0e0b1
 file:
 - statement:
     create_table_statement:
@@ -56,4 +56,44 @@ file:
           - keyword: 'ON'
           - keyword: CONFLICT
           - keyword: FAIL
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: imap_boxes
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: account_id
+          data_type:
+            data_type_identifier: integer
+          column_constraint_segment:
+          - keyword: not
+          - keyword: 'null'
+      - comma: ','
+      - column_definition:
+          naked_identifier: box_name
+          data_type:
+            data_type_identifier: text
+          column_constraint_segment:
+          - keyword: not
+          - keyword: 'null'
+      - comma: ','
+      - table_constraint:
+          keyword: unique
+          bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: account_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: box_name
+          - end_bracket: )
+          conflict_clause:
+          - keyword: 'on'
+          - keyword: conflict
+          - keyword: replace
+      - end_bracket: )
 - statement_terminator: ;
