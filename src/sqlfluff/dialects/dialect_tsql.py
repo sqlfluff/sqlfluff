@@ -3174,9 +3174,7 @@ class ConvertFunctionContentsSegment(BaseSegment):
             Bracketed(Ref("NumericLiteralSegment"), optional=True),
             Ref("CommaSegment"),
             Ref("ExpressionSegment"),
-            Sequence(
-                Ref("CommaSegment"), Ref("NumericLiteralSegment"), optional=True
-            ),
+            Sequence(Ref("CommaSegment"), Ref("NumericLiteralSegment"), optional=True),
         ),
     )
 

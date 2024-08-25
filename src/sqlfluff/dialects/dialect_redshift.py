@@ -2546,6 +2546,7 @@ class ConvertFunctionContentsSegment(BaseSegment):
         ),
     )
 
+
 class FromClauseSegment(ansi.FromClauseSegment):
     """Slightly modified version which allows for using brackets for content of FROM."""
 
