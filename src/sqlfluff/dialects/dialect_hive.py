@@ -847,7 +847,7 @@ class MsckTableStatementSegment(BaseSegment):
 
 
 class RowFunctionContentsSegment(BaseSegment):
-    """Row Function Contents"""
+    """Row Function Contents."""
 
     type = "function_contents"
 
