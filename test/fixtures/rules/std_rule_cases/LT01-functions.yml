@@ -18,3 +18,11 @@ test_pass_rebalance_hint:
   configs:
     core:
       dialect: sparksql
+
+test_pass_drop_function_go:
+  pass_str: |
+    DROP FUNCTION IF EXISTS INTERNAL_ETL.DIL_md_ScdTest
+    GO
+  configs:
+    core:
+      dialect: tsql
