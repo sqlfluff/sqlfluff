@@ -576,9 +576,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                             Ref("NumericLiteralSegment"),
                                             # Union option
                                             Bracketed(
-                                                Delimited(
-                                                    Ref("TableReferenceSegment")
-                                                ),
+                                                Delimited(Ref("TableReferenceSegment")),
                                             ),
                                         ),
                                     ),
