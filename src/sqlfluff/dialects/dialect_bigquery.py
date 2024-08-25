@@ -997,6 +997,23 @@ class ExtractFunctionContentsSegment(BaseSegment):
     )
 
 
+class NormalizeFunctionContentsSegment(BaseSegment):
+    """Normalize Function Contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref("ExpressionSegment"),
+            Sequence(
+                Ref("CommaSegment"),
+                OneOf("NFC", "NFKC", "NFD", "NFKD"),
+                optional=True,
+            ),
+        ),
+    )
+
+
 class FunctionSegment(ansi.FunctionSegment):
     """A scalar or aggregate function.
 
@@ -1017,14 +1034,7 @@ class FunctionSegment(ansi.FunctionSegment):
                 # BigQuery NORMALIZE allows optional normalization_mode
                 # https://cloud.google.com/bigquery/docs/reference/standard-sql/functions-and-operators#normalize
                 Ref("NormalizeFunctionNameSegment"),
-                Bracketed(
-                    Ref("ExpressionSegment"),
-                    Sequence(
-                        Ref("CommaSegment"),
-                        OneOf("NFC", "NFKC", "NFD", "NFKD"),
-                        optional=True,
-                    ),
-                ),
+                Ref("NormalizeFunctionContentsSegment"),
             ),
             Sequence(
                 # Treat functions which take date parts separately
