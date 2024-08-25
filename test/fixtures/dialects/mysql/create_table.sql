@@ -13,3 +13,5 @@ create table `tickets` (
 );
 
 create table _ (a int);
+
+CREATE TABLE foo SELECT * FROM bar;
