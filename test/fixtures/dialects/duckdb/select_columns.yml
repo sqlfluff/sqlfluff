@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5e8c748687cc34fe5f9bfb0462ab3fcc117185ead11953aff686ca6948699a87
+_hash: e6ea6f704809e270a82bb0d55c9169b15274337f6475ef179ec04a90d2c0264b
 file:
 - statement:
     select_statement:
@@ -13,9 +13,9 @@ file:
           function:
             function_name:
               keyword: COLUMNS
-            bracketed:
-              start_bracket: (
-              columns_expression:
+            function_contents:
+              bracketed:
+                start_bracket: (
                 lambda_function:
                   parameter: c
                   lambda_arrow: ->
@@ -24,7 +24,7 @@ file:
                       naked_identifier: c
                     keyword: LIKE
                     quoted_literal: "'%num%'"
-              end_bracket: )
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -41,11 +41,11 @@ file:
           function:
             function_name:
               keyword: COLUMNS
-            bracketed:
-              start_bracket: (
-              columns_expression:
+            function_contents:
+              bracketed:
+                start_bracket: (
                 quoted_literal: "'number\\d+'"
-              end_bracket: )
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -69,13 +69,13 @@ file:
                   function:
                     function_name:
                       keyword: COLUMNS
-                    bracketed:
-                      start_bracket: (
-                      columns_expression:
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
                         wildcard_expression:
                           wildcard_identifier:
                             star: '*'
-                      end_bracket: )
+                        end_bracket: )
                 end_bracket: )
       from_clause:
         keyword: FROM
@@ -100,13 +100,13 @@ file:
                   function:
                     function_name:
                       keyword: COLUMNS
-                    bracketed:
-                      start_bracket: (
-                      columns_expression:
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
                         wildcard_expression:
                           wildcard_identifier:
                             star: '*'
-                      end_bracket: )
+                        end_bracket: )
                 end_bracket: )
       - comma: ','
       - select_clause_element:
@@ -120,13 +120,13 @@ file:
                   function:
                     function_name:
                       keyword: COLUMNS
-                    bracketed:
-                      start_bracket: (
-                      columns_expression:
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
                         wildcard_expression:
                           wildcard_identifier:
                             star: '*'
-                      end_bracket: )
+                        end_bracket: )
                 end_bracket: )
       from_clause:
         keyword: FROM
@@ -151,9 +151,9 @@ file:
                   function:
                     function_name:
                       keyword: COLUMNS
-                    bracketed:
-                      start_bracket: (
-                      columns_expression:
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
                         wildcard_expression:
                           wildcard_identifier:
                             star: '*'
@@ -171,7 +171,7 @@ file:
                                 keyword: AS
                                 naked_identifier: number
                               end_bracket: )
-                      end_bracket: )
+                        end_bracket: )
                 end_bracket: )
       - comma: ','
       - select_clause_element:
@@ -185,9 +185,9 @@ file:
                   function:
                     function_name:
                       keyword: COLUMNS
-                    bracketed:
-                      start_bracket: (
-                      columns_expression:
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
                         wildcard_expression:
                           wildcard_identifier:
                             star: '*'
@@ -198,7 +198,7 @@ file:
                               column_reference:
                                 naked_identifier: number
                               end_bracket: )
-                      end_bracket: )
+                        end_bracket: )
                 end_bracket: )
       from_clause:
         keyword: FROM
@@ -217,24 +217,24 @@ file:
           - function:
               function_name:
                 keyword: COLUMNS
-              bracketed:
-                start_bracket: (
-                columns_expression:
+              function_contents:
+                bracketed:
+                  start_bracket: (
                   wildcard_expression:
                     wildcard_identifier:
                       star: '*'
-                end_bracket: )
+                  end_bracket: )
           - binary_operator: +
           - function:
               function_name:
                 keyword: COLUMNS
-              bracketed:
-                start_bracket: (
-                columns_expression:
+              function_contents:
+                bracketed:
+                  start_bracket: (
                   wildcard_expression:
                     wildcard_identifier:
                       star: '*'
-                end_bracket: )
+                  end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:

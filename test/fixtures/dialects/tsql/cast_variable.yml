@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3b2bee889a46cf3cd40600c97bdc259192e60d0301e93532b2aa43de6ddb7c1e
+_hash: 65e0ce1830acb15dbd20f3d6d82693d53a35f2e5715e39ed4c880cc8337783a7
 file:
   batch:
   - statement:
@@ -66,20 +66,21 @@ file:
             function:
               function_name:
                 keyword: cast
-              bracketed:
-                start_bracket: (
-                expression:
-                  quoted_literal: "'1900-01-01'"
-                keyword: as
-                data_type:
-                  data_type_identifier: datetime2
-                  bracketed_arguments:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        numeric_literal: '7'
-                      end_bracket: )
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'1900-01-01'"
+                  keyword: as
+                  data_type:
+                    data_type_identifier: datetime2
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          numeric_literal: '7'
+                        end_bracket: )
+                  end_bracket: )
             alias_expression:
               keyword: as
               naked_identifier: DataRefreshDate
@@ -110,16 +111,17 @@ file:
           function:
             function_name:
               keyword: cast
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '100'
-              keyword: as
-              data_type:
-                data_type_identifier: nvarchar
-                bracketed_arguments:
-                  bracketed:
-                    start_bracket: (
-                    keyword: max
-                    end_bracket: )
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '100'
+                keyword: as
+                data_type:
+                  data_type_identifier: nvarchar
+                  bracketed_arguments:
+                    bracketed:
+                      start_bracket: (
+                      keyword: max
+                      end_bracket: )
+                end_bracket: )

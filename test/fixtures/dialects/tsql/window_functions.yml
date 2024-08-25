@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d99f1dd276b8394f8fc73fb93c7a9fd2509025a895f7ff8adb0aa3943cfccca4
+_hash: f61769c768ad14a5133005d26eb5b7b3d3d26cb87b21b382b615eae11ab3ff6d
 file:
   batch:
   - statement:
@@ -12,13 +12,14 @@ file:
           keyword: SELECT
           select_clause_element:
             function:
-            - function_name:
+              function_name:
                 keyword: ROW_NUMBER
-            - bracketed:
-                start_bracket: (
-                end_bracket: )
-            - keyword: OVER
-            - bracketed:
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+              keyword: OVER
+              bracketed:
                 start_bracket: (
                 partitionby_clause:
                 - keyword: PARTITION
@@ -53,13 +54,14 @@ file:
           keyword: SELECT
           select_clause_element:
             function:
-            - function_name:
+              function_name:
                 keyword: ROW_NUMBER
-            - bracketed:
-                start_bracket: (
-                end_bracket: )
-            - keyword: OVER
-            - bracketed:
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+              keyword: OVER
+              bracketed:
                 start_bracket: (
                 partitionby_clause:
                 - keyword: PARTITION
@@ -92,13 +94,14 @@ file:
           keyword: SELECT
           select_clause_element:
             function:
-            - function_name:
+              function_name:
                 keyword: ROW_NUMBER
-            - bracketed:
-                start_bracket: (
-                end_bracket: )
-            - keyword: OVER
-            - bracketed:
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+              keyword: OVER
+              bracketed:
                 start_bracket: (
                 partitionby_clause:
                 - keyword: PARTITION
@@ -146,13 +149,14 @@ file:
           keyword: SELECT
           select_clause_element:
             function:
-            - function_name:
+              function_name:
                 keyword: ROW_NUMBER
-            - bracketed:
-                start_bracket: (
-                end_bracket: )
-            - keyword: OVER
-            - bracketed:
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+              keyword: OVER
+              bracketed:
                 start_bracket: (
                 partitionby_clause:
                 - keyword: PARTITION
@@ -210,13 +214,14 @@ file:
           keyword: SELECT
           select_clause_element:
             function:
-            - function_name:
+              function_name:
                 keyword: ROW_NUMBER
-            - bracketed:
-                start_bracket: (
-                end_bracket: )
-            - keyword: OVER
-            - bracketed:
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+              keyword: OVER
+              bracketed:
                 start_bracket: (
                 partitionby_clause:
                 - keyword: PARTITION
@@ -264,13 +269,14 @@ file:
           keyword: SELECT
           select_clause_element:
             function:
-            - function_name:
+              function_name:
                 keyword: ROW_NUMBER
-            - bracketed:
-                start_bracket: (
-                end_bracket: )
-            - keyword: OVER
-            - bracketed:
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+              keyword: OVER
+              bracketed:
                 start_bracket: (
                 partitionby_clause:
                 - keyword: PARTITION

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4473a6434c9f0ce4b91fae0d3d548d74f7374294e65e6d08f3e5d5c60f2bdd62
+_hash: ffb9b5eac8abeb89ed738289bef766d3cdcfbd77655b69f2130c230a40c24e53
 file:
   batch:
     statement:
@@ -14,21 +14,22 @@ file:
             function:
               function_name:
                 keyword: CONVERT
-              bracketed:
-                start_bracket: (
-                data_type:
-                  data_type_identifier: nvarchar
-                  bracketed_arguments:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        numeric_literal: '100'
-                      end_bracket: )
-                comma: ','
-                expression:
-                  column_reference:
-                    naked_identifier: first_column
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  data_type:
+                    data_type_identifier: nvarchar
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          numeric_literal: '100'
+                        end_bracket: )
+                  comma: ','
+                  expression:
+                    column_reference:
+                      naked_identifier: first_column
+                  end_bracket: )
             alias_expression:
               keyword: as
               naked_identifier: first
@@ -37,15 +38,16 @@ file:
             function:
               function_name:
                 keyword: TRY_CONVERT
-              bracketed:
-                start_bracket: (
-                data_type:
-                  data_type_identifier: float
-                comma: ','
-                expression:
-                  column_reference:
-                    naked_identifier: second_column
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  data_type:
+                    data_type_identifier: float
+                  comma: ','
+                  expression:
+                    column_reference:
+                      naked_identifier: second_column
+                  end_bracket: )
             alias_expression:
               keyword: as
               naked_identifier: second

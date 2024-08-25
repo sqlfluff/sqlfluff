@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 93985040c45e46fb10cfdf3150fa9c4cf9e07153cfdfa9df8c0024daa590be17
+_hash: 1586cbd54386d336a88ed65c2b6e542f5de7a99ee9610b2f1881ff6059e913cb
 file:
 - statement:
     select_statement:
@@ -39,15 +39,16 @@ file:
           function:
             function_name:
               keyword: convert
-            bracketed:
-              start_bracket: (
-              data_type:
-                keyword: integer
-              comma: ','
-              expression:
-                column_reference:
-                  naked_identifier: col1
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                data_type:
+                  keyword: integer
+                comma: ','
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -111,16 +112,17 @@ file:
           function:
             function_name:
               keyword: convert
-            bracketed:
-              start_bracket: (
-              data_type:
-                datetime_type_identifier:
-                  keyword: timestamptz
-              comma: ','
-              expression:
-                column_reference:
-                  naked_identifier: col1
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                data_type:
+                  datetime_type_identifier:
+                    keyword: timestamptz
+                comma: ','
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -191,22 +193,23 @@ file:
           function:
             function_name:
               keyword: convert
-            bracketed:
-              start_bracket: (
-              data_type:
-                keyword: decimal
-                bracketed_arguments:
-                  bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '38'
-                  - comma: ','
-                  - numeric_literal: '2'
-                  - end_bracket: )
-              comma: ','
-              expression:
-                column_reference:
-                  naked_identifier: col1
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                data_type:
+                  keyword: decimal
+                  bracketed_arguments:
+                    bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '38'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - end_bracket: )
+                comma: ','
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -276,15 +279,16 @@ file:
           function:
             function_name:
               keyword: convert
-            bracketed:
-              start_bracket: (
-              data_type:
-                keyword: interval
-              comma: ','
-              expression:
-                column_reference:
-                  naked_identifier: col1
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                data_type:
+                  keyword: interval
+                comma: ','
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
       from_clause:
         keyword: from
         from_expression:

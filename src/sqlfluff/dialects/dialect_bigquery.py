@@ -979,6 +979,24 @@ class DateTimeFunctionContentsSegment(ansi.DateTimeFunctionContentsSegment):
     )
 
 
+class ExtractFunctionContentsSegment(BaseSegment):
+    """Extract Function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            OneOf(
+                Ref("DatetimeUnitSegment"),
+                Ref("DatePartWeekSegment"),
+                Ref("ExtendedDatetimeUnitSegment"),
+            ),
+            "FROM",
+            Ref("ExpressionSegment"),
+        ),
+    )
+
+
 class FunctionSegment(ansi.FunctionSegment):
     """A scalar or aggregate function.
 
@@ -993,15 +1011,7 @@ class FunctionSegment(ansi.FunctionSegment):
             Sequence(
                 # BigQuery EXTRACT allows optional TimeZone
                 Ref("ExtractFunctionNameSegment"),
-                Bracketed(
-                    OneOf(
-                        Ref("DatetimeUnitSegment"),
-                        Ref("DatePartWeekSegment"),
-                        Ref("ExtendedDatetimeUnitSegment"),
-                    ),
-                    "FROM",
-                    Ref("ExpressionSegment"),
-                ),
+                Ref("ExtractFunctionContentsSegment"),
             ),
             Sequence(
                 # BigQuery NORMALIZE allows optional normalization_mode

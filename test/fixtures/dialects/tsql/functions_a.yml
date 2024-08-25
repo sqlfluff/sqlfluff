@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 587fba98df0d0c26da315388f35a51386ea65484448f4d9d80b196210a79a011
+_hash: f2b61b1485d6f03e762eeeb23e246a6bbb3526e4240fe515275290ac489c0a45
 file:
 - batch:
     statement:
@@ -109,19 +109,20 @@ file:
             function:
               function_name:
                 keyword: convert
-              bracketed:
-              - start_bracket: (
-              - data_type:
-                  data_type_identifier: varchar
-              - comma: ','
-              - expression:
-                  column_reference:
-                  - naked_identifier: tbl_b
-                  - dot: .
-                  - naked_identifier: column1
-              - comma: ','
-              - numeric_literal: '23'
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - data_type:
+                    data_type_identifier: varchar
+                - comma: ','
+                - expression:
+                    column_reference:
+                    - naked_identifier: tbl_b
+                    - dot: .
+                    - naked_identifier: column1
+                - comma: ','
+                - numeric_literal: '23'
+                - end_bracket: )
             alias_expression:
               keyword: AS
               naked_identifier: column1_varchar

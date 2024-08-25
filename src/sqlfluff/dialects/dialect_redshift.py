@@ -2528,14 +2528,23 @@ class FunctionSegment(ansi.FunctionSegment):
         ),
         Sequence(
             Ref("ConvertFunctionNameSegment"),
-            Bracketed(
-                Ref("DatatypeSegment"),
-                Ref("CommaSegment"),
-                Ref("ExpressionSegment"),
-            ),
+            Ref("ConvertFunctionContentsSegment"),
         ),
     )
 
+
+class ConvertFunctionContentsSegment(BaseSegment):
+    """Convert Function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref("DatatypeSegment"),
+            Ref("CommaSegment"),
+            Ref("ExpressionSegment"),
+        ),
+    )
 
 class FromClauseSegment(ansi.FromClauseSegment):
     """Slightly modified version which allows for using brackets for content of FROM."""

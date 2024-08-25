@@ -107,10 +107,7 @@ duckdb_dialect.replace(
     # Uses grammar for LT06 support
     ColumnsExpressionGrammar=Sequence(
         Ref("ColumnsExpressionFunctionNameSegment"),
-        Bracketed(
-            Ref("ColumnsExpressionFunctionContentsSegment"),
-            parse_mode=ParseMode.GREEDY,
-        ),
+        Ref("ColumnsExpressionFunctionContentsSegment"),
     ),
     # Matching postgres lower casefold, as it is case-insensitive
     QuotedIdentifierSegment=TypedParser(
@@ -317,11 +314,15 @@ class ColumnsExpressionFunctionContentsSegment(
     https://duckdb.org/docs/sql/expressions/star#columns-expression
     """
 
-    type = "columns_expression"
-    match_grammar = OneOf(
-        Ref("WildcardExpressionSegment"),
-        Ref("QuotedLiteralSegment"),
-        Ref("LambdaExpressionSegment"),
+    type = "function_contents"
+    match_grammar = Sequence(
+        Bracketed(
+            OneOf(
+                Ref("WildcardExpressionSegment"),
+                Ref("QuotedLiteralSegment"),
+                Ref("LambdaExpressionSegment"),
+            ),
+        ),
     )
 
 

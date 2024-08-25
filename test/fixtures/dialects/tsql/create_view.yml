@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 73ed096bcb9ee73050fa202f5703ca77fa9ce9edaacbf68e6bc204374f9fd11d
+_hash: 5f6a43ad1aa992e9a9bc56feb3c001c409ca8d2921b84ce6c80d1584f8feb0eb
 file:
   batch:
   - statement:
@@ -64,16 +64,17 @@ file:
               function:
                 function_name:
                   keyword: CONVERT
-                bracketed:
-                - start_bracket: (
-                - data_type:
-                    data_type_identifier: DATETIME
-                - comma: ','
-                - expression:
-                    quoted_literal: "'20001231'"
-                - comma: ','
-                - numeric_literal: '101'
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - data_type:
+                      data_type_identifier: DATETIME
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'20001231'"
+                  - comma: ','
+                  - numeric_literal: '101'
+                  - end_bracket: )
           groupby_clause:
           - keyword: GROUP
           - keyword: BY
@@ -138,16 +139,17 @@ file:
               function:
                 function_name:
                   keyword: CONVERT
-                bracketed:
-                - start_bracket: (
-                - data_type:
-                    data_type_identifier: DATETIME
-                - comma: ','
-                - expression:
-                    quoted_literal: "'20001231'"
-                - comma: ','
-                - numeric_literal: '101'
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - data_type:
+                      data_type_identifier: DATETIME
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'20001231'"
+                  - comma: ','
+                  - numeric_literal: '101'
+                  - end_bracket: )
           groupby_clause:
           - keyword: GROUP
           - keyword: BY
@@ -222,16 +224,17 @@ file:
             - function:
                 function_name:
                   keyword: CONVERT
-                bracketed:
-                - start_bracket: (
-                - data_type:
-                    data_type_identifier: DATETIME
-                - comma: ','
-                - expression:
-                    quoted_literal: "'20010630'"
-                - comma: ','
-                - numeric_literal: '101'
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - data_type:
+                      data_type_identifier: DATETIME
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'20010630'"
+                  - comma: ','
+                  - numeric_literal: '101'
+                  - end_bracket: )
           statement_terminator: ;
   - statement:
       create_view_statement:

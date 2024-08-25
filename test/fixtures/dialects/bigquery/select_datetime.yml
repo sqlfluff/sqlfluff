@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3aa5672c7a2fb68da237334a7026316a73e840160880f199782658b8ecc4cb30
+_hash: f45b3e6a7a2f17b9cd1845830ceebd8a8768a2b2bc318e096d6d8020b8f8abc4
 file:
   statement:
     select_statement:
@@ -25,16 +25,17 @@ file:
           function:
             function_name:
               function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: DAY
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: gmv
-                - dot: .
-                - naked_identifier: order_created_at
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: DAY
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: gmv
+                  - dot: .
+                  - naked_identifier: order_created_at
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: order_day

@@ -846,6 +846,22 @@ class MsckTableStatementSegment(BaseSegment):
     )
 
 
+class RowFunctionContentsSegment(BaseSegment):
+    """Row Function Contents"""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("BaseExpressionElementGrammar"),
+                ),
+            ),
+        ),
+    )
+
+
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
 
@@ -871,13 +887,7 @@ class FunctionSegment(BaseSegment):
             # This unusual syntax is used to cast the Keyword ROW to
             # to the function_name to avoid rule linting exceptions
             StringParser("ROW", KeywordSegment, type="function_name"),
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("BaseExpressionElementGrammar"),
-                    ),
-                ),
-            ),
+            Ref("RowFunctionContentsSegment"),
             "AS",
             "ROW",
             Bracketed(
