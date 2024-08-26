@@ -4184,15 +4184,26 @@ class CreateSequenceOptionsSegment(ansi.CreateSequenceOptionsSegment):
             Ref("NumericLiteralSegment"),
         ),
         OneOf(
-            Sequence("MINVALUE", Ref("NegativeSegment", optional=True), Ref("NumericLiteralSegment")),
+            Sequence(
+                "MINVALUE",
+                Ref("NegativeSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
             Sequence("NO", "MINVALUE"),
         ),
         OneOf(
-            Sequence("MAXVALUE", Ref("NegativeSegment", optional=True), Ref("NumericLiteralSegment")),
+            Sequence(
+                "MAXVALUE",
+                Ref("NegativeSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
             Sequence("NO", "MAXVALUE"),
         ),
         Sequence(
-            "START", Ref.keyword("WITH", optional=True), Ref("NegativeSegment", optional=True), Ref("NumericLiteralSegment")
+            "START",
+            Ref.keyword("WITH", optional=True),
+            Ref("NegativeSegment", optional=True),
+            Ref("NumericLiteralSegment"),
         ),
         Sequence("CACHE", Ref("NumericLiteralSegment")),
         OneOf("CYCLE", Sequence("NO", "CYCLE")),
@@ -4227,24 +4238,41 @@ class AlterSequenceOptionsSegment(ansi.AlterSequenceOptionsSegment):
     match_grammar = OneOf(
         Sequence("AS", Ref("DatatypeSegment")),
         Sequence(
-            "INCREMENT", Ref.keyword("BY", optional=True), Ref("NegativeSegment", optional=True), Ref("NumericLiteralSegment")
+            "INCREMENT",
+            Ref.keyword("BY", optional=True),
+            Ref("NegativeSegment", optional=True),
+            Ref("NumericLiteralSegment"),
         ),
         OneOf(
-            Sequence("MINVALUE", Ref("NegativeSegment", optional=True), Ref("NumericLiteralSegment")),
+            Sequence(
+                "MINVALUE",
+                Ref("NegativeSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
             Sequence("NO", "MINVALUE"),
         ),
         OneOf(
-            Sequence("MAXVALUE", Ref("NegativeSegment", optional=True), Ref("NumericLiteralSegment")),
+            Sequence(
+                "MAXVALUE",
+                Ref("NegativeSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
             Sequence("NO", "MAXVALUE"),
         ),
         # N.B. The SEQUENCE NAME keywords are undocumented but are produced
         # by the pg_dump utility. See discussion in issue #1857.
         Sequence("SEQUENCE", "NAME", Ref("SequenceReferenceSegment")),
         Sequence(
-            "START", Ref.keyword("WITH", optional=True), Ref("NegativeSegment", optional=True), Ref("NumericLiteralSegment")
+            "START",
+            Ref.keyword("WITH", optional=True),
+            Ref("NegativeSegment", optional=True),
+            Ref("NumericLiteralSegment"),
         ),
         Sequence(
-            "RESTART", Ref.keyword("WITH", optional=True), Ref("NegativeSegment", optional=True), Ref("NumericLiteralSegment")
+            "RESTART",
+            Ref.keyword("WITH", optional=True),
+            Ref("NegativeSegment", optional=True),
+            Ref("NumericLiteralSegment"),
         ),
         Sequence("CACHE", Ref("NumericLiteralSegment")),
         Sequence(Ref.keyword("NO", optional=True), "CYCLE"),
