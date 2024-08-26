@@ -830,7 +830,7 @@ sparksql_dialect.add(
                 Ref("ColumnReferenceSegment"),
             ),
         ),
-    )
+    ),
 )
 
 # Adding Hint related grammar before comment `block_comment` and
@@ -1040,7 +1040,7 @@ class AlterDatabaseStatementSegment(BaseSegment):
         OneOf(
             Ref("DatabasePropertiesGrammar"),
             Ref("LocationGrammar"),
-        )
+        ),
     )
 
 

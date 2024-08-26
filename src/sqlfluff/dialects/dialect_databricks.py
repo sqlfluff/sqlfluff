@@ -82,9 +82,9 @@ databricks_dialect.add(
         Ref("BackQuotedIdentifierSegment"),
     ),
     PredictiveOptimizationGrammar=Sequence(
-      OneOf("ENABLE", "DISABLE", "INHERIT"),
-      "PREDICTIVE",
-      "OPTIMIZATION",
+        OneOf("ENABLE", "DISABLE", "INHERIT"),
+        "PREDICTIVE",
+        "OPTIMIZATION",
     ),
     SetOwnerGrammar=Sequence(
         Ref.keyword("SET", optional=True),
@@ -125,18 +125,18 @@ databricks_dialect.add(
                 Ref("PrimaryKeyGrammar"),
                 Ref("IfExistsGrammar", optional=True),
                 OneOf(
-                "RESTRICT",
-                "CASCADE",
-                optional=True,
+                    "RESTRICT",
+                    "CASCADE",
+                    optional=True,
                 ),
             ),
             Sequence(
                 Ref("ForeignKeyGrammar"),
                 Ref("IfExistsGrammar", optional=True),
                 Bracketed(
-                  Delimited(
-                    Ref("ColumnReferenceSegment"),
-                  )
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    )
                 ),
             ),
             Sequence(
@@ -185,7 +185,6 @@ databricks_dialect.add(
         IdentifierSegment,
         type="properties_naked_identifier",
     ),
-
 )
 
 databricks_dialect.replace(
@@ -229,7 +228,7 @@ class AlterCatalogStatementSegment(BaseSegment):
             Ref("SetTagsGrammar"),
             Ref("UnsetTagsGrammar"),
             Ref("PredictiveOptimizationGrammar"),
-        )
+        ),
     )
 
 
@@ -312,7 +311,7 @@ class AlterDatabaseStatementSegment(sparksql.AlterDatabaseStatementSegment):
             Ref("SetTagsGrammar"),
             Ref("UnsetTagsGrammar"),
             Ref("PredictiveOptimizationGrammar"),
-        )
+        ),
     )
 
 
@@ -321,7 +320,7 @@ class MaskStatementSegment(BaseSegment):
 
     https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-column-mask.html
     """
-    
+
     type = "mask_statement"
     match_grammar = Sequence(
         "MASK",
@@ -358,7 +357,7 @@ class PropertyNameSegment(sparksql.PropertyNameSegment):
             Ref("SingleIdentifierGrammar"),
         ),
     )
-        
+
 
 class TableConstraintSegment(ansi.TableConstraintSegment):
     """A table constraint, e.g. for CREATE TABLE or ALTER TABLE.
@@ -597,7 +596,7 @@ class AlterTableStatementSegment(sparksql.AlterTableStatementSegment):
 
 class AlterViewStatementSegment(sparksql.AlterViewStatementSegment):
     """An `ALTER VIEW` statement.
-    
+
     https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-alter-view.html
     """
 
