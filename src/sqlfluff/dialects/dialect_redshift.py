@@ -2034,12 +2034,6 @@ class VacuumStatementSegment(postgres.VacuumStatementSegment):
     )
 
 
-class ShowStatementSegment(postgres.ShowStatementSegment):
-    """This Postgres staetement doesn't exist in Redshift."""
-
-    match_grammar = Nothing()
-
-
 # Adding Redshift specific statements
 class StatementSegment(postgres.StatementSegment):
     """A generic segment, to any of its child subsegments."""
@@ -2075,6 +2069,9 @@ class StatementSegment(postgres.StatementSegment):
             Ref("DropRlsPolicyStatementSegment"),
             Ref("CreateExternalFunctionStatementSegment"),
             Ref("GrantUsageDatashareStatementSegment"),
+        ],
+        remove=[
+            Ref("ShowStatementSegment"),
         ],
     )
 
