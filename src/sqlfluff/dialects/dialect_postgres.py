@@ -6086,6 +6086,7 @@ class OverlapsClauseSegment(ansi.OverlapsClauseSegment):
         ),
     )
 
+
 class ShowStatementSegment(BaseSegment):
     """A SHOW Statement.
 
