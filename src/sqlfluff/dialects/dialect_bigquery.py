@@ -970,9 +970,7 @@ class DateTimeFunctionContentsSegment(ansi.DateTimeFunctionContentsSegment):
             Delimited(
                 Ref("DatetimeUnitSegment"),
                 Ref("DatePartWeekSegment"),
-                Ref(
-                    "FunctionContentsGrammar",
-                ),
+                Ref("FunctionContentsGrammar"),
             ),
         )
     )
