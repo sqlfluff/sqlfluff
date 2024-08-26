@@ -974,7 +974,6 @@ class DateTimeFunctionContentsSegment(ansi.DateTimeFunctionContentsSegment):
                     "FunctionContentsGrammar",
                 ),
             ),
-            # parse_mode=ParseMode.GREEDY,
         )
     )
 

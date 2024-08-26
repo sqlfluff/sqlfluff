@@ -1411,7 +1411,6 @@ class DateTimeFunctionContentsSegment(BaseSegment):
                     optional=True,
                 ),
             ),
-            # parse_mode=ParseMode.GREEDY,
         ),
     )
 
@@ -1428,7 +1427,6 @@ class FunctionContentsSegment(BaseSegment):
                 # The brackets might be empty for some functions...
                 optional=True,
             ),
-            # parse_mode=ParseMode.GREEDY,
         ),
     )
 
