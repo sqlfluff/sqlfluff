@@ -4484,6 +4484,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateStatisticsStatementSegment"),
             Ref("AlterStatisticsStatementSegment"),
             Ref("DropStatisticsStatementSegment"),
+            Ref("ShowStatementSegment"),
         ],
     )
 
@@ -6082,5 +6083,25 @@ class OverlapsClauseSegment(ansi.OverlapsClauseSegment):
                 )
             ),
             Ref("ColumnReferenceSegment"),
+        ),
+    )
+
+class ShowStatementSegment(BaseSegment):
+    """A SHOW Statement.
+
+    As per https://www.postgresql.org/docs/16/sql-show.html
+    """
+
+    type = "show_statement"
+
+    match_grammar = Sequence(
+        "SHOW",
+        OneOf(
+            "ALL",
+            "IS_SUPERUSER",
+            "LC_COLLATE",
+            "LC_CTYPE",
+            "SERVER_ENCODING",
+            "SERVER_VERSION",
         ),
     )
