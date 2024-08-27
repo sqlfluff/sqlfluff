@@ -25,4 +25,3 @@ ALTER SCHEMA some_cat DISABLE PREDICTIVE OPTIMIZATION;
 
 -- -- Add some schema properties
 ALTER SCHEMA some_cat SET DBPROPERTIES ('Edited-by'='John Doe', 'Edit-date'='2020-01-01');
-
