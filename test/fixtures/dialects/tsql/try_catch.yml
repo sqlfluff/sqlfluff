@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5621b1066f5cb2ab99db8f7b38ed47be74a255f5e46777ecc8d0e5a4045cc149
+_hash: 42df74fa271b4effeec179c04a79248881ed809d9ff06b6fd448550956a17419
 file:
 - batch:
     statement:
@@ -66,7 +66,7 @@ file:
 - go_statement:
     keyword: GO
 - batch:
-    statement:
+  - statement:
       throw_statement:
       - keyword: THROW
       - numeric_literal: '50005'
@@ -74,4 +74,20 @@ file:
       - quoted_literal: "N'an error occurred'"
       - comma: ','
       - numeric_literal: '1'
-    statement_terminator: ;
+  - statement_terminator: ;
+  - statement:
+      try_catch:
+      - keyword: BEGIN
+      - keyword: TRY
+      - statement:
+          execute_script_statement:
+            keyword: EXEC
+            object_reference:
+              naked_identifier: spSomeProc
+      - keyword: END
+      - keyword: TRY
+      - keyword: BEGIN
+      - keyword: CATCH
+      - keyword: END
+      - keyword: CATCH
+  - statement_terminator: ;
