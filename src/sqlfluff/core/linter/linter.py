@@ -392,10 +392,10 @@ class Linter:
             formatter.dispatch_lint_header(fname, sorted(rule_pack.codes()))
 
         # Look for comment segments which might indicate lines to ignore.
-        allowed_noqa: Optional[str] = config.get("allowed_noqa")
-        if not config.get("disable_noqa") or allowed_noqa:
+        disable_noqa_except: Optional[str] = config.get("disable_noqa_except")
+        if not config.get("disable_noqa") or disable_noqa_except:
             allowed_rules_ref_map = cls.allowed_rule_ref_map(
-                rule_pack.reference_map, allowed_noqa
+                rule_pack.reference_map, disable_noqa_except
             )
             ignore_mask, ivs = IgnoreMask.from_tree(tree, allowed_rules_ref_map)
             initial_linting_errors += ivs
@@ -676,8 +676,10 @@ class Linter:
         # or templating fails.
         else:
             rule_timings = []
-            allowed_noqa: Optional[str] = parsed.config.get("allowed_noqa")
-            if parsed.config.get("disable_noqa") and not allowed_noqa:
+            disable_noqa_except: Optional[str] = parsed.config.get(
+                "disable_noqa_except"
+            )
+            if parsed.config.get("disable_noqa") and not disable_noqa_except:
                 # NOTE: This path is only accessible if there is no valid `tree`
                 # which implies that there was a fatal templating fail. Even an
                 # unparsable file will still have a valid tree.
@@ -688,7 +690,7 @@ class Linter:
                 # requires access to the parse tree, and because of the failure,
                 # we don't have a parse tree).
                 allowed_rules_ref_map = cls.allowed_rule_ref_map(
-                    rule_pack.reference_map, allowed_noqa
+                    rule_pack.reference_map, disable_noqa_except
                 )
                 ignore_mask, ignore_violations = IgnoreMask.from_source(
                     parsed.source_str,
@@ -740,23 +742,23 @@ class Linter:
 
     @classmethod
     def allowed_rule_ref_map(
-        cls, reference_map: Dict[str, Set[str]], allowed_noqa: Optional[str]
+        cls, reference_map: Dict[str, Set[str]], disable_noqa_except: Optional[str]
     ) -> Dict[str, Set[str]]:
         """Generate a noqa rule reference map."""
-        # allowed_noqa is not set, return the entire map.
-        if not allowed_noqa:
+        # disable_noqa_except is not set, return the entire map.
+        if not disable_noqa_except:
             return reference_map
         output_map = reference_map
-        # Add the special rules so they can be disallowed for `allowed noqa`` usage
+        # Add the special rules so they can be excluded for `disable_noqa_except` usage
         for special_rule in ["PRS", "LXR", "TMP"]:
             output_map[special_rule] = set([special_rule])
         # Expand glob usage of rules
-        unexpanded_rules = tuple(r.strip() for r in allowed_noqa.split(","))
+        unexpanded_rules = tuple(r.strip() for r in disable_noqa_except.split(","))
         noqa_set = set()
         for r in unexpanded_rules:
             for x in fnmatch.filter(output_map.keys(), r):
                 noqa_set |= output_map.get(x, set())
-        # Return a new map with only the allowed noqa rules
+        # Return a new map with only the excluded rules
         return {k: v.intersection(noqa_set) for k, v in output_map.items()}
 
     @classmethod

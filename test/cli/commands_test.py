@@ -1976,15 +1976,15 @@ def test_cli_disable_noqa_flag():
     )
 
 
-def test_cli_allowed_noqa_flag():
-    """Test that --allowed-noqa flag ignores inline noqa comments."""
+def test_cli_disable_noqa_except_flag():
+    """Test that --disable-noqa-except flag ignores inline noqa comments."""
     result = invoke_assert_code(
         ret_code=1,
         args=[
             lint,
             [
                 "test/fixtures/cli/disable_noqa_test.sql",
-                "--allowed-noqa",
+                "--disable-noqa-except",
                 "CP01",
             ],
         ],
@@ -1994,15 +1994,15 @@ def test_cli_allowed_noqa_flag():
     assert r"L:   6 | P:  11 | CP01 |" not in result.output
 
 
-def test_cli_allowed_noqa_non_rules_flag():
-    """Test that --allowed-noqa flag ignores all inline noqa comments."""
+def test_cli_disable_noqa_except_non_rules_flag():
+    """Test that --disable-noqa-except flag ignores all inline noqa comments."""
     invoke_assert_code(
         ret_code=1,
         args=[
             lint,
             [
                 "test/fixtures/cli/disable_noqa_test.sql",
-                "--allowed-noqa",
+                "--disable-noqa-except",
                 "None",
             ],
         ],
