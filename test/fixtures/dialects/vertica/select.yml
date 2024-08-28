@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 534cb0aeb4de1b9fe80a6a191823e98dbb8a555d45630bf12ad217ea4fcc98b9
+_hash: 296aff357834f41b502939251b9c5574cbfe4c2e96ad50e6d2ca5f83dc0d21b0
 file:
 - statement:
     select_statement:
@@ -38,12 +38,13 @@ file:
                     function:
                       function_name:
                         function_name_identifier: MAX
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                            naked_identifier: c1
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: c1
+                          end_bracket: )
                 from_clause:
                   keyword: FROM
                   from_expression:
@@ -60,12 +61,13 @@ file:
                     function:
                       function_name:
                         function_name_identifier: MAX
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                            naked_identifier: cc1
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: cc1
+                          end_bracket: )
                 from_clause:
                   keyword: FROM
                   from_expression:
@@ -82,12 +84,13 @@ file:
                     function:
                       function_name:
                         function_name_identifier: MAX
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                            naked_identifier: d1
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: d1
+                          end_bracket: )
                 from_clause:
                   keyword: FROM
                   from_expression:
@@ -151,12 +154,13 @@ file:
           function:
             function_name:
               function_name_identifier: SUM
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: vacation_days
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: vacation_days
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -189,12 +193,13 @@ file:
           function:
             function_name:
               function_name_identifier: MAX
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: annual_salary
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: annual_salary
+                end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: highest_salary
@@ -216,12 +221,13 @@ file:
           function:
             function_name:
               function_name_identifier: MAX
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: annual_salary
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: annual_salary
+                end_bracket: )
           comparison_operator:
             raw_comparison_operator: '>'
           numeric_literal: '800000'
@@ -265,12 +271,13 @@ file:
                     function:
                       function_name:
                         function_name_identifier: MAX
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                            naked_identifier: c1
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: c1
+                          end_bracket: )
                 from_clause:
                   keyword: FROM
                   from_expression:
@@ -287,12 +294,13 @@ file:
                     function:
                       function_name:
                         function_name_identifier: MAX
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                            naked_identifier: cc1
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: cc1
+                          end_bracket: )
                 from_clause:
                   keyword: FROM
                   from_expression:
@@ -309,12 +317,13 @@ file:
                     function:
                       function_name:
                         function_name_identifier: MAX
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                            naked_identifier: d1
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: d1
+                          end_bracket: )
                 from_clause:
                   keyword: FROM
                   from_expression:
@@ -394,12 +403,13 @@ file:
           function:
             function_name:
               function_name_identifier: PolygonPoint
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: geom
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: geom
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -440,12 +450,13 @@ file:
           function:
             function_name:
               function_name_identifier: AVG
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: first_bid
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: first_bid
+                end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: avg_bid
@@ -471,12 +482,13 @@ file:
                       function:
                         function_name:
                           function_name_identifier: TS_FIRST_VALUE
-                        bracketed:
-                          start_bracket: (
-                          expression:
-                            column_reference:
-                              naked_identifier: bid1
-                          end_bracket: )
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: bid1
+                            end_bracket: )
                       alias_expression:
                         keyword: AS
                         naked_identifier: first_bid

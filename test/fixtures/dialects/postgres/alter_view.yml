@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c35328dd8b5e4defd9cc728caaa122305f9c5317e2ccfaf00b4446b8f12ff409
+_hash: df5ecb2f2fd25c2a3d5471f57e56482e22cdfd24754f5fac88773faa25ddebbc
 file:
 - statement:
     alter_view_statement:
@@ -19,9 +19,10 @@ file:
     - function:
         function_name:
           function_name_identifier: NOW
-        bracketed:
-          start_bracket: (
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_view_statement:
@@ -104,12 +105,13 @@ file:
     - function:
         function_name:
           function_name_identifier: a_function
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: a_parameter
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: a_parameter
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_view_statement:
@@ -125,11 +127,12 @@ file:
     - function:
         function_name:
           function_name_identifier: a_function
-        bracketed:
-          start_bracket: (
-          expression:
-            quoted_literal: "'a_parameter'"
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              quoted_literal: "'a_parameter'"
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_view_statement:
@@ -159,9 +162,10 @@ file:
     - function:
         function_name:
           function_name_identifier: NOW
-        bracketed:
-          start_bracket: (
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_view_statement:
@@ -256,12 +260,13 @@ file:
     - function:
         function_name:
           function_name_identifier: a_function
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: a_parameter
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: a_parameter
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_view_statement:
@@ -279,11 +284,12 @@ file:
     - function:
         function_name:
           function_name_identifier: a_function
-        bracketed:
-          start_bracket: (
-          expression:
-            quoted_literal: "'a_parameter'"
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              quoted_literal: "'a_parameter'"
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_view_statement:

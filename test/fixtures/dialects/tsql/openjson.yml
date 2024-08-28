@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b0aed6157fb7463eb1ea734057995c2536cb98aabdd752bf4b40ec583132683d
+_hash: 952fbc7e6e4d7c996cd031172a4ec89bd65b65ac3e110315d705f74f8188d3ac
 file:
   batch:
   - statement:
@@ -29,11 +29,12 @@ file:
                   function:
                     function_name:
                       function_name_identifier: OPENJSON
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        quoted_literal: "N'[1,2,3,4]'"
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "N'[1,2,3,4]'"
+                        end_bracket: )
                 alias_expression:
                   keyword: AS
                   naked_identifier: productTypes
@@ -438,11 +439,12 @@ file:
                 function:
                   function_name:
                     function_name_identifier: OPENJSON
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      parameter: '@JSON'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        parameter: '@JSON'
+                      end_bracket: )
               alias_expression:
                 keyword: AS
                 naked_identifier: root
@@ -454,14 +456,15 @@ file:
                   function:
                     function_name:
                       function_name_identifier: OPENJSON
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                        - naked_identifier: root
-                        - dot: .
-                        - naked_identifier: value
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                          - naked_identifier: root
+                          - dot: .
+                          - naked_identifier: value
+                        end_bracket: )
                 alias_expression:
                   keyword: AS
                   naked_identifier: TheValues

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 016faab7c8653d99929df73b008bfdf51c5bc3609a6ce6e3b79843e36092f735
+_hash: de918110f4624905e63dfbfcf53363ddfa943b3e3542fc700f8619b3f8052843
 file:
 - statement:
     select_statement:
@@ -13,15 +13,16 @@ file:
           function:
             function_name:
               function_name_identifier: listagg
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: value
-            - comma: ','
-            - expression:
-                quoted_literal: "','"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: value
+              - comma: ','
+              - expression:
+                  quoted_literal: "','"
+              - end_bracket: )
             withingroup_clause:
             - keyword: WITHIN
             - keyword: GROUP
@@ -69,19 +70,20 @@ file:
           function:
             function_name:
               function_name_identifier: listagg
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: value
-            - comma: ','
-            - expression:
-                quoted_literal: "','"
-            - listagg_overflow_clause:
-              - keyword: 'ON'
-              - keyword: OVERFLOW
-              - keyword: ERROR
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: value
+              - comma: ','
+              - expression:
+                  quoted_literal: "','"
+              - listagg_overflow_clause:
+                - keyword: 'ON'
+                - keyword: OVERFLOW
+                - keyword: ERROR
+              - end_bracket: )
             withingroup_clause:
             - keyword: WITHIN
             - keyword: GROUP
@@ -129,22 +131,23 @@ file:
           function:
             function_name:
               function_name_identifier: LISTAGG
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: value
-            - comma: ','
-            - expression:
-                quoted_literal: "','"
-            - listagg_overflow_clause:
-              - keyword: 'ON'
-              - keyword: OVERFLOW
-              - keyword: TRUNCATE
-              - quoted_identifier: "'.....'"
-              - keyword: WITH
-              - keyword: COUNT
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: value
+              - comma: ','
+              - expression:
+                  quoted_literal: "','"
+              - listagg_overflow_clause:
+                - keyword: 'ON'
+                - keyword: OVERFLOW
+                - keyword: TRUNCATE
+                - quoted_identifier: "'.....'"
+                - keyword: WITH
+                - keyword: COUNT
+              - end_bracket: )
             withingroup_clause:
             - keyword: WITHIN
             - keyword: GROUP
@@ -194,15 +197,16 @@ file:
           function:
             function_name:
               function_name_identifier: LISTAGG
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: value
-            - comma: ','
-            - expression:
-                quoted_literal: "','"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: value
+              - comma: ','
+              - expression:
+                  quoted_literal: "','"
+              - end_bracket: )
             withingroup_clause:
             - keyword: WITHIN
             - keyword: GROUP
@@ -289,15 +293,16 @@ file:
           function:
             function_name:
               function_name_identifier: LISTAGG
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: value
-            - comma: ','
-            - expression:
-                quoted_literal: "','"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: value
+              - comma: ','
+              - expression:
+                  quoted_literal: "','"
+              - end_bracket: )
             withingroup_clause:
             - keyword: WITHIN
             - keyword: GROUP

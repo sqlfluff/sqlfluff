@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6a54c252893ec812849e0cb8100a61cb1d25384df7131303e76c4628a3547bcd
+_hash: 69f5b45264716fc789671b9dae9b18bff39f54f211cfb050664e587c91503841
 file:
   statement:
     select_statement:
@@ -25,12 +25,13 @@ file:
           function:
             function_name:
               function_name_identifier: SUM
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: total_number_of_affected_accounts
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: total_number_of_affected_accounts
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:

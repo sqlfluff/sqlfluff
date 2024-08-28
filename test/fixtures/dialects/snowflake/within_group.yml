@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c1d29888808dc13339ff7d776df74d2f9c43d7f6fcf81f2a7b604134c1cf1f30
+_hash: a919250a2876f4a5494b8c396cb676521df46a03554313931c560f4c74122710
 file:
 - statement:
     with_compound_statement:
@@ -104,15 +104,16 @@ file:
             function:
               function_name:
                 function_name_identifier: listagg
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    naked_identifier: name
-              - comma: ','
-              - expression:
-                  quoted_literal: "', '"
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: name
+                - comma: ','
+                - expression:
+                    quoted_literal: "', '"
+                - end_bracket: )
               withingroup_clause:
               - keyword: within
               - keyword: group
@@ -148,12 +149,13 @@ file:
           function:
             function_name:
               function_name_identifier: ARRAY_AGG
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: o_orderkey
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: o_orderkey
+                end_bracket: )
             withingroup_clause:
             - keyword: WITHIN
             - keyword: GROUP
@@ -182,12 +184,13 @@ file:
           function:
             function_name:
               function_name_identifier: array_agg
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: o_orderkey
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: o_orderkey
+                end_bracket: )
             withingroup_clause:
             - keyword: within
             - keyword: group
@@ -224,13 +227,14 @@ file:
           function:
             function_name:
               function_name_identifier: array_agg
-            bracketed:
-              start_bracket: (
-              keyword: distinct
-              expression:
-                column_reference:
-                  naked_identifier: o_orderstatus
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: distinct
+                expression:
+                  column_reference:
+                    naked_identifier: o_orderstatus
+                end_bracket: )
             withingroup_clause:
             - keyword: within
             - keyword: group
@@ -277,12 +281,13 @@ file:
           function:
             function_name:
               function_name_identifier: array_agg
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: o_clerk
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: o_clerk
+                end_bracket: )
             withingroup_clause:
             - keyword: within
             - keyword: group
@@ -330,15 +335,16 @@ file:
           function:
             function_name:
               function_name_identifier: listagg
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: o_orderkey
-            - comma: ','
-            - expression:
-                quoted_literal: "' '"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: o_orderkey
+              - comma: ','
+              - expression:
+                  quoted_literal: "' '"
+              - end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -363,16 +369,17 @@ file:
           function:
             function_name:
               function_name_identifier: listagg
-            bracketed:
-            - start_bracket: (
-            - keyword: distinct
-            - expression:
-                column_reference:
-                  naked_identifier: o_orderstatus
-            - comma: ','
-            - expression:
-                quoted_literal: "'|'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - keyword: distinct
+              - expression:
+                  column_reference:
+                    naked_identifier: o_orderstatus
+              - comma: ','
+              - expression:
+                  quoted_literal: "'|'"
+              - end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -401,15 +408,16 @@ file:
           function:
             function_name:
               function_name_identifier: listagg
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: o_clerk
-            - comma: ','
-            - expression:
-                quoted_literal: "', '"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: o_clerk
+              - comma: ','
+              - expression:
+                  quoted_literal: "', '"
+              - end_bracket: )
             withingroup_clause:
             - keyword: within
             - keyword: group
@@ -451,15 +459,16 @@ file:
           function:
             function_name:
               function_name_identifier: listagg
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: spanish_phrase
-            - comma: ','
-            - expression:
-                quoted_literal: "'|'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: spanish_phrase
+              - comma: ','
+              - expression:
+                  quoted_literal: "'|'"
+              - end_bracket: )
             withingroup_clause:
             - keyword: within
             - keyword: group
@@ -472,15 +481,16 @@ file:
                     function:
                       function_name:
                         function_name_identifier: collate
-                      bracketed:
-                      - start_bracket: (
-                      - expression:
-                          column_reference:
-                            naked_identifier: spanish_phrase
-                      - comma: ','
-                      - expression:
-                          quoted_literal: "'sp'"
-                      - end_bracket: )
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                              naked_identifier: spanish_phrase
+                        - comma: ','
+                        - expression:
+                            quoted_literal: "'sp'"
+                        - end_bracket: )
                 end_bracket: )
       from_clause:
         keyword: from
@@ -503,15 +513,16 @@ file:
           function:
             function_name:
               function_name_identifier: listagg
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: spanish_phrase
-            - comma: ','
-            - expression:
-                quoted_literal: "'|'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: spanish_phrase
+              - comma: ','
+              - expression:
+                  quoted_literal: "'|'"
+              - end_bracket: )
             withingroup_clause:
             - keyword: within
             - keyword: group
@@ -524,15 +535,16 @@ file:
                     function:
                       function_name:
                         function_name_identifier: collate
-                      bracketed:
-                      - start_bracket: (
-                      - expression:
-                          column_reference:
-                            naked_identifier: spanish_phrase
-                      - comma: ','
-                      - expression:
-                          quoted_literal: "'utf8'"
-                      - end_bracket: )
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                              naked_identifier: spanish_phrase
+                        - comma: ','
+                        - expression:
+                            quoted_literal: "'utf8'"
+                        - end_bracket: )
                 end_bracket: )
       from_clause:
         keyword: from

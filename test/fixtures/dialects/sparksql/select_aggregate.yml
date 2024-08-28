@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b7198b63537da7d91157d9a4a03aa8ce3d41efc3d77ba91cf9c24a67289be401
+_hash: bd0e2f13b9bee38a83e6661281bae64e1dfe18014dbbab966576472084ed2f01
 file:
 - statement:
     select_statement:
@@ -13,43 +13,45 @@ file:
           function:
             function_name:
               function_name_identifier: aggregate
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: array
-                  bracketed:
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: array
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          numeric_literal: '1'
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '2'
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '3'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - comma: ','
+              - expression:
+                - bracketed:
                   - start_bracket: (
-                  - expression:
-                      numeric_literal: '1'
+                  - column_reference:
+                      naked_identifier: acc
                   - comma: ','
-                  - expression:
-                      numeric_literal: '2'
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '3'
+                  - column_reference:
+                      naked_identifier: x
                   - end_bracket: )
-            - comma: ','
-            - expression:
-                numeric_literal: '0'
-            - comma: ','
-            - expression:
-              - bracketed:
-                - start_bracket: (
+                - binary_operator: ->
                 - column_reference:
                     naked_identifier: acc
-                - comma: ','
+                - binary_operator: +
                 - column_reference:
                     naked_identifier: x
-                - end_bracket: )
-              - binary_operator: ->
-              - column_reference:
-                  naked_identifier: acc
-              - binary_operator: +
-              - column_reference:
-                  naked_identifier: x
-            - end_bracket: )
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -59,50 +61,52 @@ file:
           function:
             function_name:
               function_name_identifier: aggregate
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: array
-                  bracketed:
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: array
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          numeric_literal: '1'
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '2'
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '3'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - comma: ','
+              - expression:
+                - bracketed:
                   - start_bracket: (
-                  - expression:
-                      numeric_literal: '1'
+                  - column_reference:
+                      naked_identifier: acc
                   - comma: ','
-                  - expression:
-                      numeric_literal: '2'
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '3'
+                  - column_reference:
+                      naked_identifier: x
                   - end_bracket: )
-            - comma: ','
-            - expression:
-                numeric_literal: '0'
-            - comma: ','
-            - expression:
-              - bracketed:
-                - start_bracket: (
+                - binary_operator: ->
                 - column_reference:
                     naked_identifier: acc
-                - comma: ','
+                - binary_operator: +
                 - column_reference:
                     naked_identifier: x
-                - end_bracket: )
-              - binary_operator: ->
-              - column_reference:
-                  naked_identifier: acc
-              - binary_operator: +
-              - column_reference:
-                  naked_identifier: x
-            - comma: ','
-            - expression:
-              - column_reference:
-                  naked_identifier: acc
-              - binary_operator: ->
-              - column_reference:
-                  naked_identifier: acc
-              - binary_operator: '*'
-              - numeric_literal: '10'
-            - end_bracket: )
+              - comma: ','
+              - expression:
+                - column_reference:
+                    naked_identifier: acc
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: acc
+                - binary_operator: '*'
+                - numeric_literal: '10'
+              - end_bracket: )
 - statement_terminator: ;
