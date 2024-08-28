@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8007c4b0d5c5943b92df867ae12da9dbba41cae3df98087faa17dcf4a7fb9ca8
+_hash: 4b9d3e7fc5e6fef7ce8ba23ba9c74bbe644051a7ecef0fd6df87ce9f9dd5ddab
 file:
   statement:
     select_statement:
@@ -13,29 +13,31 @@ file:
           function:
             function_name:
               function_name_identifier: COS
-            bracketed:
-              start_bracket: (
-              expression:
-              - numeric_literal: '2'
-              - binary_operator: '*'
-              - function:
-                  function_name:
-                    function_name_identifier: ACOS
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      numeric_literal:
-                        sign_indicator: '-'
-                        numeric_literal: '1'
-                    end_bracket: )
-              - binary_operator: '*'
-              - numeric_literal: '2'
-              - binary_operator: '*'
-              - column_reference:
-                  naked_identifier: y
-              - binary_operator: /
-              - numeric_literal: '53'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                - numeric_literal: '2'
+                - binary_operator: '*'
+                - function:
+                    function_name:
+                      function_name_identifier: ACOS
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          numeric_literal:
+                            sign_indicator: '-'
+                            numeric_literal: '1'
+                        end_bracket: )
+                - binary_operator: '*'
+                - numeric_literal: '2'
+                - binary_operator: '*'
+                - column_reference:
+                    naked_identifier: y
+                - binary_operator: /
+                - numeric_literal: '53'
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: c2

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ce323929c8e0bfe1e786a4a5d107c5fba6b29a442f63d335ff3946cb38b97417
+_hash: ad3884d73a87c38b1359a67806673cf95d768ae7453a97d58411d1ddfd6fa37a
 file:
 - batch:
     create_procedure_statement:
@@ -676,9 +676,10 @@ file:
             function:
               function_name:
                 function_name_identifier: NEWID
-              bracketed:
-                start_bracket: (
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
         - comma: ','
         - parameter: '@output'
         - data_type:

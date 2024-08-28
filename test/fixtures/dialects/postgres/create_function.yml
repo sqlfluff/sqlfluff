@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b8cce2e6e71f4d2d693d7a311eec703e89110cf36469087da79207952438d20e
+_hash: 78702e8fd1ef49681cd89975211bd603a52bc92a5371ca1b83d2e289ea978510
 file:
 - statement:
     create_function_statement:
@@ -310,11 +310,12 @@ file:
               function:
                 function_name:
                   function_name_identifier: dup
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '42'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '42'
+                    end_bracket: )
 - statement_terminator: ;
 - statement:
     create_type_statement:
@@ -370,11 +371,12 @@ file:
               function:
                 function_name:
                   function_name_identifier: dup
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '42'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '42'
+                    end_bracket: )
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -458,11 +460,12 @@ file:
               function:
                 function_name:
                   function_name_identifier: dup
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '42'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '42'
+                    end_bracket: )
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -952,43 +955,46 @@ file:
                 function:
                   function_name:
                     function_name_identifier: coalesce
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        naked_identifier: in_default_val
-                  - comma: ','
-                  - expression:
-                      quoted_literal: "'notexist'"
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: in_default_val
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'notexist'"
+                    - end_bracket: )
             - comma: ','
             - expression:
                 function:
                   function_name:
                     function_name_identifier: coalesce
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        naked_identifier: in_valid_from
-                  - comma: ','
-                  - expression:
-                      quoted_literal: "'-infinity'"
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: in_valid_from
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'-infinity'"
+                    - end_bracket: )
             - comma: ','
             - expression:
                 function:
                   function_name:
                     function_name_identifier: coalesce
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        naked_identifier: in_valid_until
-                  - comma: ','
-                  - expression:
-                      quoted_literal: "'infinity'"
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: in_valid_until
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'infinity'"
+                    - end_bracket: )
             - end_bracket: )
         - keyword: RETURNING
         - star: '*'
@@ -1065,50 +1071,52 @@ file:
               - function:
                   function_name:
                     function_name_identifier: date_bin
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          bracketed:
-                            start_bracket: (
-                            expression:
-                            - column_reference:
-                                naked_identifier: _to
-                            - binary_operator: '-'
-                            - column_reference:
-                                naked_identifier: _from
-                            end_bracket: )
-                          binary_operator: /
-                          function:
-                            function_name:
-                              function_name_identifier: greatest
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        bracketed:
+                          start_bracket: (
+                          expression:
                             bracketed:
-                            - start_bracket: (
-                            - expression:
+                              start_bracket: (
+                              expression:
+                              - column_reference:
+                                  naked_identifier: _to
+                              - binary_operator: '-'
+                              - column_reference:
+                                  naked_identifier: _from
+                              end_bracket: )
+                            binary_operator: /
+                            function:
+                              function_name:
+                                function_name_identifier: greatest
+                              function_contents:
                                 bracketed:
-                                  start_bracket: (
-                                  expression:
-                                    column_reference:
-                                      naked_identifier: _buckets
-                                    binary_operator: '-'
+                                - start_bracket: (
+                                - expression:
+                                    bracketed:
+                                      start_bracket: (
+                                      expression:
+                                        column_reference:
+                                          naked_identifier: _buckets
+                                        binary_operator: '-'
+                                        numeric_literal: '1'
+                                      end_bracket: )
+                                - comma: ','
+                                - expression:
                                     numeric_literal: '1'
-                                  end_bracket: )
-                            - comma: ','
-                            - expression:
-                                numeric_literal: '1'
-                            - end_bracket: )
-                        end_bracket: )
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                        naked_identifier: _time
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                        naked_identifier: _from
-                  - end_bracket: )
+                                - end_bracket: )
+                          end_bracket: )
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: _time
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: _from
+                    - end_bracket: )
               - binary_operator: +
               - bracketed:
                   start_bracket: (
@@ -1126,21 +1134,22 @@ file:
                     function:
                       function_name:
                         function_name_identifier: greatest
-                      bracketed:
-                      - start_bracket: (
-                      - expression:
-                          bracketed:
-                            start_bracket: (
-                            expression:
-                              column_reference:
-                                naked_identifier: _buckets
-                              binary_operator: '-'
-                              numeric_literal: '1'
-                            end_bracket: )
-                      - comma: ','
-                      - expression:
-                          numeric_literal: '1'
-                      - end_bracket: )
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                column_reference:
+                                  naked_identifier: _buckets
+                                binary_operator: '-'
+                                numeric_literal: '1'
+                              end_bracket: )
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '1'
+                        - end_bracket: )
                   end_bracket: )
               - binary_operator: '*'
               - bracketed:
@@ -1236,42 +1245,44 @@ file:
                 function:
                   function_name:
                     function_name_identifier: DATE_BIN
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                        - column_reference:
-                            naked_identifier: _to
-                        - binary_operator: '-'
-                        - column_reference:
-                            naked_identifier: _from
-                        end_bracket: )
-                      binary_operator: /
-                      function:
-                        function_name:
-                          function_name_identifier: GREATEST
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
                         bracketed:
-                        - start_bracket: (
-                        - expression:
-                            column_reference:
-                              naked_identifier: _buckets
-                            binary_operator: '-'
-                            numeric_literal: '1'
-                        - comma: ','
-                        - expression:
-                            numeric_literal: '1'
-                        - end_bracket: )
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                        naked_identifier: _time
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                        naked_identifier: _from
-                  - end_bracket: )
+                          start_bracket: (
+                          expression:
+                          - column_reference:
+                              naked_identifier: _to
+                          - binary_operator: '-'
+                          - column_reference:
+                              naked_identifier: _from
+                          end_bracket: )
+                        binary_operator: /
+                        function:
+                          function_name:
+                            function_name_identifier: GREATEST
+                          function_contents:
+                            bracketed:
+                            - start_bracket: (
+                            - expression:
+                                column_reference:
+                                  naked_identifier: _buckets
+                                binary_operator: '-'
+                                numeric_literal: '1'
+                            - comma: ','
+                            - expression:
+                                numeric_literal: '1'
+                            - end_bracket: )
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: _time
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: _from
+                    - end_bracket: )
                 binary_operator: +
                 bracketed:
                   start_bracket: (
@@ -1289,17 +1300,18 @@ file:
                     function:
                       function_name:
                         function_name_identifier: GREATEST
-                      bracketed:
-                      - start_bracket: (
-                      - expression:
-                          column_reference:
-                            naked_identifier: _buckets
-                          binary_operator: '-'
-                          numeric_literal: '1'
-                      - comma: ','
-                      - expression:
-                          numeric_literal: '1'
-                      - end_bracket: )
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                              naked_identifier: _buckets
+                            binary_operator: '-'
+                            numeric_literal: '1'
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '1'
+                        - end_bracket: )
                   end_bracket: )
           - keyword: end
       - statement_terminator: ;
@@ -1365,32 +1377,33 @@ file:
               function:
                 function_name:
                   function_name_identifier: time_bucket
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    column_reference:
-                      naked_identifier: _from
-                - comma: ','
-                - expression:
-                    column_reference:
-                      naked_identifier: _from
-                - comma: ','
-                - expression:
-                    column_reference:
-                      naked_identifier: _to
-                - comma: ','
-                - expression:
-                    column_reference:
-                      naked_identifier: _buckets
-                - comma: ','
-                - expression:
-                    column_reference:
-                    - naked_identifier: g
-                    - dot: .
-                    - naked_identifier: ofs
-                    binary_operator: '-'
-                    numeric_literal: '1'
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: _from
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: _from
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: _to
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: _buckets
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                      - naked_identifier: g
+                      - dot: .
+                      - naked_identifier: ofs
+                      binary_operator: '-'
+                      numeric_literal: '1'
+                  - end_bracket: )
           from_clause:
             keyword: FROM
             from_expression:
@@ -1399,31 +1412,33 @@ file:
                   function:
                     function_name:
                       function_name_identifier: generate_series
-                    bracketed:
-                    - start_bracket: (
-                    - expression:
-                        numeric_literal: '0'
-                    - comma: ','
-                    - expression:
-                        function:
-                          function_name:
-                            function_name_identifier: greatest
-                          bracketed:
-                          - start_bracket: (
-                          - expression:
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          numeric_literal: '0'
+                      - comma: ','
+                      - expression:
+                          function:
+                            function_name:
+                              function_name_identifier: greatest
+                            function_contents:
                               bracketed:
-                                start_bracket: (
-                                expression:
-                                  column_reference:
-                                    naked_identifier: _buckets
-                                  binary_operator: '-'
+                              - start_bracket: (
+                              - expression:
+                                  bracketed:
+                                    start_bracket: (
+                                    expression:
+                                      column_reference:
+                                        naked_identifier: _buckets
+                                      binary_operator: '-'
+                                      numeric_literal: '1'
+                                    end_bracket: )
+                              - comma: ','
+                              - expression:
                                   numeric_literal: '1'
-                                end_bracket: )
-                          - comma: ','
-                          - expression:
-                              numeric_literal: '1'
-                          - end_bracket: )
-                    - end_bracket: )
+                              - end_bracket: )
+                      - end_bracket: )
                 alias_expression:
                   keyword: AS
                   naked_identifier: g

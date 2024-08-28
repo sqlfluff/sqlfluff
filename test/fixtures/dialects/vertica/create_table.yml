@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 23da7b2a964de901eec62a2cd0f60ef7f77302f6a76803239df223e447a22c82
+_hash: aa7138fe0757fd77b284c8d6b28fa0a4db39b8eda0686953b3b6b5ecad288a5c
 file:
 - statement:
     create_table_statement:
@@ -180,22 +180,23 @@ file:
             function:
               function_name:
                 function_name_identifier: CALENDAR_HIERARCHY_DAY
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  cast_expression:
-                    column_reference:
-                      naked_identifier: orderdate
-                    casting_operator: '::'
-                    data_type:
-                      keyword: DATE
-              - comma: ','
-              - expression:
-                  numeric_literal: '3'
-              - comma: ','
-              - expression:
-                  numeric_literal: '2'
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    cast_expression:
+                      column_reference:
+                        naked_identifier: orderdate
+                      casting_operator: '::'
+                      data_type:
+                        keyword: DATE
+                - comma: ','
+                - expression:
+                    numeric_literal: '3'
+                - comma: ','
+                - expression:
+                    numeric_literal: '2'
+                - end_bracket: )
       - keyword: REORGANIZE
 - statement_terminator: ;
 - statement:

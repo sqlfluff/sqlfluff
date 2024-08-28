@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f6e928977dc64f6d50b765793b36530e5619c76dd380c3a033dc340676fac3e1
+_hash: 670133e38a4a4d1acd2b8a743c51545c422cb6cb968368bbc1a64b9110b9887c
 file:
   statement:
     select_statement:
@@ -13,12 +13,13 @@ file:
           function:
             function_name:
               function_name_identifier: ARRAY_AGG
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: o_orderkey
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: o_orderkey
+                end_bracket: )
             withingroup_clause:
             - keyword: WITHIN
             - keyword: GROUP

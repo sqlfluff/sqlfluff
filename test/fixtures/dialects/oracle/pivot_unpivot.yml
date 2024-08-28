@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6b2997c7d1a052842356e1af47491c1bcd3de963f28a2466855d5c6ba6d10ead
+_hash: 63bc3504438f75e647802c45697f2fd887c82e42738b1077ea2d7995da35613f
 file:
 - statement:
     select_statement:
@@ -47,12 +47,13 @@ file:
         - function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: state_code
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: state_code
+                end_bracket: )
         - keyword: for
         - column_reference:
             naked_identifier: state_code
@@ -116,12 +117,13 @@ file:
         - function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: state_code
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: state_code
+                end_bracket: )
         - keyword: for
         - column_reference:
             naked_identifier: state_code
@@ -188,12 +190,13 @@ file:
         - function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: state_code
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: state_code
+                end_bracket: )
         - keyword: for
         - column_reference:
             naked_identifier: state_code

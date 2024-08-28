@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e75358245b34f941c12870c68538cae8f63a40cbacebecbc72f46f9f809d7063
+_hash: a84e0d9a469c758d871df2ecea557d3823fa815d7e2f567a765a340a1ed60b55
 file:
   statement:
     select_statement:
@@ -17,14 +17,15 @@ file:
             - naked_identifier: functions
             - dot: .
             - function_name_identifier: timestamp_parsing
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                - naked_identifier: log_tbl
-                - dot: .
-                - naked_identifier: orderdate
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                  - naked_identifier: log_tbl
+                  - dot: .
+                  - naked_identifier: orderdate
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: orderdate

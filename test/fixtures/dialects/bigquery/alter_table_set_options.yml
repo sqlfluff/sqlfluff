@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 337e774718873b99a59ccc416f8dfd887b30f51835c7bc1af3b10649192a557d
+_hash: ea6d8cd6ca9c4c0f0a0982254ba1bf4569586ee494b7f2d31e945c0f473c37fe
 file:
 - statement:
     alter_table_statement:
@@ -24,23 +24,25 @@ file:
         - function:
             function_name:
               function_name_identifier: TIMESTAMP_ADD
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: CURRENT_TIMESTAMP
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
-            - comma: ','
-            - expression:
-                interval_expression:
-                  keyword: INTERVAL
-                  expression:
-                    numeric_literal: '7'
-                  date_part: DAY
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: CURRENT_TIMESTAMP
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  interval_expression:
+                    keyword: INTERVAL
+                    expression:
+                      numeric_literal: '7'
+                    date_part: DAY
+              - end_bracket: )
         - comma: ','
         - parameter: description
         - comparison_operator:

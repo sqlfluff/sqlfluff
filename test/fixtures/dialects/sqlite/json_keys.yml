@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d102de3b2b934a2304974f8e50c8f8cacdfd709ed6da93c49e5a414188715b17
+_hash: 68567997ec7155ed9c8391ca779f4a167d73aa703ec3949792216a37299dbc15
 file:
   statement:
     select_statement:
@@ -64,11 +64,12 @@ file:
               function:
                 function_name:
                   function_name_identifier: json_tree
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    quoted_literal: "'{}'"
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'{}'"
+                    end_bracket: )
             alias_expression:
               keyword: AS
               naked_identifier: j

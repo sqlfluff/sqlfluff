@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5462f4c98240c76d3b93e026e081026dcbd975fe32c9ed5f249a06470c14dbc5
+_hash: 916f102a0eb0ec9a481dd02728180d1ca81b874e808018153d017f81bfefc1e5
 file:
 - statement:
     alter_table_statement:
@@ -40,29 +40,31 @@ file:
             function:
               function_name:
                 function_name_identifier: to_date
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: c1
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: c1
+                  end_bracket: )
         - comma: ','
         - expression:
             function:
               function_name:
                 function_name_identifier: substring
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    naked_identifier: c2
-              - comma: ','
-              - expression:
-                  numeric_literal: '0'
-              - comma: ','
-              - expression:
-                  numeric_literal: '10'
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: c2
+                - comma: ','
+                - expression:
+                    numeric_literal: '0'
+                - comma: ','
+                - expression:
+                    numeric_literal: '10'
+                - end_bracket: )
         - end_bracket: )
 - statement_terminator: ;
 - statement:

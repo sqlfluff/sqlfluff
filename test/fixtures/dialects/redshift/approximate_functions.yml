@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5f007d4d4684eef483e2b9d07d1d3abc2b1b89b8a74181d51401722135210d25
+_hash: 99c58441cd45d86be2cfaed552cbe8bfacaa56086500955319aec6d3c2ca9214
 file:
 - statement:
     select_statement:
@@ -22,34 +22,37 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: totalprice
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: totalprice
+                end_bracket: )
       - comma: ','
       - select_clause_element:
           function:
             function_name:
               function_name_identifier: sum
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: totalprice
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: totalprice
+                end_bracket: )
       - comma: ','
       - select_clause_element:
           function:
             keyword: approximate
             function_name:
               function_name_identifier: percentile_disc
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '0.5'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '0.5'
+                end_bracket: )
             withingroup_clause:
             - keyword: within
             - keyword: group
@@ -104,13 +107,14 @@ file:
             keyword: approximate
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              keyword: distinct
-              expression:
-                column_reference:
-                  naked_identifier: pricepaid
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: distinct
+                expression:
+                  column_reference:
+                    naked_identifier: pricepaid
+                end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -127,13 +131,14 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              keyword: distinct
-              expression:
-                column_reference:
-                  naked_identifier: pricepaid
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: distinct
+                expression:
+                  column_reference:
+                    naked_identifier: pricepaid
+                end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -150,12 +155,13 @@ file:
           function:
             function_name:
               function_name_identifier: approximate
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: foo
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: foo
+                end_bracket: )
       from_clause:
         keyword: from
         from_expression:

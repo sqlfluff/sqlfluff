@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5741b59dd9432d0d4713210dcb2a7bb01e9de0ad46f35e5426465d3adb4bd03b
+_hash: 1fd43e46f05c6b323d29149b2715938a3d92e9e878bf93b5a6d78055a5cf3aa2
 file:
 - statement:
     select_statement:
@@ -17,9 +17,10 @@ file:
           function:
             function_name:
               function_name_identifier: RANK
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -80,143 +81,10 @@ file:
           function:
             function_name:
               function_name_identifier: RANK
-            bracketed:
-              start_bracket: (
-              end_bracket: )
-            over_clause:
-              keyword: OVER
+            function_contents:
               bracketed:
                 start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - expression:
-                      column_reference:
-                        naked_identifier: category
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: purchases
-                  - keyword: DESC
                 end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: rank
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: Produce
-      where_clause:
-        keyword: WHERE
-        expression:
-          column_reference:
-          - naked_identifier: Produce
-          - dot: .
-          - naked_identifier: category
-          comparison_operator:
-            raw_comparison_operator: '='
-          quoted_literal: "'vegetable'"
-      qualify_clause:
-        keyword: QUALIFY
-        expression:
-          column_reference:
-            naked_identifier: rank
-          comparison_operator:
-          - raw_comparison_operator: <
-          - raw_comparison_operator: '='
-          numeric_literal: '3'
-      orderby_clause:
-      - keyword: ORDER
-      - keyword: BY
-      - column_reference:
-          naked_identifier: item
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-            naked_identifier: item
-      - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: RANK
-            bracketed:
-              start_bracket: (
-              end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - expression:
-                      column_reference:
-                        naked_identifier: category
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      naked_identifier: purchases
-                  - keyword: DESC
-                end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: rank
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: Produce
-      where_clause:
-        keyword: WHERE
-        expression:
-          column_reference:
-          - naked_identifier: Produce
-          - dot: .
-          - naked_identifier: category
-          comparison_operator:
-            raw_comparison_operator: '='
-          quoted_literal: "'vegetable'"
-      qualify_clause:
-        keyword: QUALIFY
-        expression:
-          column_reference:
-            naked_identifier: rank
-          comparison_operator:
-          - raw_comparison_operator: <
-          - raw_comparison_operator: '='
-          numeric_literal: '3'
-      limit_clause:
-        keyword: LIMIT
-        numeric_literal: '5'
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-            naked_identifier: item
-      - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: RANK
-            bracketed:
-              start_bracket: (
-              end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -269,9 +137,6 @@ file:
       - keyword: BY
       - column_reference:
           naked_identifier: item
-      limit_clause:
-        keyword: LIMIT
-        numeric_literal: '5'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -285,9 +150,10 @@ file:
           function:
             function_name:
               function_name_identifier: RANK
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -351,9 +217,149 @@ file:
           function:
             function_name:
               function_name_identifier: RANK
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: category
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: purchases
+                  - keyword: DESC
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: rank
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: Produce
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - naked_identifier: Produce
+          - dot: .
+          - naked_identifier: category
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'vegetable'"
+      qualify_clause:
+        keyword: QUALIFY
+        expression:
+          column_reference:
+            naked_identifier: rank
+          comparison_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: '='
+          numeric_literal: '3'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: item
+      limit_clause:
+        keyword: LIMIT
+        numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: item
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: RANK
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: category
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: purchases
+                  - keyword: DESC
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: rank
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: Produce
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - naked_identifier: Produce
+          - dot: .
+          - naked_identifier: category
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'vegetable'"
+      qualify_clause:
+        keyword: QUALIFY
+        expression:
+          column_reference:
+            naked_identifier: rank
+          comparison_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: '='
+          numeric_literal: '3'
+      limit_clause:
+        keyword: LIMIT
+        numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: item
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: RANK
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -442,9 +448,10 @@ file:
           function:
             function_name:
               function_name_identifier: RANK
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:

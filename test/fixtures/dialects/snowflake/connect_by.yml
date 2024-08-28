@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6cf317f99f2d83dd1f2fa16620d22f7640c0da6447e2991be8b07f194ce94671
+_hash: f7fb309134f715fa9db2152b58edb39c7e9945c453bfd0ec7647b0c4c5127b68
 file:
 - statement:
     select_statement:
@@ -59,15 +59,16 @@ file:
           function:
             function_name:
               function_name_identifier: sys_connect_by_path
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: title
-            - comma: ','
-            - expression:
-                quoted_literal: "' -> '"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: title
+              - comma: ','
+              - expression:
+                  quoted_literal: "' -> '"
+              - end_bracket: )
       - comma: ','
       - select_clause_element:
           column_reference:
@@ -135,15 +136,16 @@ file:
           function:
             function_name:
               function_name_identifier: sys_connect_by_path
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: component_id
-            - comma: ','
-            - expression:
-                quoted_literal: "' -> '"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: component_id
+              - comma: ','
+              - expression:
+                  quoted_literal: "' -> '"
+              - end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: path

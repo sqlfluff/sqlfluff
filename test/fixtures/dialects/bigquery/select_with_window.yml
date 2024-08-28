@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 078f423fe0fa8ac12ea0aa72af5d13b5f50c251898e1cb1408e33805226f6a01
+_hash: abb0acb3c493db280f59343c8065265427435ece09b5ab39a63c3ee15149103e
 file:
 - statement:
     select_statement:
@@ -25,12 +25,13 @@ file:
           function:
             function_name:
               function_name_identifier: LAST_VALUE
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: item
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: item
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -97,12 +98,13 @@ file:
           function:
             function_name:
               function_name_identifier: LAST_VALUE
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: item
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: item
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -196,12 +198,13 @@ file:
           function:
             function_name:
               function_name_identifier: LAST_VALUE
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: item
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: item
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -276,12 +279,13 @@ file:
             function:
               function_name:
                 function_name_identifier: max
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: x
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: x
+                  end_bracket: )
               over_clause:
                 keyword: over
                 bracketed:
@@ -329,12 +333,13 @@ file:
             function:
               function_name:
                 function_name_identifier: max
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: x
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: x
+                  end_bracket: )
               over_clause:
                 keyword: over
                 bracketed:

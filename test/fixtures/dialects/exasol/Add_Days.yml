@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 95cbd63d33edd7c0a0848cbdf092d886a618176c61f6680e17db1b6e432dc1e3
+_hash: 901440eaab079feb35005b397f2f2ec128add9c05f35b1d5f9e9892ede01ca12
 file:
   statement:
     select_statement:
@@ -13,15 +13,16 @@ file:
           function:
             function_name:
               function_name_identifier: ADD_DAYS
-            bracketed:
-            - start_bracket: (
-            - expression:
-                keyword: DATE
-                date_constructor_literal: "'2000-02-28'"
-            - comma: ','
-            - expression:
-                numeric_literal: '1'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  keyword: DATE
+                  date_constructor_literal: "'2000-02-28'"
+              - comma: ','
+              - expression:
+                  numeric_literal: '1'
+              - end_bracket: )
           alias_expression:
             naked_identifier: AD1
       - comma: ','
@@ -29,15 +30,16 @@ file:
           function:
             function_name:
               function_name_identifier: ADD_DAYS
-            bracketed:
-            - start_bracket: (
-            - expression:
-                keyword: TIMESTAMP
-                date_constructor_literal: "'2001-02-28 12:00:00'"
-            - comma: ','
-            - expression:
-                numeric_literal: '1'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  keyword: TIMESTAMP
+                  date_constructor_literal: "'2001-02-28 12:00:00'"
+              - comma: ','
+              - expression:
+                  numeric_literal: '1'
+              - end_bracket: )
           alias_expression:
             naked_identifier: AD2
   statement_terminator: ;

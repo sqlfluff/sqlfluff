@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6c13780bf59f303ac44b547172661f69d0d29b0e55ce5676b9f6a53d76968672
+_hash: 89cbcf925649bff0f1807134e3b050f4c185e593ec2c17b9a57260a146d03e49
 file:
   statement:
     create_function_statement:
@@ -43,22 +43,24 @@ file:
                           function:
                             function_name:
                               function_name_identifier: UNNEST
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                                function:
-                                  function_name:
-                                    function_name_identifier: REGEXP_EXTRACT_ALL
-                                  bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                      column_reference:
-                                        naked_identifier: url
-                                  - comma: ','
-                                  - expression:
-                                      quoted_literal: r"%[0-9a-fA-F]{2}|[^%]+"
-                                  - end_bracket: )
-                              end_bracket: )
+                            function_contents:
+                              bracketed:
+                                start_bracket: (
+                                expression:
+                                  function:
+                                    function_name:
+                                      function_name_identifier: REGEXP_EXTRACT_ALL
+                                    function_contents:
+                                      bracketed:
+                                      - start_bracket: (
+                                      - expression:
+                                          column_reference:
+                                            naked_identifier: url
+                                      - comma: ','
+                                      - expression:
+                                          quoted_literal: r"%[0-9a-fA-F]{2}|[^%]+"
+                                      - end_bracket: )
+                                end_bracket: )
                       - alias_expression:
                           keyword: AS
                           naked_identifier: y

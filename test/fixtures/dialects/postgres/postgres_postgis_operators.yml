@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f7b42488b29a51ad5707b39f317edfb1659ecf08badabde6e8c9628b07311f5f
+_hash: 7a559e5d88b5558190b02596acf6c0846eb5f46fa7ca6fb1c52349affd236bb9
 file:
 - statement:
     select_statement:
@@ -1326,19 +1326,20 @@ file:
           function:
             function_name:
               function_name_identifier: st_distance
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: geom
-            - comma: ','
-            - expression:
-                cast_expression:
-                  quoted_literal: "'SRID=3005;POINT(1011102 450541)'"
-                  casting_operator: '::'
-                  data_type:
-                    data_type_identifier: geometry
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: geom
+              - comma: ','
+              - expression:
+                  cast_expression:
+                    quoted_literal: "'SRID=3005;POINT(1011102 450541)'"
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: geometry
+              - end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: d
@@ -1402,17 +1403,18 @@ file:
                       function:
                         function_name:
                           function_name_identifier: ST_DistanceCPA
-                        bracketed:
-                        - start_bracket: (
-                        - expression:
-                            column_reference:
-                              naked_identifier: tr
-                        - comma: ','
-                        - expression:
-                            psql_variable:
-                              colon: ':'
-                              parameter: qt
-                        - end_bracket: )
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              column_reference:
+                                naked_identifier: tr
+                          - comma: ','
+                          - expression:
+                              psql_variable:
+                                colon: ':'
+                                parameter: qt
+                          - end_bracket: )
                       alias_expression:
                         naked_identifier: dist
                   from_clause:
@@ -1479,16 +1481,17 @@ file:
                         function:
                           function_name:
                             function_name_identifier: ST_GeomFromText
-                          bracketed:
-                          - start_bracket: (
-                          - expression:
-                              quoted_literal: "'LINESTRING(746149 2948672,745954 2948576,\n\
-                                \t\t745787 2948499,745740 2948468,745712 2948438,\n\
-                                \t\t745690 2948384,745677 2948319)'"
-                          - comma: ','
-                          - expression:
-                              numeric_literal: '2249'
-                          - end_bracket: )
+                          function_contents:
+                            bracketed:
+                            - start_bracket: (
+                            - expression:
+                                quoted_literal: "'LINESTRING(746149 2948672,745954\
+                                  \ 2948576,\n\t\t745787 2948499,745740 2948468,745712\
+                                  \ 2948438,\n\t\t745690 2948384,745677 2948319)'"
+                            - comma: ','
+                            - expression:
+                                numeric_literal: '2249'
+                            - end_bracket: )
                       alias_expression:
                         keyword: As
                         naked_identifier: b_dist
@@ -1497,29 +1500,31 @@ file:
                       function:
                         function_name:
                           function_name_identifier: ST_Distance
-                        bracketed:
-                        - start_bracket: (
-                        - expression:
-                            column_reference:
-                            - naked_identifier: b
-                            - dot: .
-                            - naked_identifier: geom
-                        - comma: ','
-                        - expression:
-                            function:
-                              function_name:
-                                function_name_identifier: ST_GeomFromText
-                              bracketed:
-                              - start_bracket: (
-                              - expression:
-                                  quoted_literal: "'LINESTRING(746149 2948672,745954\
-                                    \ 2948576,\n\t\t745787 2948499,745740 2948468,745712\
-                                    \ 2948438,\n\t\t745690 2948384,745677 2948319)'"
-                              - comma: ','
-                              - expression:
-                                  numeric_literal: '2249'
-                              - end_bracket: )
-                        - end_bracket: )
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              column_reference:
+                              - naked_identifier: b
+                              - dot: .
+                              - naked_identifier: geom
+                          - comma: ','
+                          - expression:
+                              function:
+                                function_name:
+                                  function_name_identifier: ST_GeomFromText
+                                function_contents:
+                                  bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                      quoted_literal: "'LINESTRING(746149 2948672,745954\
+                                        \ 2948576,\n\t\t745787 2948499,745740 2948468,745712\
+                                        \ 2948438,\n\t\t745690 2948384,745677 2948319)'"
+                                  - comma: ','
+                                  - expression:
+                                      numeric_literal: '2249'
+                                  - end_bracket: )
+                          - end_bracket: )
                       alias_expression:
                         keyword: As
                         naked_identifier: act_dist
@@ -1577,19 +1582,20 @@ file:
                 function:
                   function_name:
                     function_name_identifier: ST_Distance
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        naked_identifier: geom
-                  - comma: ','
-                  - expression:
-                      cast_expression:
-                        quoted_literal: "'SRID=3005;POINT(1011102 450541)'"
-                        casting_operator: '::'
-                        data_type:
-                          data_type_identifier: geometry
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: geom
+                    - comma: ','
+                    - expression:
+                        cast_expression:
+                          quoted_literal: "'SRID=3005;POINT(1011102 450541)'"
+                          casting_operator: '::'
+                          data_type:
+                            data_type_identifier: geometry
+                    - end_bracket: )
                 alias_expression:
                   keyword: as
                   naked_identifier: d
@@ -1662,19 +1668,20 @@ file:
                 function:
                   function_name:
                     function_name_identifier: ST_Distance
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        naked_identifier: geom
-                  - comma: ','
-                  - expression:
-                      cast_expression:
-                        quoted_literal: "'SRID=3005;POINT(1011102 450541)'"
-                        casting_operator: '::'
-                        data_type:
-                          data_type_identifier: geometry
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: geom
+                    - comma: ','
+                    - expression:
+                        cast_expression:
+                          quoted_literal: "'SRID=3005;POINT(1011102 450541)'"
+                          casting_operator: '::'
+                          data_type:
+                            data_type_identifier: geometry
+                    - end_bracket: )
                 alias_expression:
                   keyword: as
                   naked_identifier: d

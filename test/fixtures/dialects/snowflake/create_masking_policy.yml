@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a5247086475ea136cf5c23fd44af0812085724d0d316825e5c96452695432526
+_hash: 80f1ee6bb943bc6446afcaa2e00ae561c4e53cc8dee22b077b6b7a38361a178c
 file:
 - statement:
     create_statement:
@@ -19,15 +19,16 @@ file:
       - dot: .
       - naked_identifier: example_MASKING_POLICY
     - keyword: AS
-    - bracketed:
-      - start_bracket: (
-      - expression:
-          column_reference:
-            naked_identifier: val
-      - expression:
-          column_reference:
-            naked_identifier: VARCHAR
-      - end_bracket: )
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: val
+        - expression:
+            column_reference:
+              naked_identifier: VARCHAR
+        - end_bracket: )
     - keyword: RETURNS
     - data_type:
         data_type_identifier: VARCHAR
@@ -41,11 +42,12 @@ file:
               function:
                 function_name:
                   function_name_identifier: is_role_in_session
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    quoted_literal: "'SNOWFLAKE_PII'"
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'SNOWFLAKE_PII'"
+                    end_bracket: )
           - keyword: THEN
           - expression:
               column_reference:
@@ -70,15 +72,16 @@ file:
     - object_reference:
         naked_identifier: email_mask
     - keyword: as
-    - bracketed:
-      - start_bracket: (
-      - expression:
-          column_reference:
-            naked_identifier: val
-      - expression:
-          column_reference:
-            naked_identifier: string
-      - end_bracket: )
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: val
+        - expression:
+            column_reference:
+              naked_identifier: string
+        - end_bracket: )
     - keyword: returns
     - data_type:
         data_type_identifier: string
@@ -92,9 +95,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: current_role
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
               keyword: in
               bracketed:
                 start_bracket: (
@@ -120,15 +124,16 @@ file:
     - object_reference:
         naked_identifier: email_mask
     - keyword: as
-    - bracketed:
-      - start_bracket: (
-      - expression:
-          column_reference:
-            naked_identifier: val
-      - expression:
-          column_reference:
-            naked_identifier: string
-      - end_bracket: )
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: val
+        - expression:
+            column_reference:
+              naked_identifier: string
+        - end_bracket: )
     - keyword: returns
     - data_type:
         data_type_identifier: string
@@ -142,9 +147,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: current_account
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
               keyword: in
               bracketed:
                 start_bracket: (
@@ -170,15 +176,16 @@ file:
     - object_reference:
         naked_identifier: email_mask
     - keyword: as
-    - bracketed:
-      - start_bracket: (
-      - expression:
-          column_reference:
-            naked_identifier: val
-      - expression:
-          column_reference:
-            naked_identifier: string
-      - end_bracket: )
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: val
+        - expression:
+            column_reference:
+              naked_identifier: string
+        - end_bracket: )
     - keyword: returns
     - data_type:
         data_type_identifier: string
@@ -192,9 +199,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: current_role
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
               keyword: IN
               bracketed:
                 start_bracket: (
@@ -220,15 +228,16 @@ file:
     - object_reference:
         naked_identifier: email_mask
     - keyword: as
-    - bracketed:
-      - start_bracket: (
-      - expression:
-          column_reference:
-            naked_identifier: val
-      - expression:
-          column_reference:
-            naked_identifier: string
-      - end_bracket: )
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: val
+        - expression:
+            column_reference:
+              naked_identifier: string
+        - end_bracket: )
     - keyword: returns
     - data_type:
         data_type_identifier: string
@@ -242,9 +251,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: current_role
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
               keyword: in
               bracketed:
                 start_bracket: (
@@ -270,15 +280,16 @@ file:
     - object_reference:
         naked_identifier: email_mask
     - keyword: as
-    - bracketed:
-      - start_bracket: (
-      - expression:
-          column_reference:
-            naked_identifier: val
-      - expression:
-          column_reference:
-            naked_identifier: string
-      - end_bracket: )
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: val
+        - expression:
+            column_reference:
+              naked_identifier: string
+        - end_bracket: )
     - keyword: returns
     - data_type:
         data_type_identifier: string
@@ -292,9 +303,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: current_role
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
               keyword: in
               bracketed:
                 start_bracket: (
@@ -310,12 +322,13 @@ file:
               function:
                 function_name:
                   function_name_identifier: sha2
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: val
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: val
+                    end_bracket: )
         - keyword: end
 - statement_terminator: ;
 - statement:
@@ -328,15 +341,16 @@ file:
     - object_reference:
         naked_identifier: email_mask
     - keyword: as
-    - bracketed:
-      - start_bracket: (
-      - expression:
-          column_reference:
-            naked_identifier: val
-      - expression:
-          column_reference:
-            naked_identifier: string
-      - end_bracket: )
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: val
+        - expression:
+            column_reference:
+              naked_identifier: string
+        - end_bracket: )
     - keyword: returns
     - data_type:
         data_type_identifier: string
@@ -350,9 +364,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: current_role
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
               keyword: in
               bracketed:
                 start_bracket: (
@@ -368,9 +383,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: current_role
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
               keyword: in
               bracketed:
                 start_bracket: (
@@ -381,18 +397,19 @@ file:
               function:
                 function_name:
                   function_name_identifier: regexp_replace
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    column_reference:
-                      naked_identifier: val
-                - comma: ','
-                - expression:
-                    quoted_literal: "'.+\\@'"
-                - comma: ','
-                - expression:
-                    quoted_literal: "'*****@'"
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: val
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'.+\\@'"
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'*****@'"
+                  - end_bracket: )
         - else_clause:
             keyword: else
             expression:
@@ -409,15 +426,16 @@ file:
     - object_reference:
         naked_identifier: email_mask
     - keyword: as
-    - bracketed:
-      - start_bracket: (
-      - expression:
-          column_reference:
-            naked_identifier: val
-      - expression:
-          column_reference:
-            naked_identifier: string
-      - end_bracket: )
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: val
+        - expression:
+            column_reference:
+              naked_identifier: string
+        - end_bracket: )
     - keyword: returns
     - data_type:
         data_type_identifier: string
@@ -431,9 +449,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: current_role
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
               keyword: in
               bracketed:
                 start_bracket: (
@@ -450,17 +469,18 @@ file:
                 function:
                   function_name:
                     function_name_identifier: date_from_parts
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      numeric_literal: '0001'
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '01'
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '01'
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        numeric_literal: '0001'
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '01'
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '01'
+                    - end_bracket: )
                 casting_operator: '::'
                 data_type:
                   data_type_identifier: timestamp_ntz
@@ -476,15 +496,16 @@ file:
     - object_reference:
         naked_identifier: email_mask
     - keyword: as
-    - bracketed:
-      - start_bracket: (
-      - expression:
-          column_reference:
-            naked_identifier: val
-      - expression:
-          column_reference:
-            naked_identifier: string
-      - end_bracket: )
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: val
+        - expression:
+            column_reference:
+              naked_identifier: string
+        - end_bracket: )
     - keyword: returns
     - data_type:
         data_type_identifier: string
@@ -498,9 +519,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: current_role
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
               keyword: in
               bracketed:
                 start_bracket: (
@@ -516,12 +538,13 @@ file:
               function:
                 function_name:
                   function_name_identifier: mask_udf
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: val
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: val
+                    end_bracket: )
         - keyword: end
 - statement_terminator: ;
 - statement:
@@ -534,15 +557,16 @@ file:
     - object_reference:
         naked_identifier: email_mask
     - keyword: as
-    - bracketed:
-      - start_bracket: (
-      - expression:
-          column_reference:
-            naked_identifier: val
-      - expression:
-          column_reference:
-            naked_identifier: string
-      - end_bracket: )
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: val
+        - expression:
+            column_reference:
+              naked_identifier: string
+        - end_bracket: )
     - keyword: returns
     - data_type:
         data_type_identifier: string
@@ -556,9 +580,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: current_role
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
               keyword: in
               bracketed:
                 start_bracket: (
@@ -574,20 +599,21 @@ file:
               function:
                 function_name:
                   function_name_identifier: object_insert
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    column_reference:
-                      naked_identifier: val
-                - comma: ','
-                - expression:
-                    quoted_literal: "'USER_IPADDRESS'"
-                - comma: ','
-                - expression:
-                    quoted_literal: "'****'"
-                - comma: ','
-                - expression:
-                    boolean_literal: 'true'
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: val
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'USER_IPADDRESS'"
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'****'"
+                  - comma: ','
+                  - expression:
+                      boolean_literal: 'true'
+                  - end_bracket: )
         - keyword: end
 - statement_terminator: ;
