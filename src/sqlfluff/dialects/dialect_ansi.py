@@ -2215,13 +2215,13 @@ ansi_dialect.add(
                     Ref("ExpressionSegment"),
                     Ref("SelectableGrammar"),
                     Delimited(
+                        Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
                         Ref(
                             "ColumnReferenceSegment"
                         ),  # WHERE (a,b,c) IN (select a,b,c FROM...)
                         Ref(
                             "FunctionSegment"
                         ),  # WHERE (a, substr(b,1,3)) IN (select c,d FROM...)
-                        Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
                         Ref("LocalAliasSegment"),  # WHERE (LOCAL.a, LOCAL.b) IN (...)
                     ),
                 ),
