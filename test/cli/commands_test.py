@@ -1976,6 +1976,41 @@ def test_cli_disable_noqa_flag():
     )
 
 
+def test_cli_allowed_noqa_flag():
+    """Test that --allowed-noqa flag ignores inline noqa comments."""
+    result = invoke_assert_code(
+        ret_code=1,
+        args=[
+            lint,
+            [
+                "test/fixtures/cli/disable_noqa_test.sql",
+                "--allowed-noqa",
+                "CP01",
+            ],
+        ],
+        # Linting error is raised even though it is inline ignored.
+        assert_output_contains=r"L:   8 | P:   5 | CP03 |",
+    )
+    assert r"L:   6 | P:  11 | CP01 |" not in result.output
+
+
+def test_cli_allowed_noqa_non_rules_flag():
+    """Test that --allowed-noqa flag ignores all inline noqa comments."""
+    invoke_assert_code(
+        ret_code=1,
+        args=[
+            lint,
+            [
+                "test/fixtures/cli/disable_noqa_test.sql",
+                "--allowed-noqa",
+                "None",
+            ],
+        ],
+        # Linting error is raised even though it is inline ignored.
+        assert_output_contains=r"L:   6 | P:  11 | CP01 |",
+    )
+
+
 def test_cli_warn_unused_noqa_flag():
     """Test that --warn-unused-ignores flag works."""
     invoke_assert_code(

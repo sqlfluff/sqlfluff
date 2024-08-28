@@ -1,11 +1,13 @@
 """Defines the linter class."""
 
+import fnmatch
 import logging
 import os
 import time
 from typing import (
     TYPE_CHECKING,
     Any,
+    Dict,
     Iterator,
     List,
     Optional,
@@ -390,8 +392,12 @@ class Linter:
             formatter.dispatch_lint_header(fname, sorted(rule_pack.codes()))
 
         # Look for comment segments which might indicate lines to ignore.
-        if not config.get("disable_noqa"):
-            ignore_mask, ivs = IgnoreMask.from_tree(tree, rule_pack.reference_map)
+        allowed_noqa: Optional[str] = config.get("allowed_noqa")
+        if not config.get("disable_noqa") or allowed_noqa:
+            allowed_rules_ref_map = cls.allowed_rule_ref_map(
+                rule_pack.reference_map, allowed_noqa
+            )
+            ignore_mask, ivs = IgnoreMask.from_tree(tree, allowed_rules_ref_map)
             initial_linting_errors += ivs
         else:
             ignore_mask = None
@@ -670,7 +676,8 @@ class Linter:
         # or templating fails.
         else:
             rule_timings = []
-            if parsed.config.get("disable_noqa"):
+            allowed_noqa: Optional[str] = parsed.config.get("allowed_noqa")
+            if parsed.config.get("disable_noqa") and not allowed_noqa:
                 # NOTE: This path is only accessible if there is no valid `tree`
                 # which implies that there was a fatal templating fail. Even an
                 # unparsable file will still have a valid tree.
@@ -680,6 +687,9 @@ class Linter:
                 # comments (the normal path for identifying these comments
                 # requires access to the parse tree, and because of the failure,
                 # we don't have a parse tree).
+                allowed_rules_ref_map = cls.allowed_rule_ref_map(
+                    rule_pack.reference_map, allowed_noqa
+                )
                 ignore_mask, ignore_violations = IgnoreMask.from_source(
                     parsed.source_str,
                     [
@@ -687,7 +697,7 @@ class Linter:
                         for lm in parsed.config.get("dialect_obj").lexer_matchers
                         if lm.name == "inline_comment"
                     ][0],
-                    rule_pack.reference_map,
+                    allowed_rules_ref_map,
                 )
                 violations += ignore_violations
 
@@ -727,6 +737,27 @@ class Linter:
                 formatter.dispatch_dialect_warning(parsed.config.get("dialect"))
 
         return linted_file
+
+    @classmethod
+    def allowed_rule_ref_map(
+        cls, reference_map: Dict[str, Set[str]], allowed_noqa: Optional[str]
+    ) -> Dict[str, Set[str]]:
+        """Generate a noqa rule reference map."""
+        # allowed_noqa is not set, return the entire map.
+        if not allowed_noqa:
+            return reference_map
+        output_map = reference_map
+        # Add the special rules so they can be disallowed for `allowed noqa`` usage
+        for special_rule in ["PRS", "LXR", "TMP"]:
+            output_map[special_rule] = set([special_rule])
+        # Expand glob usage of rules
+        unexpanded_rules = tuple(r.strip() for r in allowed_noqa.split(","))
+        noqa_set = set()
+        for r in unexpanded_rules:
+            for x in fnmatch.filter(output_map.keys(), r):
+                noqa_set |= output_map.get(x, set())
+        # Return a new map with only the allowed noqa rules
+        return {k: v.intersection(noqa_set) for k, v in output_map.items()}
 
     @classmethod
     def lint_rendered(
