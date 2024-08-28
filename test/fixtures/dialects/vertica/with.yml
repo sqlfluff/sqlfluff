@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fb37ce08352a5974e3056a0683efbe4ee2dcca8a487999bfff2fac00a62eb8c3
+_hash: a8430d154453e100f916206cc41002e513bb7f1f4e75fe592ab12875b0f8c746
 file:
 - statement:
     with_compound_statement:
@@ -32,12 +32,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: SUM
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: total_order_cost
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: total_order_cost
+                      end_bracket: )
             from_clause:
               keyword: FROM
               from_expression:
@@ -132,12 +133,13 @@ file:
                       function:
                         function_name:
                           function_name_identifier: MAX
-                        bracketed:
-                          start_bracket: (
-                          expression:
-                            column_reference:
-                              naked_identifier: total_revenue
-                          end_bracket: )
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: total_revenue
+                            end_bracket: )
                   from_clause:
                     keyword: FROM
                     from_expression:
@@ -181,14 +183,15 @@ file:
                 function:
                   function_name:
                     function_name_identifier: SUM
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                      - naked_identifier: of
-                      - dot: .
-                      - naked_identifier: total_order_cost
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - naked_identifier: of
+                        - dot: .
+                        - naked_identifier: total_order_cost
+                      end_bracket: )
                 alias_expression:
                   keyword: AS
                   naked_identifier: total_sales
@@ -290,14 +293,15 @@ file:
             function:
               function_name:
                 function_name_identifier: SUM
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                  - naked_identifier: of
-                  - dot: .
-                  - naked_identifier: total_order_cost
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: of
+                    - dot: .
+                    - naked_identifier: total_order_cost
+                  end_bracket: )
             alias_expression:
               keyword: AS
               naked_identifier: product_sales
@@ -389,16 +393,17 @@ file:
             function:
               function_name:
                 function_name_identifier: ROLLUP
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    naked_identifier: region
-              - comma: ','
-              - expression:
-                  column_reference:
-                    naked_identifier: department
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: region
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: department
+                - end_bracket: )
         orderby_clause:
         - keyword: ORDER
         - keyword: BY
@@ -413,9 +418,10 @@ file:
             function:
               function_name:
                 function_name_identifier: GROUPING_ID
-              bracketed:
-                start_bracket: (
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -459,14 +465,15 @@ file:
                   function:
                     function_name:
                       function_name_identifier: SUM
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                        - naked_identifier: of
-                        - dot: .
-                        - naked_identifier: total_order_cost
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                          - naked_identifier: of
+                          - dot: .
+                          - naked_identifier: total_order_cost
+                        end_bracket: )
               from_clause:
                 keyword: FROM
                 from_expression:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5fe16a4415d2a3b7ec104bed1c9356c9068b4b78320b56a4e4815db0251c448f
+_hash: de8a8becc418fbbdb7194212168c014b28031d96459b388c93f3b9f793695a88
 file:
   statement:
     select_statement:
@@ -21,19 +21,20 @@ file:
               keyword: SAFE
               dot: .
               function_name_identifier: SUBSTR
-            bracketed:
-            - start_bracket: (
-            - expression:
-                quoted_literal: "'foo'"
-            - comma: ','
-            - expression:
-                numeric_literal: '0'
-            - comma: ','
-            - expression:
-                numeric_literal:
-                  sign_indicator: '-'
-                  numeric_literal: '2'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'foo'"
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - comma: ','
+              - expression:
+                  numeric_literal:
+                    sign_indicator: '-'
+                    numeric_literal: '2'
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: col2
@@ -44,18 +45,19 @@ file:
               keyword: SAFE
               dot: .
               function_name_identifier: DATEADD
-            bracketed:
-            - start_bracket: (
-            - date_part: DAY
-            - comma: ','
-            - expression:
-                numeric_literal:
-                  sign_indicator: '-'
-                  numeric_literal: '2'
-            - comma: ','
-            - expression:
-                bare_function: CURRENT_DATE
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: DAY
+              - comma: ','
+              - expression:
+                  numeric_literal:
+                    sign_indicator: '-'
+                    numeric_literal: '2'
+              - comma: ','
+              - expression:
+                  bare_function: CURRENT_DATE
+              - end_bracket: )
       - comma: ','
       - select_clause_element:
           function:
@@ -63,12 +65,13 @@ file:
               keyword: SAFE
               dot: .
               function_name_identifier: MY_FUNCTION
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: column1
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: column1
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:

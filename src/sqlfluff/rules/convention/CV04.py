@@ -78,7 +78,8 @@ class Rule_CV04(BaseRule):
             # Get bracketed content
             f_content = (
                 FunctionalContext(context)
-                .segment.children(sp.is_type("bracketed"))
+                .segment.children(sp.is_type("function_contents"))
+                .children(sp.is_type("bracketed"))
                 .children(
                     sp.and_(
                         sp.not_(sp.is_meta()),

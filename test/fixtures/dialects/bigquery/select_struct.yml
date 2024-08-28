@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5033aac4dba9632028d262eee7824a0f4b7c269ed7829c6aca2b74bf0a7c23ca
+_hash: 3acc157fb75d3edb209a0c9061717e9c7f824017883552a119bfc2f2d6201cbe
 file:
 - statement:
     select_statement:
@@ -20,39 +20,40 @@ file:
             array_expression:
               function_name:
                 function_name_identifier: array
-              bracketed:
-                start_bracket: (
-                select_statement:
-                  select_clause:
-                    keyword: select
-                    select_clause_modifier:
-                    - keyword: as
-                    - keyword: struct
-                    select_clause_element:
-                      wildcard_expression:
-                        wildcard_identifier:
-                          star: '*'
-                  from_clause:
-                    keyword: from
-                    from_expression:
-                      from_expression_element:
-                        table_expression:
-                          table_reference:
-                            naked_identifier: another_table
-                  where_clause:
-                    keyword: where
-                    expression:
-                    - column_reference:
-                      - naked_identifier: another_table
-                      - dot: .
-                      - naked_identifier: foo_id
-                    - comparison_operator:
-                        raw_comparison_operator: '='
-                    - column_reference:
-                      - naked_identifier: some_table
-                      - dot: .
-                      - naked_identifier: foo_id
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  select_statement:
+                    select_clause:
+                      keyword: select
+                      select_clause_modifier:
+                      - keyword: as
+                      - keyword: struct
+                      select_clause_element:
+                        wildcard_expression:
+                          wildcard_identifier:
+                            star: '*'
+                    from_clause:
+                      keyword: from
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                              naked_identifier: another_table
+                    where_clause:
+                      keyword: where
+                      expression:
+                      - column_reference:
+                        - naked_identifier: another_table
+                        - dot: .
+                        - naked_identifier: foo_id
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - column_reference:
+                        - naked_identifier: some_table
+                        - dot: .
+                        - naked_identifier: foo_id
+                  end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -178,46 +179,47 @@ file:
               function:
                 function_name:
                   function_name_identifier: UNNEST
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    typed_array_literal:
-                      array_type:
-                        keyword: ARRAY
-                        start_angle_bracket: <
-                        data_type:
-                          struct_type:
-                            keyword: STRUCT
-                            struct_type_schema:
-                            - start_angle_bracket: <
-                            - parameter: col_1
-                            - data_type:
-                                data_type_identifier: STRING
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      typed_array_literal:
+                        array_type:
+                          keyword: ARRAY
+                          start_angle_bracket: <
+                          data_type:
+                            struct_type:
+                              keyword: STRUCT
+                              struct_type_schema:
+                              - start_angle_bracket: <
+                              - parameter: col_1
+                              - data_type:
+                                  data_type_identifier: STRING
+                              - comma: ','
+                              - parameter: col_2
+                              - data_type:
+                                  data_type_identifier: STRING
+                              - end_angle_bracket: '>'
+                          end_angle_bracket: '>'
+                        array_literal:
+                        - start_square_bracket: '['
+                        - expression:
+                            bracketed:
+                            - start_bracket: (
+                            - quoted_literal: "'hello'"
                             - comma: ','
-                            - parameter: col_2
-                            - data_type:
-                                data_type_identifier: STRING
-                            - end_angle_bracket: '>'
-                        end_angle_bracket: '>'
-                      array_literal:
-                      - start_square_bracket: '['
-                      - expression:
-                          bracketed:
-                          - start_bracket: (
-                          - quoted_literal: "'hello'"
-                          - comma: ','
-                          - quoted_literal: "'world'"
-                          - end_bracket: )
-                      - comma: ','
-                      - expression:
-                          bracketed:
-                          - start_bracket: (
-                          - quoted_literal: "'hi'"
-                          - comma: ','
-                          - quoted_literal: "'there'"
-                          - end_bracket: )
-                      - end_square_bracket: ']'
-                  end_bracket: )
+                            - quoted_literal: "'world'"
+                            - end_bracket: )
+                        - comma: ','
+                        - expression:
+                            bracketed:
+                            - start_bracket: (
+                            - quoted_literal: "'hi'"
+                            - comma: ','
+                            - quoted_literal: "'there'"
+                            - end_bracket: )
+                        - end_square_bracket: ']'
+                    end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -335,17 +337,18 @@ file:
           function:
             function_name:
               function_name_identifier: TO_JSON
-            bracketed:
-              start_bracket: (
-              expression:
-                typed_struct_literal:
-                  struct_type:
-                    keyword: STRUCT
-                  struct_literal:
-                    bracketed:
-                      start_bracket: (
-                      end_bracket: )
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  typed_struct_literal:
+                    struct_type:
+                      keyword: STRUCT
+                    struct_literal:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: col

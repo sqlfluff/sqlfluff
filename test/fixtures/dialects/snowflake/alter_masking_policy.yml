@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 586ef71891d2af700f48ec15e2f7b1db821952f7cdb249162cf1dfe465f82e61
+_hash: 196dde36e6596c138ec002ae70bcf52e09fb1cb9e19339d10407e4cf920aedb1
 file:
 - statement:
     alter_masking_policy:
@@ -38,9 +38,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: current_role
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
               keyword: IN
               bracketed:
                 start_bracket: (
@@ -56,15 +57,16 @@ file:
               function:
                 function_name:
                   function_name_identifier: sha2
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    column_reference:
-                      naked_identifier: VAL
-                - comma: ','
-                - expression:
-                    numeric_literal: '512'
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: VAL
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '512'
+                  - end_bracket: )
         - keyword: END
 - statement_terminator: ;
 - statement:

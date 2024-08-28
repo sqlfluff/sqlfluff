@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0edddefa88485c2eef616da694d0bdf265eac65a122823622dc8b26f3a003e96
+_hash: e9e2a675837edc3f54e71f375324ecaa2ff985da24820a9da96398b0ddcae399
 file:
 - statement:
     select_statement:
@@ -34,11 +34,12 @@ file:
           function:
             function_name:
               function_name_identifier: TRUNC
-            bracketed:
-              start_bracket: (
-              expression:
-                bare_function: sysdate
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  bare_function: sysdate
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -56,12 +57,13 @@ file:
           function:
             function_name:
               function_name_identifier: TRUNC
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: saletime
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: saletime
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: saletime
@@ -70,11 +72,12 @@ file:
           function:
             function_name:
               function_name_identifier: TRUNC
-            bracketed:
-              start_bracket: (
-              expression:
-                bare_function: sysdate
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  bare_function: sysdate
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: now
@@ -94,22 +97,24 @@ file:
         - function:
             function_name:
               function_name_identifier: TRUNC
-            bracketed:
-              start_bracket: (
-              expression:
-                bare_function: sysdate
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  bare_function: sysdate
+                end_bracket: )
         - binary_operator: '-'
         - numeric_literal: '120'
         - keyword: AND
         - function:
             function_name:
               function_name_identifier: TRUNC
-            bracketed:
-              start_bracket: (
-              expression:
-                bare_function: sysdate
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  bare_function: sysdate
+                end_bracket: )
       orderby_clause:
       - keyword: ORDER
       - keyword: BY

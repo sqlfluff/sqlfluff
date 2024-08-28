@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1820d460166c454dfaa35c54326a3907bf7eb658f34c59c32ab72f70d158ccfc
+_hash: 649af1733b08bf684799e008319ef3a9ffde7d4c52186b8f92e5c4239116bdc5
 file:
 - statement:
     select_statement:
@@ -104,30 +104,32 @@ file:
           function:
             function_name:
               function_name_identifier: LEFT
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: SUBSTRING_INDEX
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        naked_identifier: name
-                  - comma: ','
-                  - expression:
-                      quoted_literal: "' '"
-                  - comma: ','
-                  - expression:
-                      numeric_literal:
-                        sign_indicator: '-'
-                        numeric_literal: '1'
-                  - end_bracket: )
-            - comma: ','
-            - expression:
-                numeric_literal: '1'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: SUBSTRING_INDEX
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: name
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "' '"
+                      - comma: ','
+                      - expression:
+                          numeric_literal:
+                            sign_indicator: '-'
+                            numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  numeric_literal: '1'
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -220,12 +222,13 @@ file:
           function:
             function_name:
               function_name_identifier: COUNT
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: age
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: age
+                end_bracket: )
           comparison_operator:
             raw_comparison_operator: '>'
           numeric_literal: '1'
@@ -288,9 +291,10 @@ file:
           function:
             function_name:
               function_name_identifier: CURRENT_DATE
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: p_data_date

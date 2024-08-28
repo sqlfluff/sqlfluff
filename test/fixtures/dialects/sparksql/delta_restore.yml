@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b0533a4086a4a1240f4920f5d1d1a657eb89eb7248622ee0d81cf538cfc01242
+_hash: a7299bd43a17c91f5b044900e37bd0aa7d171cc22ef2a3f8476c92c2a2e1ea7b
 file:
 - statement:
     restore_table_statement:
@@ -48,19 +48,21 @@ file:
     - function:
         function_name:
           function_name_identifier: date_sub
-        bracketed:
-        - start_bracket: (
-        - expression:
-            function:
-              function_name:
-                function_name_identifier: current_date
-              bracketed:
-                start_bracket: (
-                end_bracket: )
-        - comma: ','
-        - expression:
-            numeric_literal: '1'
-        - end_bracket: )
+        function_contents:
+          bracketed:
+          - start_bracket: (
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: current_date
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+          - comma: ','
+          - expression:
+              numeric_literal: '1'
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     restore_table_statement:

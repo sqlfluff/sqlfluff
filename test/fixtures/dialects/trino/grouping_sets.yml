@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 14c103cab6d96bcaf62a139d1ffea8ecf9f35306b02931174e794ccaa76ea4da
+_hash: dfc0984fe07fe92624b598629fe056980ae03b2423155e5bc976b46e6ac39197
 file:
   statement:
     with_compound_statement:
@@ -61,12 +61,13 @@ file:
             function:
               function_name:
                 function_name_identifier: sum
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: price
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: price
+                  end_bracket: )
             alias_expression:
               keyword: AS
               naked_identifier: volume

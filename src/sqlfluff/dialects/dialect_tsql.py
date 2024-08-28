@@ -3149,6 +3149,48 @@ class PartitionSchemeClause(BaseSegment):
     )
 
 
+class CastFunctionContentsSegment(BaseSegment):
+    """Cast Function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref("ExpressionSegment"),
+            "AS",
+            Ref("DatatypeSegment"),
+        ),
+    )
+
+
+class ConvertFunctionContentsSegment(BaseSegment):
+    """Convert Function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref("DatatypeSegment"),
+            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            Ref("CommaSegment"),
+            Ref("ExpressionSegment"),
+            Sequence(Ref("CommaSegment"), Ref("NumericLiteralSegment"), optional=True),
+        ),
+    )
+
+
+class RankFunctionContentsSegment(BaseSegment):
+    """Rank Function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref("NumericLiteralSegment", optional=True),
+        ),
+    )
+
+
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
 
@@ -3166,23 +3208,11 @@ class FunctionSegment(BaseSegment):
             # So those functions parse date parts as DatetimeUnitSegment
             # rather than identifiers.
             Ref("DatePartFunctionNameSegment"),
-            Bracketed(
-                Delimited(
-                    Ref("DatetimeUnitSegment"),
-                    Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                    ),
-                ),
-                parse_mode=ParseMode.GREEDY,
-            ),
+            Ref("DateTimeFunctionContentsSegment"),
         ),
         Sequence(
             Ref("RankFunctionNameSegment"),
-            Bracketed(
-                Ref("NumericLiteralSegment", optional=True),
-            ),
+            Ref("RankFunctionContentsSegment"),
             "OVER",
             Bracketed(
                 Ref("PartitionClauseSegment", optional=True),
@@ -3192,37 +3222,16 @@ class FunctionSegment(BaseSegment):
         Sequence(
             # https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql
             Ref("ConvertFunctionNameSegment"),
-            Bracketed(
-                Ref("DatatypeSegment"),
-                Bracketed(Ref("NumericLiteralSegment"), optional=True),
-                Ref("CommaSegment"),
-                Ref("ExpressionSegment"),
-                Sequence(
-                    Ref("CommaSegment"), Ref("NumericLiteralSegment"), optional=True
-                ),
-            ),
+            Ref("ConvertFunctionContentsSegment"),
         ),
         Sequence(
             # https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql
             Ref("CastFunctionNameSegment"),
-            Bracketed(
-                Ref("ExpressionSegment"),
-                "AS",
-                Ref("DatatypeSegment"),
-            ),
+            Ref("CastFunctionContentsSegment"),
         ),
         Sequence(
             Ref("WithinGroupFunctionNameSegment"),
-            Bracketed(
-                Delimited(
-                    Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                    ),
-                ),
-                parse_mode=ParseMode.GREEDY,
-            ),
+            Ref("FunctionContentsSegment"),
             Ref("WithinGroupClause", optional=True),
         ),
         Sequence(
@@ -3241,14 +3250,7 @@ class FunctionSegment(BaseSegment):
                 ),
                 Ref("ReservedKeywordFunctionNameSegment"),
             ),
-            Bracketed(
-                Ref(
-                    "FunctionContentsGrammar",
-                    # The brackets might be empty for some functions...
-                    optional=True,
-                ),
-                parse_mode=ParseMode.GREEDY,
-            ),
+            Ref("FunctionContentsSegment"),
             Ref("PostFunctionGrammar", optional=True),
         ),
     )

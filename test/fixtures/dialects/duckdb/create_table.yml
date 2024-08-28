@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 55603d359772051b394b4c74721ac95533d5b977f9bd9ee4c35ff272f8f6b67f
+_hash: ca5f225dd7eee6d74cfbd3101b6d193a4297346057cbc213244cc7fea57867e4
 file:
 - statement:
     create_table_statement:
@@ -168,11 +168,12 @@ file:
                 function:
                   function_name:
                     function_name_identifier: read_csv_auto
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      quoted_literal: "'path/file.csv'"
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: "'path/file.csv'"
+                      end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -190,11 +191,12 @@ file:
                 function:
                   function_name:
                     function_name_identifier: read_csv_auto
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      quoted_literal: "'path/file.csv'"
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: "'path/file.csv'"
+                      end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -219,11 +221,12 @@ file:
                 function:
                   function_name:
                     function_name_identifier: read_csv
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      quoted_literal: "'path/file.csv'"
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: "'path/file.csv'"
+                      end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:

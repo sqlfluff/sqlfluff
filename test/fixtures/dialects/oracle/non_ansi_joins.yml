@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1909e95302d1729dbe1df44e81b4b87d0648659a5f860c0296e795c06f0bb33b
+_hash: 63c86ad061dc379a372315194dc7458692492d468a50742a822af96f1f6ae027
 file:
 - statement:
     select_statement:
@@ -213,15 +213,16 @@ file:
           function:
             function_name:
               function_name_identifier: nvl
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: column_b
-            - comma: ','
-            - expression:
-                numeric_literal: '1'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: column_b
+              - comma: ','
+              - expression:
+                  numeric_literal: '1'
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -250,15 +251,16 @@ file:
           function:
             function_name:
               function_name_identifier: nvl
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: column_b
-            - comma: ','
-            - expression:
-                numeric_literal: '1'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: column_b
+              - comma: ','
+              - expression:
+                  numeric_literal: '1'
+              - end_bracket: )
           comparison_operator:
             raw_comparison_operator: '='
           column_reference:

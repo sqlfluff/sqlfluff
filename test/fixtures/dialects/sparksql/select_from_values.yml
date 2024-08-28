@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e2be6cb1b9f519d9837f273582ef24e37ba6d75f4ec4a9d70563ca10188da095
+_hash: 1cf2fa20405c5edb61dd833d223e97fc1944d8b96a3b5135d0b455ffd33f21e8
 file:
 - statement:
     select_statement:
@@ -279,27 +279,29 @@ file:
                     function:
                       function_name:
                         function_name_identifier: least
-                      bracketed:
-                      - start_bracket: (
-                      - expression:
-                          numeric_literal: '2'
-                      - comma: ','
-                      - expression:
-                          numeric_literal: '3'
-                      - end_bracket: )
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            numeric_literal: '2'
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '3'
+                        - end_bracket: )
                 - comma: ','
                 - expression:
                     function:
                       function_name:
                         function_name_identifier: greatest
-                      bracketed:
-                      - start_bracket: (
-                      - expression:
-                          numeric_literal: '4'
-                      - comma: ','
-                      - expression:
-                          numeric_literal: '5'
-                      - end_bracket: )
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            numeric_literal: '4'
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '5'
+                        - end_bracket: )
             end_bracket: )
 - statement_terminator: ;
 - statement:

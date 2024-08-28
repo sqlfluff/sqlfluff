@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: edf92b2b8ae3b3d8197468edb50ab31c5835247527474925fef3e1b213bd5fc6
+_hash: 241b853a5fec5e4f1978e1317cf68699f5a72af35631d4620fed65b3eaf5fce4
 file:
 - statement:
     create_view_statement:
@@ -62,14 +62,15 @@ file:
                 function:
                   function_name:
                     function_name_identifier: stream
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                      - naked_identifier: live
-                      - dot: .
-                      - naked_identifier: customers_bronze
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - naked_identifier: live
+                        - dot: .
+                        - naked_identifier: customers_bronze
+                      end_bracket: )
 - statement_terminator: ;
 - statement:
     create_view_statement:

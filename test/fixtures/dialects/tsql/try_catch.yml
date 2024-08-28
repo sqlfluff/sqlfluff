@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 447bb3cd044ffe26c65e01f60557358411e66ad25287f132fca88e45957cc33c
+_hash: 5621b1066f5cb2ab99db8f7b38ed47be74a255f5e46777ecc8d0e5a4045cc149
 file:
 - batch:
     statement:
@@ -38,9 +38,10 @@ file:
                 function:
                   function_name:
                     function_name_identifier: ERROR_NUMBER
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
                 alias_expression:
                   keyword: AS
                   naked_identifier: ErrorNumber
@@ -49,9 +50,10 @@ file:
                 function:
                   function_name:
                     function_name_identifier: ERROR_MESSAGE
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
                 alias_expression:
                   keyword: AS
                   naked_identifier: ErrorMessage
