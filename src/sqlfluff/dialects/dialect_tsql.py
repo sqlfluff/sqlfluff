@@ -3909,7 +3909,10 @@ class TryCatchSegment(BaseSegment):
         "CATCH",
         Ref("DelimiterGrammar", optional=True),
         Indent,
-        Ref("OneOrMoreStatementsGrammar"),
+        # A catch block may be empty
+        AnyNumberOf(
+            Ref("StatementAndDelimiterGrammar"),
+        ),
         Dedent,
         "END",
         "CATCH",
