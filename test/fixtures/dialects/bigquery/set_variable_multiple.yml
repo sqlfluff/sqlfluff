@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f485b1848e86164c6415af072f3f2d3eb43a47a39f108627398c54a32e8822c6
+_hash: 1bc729d9627f26053435a0ea12f2d9c7a19f5c228f84ba31cc07c1fc735b05d3
 file:
   statement:
     set_segment:
@@ -34,12 +34,13 @@ file:
       - function:
           function_name:
             function_name_identifier: DATE_TRUNC
-          bracketed:
-            start_bracket: (
-            expression:
-              quoted_literal: '"2000-01-01"'
-            comma: ','
-            date_part: month
-            end_bracket: )
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: '"2000-01-01"'
+              comma: ','
+              date_part: month
+              end_bracket: )
       - end_bracket: )
   statement_terminator: ;

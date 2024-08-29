@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3d0729e4f2d0d841cfc7549386f52afd45b0f3926a8912413b578d11a0c38681
+_hash: 73716a4505382ef8300f0b2e7781dad19c1a6ac140805472b897b67b13047253
 file:
 - statement:
     select_statement:
@@ -25,16 +25,17 @@ file:
           function:
             function_name:
               function_name_identifier: ARGMAX
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: users
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: product_name
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: users
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: product_name
+              - end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -75,16 +76,17 @@ file:
           function:
             function_name:
               function_name_identifier: ARGMIN
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: users
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: product_name
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: users
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: product_name
+              - end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -119,12 +121,13 @@ file:
           function:
             function_name:
               function_name_identifier: SUM
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: product_price
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: product_price
+                end_bracket: )
           alias_expression:
             naked_identifier: Sales
       - comma: ','
@@ -134,19 +137,21 @@ file:
               function:
                 function_name:
                   function_name_identifier: AVG
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    function:
-                      function_name:
-                        function_name_identifier: SUM
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                            naked_identifier: product_price
-                        end_bracket: )
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      function:
+                        function_name:
+                          function_name_identifier: SUM
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: product_price
+                            end_bracket: )
+                    end_bracket: )
                 over_clause:
                   keyword: OVER
                   bracketed:
@@ -248,9 +253,10 @@ file:
           function:
             function_name:
               function_name_identifier: RANK
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -275,9 +281,10 @@ file:
           function:
             function_name:
               function_name_identifier: DENSE_RANK
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -325,11 +332,12 @@ file:
           function:
             function_name:
               function_name_identifier: PERCENTILE_CONT
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '0.5'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '0.5'
+                end_bracket: )
             within_group_clause_statement:
             - keyword: WITHIN
             - keyword: GROUP
@@ -406,12 +414,13 @@ file:
           function:
             function_name:
               function_name_identifier: STDDEV
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: annual_salary
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: annual_salary
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:

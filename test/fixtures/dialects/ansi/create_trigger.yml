@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 77dfeed770d7d6ba167bd221b10d00dfcb9e2c78a9c3b38975352b733f9e00d3
+_hash: e2b3ea5295e570d17ef161b60fb9e039007e50fb60c2c3caf15f4c58491fbef8
 file:
 - statement:
     create_trigger:
@@ -19,12 +19,13 @@ file:
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            naked_identifier: args
-        end_bracket: )
+    - function_contents:
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -40,12 +41,13 @@ file:
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            naked_identifier: args
-        end_bracket: )
+    - function_contents:
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -67,12 +69,13 @@ file:
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            naked_identifier: args
-        end_bracket: )
+    - function_contents:
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -98,12 +101,13 @@ file:
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            naked_identifier: args
-        end_bracket: )
+    - function_contents:
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -130,10 +134,11 @@ file:
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            naked_identifier: args
-        end_bracket: )
+    - function_contents:
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: args
+          end_bracket: )
 - statement_terminator: ;

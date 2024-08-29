@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6742893d9a97264770df8987f07fbaf1496aa561ec1d237b550d15320e3da307
+_hash: 4ee30ede1f2705156a06d15b0d2729635e44bde63343ab5dd7dd0c45eac68128
 file:
 - statement:
     create_table_as_statement:
@@ -89,37 +89,39 @@ file:
               function:
                 function_name:
                   function_name_identifier: unnest
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    typed_array_literal:
-                      array_type:
-                        keyword: array
-                      array_literal:
-                      - start_square_bracket: '['
-                      - quoted_literal: "'1'"
-                      - comma: ','
-                      - quoted_literal: "'2'"
-                      - end_square_bracket: ']'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      typed_array_literal:
+                        array_type:
+                          keyword: array
+                        array_literal:
+                        - start_square_bracket: '['
+                        - quoted_literal: "'1'"
+                        - comma: ','
+                        - quoted_literal: "'2'"
+                        - end_square_bracket: ']'
+                    end_bracket: )
           - comma: ','
           - select_clause_element:
               function:
                 function_name:
                   function_name_identifier: unnest
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    typed_array_literal:
-                      array_type:
-                        keyword: array
-                      array_literal:
-                      - start_square_bracket: '['
-                      - quoted_literal: "'_total_'"
-                      - comma: ','
-                      - quoted_literal: "'_total_'"
-                      - end_square_bracket: ']'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      typed_array_literal:
+                        array_type:
+                          keyword: array
+                        array_literal:
+                        - start_square_bracket: '['
+                        - quoted_literal: "'_total_'"
+                        - comma: ','
+                        - quoted_literal: "'_total_'"
+                        - end_square_bracket: ']'
+                    end_bracket: )
     - distributed_by:
       - keyword: distributed
       - keyword: randomly

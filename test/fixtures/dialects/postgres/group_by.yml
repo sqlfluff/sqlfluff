@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 321d6946cde9c7461b59a38eae3899ab5543d06172d5a334c28155723c4cf45b
+_hash: 15ac00beaa7be6bc135780591959690282c6ce9d14407abf92d25f9375815d0b
 file:
 - statement:
     select_statement:
@@ -21,16 +21,17 @@ file:
           function:
             function_name:
               function_name_identifier: grouping
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: region
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: city
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: region
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: city
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: grp_idx
@@ -39,30 +40,32 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              keyword: DISTINCT
-              expression:
-                column_reference:
-                  naked_identifier: id
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: num_total
       - comma: ','
       - select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: count
-          - bracketed:
-              start_bracket: (
-              keyword: DISTINCT
-              expression:
-                column_reference:
-                  naked_identifier: id
-              end_bracket: )
-          - keyword: FILTER
-          - bracketed:
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
+            keyword: FILTER
+            bracketed:
               start_bracket: (
               keyword: WHERE
               expression:
@@ -75,17 +78,18 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: count
-          - bracketed:
-              start_bracket: (
-              keyword: DISTINCT
-              expression:
-                column_reference:
-                  naked_identifier: id
-              end_bracket: )
-          - keyword: FILTER
-          - bracketed:
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
+            keyword: FILTER
+            bracketed:
               start_bracket: (
               keyword: WHERE
               expression:
@@ -159,16 +163,17 @@ file:
           function:
             function_name:
               function_name_identifier: grouping
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: region
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: city
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: region
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: city
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: grp_idx
@@ -177,30 +182,32 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              keyword: DISTINCT
-              expression:
-                column_reference:
-                  naked_identifier: id
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: num_total
       - comma: ','
       - select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: count
-          - bracketed:
-              start_bracket: (
-              keyword: DISTINCT
-              expression:
-                column_reference:
-                  naked_identifier: id
-              end_bracket: )
-          - keyword: FILTER
-          - bracketed:
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
+            keyword: FILTER
+            bracketed:
               start_bracket: (
               keyword: WHERE
               expression:
@@ -213,17 +220,18 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: count
-          - bracketed:
-              start_bracket: (
-              keyword: DISTINCT
-              expression:
-                column_reference:
-                  naked_identifier: id
-              end_bracket: )
-          - keyword: FILTER
-          - bracketed:
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
+            keyword: FILTER
+            bracketed:
               start_bracket: (
               keyword: WHERE
               expression:
@@ -282,16 +290,17 @@ file:
           function:
             function_name:
               function_name_identifier: grouping
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: region
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: city
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: region
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: city
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: grp_idx
@@ -300,30 +309,32 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              keyword: DISTINCT
-              expression:
-                column_reference:
-                  naked_identifier: id
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: num_total
       - comma: ','
       - select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: count
-          - bracketed:
-              start_bracket: (
-              keyword: DISTINCT
-              expression:
-                column_reference:
-                  naked_identifier: id
-              end_bracket: )
-          - keyword: FILTER
-          - bracketed:
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
+            keyword: FILTER
+            bracketed:
               start_bracket: (
               keyword: WHERE
               expression:
@@ -336,17 +347,18 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: count
-          - bracketed:
-              start_bracket: (
-              keyword: DISTINCT
-              expression:
-                column_reference:
-                  naked_identifier: id
-              end_bracket: )
-          - keyword: FILTER
-          - bracketed:
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
+            keyword: FILTER
+            bracketed:
               start_bracket: (
               keyword: WHERE
               expression:

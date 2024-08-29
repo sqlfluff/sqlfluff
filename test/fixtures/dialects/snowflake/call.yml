@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 70acdf1145d808f6fd2a6e54858efba4729c1de5b3da2c9239c62e09a0d2e65a
+_hash: 1ffca9973c504f04ca11ce5c08e4a8f9942a0e41b3219781ad0e2b62587134d8
 file:
 - statement:
     call_segment:
@@ -11,14 +11,15 @@ file:
       function:
         function_name:
           function_name_identifier: sv_proc1
-        bracketed:
-        - start_bracket: (
-        - expression:
-            quoted_literal: "'Manitoba'"
-        - comma: ','
-        - expression:
-            numeric_literal: '127.4'
-        - end_bracket: )
+        function_contents:
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'Manitoba'"
+          - comma: ','
+          - expression:
+              numeric_literal: '127.4'
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -35,11 +36,12 @@ file:
       function:
         function_name:
           function_name_identifier: sv_proc2
-        bracketed:
-          start_bracket: (
-          expression:
-            variable: $Variable1
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              variable: $Variable1
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     call_segment:
@@ -47,7 +49,8 @@ file:
       function:
         function_name:
           function_name_identifier: sv_proc3
-        bracketed:
-          start_bracket: (
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
 - statement_terminator: ;

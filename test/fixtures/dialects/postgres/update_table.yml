@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 26b055849f4a57835725cace78c91ced7d84f04fea5b9cb0fcf57778b25602bd
+_hash: 552228fe028793a99d58b7ee32b04d09d6798474e80c2be348754513c2571f3a
 file:
 - statement:
     update_statement:
@@ -417,45 +417,49 @@ file:
                   function:
                     function_name:
                       function_name_identifier: sum
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: x
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: x
+                        end_bracket: )
               - comma: ','
               - select_clause_element:
                   function:
                     function_name:
                       function_name_identifier: sum
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: y
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: y
+                        end_bracket: )
               - comma: ','
               - select_clause_element:
                   function:
                     function_name:
                       function_name_identifier: avg
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: x
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: x
+                        end_bracket: )
               - comma: ','
               - select_clause_element:
                   function:
                     function_name:
                       function_name_identifier: avg
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: y
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: y
+                        end_bracket: )
               from_clause:
                 keyword: FROM
                 from_expression:
@@ -533,9 +537,10 @@ file:
           function:
             function_name:
               function_name_identifier: NOW
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
     - where_clause:
         keyword: WHERE
         expression:

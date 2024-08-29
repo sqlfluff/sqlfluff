@@ -304,6 +304,11 @@ def core_options(f: Callable) -> Callable:
         help="Set this flag to ignore inline noqa comments.",
     )(f)
     f = click.option(
+        "--disable-noqa-except",
+        default=None,
+        help="Ignore all but the listed rules inline noqa comments.",
+    )(f)
+    f = click.option(
         "--library-path",
         default=None,
         help=(

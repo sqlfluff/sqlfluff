@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6e5ae6640110e593f6849562ffcd1161fe6ccefbadb97693bc80e003c4e935c8
+_hash: 98c979709ef00025f0789d464714de75109492b0032f32a61d205496e5306ad6
 file:
 - statement:
     select_statement:
@@ -13,47 +13,48 @@ file:
           function:
             function_name:
               function_name_identifier: IF
-            bracketed:
-            - start_bracket: (
-            - expression:
-                boolean_literal: 'TRUE'
-            - comma: ','
-            - expression:
-                typed_struct_literal:
-                  struct_type:
-                    keyword: STRUCT
-                  struct_literal:
-                    bracketed:
-                    - start_bracket: (
-                    - quoted_literal: "'hello'"
-                    - alias_expression:
-                        keyword: AS
-                        naked_identifier: greeting
-                    - comma: ','
-                    - quoted_literal: "'world'"
-                    - alias_expression:
-                        keyword: AS
-                        naked_identifier: subject
-                    - end_bracket: )
-            - comma: ','
-            - expression:
-                typed_struct_literal:
-                  struct_type:
-                    keyword: STRUCT
-                  struct_literal:
-                    bracketed:
-                    - start_bracket: (
-                    - quoted_literal: "'hi'"
-                    - alias_expression:
-                        keyword: AS
-                        naked_identifier: greeting
-                    - comma: ','
-                    - quoted_literal: "'there'"
-                    - alias_expression:
-                        keyword: AS
-                        naked_identifier: subject
-                    - end_bracket: )
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  boolean_literal: 'TRUE'
+              - comma: ','
+              - expression:
+                  typed_struct_literal:
+                    struct_type:
+                      keyword: STRUCT
+                    struct_literal:
+                      bracketed:
+                      - start_bracket: (
+                      - quoted_literal: "'hello'"
+                      - alias_expression:
+                          keyword: AS
+                          naked_identifier: greeting
+                      - comma: ','
+                      - quoted_literal: "'world'"
+                      - alias_expression:
+                          keyword: AS
+                          naked_identifier: subject
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  typed_struct_literal:
+                    struct_type:
+                      keyword: STRUCT
+                    struct_literal:
+                      bracketed:
+                      - start_bracket: (
+                      - quoted_literal: "'hi'"
+                      - alias_expression:
+                          keyword: AS
+                          naked_identifier: greeting
+                      - comma: ','
+                      - quoted_literal: "'there'"
+                      - alias_expression:
+                          keyword: AS
+                          naked_identifier: subject
+                      - end_bracket: )
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: salute

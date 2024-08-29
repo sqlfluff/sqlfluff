@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b6c296b4ef1b5c85ed1f47862ae387fe5da2ce0695f429a9e9509155f5766fe8
+_hash: b8bd1f8892243194c2c7b59437daf47119352608fa0fed465f05dba50c0d5b7d
 file:
   statement:
     set_expression:
@@ -30,9 +30,10 @@ file:
             function:
               function_name:
                 function_name_identifier: row_number
-              bracketed:
-                start_bracket: (
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
               over_clause:
                 keyword: over
                 bracketed:
@@ -79,9 +80,10 @@ file:
             function:
               function_name:
                 function_name_identifier: row_number
-              bracketed:
-                start_bracket: (
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
               over_clause:
                 keyword: over
                 bracketed:

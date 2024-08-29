@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8d08a9152bcd284c72bb1fe506fdaf3a098b45f64bacddd3ad20a3c7f11adbfb
+_hash: a1eeea5b4a61848edf93b196e20c3c3acc9683774d4b7f1a093d16a93c1d2348
 file:
 - statement:
     select_statement:
@@ -13,17 +13,18 @@ file:
           function:
             function_name:
               function_name_identifier: extract
-            bracketed:
-            - start_bracket: (
-            - expression:
-                quoted_literal: "'year'"
-            - keyword: FROM
-            - expression:
-                datetime_literal:
-                  datetime_type_identifier:
-                    keyword: DATE
-                  quoted_literal: "'1992-09-20'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'year'"
+              - keyword: FROM
+              - expression:
+                  datetime_literal:
+                    datetime_type_identifier:
+                      keyword: DATE
+                    quoted_literal: "'1992-09-20'"
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -33,19 +34,20 @@ file:
           function:
             function_name:
               function_name_identifier: extract
-            bracketed:
-            - start_bracket: (
-            - expression:
-                quoted_literal: "'year'"
-            - keyword: FROM
-            - expression:
-                cast_expression:
-                  quoted_literal: "'1992-09-20'"
-                  casting_operator: '::'
-                  data_type:
-                    datetime_type_identifier:
-                      keyword: DATE
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'year'"
+              - keyword: FROM
+              - expression:
+                  cast_expression:
+                    quoted_literal: "'1992-09-20'"
+                    casting_operator: '::'
+                    data_type:
+                      datetime_type_identifier:
+                        keyword: DATE
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     values_clause:
@@ -56,17 +58,18 @@ file:
           function:
             function_name:
               function_name_identifier: extract
-            bracketed:
-            - start_bracket: (
-            - expression:
-                quoted_literal: "'year'"
-            - keyword: FROM
-            - expression:
-                datetime_literal:
-                  datetime_type_identifier:
-                    keyword: DATE
-                  quoted_literal: "'1992-09-20'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'year'"
+              - keyword: FROM
+              - expression:
+                  datetime_literal:
+                    datetime_type_identifier:
+                      keyword: DATE
+                    quoted_literal: "'1992-09-20'"
+              - end_bracket: )
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -77,17 +80,18 @@ file:
           function:
             function_name:
               function_name_identifier: extract
-            bracketed:
-            - start_bracket: (
-            - expression:
-                quoted_literal: "'hour'"
-            - keyword: FROM
-            - expression:
-                datetime_literal:
-                  datetime_type_identifier:
-                    keyword: TIMESTAMP
-                  quoted_literal: "'1992-09-20 20:38:48'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'hour'"
+              - keyword: FROM
+              - expression:
+                  datetime_literal:
+                    datetime_type_identifier:
+                      keyword: TIMESTAMP
+                    quoted_literal: "'1992-09-20 20:38:48'"
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -97,17 +101,18 @@ file:
           function:
             function_name:
               function_name_identifier: extract
-            bracketed:
-            - start_bracket: (
-            - expression:
-                quoted_literal: "'hour'"
-            - keyword: FROM
-            - expression:
-                datetime_literal:
-                  datetime_type_identifier:
-                    keyword: TIMESTAMPTZ
-                  quoted_literal: "'1992-09-20 20:38:48'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'hour'"
+              - keyword: FROM
+              - expression:
+                  datetime_literal:
+                    datetime_type_identifier:
+                      keyword: TIMESTAMPTZ
+                    quoted_literal: "'1992-09-20 20:38:48'"
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -117,15 +122,16 @@ file:
           function:
             function_name:
               function_name_identifier: extract
-            bracketed:
-            - start_bracket: (
-            - expression:
-                quoted_literal: "'hour'"
-            - keyword: FROM
-            - expression:
-                datetime_literal:
-                  datetime_type_identifier:
-                    keyword: TIME
-                  quoted_literal: "'14:21:13'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'hour'"
+              - keyword: FROM
+              - expression:
+                  datetime_literal:
+                    datetime_type_identifier:
+                      keyword: TIME
+                    quoted_literal: "'14:21:13'"
+              - end_bracket: )
 - statement_terminator: ;

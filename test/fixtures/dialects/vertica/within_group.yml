@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d23a6b69e9eaddca4f8e9da7c9dcd187194f97dcae0ac36c4180fc5e993271ae
+_hash: 21c0d74a91cc972ef32e03143c4de04794bf2d20d6fe06a3c51c3abeabc3d3ca
 file:
   statement:
     with_compound_statement:
@@ -57,27 +57,28 @@ file:
             function:
               function_name:
                 function_name_identifier: LISTAGG
-              bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                    naked_identifier: city
-                - binary_operator:
-                  - pipe: '|'
-                  - pipe: '|'
-                - quoted_literal: "', '"
-                - binary_operator:
-                  - pipe: '|'
-                  - pipe: '|'
-                - column_reference:
-                    naked_identifier: customer_state
-              - keyword: USING
-              - keyword: PARAMETERS
-              - parameter: separator
-              - comparison_operator:
-                  raw_comparison_operator: '='
-              - quoted_literal: "' | '"
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                      naked_identifier: city
+                  - binary_operator:
+                    - pipe: '|'
+                    - pipe: '|'
+                  - quoted_literal: "', '"
+                  - binary_operator:
+                    - pipe: '|'
+                    - pipe: '|'
+                  - column_reference:
+                      naked_identifier: customer_state
+                - keyword: USING
+                - keyword: PARAMETERS
+                - parameter: separator
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - quoted_literal: "' | '"
+                - end_bracket: )
               within_group_clause_statement:
               - keyword: WITHIN
               - keyword: GROUP

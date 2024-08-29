@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f32b8403fa13db361000f382c373a767c994a3631733c78944ae43eafdd76edc
+_hash: d37389d892d5385c4fc28ff2a4c5810937d41431223e25834af62a6ef83980b7
 file:
 - statement:
     select_statement:
@@ -19,16 +19,17 @@ file:
           function:
             function_name:
               function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: CENTURY
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: CENTURY
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: a
@@ -54,16 +55,17 @@ file:
           function:
             function_name:
               function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: DECADE
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: DECADE
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: a
@@ -89,16 +91,17 @@ file:
           function:
             function_name:
               function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: DOW
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: DOW
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: a
@@ -124,16 +127,17 @@ file:
           function:
             function_name:
               function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: DOY
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: DOY
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: a
@@ -159,16 +163,17 @@ file:
           function:
             function_name:
               function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: EPOCH
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: EPOCH
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: a
@@ -194,16 +199,17 @@ file:
           function:
             function_name:
               function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: ISODOW
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: ISODOW
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: a
@@ -229,16 +235,17 @@ file:
           function:
             function_name:
               function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: ISOYEAR
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: ISOYEAR
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: a
@@ -264,16 +271,17 @@ file:
           function:
             function_name:
               function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: MICROSECONDS
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: MICROSECONDS
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: a
@@ -299,16 +307,17 @@ file:
           function:
             function_name:
               function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: MILLENNIUM
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: MILLENNIUM
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: a
@@ -334,16 +343,17 @@ file:
           function:
             function_name:
               function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: MILLISECONDS
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: MILLISECONDS
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: a
@@ -369,16 +379,17 @@ file:
           function:
             function_name:
               function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: TIMEZONE
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: TIMEZONE
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: a
@@ -404,16 +415,17 @@ file:
           function:
             function_name:
               function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: TIMEZONE_HOUR
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: TIMEZONE_HOUR
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: a
@@ -439,16 +451,17 @@ file:
           function:
             function_name:
               function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: TIMEZONE_MINUTE
-              keyword: FROM
-              expression:
-                column_reference:
-                - naked_identifier: t1
-                - dot: .
-                - naked_identifier: sometime
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: TIMEZONE_MINUTE
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: a
@@ -509,9 +522,10 @@ file:
           - function:
               function_name:
                 function_name_identifier: NOW
-              bracketed:
-                start_bracket: (
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
           - binary_operator: +
           - datetime_literal:
               datetime_type_identifier:

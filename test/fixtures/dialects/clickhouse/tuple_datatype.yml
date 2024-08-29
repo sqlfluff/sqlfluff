@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 932b62c5844873fe012d2c850c255ac21b107d5261ba67f85277e37098d9fe13
+_hash: 2e4a5aaa753e255388556599da5a2815dc96db426e4ef4ed480dcec274d396be
 file:
 - statement:
     select_statement:
@@ -16,11 +16,9 @@ file:
               - start_bracket: (
               - numeric_literal: '1'
               - comma: ','
-              - column_reference:
-                  quoted_identifier: "'two'"
+              - quoted_literal: "'two'"
               - comma: ','
-              - column_reference:
-                  quoted_identifier: "'2024-01-01'"
+              - quoted_literal: "'2024-01-01'"
               - end_bracket: )
               casting_operator: '::'
               data_type:
@@ -56,11 +54,9 @@ file:
               - start_bracket: (
               - numeric_literal: '1'
               - comma: ','
-              - column_reference:
-                  quoted_identifier: "'two'"
+              - quoted_literal: "'two'"
               - comma: ','
-              - column_reference:
-                  quoted_identifier: "'2024-01-01'"
+              - quoted_literal: "'2024-01-01'"
               - end_bracket: )
               casting_operator: '::'
               data_type:
@@ -96,11 +92,9 @@ file:
               - start_bracket: (
               - numeric_literal: '1'
               - comma: ','
-              - column_reference:
-                  quoted_identifier: "'two'"
+              - quoted_literal: "'two'"
               - comma: ','
-              - column_reference:
-                  quoted_identifier: "'2024-01-01'"
+              - quoted_literal: "'2024-01-01'"
               - end_bracket: )
               casting_operator: '::'
               data_type:

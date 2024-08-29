@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 04650847aaf6d13ec9f7eeda27373b07e8bf359781941b55a84b140b812af252
+_hash: 29727a173005e27d0f50b997ae6db7236338e55a49bdbe38f49b45aa84efa82e
 file:
 - statement:
     create_table_statement:
@@ -103,26 +103,28 @@ file:
           - function:
               function_name:
                 function_name_identifier: cast
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: l_shipdate
-                keyword: as
-                data_type:
-                  primitive_type:
-                    keyword: timestamp
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: l_shipdate
+                  keyword: as
+                  data_type:
+                    primitive_type:
+                      keyword: timestamp
+                  end_bracket: )
           - comparison_operator:
               raw_comparison_operator: <
           - function:
               function_name:
                 function_name_identifier: DATE
-              bracketed:
-                start_bracket: (
-                expression:
-                  quoted_literal: "'1992-02-01'"
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'1992-02-01'"
+                  end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:

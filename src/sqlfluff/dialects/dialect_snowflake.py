@@ -4791,7 +4791,7 @@ class CreateStatementSegment(BaseSegment):
         OneOf(
             Ref("SelectStatementSegment"),
             Sequence(
-                Bracketed(Ref("FunctionContentsGrammar"), optional=True),
+                Ref("FunctionContentsSegment"),
                 "RETURNS",
                 Ref("DatatypeSegment"),
                 Ref("FunctionAssignerSegment"),
@@ -7775,14 +7775,7 @@ class CallStatementSegment(BaseSegment):
         "CALL",
         Sequence(
             Ref("FunctionNameSegment"),
-            Bracketed(
-                Ref(
-                    "FunctionContentsGrammar",
-                    # The brackets might be empty for some functions...
-                    optional=True,
-                ),
-                parse_mode=ParseMode.GREEDY,
-            ),
+            Ref("FunctionContentsSegment"),
         ),
     )
 

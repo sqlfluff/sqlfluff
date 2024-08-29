@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 703561cc4a19243823ae4bb0768e333f8a24d41beb5f3f9cb4406b66ac180ced
+_hash: 83feb26e04968ebe7d456803782dff8d2867bf2c785bdde9d18ca5736b74f255
 file:
 - statement:
     select_statement:
@@ -54,23 +54,24 @@ file:
               function:
                 function_name:
                   function_name_identifier: unnest
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    typed_array_literal:
-                      array_type:
-                        keyword: array
-                      array_literal:
-                      - start_square_bracket: '['
-                      - numeric_literal: '1'
-                      - comma: ','
-                      - numeric_literal: '3'
-                      - comma: ','
-                      - numeric_literal: '6'
-                      - comma: ','
-                      - numeric_literal: '12'
-                      - end_square_bracket: ']'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      typed_array_literal:
+                        array_type:
+                          keyword: array
+                        array_literal:
+                        - start_square_bracket: '['
+                        - numeric_literal: '1'
+                        - comma: ','
+                        - numeric_literal: '3'
+                        - comma: ','
+                        - numeric_literal: '6'
+                        - comma: ','
+                        - numeric_literal: '12'
+                        - end_square_bracket: ']'
+                    end_bracket: )
             alias_expression:
               keyword: as
               naked_identifier: t
@@ -88,41 +89,44 @@ file:
           function:
             function_name:
               function_name_identifier: map_from_entries
-            bracketed:
-              start_bracket: (
-              expression:
-                typed_array_literal:
-                  array_type:
-                    keyword: array
-                  array_literal:
-                  - start_square_bracket: '['
-                  - function:
-                      function_name:
-                        function_name_identifier: row
-                      bracketed:
-                      - start_bracket: (
-                      - expression:
-                          quoted_literal: "'pending.freebet'"
-                      - comma: ','
-                      - expression:
-                          column_reference:
-                            naked_identifier: pending_fb
-                      - end_bracket: )
-                  - comma: ','
-                  - function:
-                      function_name:
-                        function_name_identifier: row
-                      bracketed:
-                      - start_bracket: (
-                      - expression:
-                          quoted_literal: "'bonus.balance'"
-                      - comma: ','
-                      - expression:
-                          column_reference:
-                            naked_identifier: bonus
-                      - end_bracket: )
-                  - end_square_bracket: ']'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: array
+                    array_literal:
+                    - start_square_bracket: '['
+                    - function:
+                        function_name:
+                          function_name_identifier: row
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              quoted_literal: "'pending.freebet'"
+                          - comma: ','
+                          - expression:
+                              column_reference:
+                                naked_identifier: pending_fb
+                          - end_bracket: )
+                    - comma: ','
+                    - function:
+                        function_name:
+                          function_name_identifier: row
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              quoted_literal: "'bonus.balance'"
+                          - comma: ','
+                          - expression:
+                              column_reference:
+                                naked_identifier: bonus
+                          - end_bracket: )
+                    - end_square_bracket: ']'
+                end_bracket: )
       from_clause:
         keyword: from
         from_expression:

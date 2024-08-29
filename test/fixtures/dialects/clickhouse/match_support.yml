@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8d3005b49221661e8a158f6525bdf996f25dd24c121c0a14e8a06b4979266670
+_hash: bf54e2b0831d21cec84b322c87b02e0ec635d7fbb5377909eb8ea02452c21bd2
 file:
 - statement:
     select_statement:
@@ -15,14 +15,15 @@ file:
               function:
                 function_name:
                   function_name_identifier: match
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    quoted_literal: "'test'"
-                - comma: ','
-                - expression:
-                    quoted_literal: "'^[0-9]+$'"
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'test'"
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'^[0-9]+$'"
+                  - end_bracket: )
               casting_operator: '::'
               data_type:
                 data_type_identifier: bool
@@ -57,15 +58,16 @@ file:
                     function:
                       function_name:
                         function_name_identifier: match
-                      bracketed:
-                      - start_bracket: (
-                      - expression:
-                          column_reference:
-                            naked_identifier: id
-                      - comma: ','
-                      - expression:
-                          quoted_literal: "'^[0-9]*$'"
-                      - end_bracket: )
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                              naked_identifier: id
+                        - comma: ','
+                        - expression:
+                            quoted_literal: "'^[0-9]*$'"
+                        - end_bracket: )
                 - keyword: then
                 - expression:
                     cast_expression:
@@ -128,13 +130,14 @@ file:
             function:
               function_name:
                 function_name_identifier: match
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    naked_identifier: id
-              - comma: ','
-              - expression:
-                  quoted_literal: "'^[0-9]+$'"
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: id
+                - comma: ','
+                - expression:
+                    quoted_literal: "'^[0-9]+$'"
+                - end_bracket: )
 - statement_terminator: ;

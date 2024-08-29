@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3422c43e1113bb4644db2e4623d2b31f6eaa9006485912b4f6b147adc11f820b
+_hash: 810c383fd675268069dac38e1c65569cd4c38f0e11685e57874c8a1a2a407047
 file:
 - statement:
     create_source_kafka_statement:
@@ -92,15 +92,16 @@ file:
                             function:
                               function_name:
                                 function_name_identifier: CONVERT_FROM
-                              bracketed:
-                              - start_bracket: (
-                              - expression:
-                                  column_reference:
-                                    naked_identifier: data
-                              - comma: ','
-                              - expression:
-                                  quoted_literal: "'utf8'"
-                              - end_bracket: )
+                              function_contents:
+                                bracketed:
+                                - start_bracket: (
+                                - expression:
+                                    column_reference:
+                                      naked_identifier: data
+                                - comma: ','
+                                - expression:
+                                    quoted_literal: "'utf8'"
+                                - end_bracket: )
                             casting_operator: '::'
                             data_type:
                               keyword: jsonb

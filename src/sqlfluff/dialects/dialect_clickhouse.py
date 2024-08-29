@@ -634,16 +634,7 @@ class TableEngineFunctionSegment(BaseSegment):
                     Ref("ValuesClauseSegment"),
                 ),
             ),
-            Bracketed(
-                Ref(
-                    "FunctionContentsGrammar",
-                    # The brackets might be empty for some functions...
-                    optional=True,
-                ),
-                # Engine functions may omit brackets.
-                optional=True,
-                parse_mode=ParseMode.GREEDY,
-            ),
+            Ref("FunctionContentsSegment", optional=True),
         ),
     )
 
@@ -710,16 +701,7 @@ class DatabaseEngineFunctionSegment(BaseSegment):
                 "REPLICATED",
                 "SQLITE",
             ),
-            Bracketed(
-                Ref(
-                    "FunctionContentsGrammar",
-                    # The brackets might be empty for some functions...
-                    optional=True,
-                ),
-                # Engine functions may omit brackets.
-                optional=True,
-                parse_mode=ParseMode.GREEDY,
-            ),
+            Ref("FunctionContentsSegment", optional=True),
         ),
     )
 
