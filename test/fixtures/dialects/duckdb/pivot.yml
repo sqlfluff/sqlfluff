@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7d322862763837298cb547f51f593367443f93ec170e036ca39885c87e927639
+_hash: 8f5f2fdfe4422b883154656d943bcd2d10109af0e06f4737f25284902399c447
 file:
 - statement:
     simplified_pivot:
@@ -18,12 +18,13 @@ file:
     - function:
         function_name:
           function_name_identifier: sum
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: Population
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: Population
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     simplified_pivot:
@@ -38,12 +39,13 @@ file:
     - function:
         function_name:
           function_name_identifier: first
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: Population
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: Population
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     simplified_pivot:
@@ -58,12 +60,13 @@ file:
     - function:
         function_name:
           function_name_identifier: sum
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: Population
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: Population
+            end_bracket: )
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -91,12 +94,13 @@ file:
     - function:
         function_name:
           function_name_identifier: sum
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: Population
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: Population
+            end_bracket: )
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -119,12 +123,13 @@ file:
     - function:
         function_name:
           function_name_identifier: sum
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: Population
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: Population
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     simplified_pivot:
@@ -149,12 +154,13 @@ file:
     - function:
         function_name:
           function_name_identifier: sum
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: Population
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: Population
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     simplified_pivot:
@@ -169,12 +175,13 @@ file:
     - function:
         function_name:
           function_name_identifier: sum
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: Population
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: Population
+            end_bracket: )
     - alias_expression:
         keyword: AS
         naked_identifier: total
@@ -182,12 +189,13 @@ file:
     - function:
         function_name:
           function_name_identifier: max
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: Population
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: Population
+            end_bracket: )
     - alias_expression:
         keyword: AS
         naked_identifier: max
@@ -210,12 +218,13 @@ file:
     - function:
         function_name:
           function_name_identifier: sum
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: Population
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: Population
+            end_bracket: )
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -238,12 +247,13 @@ file:
     - function:
         function_name:
           function_name_identifier: sum
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: Population
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: Population
+            end_bracket: )
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -271,12 +281,13 @@ file:
     - function:
         function_name:
           function_name_identifier: sum
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: Population
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: Population
+            end_bracket: )
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -302,12 +313,13 @@ file:
     - function:
         function_name:
           function_name_identifier: sum
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: Population
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: Population
+            end_bracket: )
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -335,12 +347,13 @@ file:
     - function:
         function_name:
           function_name_identifier: sum
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: Population
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: Population
+            end_bracket: )
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -370,12 +383,13 @@ file:
     - function:
         function_name:
           function_name_identifier: sum
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: Population
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: Population
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     simplified_pivot:
@@ -412,12 +426,13 @@ file:
           - function:
               function_name:
                 function_name_identifier: sum
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: Population
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: Population
+                  end_bracket: )
           - groupby_clause:
             - keyword: GROUP
             - keyword: BY
@@ -466,12 +481,13 @@ file:
                 - function:
                     function_name:
                       function_name_identifier: sum
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: Population
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: Population
+                        end_bracket: )
                 - groupby_clause:
                   - keyword: GROUP
                   - keyword: BY
@@ -502,12 +518,13 @@ file:
                 - function:
                     function_name:
                       function_name_identifier: sum
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: Population
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: Population
+                        end_bracket: )
                 - groupby_clause:
                   - keyword: GROUP
                   - keyword: BY
@@ -534,12 +551,13 @@ file:
                   - function:
                       function_name:
                         function_name_identifier: sum
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                            naked_identifier: Population
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: Population
+                          end_bracket: )
                   - groupby_clause:
                     - keyword: GROUP
                     - keyword: BY
@@ -570,12 +588,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: sum
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: Population
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: Population
+                    end_bracket: )
             - keyword: FOR
             - naked_identifier: Year
             - keyword: IN
@@ -610,12 +629,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: sum
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: Population
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: Population
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: total
@@ -623,12 +643,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: count
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: Population
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: Population
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: count

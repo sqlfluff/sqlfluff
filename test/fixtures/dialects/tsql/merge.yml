@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ddabe931655863f15126960566dd5c63b797b355e7e59f802c02d2a0c1d9989c
+_hash: eb17e69e8ece3ab2b5aa93963e9600bdb40ff950e699568cb74561db7e339b76
 file:
 - batch:
     statement:
@@ -609,12 +609,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: SUM
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: OrderQty
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: OrderQty
+                      end_bracket: )
             from_clause:
               keyword: FROM
               from_expression:
@@ -750,9 +751,10 @@ file:
                     function:
                       function_name:
                         function_name_identifier: GETDATE
-                      bracketed:
-                        start_bracket: (
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          end_bracket: )
         - output_clause:
           - keyword: OUTPUT
           - column_reference:
@@ -815,12 +817,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: SUM
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: OrderQty
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: OrderQty
+                      end_bracket: )
             from_clause:
               keyword: FROM
               from_expression:
@@ -1267,12 +1270,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: SUM
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: OrderQty
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: OrderQty
+                      end_bracket: )
             from_clause:
               keyword: FROM
               from_expression:

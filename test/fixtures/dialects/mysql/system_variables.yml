@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4ba62a416da7b4bd69bceb3282c5e6cb823d108748592d5c0f806c221dd64b36
+_hash: 09a2697aa14fc1930c51f8d626ee27e9fc9fd143bc7c869c1ec640f468cbdfd3
 file:
 - statement:
     select_statement:
@@ -41,19 +41,21 @@ file:
           function:
             function_name:
               function_name_identifier: CONVERT_TZ
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: NOW
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
-            - comma: ','
-            - expression:
-                system_variable: '@@global.time_zone'
-            - comma: ','
-            - expression:
-                quoted_literal: "'+00:00'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: NOW
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  system_variable: '@@global.time_zone'
+              - comma: ','
+              - expression:
+                  quoted_literal: "'+00:00'"
+              - end_bracket: )

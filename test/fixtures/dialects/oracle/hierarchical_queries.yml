@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 76765fe49e51f73ff98d549cc6ed5ad70d7c41669520e6f40ebfc18a254c0028
+_hash: 7280223c00b071cea987a10c284d821d4b23320d2f71ecf6420f8fd7f92e737e
 file:
 - statement:
     select_statement:
@@ -151,15 +151,16 @@ file:
           function:
             function_name:
               function_name_identifier: SYS_CONNECT_BY_PATH
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: last_name
-            - comma: ','
-            - expression:
-                quoted_literal: "'/'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: last_name
+              - comma: ','
+              - expression:
+                  quoted_literal: "'/'"
+              - end_bracket: )
           alias_expression:
             quoted_identifier: '"Path"'
       from_clause:
@@ -237,15 +238,16 @@ file:
           function:
             function_name:
               function_name_identifier: SYS_CONNECT_BY_PATH
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: last_name
-            - comma: ','
-            - expression:
-                quoted_literal: "'/'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: last_name
+              - comma: ','
+              - expression:
+                  quoted_literal: "'/'"
+              - end_bracket: )
           alias_expression:
             quoted_identifier: '"Path"'
       from_clause:
@@ -322,25 +324,27 @@ file:
           function:
             function_name:
               function_name_identifier: LTRIM
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: SYS_CONNECT_BY_PATH
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        naked_identifier: warehouse_id
-                  - comma: ','
-                  - expression:
-                      quoted_literal: "','"
-                  - end_bracket: )
-            - comma: ','
-            - expression:
-                quoted_literal: "','"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: SYS_CONNECT_BY_PATH
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: warehouse_id
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "','"
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  quoted_literal: "','"
+              - end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -434,15 +438,16 @@ file:
           function:
             function_name:
               function_name_identifier: SYS_CONNECT_BY_PATH
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: last_name
-            - comma: ','
-            - expression:
-                quoted_literal: "'/'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: last_name
+              - comma: ','
+              - expression:
+                  quoted_literal: "'/'"
+              - end_bracket: )
           alias_expression:
             quoted_identifier: '"Path"'
       from_clause:
@@ -505,12 +510,13 @@ file:
           function:
             function_name:
               function_name_identifier: SUM
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: salary
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: salary
+                end_bracket: )
           alias_expression:
             quoted_identifier: '"Total_Salary"'
       from_clause:

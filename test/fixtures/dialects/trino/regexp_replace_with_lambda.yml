@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 190e4d9807b6575ec7d095ea537b945ca05dd8756032e18af9fbd795b00dcdaf
+_hash: 95c2853fc6ace75fe1c436b6139f973024fb81a4d343674d203ebfb6859ba9a7
 file:
   statement:
     select_statement:
@@ -13,46 +13,49 @@ file:
           function:
             function_name:
               function_name_identifier: REGEXP_REPLACE
-            bracketed:
-            - start_bracket: (
-            - expression:
-                quoted_literal: "'new york'"
-            - comma: ','
-            - expression:
-                quoted_literal: "'(\\w)(\\w*)'"
-            - comma: ','
-            - expression:
-              - column_reference:
-                  naked_identifier: x
-              - binary_operator: ->
-              - function:
-                  function_name:
-                    function_name_identifier: UPPER
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: x
-                      array_accessor:
-                        start_square_bracket: '['
-                        numeric_literal: '1'
-                        end_square_bracket: ']'
-                    end_bracket: )
-              - binary_operator:
-                - pipe: '|'
-                - pipe: '|'
-              - function:
-                  function_name:
-                    function_name_identifier: LOWER
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: x
-                      array_accessor:
-                        start_square_bracket: '['
-                        numeric_literal: '2'
-                        end_square_bracket: ']'
-                    end_bracket: )
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'new york'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'(\\w)(\\w*)'"
+              - comma: ','
+              - expression:
+                - column_reference:
+                    naked_identifier: x
+                - binary_operator: ->
+                - function:
+                    function_name:
+                      function_name_identifier: UPPER
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: x
+                          array_accessor:
+                            start_square_bracket: '['
+                            numeric_literal: '1'
+                            end_square_bracket: ']'
+                        end_bracket: )
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - function:
+                    function_name:
+                      function_name_identifier: LOWER
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: x
+                          array_accessor:
+                            start_square_bracket: '['
+                            numeric_literal: '2'
+                            end_square_bracket: ']'
+                        end_bracket: )
+              - end_bracket: )
   statement_terminator: ;

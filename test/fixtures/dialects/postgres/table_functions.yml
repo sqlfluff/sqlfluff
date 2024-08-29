@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cfacf70b0c87e02e01f2f37fb7245aa6fc0198a223525e4794283cafa7bf27bd
+_hash: ff47a1913e0a5d7ef2272660de07f3c6e23aebf80fb751f498cc3a44457e2780
 file:
 - statement:
     select_statement:
@@ -21,19 +21,20 @@ file:
               function:
                 function_name:
                   function_name_identifier: unnest
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    typed_array_literal:
-                      array_type:
-                        keyword: array
-                      array_literal:
-                      - start_square_bracket: '['
-                      - quoted_literal: "'123'"
-                      - comma: ','
-                      - quoted_literal: "'456'"
-                      - end_square_bracket: ']'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      typed_array_literal:
+                        array_type:
+                          keyword: array
+                        array_literal:
+                        - start_square_bracket: '['
+                        - quoted_literal: "'123'"
+                        - comma: ','
+                        - quoted_literal: "'456'"
+                        - end_square_bracket: ']'
+                    end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -51,19 +52,20 @@ file:
               function:
                 function_name:
                   function_name_identifier: unnest
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    typed_array_literal:
-                      array_type:
-                        keyword: array
-                      array_literal:
-                      - start_square_bracket: '['
-                      - quoted_literal: "'123'"
-                      - comma: ','
-                      - quoted_literal: "'456'"
-                      - end_square_bracket: ']'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      typed_array_literal:
+                        array_type:
+                          keyword: array
+                        array_literal:
+                        - start_square_bracket: '['
+                        - quoted_literal: "'123'"
+                        - comma: ','
+                        - quoted_literal: "'456'"
+                        - end_square_bracket: ']'
+                    end_bracket: )
             alias_expression:
               keyword: as
               naked_identifier: a
@@ -91,19 +93,20 @@ file:
             - function:
                 function_name:
                   function_name_identifier: unnest
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    typed_array_literal:
-                      array_type:
-                        keyword: array
-                      array_literal:
-                      - start_square_bracket: '['
-                      - quoted_literal: "'123'"
-                      - comma: ','
-                      - quoted_literal: "'456'"
-                      - end_square_bracket: ']'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      typed_array_literal:
+                        array_type:
+                          keyword: array
+                        array_literal:
+                        - start_square_bracket: '['
+                        - quoted_literal: "'123'"
+                        - comma: ','
+                        - quoted_literal: "'456'"
+                        - end_square_bracket: ']'
+                    end_bracket: )
             - keyword: with
             - keyword: ordinality
 - statement_terminator: ;
@@ -123,19 +126,20 @@ file:
             - function:
                 function_name:
                   function_name_identifier: unnest
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    typed_array_literal:
-                      array_type:
-                        keyword: array
-                      array_literal:
-                      - start_square_bracket: '['
-                      - quoted_literal: "'123'"
-                      - comma: ','
-                      - quoted_literal: "'456'"
-                      - end_square_bracket: ']'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      typed_array_literal:
+                        array_type:
+                          keyword: array
+                        array_literal:
+                        - start_square_bracket: '['
+                        - quoted_literal: "'123'"
+                        - comma: ','
+                        - quoted_literal: "'456'"
+                        - end_square_bracket: ']'
+                    end_bracket: )
             - keyword: with
             - keyword: ordinality
             alias_expression:
@@ -173,16 +177,17 @@ file:
         - function:
             function_name:
               function_name_identifier: make_interval
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: mins
-            - expression:
-                assignment_operator: :=
-                column_reference:
-                  naked_identifier: activity_dur_mnt
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: mins
+              - expression:
+                  assignment_operator: :=
+                  column_reference:
+                    naked_identifier: activity_dur_mnt
+              - end_bracket: )
         - keyword: BETWEEN
         - cast_expression:
             quoted_literal: "'2024-01-07T00:00:00'"
@@ -206,38 +211,41 @@ file:
           function:
             function_name:
               function_name_identifier: ARRAY
-            bracketed:
-              start_bracket: (
-              set_expression:
-              - select_statement:
-                  select_clause:
-                    keyword: SELECT
-                    select_clause_element:
-                      function:
-                        function_name:
-                          function_name_identifier: UNNEST
-                        bracketed:
-                          start_bracket: (
-                          expression:
-                            column_reference:
-                              naked_identifier: list_field_1
-                          end_bracket: )
-              - set_operator:
-                  keyword: INTERSECT
-              - select_statement:
-                  select_clause:
-                    keyword: SELECT
-                    select_clause_element:
-                      function:
-                        function_name:
-                          function_name_identifier: UNNEST
-                        bracketed:
-                          start_bracket: (
-                          expression:
-                            column_reference:
-                              naked_identifier: list_field_2
-                          end_bracket: )
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                set_expression:
+                - select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        function:
+                          function_name:
+                            function_name_identifier: UNNEST
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                column_reference:
+                                  naked_identifier: list_field_1
+                              end_bracket: )
+                - set_operator:
+                    keyword: INTERSECT
+                - select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        function:
+                          function_name:
+                            function_name_identifier: UNNEST
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                column_reference:
+                                  naked_identifier: list_field_2
+                              end_bracket: )
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:

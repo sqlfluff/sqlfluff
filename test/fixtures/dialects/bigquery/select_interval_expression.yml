@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d973b9a726c598788c021623fc9aebce1cc2e27e1b0313ed61083bee0407123b
+_hash: f4496712c506844a60daae9f9da82165bde98db25d2893e5909e0e54f53db999
 file:
   statement:
     select_statement:
@@ -13,24 +13,26 @@ file:
           function:
             function_name:
               function_name_identifier: DATE_ADD
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: CURRENT_DATE
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
-            - comma: ','
-            - expression:
-                interval_expression:
-                  keyword: INTERVAL
-                  expression:
-                  - numeric_literal:
-                      sign_indicator: '-'
-                      numeric_literal: '1'
-                  - binary_operator: +
-                  - numeric_literal: '2'
-                  date_part: DAY
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: CURRENT_DATE
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  interval_expression:
+                    keyword: INTERVAL
+                    expression:
+                    - numeric_literal:
+                        sign_indicator: '-'
+                        numeric_literal: '1'
+                    - binary_operator: +
+                    - numeric_literal: '2'
+                    date_part: DAY
+              - end_bracket: )

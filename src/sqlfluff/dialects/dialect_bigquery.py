@@ -962,6 +962,55 @@ class FunctionNameSegment(ansi.FunctionNameSegment):
     )
 
 
+class DateTimeFunctionContentsSegment(ansi.DateTimeFunctionContentsSegment):
+    """Datetime function contents segment."""
+
+    match_grammar = Sequence(
+        Bracketed(
+            Delimited(
+                Ref("DatetimeUnitSegment"),
+                Ref("DatePartWeekSegment"),
+                Ref("FunctionContentsGrammar"),
+            ),
+        )
+    )
+
+
+class ExtractFunctionContentsSegment(BaseSegment):
+    """Extract Function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            OneOf(
+                Ref("DatetimeUnitSegment"),
+                Ref("DatePartWeekSegment"),
+                Ref("ExtendedDatetimeUnitSegment"),
+            ),
+            "FROM",
+            Ref("ExpressionSegment"),
+        ),
+    )
+
+
+class NormalizeFunctionContentsSegment(BaseSegment):
+    """Normalize Function Contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref("ExpressionSegment"),
+            Sequence(
+                Ref("CommaSegment"),
+                OneOf("NFC", "NFKC", "NFD", "NFKD"),
+                optional=True,
+            ),
+        ),
+    )
+
+
 class FunctionSegment(ansi.FunctionSegment):
     """A scalar or aggregate function.
 
@@ -976,28 +1025,13 @@ class FunctionSegment(ansi.FunctionSegment):
             Sequence(
                 # BigQuery EXTRACT allows optional TimeZone
                 Ref("ExtractFunctionNameSegment"),
-                Bracketed(
-                    OneOf(
-                        Ref("DatetimeUnitSegment"),
-                        Ref("DatePartWeekSegment"),
-                        Ref("ExtendedDatetimeUnitSegment"),
-                    ),
-                    "FROM",
-                    Ref("ExpressionSegment"),
-                ),
+                Ref("ExtractFunctionContentsSegment"),
             ),
             Sequence(
                 # BigQuery NORMALIZE allows optional normalization_mode
                 # https://cloud.google.com/bigquery/docs/reference/standard-sql/functions-and-operators#normalize
                 Ref("NormalizeFunctionNameSegment"),
-                Bracketed(
-                    Ref("ExpressionSegment"),
-                    Sequence(
-                        Ref("CommaSegment"),
-                        OneOf("NFC", "NFKC", "NFD", "NFKD"),
-                        optional=True,
-                    ),
-                ),
+                Ref("NormalizeFunctionContentsSegment"),
             ),
             Sequence(
                 # Treat functions which take date parts separately
@@ -1007,16 +1041,7 @@ class FunctionSegment(ansi.FunctionSegment):
                     "DatePartFunctionNameSegment",
                     exclude=Ref("ExtractFunctionNameSegment"),
                 ),
-                Bracketed(
-                    Delimited(
-                        Ref("DatetimeUnitSegment"),
-                        Ref("DatePartWeekSegment"),
-                        Ref(
-                            "FunctionContentsGrammar",
-                        ),
-                    ),
-                    parse_mode=ParseMode.GREEDY,
-                ),
+                Ref("DateTimeFunctionContentsSegment"),
             ),
             Sequence(
                 Sequence(
@@ -1028,14 +1053,7 @@ class FunctionSegment(ansi.FunctionSegment):
                             Ref("ValuesClauseSegment"),
                         ),
                     ),
-                    Bracketed(
-                        Ref(
-                            "FunctionContentsGrammar",
-                            # The brackets might be empty for some functions...
-                            optional=True,
-                        ),
-                        parse_mode=ParseMode.GREEDY,
-                    ),
+                    Ref("FunctionContentsSegment"),
                 ),
                 # Functions returning ARRAYS in BigQuery can have optional
                 # Array Accessor clauses
@@ -1247,6 +1265,18 @@ class StructTypeSchemaSegment(BaseSegment):
     )
 
 
+class ArrayFunctionContentsSegment(BaseSegment):
+    """Array function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref("SelectableGrammar"),
+        ),
+    )
+
+
 class ArrayExpressionSegment(ansi.ArrayExpressionSegment):
     """Expression to construct a ARRAY from a subquery.
 
@@ -1255,9 +1285,7 @@ class ArrayExpressionSegment(ansi.ArrayExpressionSegment):
 
     match_grammar = Sequence(
         Ref("ArrayFunctionNameSegment"),
-        Bracketed(
-            Ref("SelectableGrammar"),
-        ),
+        Ref("ArrayFunctionContentsSegment"),
     )
 
 

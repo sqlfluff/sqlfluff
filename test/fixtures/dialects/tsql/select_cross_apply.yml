@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 978778c9521da1e4ee1f39a434056c89bc91157e37ca808ef7949771b01af7a9
+_hash: 2f58b6cbab8fec025a7fc6a1f1072a36c146a38e23d5c96e4e6ea79650e53dbc
 file:
   batch:
   - statement:
@@ -52,14 +52,15 @@ file:
                       naked_identifier: dbo
                       dot: .
                       function_name_identifier: GetReports
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                        - naked_identifier: d
-                        - dot: .
-                        - naked_identifier: DeptMgrID
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                          - naked_identifier: d
+                          - dot: .
+                          - naked_identifier: DeptMgrID
+                        end_bracket: )
           statement_terminator: ;
   - statement:
       select_statement:
@@ -88,14 +89,15 @@ file:
                       naked_identifier: dbo
                       dot: .
                       function_name_identifier: fn_GetAllEmployeeOfADepartment
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                        - naked_identifier: D
-                        - dot: .
-                        - naked_identifier: DepartmentID
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                          - naked_identifier: D
+                          - dot: .
+                          - naked_identifier: DepartmentID
+                        end_bracket: )
           statement_terminator: ;
   - statement:
       select_statement:
@@ -130,30 +132,32 @@ file:
                   function:
                     function_name:
                       function_name_identifier: string_split
-                    bracketed:
-                    - start_bracket: (
-                    - expression:
-                        function:
-                          function_name:
-                            function_name_identifier: replace
-                          bracketed:
-                          - start_bracket: (
-                          - expression:
-                              column_reference:
-                              - naked_identifier: s
-                              - dot: .
-                              - naked_identifier: some_path
-                          - comma: ','
-                          - expression:
-                              quoted_literal: "'->'"
-                          - comma: ','
-                          - expression:
-                              quoted_literal: "'{'"
-                          - end_bracket: )
-                    - comma: ','
-                    - expression:
-                        quoted_literal: "'{'"
-                    - end_bracket: )
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          function:
+                            function_name:
+                              function_name_identifier: replace
+                            function_contents:
+                              bracketed:
+                              - start_bracket: (
+                              - expression:
+                                  column_reference:
+                                  - naked_identifier: s
+                                  - dot: .
+                                  - naked_identifier: some_path
+                              - comma: ','
+                              - expression:
+                                  quoted_literal: "'->'"
+                              - comma: ','
+                              - expression:
+                                  quoted_literal: "'{'"
+                              - end_bracket: )
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "'{'"
+                      - end_bracket: )
                 alias_expression:
                   keyword: as
                   naked_identifier: sp

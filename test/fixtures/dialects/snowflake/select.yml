@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 19749d766e5fbecede87e275131bee6e9f53d82122de5863166e211745a45eb3
+_hash: e04cf674461ae0533dfd32e6e7e16a4c4247b41edc11efd7b3e51c75b4be42af
 file:
 - statement:
     select_statement:
@@ -77,15 +77,16 @@ file:
           function:
             function_name:
               function_name_identifier: TRIM
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: value
-                semi_structured_expression:
-                  colon: ':'
-                  semi_structured_element: cross
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: value
+                  semi_structured_expression:
+                    colon: ':'
+                    semi_structured_element: cross
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: cross
@@ -142,20 +143,21 @@ file:
           function:
             function_name:
               function_name_identifier: coalesce
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                - naked_identifier: do
-                - dot: .
-                - naked_identifier: a
-            - comma: ','
-            - expression:
-                column_reference:
-                - naked_identifier: do
-                - dot: .
-                - naked_identifier: b
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: do
+                  - dot: .
+                  - naked_identifier: a
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: do
+                  - dot: .
+                  - naked_identifier: b
+              - end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: value

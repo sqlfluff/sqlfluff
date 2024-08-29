@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5ae9466354f14bd27c81ab733286658cf0954d0eefe200aeb4b58895acadcd7e
+_hash: 3f981faab492b7ca775ff380b8065518d427006901ffe9e4cddee3ff0a74a118
 file:
 - statement:
     create_materialized_view_statement:
@@ -131,9 +131,10 @@ file:
         table_engine_function:
           function_name:
             function_name_identifier: MergeTree
-          bracketed:
-            start_bracket: (
-            end_bracket: )
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
     - keyword: AS
     - select_statement:
         select_clause:
@@ -167,9 +168,10 @@ file:
         table_engine_function:
           function_name:
             function_name_identifier: MergeTree
-          bracketed:
-            start_bracket: (
-            end_bracket: )
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
     - keyword: AS
     - select_statement:
         select_clause:
@@ -203,9 +205,10 @@ file:
         table_engine_function:
           function_name:
             function_name_identifier: MergeTree
-          bracketed:
-            start_bracket: (
-            end_bracket: )
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
     - keyword: POPULATE
     - keyword: AS
     - select_statement:

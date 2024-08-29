@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d8b4d820058b33b2cf199bc7bebea3f367580db6212e60d743e6b4f1327ff79a
+_hash: 6aaec39c4f5fd57877e361ed9df99124b15b0275e8991710c063cf159f67c4a8
 file:
 - statement:
     create_table_statement:
@@ -283,12 +283,13 @@ file:
             function:
               function_name:
                 function_name_identifier: YEAR
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: c
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: c
+                  end_bracket: )
           end_bracket: )
     - keyword: PARTITIONS
     - numeric_literal: '1'

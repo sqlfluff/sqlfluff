@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d0731e93a28210a1498fa0f2eb9a15867fed52a6a72c77dcbf4c741d78fc1dd8
+_hash: c82ca669c2299cdb198e2d0fe80dc4dcaa2d08f12332be3d893b55a99dda7b78
 file:
 - statement:
     select_statement:
@@ -35,12 +35,13 @@ file:
           function:
             function_name:
               function_name_identifier: AVG
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: light
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: light
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: trips
@@ -84,43 +85,45 @@ file:
                 function:
                   function_name:
                     function_name_identifier: cast
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: time
-                      binary_operator: '-'
-                      function:
-                        function_name:
-                          function_name_identifier: LAG
-                        bracketed:
-                        - start_bracket: (
-                        - expression:
-                            column_reference:
-                              naked_identifier: time
-                        - comma: ','
-                        - expression:
-                            numeric_literal: '1'
-                        - comma: ','
-                        - expression:
-                            column_reference:
-                              naked_identifier: time
-                        - end_bracket: )
-                        over_clause:
-                          keyword: OVER
-                          bracketed:
-                            start_bracket: (
-                            window_specification:
-                              orderby_clause:
-                              - keyword: ORDER
-                              - keyword: BY
-                              - column_reference:
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: time
+                        binary_operator: '-'
+                        function:
+                          function_name:
+                            function_name_identifier: LAG
+                          function_contents:
+                            bracketed:
+                            - start_bracket: (
+                            - expression:
+                                column_reference:
                                   naked_identifier: time
-                            end_bracket: )
-                    keyword: as
-                    data_type:
-                      data_type_identifier: real
-                    end_bracket: )
+                            - comma: ','
+                            - expression:
+                                numeric_literal: '1'
+                            - comma: ','
+                            - expression:
+                                column_reference:
+                                  naked_identifier: time
+                            - end_bracket: )
+                          over_clause:
+                            keyword: OVER
+                            bracketed:
+                              start_bracket: (
+                              window_specification:
+                                orderby_clause:
+                                - keyword: ORDER
+                                - keyword: BY
+                                - column_reference:
+                                    naked_identifier: time
+                              end_bracket: )
+                      keyword: as
+                      data_type:
+                        data_type_identifier: real
+                      end_bracket: )
                 alias_expression:
                   keyword: AS
                   naked_identifier: time_spent
@@ -150,14 +153,15 @@ file:
               - function:
                   function_name:
                     function_name_identifier: DATE
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      quoted_literal: "'now'"
-                  - comma: ','
-                  - expression:
-                      quoted_literal: "'start of day'"
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        quoted_literal: "'now'"
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'start of day'"
+                    - end_bracket: )
             orderby_clause:
             - keyword: ORDER
             - keyword: BY
@@ -183,15 +187,16 @@ file:
             function:
               function_name:
                 function_name_identifier: cast
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: time_spent
-                keyword: as
-                data_type:
-                  data_type_identifier: real
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: time_spent
+                  keyword: as
+                  data_type:
+                    data_type_identifier: real
+                  end_bracket: )
             alias_expression:
               keyword: as
               naked_identifier: time_spent
@@ -200,40 +205,42 @@ file:
             function:
               function_name:
                 function_name_identifier: cast
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: time_spent
-                  binary_operator: /
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      select_statement:
-                        select_clause:
-                          keyword: SELECT
-                          select_clause_element:
-                            function:
-                              function_name:
-                                function_name_identifier: SUM
-                              bracketed:
-                                start_bracket: (
-                                expression:
-                                  column_reference:
-                                    naked_identifier: time_spent
-                                end_bracket: )
-                        from_clause:
-                          keyword: FROM
-                          from_expression:
-                            from_expression_element:
-                              table_expression:
-                                table_reference:
-                                  naked_identifier: time_cte
-                    end_bracket: )
-                keyword: as
-                data_type:
-                  data_type_identifier: real
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: time_spent
+                    binary_operator: /
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        select_statement:
+                          select_clause:
+                            keyword: SELECT
+                            select_clause_element:
+                              function:
+                                function_name:
+                                  function_name_identifier: SUM
+                                function_contents:
+                                  bracketed:
+                                    start_bracket: (
+                                    expression:
+                                      column_reference:
+                                        naked_identifier: time_spent
+                                    end_bracket: )
+                          from_clause:
+                            keyword: FROM
+                            from_expression:
+                              from_expression_element:
+                                table_expression:
+                                  table_reference:
+                                    naked_identifier: time_cte
+                      end_bracket: )
+                  keyword: as
+                  data_type:
+                    data_type_identifier: real
+                  end_bracket: )
             alias_expression:
               keyword: as
               naked_identifier: time_percentage
@@ -255,22 +262,24 @@ file:
                         function:
                           function_name:
                             function_name_identifier: cast
-                          bracketed:
-                            start_bracket: (
-                            expression:
-                              function:
-                                function_name:
-                                  function_name_identifier: SUM
-                                bracketed:
-                                  start_bracket: (
-                                  expression:
-                                    column_reference:
-                                      naked_identifier: time_spent
-                                  end_bracket: )
-                            keyword: as
-                            data_type:
-                              data_type_identifier: real
-                            end_bracket: )
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                function:
+                                  function_name:
+                                    function_name_identifier: SUM
+                                  function_contents:
+                                    bracketed:
+                                      start_bracket: (
+                                      expression:
+                                        column_reference:
+                                          naked_identifier: time_spent
+                                      end_bracket: )
+                              keyword: as
+                              data_type:
+                                data_type_identifier: real
+                              end_bracket: )
                         alias_expression:
                           keyword: AS
                           naked_identifier: time_spent

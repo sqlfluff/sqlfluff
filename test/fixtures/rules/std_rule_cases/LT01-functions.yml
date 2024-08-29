@@ -1,0 +1,28 @@
+rule: LT01
+
+test_pass_bare_function:
+  pass_str: COMMENT ON FUNCTION x IS 'y';
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_spaced_function:
+  fail_str: COMMENT ON FUNCTION x (foo) IS 'y';
+  fix_str: COMMENT ON FUNCTION x(foo) IS 'y';
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_rebalance_hint:
+  pass_str: SELECT /*+ REBALANCE */ 1 AS a FROM xxx.yyy;
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_drop_function_go:
+  pass_str: |
+    DROP FUNCTION IF EXISTS INTERNAL_ETL.DIL_md_ScdTest
+    GO
+  configs:
+    core:
+      dialect: tsql

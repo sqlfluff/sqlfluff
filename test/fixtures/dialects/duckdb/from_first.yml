@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b0fe3de7171dde996ba48218d48ce3e5d057d19ff7f8165a1b5790477579b2d9
+_hash: 9aab7451d76baf3e5132c047e1cd4c8fee339695fdfc28e3f4624e040bb24c1c
 file:
 - statement:
     select_statement:
@@ -41,11 +41,12 @@ file:
               function:
                 function_name:
                   function_name_identifier: range
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '100'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '100'
+                    end_bracket: )
             alias_expression:
               keyword: AS
               naked_identifier: t
@@ -60,14 +61,15 @@ file:
           function:
             function_name:
               function_name_identifier: sum
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                - naked_identifier: t
-                - dot: .
-                - naked_identifier: i
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                  - naked_identifier: t
+                  - dot: .
+                  - naked_identifier: i
+                end_bracket: )
       where_clause:
         keyword: WHERE
         expression:

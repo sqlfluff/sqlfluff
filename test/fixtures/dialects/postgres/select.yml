@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1818827714798203d7a569062b75aadd8498d9821b0246ee35253d494bd7b45e
+_hash: 67e1713643ad1d884f3672640f2d755a6731920489c151d97e18eb148e71cf48
 file:
 - statement:
     select_statement:
@@ -32,20 +32,21 @@ file:
           function:
             function_name:
               function_name_identifier: DATEADD
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: day
-            - comma: ','
-            - expression:
-                numeric_literal:
-                  sign_indicator: '-'
-                  numeric_literal: '2'
-            - comma: ','
-            - expression:
-                bare_function: current_date
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: day
+              - comma: ','
+              - expression:
+                  numeric_literal:
+                    sign_indicator: '-'
+                    numeric_literal: '2'
+              - comma: ','
+              - expression:
+                  bare_function: current_date
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -428,14 +429,15 @@ file:
                 function:
                   function_name:
                     function_name_identifier: somefunc
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                      - naked_identifier: tb
-                      - dot: .
-                      - naked_identifier: columnb
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - naked_identifier: tb
+                        - dot: .
+                        - naked_identifier: columnb
+                      end_bracket: )
               alias_expression:
                 keyword: as
                 naked_identifier: t
@@ -620,40 +622,18 @@ file:
           function:
             function_name:
               function_name_identifier: concat_lower_or_upper
-            bracketed:
-            - start_bracket: (
-            - expression:
-                quoted_literal: "'Hello'"
-            - comma: ','
-            - expression:
-                quoted_literal: "'World'"
-            - comma: ','
-            - expression:
-                boolean_literal: 'true'
-            - end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: concat_lower_or_upper
-            bracketed:
-            - start_bracket: (
-            - named_argument:
-                naked_identifier: a
-                right_arrow: =>
-                expression:
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
                   quoted_literal: "'Hello'"
-            - comma: ','
-            - named_argument:
-                naked_identifier: b
-                right_arrow: =>
-                expression:
+              - comma: ','
+              - expression:
                   quoted_literal: "'World'"
-            - end_bracket: )
+              - comma: ','
+              - expression:
+                  boolean_literal: 'true'
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -663,20 +643,45 @@ file:
           function:
             function_name:
               function_name_identifier: concat_lower_or_upper
-            bracketed:
-            - start_bracket: (
-            - expression:
-                quoted_literal: "'Hello'"
-            - comma: ','
-            - expression:
-                quoted_literal: "'World'"
-            - comma: ','
-            - named_argument:
-                naked_identifier: uppercase
-                right_arrow: =>
-                expression:
-                  boolean_literal: 'true'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - named_argument:
+                  naked_identifier: a
+                  right_arrow: =>
+                  expression:
+                    quoted_literal: "'Hello'"
+              - comma: ','
+              - named_argument:
+                  naked_identifier: b
+                  right_arrow: =>
+                  expression:
+                    quoted_literal: "'World'"
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: concat_lower_or_upper
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'Hello'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'World'"
+              - comma: ','
+              - named_argument:
+                  naked_identifier: uppercase
+                  right_arrow: =>
+                  expression:
+                    boolean_literal: 'true'
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 59854283b12c658cc7f78cd81bd2fc120411adf39a237545bcb8806adbb6184e
+_hash: 272c3f4d9cf3adb29f90515bdf11d7cf3ffad346745373ca3f3d0b1c063f42c4
 file:
   statement:
     select_statement:
@@ -13,26 +13,27 @@ file:
           function:
             function_name:
               function_name_identifier: mapjsonextractor
-            bracketed:
-            - start_bracket: (
-            - expression:
-              - quoted_literal: "'{\"data\":'"
-              - binary_operator:
-                - pipe: '|'
-                - pipe: '|'
-              - column_reference:
-                  naked_identifier: col
-              - binary_operator:
-                - pipe: '|'
-                - pipe: '|'
-              - quoted_literal: "'}'"
-            - keyword: using
-            - keyword: parameters
-            - parameter: flatten_maps
-            - comparison_operator:
-                raw_comparison_operator: '='
-            - boolean_literal: 'false'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: "'{\"data\":'"
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - column_reference:
+                    naked_identifier: col
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - quoted_literal: "'}'"
+              - keyword: using
+              - keyword: parameters
+              - parameter: flatten_maps
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - boolean_literal: 'false'
+              - end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: mapped

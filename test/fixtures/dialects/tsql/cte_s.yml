@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 784faa8eecac7eea5c5d415755498d13b962cf2ad57deaaaf51a2613ac99b3b7
+_hash: 28d4ee9ce94fd059c07f732f074a863f138bd2efd0c43d5efef6f7a6c9622dde
 file:
   batch:
     statement:
@@ -33,10 +33,11 @@ file:
                   function:
                     function_name:
                       function_name_identifier: COUNT
-                    bracketed:
-                      start_bracket: (
-                      star: '*'
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        star: '*'
+                        end_bracket: )
               from_clause:
                 keyword: FROM
                 from_expression:
@@ -67,12 +68,13 @@ file:
               function:
                 function_name:
                   function_name_identifier: AVG
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: NumberOfOrders
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: NumberOfOrders
+                    end_bracket: )
               alias_expression:
                 keyword: AS
                 quoted_identifier: '"Average Sales Per Person"'

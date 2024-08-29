@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c4059991d0b3d710932cb8c93294b824cb99997a328bde7be4272f3feb3b92bb
+_hash: da4c5c9fc7c3929c137019196d2e5ce8892c9e20f7f556c3ccda41993dd8183f
 file:
 - statement:
     merge_statement:
@@ -266,9 +266,10 @@ file:
         - function:
             function_name:
               function_name_identifier: current_date
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
         - binary_operator: '-'
         - interval_expression:
             keyword: INTERVAL
@@ -291,9 +292,10 @@ file:
             function:
               function_name:
                 function_name_identifier: current_date
-              bracketed:
-                start_bracket: (
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
             binary_operator: '-'
             interval_expression:
               keyword: INTERVAL
@@ -579,27 +581,29 @@ file:
                           function:
                             function_name:
                               function_name_identifier: max
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                                function:
-                                  function_name:
-                                    function_name_identifier: struct
-                                  bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                      column_reference:
-                                        naked_identifier: change_time
-                                  - comma: ','
-                                  - expression:
-                                      column_reference:
-                                        naked_identifier: new_value
-                                  - comma: ','
-                                  - expression:
-                                      column_reference:
-                                        naked_identifier: deleted
-                                  - end_bracket: )
-                              end_bracket: )
+                            function_contents:
+                              bracketed:
+                                start_bracket: (
+                                expression:
+                                  function:
+                                    function_name:
+                                      function_name_identifier: struct
+                                    function_contents:
+                                      bracketed:
+                                      - start_bracket: (
+                                      - expression:
+                                          column_reference:
+                                            naked_identifier: change_time
+                                      - comma: ','
+                                      - expression:
+                                          column_reference:
+                                            naked_identifier: new_value
+                                      - comma: ','
+                                      - expression:
+                                          column_reference:
+                                            naked_identifier: deleted
+                                      - end_bracket: )
+                                end_bracket: )
                           alias_expression:
                             keyword: AS
                             naked_identifier: latest

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f4b86a7638518705da9729065b94d36abfa0744a661096299f037753b0d767d3
+_hash: 9ac91808a58c4343fd91d888bc318bccfefabe3becfc1fa4245685aded1ade03
 file:
 - statement:
     create_function_statement:
@@ -100,12 +100,13 @@ file:
               naked_identifier: hello
               dot: .
               function_name_identifier: world
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  quoted_identifier: '"no"'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    quoted_identifier: '"no"'
+                end_bracket: )
           statement_terminator: ;
     - keyword: RETURN
     - expression:

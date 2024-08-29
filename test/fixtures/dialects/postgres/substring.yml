@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1b7a79fc4f2b4f728399d13011578eb55269a06c250b786470802f51e110ba7f
+_hash: 93612644a360bc8bf866c2d3a1cdfdf64bae130649ec3bfbb6aff52be10e04a2
 file:
 - statement:
     select_statement:
@@ -21,17 +21,18 @@ file:
               function:
                 function_name:
                   function_name_identifier: substring
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    quoted_literal: "'Thomas'"
-                - keyword: from
-                - expression:
-                    numeric_literal: '2'
-                - keyword: for
-                - expression:
-                    numeric_literal: '3'
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'Thomas'"
+                  - keyword: from
+                  - expression:
+                      numeric_literal: '2'
+                  - keyword: for
+                  - expression:
+                      numeric_literal: '3'
+                  - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -49,14 +50,15 @@ file:
               function:
                 function_name:
                   function_name_identifier: substring
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    quoted_literal: "'Thomas'"
-                - keyword: from
-                - expression:
-                    numeric_literal: '3'
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'Thomas'"
+                  - keyword: from
+                  - expression:
+                      numeric_literal: '3'
+                  - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -74,14 +76,15 @@ file:
               function:
                 function_name:
                   function_name_identifier: substring
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    quoted_literal: "'Thomas'"
-                - keyword: for
-                - expression:
-                    numeric_literal: '2'
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'Thomas'"
+                  - keyword: for
+                  - expression:
+                      numeric_literal: '2'
+                  - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -99,19 +102,20 @@ file:
               function:
                 function_name:
                   function_name_identifier: substring
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    quoted_literal: "'Thomas'"
-                - expression:
-                    data_type:
-                      data_type_identifier: similar
-                    quoted_literal: "'%#\"o_a#\"_'"
-                - expression:
-                    data_type:
-                      data_type_identifier: escape
-                    quoted_literal: "'#'"
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'Thomas'"
+                  - expression:
+                      data_type:
+                        data_type_identifier: similar
+                      quoted_literal: "'%#\"o_a#\"_'"
+                  - expression:
+                      data_type:
+                        data_type_identifier: escape
+                      quoted_literal: "'#'"
+                  - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -129,12 +133,13 @@ file:
               function:
                 function_name:
                   function_name_identifier: substring
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    quoted_literal: "'Thomas'"
-                - keyword: from
-                - expression:
-                    quoted_literal: "'...$'"
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'Thomas'"
+                  - keyword: from
+                  - expression:
+                      quoted_literal: "'...$'"
+                  - end_bracket: )
 - statement_terminator: ;

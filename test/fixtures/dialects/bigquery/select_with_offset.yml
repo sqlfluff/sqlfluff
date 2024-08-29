@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 71e16dfa6259fe56b20ec3371bfdd21e73a17bdadb948b9e228fd8a29d5ad18d
+_hash: 04d70d4a45675c4fb603f14edc7ec89feb9fa467d13a80d213fdf09b1fa3c9be
 file:
   statement:
     select_statement:
@@ -13,30 +13,31 @@ file:
           function:
             function_name:
               function_name_identifier: SUM
-            bracketed:
-              start_bracket: (
-              expression:
-                case_expression:
-                - keyword: CASE
-                - when_clause:
-                  - keyword: WHEN
-                  - expression:
-                    - column_reference:
-                        naked_identifier: value
-                    - comparison_operator:
-                      - raw_comparison_operator: '!'
-                      - raw_comparison_operator: '='
-                    - column_reference:
-                        naked_identifier: previous_value
-                  - keyword: THEN
-                  - expression:
-                      numeric_literal: '1.0'
-                - else_clause:
-                    keyword: ELSE
-                    expression:
-                      numeric_literal: '0.0'
-                - keyword: END
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  case_expression:
+                  - keyword: CASE
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                      - column_reference:
+                          naked_identifier: value
+                      - comparison_operator:
+                        - raw_comparison_operator: '!'
+                        - raw_comparison_operator: '='
+                      - column_reference:
+                          naked_identifier: previous_value
+                    - keyword: THEN
+                    - expression:
+                        numeric_literal: '1.0'
+                  - else_clause:
+                      keyword: ELSE
+                      expression:
+                        numeric_literal: '0.0'
+                  - keyword: END
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -69,12 +70,13 @@ file:
                               function:
                                 function_name:
                                   function_name_identifier: LAG
-                                bracketed:
-                                  start_bracket: (
-                                  expression:
-                                    column_reference:
-                                      naked_identifier: value
-                                  end_bracket: )
+                                function_contents:
+                                  bracketed:
+                                    start_bracket: (
+                                    expression:
+                                      column_reference:
+                                        naked_identifier: value
+                                    end_bracket: )
                                 over_clause:
                                   keyword: OVER
                                   bracketed:
@@ -104,14 +106,15 @@ file:
                           function:
                             function_name:
                               function_name_identifier: UNNEST
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                                column_reference:
-                                - naked_identifier: sequence_validation_and_business_rules
-                                - dot: .
-                                - naked_identifier: sequence_validation_and_business_rules
-                              end_bracket: )
+                            function_contents:
+                              bracketed:
+                                start_bracket: (
+                                expression:
+                                  column_reference:
+                                  - naked_identifier: sequence_validation_and_business_rules
+                                  - dot: .
+                                  - naked_identifier: sequence_validation_and_business_rules
+                                end_bracket: )
                       - alias_expression:
                           keyword: AS
                           naked_identifier: value
