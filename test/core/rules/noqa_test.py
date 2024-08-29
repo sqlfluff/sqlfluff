@@ -555,3 +555,51 @@ def test_linter_noqa_disable():
     violations_noqa_disabled = result_noqa_disabled.get_violations()
     assert len(violations_noqa_disabled) == 1
     assert violations_noqa_disabled[0].rule.code == "AL02"
+
+
+def test_linter_disable_noqa_except():
+    """Test "noqa" comments can be disabled via the config."""
+    lntr_disable_noqa_except_al02 = Linter(
+        config=FluffConfig(
+            overrides={
+                "disable_noqa_except": "AL02",
+                "rules": "AL02, CP01",
+                "dialect": "ansi",
+            }
+        )
+    )
+    lntr_disable_noqa_except_core = Linter(
+        config=FluffConfig(
+            overrides={
+                "disable_noqa_except": "core",
+                "rules": "AL02, CP01",
+                "dialect": "ansi",
+            }
+        )
+    )
+    # This query raises AL02 and CP01 but it is being suppressed by the inline noqa
+    # comments. We can partially ignore these comment by setting
+    # disable_noqa_except = rule_list in the config or by using the
+    # --disable-noqa-except option in the CLI.
+    sql = """
+    SELECT
+    col_a a, --noqa: AL02
+    col_b b --noqa: aliasing
+    from foo; --noqa: CP01
+    """
+
+    # Verify that noqa comment is ignored with
+    # disable_noqa_except = AL02 (base rule name).
+    result_disable_noqa_except_al02 = lntr_disable_noqa_except_al02.lint_string(sql)
+    violations_disable_noqa_except_al02 = (
+        result_disable_noqa_except_al02.get_violations()
+    )
+    assert len(violations_disable_noqa_except_al02) == 1
+    assert violations_disable_noqa_except_al02[0].rule.code == "CP01"
+
+    # Verify that noqa works as expected with disable_noqa_except = core (rule alias).
+    result_disable_noqa_except_core = lntr_disable_noqa_except_core.lint_string(sql)
+    violations_disable_noqa_except_core = (
+        result_disable_noqa_except_core.get_violations()
+    )
+    assert len(violations_disable_noqa_except_core) == 0
