@@ -241,23 +241,23 @@ def test__config__validate_configs_indirect():
     [
         (
             # "types" not "type"
-            "-- sqlfluff:layout:types:comma:line_position:leading\n" "SELECT 1"
+            "-- sqlfluff:layout:types:comma:line_position:leading\nSELECT 1"
         ),
         (
             # Unsupported layout config length
-            "-- sqlfluff:layout:foo\n" "SELECT 1"
+            "-- sqlfluff:layout:foo\nSELECT 1"
         ),
         (
             # Unsupported layout config length
-            "-- sqlfluff:layout:type:comma:bar\n" "SELECT 1"
+            "-- sqlfluff:layout:type:comma:bar\nSELECT 1"
         ),
         (
             # Unsupported layout config key ("foo")
-            "-- sqlfluff:layout:type:comma:foo:bar\n" "SELECT 1"
+            "-- sqlfluff:layout:type:comma:foo:bar\nSELECT 1"
         ),
         (
             # Unsupported layout config key ("foo") [no space]
-            "--sqlfluff:layout:type:comma:foo:bar\n" "SELECT 1"
+            "--sqlfluff:layout:type:comma:foo:bar\nSELECT 1"
         ),
     ],
 )

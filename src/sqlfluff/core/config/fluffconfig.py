@@ -2,12 +2,6 @@
 
 from __future__ import annotations
 
-try:
-    from importlib.resources import files
-except ImportError:  # pragma: no cover
-    # fallback for python <=3.8
-    pass  # type: ignore
-
 import logging
 import sys
 from itertools import chain
