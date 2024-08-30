@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bceadfcc2e3aaafb5def62f48dbdfb315fcb41b776861ca60ee27a30ae879b24
+_hash: fcd45e4bfc926fc7964ac237184ab221afd81ffb7c16348f340df940cc927106
 file:
 - statement:
     create_row_access_policy_statement:
@@ -97,9 +97,10 @@ file:
           function:
             function_name:
               function_name_identifier: SESSION_USER
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -134,9 +135,10 @@ file:
           function:
             function_name:
               function_name_identifier: SESSION_USER
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
           keyword: IN
           bracketed:
           - start_bracket: (
@@ -175,15 +177,16 @@ file:
               naked_identifier: example_dataset
               dot: .
               function_name_identifier: exampleFunction
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: x
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: y
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: y
+              - end_bracket: )
         end_bracket: )
 - statement_terminator: ;

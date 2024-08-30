@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fb85bb2c43e9968755abad0c47226608abf6d3e95a76f67ab38b697b2416a423
+_hash: e7004b872dc2f2f594569320bec13334465f1a7ab592c1353a2e95f7630f7501
 file:
 - statement:
     select_statement:
@@ -46,12 +46,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: sum
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: sales
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: sales
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: sales
@@ -139,12 +140,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: sum
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: sales
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: sales
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: sales
@@ -318,12 +320,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: sum
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: sales
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: sales
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: sales
@@ -436,12 +439,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: sum
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: sales
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: sales
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: total
@@ -449,12 +453,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: avg
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: sales
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: sales
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: avg
@@ -530,12 +535,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: sum
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: sales
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: sales
+                    end_bracket: )
             - keyword: FOR
             - naked_identifier: quarter
             - keyword: IN

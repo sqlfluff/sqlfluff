@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f69e82d537f53274885f22d0d50064f386a37892894385e9d24aeb7ecffe0777
+_hash: f15cd480a09880e728084ea3f301f2e785d92fdbd2f63528f9468f68db87cdb5
 file:
 - statement:
     select_statement:
@@ -13,20 +13,21 @@ file:
           function:
             function_name:
               function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: HOUR
-              keyword: FROM
-              expression:
-                column_reference:
-                  naked_identifier: some_timestamp
-                time_zone_grammar:
-                - keyword: AT
-                - keyword: TIME
-                - keyword: ZONE
-                - expression:
-                    quoted_literal: '"UTC"'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: HOUR
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: some_timestamp
+                  time_zone_grammar:
+                  - keyword: AT
+                  - keyword: TIME
+                  - keyword: ZONE
+                  - expression:
+                      quoted_literal: '"UTC"'
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -36,21 +37,22 @@ file:
           function:
             function_name:
               function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: HOUR
-              keyword: FROM
-              expression:
-                column_reference:
-                  naked_identifier: some_timestamp
-                time_zone_grammar:
-                - keyword: AT
-                - keyword: TIME
-                - keyword: ZONE
-                - expression:
-                    column_reference:
-                      naked_identifier: timezone_column
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: HOUR
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: some_timestamp
+                  time_zone_grammar:
+                  - keyword: AT
+                  - keyword: TIME
+                  - keyword: ZONE
+                  - expression:
+                      column_reference:
+                        naked_identifier: timezone_column
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     with_compound_statement:
@@ -67,11 +69,12 @@ file:
                 function:
                   function_name:
                     function_name_identifier: TIMESTAMP
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      quoted_literal: '"2008-12-25 05:30:00+00"'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: '"2008-12-25 05:30:00+00"'
+                      end_bracket: )
                 alias_expression:
                   keyword: AS
                   naked_identifier: timestamp_value
@@ -83,20 +86,21 @@ file:
             function:
               function_name:
                 function_name_identifier: EXTRACT
-              bracketed:
-                start_bracket: (
-                date_part: DAY
-                keyword: FROM
-                expression:
-                  column_reference:
-                    naked_identifier: timestamp_value
-                  time_zone_grammar:
-                  - keyword: AT
-                  - keyword: TIME
-                  - keyword: ZONE
-                  - expression:
-                      quoted_literal: '"UTC"'
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  date_part: DAY
+                  keyword: FROM
+                  expression:
+                    column_reference:
+                      naked_identifier: timestamp_value
+                    time_zone_grammar:
+                    - keyword: AT
+                    - keyword: TIME
+                    - keyword: ZONE
+                    - expression:
+                        quoted_literal: '"UTC"'
+                  end_bracket: )
             alias_expression:
               keyword: AS
               naked_identifier: the_day_utc
@@ -105,20 +109,21 @@ file:
             function:
               function_name:
                 function_name_identifier: EXTRACT
-              bracketed:
-                start_bracket: (
-                date_part: DAY
-                keyword: FROM
-                expression:
-                  column_reference:
-                    naked_identifier: timestamp_value
-                  time_zone_grammar:
-                  - keyword: AT
-                  - keyword: TIME
-                  - keyword: ZONE
-                  - expression:
-                      quoted_literal: '"America/Los_Angeles"'
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  date_part: DAY
+                  keyword: FROM
+                  expression:
+                    column_reference:
+                      naked_identifier: timestamp_value
+                    time_zone_grammar:
+                    - keyword: AT
+                    - keyword: TIME
+                    - keyword: ZONE
+                    - expression:
+                        quoted_literal: '"America/Los_Angeles"'
+                  end_bracket: )
             alias_expression:
               keyword: AS
               naked_identifier: the_day_california

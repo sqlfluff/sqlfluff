@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 610929197500be6e6afbabe65745f88a5167d5ad1c2c5759bc97e40677ecc2f9
+_hash: eada22ea9c1d8628e6412ecd144c4562a8ec776786757cef81965a684c82d9f0
 file:
 - statement:
     select_statement:
@@ -13,14 +13,15 @@ file:
           function:
             function_name:
               function_name_identifier: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '1'
-              keyword: AS
-              data_type:
-                data_type_identifier: FLOAT64
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '1'
+                keyword: AS
+                data_type:
+                  data_type_identifier: FLOAT64
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -30,14 +31,15 @@ file:
           function:
             function_name:
               function_name_identifier: SAFE_CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '1.0'
-              keyword: AS
-              data_type:
-                data_type_identifier: INT64
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '1.0'
+                keyword: AS
+                data_type:
+                  data_type_identifier: INT64
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -47,25 +49,26 @@ file:
           function:
             function_name:
               function_name_identifier: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                typed_array_literal:
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                      start_square_bracket: '['
+                      quoted_literal: '"element1"'
+                      end_square_bracket: ']'
+                keyword: AS
+                data_type:
                   array_type:
                     keyword: ARRAY
-                  array_literal:
-                    start_square_bracket: '['
-                    quoted_literal: '"element1"'
-                    end_square_bracket: ']'
-              keyword: AS
-              data_type:
-                array_type:
-                  keyword: ARRAY
-                  start_angle_bracket: <
-                  data_type:
-                    data_type_identifier: STRING
-                  end_angle_bracket: '>'
-              end_bracket: )
+                    start_angle_bracket: <
+                    data_type:
+                      data_type_identifier: STRING
+                    end_angle_bracket: '>'
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -75,18 +78,19 @@ file:
           function:
             function_name:
               function_name_identifier: CAST
-            bracketed:
-            - start_bracket: (
-            - expression:
-                quoted_literal: "b'\\x48\\x65\\x6c\\x6c\\x6f'"
-            - keyword: AS
-            - data_type:
-                data_type_identifier: STRING
-            - expression:
-                data_type:
-                  data_type_identifier: FORMAT
-                quoted_literal: "'ASCII'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "b'\\x48\\x65\\x6c\\x6c\\x6f'"
+              - keyword: AS
+              - data_type:
+                  data_type_identifier: STRING
+              - expression:
+                  data_type:
+                    data_type_identifier: FORMAT
+                  quoted_literal: "'ASCII'"
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: bytes_to_string
@@ -99,19 +103,20 @@ file:
           function:
             function_name:
               function_name_identifier: CAST
-            bracketed:
-            - start_bracket: (
-            - expression:
-                keyword: TIMESTAMP
-                date_constructor_literal: "'2008-12-25 00:00:00+00:00'"
-            - keyword: AS
-            - data_type:
-                data_type_identifier: STRING
-            - expression:
-                data_type:
-                  data_type_identifier: FORMAT
-                quoted_literal: "'YYYY-MM-DD HH24:MI:SS TZH:TZM'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  keyword: TIMESTAMP
+                  date_constructor_literal: "'2008-12-25 00:00:00+00:00'"
+              - keyword: AS
+              - data_type:
+                  data_type_identifier: STRING
+              - expression:
+                  data_type:
+                    data_type_identifier: FORMAT
+                  quoted_literal: "'YYYY-MM-DD HH24:MI:SS TZH:TZM'"
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: date_time_to_string

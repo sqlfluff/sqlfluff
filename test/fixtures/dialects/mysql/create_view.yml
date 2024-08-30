@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3e9bbd59a0d1ce854d53cbe5270251f1551a34b005c745aa4d0df38434202969
+_hash: 2fb2b7b92145a270d64b62a485c50214b9a7c2db798ad5427f73a153042c91a7
 file:
 - statement:
     create_view_statement:
@@ -106,23 +106,24 @@ file:
               function:
                 function_name:
                   function_name_identifier: all
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    select_statement:
-                      select_clause:
-                        keyword: SELECT
-                        select_clause_element:
-                          column_reference:
-                            naked_identifier: a
-                      from_clause:
-                        keyword: FROM
-                        from_expression:
-                          from_expression_element:
-                            table_expression:
-                              table_reference:
-                                naked_identifier: t1
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      select_statement:
+                        select_clause:
+                          keyword: SELECT
+                          select_clause_element:
+                            column_reference:
+                              naked_identifier: a
+                        from_clause:
+                          keyword: FROM
+                          from_expression:
+                            from_expression_element:
+                              table_expression:
+                                table_reference:
+                                  naked_identifier: t1
+                    end_bracket: )
         from_clause:
           keyword: FROM
           from_expression:

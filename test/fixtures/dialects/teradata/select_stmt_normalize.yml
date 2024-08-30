@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e3ba8a2583bd3448e0e87373ae5338ec94005ee9f3273e6cd0b8bc083b273bd9
+_hash: 7d49444be58b60dfc2f752253ea1da391b9304404d1d3cda0ac8787637f82962
 file:
 - statement:
     select_statement:
@@ -23,16 +23,17 @@ file:
           function:
             function_name:
               function_name_identifier: period
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: vld_fm
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: vld_to
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: vld_fm
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: vld_to
+              - end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: vld_prd

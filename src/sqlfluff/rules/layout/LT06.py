@@ -48,15 +48,15 @@ class Rule_LT06(BaseRule):
         problematic.
         """
         segment = FunctionalContext(context).segment
-        # We only trigger on start_bracket (open parenthesis)
+        # We only trigger on function contents
         assert segment.all(sp.is_type("function"))
         children = segment.children()
 
         function_name = children.first(sp.is_type("function_name"))[0]
-        start_bracket = children.first(sp.is_type("bracketed"))[0]
+        function_contents = children.first(sp.is_type("function_contents"))[0]
 
         intermediate_segments = children.select(
-            start_seg=function_name, stop_seg=start_bracket
+            start_seg=function_name, stop_seg=function_contents
         )
         if intermediate_segments:
             # It's only safe to fix if there is only whitespace

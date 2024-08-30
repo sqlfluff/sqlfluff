@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 66f105854e20ea613349b87e5fd01940354366028f1563f4055ba13ed95548b9
+_hash: 36ca70b644814cbc9a23997363165bce11b299064a791a04c53a9f508a688e75
 file:
 - statement:
     alter_table_statement:
@@ -570,12 +570,13 @@ file:
               function:
                 function_name:
                   function_name_identifier: abs
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: b
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: b
+                    end_bracket: )
             end_bracket: )
         - keyword: VIRTUAL
 - statement_terminator: ;
@@ -601,22 +602,23 @@ file:
               function:
                 function_name:
                   function_name_identifier: substr
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    column_reference:
-                      naked_identifier: c
-                - comma: ','
-                - expression:
-                    column_reference:
-                      naked_identifier: b
-                - comma: ','
-                - expression:
-                    column_reference:
-                      naked_identifier: b
-                    binary_operator: +
-                    numeric_literal: '1'
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: c
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: b
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: b
+                      binary_operator: +
+                      numeric_literal: '1'
+                  - end_bracket: )
             end_bracket: )
         - keyword: STORED
 - statement_terminator: ;
@@ -642,22 +644,23 @@ file:
               function:
                 function_name:
                   function_name_identifier: substr
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    column_reference:
-                      naked_identifier: c
-                - comma: ','
-                - expression:
-                    column_reference:
-                      naked_identifier: b
-                - comma: ','
-                - expression:
-                    column_reference:
-                      naked_identifier: b
-                    binary_operator: +
-                    numeric_literal: '1'
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: c
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: b
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: b
+                      binary_operator: +
+                      numeric_literal: '1'
+                  - end_bracket: )
             end_bracket: )
         - keyword: PERSISTENT
 - statement_terminator: ;
@@ -684,12 +687,13 @@ file:
               function:
                 function_name:
                   function_name_identifier: abs
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: b
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: b
+                    end_bracket: )
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -712,22 +716,23 @@ file:
               function:
                 function_name:
                   function_name_identifier: substr
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    column_reference:
-                      naked_identifier: c
-                - comma: ','
-                - expression:
-                    column_reference:
-                      naked_identifier: b
-                - comma: ','
-                - expression:
-                    column_reference:
-                      naked_identifier: b
-                    binary_operator: +
-                    numeric_literal: '1'
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: c
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: b
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: b
+                      binary_operator: +
+                      numeric_literal: '1'
+                  - end_bracket: )
             end_bracket: )
         - keyword: STORED
 - statement_terminator: ;
@@ -751,22 +756,23 @@ file:
               function:
                 function_name:
                   function_name_identifier: substr
-                bracketed:
-                - start_bracket: (
-                - expression:
-                    column_reference:
-                      naked_identifier: c
-                - comma: ','
-                - expression:
-                    column_reference:
-                      naked_identifier: b
-                - comma: ','
-                - expression:
-                    column_reference:
-                      naked_identifier: b
-                    binary_operator: +
-                    numeric_literal: '1'
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: c
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: b
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: b
+                      binary_operator: +
+                      numeric_literal: '1'
+                  - end_bracket: )
             end_bracket: )
         - keyword: PERSISTENT
 - statement_terminator: ;

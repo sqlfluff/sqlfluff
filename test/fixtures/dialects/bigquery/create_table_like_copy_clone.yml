@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 53452e24fda4345fb426d5c1d1df4c0eeeb71f3b343821d0e1629f6f82a3dd88
+_hash: 19ecf25d54274fb487ca055881a05fea3fa16e59c7f5d66296535a409ffcbf5b
 file:
 - statement:
     create_table_statement:
@@ -103,9 +103,10 @@ file:
           function:
             function_name:
               function_name_identifier: CURRENT_TIMESTAMP
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
     - options_segment:
         keyword: OPTIONS
         bracketed:

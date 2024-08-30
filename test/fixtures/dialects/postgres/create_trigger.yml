@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 834efd7fb7e37450e536ce2dfe8cd171d0c3f52d1c3749a32167280fdb466071
+_hash: 56480788d573c81c4ae61f3a8b80adf517b9075a2f420a82aaef1ee3889e0602
 file:
 - statement:
     create_trigger:
@@ -21,12 +21,13 @@ file:
     - function:
         function_name:
           function_name_identifier: proc
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: args
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: args
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -44,12 +45,13 @@ file:
     - function:
         function_name:
           function_name_identifier: proc
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: args
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: args
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -73,12 +75,13 @@ file:
     - function:
         function_name:
           function_name_identifier: proc
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: args
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: args
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -106,12 +109,13 @@ file:
     - function:
         function_name:
           function_name_identifier: proc
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: args
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: args
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -141,12 +145,13 @@ file:
           naked_identifier: schema
           dot: .
           function_name_identifier: proc
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: args
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: args
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -175,12 +180,13 @@ file:
     - function:
         function_name:
           function_name_identifier: proc
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: args
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: args
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -201,12 +207,13 @@ file:
     - function:
         function_name:
           function_name_identifier: proc
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: args
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: args
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -235,12 +242,13 @@ file:
     - function:
         function_name:
           function_name_identifier: proc
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: args
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: args
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -263,9 +271,10 @@ file:
     - function:
         function_name:
           function_name_identifier: check_account_update
-        bracketed:
-          start_bracket: (
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -294,9 +303,10 @@ file:
     - function:
         function_name:
           function_name_identifier: check_account_update
-        bracketed:
-          start_bracket: (
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -327,9 +337,10 @@ file:
     - function:
         function_name:
           function_name_identifier: check_account_update
-        bracketed:
-          start_bracket: (
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -355,9 +366,10 @@ file:
     - function:
         function_name:
           function_name_identifier: check_account_update
-        bracketed:
-          start_bracket: (
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -394,9 +406,10 @@ file:
     - function:
         function_name:
           function_name_identifier: check_account_update
-        bracketed:
-          start_bracket: (
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -418,9 +431,10 @@ file:
     - function:
         function_name:
           function_name_identifier: view_insert_row
-        bracketed:
-          start_bracket: (
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -447,9 +461,10 @@ file:
     - function:
         function_name:
           function_name_identifier: check_transfer_balances_to_zero
-        bracketed:
-          start_bracket: (
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -481,9 +496,10 @@ file:
     - function:
         function_name:
           function_name_identifier: check_matching_pairs
-        bracketed:
-          start_bracket: (
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
@@ -518,7 +534,8 @@ file:
     - function:
         function_name:
           function_name_identifier: log_account_update
-        bracketed:
-          start_bracket: (
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
 - statement_terminator: ;

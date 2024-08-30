@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e4cd1865f3249c47d6563862d76c7c584880f4ec5c126ddb23fe3b471517dc9d
+_hash: 6a450ddfea76187e4c305b5fa118cee72a2995a09a62ff249df2605ddaddf871
 file:
 - multi_statement_segment:
     create_procedure_statement:
@@ -30,9 +30,10 @@ file:
                 function:
                   function_name:
                     function_name_identifier: CURRENT_DATETIME
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
@@ -231,10 +232,11 @@ file:
                     function:
                       function_name:
                         function_name_identifier: COUNT
-                      bracketed:
-                        start_bracket: (
-                        star: '*'
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          star: '*'
+                          end_bracket: )
                 from_clause:
                   keyword: FROM
                   from_expression:
@@ -312,9 +314,10 @@ file:
             function:
               function_name:
                 function_name_identifier: GENERATE_UUID
-              bracketed:
-                start_bracket: (
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
       - statement_terminator: ;
       - statement:
           insert_statement:
@@ -346,15 +349,16 @@ file:
                 function:
                   function_name:
                     function_name_identifier: FORMAT
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      quoted_literal: '"Created customer %s"'
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                        naked_identifier: id
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        quoted_literal: '"Created customer %s"'
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: id
+                    - end_bracket: )
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
@@ -393,9 +397,10 @@ file:
             function:
               function_name:
                 function_name_identifier: GENERATE_UUID
-              bracketed:
-                start_bracket: (
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
       - statement_terminator: ;
       - statement:
           insert_statement:
@@ -434,19 +439,20 @@ file:
                 function:
                   function_name:
                     function_name_identifier: FORMAT
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      quoted_literal: '"Created customer %s (%s)"'
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                        naked_identifier: id
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                        naked_identifier: name
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        quoted_literal: '"Created customer %s (%s)"'
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: id
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: name
+                    - end_bracket: )
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
@@ -483,9 +489,10 @@ file:
             function:
               function_name:
                 function_name_identifier: GENERATE_UUID
-              bracketed:
-                start_bracket: (
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
       - statement_terminator: ;
       - statement:
           insert_statement:
@@ -524,19 +531,20 @@ file:
                 function:
                   function_name:
                     function_name_identifier: FORMAT
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      quoted_literal: '"Created customer %s (%s)"'
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                        naked_identifier: id
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                        naked_identifier: name
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        quoted_literal: '"Created customer %s (%s)"'
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: id
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: name
+                    - end_bracket: )
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;

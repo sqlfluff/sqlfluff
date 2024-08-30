@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f6284ad17cca775e8dc9aee5fe276a1e65b6d4f00bfdaa01ddbc5827a1ac8761
+_hash: 19b6645165be70ef581581387fcbd95c5fe6a14ac711567a4f5ec721146de027
 file:
 - statement:
     with_compound_statement:
@@ -118,12 +118,13 @@ file:
           function:
             function_name:
               function_name_identifier: max
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: c
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: c
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:

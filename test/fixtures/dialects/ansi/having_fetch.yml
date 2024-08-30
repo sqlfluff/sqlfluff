@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5eabc81d543256d133d52eba8e50015bdbc30e9b8bac8f19202393dc712ed6f6
+_hash: 51ddcc4a3d1b117bcd12b7828ca5486b2760468cc3231604b132c9b782cd4f20
 file:
   statement:
     select_statement:
@@ -17,12 +17,13 @@ file:
           function:
             function_name:
               function_name_identifier: COUNT
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: person_id
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: person_id
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -41,12 +42,13 @@ file:
           function:
             function_name:
               function_name_identifier: COUNT
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: person_id
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: person_id
+                end_bracket: )
           comparison_operator:
             raw_comparison_operator: '>'
           numeric_literal: '10'

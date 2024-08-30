@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 876d3e99f9a162ad647cc28a39d0eaa9c9e5e52570c8248c9e4ae9eb87ce2c90
+_hash: 9c667932554dd99405cd329846504296aa7e39d0c8309d43abf91399de5af4e9
 file:
 - batch:
     statement:
@@ -114,9 +114,10 @@ file:
                     function:
                       function_name:
                         function_name_identifier: ROWCOUNT_BIG
-                      bracketed:
-                        start_bracket: (
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          end_bracket: )
                     comparison_operator:
                       raw_comparison_operator: '='
                     numeric_literal: '0'
@@ -363,9 +364,10 @@ file:
                   - function:
                       function_name:
                         function_name_identifier: ORIGINAL_LOGIN
-                      bracketed:
-                        start_bracket: (
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          end_bracket: )
                   - comparison_operator:
                       raw_comparison_operator: '='
                   - quoted_literal: "'login_test'"
@@ -380,10 +382,11 @@ file:
                               function:
                                 function_name:
                                   function_name_identifier: COUNT
-                                bracketed:
-                                  start_bracket: (
-                                  star: '*'
-                                  end_bracket: )
+                                function_contents:
+                                  bracketed:
+                                    start_bracket: (
+                                    star: '*'
+                                    end_bracket: )
                           from_clause:
                             keyword: FROM
                             from_expression:
@@ -454,9 +457,10 @@ file:
                   function:
                     function_name:
                       function_name_identifier: Getdate
-                    bracketed:
-                      start_bracket: (
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
             from_clause:
               keyword: FROM
               from_expression:
@@ -543,9 +547,10 @@ file:
                   function:
                     function_name:
                       function_name_identifier: sysdatetime
-                    bracketed:
-                      start_bracket: (
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
             from_clause:
               keyword: FROM
               from_expression:

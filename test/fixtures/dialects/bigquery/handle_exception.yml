@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 83eadb0af7c00b07530eb74d400051a77c647a005c49b78e4cb54bbabc5096bd
+_hash: 83aeafe3c949c957183a9384ce83e20d4730afae8ec43f63a8689af5ad50a674
 file:
 - multi_statement_segment:
     begin_statement:
@@ -130,18 +130,19 @@ file:
             function:
               function_name:
                 function_name_identifier: FORMAT
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  quoted_literal: '"Something went wrong: %s"'
-              - comma: ','
-              - expression:
-                  system_variable:
-                    double_at_sign_literal: '@@error'
-                  semi_structured_expression:
-                    dot: .
-                    naked_identifier: message
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: '"Something went wrong: %s"'
+                - comma: ','
+                - expression:
+                    system_variable:
+                      double_at_sign_literal: '@@error'
+                    semi_structured_expression:
+                      dot: .
+                      naked_identifier: message
+                - end_bracket: )
     - statement_terminator: ;
     - keyword: END
 - statement_terminator: ;
@@ -254,18 +255,19 @@ file:
             function:
               function_name:
                 function_name_identifier: FORMAT
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  quoted_literal: '"Something went wrong: %s"'
-              - comma: ','
-              - expression:
-                  system_variable:
-                    double_at_sign_literal: '@@error'
-                  semi_structured_expression:
-                    dot: .
-                    naked_identifier: message
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: '"Something went wrong: %s"'
+                - comma: ','
+                - expression:
+                    system_variable:
+                      double_at_sign_literal: '@@error'
+                    semi_structured_expression:
+                      dot: .
+                      naked_identifier: message
+                - end_bracket: )
     - statement_terminator: ;
     - statement:
         return_statement:
