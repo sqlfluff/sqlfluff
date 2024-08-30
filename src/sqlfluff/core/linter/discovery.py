@@ -6,11 +6,11 @@ into specific file references. The method also processes the
 `.sqlfluffignore` functionality in the process.
 """
 
+import sys
 import logging
 import os
 from pathlib import Path
 from typing import (
-    Collection,
     Iterable,
     Iterator,
     List,
@@ -27,6 +27,11 @@ from sqlfluff.core.errors import (
     SQLFluffUserError,
 )
 from sqlfluff.core.helpers.file import iter_intermediate_paths
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:  # pragma: no cover
+    import toml as tomllib
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
@@ -50,15 +55,42 @@ def _check_ignore_specs(
     return None
 
 
+def _load_specs_from_lines(lines: Iterable[str]) -> pathspec.PathSpec:
+    return pathspec.PathSpec.from_lines("gitwildmatch", lines)
+
+
 def _load_ignorefile(dirpath: str, filename: str) -> IgnoreSpecRecord:
     """Load a sqlfluffignore file, returning the parsed spec."""
-    with open(os.path.join(dirpath, filename)) as f:
-        spec = pathspec.PathSpec.from_lines("gitwildmatch", f)
+    filepath = os.path.join(dirpath, filename)
+    with open(filepath, mode="r") as f:
+        try:
+            spec = _load_specs_from_lines(f)
+        except Exception:
+            raise SQLFluffUserError(f"Error parsing ignore patterns in {filepath}.")
     return dirpath, filename, spec
 
 
-ignore_file_loaders: Dict[str, Callable[[str, str], IgnoreSpecRecord]] = {
-    ".sqlfluffignore": _load_ignorefile
+def _load_pyproject(dirpath: str, filename: str) -> Optional[IgnoreSpecRecord]:
+    filepath = os.path.join(dirpath, filename)
+    with open(filepath, mode="r") as file:
+        config = tomllib.loads(file.read())
+    # Get the `[tool.sqlfluff.ignore]` section from the toml.
+    ignore_section = config.get("tool", {}).get("sqlfluff", {}).get("ignore", {})
+    patterns = ignore_section.get("patterns", [])
+    if not patterns:
+        return None
+    try:
+        spec = _load_specs_from_lines(patterns)
+    except Exception:
+        raise SQLFluffUserError(
+            f"Error parsing ignore patterns in {filepath}: {patterns}."
+        )
+    return dirpath, filename, spec
+
+
+ignore_file_loaders: Dict[str, Callable[[str, str], Optional[IgnoreSpecRecord]]] = {
+    ".sqlfluffignore": _load_ignorefile,
+    "pyproject.toml": _load_pyproject,
 }
 
 
@@ -157,7 +189,9 @@ def _iter_files_in_path(
         # to the inner buffer if found.
         if ignore_files:
             for ignore_file in set(filenames) & ignore_filename_set:
-                inner_ignore_specs.append(_load_ignorefile(dirname, ignore_file))
+                ignore_spec = ignore_file_loaders[ignore_file](dirname, ignore_file)
+                if ignore_spec:
+                    inner_ignore_specs.append(ignore_spec)
 
         # Then prune any subdirectories which are ignored (by modifying `subdirs`)
         # https://docs.python.org/3/library/os.html#os.walk
@@ -233,7 +267,8 @@ def paths_from_path(
             Path(working_path) if isinstance(working_path, str) else working_path,
         ):
             ignore_spec = ignore_file_loaders[ignore_file](ignore_path, ignore_file)
-            outer_ignore_specs.append(ignore_spec)
+            if ignore_spec:
+                outer_ignore_specs.append(ignore_spec)
 
     # Handle being passed an exact file first.
     if os.path.isfile(path):
