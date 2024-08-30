@@ -245,6 +245,10 @@ clickhouse_dialect.replace(
         before=Ref.keyword("WHERE"),
     )
     .copy(insert=[Ref("SettingsClauseSegment")]),
+    DateTimeLiteralGrammar=Sequence(
+        OneOf("DATE", "TIME", "TIMESTAMP"),
+        TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
+    ),
 )
 
 # Set the datetime units
@@ -1734,8 +1738,25 @@ class IntervalExpressionSegment(BaseSegment):
     """
 
     type = "interval_expression"
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "INTERVAL",
-        Ref("ExpressionSegment"),
-        Ref("DatetimeUnitSegment"),
+        OneOf(
+            # The Numeric Version
+            Sequence(
+                Ref("NumericLiteralSegment"),
+                Ref("DatetimeUnitSegment"),
+            ),
+            # The String version
+            Ref("QuotedLiteralSegment"),
+            # Combine version
+            Sequence(
+                Ref("QuotedLiteralSegment"),
+                Ref("DatetimeUnitSegment"),
+            ),
+            # With expression as value
+            Sequence(
+                Ref("ExpressionSegment"),
+                Ref("DatetimeUnitSegment"),
+            ),
+        ),
     )

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 68916c8f56824833b9852a018137f40e338ac3946d7bff755d2c0f6c1d86251c
+_hash: 4609a345d1662797a81f7a236eaacc1bf251053128d52bdb972cfc24a9078026
 file:
 - statement:
     create_table_statement:
@@ -664,8 +664,7 @@ file:
                 binary_operator: +
                 interval_expression:
                   keyword: INTERVAL
-                  expression:
-                    numeric_literal: '1'
+                  numeric_literal: '1'
                   date_part: MONTH
       - comma: ','
       - column_definition:
@@ -681,8 +680,7 @@ file:
                 binary_operator: +
                 interval_expression:
                   keyword: INTERVAL
-                  expression:
-                    numeric_literal: '1'
+                  numeric_literal: '1'
                   date_part: MONTH
       - comma: ','
       - column_definition:
@@ -765,8 +763,7 @@ file:
           binary_operator: +
           interval_expression:
             keyword: INTERVAL
-            expression:
-              numeric_literal: '1'
+            numeric_literal: '1'
             date_part: MONTH
       - keyword: DELETE
       - comma: ','
@@ -776,8 +773,7 @@ file:
           binary_operator: +
           interval_expression:
             keyword: INTERVAL
-            expression:
-              numeric_literal: '1'
+            numeric_literal: '1'
             date_part: WEEK
       - keyword: TO
       - keyword: VOLUME
@@ -789,8 +785,7 @@ file:
           binary_operator: +
           interval_expression:
             keyword: INTERVAL
-            expression:
-              numeric_literal: '2'
+            numeric_literal: '2'
             date_part: WEEK
       - keyword: TO
       - keyword: DISK

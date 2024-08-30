@@ -1,3 +1,8 @@
+SELECT INTERVAL 1 DAY;
+SELECT INTERVAL '1' DAY;
+SELECT INTERVAL '1 DAY';
+SELECT INTERVAL '1 days' + interval '3 hours' + interval 2 minutes;
+
 SELECT date_add(today(), INTERVAL -30 DAY);
 
 SELECT subDate(toDate('2008-01-02'), INTERVAL 31 DAY);
