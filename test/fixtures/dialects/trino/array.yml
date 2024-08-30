@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 08a22fad6dd8609d2246337125972253f4c412c21f1df040fd2349a0e9e4a85c
+_hash: d0bf6b8b24c65e7cdb438e4729eb7ce5c42cb21c0eacd859a76bfac0b021f319
 file:
 - statement:
     select_statement:
@@ -199,4 +199,101 @@ file:
               - expression:
                   numeric_literal: '2'
               - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CAST
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '1'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - end_square_bracket: ']'
+                keyword: AS
+                data_type:
+                  array_type:
+                    keyword: ARRAY
+                    array_type_schema:
+                      start_angle_bracket: <
+                      data_type:
+                        keyword: DOUBLE
+                      end_angle_bracket: '>'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CAST
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '1'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - end_square_bracket: ']'
+                keyword: AS
+                data_type:
+                  array_type:
+                    keyword: ARRAY
+                    array_type_schema:
+                      bracketed:
+                        start_bracket: (
+                        data_type:
+                          keyword: DOUBLE
+                        end_bracket: )
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CAST
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: JSON_PARSE
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "'[1, 2, 3, 4, 5]'"
+                        end_bracket: )
+                keyword: AS
+                data_type:
+                  array_type:
+                    keyword: ARRAY
+                    array_type_schema:
+                      start_angle_bracket: <
+                      data_type:
+                        keyword: DOUBLE
+                      end_angle_bracket: '>'
+                end_bracket: )
 - statement_terminator: ;
