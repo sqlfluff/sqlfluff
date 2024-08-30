@@ -75,81 +75,61 @@ def _match_file_extension(filepath: str, valid_extensions: Sequence[str]) -> boo
     return file_ext.lower() in valid_extensions
 
 
-def paths_from_path(
+def _process_exact_path(
     path: str,
-    ignore_non_existent_files: bool = False,
-    ignore_files: bool = True,
-    working_path: str = os.getcwd(),
-    target_file_exts: Sequence[str] = (".sql",),
+    working_path: str,
+    lower_file_exts: Tuple[str, ...],
+    outer_ignore_specs: IgnoreSpecRecords,
 ) -> List[str]:
-    """Return a set of sql file paths from a potentially more ambiguous path string.
+    """Handle exact paths being passed to paths_from_path.
 
-    Here we also deal with the .sqlfluffignore file if present.
-
-    Only files within the path provided are returned, *however* the search area
-    for ignore files is wider. They can both be within the provided path, and also
-    between the working path and the given path.
-
-    NOTE: In the situation that the given path is *not* a subdirectory of the
-    working path, the current behaviour is to search for the *lowest common path*
-    of the two. This might be counterintuitive, but supports an appropriate solution
-    for the dbt templater without having to additionally pass the project root path.
+    If it's got the right extension and it's not ignored, then
+    we just return the normalised version of the path. If it's
+    not the right extension, return nothing, and if it's ignored
+    then return nothing, but include a warning for the user.
     """
-    ignore_filename_set = frozenset((".sqlfluffignore",))
+    # Does it have a relevant extension? If not, just return an empty list.
+    if not _match_file_extension(path, lower_file_exts):
+        return []
 
-    if not os.path.exists(path):
-        if ignore_non_existent_files:
-            return []
-        else:
-            raise SQLFluffUserError(
-                f"Specified path does not exist. Check it/they exist(s): {path}."
-            )
+    # It's an exact file. We only need to handle the outer ignore files.
+    # There won't be any "inner" ignores because an exact file doesn't create
+    # any sub paths.
+    abs_fpath = os.path.abspath(path)
+    ignore_file = _check_ignore_specs(abs_fpath, outer_ignore_specs)
 
-    lower_file_exts = tuple(ext.lower() for ext in target_file_exts)
-
-    # First load any ignore files from outside the path.
-    # These will be applied to every file within the path, because we know that
-    # they're in a parent folder.
-    outer_ignore_specs: IgnoreSpecRecords = []
-    # Only load them if we're using ignorefiles. NOTE: That if ignore_files
-    # is False, we keep the routines for _checking_ we just never load the
-    # files in the first place.
-    if ignore_files:
-        for outer_ignore_file in _iter_config_files(
-            Path(path).absolute(),
-            Path(working_path) if isinstance(working_path, str) else working_path,
-            ignore_filename_set,
-        ):
-            outer_ignore_specs.append(_load_ignorefile(outer_ignore_file))
-
-    # Handle being passed an exact file first.
-    if os.path.isfile(path):
-        # Does it have a relevant extension? If not, just return an empty list.
-        if not _match_file_extension(path, lower_file_exts):
-            return []
-
-        # It's an exact file. We only need to handle the outer ignore files,
-        # and that's only to warn if they're being applied.
-        abs_fpath = os.path.abspath(path)
-        ignore_file = _check_ignore_specs(abs_fpath, outer_ignore_specs)
-        if ignore_file:
-            ignore_rel_path = os.path.relpath(ignore_file, working_path)
-            linter_logger.warning(
-                f"Exact file path {path} was given but it was "
-                f"ignored by an ignore pattern set in {ignore_rel_path}, "
-                "re-run with `--disregard-sqlfluffignores` to not process "
-                "ignore files."
-            )
-            # Return no match, because the file is ignored.
-            return []
-
+    if not ignore_file:
+        # If not ignored, just return the file.
         return [os.path.normpath(path)]
 
-    # Otherwise, it's not an exact path and we're going to walk the path
-    # progressively, processing ignore files as we go.
+    ignore_rel_path = os.path.relpath(ignore_file, working_path)
+    linter_logger.warning(
+        f"Exact file path {path} was given but it was "
+        f"ignored by an ignore pattern set in {ignore_rel_path}, "
+        "re-run with `--disregard-sqlfluffignores` to not process "
+        "ignore files."
+    )
+    # Return no match, because the file is ignored.
+    return []
+
+
+def _iter_files_in_path(
+    path: str,
+    ignore_files: bool,
+    ignore_filename_set: frozenset[str],
+    outer_ignore_specs: IgnoreSpecRecords,
+    lower_file_exts: Tuple[str, ...],
+) -> Iterator[str]:
+    """Handle directory paths being passed to paths_from_path.
+
+    We're going to walk the path progressively, processing ignore
+    files as we go. Those ignore files that we find (inner ignore
+    files) only apply within the folder they are found, whereas the
+    ignore files from outside the path (the outer ignore files) will
+    always apply, so we handle them separately.
+    """
     inner_ignore_specs: IgnoreSpecRecords = []
-    # Set up the filename buffer
-    sql_file_buffer: List[str] = []
+
     for dirname, subdirs, filenames in os.walk(path, topdown=True):
         # Before adding new ignore specs, remove any which are no longer relevant
         # as indicated by us no longer being in a subdirectory of them.
@@ -196,7 +176,66 @@ def paths_from_path(
             if _check_ignore_specs(absolute_path, inner_ignore_specs):
                 continue
 
-            # If we get here, it's one we want. Add it to a buffer for sorting.
-            sql_file_buffer.append(os.path.normpath(relative_path))
+            # If we get here, it's one we want. Yield it.
+            yield os.path.normpath(relative_path)
 
-    return sorted(sql_file_buffer)
+
+def paths_from_path(
+    path: str,
+    ignore_non_existent_files: bool = False,
+    ignore_files: bool = True,
+    working_path: str = os.getcwd(),
+    target_file_exts: Sequence[str] = (".sql",),
+) -> List[str]:
+    """Return a set of sql file paths from a potentially more ambiguous path string.
+
+    Here we also deal with the .sqlfluffignore file if present.
+
+    Only files within the path provided are returned, *however* the search area
+    for ignore files is wider. They can both be within the provided path, and also
+    between the working path and the given path.
+
+    NOTE: In the situation that the given path is *not* a subdirectory of the
+    working path, the current behaviour is to search for the *lowest common path*
+    of the two. This might be counterintuitive, but supports an appropriate solution
+    for the dbt templater without having to additionally pass the project root path.
+    """
+    if not os.path.exists(path):
+        if ignore_non_existent_files:
+            return []
+        else:
+            raise SQLFluffUserError(
+                f"Specified path does not exist. Check it/they exist(s): {path}."
+            )
+
+    ignore_filename_set = frozenset((".sqlfluffignore",))
+    lower_file_exts = tuple(ext.lower() for ext in target_file_exts)
+
+    # First load any ignore files from outside the path.
+    # These will be applied to every file within the path, because we know that
+    # they're in a parent folder.
+    outer_ignore_specs: IgnoreSpecRecords = []
+    # Only load them if we're using ignore files. NOTE: That if `ignore_files`
+    # is False, we keep the routines for _checking_ we just never load the
+    # files in the first place.
+    if ignore_files:
+        for outer_ignore_file in _iter_config_files(
+            Path(path).absolute(),
+            Path(working_path) if isinstance(working_path, str) else working_path,
+            ignore_filename_set,
+        ):
+            outer_ignore_specs.append(_load_ignorefile(outer_ignore_file))
+
+    # Handle being passed an exact file first.
+    if os.path.isfile(path):
+        return _process_exact_path(
+            path, working_path, lower_file_exts, outer_ignore_specs
+        )
+
+    # Otherwise, it's not an exact path and we're going to walk the path
+    # progressively, processing ignore files as we go.
+    return sorted(
+        _iter_files_in_path(
+            path, ignore_files, ignore_filename_set, outer_ignore_specs, lower_file_exts
+        )
+    )
