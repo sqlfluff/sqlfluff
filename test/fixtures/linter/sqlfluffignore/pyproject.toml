@@ -1,4 +1,4 @@
 [tool.sqlfluff.core]
 ignore_paths = [
-    "path_d/",
+    "path_c/",
 ]

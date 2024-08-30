@@ -6,19 +6,20 @@ into specific file references. The method also processes the
 `.sqlfluffignore` functionality in the process.
 """
 
-import sys
+import configparser
 import logging
 import os
+import sys
 from pathlib import Path
 from typing import (
+    Callable,
+    Dict,
     Iterable,
     Iterator,
     List,
     Optional,
     Sequence,
     Tuple,
-    Callable,
-    Dict,
 )
 
 import pathspec
@@ -74,9 +75,9 @@ def _load_pyproject(dirpath: str, filename: str) -> Optional[IgnoreSpecRecord]:
     filepath = os.path.join(dirpath, filename)
     with open(filepath, mode="r") as file:
         config = tomllib.loads(file.read())
-    # Get the `[tool.sqlfluff.ignore]` section from the toml.
-    ignore_section = config.get("tool", {}).get("sqlfluff", {}).get("ignore", {})
-    patterns = ignore_section.get("patterns", [])
+    # Get the `[tool.sqlfluff.core]` section from the toml.
+    ignore_section = config.get("tool", {}).get("sqlfluff", {}).get("core", {})
+    patterns = ignore_section.get("ignore_paths", [])
     if not patterns:
         return None
     try:
@@ -88,9 +89,31 @@ def _load_pyproject(dirpath: str, filename: str) -> Optional[IgnoreSpecRecord]:
     return dirpath, filename, spec
 
 
+def _load_sqlfluff(dirpath: str, filename: str) -> Optional[IgnoreSpecRecord]:
+    # NOTE: HACKY FOR NOW, BUT FOR DEMONSTRATION
+    # This duplicates a lot from config.py. That needs resolving.
+    config = configparser.ConfigParser(delimiters="=", interpolation=None)
+    config.optionxform = lambda option: option  # type: ignore
+    filepath = os.path.join(dirpath, filename)
+    config.read(filepath)
+    if "sqlfluff" not in config.sections():
+        return None
+    ignore_paths = config["sqlfluff"].get("ignore_paths", "")
+    if not ignore_paths:
+        return None
+    try:
+        spec = _load_specs_from_lines(ignore_paths.split(","))
+    except Exception:
+        raise SQLFluffUserError(
+            f"Error parsing ignore patterns in {filepath}: {ignore_paths}."
+        )
+    return dirpath, filename, spec
+
+
 ignore_file_loaders: Dict[str, Callable[[str, str], Optional[IgnoreSpecRecord]]] = {
     ".sqlfluffignore": _load_ignorefile,
     "pyproject.toml": _load_pyproject,
+    ".sqlfluff": _load_sqlfluff,
 }
 
 
