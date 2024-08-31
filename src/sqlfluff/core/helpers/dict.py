@@ -101,6 +101,12 @@ def dict_diff(
 
 T = TypeVar("T")
 NestedStringDict = Dict[str, Union[T, "NestedStringDict[T]"]]
+"""Nested dict, with keys as strings.
+
+All values of the dict are either values of the given type variable T, or
+are themselves dicts with the same nested properties. Variables of this type
+are used regularly in configuration methods and classes.
+"""
 
 
 def records_to_nested_dict(
