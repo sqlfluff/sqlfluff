@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-import sys
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
@@ -30,11 +29,6 @@ from sqlfluff.core.plugin.host import get_plugin_manager
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.templaters.base import RawTemplater
-
-if sys.version_info >= (3, 11):
-    pass
-else:  # pragma: no cover
-    pass
 
 # Instantiate the config logger
 config_logger = logging.getLogger("sqlfluff.config")
