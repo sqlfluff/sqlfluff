@@ -177,25 +177,6 @@ class ConfigLoader:
                 yield (key,), val
 
     @classmethod
-    def _config_elems_to_dict(cls, configs: Iterable[ConfigElemType]) -> Dict[str, Any]:
-        """Reconstruct config elements into a dict.
-
-        >>> ConfigLoader._config_elems_to_dict(
-        ...     [(("foo", "bar", "baz"), "a"), (("foo", "bar", "biz"), "b")]
-        ... )
-        {'foo': {'bar': {'baz': 'a', 'biz': 'b'}}}
-        """
-        result: Dict[str, Any] = {}
-        for key, val in configs:
-            ref = result
-            for step in key[:-1]:
-                if step not in ref:
-                    ref[step] = {}
-                ref = ref[step]
-            ref[key[-1]] = val
-        return result
-
-    @classmethod
     def _get_config_elems_from_toml(cls, fpath: str) -> List[ConfigElemType]:
         """Load a config from a TOML file and return a list of tuples.
 
