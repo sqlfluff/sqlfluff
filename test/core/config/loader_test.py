@@ -176,7 +176,9 @@ def test__config__load_user_appdir_config(
     mock_listdir, mock_path_exists, mock_xdg_home
 ):
     """Test loading config from user appdir."""
-    xdg_config_path = os.environ.get("XDG_CONFIG_HOME") + "/sqlfluff"
+    xdg_home = os.environ.get("XDG_CONFIG_HOME")
+    assert xdg_home, "XDG HOME should be set by the mock. Something has gone wrong."
+    xdg_config_path = xdg_home + "/sqlfluff"
 
     def path_exists(x):
         if x == os.path.expanduser("~/.config/sqlfluff"):

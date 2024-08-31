@@ -1,6 +1,6 @@
 """Dict helpers, mostly used in config routines."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterable, List, Optional, Tuple, TypeVar, Union
 
 
 def nested_combine(*dicts: Dict[str, Any]) -> Dict[str, Any]:
@@ -97,3 +97,32 @@ def dict_diff(
         else:
             buff[k] = left[k]
     return buff
+
+
+T = TypeVar("T")
+NestedStringDict = Dict[str, Union[T, "NestedStringDict[T]"]]
+
+
+def records_to_nested_dict(
+    records: Iterable[Tuple[Tuple[str, ...], T]],
+) -> NestedStringDict[T]:
+    """Reconstruct records into a dict.
+
+    >>> records_to_nested_dict(
+    ...     [(("foo", "bar", "baz"), "a"), (("foo", "bar", "biz"), "b")]
+    ... )
+    {'foo': {'bar': {'baz': 'a', 'biz': 'b'}}}
+    """
+    result: NestedStringDict = {}
+    for key, val in records:
+        ref: NestedStringDict = result
+        for step in key[:-1]:
+            # If the subsection isn't there, make it.
+            if step not in ref:
+                ref[step] = {}
+            # Then step into it.
+            subsection = ref[step]
+            assert isinstance(subsection, dict)
+            ref = subsection
+        ref[key[-1]] = val
+    return result
