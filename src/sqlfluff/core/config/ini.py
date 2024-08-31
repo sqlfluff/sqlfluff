@@ -1,4 +1,7 @@
-"""Low level routines for config file loading and caching."""
+"""Methods for loading config files with an ini-style format.
+
+This includes `.sqlfluff` and `tox.ini` files.
+"""
 
 import configparser
 from typing import Any, List, Tuple

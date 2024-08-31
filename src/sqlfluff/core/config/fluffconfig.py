@@ -20,7 +20,7 @@ import pluggy
 
 from sqlfluff.core.config.loader import ConfigLoader, coerce_value
 from sqlfluff.core.errors import SQLFluffUserError
-from sqlfluff.core.helpers.dict import dict_diff, nested_combine
+from sqlfluff.core.helpers.dict import dict_diff, nested_combine, records_to_nested_dict
 from sqlfluff.core.helpers.string import (
     split_colon_separated_string,
     split_comma_separated_string,
@@ -59,7 +59,7 @@ class FluffConfig:
         )
         # If overrides are provided, validate them early.
         if overrides:
-            overrides = ConfigLoader._config_elems_to_dict(
+            overrides = records_to_nested_dict(
                 ConfigLoader._validate_configs(
                     [
                         (("core",) + k, v)
@@ -76,7 +76,7 @@ class FluffConfig:
         defaults = nested_combine(*self._plugin_manager.hook.load_default_config())
         # If any existing configs are provided. Validate them:
         if configs:
-            configs = ConfigLoader._config_elems_to_dict(
+            configs = records_to_nested_dict(
                 ConfigLoader._validate_configs(
                     ConfigLoader._iter_config_elems_from_dict(configs),
                     "<provided configs>",

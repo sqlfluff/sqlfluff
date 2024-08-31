@@ -1,4 +1,4 @@
-"""Low level routines for config file loading and caching."""
+"""Methods for loading config from pyproject.toml files."""
 
 import sys
 from typing import Tuple
