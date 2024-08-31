@@ -15,7 +15,6 @@ import os.path
 import sys
 from pathlib import Path
 from typing import (
-    TYPE_CHECKING,
     Any,
     Dict,
     Iterable,
@@ -35,9 +34,6 @@ from sqlfluff.core.helpers.file import iter_intermediate_paths
 from sqlfluff.core.helpers.string import (
     split_comma_separated_string,
 )
-
-if TYPE_CHECKING:  # pragma: no cover
-    pass
 
 if sys.version_info >= (3, 11):
     import tomllib
