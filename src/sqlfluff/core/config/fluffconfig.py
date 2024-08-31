@@ -39,25 +39,6 @@ else:  # pragma: no cover
 # Instantiate the config logger
 config_logger = logging.getLogger("sqlfluff.config")
 
-global_loader = None
-""":obj:`ConfigLoader`: A variable to hold the single module loader when loaded.
-
-We define a global loader, so that between calls to load config, we
-can still cache appropriately
-"""
-
-ConfigElemType = Tuple[Tuple[str, ...], Any]
-
-
-ALLOWABLE_LAYOUT_CONFIG_KEYS = (
-    "spacing_before",
-    "spacing_after",
-    "spacing_within",
-    "line_position",
-    "align_within",
-    "align_scope",
-)
-
 
 class FluffConfig:
     """The class that actually gets passed around as a config object."""
