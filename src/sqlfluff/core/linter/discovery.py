@@ -256,7 +256,9 @@ def paths_from_path(
 ) -> List[str]:
     """Return a set of sql file paths from a potentially more ambiguous path string.
 
-    Here we also deal with the any ignore files file if present (such as .sqlfluffignore).
+    Here we also deal with the any ignore files file if present, whether as raw
+    ignore files (`.sqlfluffignore`) or embedded in more general config files like
+    `.sqlfluff` or `pyproject.toml`.
 
     Only files within the path provided are returned, *however* the search area
     for ignore files is wider. They can both be within the provided path, and also
