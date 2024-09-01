@@ -4,6 +4,7 @@ import os.path
 import sys
 
 from sqlfluff.core.config.ini import load_ini_string
+from sqlfluff.core.config.removed import validate_config_dict_for_removed
 from sqlfluff.core.config.toml import load_toml_file_config
 from sqlfluff.core.config.types import ConfigMappingType
 from sqlfluff.core.errors import SQLFluffUserError
@@ -90,5 +91,7 @@ def load_config_file_as_dict(filepath: str):
 
     # The raw loaded files have some path interpolation which is necessary.
     _resolve_paths_in_config(raw_config, filepath)
+    # Validate the config for any removed values
+    validate_config_dict_for_removed(raw_config, filepath=filepath)
 
-    # TODO: STILL NEED TO ADD VALIDATION
+    # TODO: Still need to validate the layout configs.
