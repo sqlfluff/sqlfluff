@@ -42,15 +42,9 @@ def _load_raw_file_as_dict(filepath: str) -> ConfigMappingType:
     filename = os.path.basename(filepath)
     if filename == "pyproject.toml":
         return load_toml_file_config(filepath)
-    elif file_extension in (".cfg", ".ini") or filename == ".sqlfluff":
-        with open(filepath, mode="r") as file:
-            return load_ini_string(file.read())
-    else:  # pragma no cover
-        raise SQLFluffUserError(
-            f"Unexpected file extension for config file {filename}. SQLFluff can "
-            "read `pyproject.toml`, `.sqlfluff`, `*.ini` or `*.cfg` files for "
-            "configuration."
-        )
+    # If it's not a pyproject file, assume that it's an ini file.
+    with open(filepath, mode="r") as file:
+        return load_ini_string(file.read())
 
 
 def _resolve_path(filepath: str, val: str) -> str:

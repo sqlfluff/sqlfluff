@@ -26,6 +26,7 @@ from typing import (
 
 import appdirs
 
+from sqlfluff.core.config.cache import load_config_file_as_dict
 from sqlfluff.core.config.removed import REMOVED_CONFIGS
 from sqlfluff.core.config.types import ConfigMappingType, ConfigRecordType
 from sqlfluff.core.errors import SQLFluffUserError
@@ -361,12 +362,7 @@ class ConfigLoader:
     ) -> ConfigMappingType:
         """Load a config file."""
         file_path = os.path.join(file_dir, file_name)
-        if file_name == "pyproject.toml":
-            elems = self._get_config_elems_from_toml(file_path)
-        else:
-            elems = self._get_config_elems_from_file(file_path)
-        elems = self._validate_configs(elems, file_path)
-        raw_config = records_to_nested_dict(elems)
+        raw_config = load_config_file_as_dict(file_path)
         if not configs:
             return raw_config
         return nested_combine(configs, raw_config)

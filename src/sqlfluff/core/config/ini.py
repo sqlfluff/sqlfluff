@@ -7,9 +7,7 @@ import configparser
 from typing import Any, List, Tuple
 
 from sqlfluff.core.config.types import ConfigMappingType, ConfigValueType
-from sqlfluff.core.helpers.dict import records_to_nested_dict
-
-_ConfigElemType = Tuple[Tuple[str, ...], ConfigValueType]
+from sqlfluff.core.helpers.dict import NestedDictRecord, records_to_nested_dict
 
 
 def _coerce_value(val: str) -> ConfigValueType:
@@ -61,7 +59,7 @@ def load_ini_string(cfg_content: str) -> ConfigMappingType:
     config.read_string(cfg_content)
 
     # Build up a buffer of config values.
-    config_buffer: List[_ConfigElemType] = []
+    config_buffer: List[NestedDictRecord[ConfigValueType]] = []
     for k in config.sections():
         if k == "sqlfluff":
             key: Tuple[str, ...] = ("core",)
