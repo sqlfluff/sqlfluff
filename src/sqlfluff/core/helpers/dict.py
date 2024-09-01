@@ -1,6 +1,17 @@
 """Dict helpers, mostly used in config routines."""
 
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, TypeVar, Union
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 
 def nested_combine(*dicts: Dict[str, Any]) -> Dict[str, Any]:
@@ -100,6 +111,7 @@ def dict_diff(
 
 
 T = TypeVar("T")
+
 NestedStringDict = Dict[str, Union[T, "NestedStringDict[T]"]]
 """Nested dict, with keys as strings.
 
@@ -108,9 +120,16 @@ are themselves dicts with the same nested properties. Variables of this type
 are used regularly in configuration methods and classes.
 """
 
+NestedDictRecord = Tuple[Tuple[str, ...], T]
+"""Tuple form record of a setting in a NestedStringDict.
+
+The tuple of strings in the first element is the "address" in the NestedStringDict
+with the value as the second element on the tuple.
+"""
+
 
 def records_to_nested_dict(
-    records: Iterable[Tuple[Tuple[str, ...], T]],
+    records: Iterable[NestedDictRecord[T]],
 ) -> NestedStringDict[T]:
     """Reconstruct records into a dict.
 
@@ -132,6 +151,26 @@ def records_to_nested_dict(
             ref = subsection
         ref[key[-1]] = val
     return result
+
+
+def iter_records_from_nested_dict(
+    nested_dict: NestedStringDict[T],
+) -> Iterator[NestedDictRecord[T]]:
+    """Walk a config dict and get config elements.
+
+    >>> list(
+    ...    iter_records_from_nested_dict(
+    ...        {"foo":{"bar":{"baz": "a", "biz": "b"}}}
+    ...    )
+    ... )
+    [(('foo', 'bar', 'baz'), 'a'), (('foo', 'bar', 'biz'), 'b')]
+    """
+    for key, val in nested_dict.items():
+        if isinstance(val, dict):
+            for partial_key, sub_val in iter_records_from_nested_dict(val):
+                yield (key,) + partial_key, sub_val
+        else:
+            yield (key,), val
 
 
 def nested_dict_get(

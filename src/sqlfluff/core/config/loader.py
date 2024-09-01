@@ -27,6 +27,7 @@ from typing import (
 
 import appdirs
 
+from sqlfluff.core.config.cache import load_config_file_as_dict
 from sqlfluff.core.config.removed import REMOVED_CONFIGS
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import nested_combine
@@ -417,12 +418,8 @@ class ConfigLoader:
     ) -> Dict[str, Any]:
         """Load a config file."""
         file_path = os.path.join(file_dir, file_name)
-        if file_name == "pyproject.toml":
-            elems = self._get_config_elems_from_toml(file_path)
-        else:
-            elems = self._get_config_elems_from_file(file_path)
-        elems = self._validate_configs(elems, file_path)
-        return self._incorporate_vals(configs or {}, elems)
+        raw_config = load_config_file_as_dict(file_path)
+        return nested_combine(configs or {}, raw_config)
 
     def load_config_string(
         self, config_string: str, configs: Optional[Dict[str, Any]] = None
