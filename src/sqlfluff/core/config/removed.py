@@ -1,7 +1,11 @@
 """Records of deprecated and removed config variables."""
 
 from dataclasses import dataclass
-from typing import Callable, Optional, Tuple
+from typing import Callable, List, Optional, Tuple, Union
+
+from sqlfluff.core.config.types import ConfigValueType
+
+ConfigValueOrListType = Union[ConfigValueType, List[ConfigValueType]]
 
 
 @dataclass
@@ -9,7 +13,22 @@ class _RemovedConfig:
     old_path: Tuple[str, ...]
     warning: str
     new_path: Optional[Tuple[str, ...]] = None
-    translation_func: Optional[Callable[[str], str]] = None
+    translation_func: Optional[
+        Callable[[ConfigValueOrListType], ConfigValueOrListType]
+    ] = None
+
+    @property
+    def formatted_old_key(self) -> str:
+        """Format the old key in a way similar to a config file."""
+        return ":".join(self.old_path)
+
+    @property
+    def formatted_new_key(self) -> str:
+        """Format the new key (assuming it exists) in a way similar to a config file."""
+        assert (
+            self.new_path
+        ), "`formatted_new_key` can only be called if a `new_path` is set."
+        return ":".join(self.new_path)
 
 
 REMOVED_CONFIGS = [

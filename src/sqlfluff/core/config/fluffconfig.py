@@ -455,16 +455,16 @@ class FluffConfig:
             )
             return
         config_line = config_line[9:].strip()
-        config_val = split_colon_separated_string(config_line)
+        config_key, config_value = split_colon_separated_string(config_line)
         # Validate the value
-        ConfigLoader._validate_configs([config_val], fname)
+        ConfigLoader._validate_configs([config_key, config_value], fname)
         # Set the value
-        self.set_value(*config_val)
+        self.set_value(config_key, config_value)
         # If the config is for dialect, initialise the dialect.
         # NOTE: Comparison with a 1-tuple is intentional here as
         # the first element of config_val is a tuple.
-        if config_val[0] == ("dialect",):
-            self._initialise_dialect(config_val[1])
+        if config_key == ("core", "dialect"):
+            self._initialise_dialect(config_value)
 
     def process_raw_file_for_config(self, raw_str: str, fname: str) -> None:
         """Process a full raw file for inline config and update self."""
