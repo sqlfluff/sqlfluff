@@ -20,7 +20,12 @@ import pluggy
 
 from sqlfluff.core.config.loader import ConfigLoader, coerce_value
 from sqlfluff.core.errors import SQLFluffUserError
-from sqlfluff.core.helpers.dict import dict_diff, nested_combine
+from sqlfluff.core.helpers.dict import (
+    dict_diff,
+    iter_records_from_nested_dict,
+    nested_combine,
+    records_to_nested_dict,
+)
 from sqlfluff.core.helpers.string import (
     split_colon_separated_string,
     split_comma_separated_string,
@@ -59,11 +64,11 @@ class FluffConfig:
         )
         # If overrides are provided, validate them early.
         if overrides:
-            overrides = ConfigLoader._config_elems_to_dict(
+            overrides = records_to_nested_dict(
                 ConfigLoader._validate_configs(
                     [
                         (("core",) + k, v)
-                        for k, v in ConfigLoader._iter_config_elems_from_dict(overrides)
+                        for k, v in iter_records_from_nested_dict(overrides)
                     ],
                     "<provided overrides>",
                 )
@@ -76,9 +81,9 @@ class FluffConfig:
         defaults = nested_combine(*self._plugin_manager.hook.load_default_config())
         # If any existing configs are provided. Validate them:
         if configs:
-            configs = ConfigLoader._config_elems_to_dict(
+            configs = records_to_nested_dict(
                 ConfigLoader._validate_configs(
-                    ConfigLoader._iter_config_elems_from_dict(configs),
+                    iter_records_from_nested_dict(configs),
                     "<provided configs>",
                 )
             )
@@ -457,13 +462,13 @@ class FluffConfig:
         config_line = config_line[9:].strip()
         config_key, config_value = split_colon_separated_string(config_line)
         # Validate the value
-        ConfigLoader._validate_configs([config_key, config_value], fname)
+        ConfigLoader._validate_configs([(config_key, config_value)], fname)
         # Set the value
         self.set_value(config_key, config_value)
         # If the config is for dialect, initialise the dialect.
         # NOTE: Comparison with a 1-tuple is intentional here as
         # the first element of config_val is a tuple.
-        if config_key == ("core", "dialect"):
+        if config_key == ("dialect",):
             self._initialise_dialect(config_value)
 
     def process_raw_file_for_config(self, raw_str: str, fname: str) -> None:

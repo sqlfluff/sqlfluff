@@ -18,7 +18,6 @@ from typing import (
     Any,
     Dict,
     Iterable,
-    Iterator,
     List,
     Optional,
     Tuple,
@@ -28,8 +27,9 @@ from typing import (
 import appdirs
 
 from sqlfluff.core.config.removed import REMOVED_CONFIGS
+from sqlfluff.core.config.types import ConfigMappingType, ConfigRecordType
 from sqlfluff.core.errors import SQLFluffUserError
-from sqlfluff.core.helpers.dict import nested_combine
+from sqlfluff.core.helpers.dict import nested_combine, records_to_nested_dict
 from sqlfluff.core.helpers.file import iter_intermediate_paths
 from sqlfluff.core.helpers.string import (
     split_comma_separated_string,
@@ -49,8 +49,6 @@ global_loader = None
 We define a global loader, so that between calls to load config, we
 can still cache appropriately
 """
-
-ConfigElemType = Tuple[Tuple[str, ...], Any]
 
 
 ALLOWABLE_LAYOUT_CONFIG_KEYS = (
@@ -97,7 +95,7 @@ class ConfigLoader:
 
     def __init__(self) -> None:
         # TODO: check that this cache implementation is actually useful
-        self._config_cache: Dict[str, Dict[str, Any]] = {}
+        self._config_cache: Dict[str, ConfigMappingType] = {}
 
     @classmethod
     def get_global(cls) -> ConfigLoader:
@@ -109,8 +107,8 @@ class ConfigLoader:
 
     @classmethod
     def _walk_toml(
-        cls, config: Dict[str, Any], base_key: Tuple[str, ...] = ()
-    ) -> List[Tuple[Tuple[str, ...], Any]]:
+        cls, config: ConfigMappingType, base_key: Tuple[str, ...] = ()
+    ) -> List[ConfigRecordType]:
         """Recursively walk the nested config inside a TOML file.
 
         For standard usage it mimics the standard loader.
@@ -139,7 +137,7 @@ class ConfigLoader:
         ... })
         [(('rules', 'a.b.c.d', 'e'), 'f')]
         """
-        buff: List[Tuple[Tuple[str, ...], Any]] = []
+        buff: List[ConfigRecordType] = []
         # NOTE: For the "rules" section of the sqlfluff config,
         # rule names are often qualified with a dot ".". In the
         # toml scenario this can get interpreted as a nested
@@ -157,46 +155,7 @@ class ConfigLoader:
         return buff
 
     @classmethod
-    def _iter_config_elems_from_dict(
-        cls, configs: Dict[str, Any]
-    ) -> Iterator[ConfigElemType]:
-        """Walk a config dict and get config elements.
-
-        >>> list(
-        ...    ConfigLoader._iter_config_elems_from_dict(
-        ...        {"foo":{"bar":{"baz": "a", "biz": "b"}}}
-        ...    )
-        ... )
-        [(('foo', 'bar', 'baz'), 'a'), (('foo', 'bar', 'biz'), 'b')]
-        """
-        for key, val in configs.items():
-            if isinstance(val, dict):
-                for partial_key, sub_val in cls._iter_config_elems_from_dict(val):
-                    yield (key,) + partial_key, sub_val
-            else:
-                yield (key,), val
-
-    @classmethod
-    def _config_elems_to_dict(cls, configs: Iterable[ConfigElemType]) -> Dict[str, Any]:
-        """Reconstruct config elements into a dict.
-
-        >>> ConfigLoader._config_elems_to_dict(
-        ...     [(("foo", "bar", "baz"), "a"), (("foo", "bar", "biz"), "b")]
-        ... )
-        {'foo': {'bar': {'baz': 'a', 'biz': 'b'}}}
-        """
-        result: Dict[str, Any] = {}
-        for key, val in configs:
-            ref = result
-            for step in key[:-1]:
-                if step not in ref:
-                    ref[step] = {}
-                ref = ref[step]
-            ref[key[-1]] = val
-        return result
-
-    @classmethod
-    def _get_config_elems_from_toml(cls, fpath: str) -> List[ConfigElemType]:
+    def _get_config_elems_from_toml(cls, fpath: str) -> List[ConfigRecordType]:
         """Load a config from a TOML file and return a list of tuples.
 
         The return value is a list of tuples, were each tuple has two elements,
@@ -211,7 +170,7 @@ class ConfigLoader:
     @classmethod
     def _get_config_elems_from_file(
         cls, fpath: Optional[str] = None, config_string: Optional[str] = None
-    ) -> List[ConfigElemType]:
+    ) -> List[ConfigRecordType]:
         """Load a config from a file and return a list of tuples.
 
         The return value is a list of tuples, were each tuple has two elements,
@@ -228,11 +187,9 @@ class ConfigLoader:
 
         """
         assert fpath or config_string, "One of fpath or config_string is required."
-        buff: List[ConfigElemType] = []
+        buff: List[ConfigRecordType] = []
         # Disable interpolation so we can load macros
-        kw: Dict[str, Any] = {}
-        kw["interpolation"] = None
-        config = configparser.ConfigParser(delimiters="=", **kw)
+        config = configparser.ConfigParser(delimiters="=", interpolation=None)
         # NB: We want to be case sensitive in how we read from files,
         # because jinja is also case sensitive. To do this we override
         # the optionxform attribute.
@@ -288,41 +245,9 @@ class ConfigLoader:
         return ref_path if os.path.exists(ref_path) else val
 
     @staticmethod
-    def _incorporate_vals(
-        ctx: Dict[str, Any], vals: List[ConfigElemType]
-    ) -> Dict[str, Any]:
-        """Take a list of tuples and incorporate it into a dictionary.
-
-        >>> ConfigLoader._incorporate_vals({}, [(("a", "b"), "c")])
-        {'a': {'b': 'c'}}
-        >>> ConfigLoader._incorporate_vals({"a": {"b": "c"}}, [(("a", "d"), "e")])
-        {'a': {'b': 'c', 'd': 'e'}}
-        """
-        for k, v in vals:
-            # Keep a ref we can use for recursion
-            r = ctx
-            # Get the name of the variable
-            n = k[-1]
-            # Get the path
-            pth = k[:-1]
-            for dp in pth:
-                # Does this path exist?
-                if dp in r:
-                    if isinstance(r[dp], dict):
-                        r = r[dp]
-                    else:  # pragma: no cover
-                        raise ValueError(f"Overriding config value with section! [{k}]")
-                else:
-                    r[dp] = {}
-                    r = r[dp]
-            # Deal with the value itself
-            r[n] = v
-        return ctx
-
-    @staticmethod
     def _validate_configs(
-        configs: Iterable[ConfigElemType], file_path: str
-    ) -> List[ConfigElemType]:
+        configs: Iterable[ConfigRecordType], file_path: str
+    ) -> List[ConfigRecordType]:
         """Validate config elements.
 
         We validate in two ways:
@@ -412,8 +337,8 @@ class ConfigLoader:
         return validated_configs
 
     def load_config_resource(
-        self, package: str, file_name: str, configs: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, package: str, file_name: str, configs: Optional[ConfigMappingType] = None
+    ) -> ConfigMappingType:
         """Load a config resource.
 
         This is however more compatible with mypyc because it avoids
@@ -429,11 +354,14 @@ class ConfigLoader:
         config_string = files(package).joinpath(file_name).read_text()
         elems = self._get_config_elems_from_file(config_string=config_string)
         elems = self._validate_configs(elems, package + "." + file_name)
-        return self._incorporate_vals(configs or {}, elems)
+        raw_config = records_to_nested_dict(elems)
+        if not configs:
+            return raw_config
+        return nested_combine(configs, raw_config)
 
     def load_config_file(
-        self, file_dir: str, file_name: str, configs: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, file_dir: str, file_name: str, configs: Optional[ConfigMappingType] = None
+    ) -> ConfigMappingType:
         """Load a config file."""
         file_path = os.path.join(file_dir, file_name)
         if file_name == "pyproject.toml":
@@ -441,17 +369,23 @@ class ConfigLoader:
         else:
             elems = self._get_config_elems_from_file(file_path)
         elems = self._validate_configs(elems, file_path)
-        return self._incorporate_vals(configs or {}, elems)
+        raw_config = records_to_nested_dict(elems)
+        if not configs:
+            return raw_config
+        return nested_combine(configs, raw_config)
 
     def load_config_string(
-        self, config_string: str, configs: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, config_string: str, configs: Optional[ConfigMappingType] = None
+    ) -> ConfigMappingType:
         """Load a config from the string in cfg format."""
         elems = self._get_config_elems_from_file(config_string=config_string)
         elems = self._validate_configs(elems, "<config string>")
-        return self._incorporate_vals(configs or {}, elems)
+        raw_config = records_to_nested_dict(elems)
+        if not configs:
+            return raw_config
+        return nested_combine(configs, raw_config)
 
-    def load_config_at_path(self, path: Union[str, Path]) -> Dict[str, Any]:
+    def load_config_at_path(self, path: Union[str, Path]) -> ConfigMappingType:
         """Load config from a given path."""
         # If we've been passed a Path object, resolve it.
         if isinstance(path, Path):
@@ -471,7 +405,7 @@ class ConfigLoader:
             "pyproject.toml",
         ]
 
-        configs: Dict[str, Any] = {}
+        configs: ConfigMappingType = {}
 
         if os.path.isdir(path):
             p = path
@@ -488,7 +422,7 @@ class ConfigLoader:
         self._config_cache[str(path)] = configs
         return configs
 
-    def load_extra_config(self, extra_config_path: str) -> Dict[str, Any]:
+    def load_extra_config(self, extra_config_path: str) -> ConfigMappingType:
         """Load specified extra config."""
         if not os.path.exists(extra_config_path):
             raise SQLFluffUserError(
@@ -499,12 +433,11 @@ class ConfigLoader:
         if str(extra_config_path) in self._config_cache:
             return self._config_cache[str(extra_config_path)]
 
-        configs: Dict[str, Any] = {}
         if extra_config_path.endswith("pyproject.toml"):
             elems = self._get_config_elems_from_toml(extra_config_path)
         else:
             elems = self._get_config_elems_from_file(extra_config_path)
-        configs = self._incorporate_vals(configs, elems)
+        configs = records_to_nested_dict(elems)
 
         # Store in the cache
         self._config_cache[str(extra_config_path)] = configs
@@ -528,7 +461,7 @@ class ConfigLoader:
 
         return user_config_dir_path
 
-    def load_user_appdir_config(self) -> Dict[str, Any]:
+    def load_user_appdir_config(self) -> ConfigMappingType:
         """Load the config from the user's OS specific appdir config directory."""
         user_config_dir_path = self._get_user_config_dir_path()
         if os.path.exists(user_config_dir_path):
@@ -536,7 +469,7 @@ class ConfigLoader:
         else:
             return {}
 
-    def load_user_config(self) -> Dict[str, Any]:
+    def load_user_config(self) -> ConfigMappingType:
         """Load the config from the user's home directory."""
         user_home_path = os.path.expanduser("~")
         return self.load_config_at_path(user_home_path)
@@ -546,7 +479,7 @@ class ConfigLoader:
         path: str,
         extra_config_path: Optional[str] = None,
         ignore_local_config: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> ConfigMappingType:
         """Loads a selection of config files from both the path and its parent paths."""
         user_appdir_config = (
             self.load_user_appdir_config() if not ignore_local_config else {}
