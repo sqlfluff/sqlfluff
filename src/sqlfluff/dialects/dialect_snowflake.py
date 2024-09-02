@@ -601,6 +601,7 @@ snowflake_dialect.replace(
         Ref("DatetimeUnitSegment"),
         Ref("NamedParameterExpressionSegment"),
         Ref("ReferencedVariableNameSegment"),
+        Ref("LambdaExpressionSegment"),
         Sequence(
             Ref("ExpressionSegment"),
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
@@ -8363,4 +8364,28 @@ class ScriptingDeclareStatementSegment(BaseSegment):
         ),
         Dedent,
         Ref("ScriptingBlockStatementSegment"),
+    )
+
+
+class LambdaExpressionSegment(BaseSegment):
+    """A lambda expression.
+
+    https://docs.snowflake.com/en/user-guide/querying-semistructured#lambda-expressions
+    """
+
+    type = "lambda_expression"
+    match_grammar = Sequence(
+        OneOf(
+            Ref("NakedIdentifierSegment"),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("DatatypeSegment"),
+                    )
+                )
+            ),
+        ),
+        Ref("FunctionAssignerSegment"),
+        Ref("ExpressionSegment"),
     )
