@@ -19,6 +19,7 @@ from typing import (
 import pluggy
 
 from sqlfluff.core.config.loader import ConfigLoader, coerce_value
+from sqlfluff.core.config.types import ConfigMappingType
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import (
     dict_diff,
@@ -46,10 +47,10 @@ class FluffConfig:
 
     def __init__(
         self,
-        configs: Optional[Dict[str, Any]] = None,
+        configs: Optional[ConfigMappingType] = None,
         extra_config_path: Optional[str] = None,
         ignore_local_config: bool = False,
-        overrides: Optional[Dict[str, Any]] = None,
+        overrides: Optional[ConfigMappingType] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
         # Ideally a dialect should be set when config is read but sometimes
         # it might only be set in nested .sqlfluff config files, so allow it
@@ -64,7 +65,7 @@ class FluffConfig:
         )
         # If overrides are provided, validate them early.
         if overrides:
-            overrides = records_to_nested_dict(
+            validated_override_config = records_to_nested_dict(
                 ConfigLoader._validate_configs(
                     [
                         (("core",) + k, v)
@@ -73,6 +74,8 @@ class FluffConfig:
                     "<provided overrides>",
                 )
             )["core"]
+            assert isinstance(validated_override_config, dict)
+            overrides = validated_override_config
         self._overrides = overrides  # We only store this for child configs
 
         # Fetch a fresh plugin manager if we weren't provided with one
