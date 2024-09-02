@@ -200,7 +200,12 @@ def validate_config_dict_for_removed(
                 config_section,
                 logging_reference=logging_reference,
                 removed_config=removed_value,
+                root_config_ref=root_config_ref,
             )
+            # If that validation resulted in an empty dict, also remove
+            # the reference in this layer.
+            if not config_section:
+                del config[key]
             continue
 
         # Otherwise handle it directly.
@@ -235,6 +240,7 @@ def validate_config_dict_for_removed(
             )
             # Remove the corresponding value from the dict object as invalid.
             del config[key]
+            continue
         except KeyError:
             pass
 
