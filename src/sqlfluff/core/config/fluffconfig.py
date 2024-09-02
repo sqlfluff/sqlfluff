@@ -18,6 +18,7 @@ from typing import (
 
 import pluggy
 
+from sqlfluff.core.config.cache import validate_config_dict
 from sqlfluff.core.config.ini import coerce_value
 from sqlfluff.core.config.loader import ConfigLoader
 from sqlfluff.core.errors import SQLFluffUserError
@@ -82,12 +83,8 @@ class FluffConfig:
         defaults = nested_combine(*self._plugin_manager.hook.load_default_config())
         # If any existing configs are provided. Validate them:
         if configs:
-            configs = records_to_nested_dict(
-                ConfigLoader._validate_configs(
-                    iter_records_from_nested_dict(configs),
-                    "<provided configs>",
-                )
-            )
+            # TODO: Test coverage?
+            validate_config_dict(configs, "<provided configs>")
         self._configs = nested_combine(
             defaults, configs or {"core": {}}, {"core": overrides or {}}
         )
