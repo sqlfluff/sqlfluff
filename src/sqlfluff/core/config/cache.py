@@ -2,6 +2,7 @@
 
 import os.path
 import sys
+from typing import Optional
 
 from sqlfluff.core.config.ini import load_ini_string
 from sqlfluff.core.config.removed import validate_config_dict_for_removed
@@ -55,32 +56,35 @@ def _resolve_path(filepath: str, val: str) -> str:
     return ref_path if os.path.exists(ref_path) else val
 
 
-def _resolve_paths_in_config(config: ConfigMappingType, filepath: str):
+def _resolve_paths_in_config(
+    config: ConfigMappingType, filepath: str, logging_reference: Optional[str] = None
+):
     """Attempt to resolve any paths found in the config file.
 
     NOTE: This method is recursive to crawl the whole config object,
     and also mutates the underlying config object rather than returning it.
     """
+    log_filename: str = logging_reference or filepath
     for key, val in config.items():
         # If it's a dict, recurse.
         if isinstance(val, dict):
-            _resolve_paths_in_config(val, filepath)
+            _resolve_paths_in_config(val, filepath, logging_reference=logging_reference)
         # If it's a potential multi-path, split, resolve and join
         if key.lower() in COMMA_SEPARATED_PATH_KEYS:
             assert isinstance(
                 val, str
-            ), f"Value for {key} in {filepath} must be a string not {type(val)}."
+            ), f"Value for {key} in {log_filename} must be a string not {type(val)}."
             paths = split_comma_separated_string(val)
             val = ",".join(_resolve_path(filepath, path) for path in paths)
         # It it's a single path key, resolve it.
         elif key.lower().endswith(RESOLVE_PATH_SUFFIXES):
             assert isinstance(
                 val, str
-            ), f"Value for {key} in {filepath} must be a string not {type(val)}."
+            ), f"Value for {key} in {log_filename} must be a string not {type(val)}."
             val = _resolve_path(filepath, val)
 
 
-def _validate_layout_config(config: ConfigMappingType, filepath: str) -> None:
+def _validate_layout_config(config: ConfigMappingType, logging_reference: str) -> None:
     """Validate the layout config section of the config.
 
     We check for valid key values and for the depth of the
@@ -96,7 +100,7 @@ def _validate_layout_config(config: ConfigMappingType, filepath: str) -> None:
     if not layout_section:
         return None
 
-    preamble = f"Config file {filepath!r} set an invalid `layout` option. "
+    preamble = f"Config file {logging_reference!r} set an invalid `layout` option. "
     reference = (
         "See https://docs.sqlfluff.com/en/stable/perma/layout.html"
         "#configuring-layout for more details."
@@ -165,6 +169,33 @@ def load_config_file_as_dict(filepath: str) -> ConfigMappingType:
     validate_config_dict_for_removed(raw_config, filepath)
     # Validate layout section
     _validate_layout_config(raw_config, filepath)
+
+    # Return dict object (which will be cached)
+    return raw_config
+
+
+@cache
+def load_config_string_as_dict(
+    config_string: str, working_path: str, logging_reference: str
+) -> ConfigMappingType:
+    """Load the given config string and validate.
+
+    This method is cached to mitigate being called multiple times.
+
+    This doesn't manage the combination of config files within a nested
+    structure, that happens further up the stack. The working path is
+    necessary to resolve any paths in the config file.
+    """
+    raw_config = load_ini_string(config_string)
+
+    # The raw loaded files have some path interpolation which is necessary.
+    _resolve_paths_in_config(
+        raw_config, working_path, logging_reference=logging_reference
+    )
+    # Validate the config for any removed values
+    validate_config_dict_for_removed(raw_config, logging_reference)
+    # Validate layout section
+    _validate_layout_config(raw_config, logging_reference)
 
     # Return dict object (which will be cached)
     return raw_config

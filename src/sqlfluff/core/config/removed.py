@@ -167,7 +167,7 @@ REMOVED_CONFIG_MAP = records_to_nested_dict(
 
 def validate_config_dict_for_removed(
     config: ConfigMappingType,
-    filepath: str,
+    logging_reference: str,
     removed_config: NestedStringDict[_RemovedConfig] = REMOVED_CONFIG_MAP,
     root_config_ref: Optional[ConfigMappingType] = None,
 ):
@@ -199,7 +199,7 @@ def validate_config_dict_for_removed(
             ), f"Expected `{key}` to be a section not a value."
             validate_config_dict_for_removed(
                 config_section,
-                filepath=filepath,
+                logging_reference=logging_reference,
                 removed_config=removed_value,
             )
             continue
@@ -210,7 +210,7 @@ def validate_config_dict_for_removed(
         # If there isn't a mapping option, just raise an error
         if not (removed_value.translation_func and removed_value.new_path):
             raise SQLFluffUserError(
-                f"Config file {filepath!r} set an outdated config "
+                f"Config file {logging_reference!r} set an outdated config "
                 f"value {removed_value.formatted_old_key}."
                 f"\n\n{removed_value.warning}\n\n"
                 "See https://docs.sqlfluff.com/en/stable/perma/"
@@ -225,7 +225,7 @@ def validate_config_dict_for_removed(
             nested_dict_get(root_config_ref, removed_value.new_path)
             # Raise an warning.
             config_logger.warning(
-                f"\nWARNING: Config file {filepath} set a deprecated "
+                f"\nWARNING: Config file {logging_reference} set a deprecated "
                 f"config value `{removed_value.formatted_old_key}` (which can be "
                 "migrated) but ALSO set the value it would be migrated to. The new "
                 f"value (`{removed_value.formatted_new_key}`) takes precedence. "
@@ -249,7 +249,7 @@ def validate_config_dict_for_removed(
         # have set up red logging because we haven't yet loaded the config
         # file. For that reason, this error message has a bit more padding.
         config_logger.warning(
-            f"\nWARNING: Config file {filepath} set a deprecated config "
+            f"\nWARNING: Config file {logging_reference} set a deprecated config "
             f"value `{removed_value.formatted_old_key}`. This will be "
             "removed in a later release. This has been mapped to "
             f"`{removed_value.formatted_new_key}` set to a value of "

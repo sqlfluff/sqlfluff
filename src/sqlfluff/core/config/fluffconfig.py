@@ -18,8 +18,8 @@ from typing import (
 
 import pluggy
 
-from sqlfluff.core.config.loader import ConfigLoader, coerce_value
-from sqlfluff.core.config.types import ConfigMappingType
+from sqlfluff.core.config.ini import coerce_value
+from sqlfluff.core.config.loader import ConfigLoader
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import (
     dict_diff,
