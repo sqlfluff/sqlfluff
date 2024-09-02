@@ -338,9 +338,7 @@ class ConfigLoader:
             validated_configs.append((k, v))
         return validated_configs
 
-    def load_config_resource(
-        self, package: str, file_name: str, configs: Optional[ConfigMappingType] = None
-    ) -> ConfigMappingType:
+    def load_config_resource(self, package: str, file_name: str) -> ConfigMappingType:
         """Load a config resource.
 
         This is however more compatible with mypyc because it avoids
@@ -356,10 +354,7 @@ class ConfigLoader:
         config_string = files(package).joinpath(file_name).read_text()
         elems = self._get_config_elems_from_file(config_string=config_string)
         elems = self._validate_configs(elems, package + "." + file_name)
-        raw_config = records_to_nested_dict(elems)
-        if not configs:
-            return raw_config
-        return nested_combine(configs, raw_config)
+        return records_to_nested_dict(elems)
 
     def load_config_file(
         self, file_dir: str, file_name: str, configs: Optional[ConfigMappingType] = None
