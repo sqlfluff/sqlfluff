@@ -1,6 +1,17 @@
 """Dict helpers, mostly used in config routines."""
 
-from typing import Any, Dict, List, Optional
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 
 def nested_combine(*dicts: Dict[str, Any]) -> Dict[str, Any]:
@@ -97,3 +108,177 @@ def dict_diff(
         else:
             buff[k] = left[k]
     return buff
+
+
+T = TypeVar("T")
+
+NestedStringDict = Dict[str, Union[T, "NestedStringDict[T]"]]
+"""Nested dict, with keys as strings.
+
+All values of the dict are either values of the given type variable T, or
+are themselves dicts with the same nested properties. Variables of this type
+are used regularly in configuration methods and classes.
+"""
+
+NestedDictRecord = Tuple[Tuple[str, ...], T]
+"""Tuple form record of a setting in a NestedStringDict.
+
+The tuple of strings in the first element is the "address" in the NestedStringDict
+with the value as the second element on the tuple.
+"""
+
+
+def records_to_nested_dict(
+    records: Iterable[NestedDictRecord[T]],
+) -> NestedStringDict[T]:
+    """Reconstruct records into a dict.
+
+    >>> records_to_nested_dict(
+    ...     [(("foo", "bar", "baz"), "a"), (("foo", "bar", "biz"), "b")]
+    ... )
+    {'foo': {'bar': {'baz': 'a', 'biz': 'b'}}}
+    """
+    result: NestedStringDict = {}
+    for key, val in records:
+        ref: NestedStringDict = result
+        for step in key[:-1]:
+            # If the subsection isn't there, make it.
+            if step not in ref:
+                ref[step] = {}
+            # Then step into it.
+            subsection = ref[step]
+            assert isinstance(subsection, dict)
+            ref = subsection
+        ref[key[-1]] = val
+    return result
+
+
+def iter_records_from_nested_dict(
+    nested_dict: NestedStringDict[T],
+) -> Iterator[NestedDictRecord[T]]:
+    """Walk a config dict and get config elements.
+
+    >>> list(
+    ...    iter_records_from_nested_dict(
+    ...        {"foo":{"bar":{"baz": "a", "biz": "b"}}}
+    ...    )
+    ... )
+    [(('foo', 'bar', 'baz'), 'a'), (('foo', 'bar', 'biz'), 'b')]
+    """
+    for key, val in nested_dict.items():
+        if isinstance(val, dict):
+            for partial_key, sub_val in iter_records_from_nested_dict(val):
+                yield (key,) + partial_key, sub_val
+        else:
+            yield (key,), val
+
+
+def nested_dict_get(
+    dict_obj: NestedStringDict[T], keys: Sequence[str], key_index: int = 0
+) -> Union[T, NestedStringDict[T]]:
+    """Perform a lookup in a nested dict object.
+
+    Lookups are performed by iterating keys.
+    >>> nested_dict_get(
+    ...     {"a": {"b": "c"}}, ("a", "b")
+    ... )
+    'c'
+
+    Lookups may return sections of nested dicts.
+    >>> nested_dict_get(
+    ...     {"a": {"b": "c"}}, ("a",)
+    ... )
+    {'b': 'c'}
+
+    Raises `KeyError` if any keys are not found.
+    >>> nested_dict_get(
+    ...     {"a": {"b": "c"}}, ("p", "q")
+    ... )
+    Traceback (most recent call last):
+        ...
+    KeyError: "'p' not found in nested dict lookup"
+
+    Raises `KeyError` we run out of dicts before keys are exhausted.
+    >>> nested_dict_get(
+    ...     {"a": {"b": "d"}}, ("a", "b", "c")
+    ... )
+    Traceback (most recent call last):
+        ...
+    KeyError: "'b' found non dict value, but there are more keys to iterate: ('c',)"
+
+    """
+    assert keys, "Nested dict lookup called without keys."
+    assert key_index < len(keys), "Key exhaustion on nested dict lookup"
+
+    next_key = keys[key_index]
+    if next_key not in dict_obj:
+        raise KeyError(f"{next_key!r} not found in nested dict lookup")
+    next_value = dict_obj[next_key]
+
+    # Are we all the way through the keys?
+    if key_index + 1 == len(keys):
+        # NOTE: Could be a section or a value.
+        return next_value
+
+    # If we're not all the way through the keys, go deeper if we can.
+    if not isinstance(next_value, dict):
+        raise KeyError(
+            f"{next_key!r} found non dict value, but there are more keys to "
+            f"iterate: {keys[key_index + 1:]}"
+        )
+
+    return nested_dict_get(next_value, keys, key_index=key_index + 1)
+
+
+def nested_dict_set(
+    dict_obj: NestedStringDict[T],
+    keys: Sequence[str],
+    value: Union[T, NestedStringDict[T]],
+    key_index: int = 0,
+) -> None:
+    """Set a value in a nested dict object.
+
+    Lookups are performed by iterating keys.
+    >>> d = {"a": {"b": "c"}}
+    >>> nested_dict_set(d, ("a", "b"), "d")
+    >>> d
+    {'a': {'b': 'd'}}
+
+    Values may set dicts.
+    >>> d = {"a": {"b": "c"}}
+    >>> nested_dict_set(d, ("a", "b"), {"d": "e"})
+    >>> d
+    {'a': {'b': {'d': 'e'}}}
+
+    Any keys not found will be created.
+    >>> d = {"a": {"b": "c"}}
+    >>> nested_dict_set(d, ("p", "q"), "r")
+    >>> d
+    {'a': {'b': 'c'}, 'p': {'q': 'r'}}
+
+    Values may be overwritten with sub keys.
+    >>> d = {"a": {"b": "c"}}
+    >>> nested_dict_set(d, ("a", "b", "d"), "e")
+    >>> d
+    {'a': {'b': {'d': 'e'}}}
+    """
+    assert keys, "Nested dict lookup called without keys."
+    assert key_index < len(keys), "Key exhaustion on nested dict lookup"
+
+    next_key = keys[key_index]
+    # Create an empty dictionary if key not found.
+    if next_key not in dict_obj:
+        dict_obj[next_key] = {}
+    # Overwrite the value to a dict if the existing value isn't one.
+    elif not isinstance(dict_obj[next_key], dict):
+        dict_obj[next_key] = {}
+    next_value = dict_obj[next_key]
+    assert isinstance(next_value, dict)
+
+    # Do we have more keys to set?
+    # If we do, recurse:
+    if key_index + 1 < len(keys):
+        nested_dict_set(next_value, keys=keys, value=value, key_index=key_index + 1)
+    # If we don't, then just set the value:
+    else:
+        dict_obj[next_key] = value
