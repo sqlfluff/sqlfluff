@@ -299,7 +299,7 @@ class FluffConfig:
         elif config:
             return config
 
-        overrides = {}
+        overrides: ConfigMappingType = {}
         if dialect:
             overrides["dialect"] = dialect
         if rules:
