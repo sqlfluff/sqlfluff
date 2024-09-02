@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: beaa6427d3e3bd8c3f396f7c13bccb9b9598656024f3ab13139a3a8c9e007757
+_hash: 71c80712cfb3a38e60e9c54cc5f51d4964b755935534882de394ab33fffddada
 file:
 - statement:
     select_statement:
@@ -61,6 +61,33 @@ file:
           alias_expression:
             keyword: as
             naked_identifier: sample_transform
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TRANSFORM
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: ident
+                comma: ','
+                lambda_expression:
+                  naked_identifier: k
+                  data_type:
+                    data_type_identifier: variant
+                  function_assigner: ->
+                  expression:
+                    column_reference:
+                      naked_identifier: k
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: val
+                end_bracket: )
+          alias_expression:
+            keyword: as
+            naked_identifier: sample_transform_with_type
       from_clause:
         keyword: FROM
         from_expression:

@@ -8376,7 +8376,10 @@ class LambdaExpressionSegment(BaseSegment):
     type = "lambda_expression"
     match_grammar = Sequence(
         OneOf(
-            Ref("NakedIdentifierSegment"),
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                Ref("DatatypeSegment", optional=True),
+            ),
             Bracketed(
                 Delimited(
                     Sequence(
