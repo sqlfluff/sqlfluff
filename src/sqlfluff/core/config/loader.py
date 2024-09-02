@@ -262,19 +262,19 @@ class ConfigLoader:
         for k, v in new_configs:
             # First validate against the removed option list.
             if k in config_map.keys():
-                formatted_key = ":".join(k)
                 removed_option = config_map[k]
                 # Is there a mapping option?
                 if removed_option.translation_func and removed_option.new_path:
-                    formatted_new_key = ":".join(removed_option.new_path)
                     # Before mutating, check we haven't _also_ set the new value.
                     if removed_option.new_path in defined_keys:
                         # Raise an warning.
                         config_logger.warning(
                             f"\nWARNING: Config file {file_path} set a deprecated "
-                            f"config value `{formatted_key}` (which can be migrated) "
+                            f"config value {removed_option.formatted_old_key!r} "
+                            "(which can be migrated) "
                             f"but ALSO set the value it would be migrated to. The new "
-                            f"value (`{removed_option.new_path}`) takes precedence. "
+                            f"value ({removed_option.formatted_new_key!r}) takes "
+                            "precedence. "
                             "Please update your configuration to remove this warning. "
                             f"\n\n{removed_option.warning}\n\n"
                             "See https://docs.sqlfluff.com/en/stable/perma/"
@@ -291,9 +291,10 @@ class ConfigLoader:
                     # file. For that reason, this error message has a bit more padding.
                     config_logger.warning(
                         f"\nWARNING: Config file {file_path} set a deprecated config "
-                        f"value `{formatted_key}`. This will be removed in a later "
-                        "release. This has been mapped to "
-                        f"`{formatted_new_key}` set to a value of `{v}` for this run. "
+                        f"value {removed_option.formatted_old_key!r}. This will be "
+                        "removed in a later release. This has been mapped to "
+                        f"{removed_option.formatted_new_key!r} set to a value of "
+                        f"`{v}` for this run. "
                         "Please update your configuration to remove this warning. "
                         f"\n\n{removed_option.warning}\n\n"
                         "See https://docs.sqlfluff.com/en/stable/perma/"
@@ -303,7 +304,8 @@ class ConfigLoader:
                     # Raise an error.
                     raise SQLFluffUserError(
                         f"Config file {file_path!r} set an outdated config "
-                        f"value {formatted_key}.\n\n{removed_option.warning}\n\n"
+                        f"value {removed_option.formatted_old_key!r}."
+                        f"\n\n{removed_option.warning}\n\n"
                         "See https://docs.sqlfluff.com/en/stable/perma/"
                         "configuration.html for more details."
                     )

@@ -1,11 +1,9 @@
 """Records of deprecated and removed config variables."""
 
 from dataclasses import dataclass
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Callable, Optional, Tuple
 
-from sqlfluff.core.config.types import ConfigValueType
-
-ConfigValueOrListType = Union[ConfigValueType, List[ConfigValueType]]
+from sqlfluff.core.config.types import ConfigValueOrListType
 
 
 @dataclass
