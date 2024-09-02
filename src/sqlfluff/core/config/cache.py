@@ -152,6 +152,24 @@ def _validate_layout_config(config: ConfigMappingType, logging_reference: str) -
                     )
 
 
+def validate_config_dict(config: ConfigMappingType, logging_reference: str) -> None:
+    """Validate a config dict.
+
+    Currently we validate:
+    - Removed and deprecated values.
+    - Layout configuration structure.
+
+    Using this method ensures that any later validation will also be applied.
+
+    NOTE: Some of these method may mutate the config object where they are
+    able to correct issues.
+    """
+    # Validate the config for any removed values
+    validate_config_dict_for_removed(config, logging_reference)
+    # Validate layout section
+    _validate_layout_config(config, logging_reference)
+
+
 @cache
 def load_config_file_as_dict(filepath: str) -> ConfigMappingType:
     """Load the given config file into a dict and validate.
@@ -165,10 +183,8 @@ def load_config_file_as_dict(filepath: str) -> ConfigMappingType:
 
     # The raw loaded files have some path interpolation which is necessary.
     _resolve_paths_in_config(raw_config, filepath)
-    # Validate the config for any removed values
-    validate_config_dict_for_removed(raw_config, filepath)
-    # Validate layout section
-    _validate_layout_config(raw_config, filepath)
+    # Validate
+    validate_config_dict(raw_config, filepath)
 
     # Return dict object (which will be cached)
     return raw_config
@@ -192,10 +208,8 @@ def load_config_string_as_dict(
     _resolve_paths_in_config(
         raw_config, working_path, logging_reference=logging_reference
     )
-    # Validate the config for any removed values
-    validate_config_dict_for_removed(raw_config, logging_reference)
-    # Validate layout section
-    _validate_layout_config(raw_config, logging_reference)
+    # Validate
+    validate_config_dict(raw_config, logging_reference)
 
     # Return dict object (which will be cached)
     return raw_config
