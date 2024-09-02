@@ -10,7 +10,7 @@ from sqlfluff.core.config.types import ConfigMappingType, ConfigValueType
 from sqlfluff.core.helpers.dict import NestedDictRecord, records_to_nested_dict
 
 
-def _coerce_value(val: str) -> ConfigValueType:
+def coerce_value(val: str) -> ConfigValueType:
     """Try to coerce to a more specific type."""
     # Try to coerce it to a more specific type,
     # otherwise just make it a string.
@@ -74,7 +74,7 @@ def load_ini_string(cfg_content: str) -> ConfigMappingType:
         for name, val in config.items(section=k):
             # Try to coerce it to a more specific type,
             # otherwise just make it a string.
-            v = _coerce_value(val)
+            v = coerce_value(val)
 
             # Add the name to the end of the key
             config_buffer.append((key + (name,), v))
