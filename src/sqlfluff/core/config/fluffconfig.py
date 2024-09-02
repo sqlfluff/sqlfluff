@@ -24,9 +24,7 @@ from sqlfluff.core.config.loader import ConfigLoader
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import (
     dict_diff,
-    iter_records_from_nested_dict,
     nested_combine,
-    records_to_nested_dict,
 )
 from sqlfluff.core.helpers.string import (
     split_colon_separated_string,
@@ -66,15 +64,9 @@ class FluffConfig:
         )
         # If overrides are provided, validate them early.
         if overrides:
-            overrides = records_to_nested_dict(
-                ConfigLoader._validate_configs(
-                    [
-                        (("core",) + k, v)
-                        for k, v in iter_records_from_nested_dict(overrides)
-                    ],
-                    "<provided overrides>",
-                )
-            )["core"]
+            overrides = {"core": overrides}
+            validate_config_dict(overrides, "<provided overrides>")
+            overrides = overrides["core"]
         self._overrides = overrides  # We only store this for child configs
 
         # Fetch a fresh plugin manager if we weren't provided with one
