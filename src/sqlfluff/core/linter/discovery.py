@@ -56,18 +56,28 @@ def _check_ignore_specs(
     return None
 
 
-def _load_specs_from_lines(lines: Iterable[str]) -> pathspec.PathSpec:
-    return pathspec.PathSpec.from_lines("gitwildmatch", lines)
+def _load_specs_from_lines(
+    lines: Iterable[str], logging_reference: str
+) -> pathspec.PathSpec:
+    """Load the ignore spec from an iterable of lines.
+
+    Raises SQLFluffUserError if unparsable for any reason.
+    """
+    try:
+        return pathspec.PathSpec.from_lines("gitwildmatch", lines)
+    except Exception:
+        _error_msg = f"Error parsing ignore patterns in {logging_reference}"
+        # If the iterable is a Sequence type, then include the patterns.
+        if isinstance(lines, Sequence):
+            _error_msg += f": {lines}"
+        raise SQLFluffUserError(_error_msg)
 
 
 def _load_ignorefile(dirpath: str, filename: str) -> IgnoreSpecRecord:
     """Load a sqlfluffignore file, returning the parsed spec."""
     filepath = os.path.join(dirpath, filename)
     with open(filepath, mode="r") as f:
-        try:
-            spec = _load_specs_from_lines(f)
-        except Exception:
-            raise SQLFluffUserError(f"Error parsing ignore patterns in {filepath}.")
+        spec = _load_specs_from_lines(f, filepath)
     return dirpath, filename, spec
 
 
@@ -80,12 +90,7 @@ def _load_pyproject(dirpath: str, filename: str) -> Optional[IgnoreSpecRecord]:
     patterns = ignore_section.get("ignore_paths", [])
     if not patterns:
         return None
-    try:
-        spec = _load_specs_from_lines(patterns)
-    except Exception:
-        raise SQLFluffUserError(
-            f"Error parsing ignore patterns in {filepath}: {patterns}."
-        )
+    spec = _load_specs_from_lines(patterns, filepath)
     return dirpath, filename, spec
 
 
@@ -101,12 +106,7 @@ def _load_sqlfluff(dirpath: str, filename: str) -> Optional[IgnoreSpecRecord]:
     ignore_paths = config["sqlfluff"].get("ignore_paths", "")
     if not ignore_paths:
         return None
-    try:
-        spec = _load_specs_from_lines(ignore_paths.split(","))
-    except Exception:
-        raise SQLFluffUserError(
-            f"Error parsing ignore patterns in {filepath}: {ignore_paths}."
-        )
+    spec = _load_specs_from_lines(ignore_paths.split(","), filepath)
     return dirpath, filename, spec
 
 
