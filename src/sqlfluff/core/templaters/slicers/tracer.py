@@ -192,7 +192,22 @@ class JinjaTracer:
             # Save all the candidates for each step so we can return them later.
             step_candidates[self.program_counter] = candidates
             # Step forward to the best step found.
-            self.program_counter = candidates[0]
+
+            # https://github.com/sqlfluff/sqlfluff/issues/6121
+            next_indices = self.raw_slice_info[current_raw_slice].next_slice_indices
+            if (
+                current_raw_slice.tag == "endfor"  # noqa
+                # Elements of inside_set_macro_or_call have empty next_slice_indices
+                and next_indices
+                # The next_slice_indices[0] of the 'endfor' is the first element of the
+                # loop.If the target is within the current loop, the program_counter
+                # should move to the first element of this loop. Otherwise, it will
+                # exit this loop and lose the content  rendered in the next iteration
+                and next_indices[0] <= target_slice_idx < self.program_counter
+            ):
+                self.program_counter = next_indices[0]
+            else:
+                self.program_counter = candidates[0]
 
         # Return the candidates at each step.
         return step_candidates
