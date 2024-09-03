@@ -111,18 +111,6 @@ def test__config__load_parent():
     }
 
 
-def test__config__iter_config_elems_from_dict():
-    """Test nested overwrite and order of precedence of config files."""
-    c = ConfigLoader._iter_config_elems_from_dict(
-        {"a": {"b": {"c": 123, "d": 456}, "f": 6}}
-    )
-    assert list(c) == [
-        (("a", "b", "c"), 123),
-        (("a", "b", "d"), 456),
-        (("a", "f"), 6),
-    ]
-
-
 def test__config__load_toml():
     """Test loading config from a pyproject.toml file."""
     c = ConfigLoader()

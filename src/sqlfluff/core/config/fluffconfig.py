@@ -19,8 +19,14 @@ from typing import (
 import pluggy
 
 from sqlfluff.core.config.loader import ConfigLoader, coerce_value
+from sqlfluff.core.config.types import ConfigMappingType
 from sqlfluff.core.errors import SQLFluffUserError
-from sqlfluff.core.helpers.dict import dict_diff, nested_combine
+from sqlfluff.core.helpers.dict import (
+    dict_diff,
+    iter_records_from_nested_dict,
+    nested_combine,
+    records_to_nested_dict,
+)
 from sqlfluff.core.helpers.string import (
     split_colon_separated_string,
     split_comma_separated_string,
@@ -41,10 +47,10 @@ class FluffConfig:
 
     def __init__(
         self,
-        configs: Optional[Dict[str, Any]] = None,
+        configs: Optional[ConfigMappingType] = None,
         extra_config_path: Optional[str] = None,
         ignore_local_config: bool = False,
-        overrides: Optional[Dict[str, Any]] = None,
+        overrides: Optional[ConfigMappingType] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
         # Ideally a dialect should be set when config is read but sometimes
         # it might only be set in nested .sqlfluff config files, so allow it
@@ -59,15 +65,17 @@ class FluffConfig:
         )
         # If overrides are provided, validate them early.
         if overrides:
-            overrides = ConfigLoader._config_elems_to_dict(
+            validated_override_config = records_to_nested_dict(
                 ConfigLoader._validate_configs(
                     [
                         (("core",) + k, v)
-                        for k, v in ConfigLoader._iter_config_elems_from_dict(overrides)
+                        for k, v in iter_records_from_nested_dict(overrides)
                     ],
                     "<provided overrides>",
                 )
             )["core"]
+            assert isinstance(validated_override_config, dict)
+            overrides = validated_override_config
         self._overrides = overrides  # We only store this for child configs
 
         # Fetch a fresh plugin manager if we weren't provided with one
@@ -76,9 +84,9 @@ class FluffConfig:
         defaults = nested_combine(*self._plugin_manager.hook.load_default_config())
         # If any existing configs are provided. Validate them:
         if configs:
-            configs = ConfigLoader._config_elems_to_dict(
+            configs = records_to_nested_dict(
                 ConfigLoader._validate_configs(
-                    ConfigLoader._iter_config_elems_from_dict(configs),
+                    iter_records_from_nested_dict(configs),
                     "<provided configs>",
                 )
             )
@@ -291,7 +299,7 @@ class FluffConfig:
         elif config:
             return config
 
-        overrides = {}
+        overrides: ConfigMappingType = {}
         if dialect:
             overrides["dialect"] = dialect
         if rules:
@@ -455,16 +463,16 @@ class FluffConfig:
             )
             return
         config_line = config_line[9:].strip()
-        config_val = split_colon_separated_string(config_line)
+        config_key, config_value = split_colon_separated_string(config_line)
         # Validate the value
-        ConfigLoader._validate_configs([config_val], fname)
+        ConfigLoader._validate_configs([(config_key, config_value)], fname)
         # Set the value
-        self.set_value(*config_val)
+        self.set_value(config_key, config_value)
         # If the config is for dialect, initialise the dialect.
         # NOTE: Comparison with a 1-tuple is intentional here as
         # the first element of config_val is a tuple.
-        if config_val[0] == ("dialect",):
-            self._initialise_dialect(config_val[1])
+        if config_key == ("dialect",):
+            self._initialise_dialect(config_value)
 
     def process_raw_file_for_config(self, raw_str: str, fname: str) -> None:
         """Process a full raw file for inline config and update self."""
