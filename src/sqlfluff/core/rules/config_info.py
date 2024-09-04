@@ -48,11 +48,11 @@ STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
         ),
     },
     "unquoted_identifiers_policy": {
-        "validation": ["all", "aliases", "column_aliases"],
+        "validation": ["all", "aliases", "column_aliases", "table_aliases"],
         "definition": "Types of unquoted identifiers to flag violations for.",
     },
     "quoted_identifiers_policy": {
-        "validation": ["all", "aliases", "column_aliases", "none"],
+        "validation": ["all", "aliases", "column_aliases", "none", "table_aliases"],
         "definition": "Types of quoted identifiers to flag violations for.",
     },
     "capitalisation_policy": {
