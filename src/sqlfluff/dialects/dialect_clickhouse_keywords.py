@@ -177,6 +177,7 @@ UNRESERVED_KEYWORDS = [
     "INF",
     "INJECTIVE",
     "INSERT",
+    "INTERVAL",
     "INTO",
     "IS",
     "IS_OBJECT_ID",

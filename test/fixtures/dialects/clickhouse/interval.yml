@@ -1,0 +1,382 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5877a34e6b6b3cb83dfe11c2ecfbdf146e2b63e9b04f45f863ce3571612a8103
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '1'
+            date_part: DAY
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            quoted_literal: "'1'"
+            date_part: DAY
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            quoted_literal: "'1 DAY'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - interval_expression:
+              keyword: INTERVAL
+              quoted_literal: "'1 days'"
+          - binary_operator: +
+          - interval_expression:
+              keyword: interval
+              quoted_literal: "'3 hours'"
+          - binary_operator: +
+          - interval_expression:
+              keyword: interval
+              numeric_literal: '2'
+              date_part: minutes
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: date_add
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: today
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  interval_expression:
+                    keyword: INTERVAL
+                    expression:
+                      numeric_literal:
+                        sign_indicator: '-'
+                        numeric_literal: '30'
+                    date_part: DAY
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: subDate
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: toDate
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "'2008-01-02'"
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  interval_expression:
+                    keyword: INTERVAL
+                    numeric_literal: '31'
+                    date_part: DAY
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: addDate
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: today
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  interval_expression:
+                    keyword: INTERVAL
+                    expression:
+                      numeric_literal:
+                        sign_indicator: '-'
+                        numeric_literal: '30'
+                    date_part: day
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: date_sub
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: toDate
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "'2018-01-01'"
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  interval_expression:
+                    keyword: INTERVAL
+                    numeric_literal: '3'
+                    date_part: YEAR
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: date_add
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: toDate
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "'2018-01-01'"
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  interval_expression:
+                    keyword: INTERVAL
+                    numeric_literal: '3'
+                    date_part: YYYY
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: date_add
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: today
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  interval_expression:
+                    keyword: interval
+                    expression:
+                    - numeric_literal: '7'
+                    - binary_operator: '*'
+                    - numeric_literal: '4'
+                    date_part: days
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: addDate
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: today
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  interval_expression:
+                    keyword: INTERVAL
+                    expression:
+                      column_reference:
+                        naked_identifier: col1
+                    date_part: DAY
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: subDate
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: today
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  interval_expression:
+                    keyword: INTERVAL
+                    expression:
+                    - column_reference:
+                        naked_identifier: col1
+                    - binary_operator: +
+                    - column_reference:
+                        naked_identifier: col2
+                    date_part: DAY
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: formatDateTime
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: db1
+                  - dot: .
+                  - naked_identifier: tbl1
+                  - dot: .
+                  - naked_identifier: col1
+                  binary_operator: +
+                  interval_expression:
+                    keyword: INTERVAL
+                    expression:
+                    - column_reference:
+                      - naked_identifier: db1
+                      - dot: .
+                      - naked_identifier: tbl1
+                      - dot: .
+                      - naked_identifier: col2
+                    - binary_operator: +
+                    - column_reference:
+                      - naked_identifier: db2_tbl2
+                      - dot: .
+                      - naked_identifier: col2
+                    date_part: DAY
+              - comma: ','
+              - expression:
+                  quoted_literal: "'%F %T'"
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: db1
+              - dot: .
+              - naked_identifier: tbl1
+          join_clause:
+          - keyword: left
+          - keyword: join
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: db2
+                - dot: .
+                - naked_identifier: tbl2
+              alias_expression:
+                keyword: as
+                naked_identifier: db2_tbl2
+          - join_on_condition:
+              keyword: 'on'
+              expression:
+              - column_reference:
+                - naked_identifier: db1
+                - dot: .
+                - naked_identifier: tbl1
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: db2_tbl2
+                - dot: .
+                - naked_identifier: id
+- statement_terminator: ;
