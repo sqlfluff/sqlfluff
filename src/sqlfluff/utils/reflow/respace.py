@@ -84,6 +84,9 @@ def determine_constraints(
             within_spacing, strip_newlines = _unpack_constraint(
                 within_constraint, strip_newlines
             )
+        # Prohibit stripping newlines after comment segments
+        if any(seg.is_type("comment") for seg in prev_block.segments):
+            strip_newlines = False
 
     # If segments are expected to be touch within. Then modify
     # constraints accordingly.
