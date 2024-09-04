@@ -743,6 +743,17 @@ snowflake_dialect.replace(
         Ref("HorizontalJoinKeywordsGrammar"),
         Ref("NonStandardJoinTypeKeywordsGrammar"),
     ),
+    FunctionParameterGrammar=Sequence(
+        OneOf(
+            Ref("DatatypeSegment"),
+            Sequence(Ref("ParameterNameSegment"), Ref("DatatypeSegment")),
+        ),
+        Sequence(
+            "DEFAULT",
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
+    ),
 )
 
 # Add all Snowflake keywords
