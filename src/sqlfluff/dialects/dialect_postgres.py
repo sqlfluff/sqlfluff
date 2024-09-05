@@ -1767,7 +1767,11 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
                 OneOf("REPLICATION", "NOREPLICATION"),
                 OneOf("BYPASSRLS", "NOBYPASSRLS"),
                 Sequence("CONNECTION", "LIMIT", Ref("NumericLiteralSegment")),
-                Sequence("PASSWORD", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
+                Sequence(
+                    Ref.keyword("ENCRYPTED", optional=True),
+                    "PASSWORD",
+                    OneOf(Ref("QuotedLiteralSegment"), "NULL"),
+                ),
                 Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment")),
                 Sequence("IN", "ROLE", Ref("RoleReferenceSegment")),
                 Sequence("IN", "GROUP", Ref("RoleReferenceSegment")),
