@@ -14,11 +14,25 @@ ALTER TABLE my_table SET COMMENT = 'my table comment';
 
 ALTER TABLE table1 ADD CONSTRAINT constraint1 PRIMARY KEY ( col1 );
 
+ALTER TABLE table1 ADD CONSTRAINT constraint1 PRIMARY KEY ( col1 ) RELY;
+
+ALTER TABLE table1 ADD CONSTRAINT constraint1 PRIMARY KEY ( col1 ) NORELY;
+
+ALTER TABLE table1 ADD CONSTRAINT constraint1 UNIQUE ( col1 );
+
+ALTER TABLE table1 ADD CONSTRAINT constraint1 UNIQUE ( col1 ) RELY;
+
+ALTER TABLE table1 ADD CONSTRAINT constraint1 UNIQUE ( col1 ) ENFORCED NOVALIDATE NORELY;
+
 ALTER TABLE table1 ADD CONSTRAINT "constraint1" PRIMARY KEY ( col1 );
 
 ALTER TABLE table1 ADD CONSTRAINT "constraint1" PRIMARY KEY ( col1, col2 );
 
 ALTER TABLE table1 ADD CONSTRAINT constraint1 FOREIGN KEY ( col1 ) REFERENCES table2 ( col2 );
+
+ALTER TABLE table1 ADD CONSTRAINT constraint1 FOREIGN KEY ( col1 ) REFERENCES table2 ( col2 ) RELY;
+
+ALTER TABLE table1 ADD CONSTRAINT constraint1 FOREIGN KEY ( col1 ) REFERENCES table2 ( col2 ) NORELY;
 
 ALTER TABLE table1 ADD CONSTRAINT "constraint1" FOREIGN KEY ( col1 ) REFERENCES table2 ( col2 );
 

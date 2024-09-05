@@ -572,6 +572,15 @@ snowflake_dialect.add(
             type="exception_code",
         ),
     ),
+    # https://docs.snowflake.com/en/sql-reference/sql/create-table-constraint
+    InlineConstraintGrammar=AnySetOf(
+            OneOf(Sequence("NOT", optional=True), "ENFORCED"),
+            OneOf(Sequence("NOT", optional=True), "DEFERRABLE"),
+            OneOf("INITIALLY", OneOf("DEFERRED", "IMMEDIATE")),
+            OneOf("ENABLE", "DISABLE"),
+            OneOf("VALIDATE", "NOVALIDATE"),
+            OneOf("RELY", "NORELY"),
+    ),
 )
 
 snowflake_dialect.replace(
@@ -1935,7 +1944,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
     If possible, please keep the order below the same as Snowflake's doc:
     """
 
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "ALTER",
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
@@ -2267,45 +2276,7 @@ class AlterTableConstraintActionSegment(BaseSegment):
         # Add Column
         Sequence(
             "ADD",
-            Sequence(
-                "CONSTRAINT",
-                OneOf(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("QuotedIdentifierSegment"),
-                ),
-                optional=True,
-            ),
-            OneOf(
-                Sequence(
-                    Ref("PrimaryKeyGrammar"),
-                    Bracketed(
-                        Delimited(
-                            Ref("ColumnReferenceSegment"),
-                        ),
-                    ),
-                ),
-                Sequence(
-                    Sequence(
-                        Ref("ForeignKeyGrammar"),
-                        Bracketed(
-                            Delimited(
-                                Ref("ColumnReferenceSegment"),
-                            )
-                        ),
-                    ),
-                    "REFERENCES",
-                    Ref("TableReferenceSegment"),
-                    Bracketed(
-                        Delimited(
-                            Ref("ColumnReferenceSegment"),
-                        ),
-                        optional=True,
-                    ),
-                ),
-                Sequence(
-                    "UNIQUE", Bracketed(Ref("ColumnReferenceSegment"), optional=True)
-                ),
-            ),
+            Ref("ConstraintPropertiesSegment"),
         ),
         Sequence(
             "DROP",
@@ -2313,7 +2284,7 @@ class AlterTableConstraintActionSegment(BaseSegment):
             OneOf(
                 Ref("PrimaryKeyGrammar"),
                 Ref("ForeignKeyGrammar"),
-                "UNIQUE",
+                Ref("UniqueKeyGrammar"),
             ),
             Delimited(Ref("ColumnReferenceSegment")),
         ),
@@ -3908,29 +3879,46 @@ class ConstraintPropertiesSegment(BaseSegment):
 
     type = "constraint_properties_segment"
     match_grammar = Sequence(
-        Sequence("CONSTRAINT", Ref("QuotedLiteralSegment"), optional=True),
+        Sequence(
+            "CONSTRAINT",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
         OneOf(
-            Sequence("UNIQUE", Bracketed(Ref("ColumnReferenceSegment"), optional=True)),
             Sequence(
-                Ref("PrimaryKeyGrammar"),
-                Bracketed(Ref("ColumnReferenceSegment"), optional=True),
+                OneOf(
+                    Ref("PrimaryKeyGrammar"),
+                    Ref("UniqueKeyGrammar"),
+                ),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                    # For use in CREATE TABLE as a part of 
+                    # ColumnDefinitionSegment.ColumnConstraintSegment
+                    optional=True,
+                ),
             ),
             Sequence(
                 Sequence(
                     Ref("ForeignKeyGrammar"),
-                    Bracketed(Ref("ColumnReferenceSegment"), optional=True),
-                    optional=True,
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment"),
+                        )
+                    ),
                 ),
                 "REFERENCES",
                 Ref("TableReferenceSegment"),
-                Bracketed(Ref("ColumnReferenceSegment")),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                    optional=True,
+                ),
             ),
         ),
-        AnySetOf(
-            OneOf(Sequence("NOT", optional=True), "ENFORCED"),
-            OneOf(Sequence("NOT", optional=True), "DEFERRABLE"),
-            OneOf("INITIALLY", OneOf("DEFERRED", "IMMEDIATE")),
-        ),
+        Ref("InlineConstraintGrammar", optional=True),
     )
 
 
@@ -3940,7 +3928,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
     https://docs.snowflake.com/en/sql-reference/sql/create-table.html
     """
 
-    match_grammar = AnySetOf(
+    match_grammar: Matchable = AnySetOf(
         Sequence("COLLATE", Ref("CollationReferenceSegment")),
         Sequence(
             "DEFAULT",
@@ -4361,7 +4349,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                     Delimited(
                         Sequence(
                             OneOf(
-                                Ref("TableConstraintSegment"),
+                                Ref("ConstraintPropertiesSegment"),
                                 Ref("ColumnDefinitionSegment"),
                                 Ref("SingleIdentifierGrammar"),
                             ),
@@ -5753,7 +5741,7 @@ class CreateExternalTableSegment(BaseSegment):
                     OptionallyBracketed(
                         Sequence(
                             Ref("ExpressionSegment"),
-                            Ref("TableConstraintSegment", optional=True),
+                            Ref("ConstraintPropertiesSegment", optional=True),
                             Sequence(
                                 Ref.keyword("NOT", optional=True), "NULL", optional=True
                             ),

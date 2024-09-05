@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b66f843d0133bfe7a04efcc239117af11a71bf239d49a6014709c260d448769d
+_hash: b44aaac4489b1c4a10e8b6950d2e7f83e1ca678e5e8cc4f72a424e4b91310d6b
 file:
 - statement:
     alter_table_statement:
@@ -90,16 +90,17 @@ file:
     - table_reference:
         naked_identifier: table1
     - alter_table_constraint_action:
-      - keyword: ADD
-      - keyword: CONSTRAINT
-      - naked_identifier: constraint1
-      - keyword: PRIMARY
-      - keyword: KEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            naked_identifier: col1
-          end_bracket: )
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: constraint1
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col1
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -108,16 +109,18 @@ file:
     - table_reference:
         naked_identifier: table1
     - alter_table_constraint_action:
-      - keyword: ADD
-      - keyword: CONSTRAINT
-      - quoted_identifier: '"constraint1"'
-      - keyword: PRIMARY
-      - keyword: KEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            naked_identifier: col1
-          end_bracket: )
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: constraint1
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col1
+            end_bracket: )
+        - keyword: RELY
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -126,19 +129,18 @@ file:
     - table_reference:
         naked_identifier: table1
     - alter_table_constraint_action:
-      - keyword: ADD
-      - keyword: CONSTRAINT
-      - quoted_identifier: '"constraint1"'
-      - keyword: PRIMARY
-      - keyword: KEY
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-            naked_identifier: col1
-        - comma: ','
-        - column_reference:
-            naked_identifier: col2
-        - end_bracket: )
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: constraint1
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col1
+            end_bracket: )
+        - keyword: NORELY
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -147,24 +149,16 @@ file:
     - table_reference:
         naked_identifier: table1
     - alter_table_constraint_action:
-      - keyword: ADD
-      - keyword: CONSTRAINT
-      - naked_identifier: constraint1
-      - keyword: FOREIGN
-      - keyword: KEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            naked_identifier: col1
-          end_bracket: )
-      - keyword: REFERENCES
-      - table_reference:
-          naked_identifier: table2
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            naked_identifier: col2
-          end_bracket: )
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: constraint1
+        - keyword: UNIQUE
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col1
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -173,24 +167,17 @@ file:
     - table_reference:
         naked_identifier: table1
     - alter_table_constraint_action:
-      - keyword: ADD
-      - keyword: CONSTRAINT
-      - quoted_identifier: '"constraint1"'
-      - keyword: FOREIGN
-      - keyword: KEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            naked_identifier: col1
-          end_bracket: )
-      - keyword: REFERENCES
-      - table_reference:
-          naked_identifier: table2
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            naked_identifier: col2
-          end_bracket: )
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: constraint1
+        - keyword: UNIQUE
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col1
+            end_bracket: )
+        - keyword: RELY
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -199,26 +186,19 @@ file:
     - table_reference:
         naked_identifier: table1
     - alter_table_constraint_action:
-      - keyword: ADD
-      - keyword: CONSTRAINT
-      - quoted_identifier: '"constraint1"'
-      - keyword: FOREIGN
-      - keyword: KEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            naked_identifier: col1
-          end_bracket: )
-      - keyword: REFERENCES
-      - table_reference:
-        - quoted_identifier: '"schema1"'
-        - dot: .
-        - quoted_identifier: '"table1"'
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            quoted_identifier: '"col2"'
-          end_bracket: )
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: constraint1
+        - keyword: UNIQUE
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col1
+            end_bracket: )
+        - keyword: ENFORCED
+        - keyword: NOVALIDATE
+        - keyword: NORELY
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -227,29 +207,210 @@ file:
     - table_reference:
         naked_identifier: table1
     - alter_table_constraint_action:
-      - keyword: ADD
-      - keyword: CONSTRAINT
-      - quoted_identifier: '"constraint1"'
-      - keyword: FOREIGN
-      - keyword: KEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            naked_identifier: col1
-          end_bracket: )
-      - keyword: REFERENCES
-      - table_reference:
-        - quoted_identifier: '"schema1"'
-        - dot: .
-        - quoted_identifier: '"table1"'
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-            naked_identifier: col1
-        - comma: ','
-        - column_reference:
-            naked_identifier: col2
-        - end_bracket: )
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - quoted_identifier: '"constraint1"'
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col1
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_constraint_action:
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - quoted_identifier: '"constraint1"'
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: col1
+          - comma: ','
+          - column_reference:
+              naked_identifier: col2
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_constraint_action:
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: constraint1
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col1
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: table2
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col2
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_constraint_action:
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: constraint1
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col1
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: table2
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col2
+            end_bracket: )
+        - keyword: RELY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_constraint_action:
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: constraint1
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col1
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: table2
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col2
+            end_bracket: )
+        - keyword: NORELY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_constraint_action:
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - quoted_identifier: '"constraint1"'
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col1
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: table2
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col2
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_constraint_action:
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - quoted_identifier: '"constraint1"'
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col1
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+          - quoted_identifier: '"schema1"'
+          - dot: .
+          - quoted_identifier: '"table1"'
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              quoted_identifier: '"col2"'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_constraint_action:
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - quoted_identifier: '"constraint1"'
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col1
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+          - quoted_identifier: '"schema1"'
+          - dot: .
+          - quoted_identifier: '"table1"'
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: col1
+          - comma: ','
+          - column_reference:
+              naked_identifier: col2
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -290,26 +451,27 @@ file:
       - dot: .
       - quoted_identifier: '"FRUIT_PRICE_SAT"'
     - alter_table_constraint_action:
-      - keyword: ADD
-      - keyword: CONSTRAINT
-      - quoted_identifier: '"FK_2"'
-      - keyword: FOREIGN
-      - keyword: KEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            quoted_identifier: '"SPECIAL_OFFER_ID"'
-          end_bracket: )
-      - keyword: REFERENCES
-      - table_reference:
-        - quoted_identifier: '"ADW_TEMP"'
-        - dot: .
-        - quoted_identifier: '"OFFER_SAT"'
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            quoted_identifier: '"SPECIAL_OFFER_ID"'
-          end_bracket: )
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - quoted_identifier: '"FK_2"'
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              quoted_identifier: '"SPECIAL_OFFER_ID"'
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+          - quoted_identifier: '"ADW_TEMP"'
+          - dot: .
+          - quoted_identifier: '"OFFER_SAT"'
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              quoted_identifier: '"SPECIAL_OFFER_ID"'
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:

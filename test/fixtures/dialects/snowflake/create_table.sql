@@ -141,3 +141,8 @@ CREATE OR REPLACE TABLE IF NOT EXISTS EXAMPLE_TABLE_WITH_RLS (
 ) WITH ROW ACCESS POLICY rls_policy ON (EXAMPLE);
 
 CREATE TABLE IDENTIFIER(:SOME_TABLE) (AMOUNT NUMBER);
+
+create table mytable (
+  id integer not null primary key enable enforced validate rely
+  );
+
