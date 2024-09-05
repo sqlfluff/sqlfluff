@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8c4d4e7e1e19b88fd5a9c7ea830ff7525d26b585df90d081acfbcf8a23b3a30f
+_hash: 797272c70835ec65c6cc5125064ea6ab26a2d995682307c7f37e50649b3f45ae
 file:
 - statement:
     copy_into_table_statement:
@@ -394,4 +394,34 @@ file:
               raw_comparison_operator: '='
             file_type: JSON
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: table1
+    - keyword: FROM
+    - storage_location:
+        stage_path: '@stage1'
+    - copy_options:
+      - keyword: MATCH_BY_COLUMN_NAME
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: CASE_INSENSITIVE
+      - keyword: INCLUDE_METADATA
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier: ingestdate
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: METADATA$START_SCAN_TIME
+        - comma: ','
+        - naked_identifier: filename
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: METADATA$FILENAME
+        - end_bracket: )
 - statement_terminator: ;
