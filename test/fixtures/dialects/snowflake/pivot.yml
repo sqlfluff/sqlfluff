@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 57ff3afe4fe78cf0a36a3a3a561a8ebd0578fbb29eb444fdb7f84cfcd389cca3
+_hash: 08999c2dfbc20dda5139fbc1f40ef4518a16170975f0691dca45771711c548c3
 file:
 - statement:
     select_statement:
@@ -27,12 +27,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: min
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: f_val
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: f_val
+                    end_bracket: )
             - keyword: FOR
             - naked_identifier: f_id
             - keyword: IN
@@ -72,6 +73,72 @@ file:
           from_unpivot_expression:
             keyword: UNPIVOT
             bracketed:
+            - start_bracket: (
+            - naked_identifier: val
+            - keyword: FOR
+            - naked_identifier: col_name
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: a
+              - comma: ','
+              - naked_identifier: b
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_tbl
+          from_unpivot_expression:
+          - keyword: UNPIVOT
+          - keyword: INCLUDE
+          - keyword: NULLS
+          - bracketed:
+            - start_bracket: (
+            - naked_identifier: val
+            - keyword: FOR
+            - naked_identifier: col_name
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: a
+              - comma: ','
+              - naked_identifier: b
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_tbl
+          from_unpivot_expression:
+          - keyword: UNPIVOT
+          - keyword: EXCLUDE
+          - keyword: NULLS
+          - bracketed:
             - start_bracket: (
             - naked_identifier: val
             - keyword: FOR

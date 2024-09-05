@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e63f762fc6a72b5126a23f61b047941ffac8001a60ec62c8cec4cacea21c6941
+_hash: 527eb45c1823188bfa72246ef8fe36a48a9f0fa49f353f2aee7fd16cb406eece
 file:
 - statement:
     select_statement:
@@ -13,46 +13,20 @@ file:
           function:
             function_name:
               function_name_identifier: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    keyword: TIMESTAMP
-                    date_constructor_literal: "'2012-10-31 01:00 UTC'"
-                  end_bracket: )
-              keyword: AS
-              data_type:
-                keyword: TIMESTAMP
-              end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    keyword: TIMESTAMP
-                    date_constructor_literal: "'2012-10-31 01:00 UTC'"
-                  end_bracket: )
-              keyword: AS
-              data_type:
-                keyword: TIMESTAMP
-                bracketed_arguments:
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
                   bracketed:
                     start_bracket: (
-                    numeric_literal: '0'
+                    expression:
+                      keyword: TIMESTAMP
+                      date_constructor_literal: "'2012-10-31 01:00 UTC'"
                     end_bracket: )
-              end_bracket: )
+                keyword: AS
+                data_type:
+                  keyword: TIMESTAMP
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -62,24 +36,25 @@ file:
           function:
             function_name:
               function_name_identifier: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    keyword: TIMESTAMP
-                    date_constructor_literal: "'2012-10-31 01:00 UTC'"
-                  end_bracket: )
-              keyword: AS
-              data_type:
-                keyword: TIMESTAMP
-                bracketed_arguments:
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
                   bracketed:
                     start_bracket: (
-                    numeric_literal: '12'
+                    expression:
+                      keyword: TIMESTAMP
+                      date_constructor_literal: "'2012-10-31 01:00 UTC'"
                     end_bracket: )
-              end_bracket: )
+                keyword: AS
+                data_type:
+                  keyword: TIMESTAMP
+                  bracketed_arguments:
+                    bracketed:
+                      start_bracket: (
+                      numeric_literal: '0'
+                      end_bracket: )
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -89,77 +64,25 @@ file:
           function:
             function_name:
               function_name_identifier: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    keyword: TIMESTAMP
-                    date_constructor_literal: "'2001-08-22 03:04:05.321 America/Chicago'"
-                  end_bracket: )
-              keyword: AS
-              data_type:
-              - keyword: TIMESTAMP
-              - keyword: WITH
-              - keyword: TIME
-              - keyword: ZONE
-              end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    keyword: TIMESTAMP
-                    date_constructor_literal: "'2001-08-22 03:04:05.321 America/Chicago'"
-                  end_bracket: )
-              keyword: AS
-              data_type:
-              - keyword: TIMESTAMP
-              - keyword: WITHOUT
-              - keyword: TIME
-              - keyword: ZONE
-              end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    keyword: TIMESTAMP
-                    date_constructor_literal: "'2001-08-22 03:04:05.321 America/Chicago'"
-                  end_bracket: )
-              keyword: AS
-              data_type:
-              - keyword: TIMESTAMP
-              - bracketed_arguments:
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
                   bracketed:
                     start_bracket: (
-                    numeric_literal: '6'
+                    expression:
+                      keyword: TIMESTAMP
+                      date_constructor_literal: "'2012-10-31 01:00 UTC'"
                     end_bracket: )
-              - keyword: WITH
-              - keyword: TIME
-              - keyword: ZONE
-              end_bracket: )
+                keyword: AS
+                data_type:
+                  keyword: TIMESTAMP
+                  bracketed_arguments:
+                    bracketed:
+                      start_bracket: (
+                      numeric_literal: '12'
+                      end_bracket: )
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -169,25 +92,109 @@ file:
           function:
             function_name:
               function_name_identifier: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    keyword: TIMESTAMP
-                    date_constructor_literal: "'2001-08-22 03:04:05.321 America/Chicago'"
-                  end_bracket: )
-              keyword: AS
-              data_type:
-              - keyword: TIMESTAMP
-              - bracketed_arguments:
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
                   bracketed:
                     start_bracket: (
-                    numeric_literal: '6'
+                    expression:
+                      keyword: TIMESTAMP
+                      date_constructor_literal: "'2001-08-22 03:04:05.321 America/Chicago'"
                     end_bracket: )
-              - keyword: WITHOUT
-              - keyword: TIME
-              - keyword: ZONE
-              end_bracket: )
+                keyword: AS
+                data_type:
+                - keyword: TIMESTAMP
+                - keyword: WITH
+                - keyword: TIME
+                - keyword: ZONE
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CAST
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      keyword: TIMESTAMP
+                      date_constructor_literal: "'2001-08-22 03:04:05.321 America/Chicago'"
+                    end_bracket: )
+                keyword: AS
+                data_type:
+                - keyword: TIMESTAMP
+                - keyword: WITHOUT
+                - keyword: TIME
+                - keyword: ZONE
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CAST
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      keyword: TIMESTAMP
+                      date_constructor_literal: "'2001-08-22 03:04:05.321 America/Chicago'"
+                    end_bracket: )
+                keyword: AS
+                data_type:
+                - keyword: TIMESTAMP
+                - bracketed_arguments:
+                    bracketed:
+                      start_bracket: (
+                      numeric_literal: '6'
+                      end_bracket: )
+                - keyword: WITH
+                - keyword: TIME
+                - keyword: ZONE
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CAST
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      keyword: TIMESTAMP
+                      date_constructor_literal: "'2001-08-22 03:04:05.321 America/Chicago'"
+                    end_bracket: )
+                keyword: AS
+                data_type:
+                - keyword: TIMESTAMP
+                - bracketed_arguments:
+                    bracketed:
+                      start_bracket: (
+                      numeric_literal: '6'
+                      end_bracket: )
+                - keyword: WITHOUT
+                - keyword: TIME
+                - keyword: ZONE
+                end_bracket: )
 - statement_terminator: ;

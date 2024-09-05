@@ -28,11 +28,15 @@ from sqlfluff.core.parser import (
     SegmentGenerator,
     Sequence,
     StringLexer,
+    StringParser,
     SymbolSegment,
     TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
-from sqlfluff.dialects.dialect_clickhouse_keywords import UNRESERVED_KEYWORDS
+from sqlfluff.dialects.dialect_clickhouse_keywords import (
+    FORMAT_KEYWORDS,
+    UNRESERVED_KEYWORDS,
+)
 
 ansi_dialect = load_raw_dialect("ansi")
 
@@ -224,13 +228,129 @@ clickhouse_dialect.replace(
     SelectClauseTerminatorGrammar=ansi_dialect.get_grammar(
         "SelectClauseTerminatorGrammar"
     ).copy(
-        insert=[Ref.keyword("PREWHERE")],
+        insert=[
+            Ref.keyword("PREWHERE"),
+            Ref.keyword("INTO"),
+            Ref.keyword("FORMAT"),
+        ],
         before=Ref.keyword("WHERE"),
     ),
     FromClauseTerminatorGrammar=ansi_dialect.get_grammar("FromClauseTerminatorGrammar")
-    .copy(insert=[Ref.keyword("PREWHERE")], before=Ref.keyword("WHERE"))
+    .copy(
+        insert=[
+            Ref.keyword("PREWHERE"),
+            Ref.keyword("INTO"),
+            Ref.keyword("FORMAT"),
+        ],
+        before=Ref.keyword("WHERE"),
+    )
     .copy(insert=[Ref("SettingsClauseSegment")]),
+    DateTimeLiteralGrammar=Sequence(
+        OneOf("DATE", "TIME", "TIMESTAMP"),
+        TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
+    ),
 )
+
+# Set the datetime units
+clickhouse_dialect.sets("datetime_units").clear()
+clickhouse_dialect.sets("datetime_units").update(
+    [
+        # https://github.com/ClickHouse/ClickHouse/blob/1cdccd527f0cbf5629b21d29970e28d5156003dc/src/Parsers/parseIntervalKind.cpp#L8
+        "NANOSECOND",
+        "NANOSECONDS",
+        "SQL_TSI_NANOSECOND",
+        "NS",
+        "MICROSECOND",
+        "MICROSECONDS",
+        "SQL_TSI_MICROSECOND",
+        "MCS",
+        "MILLISECOND",
+        "MILLISECONDS",
+        "SQL_TSI_MILLISECOND",
+        "MS",
+        "SECOND",
+        "SECONDS",
+        "SQL_TSI_SECOND",
+        "SS",
+        "S",
+        "MINUTE",
+        "MINUTES",
+        "SQL_TSI_MINUTE",
+        "MI",
+        "N",
+        "HOUR",
+        "HOURS",
+        "SQL_TSI_HOUR",
+        "HH",
+        "H",
+        "DAY",
+        "DAYS",
+        "SQL_TSI_DAY",
+        "DD",
+        "D",
+        "WEEK",
+        "WEEKS",
+        "SQL_TSI_WEEK",
+        "WK",
+        "WW",
+        "MONTH",
+        "MONTHS",
+        "SQL_TSI_MONTH",
+        "MM",
+        "M",
+        "QUARTER",
+        "QUARTERS",
+        "SQL_TSI_QUARTER",
+        "QQ",
+        "Q",
+        "YEAR",
+        "YEARS",
+        "SQL_TSI_YEAR",
+        "YYYY",
+        "YY",
+    ]
+)
+
+
+class IntoOutfileClauseSegment(BaseSegment):
+    """An `INTO OUTFILE` clause like in `SELECT`."""
+
+    type = "into_outfile_clause"
+    match_grammar: Matchable = Sequence(
+        "INTO",
+        "OUTFILE",
+        Ref("QuotedLiteralSegment"),
+        Ref("FormatClauseSegment", optional=True),
+    )
+
+
+class FormatClauseSegment(BaseSegment):
+    """A `FORMAT` clause like in `SELECT`."""
+
+    type = "format_clause"
+    match_grammar: Matchable = Sequence(
+        "FORMAT",
+        OneOf(*[Ref.keyword(allowed_format) for allowed_format in FORMAT_KEYWORDS]),
+        Ref("SettingsClauseSegment", optional=True),
+    )
+
+
+class MergeTreesOrderByClauseSegment(BaseSegment):
+    """A `ORDER BY` clause for the MergeTree family engine."""
+
+    type = "merge_tree_order_by_clause"
+    match_grammar: Matchable = Sequence(
+        "ORDER",
+        "BY",
+        OneOf(
+            Sequence(
+                "TUPLE",
+                Bracketed(),  # tuple() not tuple
+            ),
+            Ref("BracketedColumnReferenceListGrammar"),
+            Ref("ColumnReferenceSegment"),
+        ),
+    )
 
 
 class PreWhereClauseSegment(BaseSegment):
@@ -283,7 +403,11 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
         insert=[Ref("PreWhereClauseSegment", optional=True)],
         before=Ref("WhereClauseSegment", optional=True),
     ).copy(
-        insert=[Ref("SettingsClauseSegment", optional=True)],
+        insert=[
+            Ref("FormatClauseSegment", optional=True),
+            Ref("IntoOutfileClauseSegment", optional=True),
+            Ref("SettingsClauseSegment", optional=True),
+        ],
     )
 
 
@@ -293,6 +417,28 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
     match_grammar = ansi.UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[Ref("PreWhereClauseSegment", optional=True)],
         before=Ref("WhereClauseSegment", optional=True),
+    )
+
+
+class WithFillSegment(ansi.WithFillSegment):
+    """Enhances `ORDER BY` clauses to include WITH FILL.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/select/order-by#order-by-expr-with-fill-modifier
+    """
+
+    match_grammar: Matchable = Sequence(
+        "WITH",
+        "FILL",
+        Sequence("FROM", Ref("ExpressionSegment"), optional=True),
+        Sequence("TO", Ref("ExpressionSegment"), optional=True),
+        Sequence(
+            "STEP",
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                Ref("IntervalExpressionSegment"),
+            ),
+            optional=True,
+        ),
     )
 
 
@@ -306,12 +452,86 @@ class BracketedArguments(ansi.BracketedArguments):
         Delimited(
             OneOf(
                 # Dataypes like Nullable allow optional datatypes here.
-                Ref("DatatypeIdentifierSegment"),
-                Ref("NumericLiteralSegment"),
+                Ref("DatatypeSegment"),
             ),
             # The brackets might be empty for some cases...
             optional=True,
         ),
+    )
+
+
+class DatatypeSegment(BaseSegment):
+    """Support complex Clickhouse data types.
+
+    Complex data types are typically used in either DDL statements or as
+    the target type in casts.
+    """
+
+    type = "data_type"
+    match_grammar = OneOf(
+        Sequence(
+            StringParser("NULLABLE", CodeSegment, type="data_type_identifier"),
+            Bracketed(Ref("DatatypeSegment")),
+        ),
+        # double args
+        Sequence(
+            OneOf(
+                StringParser("DECIMAL", CodeSegment, type="data_type_identifier"),
+                StringParser("NUMERIC", CodeSegment, type="data_type_identifier"),
+            ),
+            Ref("BracketedArguments", optional=True),
+        ),
+        # single args
+        Sequence(
+            OneOf(
+                StringParser("DECIMAL32", CodeSegment, type="data_type_identifier"),
+                StringParser("DECIMAL64", CodeSegment, type="data_type_identifier"),
+                StringParser("DECIMAL128", CodeSegment, type="data_type_identifier"),
+                StringParser("DECIMAL256", CodeSegment, type="data_type_identifier"),
+            ),
+            Bracketed(Ref("NumericLiteralSegment")),  # scale
+        ),
+        Ref("TupleTypeSegment"),
+        Ref("DatatypeIdentifierSegment"),
+        Ref("NumericLiteralSegment"),
+        Sequence(
+            StringParser("DATETIME64", CodeSegment, type="data_type_identifier"),
+            Bracketed(
+                Delimited(
+                    Ref("NumericLiteralSegment"),  # precision
+                    Ref("QuotedLiteralSegment", optional=True),  # timezone
+                    # The brackets might be empty as well
+                    optional=True,
+                ),
+                optional=True,
+            ),
+        ),
+    )
+
+
+class TupleTypeSegment(ansi.StructTypeSegment):
+    """Expression to construct a Tuple datatype."""
+
+    match_grammar = Sequence(
+        "TUPLE",
+        Ref("TupleTypeSchemaSegment"),  # Tuple() can't be empty
+    )
+
+
+class TupleTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a Tuple datatype."""
+
+    type = "tuple_type_schema"
+    match_grammar = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                Ref("DatatypeSegment"),
+            ),
+            bracket_pairs_set="bracket_pairs",
+        ),
+        bracket_pairs_set="bracket_pairs",
+        bracket_type="round",
     )
 
 
@@ -478,16 +698,7 @@ class TableEngineFunctionSegment(BaseSegment):
                     Ref("ValuesClauseSegment"),
                 ),
             ),
-            Bracketed(
-                Ref(
-                    "FunctionContentsGrammar",
-                    # The brackets might be empty for some functions...
-                    optional=True,
-                ),
-                # Engine functions may omit brackets.
-                optional=True,
-                parse_mode=ParseMode.GREEDY,
-            ),
+            Ref("FunctionContentsSegment", optional=True),
         ),
     )
 
@@ -509,18 +720,11 @@ class TableEngineSegment(BaseSegment):
     type = "engine"
     match_grammar = Sequence(
         "ENGINE",
-        Ref("EqualsSegment"),
+        Ref("EqualsSegment", optional=True),
         Sequence(
             Ref("TableEngineFunctionSegment"),
             AnySetOf(
-                Sequence(
-                    "ORDER",
-                    "BY",
-                    OneOf(
-                        Ref("BracketedColumnReferenceListGrammar"),
-                        Ref("ColumnReferenceSegment"),
-                    ),
-                ),
+                Ref("MergeTreesOrderByClauseSegment"),
                 Sequence(
                     "PARTITION",
                     "BY",
@@ -561,16 +765,7 @@ class DatabaseEngineFunctionSegment(BaseSegment):
                 "REPLICATED",
                 "SQLITE",
             ),
-            Bracketed(
-                Ref(
-                    "FunctionContentsGrammar",
-                    # The brackets might be empty for some functions...
-                    optional=True,
-                ),
-                # Engine functions may omit brackets.
-                optional=True,
-                parse_mode=ParseMode.GREEDY,
-            ),
+            Ref("FunctionContentsSegment", optional=True),
         ),
     )
 
@@ -586,15 +781,7 @@ class DatabaseEngineSegment(BaseSegment):
         Sequence(
             Ref("DatabaseEngineFunctionSegment"),
             AnySetOf(
-                Sequence(
-                    "ORDER",
-                    "BY",
-                    OneOf(
-                        Ref("BracketedColumnReferenceListGrammar"),
-                        Ref("ColumnReferenceSegment"),
-                    ),
-                    optional=True,
-                ),
+                Ref("MergeTreesOrderByClauseSegment"),
                 Sequence(
                     "PARTITION",
                     "BY",
@@ -758,6 +945,53 @@ class CreateDatabaseStatementSegment(ansi.CreateDatabaseStatementSegment):
             ),
             optional=True,
         ),
+    )
+
+
+class RenameStatementSegment(BaseSegment):
+    """A `RENAME TABLE` statement.
+
+    As specified in
+    https://clickhouse.com/docs/en/sql-reference/statements/rename/
+    """
+
+    type = "rename_table_statement"
+
+    match_grammar = Sequence(
+        "RENAME",
+        OneOf(
+            Sequence(
+                "TABLE",
+                Delimited(
+                    Sequence(
+                        Ref("TableReferenceSegment"),
+                        "TO",
+                        Ref("TableReferenceSegment"),
+                    )
+                ),
+            ),
+            Sequence(
+                "DATABASE",
+                Delimited(
+                    Sequence(
+                        Ref("DatabaseReferenceSegment"),
+                        "TO",
+                        Ref("DatabaseReferenceSegment"),
+                    )
+                ),
+            ),
+            Sequence(
+                "DICTIONARY",
+                Delimited(
+                    Sequence(
+                        Ref("ObjectReferenceSegment"),
+                        "TO",
+                        Ref("ObjectReferenceSegment"),
+                    )
+                ),
+            ),
+        ),
+        Ref("OnClusterClauseSegment", optional=True),
     )
 
 
@@ -1420,5 +1654,91 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropQuotaStatementSegment"),
             Ref("DropSettingProfileStatementSegment"),
             Ref("SystemStatementSegment"),
+            Ref("RenameStatementSegment"),
         ]
+    )
+
+
+class LimitClauseComponentSegment(BaseSegment):
+    """A component of a `LIMIT` clause.
+
+    https://clickhouse.com/docs/en/sql-reference/statements/select/limit
+    """
+
+    type = "limit_clause_component"
+
+    match_grammar = OptionallyBracketed(
+        OneOf(
+            # Allow a number by itself OR
+            Ref("NumericLiteralSegment"),
+            # An arbitrary expression
+            Ref("ExpressionSegment"),
+        )
+    )
+
+
+class LimitClauseSegment(ansi.LimitClauseSegment):
+    """Overriding LimitClauseSegment to allow for additional segment parsing."""
+
+    match_grammar: Matchable = Sequence(
+        "LIMIT",
+        Indent,
+        Sequence(
+            Ref("LimitClauseComponentSegment"),
+            OneOf(
+                Sequence(
+                    "OFFSET",
+                    Ref("LimitClauseComponentSegment"),
+                ),
+                Sequence(
+                    # LIMIT 1,2 only accepts constants
+                    # and can't be bracketed like that LIMIT (1, 2)
+                    # but can be bracketed like that LIMIT (1), (2)
+                    Ref("CommaSegment"),
+                    Ref("LimitClauseComponentSegment"),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "BY",
+                OneOf(
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    Ref("ColumnReferenceSegment"),
+                ),
+                optional=True,
+            ),
+        ),
+        Dedent,
+    )
+
+
+class IntervalExpressionSegment(BaseSegment):
+    """An interval expression segment.
+
+    https://clickhouse.com/docs/en/sql-reference/data-types/special-data-types/interval
+    https://clickhouse.com/docs/en/sql-reference/operators#operator-interval
+    """
+
+    type = "interval_expression"
+    match_grammar: Matchable = Sequence(
+        "INTERVAL",
+        OneOf(
+            # The Numeric Version
+            Sequence(
+                Ref("NumericLiteralSegment"),
+                Ref("DatetimeUnitSegment"),
+            ),
+            # The String version
+            Ref("QuotedLiteralSegment"),
+            # Combine version
+            Sequence(
+                Ref("QuotedLiteralSegment"),
+                Ref("DatetimeUnitSegment"),
+            ),
+            # With expression as value
+            Sequence(
+                Ref("ExpressionSegment"),
+                Ref("DatetimeUnitSegment"),
+            ),
+        ),
     )

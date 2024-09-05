@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4442cf49e1eea4d336ef43caa3ed491bd3b7e7659ff6677cf1939eff9e334ecf
+_hash: de29d35461919108a20c650713d1f19cb650679af1dbe18ebe718e8d6c86c36a
 file:
   statement:
     select_statement:
@@ -17,14 +17,15 @@ file:
             - naked_identifier: functions
             - dot: .
             - function_name_identifier: timestamp_parsing
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                - naked_identifier: log_tbl
-                - dot: .
-                - naked_identifier: first_move
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                  - naked_identifier: log_tbl
+                  - dot: .
+                  - naked_identifier: first_move
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: first_move

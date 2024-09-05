@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 53a1d62a5ea066a8ab5f0eca78f91e43ad43c776489d6bf50e9bbf75b968ced6
+_hash: 31e6dc8d20a831630c5a425d0450f5cc3f2825f331b37e0c8afe2ed856b403a2
 file:
   statement:
     copy_into_location_statement:
@@ -27,15 +27,16 @@ file:
           - function:
               function_name:
                 function_name_identifier: to_varchar
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    naked_identifier: dt
-              - comma: ','
-              - expression:
-                  quoted_literal: "'YYYY-MM-DD'"
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: dt
+                - comma: ','
+                - expression:
+                    quoted_literal: "'YYYY-MM-DD'"
+                - end_bracket: )
           - binary_operator:
             - pipe: '|'
             - pipe: '|'
@@ -46,21 +47,23 @@ file:
           - function:
               function_name:
                 function_name_identifier: to_varchar
-              bracketed:
-                start_bracket: (
-                expression:
-                  function:
-                    function_name:
-                      function_name_identifier: date_part
-                    bracketed:
-                      start_bracket: (
-                      date_part: hour
-                      comma: ','
-                      expression:
-                        column_reference:
-                          naked_identifier: ts
-                      end_bracket: )
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: date_part
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          date_part: hour
+                          comma: ','
+                          expression:
+                            column_reference:
+                              naked_identifier: ts
+                          end_bracket: )
+                  end_bracket: )
           end_bracket: )
     - keyword: file_format
     - comparison_operator:

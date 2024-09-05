@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1bb2154575c562e5c462b3970a44c2698ad7c5563132e74f508ce8661e73cdca
+_hash: 73b8c2a969f626561db3d163dd18051cb9bc3f08f03ece62f6ee457430ea3602
 file:
 - statement:
     select_statement:
@@ -40,9 +40,10 @@ file:
                 function:
                   function_name:
                     function_name_identifier: match_number
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: match_number
@@ -51,12 +52,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: first
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price_date
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price_date
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: start_date
@@ -65,12 +67,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: last
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price_date
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price_date
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: end_date
@@ -79,10 +82,11 @@ file:
                 function:
                   function_name:
                     function_name_identifier: count
-                  bracketed:
-                    start_bracket: (
-                    star: '*'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      star: '*'
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: rows_in_sequence
@@ -91,13 +95,14 @@ file:
                 function:
                   function_name:
                     function_name_identifier: count
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      naked_identifier: row_with_price_decrease
-                      dot: .
-                      star: '*'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        naked_identifier: row_with_price_decrease
+                        dot: .
+                        star: '*'
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: num_decreases
@@ -106,13 +111,14 @@ file:
                 function:
                   function_name:
                     function_name_identifier: count
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      naked_identifier: row_with_price_increase
-                      dot: .
-                      star: '*'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        naked_identifier: row_with_price_increase
+                        dot: .
+                        star: '*'
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: num_increases
@@ -147,12 +153,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: lag
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price
+                      end_bracket: )
             - comma: ','
             - naked_identifier: row_with_price_increase
             - keyword: as
@@ -164,12 +171,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: lag
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price
+                      end_bracket: )
             - end_bracket: )
       orderby_clause:
       - keyword: order
@@ -247,9 +255,10 @@ file:
                 function:
                   function_name:
                     function_name_identifier: match_number
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 quoted_identifier: '"MATCH_NUMBER"'
@@ -258,9 +267,10 @@ file:
                 function:
                   function_name:
                     function_name_identifier: match_sequence_number
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: msq
@@ -269,9 +279,10 @@ file:
                 function:
                   function_name:
                     function_name_identifier: classifier
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: cl
@@ -303,12 +314,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: lag
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price
+                      end_bracket: )
             - end_bracket: )
       orderby_clause:
       - keyword: order
@@ -354,9 +366,10 @@ file:
                 function:
                   function_name:
                     function_name_identifier: match_number
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 quoted_identifier: '"MATCH_NUMBER"'
@@ -385,12 +398,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: avg
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price
+                      end_bracket: )
                   over_clause:
                     keyword: over
                     bracketed:
@@ -450,9 +464,10 @@ file:
                 function:
                   function_name:
                     function_name_identifier: match_number
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 quoted_identifier: '"MATCH_NUMBER"'
@@ -461,9 +476,10 @@ file:
                 function:
                   function_name:
                     function_name_identifier: classifier
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: cl
@@ -492,12 +508,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: avg
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price
+                      end_bracket: )
                   over_clause:
                     keyword: over
                     bracketed:
@@ -573,14 +590,15 @@ file:
                 function:
                   function_name:
                     function_name_identifier: first
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                      - naked_identifier: lt45
-                      - dot: .
-                      - naked_identifier: price
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - naked_identifier: lt45
+                        - dot: .
+                        - naked_identifier: price
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 quoted_identifier: '"FINAL FIRST(LT45.price)"'
@@ -590,14 +608,15 @@ file:
                 function:
                   function_name:
                     function_name_identifier: last
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                      - naked_identifier: lt45
-                      - dot: .
-                      - naked_identifier: price
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - naked_identifier: lt45
+                        - dot: .
+                        - naked_identifier: price
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 quoted_identifier: '"FINAL LAST(LT45.price)"'
@@ -677,9 +696,10 @@ file:
                 function:
                   function_name:
                     function_name_identifier: match_number
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: match_number
@@ -688,12 +708,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: first
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price_date
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price_date
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: start_date
@@ -702,12 +723,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: last
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price_date
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price_date
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: end_date
@@ -716,10 +738,11 @@ file:
                 function:
                   function_name:
                     function_name_identifier: count
-                  bracketed:
-                    start_bracket: (
-                    star: '*'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      star: '*'
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: rows_in_sequence
@@ -728,13 +751,14 @@ file:
                 function:
                   function_name:
                     function_name_identifier: count
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      naked_identifier: row_with_price_decrease
-                      dot: .
-                      star: '*'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        naked_identifier: row_with_price_decrease
+                        dot: .
+                        star: '*'
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: num_decreases
@@ -743,13 +767,14 @@ file:
                 function:
                   function_name:
                     function_name_identifier: count
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      naked_identifier: row_with_price_increase
-                      dot: .
-                      star: '*'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        naked_identifier: row_with_price_increase
+                        dot: .
+                        star: '*'
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: num_increases
@@ -810,12 +835,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: lag
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price
+                      end_bracket: )
             - comma: ','
             - naked_identifier: row_with_price_increase
             - keyword: as
@@ -827,12 +853,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: lag
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price
+                      end_bracket: )
             - end_bracket: )
       orderby_clause:
       - keyword: order
@@ -878,9 +905,10 @@ file:
                 function:
                   function_name:
                     function_name_identifier: match_number
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: match_number
@@ -889,12 +917,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: first
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price_date
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price_date
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: start_date
@@ -903,12 +932,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: last
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price_date
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price_date
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: end_date
@@ -917,10 +947,11 @@ file:
                 function:
                   function_name:
                     function_name_identifier: count
-                  bracketed:
-                    start_bracket: (
-                    star: '*'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      star: '*'
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: rows_in_sequence
@@ -929,13 +960,14 @@ file:
                 function:
                   function_name:
                     function_name_identifier: count
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      naked_identifier: row_with_price_decrease
-                      dot: .
-                      star: '*'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        naked_identifier: row_with_price_decrease
+                        dot: .
+                        star: '*'
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: num_decreases
@@ -944,13 +976,14 @@ file:
                 function:
                   function_name:
                     function_name_identifier: count
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      naked_identifier: row_with_price_increase
-                      dot: .
-                      star: '*'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        naked_identifier: row_with_price_increase
+                        dot: .
+                        star: '*'
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: num_increases
@@ -1007,12 +1040,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: lag
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price
+                      end_bracket: )
             - comma: ','
             - naked_identifier: row_with_price_increase
             - keyword: as
@@ -1024,12 +1058,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: lag
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price
+                      end_bracket: )
             - end_bracket: )
       orderby_clause:
       - keyword: order
@@ -1075,9 +1110,10 @@ file:
                 function:
                   function_name:
                     function_name_identifier: match_number
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: match_number
@@ -1086,12 +1122,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: first
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price_date
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price_date
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: start_date
@@ -1100,12 +1137,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: last
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price_date
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price_date
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: end_date
@@ -1114,10 +1152,11 @@ file:
                 function:
                   function_name:
                     function_name_identifier: count
-                  bracketed:
-                    start_bracket: (
-                    star: '*'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      star: '*'
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: rows_in_sequence
@@ -1126,13 +1165,14 @@ file:
                 function:
                   function_name:
                     function_name_identifier: count
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      naked_identifier: row_with_price_decrease
-                      dot: .
-                      star: '*'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        naked_identifier: row_with_price_decrease
+                        dot: .
+                        star: '*'
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: num_decreases
@@ -1141,13 +1181,14 @@ file:
                 function:
                   function_name:
                     function_name_identifier: count
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      naked_identifier: row_with_price_increase
-                      dot: .
-                      star: '*'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        naked_identifier: row_with_price_increase
+                        dot: .
+                        star: '*'
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: num_increases
@@ -1190,12 +1231,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: lag
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price
+                      end_bracket: )
             - comma: ','
             - naked_identifier: row_with_price_increase
             - keyword: as
@@ -1207,12 +1249,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: lag
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price
+                      end_bracket: )
             - end_bracket: )
       orderby_clause:
       - keyword: order
@@ -1258,9 +1301,10 @@ file:
                 function:
                   function_name:
                     function_name_identifier: match_number
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: match_number
@@ -1269,12 +1313,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: first
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price_date
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price_date
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: start_date
@@ -1283,12 +1328,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: last
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price_date
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price_date
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: end_date
@@ -1297,10 +1343,11 @@ file:
                 function:
                   function_name:
                     function_name_identifier: count
-                  bracketed:
-                    start_bracket: (
-                    star: '*'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      star: '*'
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: rows_in_sequence
@@ -1309,13 +1356,14 @@ file:
                 function:
                   function_name:
                     function_name_identifier: count
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      naked_identifier: row_with_price_decrease
-                      dot: .
-                      star: '*'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        naked_identifier: row_with_price_decrease
+                        dot: .
+                        star: '*'
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: num_decreases
@@ -1324,13 +1372,14 @@ file:
                 function:
                   function_name:
                     function_name_identifier: count
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      naked_identifier: row_with_price_increase
-                      dot: .
-                      star: '*'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        naked_identifier: row_with_price_increase
+                        dot: .
+                        star: '*'
+                      end_bracket: )
             - alias_expression:
                 keyword: as
                 naked_identifier: num_increases
@@ -1372,12 +1421,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: lag
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price
+                      end_bracket: )
             - comma: ','
             - naked_identifier: row_with_price_increase
             - keyword: as
@@ -1389,12 +1439,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: lag
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: price
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: price
+                      end_bracket: )
             - end_bracket: )
       orderby_clause:
       - keyword: order

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 561864b853aec595cba18c89eef48d2a945baf87e4ad5d95213f775cc9e81428
+_hash: b6908cc207c828aa100f14d2e5527109c021eb95b5aa5cbbaa1ab27075c4943a
 file:
 - statement:
     select_statement:
@@ -13,14 +13,15 @@ file:
           function:
             function_name:
               function_name_identifier: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '1'
-              keyword: AS
-              data_type:
-                keyword: TINYINT
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '1'
+                keyword: AS
+                data_type:
+                  keyword: TINYINT
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -30,14 +31,15 @@ file:
           function:
             function_name:
               function_name_identifier: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '2'
-              keyword: AS
-              data_type:
-                keyword: SMALLINT
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '2'
+                keyword: AS
+                data_type:
+                  keyword: SMALLINT
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -47,14 +49,15 @@ file:
           function:
             function_name:
               function_name_identifier: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '3'
-              keyword: AS
-              data_type:
-                keyword: INTEGER
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '3'
+                keyword: AS
+                data_type:
+                  keyword: INTEGER
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -64,14 +67,15 @@ file:
           function:
             function_name:
               function_name_identifier: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '4'
-              keyword: AS
-              data_type:
-                keyword: INT
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '4'
+                keyword: AS
+                data_type:
+                  keyword: INT
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -81,12 +85,13 @@ file:
           function:
             function_name:
               function_name_identifier: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '5'
-              keyword: AS
-              data_type:
-                keyword: BIGINT
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '5'
+                keyword: AS
+                data_type:
+                  keyword: BIGINT
+                end_bracket: )
 - statement_terminator: ;

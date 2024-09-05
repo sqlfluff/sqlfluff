@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ff85c92563dc231672cecea03274f814226ae925881e448676b60e73d0ffc384
+_hash: 1678003851e93f5df35bd014b22981e2baa9577d3f19fe1e337531d85e046255
 file:
 - statement:
     select_statement:
@@ -45,12 +45,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: AVG
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: price
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: price
+                    end_bracket: )
             - keyword: FOR
             - column_reference:
                 naked_identifier: partname
@@ -108,10 +109,11 @@ file:
             - function:
                 function_name:
                   function_name_identifier: COUNT
-                bracketed:
-                  start_bracket: (
-                  star: '*'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    star: '*'
+                    end_bracket: )
             - keyword: FOR
             - column_reference:
                 naked_identifier: quality
@@ -169,10 +171,11 @@ file:
             - function:
                 function_name:
                   function_name_identifier: COUNT
-                bracketed:
-                  start_bracket: (
-                  star: '*'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    star: '*'
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: count
@@ -253,10 +256,11 @@ file:
               - function:
                   function_name:
                     function_name_identifier: COUNT
-                  bracketed:
-                    start_bracket: (
-                    star: '*'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      star: '*'
+                      end_bracket: )
               - alias_expression:
                   keyword: AS
                   naked_identifier: num_ate_food
@@ -314,10 +318,11 @@ file:
             - function:
                 function_name:
                   function_name_identifier: COUNT
-                bracketed:
-                  start_bracket: (
-                  star: '*'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    star: '*'
+                    end_bracket: )
             - keyword: FOR
             - column_reference:
                 naked_identifier: color
@@ -372,10 +377,11 @@ file:
             - function:
                 function_name:
                   function_name_identifier: COUNT
-                bracketed:
-                  start_bracket: (
-                  star: '*'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    star: '*'
+                    end_bracket: )
             - keyword: FOR
             - column_reference:
                 naked_identifier: quality

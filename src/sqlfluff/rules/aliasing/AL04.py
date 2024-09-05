@@ -73,6 +73,7 @@ class Rule_AL04(BaseRule):
         col_aliases: List[ColumnAliasInfo],
         using_cols: List[BaseSegment],
         parent_select: Optional[BaseSegment],
+        rule_context: RuleContext,
     ) -> Optional[List[LintResult]]:
         """Check whether any aliases are duplicates.
 
@@ -129,4 +130,5 @@ class Rule_AL04(BaseRule):
             select_info.col_aliases,
             select_info.using_cols,
             parent_select,
+            context,
         )

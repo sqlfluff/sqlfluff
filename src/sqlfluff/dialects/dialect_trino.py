@@ -10,8 +10,10 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     CodeSegment,
+    Dedent,
     Delimited,
     IdentifierSegment,
+    Indent,
     LiteralSegment,
     Matchable,
     Nothing,
@@ -59,6 +61,16 @@ trino_dialect.insert_lexer_matchers(
 
 trino_dialect.add(
     RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
+    StartAngleBracketSegment=StringParser(
+        "<", SymbolSegment, type="start_angle_bracket"
+    ),
+    EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
+)
+
+trino_dialect.bracket_sets("angle_bracket_pairs").update(
+    [
+        ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
+    ]
 )
 
 trino_dialect.patch_lexer_matchers(
@@ -256,12 +268,43 @@ class DatatypeSegment(BaseSegment):
             Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
         ),
         # Structural
-        "ARRAY",
+        Ref("ArrayTypeSegment"),
         "MAP",
-        "ROW",
+        Ref("RowTypeSegment"),
         # Others
         "IPADDRESS",
         "UUID",
+    )
+
+
+class RowTypeSegment(ansi.StructTypeSegment):
+    """Expression to construct a ROW datatype."""
+
+    match_grammar = Sequence(
+        "ROW",
+        Ref("RowTypeSchemaSegment", optional=True),
+    )
+
+
+class RowTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a ROW datatype."""
+
+    type = "struct_type_schema"
+    match_grammar = Bracketed(
+        Delimited(  # Comma-separated list of field names/types
+            Sequence(
+                OneOf(
+                    # ParameterNames can look like Datatypes so can't use
+                    # Optional=True here and instead do a OneOf in order
+                    # with DataType only first, followed by both.
+                    Ref("DatatypeSegment"),
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("DatatypeSegment"),
+                    ),
+                )
+            )
+        )
     )
 
 
@@ -354,7 +397,10 @@ class StatementSegment(ansi.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     match_grammar = ansi.StatementSegment.match_grammar.copy(
-        insert=[Ref("AnalyzeStatementSegment")],
+        insert=[
+            Ref("AnalyzeStatementSegment"),
+            Ref("CommentOnStatementSegment"),
+        ],
         remove=[
             Ref("TransactionStatementSegment"),
         ],
@@ -391,6 +437,11 @@ class WithinGroupClauseSegment(BaseSegment):
     """An WITHIN GROUP clause for window functions.
 
     https://trino.io/docs/current/functions/aggregate.html#array_agg
+
+    Trino supports an optional FILTER during aggregation that comes
+    immediately after the WITHIN GROUP clause.
+
+    https://trino.io/docs/current/functions/aggregate.html#filtering-during-aggregation
     """
 
     type = "withingroup_clause"
@@ -398,6 +449,7 @@ class WithinGroupClauseSegment(BaseSegment):
         "WITHIN",
         "GROUP",
         Bracketed(Ref("OrderByClauseSegment", optional=False)),
+        Ref("FilterClauseGrammar", optional=True),
     )
 
 
@@ -424,10 +476,94 @@ class ListaggOverflowClauseSegment(BaseSegment):
 
 
 class ArrayTypeSegment(ansi.ArrayTypeSegment):
-    """Prefix for array literals.
-
-    Trino supports "ARRAY"
-    """
+    """Prefix for array literals optionally specifying the type."""
 
     type = "array_type"
-    match_grammar = Ref.keyword("ARRAY")
+    match_grammar = Sequence(
+        "ARRAY",
+        Ref("ArrayTypeSchemaSegment", optional=True),
+    )
+
+
+class ArrayTypeSchemaSegment(ansi.ArrayTypeSegment):
+    """Data type segment of the array.
+
+    Trino supports ARRAY(DATA_TYPE) and ARRAY<DATA_TYPE>
+    """
+
+    type = "array_type_schema"
+    match_grammar = OneOf(
+        Bracketed(
+            Ref("DatatypeSegment"),
+            bracket_pairs_set="angle_bracket_pairs",
+            bracket_type="angle",
+        ),
+        Bracketed(
+            Ref("DatatypeSegment"),
+            bracket_pairs_set="bracket_pairs",
+            bracket_type="round",
+        ),
+    )
+
+
+class GroupByClauseSegment(BaseSegment):
+    """A `GROUP BY` clause like in `SELECT`."""
+
+    type = "groupby_clause"
+
+    match_grammar: Matchable = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        OneOf(
+            "ALL",
+            Ref("CubeRollupClauseSegment"),
+            # Add GROUPING SETS support
+            Ref("GroupingSetsClauseSegment"),
+            Sequence(
+                Delimited(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        # Can `GROUP BY 1`
+                        Ref("NumericLiteralSegment"),
+                        # Can `GROUP BY coalesce(col, 1)`
+                        Ref("ExpressionSegment"),
+                    ),
+                    terminators=[Ref("GroupByClauseTerminatorGrammar")],
+                ),
+            ),
+        ),
+        Dedent,
+    )
+
+
+class CommentOnStatementSegment(BaseSegment):
+    """`COMMENT ON` statement.
+
+    https://trino.io/docs/current/sql/comment.html
+    """
+
+    type = "comment_clause"
+
+    match_grammar = Sequence(
+        "COMMENT",
+        "ON",
+        Sequence(
+            OneOf(
+                Sequence(
+                    OneOf(
+                        "TABLE",
+                        # TODO: Create a ViewReferenceSegment
+                        "VIEW",
+                    ),
+                    Ref("TableReferenceSegment"),
+                ),
+                Sequence(
+                    "COLUMN",
+                    # TODO: Does this correctly emit a Table Reference?
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+            Sequence("IS", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
+        ),
+    )

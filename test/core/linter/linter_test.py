@@ -12,7 +12,6 @@ from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import (
     SQLBaseError,
     SQLFluffSkipFile,
-    SQLFluffUserError,
     SQLLexError,
     SQLLintError,
     SQLParseError,
@@ -38,44 +37,6 @@ def normalise_paths(paths):
     makes them comparable.
     """
     return {pth.replace("/", ".").replace("\\", ".") for pth in paths}
-
-
-def test__linter__path_from_paths__dir():
-    """Test extracting paths from directories."""
-    lntr = Linter()
-    paths = lntr.paths_from_path("test/fixtures/lexer")
-    assert normalise_paths(paths) == {
-        "test.fixtures.lexer.block_comment.sql",
-        "test.fixtures.lexer.inline_comment.sql",
-        "test.fixtures.lexer.basic.sql",
-    }
-
-
-def test__linter__path_from_paths__default():
-    """Test .sql files are found by default."""
-    lntr = Linter()
-    paths = normalise_paths(lntr.paths_from_path("test/fixtures/linter"))
-    assert "test.fixtures.linter.passing.sql" in paths
-    assert "test.fixtures.linter.passing_cap_extension.SQL" in paths
-    assert "test.fixtures.linter.discovery_file.txt" not in paths
-
-
-def test__linter__path_from_paths__exts():
-    """Test configuration of file discovery."""
-    lntr = Linter(
-        config=FluffConfig(overrides={"sql_file_exts": ".txt", "dialect": "ansi"})
-    )
-    paths = normalise_paths(lntr.paths_from_path("test/fixtures/linter"))
-    assert "test.fixtures.linter.passing.sql" not in paths
-    assert "test.fixtures.linter.passing_cap_extension.SQL" not in paths
-    assert "test.fixtures.linter.discovery_file.txt" in paths
-
-
-def test__linter__path_from_paths__file():
-    """Test extracting paths from a file path."""
-    lntr = Linter()
-    paths = lntr.paths_from_path("test/fixtures/linter/indentation_errors.sql")
-    assert normalise_paths(paths) == {"test.fixtures.linter.indentation_errors.sql"}
 
 
 @pytest.mark.parametrize("filesize,raises_skip", [(0, False), (5, True), (2000, False)])
@@ -114,79 +75,6 @@ def test__linter__skip_large_bytes(filesize, raises_skip):
         assert not result
     else:
         assert result
-
-
-def test__linter__path_from_paths__not_exist():
-    """Test that the right errors are raise when a file doesn't exist."""
-    lntr = Linter()
-    with pytest.raises(SQLFluffUserError):
-        lntr.paths_from_path("asflekjfhsakuefhse")
-
-
-def test__linter__path_from_paths__not_exist_ignore():
-    """Test extracting paths from a file path."""
-    lntr = Linter()
-    paths = lntr.paths_from_path("asflekjfhsakuefhse", ignore_non_existent_files=True)
-    assert len(paths) == 0
-
-
-def test__linter__path_from_paths__explicit_ignore():
-    """Test ignoring files that were passed explicitly."""
-    lntr = Linter()
-    paths = lntr.paths_from_path(
-        "test/fixtures/linter/sqlfluffignore/path_a/query_a.sql",
-        ignore_non_existent_files=True,
-        ignore_files=True,
-        working_path="test/fixtures/linter/sqlfluffignore/",
-    )
-    assert len(paths) == 0
-
-
-def test__linter__path_from_paths__sqlfluffignore_current_directory():
-    """Test that .sqlfluffignore in the current directory is read when dir given."""
-    oldcwd = os.getcwd()
-    try:
-        os.chdir("test/fixtures/linter/sqlfluffignore")
-        lntr = Linter()
-        paths = lntr.paths_from_path(
-            "path_a/",
-            ignore_non_existent_files=True,
-            ignore_files=True,
-            working_path="test/fixtures/linter/sqlfluffignore/",
-        )
-        assert len(paths) == 0
-    finally:
-        os.chdir(oldcwd)
-
-
-def test__linter__path_from_paths__dot():
-    """Test extracting paths from a dot."""
-    lntr = Linter()
-    paths = lntr.paths_from_path(".")
-    # Use set theory to check that we get AT LEAST these files
-    assert normalise_paths(paths) >= {
-        "test.fixtures.lexer.block_comment.sql",
-        "test.fixtures.lexer.inline_comment.sql",
-        "test.fixtures.lexer.basic.sql",
-    }
-
-
-@pytest.mark.parametrize(
-    "path",
-    [
-        "test/fixtures/linter/sqlfluffignore",
-        "test/fixtures/linter/sqlfluffignore/",
-        "test/fixtures/linter/sqlfluffignore/.",
-    ],
-)
-def test__linter__path_from_paths__ignore(path):
-    """Test extracting paths from a dot."""
-    lntr = Linter()
-    paths = lntr.paths_from_path(path)
-    # We should only get query_b, because of the sqlfluffignore files.
-    assert normalise_paths(paths) == {
-        "test.fixtures.linter.sqlfluffignore.path_b.query_b.sql"
-    }
 
 
 @pytest.mark.parametrize(
@@ -245,10 +133,10 @@ def test__linter__linting_result_check_tuples_by_path(by_path, result_type):
     """Test that a LintingResult can partition violations by the source files."""
     lntr = Linter()
     result = lntr.lint_paths(
-        [
+        (
             "test/fixtures/linter/comma_errors.sql",
             "test/fixtures/linter/whitespace_errors.sql",
-        ]
+        )
     )
     check_tuples = result.check_tuples(by_path=by_path)
     isinstance(check_tuples, result_type)
@@ -295,7 +183,7 @@ def test__linter__linting_result_stats(path, stats):
     https://github.com/sqlfluff/sqlfluff/issues/5673
     """
     lntr = Linter()
-    result = lntr.lint_paths([f"test/fixtures/linter/exit_codes/{path}"])
+    result = lntr.lint_paths((f"test/fixtures/linter/exit_codes/{path}",))
     # NOTE: We're using fake return codes for testing purposes.
     assert result.stats(111, 222) == stats
 
@@ -490,10 +378,17 @@ def test__linter__templating_fail():
 
 
 @pytest.mark.parametrize(
-    "ignore_templated_areas,check_tuples",
+    "path,rules,ignore_templated_areas,check_tuples",
     [
-        (True, [("LT01", 3, 39), ("LT01", 3, 40)]),
         (
+            "test/fixtures/templater/jinja_h_macros/jinja.sql",
+            "L006",
+            True,
+            [("LT01", 3, 39), ("LT01", 3, 40)],
+        ),
+        (
+            "test/fixtures/templater/jinja_h_macros/jinja.sql",
+            "L006",
             False,
             [
                 # there are still two of each because LT01 checks
@@ -505,9 +400,23 @@ def test__linter__templating_fail():
                 ("LT01", 3, 40),
             ],
         ),
+        (
+            "test/fixtures/linter/jinja_variants/simple_CP01.sql",
+            "CP01",
+            False,
+            [
+                # We should get violations from both sides of the if
+                # statement without doubling up on the one outside.
+                ("CP01", 2, 10),
+                ("CP01", 2, 34),
+                ("CP01", 2, 52),
+            ],
+        ),
     ],
 )
-def test__linter__mask_templated_violations(ignore_templated_areas, check_tuples):
+def test__linter__mask_templated_violations(
+    path, rules, ignore_templated_areas, check_tuples
+):
     """Test linter masks files properly around templated content.
 
     NOTE: this also tests deduplication of fixes which have the same
@@ -516,13 +425,13 @@ def test__linter__mask_templated_violations(ignore_templated_areas, check_tuples
     lntr = Linter(
         config=FluffConfig(
             overrides={
-                "rules": "L006",
+                "rules": rules,
                 "ignore_templated_areas": ignore_templated_areas,
                 "dialect": "ansi",
             }
         )
     )
-    linted = lntr.lint_path(path="test/fixtures/templater/jinja_h_macros/jinja.sql")
+    linted = lntr.lint_path(path=path)
     assert linted.check_tuples() == check_tuples
 
 
@@ -572,7 +481,7 @@ def test__linter__encoding(fname, config_encoding, lexerror):
             }
         )
     )
-    result = lntr.lint_paths([fname])
+    result = lntr.lint_paths((fname,))
     assert lexerror == (SQLLexError in [type(v) for v in result.get_violations()])
 
 

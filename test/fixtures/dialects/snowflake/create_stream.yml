@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4231f1ad0afda72d3bf827f7d841e80a423dfec0a772844a467110f18f99cf4d
+_hash: 8273d9761b6f539cd55c0bfbeea9161fa8ba8a6ead8f536b834342c7b2c81bcf
 file:
 - statement:
     create_stream_statement:
@@ -36,15 +36,16 @@ file:
             function:
               function_name:
                 function_name_identifier: to_timestamp
-              bracketed:
-                start_bracket: (
-                expression:
-                - numeric_literal: '40'
-                - binary_operator: '*'
-                - numeric_literal: '365'
-                - binary_operator: '*'
-                - numeric_literal: '86400'
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                  - numeric_literal: '40'
+                  - binary_operator: '*'
+                  - numeric_literal: '365'
+                  - binary_operator: '*'
+                  - numeric_literal: '86400'
+                  end_bracket: )
           end_bracket: )
 - statement_terminator: ;
 - statement:

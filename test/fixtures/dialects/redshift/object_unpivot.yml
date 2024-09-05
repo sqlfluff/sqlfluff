@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 13b725638b2155b43d565a2538a62acd701b5466c0836b1c1f2664519f050262
+_hash: 8f114cde32c9e26c8cb69e0d57fdfa3eee4e0e7dd98a4a705e015636b1297f05
 file:
 - statement:
     with_compound_statement:
@@ -27,11 +27,13 @@ file:
                   function:
                     function_name:
                       function_name_identifier: json_parse
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        quoted_literal: "'{\"apple_count\": 2, \"orange_count\": 6}'"
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "'{\"apple_count\": 2, \"orange_count\"\
+                            : 6}'"
+                        end_bracket: )
                   alias_expression:
                     keyword: AS
                     naked_identifier: inventory
@@ -51,11 +53,12 @@ file:
                   function:
                     function_name:
                       function_name_identifier: json_parse
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        quoted_literal: "'{\"pear_count\": 10, \"other_data\": 42}'"
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "'{\"pear_count\": 10, \"other_data\": 42}'"
+                        end_bracket: )
                   alias_expression:
                     keyword: AS
                     naked_identifier: inventory
@@ -75,11 +78,13 @@ file:
                   function:
                     function_name:
                       function_name_identifier: json_parse
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        quoted_literal: "'{\"apple_count\": 3, \"lemon_count\": 5}'"
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "'{\"apple_count\": 3, \"lemon_count\":\
+                            \ 5}'"
+                        end_bracket: )
                   alias_expression:
                     keyword: AS
                     naked_identifier: inventory

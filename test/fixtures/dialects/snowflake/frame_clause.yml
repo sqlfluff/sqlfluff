@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0e1728a3d30a3a0255a6e7c3669cb5d0b83b21017da070cd60e71bc62ffb179c
+_hash: 38d71d1c269f630e82f112e2070de9934594322bad67242a470fb5cb2d4285f7
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -17,12 +17,13 @@ file:
           function:
           - function_name:
               function_name_identifier: LAST_VALUE
-          - bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: foo
-              end_bracket: )
+          - function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: foo
+                end_bracket: )
           - keyword: IGNORE
           - keyword: NULLS
           - over_clause:
@@ -61,4 +62,58 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: foo
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: account_id
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: SUM
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: amount
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: date_created
+                  frame_clause:
+                  - keyword: RANGE
+                  - keyword: BETWEEN
+                  - keyword: INTERVAL
+                  - quoted_literal: "'7 DAYS'"
+                  - keyword: PRECEDING
+                  - keyword: AND
+                  - keyword: CURRENT
+                  - keyword: ROW
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: trailing_7d_sum_amount
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: my_database
+              - dot: .
+              - naked_identifier: my_schema
+              - dot: .
+              - naked_identifier: my_table
+- statement_terminator: ;

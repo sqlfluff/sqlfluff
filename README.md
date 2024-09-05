@@ -65,7 +65,7 @@ fit for this project before spending time on this work.
 
 SQL itself does not lend itself well to [modularity](https://docs.getdbt.com/docs/viewpoint#section-modularity),
 so to introduce some flexibility and reusability it is often [templated](https://en.wikipedia.org/wiki/Template_processor)
-as discussed more in [our modularity documentation](https://docs.sqlfluff.com/en/stable/realworld.html#modularity).
+as discussed more in [our modularity documentation](https://docs.sqlfluff.com/en/stable/perma/modularity.html).
 
 **SQLFluff** supports the following templates:
 - [Jinja](https://jinja.palletsprojects.com/) (aka Jinja2)
@@ -112,8 +112,8 @@ All Finished 📜 🎉!
 Alternatively, you can use the [**Official SQLFluff Docker Image**](https://hub.docker.com/r/sqlfluff/sqlfluff)
 or have a play using [**SQLFluff online**](https://online.sqlfluff.com/).
 
-For full [CLI usage](https://docs.sqlfluff.com/en/stable/cli.html) and
-[rules reference](https://docs.sqlfluff.com/en/stable/rules.html), see
+For full [CLI usage](https://docs.sqlfluff.com/en/stable/perma/cli.html) and
+[rules reference](https://docs.sqlfluff.com/en/stable/perma/rules.html), see
 [the SQLFluff docs](https://docs.sqlfluff.com/en/stable/).
 
 # Documentation
@@ -130,7 +130,7 @@ so breaking changes should be restricted to major versions releases. Some
 elements (such as the python API) are in a less stable state and may see more
 significant changes more often. For details on breaking changes and how
 to migrate between versions, see our
-[release notes](https://docs.sqlfluff.com/en/latest/releasenotes.html). See the
+[release notes](https://docs.sqlfluff.com/en/latest/perma/releasenotes.html). See the
 [changelog](CHANGELOG.md) for more details. If you would like to join in, please
 consider [contributing](CONTRIBUTING.md).
 
@@ -154,7 +154,7 @@ We are grateful to all our [contributors](https://github.com/sqlfluff/sqlfluff/g
 There is a lot to do in this project, and we are just getting started.
 
 If you want to understand more about the architecture of **SQLFluff**, you can
-find [more here](https://docs.sqlfluff.com/en/latest/internals.html#architecture).
+find [more here](https://docs.sqlfluff.com/en/latest/perma/architecture.html).
 
 If you would like to contribute, check out the
 [open issues on GitHub](https://github.com/sqlfluff/sqlfluff/issues). You can also see

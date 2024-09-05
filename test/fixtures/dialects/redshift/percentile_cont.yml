@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 02ff595f7414aaa7b2d4ba4d6602d3c51c72bee1801a8b0911aa961c95ef1f8b
+_hash: 7881405bee6136f2f434d144270d05380c70847cabe326be798760ef98c50297
 file:
   statement:
     select_statement:
@@ -21,11 +21,12 @@ file:
                 function:
                   function_name:
                     function_name_identifier: percentile_cont
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      numeric_literal: '0.20'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        numeric_literal: '0.20'
+                      end_bracket: )
                   withingroup_clause:
                   - keyword: within
                   - keyword: group
@@ -59,11 +60,12 @@ file:
           function:
             function_name:
               function_name_identifier: percentile_cont
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '0.40'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '0.40'
+                end_bracket: )
             withingroup_clause:
             - keyword: within
             - keyword: group

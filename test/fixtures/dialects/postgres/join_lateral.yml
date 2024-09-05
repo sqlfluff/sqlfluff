@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 247eb433c991df9cf781b257b0abae8c85416599c0d7f58daf5e18f7898717ef
+_hash: 5186d4b92e9bb5e62c31fcfb1bb2c27f122745fe59089152ce0fafa02e623eb9
 file:
 - statement:
     select_statement:
@@ -287,14 +287,15 @@ file:
               function:
                 function_name:
                   function_name_identifier: get_product_names
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                    - naked_identifier: m
-                    - dot: .
-                    - naked_identifier: id
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                      - naked_identifier: m
+                      - dot: .
+                      - naked_identifier: id
+                    end_bracket: )
             alias_expression:
               naked_identifier: pname
 - statement_terminator: ;
@@ -332,14 +333,15 @@ file:
                 function:
                   function_name:
                     function_name_identifier: get_product_names
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                      - naked_identifier: m
-                      - dot: .
-                      - naked_identifier: id
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - naked_identifier: m
+                        - dot: .
+                        - naked_identifier: id
+                      end_bracket: )
               alias_expression:
                 naked_identifier: pname
           - join_on_condition:

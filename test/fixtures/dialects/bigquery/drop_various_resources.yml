@@ -1,0 +1,73 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5f317b1b68df983826c410d4622980da88329aac869915c6c74c15064d3890a9
+file:
+- statement:
+    drop_row_access_policy_statement:
+    - keyword: DROP
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: example_policy_name
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: example_dataset
+      - dot: .
+      - naked_identifier: example_table
+- statement_terminator: ;
+- statement:
+    drop_capacity_statement:
+    - keyword: DROP
+    - keyword: CAPACITY
+    - table_reference:
+        quoted_identifier: '`example-project.region-us.example_commitment`'
+- statement_terminator: ;
+- statement:
+    drop_reservation_statement:
+    - keyword: DROP
+    - keyword: RESERVATION
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        quoted_identifier: '`example-project.region-us.example_reservation`'
+- statement_terminator: ;
+- statement:
+    drop_assignment_statement:
+    - keyword: DROP
+    - keyword: ASSIGNMENT
+    - table_reference:
+        quoted_identifier: '`example-project.region-us.example_reservation.example_assignment`'
+- statement_terminator: ;
+- statement:
+    drop_search_index_statement:
+    - keyword: DROP
+    - keyword: SEARCH
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: EXISTS
+    - index_reference:
+        naked_identifier: example_index
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: example_dataset
+      - dot: .
+      - naked_identifier: example_table
+- statement_terminator: ;
+- statement:
+    drop_vector_index_statement:
+    - keyword: DROP
+    - keyword: VECTOR
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: example_index
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: example_dataset
+      - dot: .
+      - naked_identifier: example_table
+- statement_terminator: ;

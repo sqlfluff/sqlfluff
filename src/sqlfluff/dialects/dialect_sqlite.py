@@ -315,6 +315,19 @@ sqlite_dialect.replace(
             ),
         ),
         Ref("IndexColumnDefinitionSegment"),
+        # Raise Function contents
+        OneOf(
+            "IGNORE",
+            Sequence(
+                OneOf(
+                    "ABORT",
+                    "FAIL",
+                    "ROLLBACK",
+                ),
+                Ref("CommaSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
     ),
     # NOTE: This block was copy/pasted from dialect_ansi.py with these changes made:
     #  - "PRIOR" keyword removed from Expression_A_Unary_Operator_Grammar
@@ -757,6 +770,7 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
                 "UNIQUE",
                 Ref("BracketedColumnReferenceListGrammar"),
                 # Later add support for index_parameters?
+                Ref("ConflictClauseSegment", optional=True),
             ),
             Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
                 Ref("PrimaryKeyGrammar"),
@@ -880,7 +894,7 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
         "ON",
         Ref("TableReferenceSegment"),
         Sequence("FOR", "EACH", "ROW", optional=True),
-        Sequence("WHEN", Bracketed(Ref("ExpressionSegment")), optional=True),
+        Sequence("WHEN", OptionallyBracketed(Ref("ExpressionSegment")), optional=True),
         "BEGIN",
         Delimited(
             Ref("UpdateStatementSegment"),

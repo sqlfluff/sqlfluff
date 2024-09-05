@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 93e4e18dcc44dfeb83d1e8f08fbce4b6cf176112a13c77be1f6a38921e6b50eb
+_hash: 6e90ce7f6221b64dc8ef2b220f31d55a6e0c3db50d32386aebc581cbcfd36ec7
 file:
 - statement:
     create_table_statement:
@@ -24,6 +24,104 @@ file:
           data_type:
             primitive_type:
               keyword: STRING
+      - comma: ','
+      - generated_column_definition:
+        - naked_identifier: generated_always_as_expression
+        - data_type:
+            primitive_type:
+              keyword: DATE
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - bracketed:
+            start_bracket: (
+            function:
+              function_name:
+                function_name_identifier: CAST
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: birth_date
+                  keyword: AS
+                  data_type:
+                    primitive_type:
+                      keyword: DATE
+                  end_bracket: )
+            end_bracket: )
+      - comma: ','
+      - generated_column_definition:
+        - naked_identifier: generated_by_default
+        - data_type:
+            primitive_type:
+              keyword: BIGINT
+        - keyword: GENERATED
+        - keyword: BY
+        - keyword: DEFAULT
+        - keyword: AS
+        - keyword: IDENTITY
+      - comma: ','
+      - generated_column_definition:
+        - naked_identifier: generated_always
+        - data_type:
+            primitive_type:
+              keyword: BIGINT
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - keyword: IDENTITY
+      - comma: ','
+      - generated_column_definition:
+        - naked_identifier: generated_column_start_with
+        - data_type:
+            primitive_type:
+              keyword: BIGINT
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - keyword: IDENTITY
+        - bracketed:
+          - start_bracket: (
+          - keyword: START
+          - keyword: WITH
+          - numeric_literal: '10'
+          - end_bracket: )
+      - comma: ','
+      - generated_column_definition:
+        - naked_identifier: generated_column_increment_by
+        - data_type:
+            primitive_type:
+              keyword: BIGINT
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - keyword: IDENTITY
+        - bracketed:
+          - start_bracket: (
+          - keyword: INCREMENT
+          - keyword: BY
+          - numeric_literal: '5'
+          - end_bracket: )
+      - comma: ','
+      - generated_column_definition:
+        - naked_identifier: generated_column_start_with_increment_by
+        - data_type:
+            primitive_type:
+              keyword: BIGINT
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - keyword: IDENTITY
+        - bracketed:
+          - start_bracket: (
+          - keyword: START
+          - keyword: WITH
+          - numeric_literal: '10'
+          - keyword: INCREMENT
+          - keyword: BY
+          - numeric_literal: '5'
+          - end_bracket: )
       - end_bracket: )
     - using_clause:
         keyword: USING
@@ -60,9 +158,10 @@ file:
         function:
           function_name:
             function_name_identifier: current_timestamp
-          bracketed:
-            start_bracket: (
-            end_bracket: )
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
         binary_operator: '-'
         interval_expression:
           keyword: INTERVAL

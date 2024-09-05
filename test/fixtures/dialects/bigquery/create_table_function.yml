@@ -1,0 +1,90 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 75f8deebed12b4bc58dd87d0bbc44d4a6e98a4454946f8a9761e584d906a6e1e
+file:
+  statement:
+    create_table_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - keyword: FUNCTION
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: names_by_year
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: y
+          data_type:
+            data_type_identifier: INT64
+        end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - start_angle_bracket: <
+    - parameter: name
+    - data_type:
+        data_type_identifier: STRING
+    - comma: ','
+    - parameter: year
+    - data_type:
+        data_type_identifier: INT64
+    - comma: ','
+    - parameter: total
+    - data_type:
+        data_type_identifier: INT64
+    - end_angle_bracket: '>'
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: year
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: SUM
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: number
+                  end_bracket: )
+            alias_expression:
+              keyword: AS
+              naked_identifier: total
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  quoted_identifier: '`bigquery-public-data.usa_names.usa_1910_current`'
+        where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              naked_identifier: year
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+              naked_identifier: y
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: year
+        - comma: ','
+        - column_reference:
+            naked_identifier: name

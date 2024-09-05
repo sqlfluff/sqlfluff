@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 08a54eda1051045b1f146e1810bb541bdd899ae7707ed04d809e2c923f54886a
+_hash: 4d6a7741a4d49a64064960c4a16a1477331b14da624ea2cd40f90a4f38b52c19
 file:
 - statement:
     select_statement:
@@ -104,30 +104,31 @@ file:
           function:
             function_name:
               function_name_identifier: cast
-            bracketed:
-              start_bracket: (
-              expression:
-                case_expression:
-                - keyword: case
-                - when_clause:
-                  - keyword: when
-                  - expression:
-                      column_reference:
-                        naked_identifier: col1
-                  - keyword: then
-                  - expression:
-                      column_reference:
-                        naked_identifier: col2
-                - else_clause:
-                    keyword: else
-                    expression:
-                      column_reference:
-                        naked_identifier: col3
-                - keyword: end
-              keyword: as
-              data_type:
-                keyword: varchar
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  case_expression:
+                  - keyword: case
+                  - when_clause:
+                    - keyword: when
+                    - expression:
+                        column_reference:
+                          naked_identifier: col1
+                    - keyword: then
+                    - expression:
+                        column_reference:
+                          naked_identifier: col2
+                  - else_clause:
+                      keyword: else
+                      expression:
+                        column_reference:
+                          naked_identifier: col3
+                  - keyword: end
+                keyword: as
+                data_type:
+                  keyword: varchar
+                end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: mycol

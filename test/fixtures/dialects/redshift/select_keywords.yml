@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 66bd867c845d06047b20ecb4c54371d7ec41ffaa8a00d82a85dd0d4759c88c10
+_hash: e9ace5406f5feb9b62e84035d181dad82eb760e9528d4e46afec4b08a3a111ac
 file:
 - statement:
     select_statement:
@@ -80,12 +80,13 @@ file:
             function:
               function_name:
                 function_name_identifier: trim
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: datname
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: datname
+                  end_bracket: )
             alias_expression:
               naked_identifier: db_name
         - comma: ','
@@ -93,12 +94,13 @@ file:
             function:
               function_name:
                 function_name_identifier: trim
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: nspname
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: nspname
+                  end_bracket: )
             alias_expression:
               naked_identifier: schema_name
         - comma: ','
@@ -106,12 +108,13 @@ file:
             function:
               function_name:
                 function_name_identifier: trim
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: relname
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: relname
+                  end_bracket: )
             alias_expression:
               naked_identifier: table_name
         from_clause:

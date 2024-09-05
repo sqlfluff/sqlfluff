@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 327eef4aeb76cfc878ab63160eaa830b5deef4bd512edd796e6a9a3b81c2e3a5
+_hash: ae68b7a391f641e287c05a42e5fb2c2ffb2ba56545ef2c3abca0d13d85d92d7f
 file:
 - batch:
     statement:
@@ -361,12 +361,13 @@ file:
             function:
               function_name:
                 function_name_identifier: SUM
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: LineTotal
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: LineTotal
+                  end_bracket: )
             alias_expression:
               keyword: AS
               naked_identifier: Total
@@ -435,12 +436,13 @@ file:
             function:
               function_name:
                 function_name_identifier: SUM
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: LineTotal
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: LineTotal
+                  end_bracket: )
             alias_expression:
               keyword: AS
               naked_identifier: Total
@@ -977,12 +979,37 @@ file:
                 - naked_identifier: dbo
                 - dot: .
                 - naked_identifier: tableX
-              post_table_expression:
-                keyword: WITH
-                bracketed:
-                  start_bracket: (
-                  query_hint_segment:
-                    keyword: NOLOCK
-                  end_bracket: )
+                post_table_expression:
+                  keyword: WITH
+                  bracketed:
+                    start_bracket: (
+                    query_hint_segment:
+                      keyword: NOLOCK
+                    end_bracket: )
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: ID
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: tableX
+                post_table_expression:
+                  bracketed:
+                    start_bracket: (
+                    query_hint_segment:
+                      keyword: NOLOCK
+                    end_bracket: )
 - go_statement:
     keyword: GO

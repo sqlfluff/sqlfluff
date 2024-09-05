@@ -74,8 +74,8 @@ jobs:
       matrix:
         dbt-version: [ dbt110, dbt120, dbt130, dbt140, dbt150, dbt160, dbt170, dbt180 ]
         include:
-          # Default to python 3.11 for dbt tests. dbt doesn't support py 3.12 yet.
-          - python-version: "3.11"
+          # Default to python 3.12 for dbt tests.
+          - python-version: "3.12"
           # For the two oldest dbt versions, override to python 3.9.
           - dbt-version: dbt110
             python-version: "3.9"
@@ -84,6 +84,13 @@ jobs:
           # For dbt 1.3 override to python 3.10
           - dbt-version: dbt130
             python-version: "3.10"
+          # For dbt 1.4 - 1.6 override to python 3.11
+          - dbt-version: dbt140
+            python-version: "3.11"
+          - dbt-version: dbt150
+            python-version: "3.11"
+          - dbt-version: dbt160
+            python-version: "3.11"
     permissions:
       contents: read
       pull-requests: write
@@ -214,10 +221,11 @@ jobs:
         name: coverage-data-winpy3.12
         path: ".coverage.*"
         if-no-files-found: ignore
+        include-hidden-files: true
 
   python-windows-dbt-tests:
     runs-on: windows-latest
-    name: dbt Plugin Python 3.11 Windows tests
+    name: dbt Plugin Python 3.12 Windows tests
     steps:
     - name: Start PostgreSQL on Windows
       run: |
@@ -235,8 +243,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        # dbt doesn't support py 3.12 yet.
-        python-version: "3.11"
+        python-version: "3.12"
     - name: Install dependencies
       shell: bash
       run: pip install tox
@@ -245,7 +252,7 @@ jobs:
       # Do not set explicitly temp dir for dbt as causes problems
       # None of these test need temp dir set
       run: |
-        python -m tox -e dbt150-winpy -- plugins/sqlfluff-templater-dbt
+        python -m tox -e dbt180-winpy -- plugins/sqlfluff-templater-dbt
 
   pip-test-pull-request:
     # Test that using pip install works as we've missed

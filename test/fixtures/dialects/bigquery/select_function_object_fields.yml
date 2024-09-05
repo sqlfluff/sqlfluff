@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ea825b3ba14b42f2b2e3bc7c24d40c6086e32fb5c5359e9ce157af8c0bccbe80
+_hash: e2a4cae7fac7886e457a3b2f89d0af0c550cc0fe95de1c56756e7eca807c2dd4
 file:
   statement:
     select_statement:
@@ -13,12 +13,13 @@ file:
           function:
             function_name:
               function_name_identifier: testFunction
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: a
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: a
+                end_bracket: )
             semi_structured_expression:
               dot: .
               naked_identifier: b
@@ -30,12 +31,13 @@ file:
           function:
             function_name:
               function_name_identifier: testFunction
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: a
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: a
+                end_bracket: )
             semi_structured_expression:
               dot: .
               star: '*'
@@ -47,12 +49,13 @@ file:
           function:
             function_name:
               function_name_identifier: testFunction
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: a
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: a
+                end_bracket: )
             semi_structured_expression:
             - dot: .
             - naked_identifier: b
@@ -66,12 +69,13 @@ file:
           function:
             function_name:
               function_name_identifier: testFunction
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: a
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: a
+                end_bracket: )
             semi_structured_expression:
             - dot: .
             - naked_identifier: b
@@ -85,23 +89,25 @@ file:
           function:
             function_name:
               function_name_identifier: testFunction
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: a
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: a
+                end_bracket: )
             array_accessor:
               start_square_bracket: '['
               expression:
                 function:
                   function_name:
                     function_name_identifier: OFFSET
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      numeric_literal: '0'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        numeric_literal: '0'
+                      end_bracket: )
               end_square_bracket: ']'
             semi_structured_expression:
               dot: .
@@ -114,23 +120,25 @@ file:
           function:
             function_name:
               function_name_identifier: testFunction
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: a
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: a
+                end_bracket: )
             array_accessor:
               start_square_bracket: '['
               expression:
                 function:
                   function_name:
                     function_name_identifier: SAFE_OFFSET
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      numeric_literal: '0'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        numeric_literal: '0'
+                      end_bracket: )
               end_square_bracket: ']'
             semi_structured_expression:
               dot: .
@@ -143,23 +151,25 @@ file:
           function:
             function_name:
               function_name_identifier: testFunction
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: a
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: a
+                end_bracket: )
             array_accessor:
               start_square_bracket: '['
               expression:
                 function:
                   function_name:
                     function_name_identifier: ORDINAL
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      numeric_literal: '1'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        numeric_literal: '1'
+                      end_bracket: )
               end_square_bracket: ']'
             semi_structured_expression:
               dot: .
@@ -172,23 +182,25 @@ file:
           function:
             function_name:
               function_name_identifier: testFunction
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: a
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: a
+                end_bracket: )
             array_accessor:
               start_square_bracket: '['
               expression:
                 function:
                   function_name:
                     function_name_identifier: ORDINAL
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      numeric_literal: '1'
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        numeric_literal: '1'
+                      end_bracket: )
               end_square_bracket: ']'
             semi_structured_expression:
               dot: .
