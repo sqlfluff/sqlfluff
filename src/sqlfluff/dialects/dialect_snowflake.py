@@ -4012,6 +4012,25 @@ class CopyOptionsSegment(BaseSegment):
                 OneOf("CASE_SENSITIVE", "CASE_INSENSITIVE", "NONE"),
             ),
             Sequence(
+                "INCLUDE_METADATA",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("SingleIdentifierGrammar"),
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                "METADATA$FILENAME",
+                                "METADATA$FILE_ROW_NUMBER",
+                                "METADATA$FILE_CONTENT_KEY",
+                                "METADATA$FILE_LAST_MODIFIED",
+                                "METADATA$START_SCAN_TIME",
+                            ),
+                        ),
+                    )
+                ),
+            ),
+            Sequence(
                 "ENFORCE_LENGTH", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
             ),
             Sequence(
