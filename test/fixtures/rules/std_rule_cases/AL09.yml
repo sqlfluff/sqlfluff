@@ -2,7 +2,7 @@ rule: AL09
 
 test_pass_no_self_alias:
     # Test that the rule passes when there's no self alias.
-    pass_str:
+    pass_str: |
         select
             no_alias,
             col_b as rename_alias,
@@ -11,7 +11,7 @@ test_pass_no_self_alias:
 
 test_fail_no_quotes_same_case:
     # When unquoted and the same case, we should always remove the alias.
-    fail_str:
+    fail_str: |
         select
             col_a as this_alias_is_fine,
             col_b as col_b,
@@ -21,7 +21,7 @@ test_fail_no_quotes_same_case:
             COL_F COL_F,
             Col_G Col_G
         from foo
-    fix_str:
+    fix_str: |
         select
             col_a as this_alias_is_fine,
             col_b,
@@ -42,7 +42,7 @@ test_fail_no_quotes_different_case:
     # alias and not the case insensitive reference.
     # While this can make the capitalisation look inconsistent, that's a job
     # for the capitalisation rules and not this one.
-    fail_str:
+    fail_str: |
         select
             col_a as this_alias_is_fine,
             col_b as Col_B,
@@ -52,7 +52,7 @@ test_fail_no_quotes_different_case:
             COL_F col_f,
             Col_G COL_G
         from foo
-    fix_str:
+    fix_str: |
         select
             col_a as this_alias_is_fine,
             Col_B,
@@ -65,7 +65,7 @@ test_fail_no_quotes_different_case:
 
 test_fail_both_quotes_same_case:
     # When *both* quoted and the same case, we should always remove the alias.
-    fail_str:
+    fail_str: |
         select
             "col_a" as "this_alias_is_fine",
             "col_b" as "col_b",
@@ -75,7 +75,7 @@ test_fail_both_quotes_same_case:
             "COL_F" "COL_F",
             "Col_G" "Col_G"
         from foo
-    fix_str:
+    fix_str: |
         select
             "col_a" as "this_alias_is_fine",
             "col_b",
@@ -88,7 +88,7 @@ test_fail_both_quotes_same_case:
 
 test_pass_both_quotes_different_case:
     # When *both* quoted and the different cases, then it's always ok.
-    pass_str:
+    pass_str: |
         select
             "col_a" as "this_alias_is_fine",
             "col_b" as "Col_B",
@@ -100,8 +100,8 @@ test_pass_both_quotes_different_case:
         from foo
 
 test_fail_with_table_aliasing:
-    # Test the fixes above when the table is also aliased
-    fail_str:
+    # Test the fixes above when the table is also aliased and columns qualified.
+    fail_str: |
         select
             bar.col_a as this_alias_is_fine,
             bar.col_b as col_b,
@@ -111,7 +111,7 @@ test_fail_with_table_aliasing:
             bar.COL_F Col_F,
             bar."Col_G" "Col_G"
         from foo as bar
-    fix_str:
+    fix_str: |
         select
             bar.col_a as this_alias_is_fine,
             bar.col_b,
@@ -124,7 +124,7 @@ test_fail_with_table_aliasing:
 
 test_pass_table_aliasing:
     # This rule doesn't handle table self-aliasing, that should be a different rule.
-    pass_str:
+    pass_str: |
         select *
         from foo as foo
         inner join BAR as BAR using(some_key)
@@ -155,3 +155,123 @@ test_pass_mysql_quoted_identifiers:
     configs:
         core:
             dialect: mysql
+
+test_fail_quoted_reference_only_uppercase:
+    # This test covers the behaviour when the reference is quoted but the alias isn't
+    # and the case of the two is different.
+    # Specifically for this test case, when the dialect casefolds identifiers to UPPERCASE.
+    # e.g. Snowflake
+    # NOTE: In the cases where we *do* fix, for consistency with dialect which respect the
+    # casing of the *alias* in result sets, we retain the quoting and formatting of the
+    # *alias* rather than the *reference*.
+    fail_str: |
+        select
+            "foo" as FOO,
+            "FOO" as Foo,
+            "Foo" as foo,
+            "foo" FOO,
+            "FOO" Foo,
+            "Foo" foo
+        from foo
+    fix_str: |
+        select
+            "foo" as FOO,
+            Foo,
+            "Foo" as foo,
+            "foo" FOO,
+            Foo,
+            "Foo" foo
+        from foo
+    configs:
+        core:
+            dialect: snowflake
+
+test_fail_quoted_reference_only_lowercase:
+    # This test covers the behaviour when the reference is quoted but the alias isn't
+    # and the case of the two is different.
+    # Specifically for this test case, when the dialect casefolds identifiers to lowercase.
+    # e.g. MySQL
+    # NOTE: In the cases where we *do* fix, for consistency with dialect which respect the
+    # casing of the *alias* in result sets, we retain the quoting and formatting of the
+    # *alias* rather than the *reference*.
+    fail_str: |
+        select
+            `foo` as FOO,
+            `FOO` as Foo,
+            `Foo` as foo,
+            `foo` FOO,
+            `FOO` Foo,
+            `Foo` foo
+        from foo
+    fix_str: |
+        select
+            FOO,
+            `FOO` as Foo,
+            `Foo` as foo,
+            FOO,
+            `FOO` Foo,
+            `Foo` foo
+        from foo
+    configs:
+        core:
+            dialect: mysql
+
+test_fail_quoted_alias_only_uppercase:
+    # This test covers the behaviour when the alias is quoted but the reference isn't
+    # and the case of the two is different.
+    # Specifically for this test case, when the dialect casefolds identifiers to UPPERCASE.
+    # e.g. Snowflake
+    # NOTE: In the cases where we *do* fix, for consistency with dialect which respect the
+    # casing of the *alias* in result sets, we retain the quoting and formatting of the
+    # *alias* rather than the *reference*.
+    fail_str: |
+        select
+            foo as "FOO",
+            FOO as "Foo",
+            Foo as "foo",
+            foo "FOO",
+            FOO "Foo",
+            Foo "foo"
+        from foo
+    fix_str: |
+        select
+            "FOO",
+            FOO as "Foo",
+            Foo as "foo",
+            "FOO",
+            FOO "Foo",
+            Foo "foo"
+        from foo
+    configs:
+        core:
+            dialect: snowflake
+
+test_fail_quoted_alias_only_lowercase:
+    # This test covers the behaviour when the alias is quoted but the reference isn't
+    # and the case of the two is different.
+    # Specifically for this test case, when the dialect casefolds identifiers to lowercase.
+    # e.g. DuckDB
+    # NOTE: In the cases where we *do* fix, for consistency with dialect which respect the
+    # casing of the *alias* in result sets, we retain the quoting and formatting of the
+    # *alias* rather than the *reference*.
+    fail_str: |
+        select
+            foo as `FOO`,
+            FOO as `Foo`,
+            Foo as `foo`,
+            foo `FOO`,
+            FOO `Foo`,
+            Foo `foo`
+        from foo
+    fix_str: |
+        select
+            FOO as `FOO`,
+            FOO as `Foo`,
+            `foo`,
+            FOO `FOO`,
+            FOO `Foo`,
+            `foo`
+        from foo
+    configs:
+        core:
+            dialect: duckdb
