@@ -256,21 +256,21 @@ test_fail_quoted_alias_only_lowercase:
     # *alias* rather than the *reference*.
     fail_str: |
         select
-            foo as `FOO`,
-            FOO as `Foo`,
-            Foo as `foo`,
-            foo `FOO`,
-            FOO `Foo`,
-            Foo `foo`
+            foo as "FOO",
+            FOO as "Foo",
+            Foo as "foo",
+            foo "FOO",
+            FOO "Foo",
+            Foo "foo"
         from foo
     fix_str: |
         select
-            FOO as `FOO`,
-            FOO as `Foo`,
-            `foo`,
-            FOO `FOO`,
-            FOO `Foo`,
-            `foo`
+            FOO as "FOO",
+            FOO as "Foo",
+            "foo",
+            FOO "FOO",
+            FOO "Foo",
+            "foo"
         from foo
     configs:
         core:
