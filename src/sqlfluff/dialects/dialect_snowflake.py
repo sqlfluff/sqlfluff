@@ -8431,7 +8431,7 @@ class PasswordPolicyReferenceSegment(ObjectReferenceSegment):
 
 
 class PasswordPolicyOptionsSegment(BaseSegment):
-    "Password Policy Options."
+    """Password Policy Options."""
 
     type = "password_policy_options"
 
