@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fbe3353e07c57202acff14e3a5d21434fdf7ef8d76994a4e23d5e7440d4c73a6
+_hash: 9a6cfb8815ff635274f9dfdf11d75eed7b0f943b9de7256ae14ff3ae307327a9
 file:
 - statement:
     create_file_format_segment:
@@ -272,6 +272,26 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         quoted_literal: "'FOOBAR'"
+- statement_terminator: ;
+- statement:
+    create_file_format_segment:
+    - keyword: CREATE
+    - keyword: FILE
+    - keyword: FORMAT
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_csv_format
+    - csv_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - file_type: CSV
+      - keyword: PARSE_HEADER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
 - statement_terminator: ;
 - statement:
     create_file_format_segment:

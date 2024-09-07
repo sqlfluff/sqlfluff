@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 53467f506bc00fd37ce97203a7a95cb0fc7e9c50965599a64534e8d4b717ded2
+_hash: 51208606064154d068df2d6ed073ffe52a6a99aff41cbee7e4f5012a16b838ac
 file:
 - statement:
     create_function_statement:
@@ -463,4 +463,44 @@ file:
     - quoted_literal: "'addone_py'"
     - keyword: as
     - udf_body: "$$\ndef addone_py(i):\n  return i+1\n$$"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+      - naked_identifier: TEST_DB
+      - dot: .
+      - naked_identifier: TEST_SCHEMA
+      - dot: .
+      - function_name_identifier: TEST_TABLE
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: COL_1
+        - data_type:
+            data_type_identifier: VARCHAR
+        - keyword: DEFAULT
+        - expression:
+            null_literal: 'NULL'
+        - comma: ','
+        - parameter: COL_2
+        - data_type:
+            data_type_identifier: VARCHAR
+        - keyword: DEFAULT
+        - expression:
+            null_literal: 'NULL'
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARCHAR
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - udf_body: "$$\nSELECT\n        CASE\n            WHEN (LOWER(COL_1) IS NOT NULL\
+        \ AND\n                        LOWER(COL_2) = 'test_marketing')\n        \
+        \        THEN 'marketing_channel'\n            ELSE '(Other)'\nEND\n$$"
+- statement_terminator: ;
 - statement_terminator: ;

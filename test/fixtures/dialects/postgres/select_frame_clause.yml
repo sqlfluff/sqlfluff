@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a2048f3f99a5a611fca4057c716cca3368f283650e74ae2d59125235ee04634e
+_hash: aa24df65206b51b0669e0863d1461fa032729256452cedd4e13dad03548c81fd
 file:
 - statement:
     select_statement:
@@ -25,14 +25,15 @@ file:
           function:
             function_name:
               function_name_identifier: first_value
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: venuename
-            - keyword: ignore
-            - keyword: nulls
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: venuename
+              - keyword: ignore
+              - keyword: nulls
+              - end_bracket: )
             over_clause:
               keyword: over
               bracketed:
@@ -78,9 +79,10 @@ file:
           function:
             function_name:
               function_name_identifier: rank
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -112,9 +114,10 @@ file:
           function:
             function_name:
               function_name_identifier: rank
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -141,9 +144,10 @@ file:
           function:
             function_name:
               function_name_identifier: rank
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:

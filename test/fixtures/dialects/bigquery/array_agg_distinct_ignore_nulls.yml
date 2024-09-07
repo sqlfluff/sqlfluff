@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: de3bd26409d96fecf29597498e175cacc89eb58ca55cfc9b74c611542323e64f
+_hash: 244b03e39ea070267a8b3592138b005be83d371579a7cbe2c298ea22267e4ee9
 file:
   statement:
     select_statement:
@@ -13,15 +13,16 @@ file:
           function:
             function_name:
               function_name_identifier: ARRAY_AGG
-            bracketed:
-            - start_bracket: (
-            - keyword: DISTINCT
-            - expression:
-                column_reference:
-                  naked_identifier: x
-            - keyword: IGNORE
-            - keyword: NULLS
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - keyword: DISTINCT
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+              - keyword: IGNORE
+              - keyword: NULLS
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: array_agg

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 51b32d87af6e763f334ee4dda38980afe9ef256589c80dae87f4f12086e5b419
+_hash: 0306939bd5c395e3b77e2febfeb78d34f4f06c3fd3b477f9ca035092653d0272
 file:
 - statement:
     select_statement:
@@ -21,10 +21,11 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -63,12 +64,13 @@ file:
           function:
             function_name:
               function_name_identifier: avg
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: totalprice
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: totalprice
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -116,12 +118,13 @@ file:
           function:
             function_name:
               function_name_identifier: avg
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: totalprice
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: totalprice
+                end_bracket: )
             over_clause:
               keyword: OVER
               naked_identifier: w
@@ -130,12 +133,13 @@ file:
           function:
             function_name:
               function_name_identifier: sum
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: totalprice
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: totalprice
+                end_bracket: )
             over_clause:
               keyword: OVER
               naked_identifier: w
@@ -144,12 +148,13 @@ file:
           function:
             function_name:
               function_name_identifier: max
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: totalprice
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: totalprice
+                end_bracket: )
             over_clause:
               keyword: OVER
               naked_identifier: w

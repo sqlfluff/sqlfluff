@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c93ebbe02f1dd96b192f4cf31468234356b7f0702c46e4575b64d24264207c5f
+_hash: 9399d42609e0fe4e315166b88f20e7751bb9ad9263655f91d06d3ec5ef76fc7e
 file:
 - statement:
     select_statement:
@@ -21,9 +21,10 @@ file:
           function:
             function_name:
               function_name_identifier: row_number
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -57,9 +58,10 @@ file:
           function:
             function_name:
               function_name_identifier: row_number
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -97,9 +99,10 @@ file:
           function:
             function_name:
               function_name_identifier: row_number
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -128,9 +131,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: duckdb_functions
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
       qualify_clause:
         keyword: QUALIFY
         expression:
@@ -156,9 +160,10 @@ file:
           function:
             function_name:
               function_name_identifier: row_number
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               naked_identifier: my_window
@@ -173,9 +178,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: duckdb_functions
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
       named_window:
         keyword: WINDOW
         named_window_expression:
@@ -202,9 +208,10 @@ file:
           function:
             function_name:
               function_name_identifier: row_number
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               naked_identifier: my_window
@@ -228,9 +235,10 @@ file:
           function:
             function_name:
               function_name_identifier: row_number
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               naked_identifier: my_window
@@ -245,9 +253,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: duckdb_functions
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
       named_window:
         keyword: WINDOW
         named_window_expression:

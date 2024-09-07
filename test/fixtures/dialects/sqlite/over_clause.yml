@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 153870e8e1399dda050b292af7e1167fdadd0cdd192872aa2b25c07b54fb32ff
+_hash: a50fb942101de655170fc587c1f5e0b3bbd32f22024767674aa436529aa19a0c
 file:
 - statement:
     select_statement:
@@ -21,9 +21,10 @@ file:
           function:
             function_name:
               function_name_identifier: row_number
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -67,15 +68,16 @@ file:
           function:
             function_name:
               function_name_identifier: group_concat
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: b
-            - comma: ','
-            - expression:
-                quoted_literal: "'.'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: b
+              - comma: ','
+              - expression:
+                  quoted_literal: "'.'"
+              - end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -128,15 +130,16 @@ file:
           function:
             function_name:
               function_name_identifier: group_concat
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: b
-            - comma: ','
-            - expression:
-                quoted_literal: "'.'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: b
+              - comma: ','
+              - expression:
+                  quoted_literal: "'.'"
+              - end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -201,15 +204,16 @@ file:
           function:
             function_name:
               function_name_identifier: group_concat
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: b
-            - comma: ','
-            - expression:
-                quoted_literal: "'.'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: b
+              - comma: ','
+              - expression:
+                  quoted_literal: "'.'"
+              - end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -271,15 +275,16 @@ file:
           function:
             function_name:
               function_name_identifier: group_concat
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: b
-            - comma: ','
-            - expression:
-                quoted_literal: "'.'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: b
+              - comma: ','
+              - expression:
+                  quoted_literal: "'.'"
+              - end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -327,15 +332,16 @@ file:
           function:
             function_name:
               function_name_identifier: group_concat
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: b
-            - comma: ','
-            - expression:
-                quoted_literal: "'.'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: b
+              - comma: ','
+              - expression:
+                  quoted_literal: "'.'"
+              - end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -397,15 +403,16 @@ file:
           function:
             function_name:
               function_name_identifier: group_concat
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: b
-            - comma: ','
-            - expression:
-                quoted_literal: "'.'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: b
+              - comma: ','
+              - expression:
+                  quoted_literal: "'.'"
+              - end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -436,15 +443,16 @@ file:
           function:
             function_name:
               function_name_identifier: group_concat
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: b
-            - comma: ','
-            - expression:
-                quoted_literal: "'.'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: b
+              - comma: ','
+              - expression:
+                  quoted_literal: "'.'"
+              - end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -475,15 +483,16 @@ file:
           function:
             function_name:
               function_name_identifier: group_concat
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: b
-            - comma: ','
-            - expression:
-                quoted_literal: "'.'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: b
+              - comma: ','
+              - expression:
+                  quoted_literal: "'.'"
+              - end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -513,15 +522,16 @@ file:
           function:
             function_name:
               function_name_identifier: group_concat
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: b
-            - comma: ','
-            - expression:
-                quoted_literal: "'.'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: b
+              - comma: ','
+              - expression:
+                  quoted_literal: "'.'"
+              - end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
@@ -580,19 +590,20 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: group_concat
-          - bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: b
-            - comma: ','
-            - expression:
-                quoted_literal: "'.'"
-            - end_bracket: )
-          - keyword: FILTER
-          - bracketed:
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: b
+              - comma: ','
+              - expression:
+                  quoted_literal: "'.'"
+              - end_bracket: )
+            keyword: FILTER
+            bracketed:
               start_bracket: (
               keyword: WHERE
               expression:
@@ -603,7 +614,7 @@ file:
                 - raw_comparison_operator: '='
                 quoted_literal: "'two'"
               end_bracket: )
-          - over_clause:
+            over_clause:
               keyword: OVER
               bracketed:
                 start_bracket: (
@@ -645,9 +656,10 @@ file:
           function:
             function_name:
               function_name_identifier: row_number
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               naked_identifier: win
@@ -659,9 +671,10 @@ file:
           function:
             function_name:
               function_name_identifier: rank
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               naked_identifier: win
@@ -673,9 +686,10 @@ file:
           function:
             function_name:
               function_name_identifier: dense_rank
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               naked_identifier: win
@@ -687,9 +701,10 @@ file:
           function:
             function_name:
               function_name_identifier: percent_rank
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               naked_identifier: win
@@ -701,9 +716,10 @@ file:
           function:
             function_name:
               function_name_identifier: cume_dist
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
             over_clause:
               keyword: OVER
               naked_identifier: win
@@ -754,11 +770,12 @@ file:
           function:
             function_name:
               function_name_identifier: ntile
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '2'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '2'
+                end_bracket: )
             over_clause:
               keyword: OVER
               naked_identifier: win
@@ -770,11 +787,12 @@ file:
           function:
             function_name:
               function_name_identifier: ntile
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '4'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '4'
+                end_bracket: )
             over_clause:
               keyword: OVER
               naked_identifier: win
@@ -818,18 +836,19 @@ file:
           function:
             function_name:
               function_name_identifier: lead
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: b
-            - comma: ','
-            - expression:
-                numeric_literal: '2'
-            - comma: ','
-            - expression:
-                quoted_literal: "'n/a'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: b
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - comma: ','
+              - expression:
+                  quoted_literal: "'n/a'"
+              - end_bracket: )
             over_clause:
               keyword: OVER
               naked_identifier: win
@@ -841,12 +860,13 @@ file:
           function:
             function_name:
               function_name_identifier: lag
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: b
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: b
+                end_bracket: )
             over_clause:
               keyword: OVER
               naked_identifier: win
@@ -858,12 +878,13 @@ file:
           function:
             function_name:
               function_name_identifier: first_value
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: b
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: b
+                end_bracket: )
             over_clause:
               keyword: OVER
               naked_identifier: win
@@ -875,12 +896,13 @@ file:
           function:
             function_name:
               function_name_identifier: last_value
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: b
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: b
+                end_bracket: )
             over_clause:
               keyword: OVER
               naked_identifier: win
@@ -892,15 +914,16 @@ file:
           function:
             function_name:
               function_name_identifier: nth_value
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: b
-            - comma: ','
-            - expression:
-                numeric_literal: '3'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: b
+              - comma: ','
+              - expression:
+                  numeric_literal: '3'
+              - end_bracket: )
             over_clause:
               keyword: OVER
               naked_identifier: win
@@ -945,15 +968,16 @@ file:
           function:
             function_name:
               function_name_identifier: group_concat
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: b
-            - comma: ','
-            - expression:
-                quoted_literal: "'.'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: b
+              - comma: ','
+              - expression:
+                  quoted_literal: "'.'"
+              - end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:

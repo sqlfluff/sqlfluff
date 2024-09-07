@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 058fccea34cbba5023c88c6e0f2e91cabc0d64431db5028db4be1f238cbb54e3
+_hash: 549280dea0939abccd4fe6aa8716cc4678ee689778b45477d86e44eec9bc4691
 file:
 - statement:
     create_function_statement:
@@ -124,12 +124,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: MAX
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: time
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: time
+                      end_bracket: )
                 alias_expression:
                   keyword: AS
                   naked_identifier: time
@@ -197,16 +198,17 @@ file:
           function:
             function_name:
               function_name_identifier: area
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: x
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: x
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_sql_function_statement:
@@ -293,9 +295,10 @@ file:
                 function:
                   function_name:
                     function_name_identifier: rand
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
                 binary_operator: '*'
                 numeric_literal: '6'
               end_bracket: )
@@ -352,73 +355,76 @@ file:
           function:
             function_name:
               function_name_identifier: aggregate
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: sequence
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: sequence
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          numeric_literal: '1'
+                      - comma: ','
+                      - expression:
+                          column_reference:
+                          - naked_identifier: roll_dice
+                          - dot: .
+                          - naked_identifier: num_dice
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - comma: ','
+              - expression:
                   bracketed:
                   - start_bracket: (
-                  - expression:
-                      numeric_literal: '1'
+                  - column_reference:
+                      naked_identifier: acc
                   - comma: ','
-                  - expression:
-                      column_reference:
-                      - naked_identifier: roll_dice
-                      - dot: .
-                      - naked_identifier: num_dice
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '1'
+                  - column_reference:
+                      naked_identifier: x
                   - end_bracket: )
-            - comma: ','
-            - expression:
-                numeric_literal: '0'
-            - comma: ','
-            - expression:
-                bracketed:
-                - start_bracket: (
+                  binary_operator: ->
+                  cast_expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        function:
+                          function_name:
+                            function_name_identifier: rand
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              end_bracket: )
+                        binary_operator: '*'
+                        column_reference:
+                        - naked_identifier: roll_dice
+                        - dot: .
+                        - naked_identifier: num_sides
+                      end_bracket: )
+                    casting_operator: '::'
+                    data_type:
+                      primitive_type:
+                        keyword: int
+              - comma: ','
+              - expression:
                 - column_reference:
                     naked_identifier: acc
-                - comma: ','
+                - binary_operator: ->
                 - column_reference:
-                    naked_identifier: x
-                - end_bracket: )
-                binary_operator: ->
-                cast_expression:
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      function:
-                        function_name:
-                          function_name_identifier: rand
-                        bracketed:
-                          start_bracket: (
-                          end_bracket: )
-                      binary_operator: '*'
-                      column_reference:
-                      - naked_identifier: roll_dice
-                      - dot: .
-                      - naked_identifier: num_sides
-                    end_bracket: )
-                  casting_operator: '::'
-                  data_type:
-                    primitive_type:
-                      keyword: int
-            - comma: ','
-            - expression:
-              - column_reference:
-                  naked_identifier: acc
-              - binary_operator: ->
-              - column_reference:
-                  naked_identifier: acc
-              - binary_operator: +
-              - column_reference:
-                - naked_identifier: roll_dice
-                - dot: .
-                - naked_identifier: num_dice
-            - end_bracket: )
+                    naked_identifier: acc
+                - binary_operator: +
+                - column_reference:
+                  - naked_identifier: roll_dice
+                  - dot: .
+                  - naked_identifier: num_dice
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_sql_function_statement:

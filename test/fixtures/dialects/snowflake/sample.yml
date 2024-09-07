@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8fbecdbf9ac58a9c95d293d289de060182d5029064ef777bf3ef52f139d59d91
+_hash: a9ee9c51137ae754db5bf2151b47dcdd660b7da36b1e3578ddab93bab6a25422
 file:
 - statement:
     select_statement:
@@ -51,9 +51,10 @@ file:
                 function:
                   function_name:
                     function_name_identifier: SEQ4
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
                 alias_expression:
                   keyword: AS
                   naked_identifier: row_number
@@ -65,20 +66,22 @@ file:
                     function:
                       function_name:
                         function_name_identifier: TABLE
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          function:
-                            function_name:
-                              function_name_identifier: GENERATOR
-                            bracketed:
-                              start_bracket: (
-                              snowflake_keyword_expression:
-                                parameter: rowcount
-                                parameter_assigner: =>
-                                numeric_literal: '1000'
-                              end_bracket: )
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            function:
+                              function_name:
+                                function_name_identifier: GENERATOR
+                              function_contents:
+                                bracketed:
+                                  start_bracket: (
+                                  snowflake_keyword_expression:
+                                    parameter: rowcount
+                                    parameter_assigner: =>
+                                    numeric_literal: '1000'
+                                  end_bracket: )
+                          end_bracket: )
             orderby_clause:
             - keyword: ORDER
             - keyword: BY

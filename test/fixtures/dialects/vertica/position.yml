@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d7f5830dc47d11ba665240e8cbc84b97b1b3ab7d9b631138bb3d45ae824a84cd
+_hash: b5f27c40dccb41a8e744df8d8c808effafc1fafbb7ffbdb8e2c84debdfc7e3f6
 file:
   statement:
     select_statement:
@@ -13,14 +13,15 @@ file:
           function:
             function_name:
               function_name_identifier: POSITION
-            bracketed:
-            - start_bracket: (
-            - data_type:
-                keyword: VARBINARY
-            - quoted_literal: "'456'"
-            - keyword: IN
-            - data_type:
-                keyword: VARBINARY
-            - quoted_literal: "'123456789'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - data_type:
+                  keyword: VARBINARY
+              - quoted_literal: "'456'"
+              - keyword: IN
+              - data_type:
+                  keyword: VARBINARY
+              - quoted_literal: "'123456789'"
+              - end_bracket: )
   statement_terminator: ;

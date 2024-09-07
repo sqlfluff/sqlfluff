@@ -1,0 +1,695 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 14321de384783dc7ad2bc136679d798bd154f1146fef04e38031e968867f558e
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: Student
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+        naked_identifier: StudentInfo
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: StudentInfo
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        set_clause:
+          column_reference:
+            naked_identifier: age
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'10'"
+        end_bracket: )
+    - keyword: RENAME
+    - keyword: TO
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        set_clause:
+          column_reference:
+            naked_identifier: age
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'15'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: StudentInfo
+    - keyword: ADD
+    - keyword: columns
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: LastName
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: DOB
+          data_type:
+            primitive_type:
+              keyword: timestamp
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: StudentInfo
+    - keyword: DROP
+    - keyword: COLUMN
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: DOB
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: StudentInfo
+    - keyword: DROP
+    - keyword: COLUMNS
+    - keyword: IF
+    - keyword: EXISTS
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: LastName
+      - comma: ','
+      - column_reference:
+          naked_identifier: DOB
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: StudentInfo
+    - keyword: ADD
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        set_clause:
+          column_reference:
+            naked_identifier: age
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '18'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: StudentInfo
+    - keyword: DROP
+    - keyword: IF
+    - keyword: EXISTS
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        set_clause:
+          column_reference:
+            naked_identifier: age
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '18'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: StudentInfo
+    - keyword: ADD
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        set_clause:
+          column_reference:
+            naked_identifier: age
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '18'
+        end_bracket: )
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        set_clause:
+          column_reference:
+            naked_identifier: age
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '20'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: StudentInfo
+    - keyword: RECOVER
+    - keyword: PARTITIONS
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: StudentInfo
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: name
+    - keyword: COMMENT
+    - quoted_literal: '"new comment"'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: StudentInfo
+    - keyword: RENAME
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: name
+    - keyword: TO
+    - column_reference:
+        naked_identifier: FirstName
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: dbx
+      - dot: .
+      - naked_identifier: tab1
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - set_clause:
+          column_reference:
+            naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'1'"
+      - comma: ','
+      - set_clause:
+          column_reference:
+            naked_identifier: b
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'2'"
+      - end_bracket: )
+    - keyword: SET
+    - keyword: LOCATION
+    - quoted_literal: "'/path/to/part/ways'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_tab
+    - keyword: SET
+    - keyword: SERDE
+    - quoted_literal: "'org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: dbx
+      - dot: .
+      - naked_identifier: tab1
+    - keyword: SET
+    - keyword: SERDE
+    - quoted_literal: "'org.apache.hadoop'"
+    - keyword: WITH
+    - keyword: SERDEPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: "'k'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'v'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'kay'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'vee'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: dbx
+      - dot: .
+      - naked_identifier: tab1
+    - keyword: SET
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'winner'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'loser'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: dbx
+      - dot: .
+      - naked_identifier: tab1
+    - keyword: UNSET
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'winner'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: DROP
+    - keyword: FEATURE
+    - object_reference:
+        naked_identifier: deletionVectors
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: DROP
+    - keyword: FEATURE
+    - object_reference:
+        naked_identifier: deletionVectors
+    - keyword: TRUNCATE
+    - keyword: HISTORY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test
+    - keyword: SET
+    - keyword: TAGS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: "'tag1'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'val1'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'tag2'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'val2'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'tag3'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'val3'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test
+    - keyword: UNSET
+    - keyword: TAGS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: "'tag1'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'tag2'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'tag3'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: main
+      - dot: .
+      - naked_identifier: schema1
+      - dot: .
+      - naked_identifier: test
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: col1
+    - keyword: SET
+    - keyword: TAGS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: "'tag1'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'val1'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'tag2'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'val2'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'tag3'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'val3'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: main
+      - dot: .
+      - naked_identifier: schema1
+      - dot: .
+      - naked_identifier: test
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: col1
+    - keyword: UNSET
+    - keyword: TAGS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: "'tag1'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'tag2'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'tag3'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: ENABLE
+    - keyword: PREDICTIVE
+    - keyword: OPTIMIZATION
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: sales
+    - keyword: SET
+    - keyword: ROW
+    - keyword: FILTER
+    - object_reference:
+        naked_identifier: us_filter
+    - keyword: 'ON'
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: sales
+    - keyword: SET
+    - keyword: ROW
+    - keyword: FILTER
+    - object_reference:
+        naked_identifier: us_filter
+    - keyword: 'ON'
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: region
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: sales
+    - keyword: DROP
+    - keyword: ROW
+    - keyword: FILTER
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: users
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: ssn
+    - keyword: SET
+    - mask_statement:
+        keyword: MASK
+        function_name:
+          function_name_identifier: ssn_mask
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: users
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: ssn
+    - keyword: SET
+    - mask_statement:
+      - keyword: MASK
+      - function_name:
+          function_name_identifier: ssn_mask
+      - keyword: USING
+      - keyword: COLUMNS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: ssn_value
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: users
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: ssn
+    - keyword: DROP
+    - keyword: MASK
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: persons
+    - keyword: ADD
+    - table_constraint:
+      - keyword: CONSTRAINT
+      - object_reference:
+          naked_identifier: persons_pk
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: first_name
+        - comma: ','
+        - column_reference:
+            naked_identifier: last_name
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: pets
+    - keyword: ADD
+    - table_constraint:
+      - keyword: CONSTRAINT
+      - object_reference:
+          naked_identifier: pets_persons_fk
+      - keyword: FOREIGN
+      - keyword: KEY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: owner_first_name
+        - comma: ','
+        - column_reference:
+            naked_identifier: owner_last_name
+        - end_bracket: )
+      - keyword: REFERENCES
+      - table_reference:
+          naked_identifier: persons
+      - keyword: NOT
+      - keyword: ENFORCED
+      - keyword: RELY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: pets
+    - keyword: ADD
+    - table_constraint:
+      - keyword: CONSTRAINT
+      - object_reference:
+          naked_identifier: pets_name_not_cute_chk
+      - keyword: CHECK
+      - bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: length
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: name
+                  end_bracket: )
+            comparison_operator:
+              raw_comparison_operator: <
+            numeric_literal: '20'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: pets
+    - keyword: DROP
+    - keyword: CONSTRAINT
+    - object_reference:
+        naked_identifier: pets_name_not_cute_chk
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: persons
+    - keyword: DROP
+    - keyword: CONSTRAINT
+    - object_reference:
+        naked_identifier: persons_pk
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: pets
+    - keyword: DROP
+    - keyword: FOREIGN
+    - keyword: KEY
+    - keyword: IF
+    - keyword: EXISTS
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: owner_first_name
+      - comma: ','
+      - column_reference:
+          naked_identifier: owner_last_name
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: persons
+    - keyword: DROP
+    - keyword: PRIMARY
+    - keyword: KEY
+    - keyword: CASCADE
+- statement_terminator: ;

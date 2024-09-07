@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 601a1a6b4b2d7983cc36a108a3aa4bee136513a1763124ccef9b1f1b7f2361bd
+_hash: c628b3819952808793e5bb6b35858ed6e21342eafbb251c9d063b3c7c3869d26
 file:
 - statement:
     create_function_statement:
@@ -129,16 +129,17 @@ file:
             function:
               function_name:
                 function_name_identifier: CONCAT
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    naked_identifier: x
-              - comma: ','
-              - expression:
-                  column_reference:
-                    naked_identifier: x
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: x
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: x
+                - end_bracket: )
           end_bracket: )
         options_segment:
           keyword: OPTIONS

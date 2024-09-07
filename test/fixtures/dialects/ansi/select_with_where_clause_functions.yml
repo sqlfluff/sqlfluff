@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7455cf4e932a1f45055e2b98d219cf6227ef6e37023639a31acd3ba0422a716a
+_hash: ed16408355877ce508f2bd7f3e4e033d6b10e0f65c256d6e3b8c25c91960d6ca
 file:
   statement:
     select_statement:
@@ -39,30 +39,34 @@ file:
           - function:
               function_name:
                 function_name_identifier: year
-              bracketed:
-                start_bracket: (
-                expression:
-                  function:
-                    function_name:
-                      function_name_identifier: getdate
-                    bracketed:
-                      start_bracket: (
-                      end_bracket: )
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: getdate
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          end_bracket: )
+                  end_bracket: )
           - comma: ','
           - function:
               function_name:
                 function_name_identifier: year
-              bracketed:
-                start_bracket: (
-                expression:
-                  function:
-                    function_name:
-                      function_name_identifier: getdate
-                    bracketed:
-                      start_bracket: (
-                      end_bracket: )
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: getdate
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          end_bracket: )
+                  end_bracket: )
           - binary_operator: '-'
           - numeric_literal: '1'
           - end_bracket: )

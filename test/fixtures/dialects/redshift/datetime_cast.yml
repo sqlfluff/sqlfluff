@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c3b8503c04d37b31fd23df096871fa914716b4e5b455d115c2c348ec678aba9
+_hash: d56b7dee134964ccef4248a55eab77227ce3796b35ab0a7d25ff67d83cecd5e2
 file:
 - statement:
     select_statement:
@@ -296,9 +296,10 @@ file:
             function:
               function_name:
                 function_name_identifier: GETDATE
-              bracketed:
-                start_bracket: (
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
             time_zone_grammar:
             - keyword: AT
             - keyword: TIME
@@ -314,9 +315,10 @@ file:
                 function:
                   function_name:
                     function_name_identifier: GETDATE
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
                 time_zone_grammar:
                 - keyword: AT
                 - keyword: TIME
@@ -342,9 +344,10 @@ file:
                     function:
                       function_name:
                         function_name_identifier: GETDATE
-                      bracketed:
-                        start_bracket: (
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          end_bracket: )
                     time_zone_grammar:
                     - keyword: AT
                     - keyword: TIME

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c95046c9221d495e525f8bdbc766233769c7389747bc4042ae8b8ddf6f8ebeca
+_hash: 5358c30fd843f560b294a3541feb35320ba4a59c406cb2763c79a70ef53fb452
 file:
 - statement:
     select_statement:
@@ -45,28 +45,29 @@ file:
           function:
             function_name:
               function_name_identifier: ARRAY_AGG
-            bracketed:
-              start_bracket: (
-              expression:
-                typed_struct_literal:
-                  struct_type:
-                    keyword: STRUCT
-                  struct_literal:
-                    bracketed:
-                    - start_bracket: (
-                    - column_reference:
-                        naked_identifier: a
-                    - alias_expression:
-                        keyword: AS
-                        naked_identifier: a
-                    - comma: ','
-                    - column_reference:
-                        naked_identifier: b
-                    - alias_expression:
-                        keyword: AS
-                        naked_identifier: b
-                    - end_bracket: )
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  typed_struct_literal:
+                    struct_type:
+                      keyword: STRUCT
+                    struct_literal:
+                      bracketed:
+                      - start_bracket: (
+                      - column_reference:
+                          naked_identifier: a
+                      - alias_expression:
+                          keyword: AS
+                          naked_identifier: a
+                      - comma: ','
+                      - column_reference:
+                          naked_identifier: b
+                      - alias_expression:
+                          keyword: AS
+                          naked_identifier: b
+                      - end_bracket: )
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:

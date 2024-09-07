@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fa0c77fc692915b62e59448c86e6a13dd1a72bec82c6e436dff5b7130f2a0076
+_hash: 9a995a851203a44d5b9d9986c5b1d6884af1e9746fc84fe1888bcd70c3eaf45f
 file:
 - statement:
     create_materialized_view_statement:
@@ -114,12 +114,13 @@ file:
           function:
             function_name:
               function_name_identifier: DATE
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: x
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x
+                end_bracket: )
     - cluster_by_segment:
       - keyword: CLUSTER
       - keyword: BY

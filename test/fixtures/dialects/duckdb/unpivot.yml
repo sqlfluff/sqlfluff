@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 279fff5170b3655c6e22a88ab1a64575e2092acccc32132fa08dee8c84edb1ad
+_hash: 016cf6f3605137989ec5dc5f117db0d3b4997a664b4145886f57d8ab35ed6bf4
 file:
 - statement:
     simplified_unpivot:
@@ -44,9 +44,9 @@ file:
     - keyword: 'ON'
     - function_name:
         keyword: COLUMNS
-    - bracketed:
-        start_bracket: (
-        columns_expression:
+    - function_contents:
+        bracketed:
+          start_bracket: (
           wildcard_expression:
             wildcard_identifier:
               star: '*'
@@ -60,7 +60,7 @@ file:
               - column_reference:
                   naked_identifier: dept
               - end_bracket: )
-        end_bracket: )
+          end_bracket: )
     - keyword: INTO
     - keyword: NAME
     - naked_identifier: month
@@ -129,9 +129,9 @@ file:
           - keyword: 'ON'
           - function_name:
               keyword: COLUMNS
-          - bracketed:
-              start_bracket: (
-              columns_expression:
+          - function_contents:
+              bracketed:
+                start_bracket: (
                 wildcard_expression:
                   wildcard_identifier:
                     star: '*'
@@ -145,7 +145,7 @@ file:
                     - column_reference:
                         naked_identifier: dept
                     - end_bracket: )
-              end_bracket: )
+                end_bracket: )
           - keyword: INTO
           - keyword: NAME
           - naked_identifier: month
@@ -221,9 +221,9 @@ file:
                 start_bracket: (
                 function_name:
                   keyword: COLUMNS
-                bracketed:
-                  start_bracket: (
-                  columns_expression:
+                function_contents:
+                  bracketed:
+                    start_bracket: (
                     wildcard_expression:
                       wildcard_identifier:
                         star: '*'
@@ -237,7 +237,7 @@ file:
                         - column_reference:
                             naked_identifier: dept
                         - end_bracket: )
-                  end_bracket: )
+                    end_bracket: )
                 end_bracket: )
             - end_bracket: )
 - statement_terminator: ;

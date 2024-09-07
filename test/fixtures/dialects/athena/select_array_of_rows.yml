@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 246b131824ddd434f87567ae1f0cf10a63055d0c33282c264e12c5f22081cd9c
+_hash: 229ad331db0574e38536d0ed149fd6bc032240c093a546a9565ae8261568e4ab
 file:
   statement:
     select_statement:
@@ -19,28 +19,30 @@ file:
                 function:
                   function_name:
                     function_name_identifier: CAST
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      function:
-                        function_name:
-                          function_name_identifier: ROW
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        function:
+                          function_name:
+                            function_name_identifier: ROW
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                numeric_literal: '1'
+                              end_bracket: )
+                      keyword: AS
+                      data_type:
+                        keyword: ROW
                         bracketed:
                           start_bracket: (
-                          expression:
-                            numeric_literal: '1'
+                          naked_identifier: x
+                          data_type:
+                            primitive_type:
+                              keyword: INT
                           end_bracket: )
-                    keyword: AS
-                    data_type:
-                      keyword: ROW
-                      bracketed:
-                        start_bracket: (
-                        naked_identifier: x
-                        data_type:
-                          primitive_type:
-                            keyword: INT
-                        end_bracket: )
-                    end_bracket: )
+                      end_bracket: )
                 end_square_bracket: ']'
             array_accessor:
               start_square_bracket: '['

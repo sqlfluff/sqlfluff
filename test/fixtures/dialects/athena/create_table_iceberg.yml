@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a99202f4ec5bcdb5569fac63d311193db9f86d0f3d96f0c029b687fd9e8140ea
+_hash: fe1d69aa90a0f80944a4128a5571fd2cac93262fd90cfc8de758f704f9e6002d
 file:
 - statement:
     create_table_statement:
@@ -85,15 +85,16 @@ file:
         function:
           function_name:
             function_name_identifier: bucket
-          bracketed:
-          - start_bracket: (
-          - expression:
-              numeric_literal: '16'
-          - comma: ','
-          - expression:
-              column_reference:
-                naked_identifier: id
-          - end_bracket: )
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                numeric_literal: '16'
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: id
+            - end_bracket: )
         end_bracket: )
     - keyword: LOCATION
     - quoted_literal: "'s3://amzn-s3-demo-bucket/your-folder/'"

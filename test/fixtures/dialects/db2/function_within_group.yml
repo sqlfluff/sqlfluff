@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e52ad2a7bebefe270132e4f297ad537f3a8b1ef1f76c0e5a39757f83c170eeca
+_hash: c2db5f6b3569d72a55f75a4d2cb2dd877dde92467447d1c2f7795f6e7139328e
 file:
   statement:
     select_statement:
@@ -13,15 +13,16 @@ file:
           function:
             function_name:
               function_name_identifier: LISTAGG
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: A_COLUMN_NAME
-            - comma: ','
-            - expression:
-                quoted_literal: "'X'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: A_COLUMN_NAME
+              - comma: ','
+              - expression:
+                  quoted_literal: "'X'"
+              - end_bracket: )
             withingroup_clause:
             - keyword: WITHIN
             - keyword: GROUP

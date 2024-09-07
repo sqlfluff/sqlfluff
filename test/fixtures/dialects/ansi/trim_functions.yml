@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 07214dfc654a54fa01f59d32c129ad3cf5a614556fd09deff2f76324c00a34ca
+_hash: 4d74b3ac0317a63160160c797c1d57622de2e972212744731aabef4f2f87c4a8
 file:
 - statement:
     select_statement:
@@ -13,11 +13,12 @@ file:
           function:
             function_name:
               function_name_identifier: trim
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: "'    SparkSQL   '"
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'    SparkSQL   '"
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -27,13 +28,14 @@ file:
           function:
             function_name:
               function_name_identifier: trim
-            bracketed:
-            - start_bracket: (
-            - keyword: BOTH
-            - keyword: FROM
-            - expression:
-                quoted_literal: "'    SparkSQL   '"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - keyword: BOTH
+              - keyword: FROM
+              - expression:
+                  quoted_literal: "'    SparkSQL   '"
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -43,13 +45,14 @@ file:
           function:
             function_name:
               function_name_identifier: trim
-            bracketed:
-            - start_bracket: (
-            - keyword: LEADING
-            - keyword: FROM
-            - expression:
-                quoted_literal: "'    SparkSQL   '"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - keyword: LEADING
+              - keyword: FROM
+              - expression:
+                  quoted_literal: "'    SparkSQL   '"
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -59,13 +62,14 @@ file:
           function:
             function_name:
               function_name_identifier: trim
-            bracketed:
-            - start_bracket: (
-            - keyword: TRAILING
-            - keyword: FROM
-            - expression:
-                quoted_literal: "'    SparkSQL   '"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - keyword: TRAILING
+              - keyword: FROM
+              - expression:
+                  quoted_literal: "'    SparkSQL   '"
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -75,14 +79,15 @@ file:
           function:
             function_name:
               function_name_identifier: trim
-            bracketed:
-            - start_bracket: (
-            - expression:
-                quoted_literal: "'SL'"
-            - keyword: FROM
-            - expression:
-                quoted_literal: "'SSparkSQLS'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'SL'"
+              - keyword: FROM
+              - expression:
+                  quoted_literal: "'SSparkSQLS'"
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -92,15 +97,16 @@ file:
           function:
             function_name:
               function_name_identifier: trim
-            bracketed:
-            - start_bracket: (
-            - keyword: BOTH
-            - expression:
-                quoted_literal: "'SL'"
-            - keyword: FROM
-            - expression:
-                quoted_literal: "'SSparkSQLS'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - keyword: BOTH
+              - expression:
+                  quoted_literal: "'SL'"
+              - keyword: FROM
+              - expression:
+                  quoted_literal: "'SSparkSQLS'"
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -110,15 +116,16 @@ file:
           function:
             function_name:
               function_name_identifier: trim
-            bracketed:
-            - start_bracket: (
-            - keyword: LEADING
-            - expression:
-                quoted_literal: "'SL'"
-            - keyword: FROM
-            - expression:
-                quoted_literal: "'SSparkSQLS'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - keyword: LEADING
+              - expression:
+                  quoted_literal: "'SL'"
+              - keyword: FROM
+              - expression:
+                  quoted_literal: "'SSparkSQLS'"
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -128,13 +135,14 @@ file:
           function:
             function_name:
               function_name_identifier: trim
-            bracketed:
-            - start_bracket: (
-            - keyword: TRAILING
-            - expression:
-                quoted_literal: "'SL'"
-            - keyword: FROM
-            - expression:
-                quoted_literal: "'SSparkSQLS'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - keyword: TRAILING
+              - expression:
+                  quoted_literal: "'SL'"
+              - keyword: FROM
+              - expression:
+                  quoted_literal: "'SSparkSQLS'"
+              - end_bracket: )
 - statement_terminator: ;
