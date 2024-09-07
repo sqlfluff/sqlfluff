@@ -36,6 +36,8 @@ current dialects available on your installation of SQLFluff.
     - Will the feature I'm adding break any *downstream* dependencies
       within dialects which inherit from this one?
 
+.. include:: ../_partials/dialect_summaries.rst
+
 .. _ansi_dialect_ref:
 
 ANSI
