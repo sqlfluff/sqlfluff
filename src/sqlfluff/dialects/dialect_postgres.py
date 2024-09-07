@@ -4240,13 +4240,13 @@ class AlterSequenceOptionsSegment(ansi.AlterSequenceOptionsSegment):
         Sequence(
             "INCREMENT",
             Ref.keyword("BY", optional=True),
-            Ref("NegativeSegment", optional=True),
+            Ref("SignedSegmentGrammar", optional=True),
             Ref("NumericLiteralSegment"),
         ),
         OneOf(
             Sequence(
                 "MINVALUE",
-                Ref("NegativeSegment", optional=True),
+                Ref("SignedSegmentGrammar", optional=True),
                 Ref("NumericLiteralSegment"),
             ),
             Sequence("NO", "MINVALUE"),
@@ -4254,7 +4254,7 @@ class AlterSequenceOptionsSegment(ansi.AlterSequenceOptionsSegment):
         OneOf(
             Sequence(
                 "MAXVALUE",
-                Ref("NegativeSegment", optional=True),
+                Ref("SignedSegmentGrammar", optional=True),
                 Ref("NumericLiteralSegment"),
             ),
             Sequence("NO", "MAXVALUE"),
@@ -4265,13 +4265,13 @@ class AlterSequenceOptionsSegment(ansi.AlterSequenceOptionsSegment):
         Sequence(
             "START",
             Ref.keyword("WITH", optional=True),
-            Ref("NegativeSegment", optional=True),
+            Ref("SignedSegmentGrammar", optional=True),
             Ref("NumericLiteralSegment"),
         ),
         Sequence(
             "RESTART",
             Ref.keyword("WITH", optional=True),
-            Ref("NegativeSegment", optional=True),
+            Ref("SignedSegmentGrammar", optional=True),
             Ref("NumericLiteralSegment"),
         ),
         Sequence("CACHE", Ref("NumericLiteralSegment")),
