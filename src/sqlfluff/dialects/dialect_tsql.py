@@ -47,7 +47,13 @@ from sqlfluff.dialects.dialect_tsql_keywords import (
 )
 
 ansi_dialect = load_raw_dialect("ansi")
-tsql_dialect = ansi_dialect.copy_as("tsql")
+tsql_dialect = ansi_dialect.copy_as(
+    "tsql",
+    formatted_name="Microsoft T-SQL",
+    docstring="""The dialect for `T-SQL`_ (aka Transact-SQL).
+
+.. _`T-SQL`: https://docs.microsoft.com/en-us/sql/t-sql/language-reference""",
+)
 
 tsql_dialect.sets("reserved_keywords").clear()
 tsql_dialect.sets("unreserved_keywords").clear()

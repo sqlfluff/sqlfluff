@@ -33,7 +33,11 @@ from sqlfluff.core.parser import (
 from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
-teradata_dialect = ansi_dialect.copy_as("teradata")
+teradata_dialect = ansi_dialect.copy_as(
+    "teradata",
+    formatted_name="Teradata",
+    docstring="""The dialect for `Teradata <https://www.teradata.co.uk/>`_.""",
+)
 
 teradata_dialect.patch_lexer_matchers(
     [

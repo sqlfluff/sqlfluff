@@ -130,7 +130,7 @@ print("Rule Docs Generation: Done")
 print("Dialect Docs Generation: Reading Dialects...")
 # We make a dictionary of all of them first, because we want to force the ANSI
 # one to be first.
-dialect_dict = {dialect.name: dialect for dialect in sqlfluff.list_dialects()}
+dialect_dict = {dialect.label: dialect for dialect in sqlfluff.list_dialects()}
 dialect_list = [dialect_dict["ansi"]] + [
     dialect for dialect_name, dialect in dialect_dict.items() if dialect_name != "ansi"
 ]
@@ -143,10 +143,13 @@ with open(
     f.write(autogen_header)
     for dialect in dialect_list:
         f.write(
-            f".. _{dialect.name}_dialect_ref2:\n\n"  # TODO: Remove the 2
-            f"{dialect.name}\n{'-' * len(dialect.name)}\n\n"  # TODO: Capitalised name
+            f".. _{dialect.label}_dialect_ref:\n\n"
+            f"{dialect.name}\n{'-' * len(dialect.name)}\n\n"
             f"**Label**: ``{dialect.label}``\n\n"
-            f"**Inherits from**: :ref:`{dialect.inherits_from}_dialect_ref2`\n\n"  # TODO: Remove 2
-            f"The dialect for `{dialect.name} LINK "  # TODO: Fullname, Remove LINK
-            "<https://cloud.google.com/bigquery/>`_.\n\n"  # TODO: Link
         )
+        if dialect.label != "ansi":
+            f.write(
+                f"**Inherits from**: :ref:`{dialect.inherits_from}_dialect_ref`\n\n"
+            )
+        if dialect.docstring:
+            f.write(dialect.docstring + "\n\n")

@@ -78,6 +78,7 @@ class DialectTuple(NamedTuple):
     label: str
     name: str
     inherits_from: str
+    docstring: str
 
 
 def dialect_readout() -> Iterator[DialectTuple]:
@@ -86,8 +87,9 @@ def dialect_readout() -> Iterator[DialectTuple]:
         dialect = load_raw_dialect(dialect_label)
         yield DialectTuple(
             label=dialect_label,
-            name=dialect.name,
+            name=dialect.formatted_name,
             inherits_from=dialect.inherits_from or "nothing",
+            docstring=dialect.docstring,
         )
 
 

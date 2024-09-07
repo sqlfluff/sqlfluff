@@ -31,7 +31,11 @@ from sqlfluff.dialects.dialect_hive_keywords import (
 )
 
 ansi_dialect = load_raw_dialect("ansi")
-hive_dialect = ansi_dialect.copy_as("hive")
+hive_dialect = ansi_dialect.copy_as(
+    "hive",
+    formatted_name="Apache Hive",
+    docstring="The dialect for Apache `Hive <https://hive.apache.org/>`_.",
+)
 
 # Clear ANSI Keywords and add all Hive keywords
 # Commented clearing for now as some are needed for some statements imported

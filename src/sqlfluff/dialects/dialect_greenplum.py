@@ -27,7 +27,11 @@ from sqlfluff.dialects.dialect_postgres_keywords import get_keywords
 
 postgres_dialect = load_raw_dialect("postgres")
 
-greenplum_dialect = postgres_dialect.copy_as("greenplum")
+greenplum_dialect = postgres_dialect.copy_as(
+    "greenplum",
+    formatted_name="Greenplum",
+    docstring="The dialect for `Greenplum <https://www.greenplum.org/>`_.",
+)
 
 greenplum_dialect.sets("reserved_keywords").update(
     get_keywords(greenplum_keywords, "reserved")
