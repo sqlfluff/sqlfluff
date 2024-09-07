@@ -25,6 +25,6 @@ build:
   tools:
     python: "3.11"
   jobs:
-    # Before building, generate the rule docs
+    # Before building, generate the rule & dialect docs
     pre_build:
-      - python docs/generate-rule-docs.py
+      - python docs/generate-auto-docs.py
