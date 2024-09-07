@@ -58,6 +58,7 @@ ALLOWABLE_LAYOUT_CONFIG_KEYS = (
     "line_position",
     "align_within",
     "align_scope",
+    "keyword_line_position",
 )
 
 

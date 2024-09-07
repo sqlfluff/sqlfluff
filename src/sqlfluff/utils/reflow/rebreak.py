@@ -2,7 +2,7 @@
 
 import logging
 from dataclasses import dataclass
-from typing import List, Tuple, Type, cast
+from typing import List, Literal, Tuple, Type, cast
 
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.rules import LintFix, LintResult
@@ -263,8 +263,85 @@ def identify_rebreak_spans(
     return spans
 
 
+def identify_keyword_rebreak_spans(
+    element_buffer: ReflowSequenceType, root_segment: BaseSegment
+) -> List[_RebreakSpan]:
+    """Identify areas in file to rebreak.
+
+    A span here is a block, or group of blocks which have
+    explicit configs for their line position, either directly
+    as raw segments themselves or by virtue of one of their
+    parent segments.
+    """
+    spans: List[_RebreakSpan] = []
+    # We'll need at least two elements each side, so constrain
+    # our range accordingly.
+    for idx in range(2, len(element_buffer) - 2):
+        # Only evaluate blocks:
+        elem = element_buffer[idx]
+        # Only evaluate blocks
+        if not isinstance(elem, ReflowBlock):
+            continue
+        # Do any of its parents have config, and are we at the start
+        # of them?
+        for key in elem.keyword_line_position_configs.keys():
+            # If we're not at the start of the segment, then pass.
+            if elem.depth_info.stack_positions[key].idx != 0:
+                continue
+            # Can we find the end?
+            # NOTE: It's safe to look right to the end here rather than up to
+            # -2 because we're going to end up stepping back by two in the
+            # complicated cases.
+            for end_idx in range(idx, len(element_buffer)):
+                end_elem = element_buffer[end_idx]
+                final_idx = None
+
+                if not isinstance(end_elem, ReflowBlock):
+                    if any(seg.is_type("indent") for seg in end_elem.segments):
+                        final_idx = end_idx - 1
+                    else:
+                        continue
+                elif key not in end_elem.depth_info.stack_positions or not all(
+                    seg.is_type("keyword") for seg in end_elem.segments
+                ):
+                    # If we get here, it means the last block was the end.
+                    # NOTE: This feels a little hacky, but it's because of a limitation
+                    # in detecting the "end" and "solo" markers effectively in larger
+                    # sections.
+                    final_idx = end_idx - 2  # pragma: no cover
+                elif end_elem.depth_info.stack_positions[key].type in ("end", "solo"):
+                    final_idx = end_idx
+
+                if final_idx is not None:
+                    # Found the end. Add it to the stack.
+                    # We reference the appropriate element from the parent stack.
+                    target_depth = elem.depth_info.stack_hashes.index(key)
+                    target = root_segment.path_to(element_buffer[idx].segments[0])[
+                        target_depth
+                    ].segment
+                    spans.append(
+                        _RebreakSpan(
+                            target,
+                            idx,
+                            final_idx,
+                            # NOTE: this isn't pretty but until it needs to be more
+                            # complex, this works.
+                            elem.keyword_line_position_configs[key].split(":")[0],
+                            elem.keyword_line_position_configs[key].endswith("strict"),
+                        )
+                    )
+                    break
+            # If we find the start, but not the end, it's not a problem, but
+            # we won't be rebreaking this span. This is important so that we
+            # don't rebreak part of something without the context of what's
+            # in the rest of it. We continue without adding it to the buffer.
+    return spans
+
+
 def rebreak_sequence(
-    elements: ReflowSequenceType, root_segment: BaseSegment
+    elements: ReflowSequenceType,
+    root_segment: BaseSegment,
+    rebreak_type: Literal["lines", "keywords"] = "lines",
 ) -> Tuple[ReflowSequenceType, List[LintResult]]:
     """Reflow line breaks within a sequence.
 
@@ -288,7 +365,10 @@ def rebreak_sequence(
     # side to respace them at the same time.
 
     # 1. First find appropriate spans.
-    spans = identify_rebreak_spans(elem_buff, root_segment)
+    if rebreak_type == "lines":
+        spans = identify_rebreak_spans(elem_buff, root_segment)
+    elif rebreak_type == "keywords":
+        spans = identify_keyword_rebreak_spans(elem_buff, root_segment)
 
     # The spans give us the edges of operators, but for line positioning we need
     # to handle comments differently. There are two other important points:
