@@ -1,0 +1,34 @@
+rule: LT14
+
+test_pass_leading_from_clause:
+  pass_str: |
+    SELECT foo
+    FROM bar
+  configs:
+    layout:
+      type:
+        from_clause:
+          keyword_line_position: leading
+
+test_pass_alone_from_clause:
+  pass_str: |
+    SELECT foo
+    FROM
+      bar
+  configs:
+    layout:
+      type:
+        from_clause:
+          keyword_line_position: alone
+
+test_fail_leading_from_clause:
+  fail_str: |
+    SELECT foo FROM bar
+  fix_str: |
+    SELECT foo
+    FROM bar
+  configs:
+    layout:
+      type:
+        from_clause:
+          keyword_line_position: leading

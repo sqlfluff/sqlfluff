@@ -264,20 +264,17 @@ def identify_rebreak_spans(
 
 
 def identify_keyword_rebreak_spans(
-    element_buffer: ReflowSequenceType, root_segment: BaseSegment
+    element_buffer: ReflowSequenceType,
 ) -> List[_RebreakSpan]:
-    """Identify areas in file to rebreak.
+    """Identify keyword areas in file to rebreak.
 
-    A span here is a block, or group of blocks which have
-    explicit configs for their line position, either directly
-    as raw segments themselves or by virtue of one of their
-    parent segments.
+    A span here is a block, or group of blocks which have explicit
+    configs for their keyword's line position.
     """
     spans: List[_RebreakSpan] = []
     # We'll need at least two elements each side, so constrain
     # our range accordingly.
     for idx in range(2, len(element_buffer) - 2):
-        # Only evaluate blocks:
         elem = element_buffer[idx]
         # Only evaluate blocks
         if not isinstance(elem, ReflowBlock):
@@ -285,8 +282,15 @@ def identify_keyword_rebreak_spans(
         # Do any of its parents have config, and are we at the start
         # of them?
         for key in elem.keyword_line_position_configs.keys():
-            # If we're not at the start of the segment, then pass.
-            if elem.depth_info.stack_positions[key].idx != 0:
+            # If we're not at the start of the segment, then pass. Some keywords might
+            # be at an index of 1 due to a leading indent so check for both 0 and 1.
+            if elem.depth_info.stack_positions[key].idx > 1:
+                continue
+            # If we found something at the 1st index, check that it is in fact an indent
+            if elem.depth_info.stack_positions[key].idx == 1 and not (
+                element_buffer[idx - 1].segments
+                and element_buffer[idx - 1].segments[-1].is_type("indent")
+            ):
                 continue
             # Can we find the end?
             # NOTE: It's safe to look right to the end here rather than up to
@@ -302,23 +306,18 @@ def identify_keyword_rebreak_spans(
                     else:
                         continue
                 elif key not in end_elem.depth_info.stack_positions or not all(
-                    seg.is_type("keyword") for seg in end_elem.segments
+                    seg.is_type("keyword", "comment") for seg in end_elem.segments
                 ):
-                    # If we get here, it means the last block was the end.
-                    # NOTE: This feels a little hacky, but it's because of a limitation
-                    # in detecting the "end" and "solo" markers effectively in larger
-                    # sections.
-                    final_idx = end_idx - 2  # pragma: no cover
+                    # If we get here, it means the last block was the end or we hit the
+                    # end of keywords
+                    final_idx = end_idx - 2
                 elif end_elem.depth_info.stack_positions[key].type in ("end", "solo"):
                     final_idx = end_idx
 
                 if final_idx is not None:
                     # Found the end. Add it to the stack.
                     # We reference the appropriate element from the parent stack.
-                    target_depth = elem.depth_info.stack_hashes.index(key)
-                    target = root_segment.path_to(element_buffer[idx].segments[0])[
-                        target_depth
-                    ].segment
+                    target = element_buffer[idx].segments[0]
                     spans.append(
                         _RebreakSpan(
                             target,
@@ -368,7 +367,7 @@ def rebreak_sequence(
     if rebreak_type == "lines":
         spans = identify_rebreak_spans(elem_buff, root_segment)
     elif rebreak_type == "keywords":
-        spans = identify_keyword_rebreak_spans(elem_buff, root_segment)
+        spans = identify_keyword_rebreak_spans(elem_buff)
 
     # The spans give us the edges of operators, but for line positioning we need
     # to handle comments differently. There are two other important points:
@@ -637,6 +636,207 @@ def rebreak_sequence(
                 new_results, prev_point = prev_point.indent_to(
                     deduce_line_indent(loc.target.raw_segments[0], root_segment),
                     before=loc.target,
+                )
+                # Update the point in the buffer
+                elem_buff[loc.prev.adj_pt_idx] = prev_point
+
+        else:
+            raise NotImplementedError(  # pragma: no cover
+                f"Unexpected line_position config: {loc.line_position}"
+            )
+
+        # Consolidate results and consume fix buffer
+        lint_results.append(
+            LintResult(
+                loc.target,
+                fixes=fixes_from_results(new_results) + fixes,
+                description=desc,
+            )
+        )
+        fixes = []
+
+    return elem_buff, lint_results
+
+
+def rebreak_keywords_sequence(
+    elements: ReflowSequenceType,
+    root_segment: BaseSegment,
+) -> Tuple[ReflowSequenceType, List[LintResult]]:
+    """Reflow line breaks within a sequence.
+
+    Initially this only _moves_ existing segments
+    around line breaks (e.g. for operators and commas),
+    but eventually this method should also handle line
+    length considerations too.
+
+    This intentionally does *not* handle indentation,
+    as the existing indents are assumed to be correct.
+    """
+    lint_results: List[LintResult] = []
+    fixes: List[LintFix] = []
+    elem_buff: ReflowSequenceType = elements.copy()
+
+    # Given a sequence we should identify the objects which
+    # make sense to rebreak. That includes any raws with config,
+    # but also and parent segments which have config and we can
+    # find both ends for. Given those spans, we then need to find
+    # the points either side of them and then the blocks either
+    # side to respace them at the same time.
+
+    # 1. First find appropriate spans.
+    spans = identify_keyword_rebreak_spans(elem_buff)
+
+    # The spans give us the edges of operators, but for line positioning we need
+    # to handle comments differently. There are two other important points:
+    # 1. The next newline outward before code (but passing over comments).
+    # 2. The point before the next _code_ segment (ditto comments).
+    locations: List[_RebreakLocation] = []
+    for span in spans:
+        try:
+            locations.append(_RebreakLocation.from_span(span, elem_buff))
+        # If we try and create a location from an incomplete span (i.e. one
+        # where we're unable to find the next newline effectively), then
+        # we'll get an exception. If we do - skip that one - we won't be
+        # able to effectively work with it even if we could construct it.
+        except UnboundLocalError:
+            pass
+
+    # Handle each span:
+    for loc in locations:
+        reflow_logger.debug(
+            "Handing Rebreak Span (%r: %s): %r",
+            loc.line_position,
+            loc.target,
+            "".join(
+                elem.raw
+                for elem in elem_buff[
+                    loc.prev.pre_code_pt_idx - 1 : loc.next.pre_code_pt_idx + 2
+                ]
+            ),
+        )
+
+        if loc.has_inappropriate_newlines(elem_buff, True):
+            continue
+
+        if loc.has_templated_newline(elem_buff):
+            continue
+
+        # Points and blocks either side are just offsets from the indices.
+        prev_point = cast(ReflowPoint, elem_buff[loc.prev.adj_pt_idx])
+        next_point = cast(ReflowPoint, elem_buff[loc.next.adj_pt_idx])
+
+        # So we know we have a preference, is it ok?
+        if loc.line_position == "leading":
+            if elem_buff[loc.prev.newline_pt_idx].num_newlines():
+                # We're good. It's already leading.
+                continue
+
+            # Generate the text for any issues.
+            pretty_name = loc.pretty_target_name()
+            if loc.strict:  # pragma: no cover
+                # TODO: The 'strict' option isn't widely tested yet.
+                desc = f"{pretty_name.capitalize()} should always start a new line."
+            else:
+                desc = (
+                    f"Found trailing {pretty_name}. Expected only leading "
+                    "near line breaks."
+                )
+
+            # Is it the simple case with no comments between the
+            # old and new desired locations and only a single following
+            # whitespace?
+            reflow_logger.debug("  Trailing Easy Case")
+            # Strip newlines from the next point. Apply the indent to
+            # the previous point.
+            new_results, prev_point = prev_point.indent_to(
+                next_point.get_indent() or "",
+                before=elem_buff[loc.prev.adj_pt_idx + 1].segments[0],
+            )
+            new_results, next_point = next_point.respace_point(
+                cast(ReflowBlock, elem_buff[loc.next.adj_pt_idx - 1]),
+                cast(ReflowBlock, elem_buff[loc.next.adj_pt_idx + 1]),
+                root_segment=root_segment,
+                lint_results=new_results,
+                strip_newlines=True,
+            )
+
+            # Update the points in the buffer
+            elem_buff[loc.prev.adj_pt_idx] = prev_point
+            elem_buff[loc.next.adj_pt_idx] = next_point
+
+        elif loc.line_position == "trailing":
+            if elem_buff[loc.next.newline_pt_idx].num_newlines():
+                # We're good, it's already trailing.
+                continue
+
+            # Generate the text for any issues.
+            pretty_name = loc.pretty_target_name()
+            if loc.strict:  # pragma: no cover
+                # TODO: The 'strict' option isn't widely tested yet.
+                desc = (
+                    f"{pretty_name.capitalize()} should always be at the end of a line."
+                )
+            else:
+                desc = (
+                    f"Found leading {pretty_name}. Expected only trailing "
+                    "near line breaks."
+                )
+
+            # Is it the simple case with no comments between the
+            # old and new desired locations and only one previous newline?
+            reflow_logger.debug("  Leading Easy Case")
+            # Simple case. No comments.
+            # Strip newlines from the previous point. Apply the indent
+            # to the next point.
+            new_results, next_point = next_point.indent_to(
+                prev_point.get_indent() or "",
+                after=elem_buff[loc.next.adj_pt_idx - 1].segments[-1],
+            )
+            new_results, prev_point = prev_point.respace_point(
+                cast(ReflowBlock, elem_buff[loc.prev.adj_pt_idx - 1]),
+                cast(ReflowBlock, elem_buff[loc.prev.adj_pt_idx + 1]),
+                root_segment=root_segment,
+                lint_results=new_results,
+                strip_newlines=True,
+            )
+
+            # Update the points in the buffer
+            elem_buff[loc.prev.adj_pt_idx] = prev_point
+            elem_buff[loc.next.adj_pt_idx] = next_point
+
+        elif loc.line_position == "alone":
+            # If we get here we can assume that the element is currently
+            # either leading or trailing and needs to be moved onto its
+            # own line.
+
+            # Generate the text for any issues.
+            pretty_name = loc.pretty_target_name()
+            desc = (
+                f"{pretty_name.capitalize()}s should always have a line break "
+                "both before and after."
+            )
+
+            # First handle the following newlines first (easy).
+            if not elem_buff[loc.next.newline_pt_idx].num_newlines():
+                reflow_logger.debug("  Found missing newline after in alone case")
+                new_results, next_point = next_point.indent_to(
+                    prev_point.get_indent() or "",
+                    after=elem_buff[loc.next.adj_pt_idx - 1].segments[-1],
+                )
+                # Update the point in the buffer
+                elem_buff[loc.next.adj_pt_idx] = next_point
+
+            # Then handle newlines before. (hoisting past comments if needed).
+            if not elem_buff[loc.prev.adj_pt_idx].num_newlines():
+                reflow_logger.debug("  Found missing newline before in alone case")
+                # NOTE: In the case that there are comments _after_ the
+                # target, they will be moved with it. This might break things
+                # but there isn't an unambiguous way to do this, because we
+                # can't be sure what the comments are referring to.
+                # Given that, we take the simple option.
+                new_results, prev_point = prev_point.indent_to(
+                    next_point.get_indent() or "",
+                    before=elem_buff[loc.prev.adj_pt_idx + 1].segments[0],
                 )
                 # Update the point in the buffer
                 elem_buff[loc.prev.adj_pt_idx] = prev_point

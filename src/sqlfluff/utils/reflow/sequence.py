@@ -16,7 +16,7 @@ from sqlfluff.utils.reflow.elements import (
     get_consumed_whitespace,
 )
 from sqlfluff.utils.reflow.helpers import fixes_from_results
-from sqlfluff.utils.reflow.rebreak import rebreak_sequence
+from sqlfluff.utils.reflow.rebreak import rebreak_keywords_sequence, rebreak_sequence
 from sqlfluff.utils.reflow.reindent import (
     construct_single_indent,
     lint_indent_points,
@@ -618,9 +618,14 @@ class ReflowSequence:
             )
 
         # Delegate to the rebreak algorithm
-        elem_buff, lint_results = rebreak_sequence(
-            self.elements, self.root_segment, rebreak_type
-        )
+        if rebreak_type == "lines":
+            elem_buff, lint_results = rebreak_sequence(self.elements, self.root_segment)
+        elif rebreak_type == "keywords":
+            elem_buff, lint_results = rebreak_keywords_sequence(
+                self.elements, self.root_segment
+            )
+        else:
+            raise NotImplementedError()
 
         return ReflowSequence(
             elements=elem_buff,
