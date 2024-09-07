@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 16d95981fb69dfbc482349b72fe308d6355e68d6120ffd7d4a546f2a5d5884b1
+_hash: 89c3af38d108f08ef402d62a68dcb33565452cfc594949cf2d6938ce1799f0df
 file:
 - statement:
     show_statement:
@@ -34,4 +34,14 @@ file:
     show_statement:
     - keyword: SHOW
     - keyword: SERVER_VERSION
+- statement_terminator: ;
+- statement:
+    show_statement:
+      keyword: SHOW
+      parameter: DateStyle
+- statement_terminator: ;
+- statement:
+    show_statement:
+      keyword: SHOW
+      parameter: geqo
 - statement_terminator: ;

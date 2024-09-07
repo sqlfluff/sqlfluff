@@ -6104,5 +6104,6 @@ class ShowStatementSegment(BaseSegment):
             "LC_CTYPE",
             "SERVER_ENCODING",
             "SERVER_VERSION",
+            Ref("ParameterNameSegment"),
         ),
     )
