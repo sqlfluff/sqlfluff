@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 06b177f2eb67d0c3355e473504fe4ee18bd9e54fee9449bfd5309eb115174d67
+_hash: a85996eb46a2024fb4d0ea8adbb883763b1842165a6ccde742dd7eb24de494b3
 file:
 - statement:
     create_sequence_statement:
@@ -144,7 +144,7 @@ file:
       - numeric_literal: '5'
     - create_sequence_options_segment:
         keyword: MINVALUE
-        sign_indicator: '-'
+        sign_indicator: +
         numeric_literal: '50'
     - create_sequence_options_segment:
         keyword: MAXVALUE
