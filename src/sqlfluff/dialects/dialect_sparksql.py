@@ -68,7 +68,7 @@ Versions of Spark prior to 3.x will only support the Hive dialect.
 
 .. _`Spark SQL`: https://spark.apache.org/docs/latest/sql-ref.html
 .. _`Delta Lake`: https://docs.delta.io/latest/quick-start.html#set-up-apache-spark-with-delta-lake
-.. _`Ansi Compliant Mode`: https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html""",
+.. _`Ansi Compliant Mode`: https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html""",  # noqa: E501
 )
 
 sparksql_dialect.patch_lexer_matchers(

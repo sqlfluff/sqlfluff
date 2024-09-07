@@ -42,7 +42,8 @@ ansi_dialect = load_raw_dialect("ansi")
 vertica_dialect = ansi_dialect.copy_as(
     "vertica",
     formatted_name="Vertica",
-    docstring="""The dialect for `Vertica <https://www.vertica.com/documentation/vertica/all/>`_.""",
+    docstring="""The dialect for
+`Vertica <https://www.vertica.com/documentation/vertica/all/>`_.""",
 )
 
 vertica_dialect.insert_lexer_matchers(
