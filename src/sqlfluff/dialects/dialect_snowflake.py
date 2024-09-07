@@ -36,6 +36,7 @@ from sqlfluff.core.parser import (
     TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
+from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.dialects.dialect_snowflake_keywords import (
     snowflake_reserved_keywords,
     snowflake_unreserved_keywords,
@@ -1392,6 +1393,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterExternalVolumeStatementSegment"),
             Ref("ForInLoopSegment"),
             Ref("CreateEventTableStatementSegment"),
+            Ref("CreatePasswordPolicyStatementSegment"),
+            Ref("AlterPasswordPolicyStatementSegment"),
+            Ref("DropPasswordPolicyStatementSegment"),
         ],
         remove=[
             Ref("CreateIndexStatementSegment"),
@@ -6726,6 +6730,7 @@ class ShowStatementSegment(BaseSegment):
         "PROCEDURES",
         Sequence("FUTURE", "GRANTS"),
         Sequence("EXTERNAL", "VOLUMES"),
+        Sequence("PASSWORD", "POLICIES"),
     )
 
     _object_scope_types = OneOf(
@@ -7574,6 +7579,12 @@ class DescribeStatementSegment(BaseSegment):
                     ),
                 ),
             ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-password-policy
+            Sequence(
+                "PASSWORD",
+                "POLICY",
+                Ref("PasswordPolicyReferenceSegment"),
+            ),
         ),
     )
 
@@ -8410,4 +8421,146 @@ class LambdaExpressionSegment(BaseSegment):
         ),
         Ref("FunctionAssignerSegment"),
         Ref("ExpressionSegment"),
+    )
+
+
+class PasswordPolicyReferenceSegment(ObjectReferenceSegment):
+    """Password Policy Reference."""
+
+    type = "password_policy_reference"
+
+
+class PasswordPolicyOptionsSegment(BaseSegment):
+    "Password Policy Options."
+
+    type = "password_policy_options"
+
+    match_grammar = AnySetOf(
+        Sequence(
+            "PASSWORD_MIN_LENGTH", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
+        ),
+        Sequence(
+            "PASSWORD_MAX_LENGTH", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
+        ),
+        Sequence(
+            "PASSWORD_MIN_UPPER_CASE_CHARS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "PASSWORD_MIN_LOWER_CASE_CHARS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "PASSWORD_MIN_NUMERIC_CHARS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "PASSWORD_MIN_SPECIAL_CHARS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "PASSWORD_MIN_AGE_DAYS", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
+        ),
+        Sequence(
+            "PASSWORD_MAX_AGE_DAYS", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
+        ),
+        Sequence(
+            "PASSWORD_MAX_RETRIES", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
+        ),
+        Sequence(
+            "PASSWORD_LOCKOUT_TIME_MINS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "PASSWORD_HISTORY", Ref("EqualsSegment"), Ref("NumericLiteralSegment")
+        ),
+        Sequence("COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
+    )
+
+
+class CreatePasswordPolicyStatementSegment(BaseSegment):
+    """Create Password Policy Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/create-packages-policy
+    """
+
+    type = "create_password_policy_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "PASSWORD",
+        "POLICY",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("PasswordPolicyReferenceSegment"),
+        Ref("PasswordPolicyOptionsSegment", optional=True),
+    )
+
+
+class AlterPasswordPolicyStatementSegment(BaseSegment):
+    """Alter Password Policy Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/alter-password-policy
+    """
+
+    type = "alter_password_policy_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "PASSWORD",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("PasswordPolicyReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("PasswordPolicyReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                Ref("PasswordPolicyOptionsSegment"),
+            ),
+            Sequence("SET", Ref("TagEqualsSegment")),
+            Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
+            Sequence(
+                "UNSET",
+                AnySetOf(
+                    "PASSWORD_MIN_LENGTH",
+                    "PASSWORD_MAX_LENGTH",
+                    "PASSWORD_MIN_UPPER_CASE_CHARS",
+                    "PASSWORD_MIN_LOWER_CASE_CHARS",
+                    "PASSWORD_MIN_NUMERIC_CHARS",
+                    "PASSWORD_MIN_SPECIAL_CHARS",
+                    "PASSWORD_MIN_AGE_DAYS",
+                    "PASSWORD_MAX_AGE_DAYS",
+                    "PASSWORD_MAX_RETRIES",
+                    "PASSWORD_LOCKOUT_TIME_MINS",
+                    "PASSWORD_HISTORY",
+                    "COMMENT",
+                ),
+            ),
+        ),
+    )
+
+
+class DropPasswordPolicyStatementSegment(BaseSegment):
+    """Drop Password Policy Statement.
+
+    As per https://docs.snowflake.com/en/sql-reference/sql/drop-password-policy
+    """
+
+    type = "drop_password_policy_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "PASSWORD",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("PasswordPolicyReferenceSegment"),
     )
