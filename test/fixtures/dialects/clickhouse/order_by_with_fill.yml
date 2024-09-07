@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 15ccd1313922d9eedc71c37786d6861c471636043f2ec29e1963947487ab6b59
+_hash: b5f334cbe7cb42977324caeea273802a580388c34499acc42ba4d20b16056d26
 file:
 - statement:
     select_statement:
@@ -30,14 +30,15 @@ file:
                       function:
                         function_name:
                           function_name_identifier: toFloat32
-                        bracketed:
-                          start_bracket: (
-                          expression:
-                            column_reference:
-                              naked_identifier: number
-                            binary_operator: '%'
-                            numeric_literal: '10'
-                          end_bracket: )
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: number
+                              binary_operator: '%'
+                              numeric_literal: '10'
+                            end_bracket: )
                       alias_expression:
                         keyword: AS
                         naked_identifier: n
@@ -55,11 +56,12 @@ file:
                           function:
                             function_name:
                               function_name_identifier: numbers
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                                numeric_literal: '10'
-                              end_bracket: )
+                            function_contents:
+                              bracketed:
+                                start_bracket: (
+                                expression:
+                                  numeric_literal: '10'
+                                end_bracket: )
                   where_clause:
                     keyword: WHERE
                     expression:
@@ -96,20 +98,21 @@ file:
           function:
             function_name:
               function_name_identifier: toDate
-            bracketed:
-              start_bracket: (
-              expression:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: number
-                    binary_operator: '*'
-                    numeric_literal: '10'
-                  end_bracket: )
-                binary_operator: '*'
-                numeric_literal: '86400'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: number
+                      binary_operator: '*'
+                      numeric_literal: '10'
+                    end_bracket: )
+                  binary_operator: '*'
+                  numeric_literal: '86400'
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: d1
@@ -118,14 +121,15 @@ file:
           function:
             function_name:
               function_name_identifier: toDate
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: number
-                binary_operator: '*'
-                numeric_literal: '86400'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: number
+                  binary_operator: '*'
+                  numeric_literal: '86400'
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: d2
@@ -143,11 +147,12 @@ file:
               function:
                 function_name:
                   function_name_identifier: numbers
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '10'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '10'
+                    end_bracket: )
       where_clause:
         keyword: WHERE
         expression:
@@ -187,20 +192,21 @@ file:
           function:
             function_name:
               function_name_identifier: toDate
-            bracketed:
-              start_bracket: (
-              expression:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: number
-                    binary_operator: '*'
-                    numeric_literal: '10'
-                  end_bracket: )
-                binary_operator: '*'
-                numeric_literal: '86400'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: number
+                      binary_operator: '*'
+                      numeric_literal: '10'
+                    end_bracket: )
+                  binary_operator: '*'
+                  numeric_literal: '86400'
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: d1
@@ -209,14 +215,15 @@ file:
           function:
             function_name:
               function_name_identifier: toDate
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: number
-                binary_operator: '*'
-                numeric_literal: '86400'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: number
+                  binary_operator: '*'
+                  numeric_literal: '86400'
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: d2
@@ -234,11 +241,12 @@ file:
               function:
                 function_name:
                   function_name_identifier: numbers
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '10'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '10'
+                    end_bracket: )
       where_clause:
         keyword: WHERE
         expression:
@@ -278,20 +286,21 @@ file:
           function:
             function_name:
               function_name_identifier: toDate
-            bracketed:
-              start_bracket: (
-              expression:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: number
-                    binary_operator: '*'
-                    numeric_literal: '10'
-                  end_bracket: )
-                binary_operator: '*'
-                numeric_literal: '86400'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: number
+                      binary_operator: '*'
+                      numeric_literal: '10'
+                    end_bracket: )
+                  binary_operator: '*'
+                  numeric_literal: '86400'
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: d1
@@ -300,14 +309,15 @@ file:
           function:
             function_name:
               function_name_identifier: toDate
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: number
-                binary_operator: '*'
-                numeric_literal: '86400'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: number
+                  binary_operator: '*'
+                  numeric_literal: '86400'
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: d2
@@ -325,11 +335,12 @@ file:
               function:
                 function_name:
                   function_name_identifier: numbers
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '10'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '10'
+                    end_bracket: )
       where_clause:
         keyword: WHERE
         expression:

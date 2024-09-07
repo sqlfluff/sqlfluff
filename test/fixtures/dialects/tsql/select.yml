@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cd5c1e1638d1d92a2646681f46b513cce2da8c732fbc2d9649f3ac74cd3d7064
+_hash: 8d403bb42298cbfc5ca968720c5880bc77787d6aeea810007b4e43a23b7487bb
 file:
   batch:
   - statement:
@@ -423,13 +423,14 @@ file:
         - comma: ','
         - select_clause_element:
             function:
-            - function_name:
+              function_name:
                 keyword: ROW_NUMBER
-            - bracketed:
-                start_bracket: (
-                end_bracket: )
-            - keyword: OVER
-            - bracketed:
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+              keyword: OVER
+              bracketed:
                 start_bracket: (
                 partitionby_clause:
                 - keyword: PARTITION
@@ -452,13 +453,14 @@ file:
         - comma: ','
         - select_clause_element:
             function:
-            - function_name:
+              function_name:
                 keyword: RANK
-            - bracketed:
-                start_bracket: (
-                end_bracket: )
-            - keyword: OVER
-            - bracketed:
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+              keyword: OVER
+              bracketed:
                 start_bracket: (
                 partitionby_clause:
                 - keyword: PARTITION
@@ -478,13 +480,14 @@ file:
         - comma: ','
         - select_clause_element:
             function:
-            - function_name:
+              function_name:
                 keyword: DENSE_RANK
-            - bracketed:
-                start_bracket: (
-                end_bracket: )
-            - keyword: OVER
-            - bracketed:
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+              keyword: OVER
+              bracketed:
                 start_bracket: (
                 partitionby_clause:
                 - keyword: PARTITION
@@ -504,14 +507,15 @@ file:
         - comma: ','
         - select_clause_element:
             function:
-            - function_name:
+              function_name:
                 keyword: NTILE
-            - bracketed:
-                start_bracket: (
-                numeric_literal: '5'
-                end_bracket: )
-            - keyword: OVER
-            - bracketed:
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '5'
+                  end_bracket: )
+              keyword: OVER
+              bracketed:
                 start_bracket: (
                 partitionby_clause:
                 - keyword: PARTITION
@@ -533,14 +537,15 @@ file:
             function:
               function_name:
                 function_name_identifier: sum
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                  - naked_identifier: t
-                  - dot: .
-                  - naked_identifier: col1
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: t
+                    - dot: .
+                    - naked_identifier: col1
+                  end_bracket: )
               over_clause:
                 keyword: over
                 bracketed:
@@ -562,13 +567,14 @@ file:
         - comma: ','
         - select_clause_element:
             function:
-            - function_name:
+              function_name:
                 keyword: ROW_NUMBER
-            - bracketed:
-                start_bracket: (
-                end_bracket: )
-            - keyword: OVER
-            - bracketed:
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+              keyword: OVER
+              bracketed:
                 start_bracket: (
                 partitionby_clause:
                 - keyword: PARTITION
@@ -620,13 +626,14 @@ file:
         - comma: ','
         - select_clause_element:
             function:
-            - function_name:
+              function_name:
                 keyword: ROW_NUMBER
-            - bracketed:
-                start_bracket: (
-                end_bracket: )
-            - keyword: OVER
-            - bracketed:
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+              keyword: OVER
+              bracketed:
                 start_bracket: (
                 partitionby_clause:
                 - keyword: PARTITION
@@ -635,16 +642,17 @@ file:
                     function:
                       function_name:
                         keyword: COALESCE
-                      bracketed:
-                      - start_bracket: (
-                      - expression:
-                          column_reference:
-                            naked_identifier: NPI1
-                      - comma: ','
-                      - expression:
-                          column_reference:
-                            naked_identifier: NPI2
-                      - end_bracket: )
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                              naked_identifier: NPI1
+                        - comma: ','
+                        - expression:
+                            column_reference:
+                              naked_identifier: NPI2
+                        - end_bracket: )
                 orderby_clause:
                 - keyword: ORDER
                 - keyword: BY
@@ -652,16 +660,17 @@ file:
                     function:
                       function_name:
                         keyword: COALESCE
-                      bracketed:
-                      - start_bracket: (
-                      - expression:
-                          column_reference:
-                            naked_identifier: SystemEffectiveDTS1
-                      - comma: ','
-                      - expression:
-                          column_reference:
-                            naked_identifier: SystemEffectiveDTS2
-                      - end_bracket: )
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                              naked_identifier: SystemEffectiveDTS1
+                        - comma: ','
+                        - expression:
+                            column_reference:
+                              naked_identifier: SystemEffectiveDTS2
+                        - end_bracket: )
                 - keyword: DESC
                 end_bracket: )
             alias_expression:
@@ -670,13 +679,14 @@ file:
         - comma: ','
         - select_clause_element:
             function:
-            - function_name:
+              function_name:
                 keyword: ROW_NUMBER
-            - bracketed:
-                start_bracket: (
-                end_bracket: )
-            - keyword: OVER
-            - bracketed:
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+              keyword: OVER
+              bracketed:
                 start_bracket: (
                 partitionby_clause:
                 - keyword: PARTITION
@@ -704,10 +714,11 @@ file:
             function:
               function_name:
                 function_name_identifier: COUNT
-              bracketed:
-                start_bracket: (
-                star: '*'
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  star: '*'
+                  end_bracket: )
               over_clause:
                 keyword: OVER
                 bracketed:
@@ -727,10 +738,11 @@ file:
             function:
               function_name:
                 function_name_identifier: count
-              bracketed:
-                start_bracket: (
-                star: '*'
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  star: '*'
+                  end_bracket: )
               over_clause:
                 keyword: over
                 bracketed:
@@ -758,10 +770,11 @@ file:
             function:
               function_name:
                 function_name_identifier: count
-              bracketed:
-                start_bracket: (
-                star: '*'
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  star: '*'
+                  end_bracket: )
               over_clause:
                 keyword: over
                 bracketed:
@@ -789,10 +802,11 @@ file:
             function:
               function_name:
                 function_name_identifier: count
-              bracketed:
-                start_bracket: (
-                star: '*'
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  star: '*'
+                  end_bracket: )
               over_clause:
                 keyword: over
                 bracketed:
@@ -831,35 +845,37 @@ file:
             function:
               function_name:
                 keyword: cast
-              bracketed:
-                start_bracket: (
-                expression:
-                  numeric_literal: '1'
-                keyword: as
-                data_type:
-                  data_type_identifier: character
-                  keyword: varying
-                  bracketed_arguments:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        numeric_literal: '1'
-                      end_bracket: )
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '1'
+                  keyword: as
+                  data_type:
+                    data_type_identifier: character
+                    keyword: varying
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          numeric_literal: '1'
+                        end_bracket: )
+                  end_bracket: )
         - comma: ','
         - select_clause_element:
             function:
               function_name:
                 keyword: cast
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    quoted_identifier: '[central]'
-                keyword: as
-                data_type:
-                  data_type_identifier: int
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      quoted_identifier: '[central]'
+                  keyword: as
+                  data_type:
+                    data_type_identifier: int
+                  end_bracket: )
         - comma: ','
         - select_clause_element:
             bare_function: CURRENT_TIMESTAMP
@@ -916,10 +932,11 @@ file:
             function:
               function_name:
                 function_name_identifier: Count
-              bracketed:
-                start_bracket: (
-                star: '*'
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  star: '*'
+                  end_bracket: )
             alias_expression:
               keyword: as
               naked_identifier: Anzahl

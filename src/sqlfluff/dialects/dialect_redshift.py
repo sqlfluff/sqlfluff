@@ -19,7 +19,6 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     OptionallyBracketed,
-    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
@@ -2500,17 +2499,7 @@ class FunctionSegment(ansi.FunctionSegment):
             # rather than identifiers.
             Sequence(
                 Ref("DatePartFunctionNameSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("DatetimeUnitSegment"),
-                        Ref(
-                            "FunctionContentsGrammar",
-                            # The brackets might be empty for some functions...
-                            optional=True,
-                        ),
-                    ),
-                    parse_mode=ParseMode.GREEDY,
-                ),
+                Ref("DateTimeFunctionContentsSegment"),
             ),
         ),
         Sequence(
@@ -2536,24 +2525,27 @@ class FunctionSegment(ansi.FunctionSegment):
                         ),
                     ),
                 ),
-                Bracketed(
-                    Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                    ),
-                    parse_mode=ParseMode.GREEDY,
-                ),
+                Ref("FunctionContentsSegment"),
             ),
             Ref("PostFunctionGrammar", optional=True),
         ),
         Sequence(
             Ref("ConvertFunctionNameSegment"),
-            Bracketed(
-                Ref("DatatypeSegment"),
-                Ref("CommaSegment"),
-                Ref("ExpressionSegment"),
-            ),
+            Ref("ConvertFunctionContentsSegment"),
+        ),
+    )
+
+
+class ConvertFunctionContentsSegment(BaseSegment):
+    """Convert Function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref("DatatypeSegment"),
+            Ref("CommaSegment"),
+            Ref("ExpressionSegment"),
         ),
     )
 

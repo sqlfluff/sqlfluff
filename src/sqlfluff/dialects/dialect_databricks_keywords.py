@@ -24,8 +24,21 @@ RESERVED_KEYWORDS = [
 
 UNRESERVED_KEYWORDS = [
     "CATALOG",
+    "COMPENSATION",
+    "CRON",
+    "ENFORCED",
+    "EVOLUTION",
+    "FEATURE",
+    "MASK",
+    "NORELY",
+    "OPTIMIZATION",
     "OPTIMIZE",
-    "ZORDER",
+    "PREDICTIVE",
     "PYTHON",
+    "RELY",
+    "SCHEDULE",
     "SQL",
+    "TAGS",
+    "TIMESERIES",
+    "ZORDER",
 ]

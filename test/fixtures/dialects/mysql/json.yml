@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aaeefa5bec93b6c2a4cbd0bf9e96bdae0c96464e96a5fbd0071299cffc6cc1d3
+_hash: cadae1c616686a0f4f018b1b299e471a96997250ca16d251d36958171baf25eb
 file:
 - statement:
     create_table_statement:
@@ -33,14 +33,15 @@ file:
             function:
               function_name:
                 function_name_identifier: JSON_OBJECT
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  quoted_literal: '"mascot"'
-              - comma: ','
-              - expression:
-                  quoted_literal: '"Our mascot is a dolphin named \"Sakila\"."'
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: '"mascot"'
+                - comma: ','
+                - expression:
+                    quoted_literal: '"Our mascot is a dolphin named \"Sakila\"."'
+                - end_bracket: )
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -131,14 +132,15 @@ file:
           function:
             function_name:
               function_name_identifier: JSON_TYPE
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: sentence
-                  column_path_operator: ->
-                  json_path: '"$.mascot"'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: sentence
+                    column_path_operator: ->
+                    json_path: '"$.mascot"'
+                end_bracket: )
           comparison_operator:
             raw_comparison_operator: '='
           quoted_literal: '"NULL"'

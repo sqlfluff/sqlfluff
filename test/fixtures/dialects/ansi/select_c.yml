@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b60f1ebfcd8254f2a20c4714da4d12aa00ba2d83045dc50cb84ff86645e41b68
+_hash: 967bf2de259367305d5ba63678c6dbc6d2e3b43a08e9f40f5b0b73dd60c314c0
 file:
   statement:
     select_statement:
@@ -39,12 +39,13 @@ file:
         - function:
             function_name:
               function_name_identifier: DATE
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: date_col_b
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: date_col_b
+                end_bracket: )
         - comparison_operator:
           - raw_comparison_operator: '>'
           - raw_comparison_operator: '='
@@ -53,12 +54,13 @@ file:
         - function:
             function_name:
               function_name_identifier: length
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: col_a
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col_a
+                end_bracket: )
         - comparison_operator:
             raw_comparison_operator: '='
         - numeric_literal: '4'

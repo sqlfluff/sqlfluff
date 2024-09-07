@@ -221,6 +221,7 @@ jobs:
         name: coverage-data-winpy3.12
         path: ".coverage.*"
         if-no-files-found: ignore
+        include-hidden-files: true
 
   python-windows-dbt-tests:
     runs-on: windows-latest

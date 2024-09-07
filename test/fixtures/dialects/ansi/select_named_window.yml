@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b48d50f7b6fc41c925c24c63cee0e745a1543b6431fd0de796ca38e1ced325f1
+_hash: 1927f81fb17b972b82b8383bc371b34a6c15fb5549bc25d21ec47d4f38934b9f
 file:
   statement:
     select_statement:
@@ -13,12 +13,13 @@ file:
           function:
             function_name:
               function_name_identifier: AVG
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: col
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:

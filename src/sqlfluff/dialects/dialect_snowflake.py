@@ -572,6 +572,15 @@ snowflake_dialect.add(
             type="exception_code",
         ),
     ),
+    # https://docs.snowflake.com/en/sql-reference/sql/create-table-constraint
+    InlineConstraintGrammar=AnySetOf(
+        Sequence(Ref.keyword("NOT", optional=True), "ENFORCED"),
+        Sequence(Ref.keyword("NOT", optional=True), "DEFERRABLE"),
+        Sequence("INITIALLY", OneOf("DEFERRED", "IMMEDIATE")),
+        OneOf("ENABLE", "DISABLE"),
+        OneOf("VALIDATE", "NOVALIDATE"),
+        OneOf("RELY", "NORELY"),
+    ),
 )
 
 snowflake_dialect.replace(
@@ -601,6 +610,7 @@ snowflake_dialect.replace(
         Ref("DatetimeUnitSegment"),
         Ref("NamedParameterExpressionSegment"),
         Ref("ReferencedVariableNameSegment"),
+        Ref("LambdaExpressionSegment"),
         Sequence(
             Ref("ExpressionSegment"),
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
@@ -741,6 +751,17 @@ snowflake_dialect.replace(
         Ref("UnconditionalCrossJoinKeywordsGrammar"),
         Ref("HorizontalJoinKeywordsGrammar"),
         Ref("NonStandardJoinTypeKeywordsGrammar"),
+    ),
+    FunctionParameterGrammar=Sequence(
+        OneOf(
+            Ref("DatatypeSegment"),
+            Sequence(Ref("ParameterNameSegment"), Ref("DatatypeSegment")),
+        ),
+        Sequence(
+            "DEFAULT",
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
     ),
 )
 
@@ -1934,7 +1955,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
     If possible, please keep the order below the same as Snowflake's doc:
     """
 
-    match_grammar = Sequence(
+    match_grammar: Matchable = Sequence(
         "ALTER",
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
@@ -2266,45 +2287,7 @@ class AlterTableConstraintActionSegment(BaseSegment):
         # Add Column
         Sequence(
             "ADD",
-            Sequence(
-                "CONSTRAINT",
-                OneOf(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("QuotedIdentifierSegment"),
-                ),
-                optional=True,
-            ),
-            OneOf(
-                Sequence(
-                    Ref("PrimaryKeyGrammar"),
-                    Bracketed(
-                        Delimited(
-                            Ref("ColumnReferenceSegment"),
-                        ),
-                    ),
-                ),
-                Sequence(
-                    Sequence(
-                        Ref("ForeignKeyGrammar"),
-                        Bracketed(
-                            Delimited(
-                                Ref("ColumnReferenceSegment"),
-                            )
-                        ),
-                    ),
-                    "REFERENCES",
-                    Ref("TableReferenceSegment"),
-                    Bracketed(
-                        Delimited(
-                            Ref("ColumnReferenceSegment"),
-                        ),
-                        optional=True,
-                    ),
-                ),
-                Sequence(
-                    "UNIQUE", Bracketed(Ref("ColumnReferenceSegment"), optional=True)
-                ),
-            ),
+            Ref("ConstraintPropertiesSegment"),
         ),
         Sequence(
             "DROP",
@@ -2312,7 +2295,7 @@ class AlterTableConstraintActionSegment(BaseSegment):
             OneOf(
                 Ref("PrimaryKeyGrammar"),
                 Ref("ForeignKeyGrammar"),
-                "UNIQUE",
+                Ref("UniqueKeyGrammar"),
             ),
             Delimited(Ref("ColumnReferenceSegment")),
         ),
@@ -3907,29 +3890,46 @@ class ConstraintPropertiesSegment(BaseSegment):
 
     type = "constraint_properties_segment"
     match_grammar = Sequence(
-        Sequence("CONSTRAINT", Ref("QuotedLiteralSegment"), optional=True),
+        Sequence(
+            "CONSTRAINT",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
         OneOf(
-            Sequence("UNIQUE", Bracketed(Ref("ColumnReferenceSegment"), optional=True)),
             Sequence(
-                Ref("PrimaryKeyGrammar"),
-                Bracketed(Ref("ColumnReferenceSegment"), optional=True),
+                OneOf(
+                    Ref("PrimaryKeyGrammar"),
+                    Ref("UniqueKeyGrammar"),
+                ),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                    # For use in CREATE TABLE as a part of
+                    # ColumnDefinitionSegment.ColumnConstraintSegment
+                    optional=True,
+                ),
             ),
             Sequence(
                 Sequence(
                     Ref("ForeignKeyGrammar"),
-                    Bracketed(Ref("ColumnReferenceSegment"), optional=True),
-                    optional=True,
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment"),
+                        )
+                    ),
                 ),
                 "REFERENCES",
                 Ref("TableReferenceSegment"),
-                Bracketed(Ref("ColumnReferenceSegment")),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                    optional=True,
+                ),
             ),
         ),
-        AnySetOf(
-            OneOf(Sequence("NOT", optional=True), "ENFORCED"),
-            OneOf(Sequence("NOT", optional=True), "DEFERRABLE"),
-            OneOf("INITIALLY", OneOf("DEFERRED", "IMMEDIATE")),
-        ),
+        Ref("InlineConstraintGrammar", optional=True),
     )
 
 
@@ -3939,7 +3939,7 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
     https://docs.snowflake.com/en/sql-reference/sql/create-table.html
     """
 
-    match_grammar = AnySetOf(
+    match_grammar: Matchable = AnySetOf(
         Sequence("COLLATE", Ref("CollationReferenceSegment")),
         Sequence(
             "DEFAULT",
@@ -4021,6 +4021,25 @@ class CopyOptionsSegment(BaseSegment):
                 "MATCH_BY_COLUMN_NAME",
                 Ref("EqualsSegment"),
                 OneOf("CASE_SENSITIVE", "CASE_INSENSITIVE", "NONE"),
+            ),
+            Sequence(
+                "INCLUDE_METADATA",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("SingleIdentifierGrammar"),
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                "METADATA$FILENAME",
+                                "METADATA$FILE_ROW_NUMBER",
+                                "METADATA$FILE_CONTENT_KEY",
+                                "METADATA$FILE_LAST_MODIFIED",
+                                "METADATA$START_SCAN_TIME",
+                            ),
+                        ),
+                    )
+                ),
             ),
             Sequence(
                 "ENFORCE_LENGTH", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
@@ -4332,7 +4351,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Sequence(
             "TARGET_LAG",
             Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
+            OneOf(Ref("QuotedLiteralSegment"), "DOWNSTREAM"),
             optional=True,
         ),
         Sequence(
@@ -4360,7 +4379,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                     Delimited(
                         Sequence(
                             OneOf(
-                                Ref("TableConstraintSegment"),
+                                Ref("ConstraintPropertiesSegment"),
                                 Ref("ColumnDefinitionSegment"),
                                 Ref("SingleIdentifierGrammar"),
                             ),
@@ -4791,7 +4810,7 @@ class CreateStatementSegment(BaseSegment):
         OneOf(
             Ref("SelectStatementSegment"),
             Sequence(
-                Bracketed(Ref("FunctionContentsGrammar"), optional=True),
+                Ref("FunctionContentsSegment"),
                 "RETURNS",
                 Ref("DatatypeSegment"),
                 Ref("FunctionAssignerSegment"),
@@ -5281,6 +5300,7 @@ class CsvFileFormatTypeParameters(BaseSegment):
                 "EMPTY_FIELD_AS_NULL",
                 "SKIP_BYTE_ORDER_MARK",
                 "TRIM_SPACE",
+                "PARSE_HEADER",
             ),
             Ref("EqualsSegment"),
             Ref("BooleanLiteralGrammar"),
@@ -5752,7 +5772,7 @@ class CreateExternalTableSegment(BaseSegment):
                     OptionallyBracketed(
                         Sequence(
                             Ref("ExpressionSegment"),
-                            Ref("TableConstraintSegment", optional=True),
+                            Ref("ConstraintPropertiesSegment", optional=True),
                             Sequence(
                                 Ref.keyword("NOT", optional=True), "NULL", optional=True
                             ),
@@ -7775,14 +7795,7 @@ class CallStatementSegment(BaseSegment):
         "CALL",
         Sequence(
             Ref("FunctionNameSegment"),
-            Bracketed(
-                Ref(
-                    "FunctionContentsGrammar",
-                    # The brackets might be empty for some functions...
-                    optional=True,
-                ),
-                parse_mode=ParseMode.GREEDY,
-            ),
+            Ref("FunctionContentsSegment"),
         ),
     )
 
@@ -8370,4 +8383,31 @@ class ScriptingDeclareStatementSegment(BaseSegment):
         ),
         Dedent,
         Ref("ScriptingBlockStatementSegment"),
+    )
+
+
+class LambdaExpressionSegment(BaseSegment):
+    """A lambda expression.
+
+    https://docs.snowflake.com/en/user-guide/querying-semistructured#lambda-expressions
+    """
+
+    type = "lambda_expression"
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                Ref("DatatypeSegment", optional=True),
+            ),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("NakedIdentifierSegment"),
+                        Ref("DatatypeSegment"),
+                    )
+                )
+            ),
+        ),
+        Ref("FunctionAssignerSegment"),
+        Ref("ExpressionSegment"),
     )

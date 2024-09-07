@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0507cd82ae7db822f01c3ec05deb2b5d520536dafbb684b3a5614b70ca879178
+_hash: 49db7096cae5ecced83ec7b928319b55c330fe96c8b6b33922a409fcc9a0fd26
 file:
 - statement:
     select_statement:
@@ -26,12 +26,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: SUM
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: age
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: age
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: a
@@ -69,12 +70,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: SUM
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: age
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: age
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: a
@@ -118,12 +120,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: SUM
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: age
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: age
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: a
@@ -170,12 +173,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: SUM
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: age
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: age
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: a
@@ -223,12 +227,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: SUM
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: age
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: age
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: a
@@ -236,12 +241,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: AVG
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: class
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: class
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: c
@@ -289,12 +295,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: SUM
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: age
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: age
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: a
@@ -302,12 +309,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: AVG
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: class
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: class
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: c
@@ -355,12 +363,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: SUM
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: age
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: age
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: a
@@ -368,12 +377,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: AVG
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: class
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: class
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: c
@@ -442,12 +452,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: SUM
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: age
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: age
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: a
@@ -455,12 +466,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: AVG
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: class
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: class
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: c
@@ -522,12 +534,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: SUM
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: age
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: age
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: a
@@ -535,12 +548,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: AVG
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: class
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: class
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: c
@@ -600,12 +614,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: min
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: timestamp_ns
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: timestamp_ns
+                      end_bracket: )
                 binary_operator: /
                 numeric_literal: 1e9
             - alias_expression:
@@ -679,12 +694,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: sum
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: sales
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: sales
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: total
@@ -692,12 +708,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: avg
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: sales
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: sales
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: avg
@@ -738,12 +755,13 @@ file:
             - function:
                 function_name:
                   function_name_identifier: sum
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: q1_avg
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: q1_avg
+                    end_bracket: )
             - alias_expression:
                 keyword: AS
                 naked_identifier: total

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8c94c3332600a0ceeb0466193b68aa5edca05af8384194dde34ff56b5eb84876
+_hash: b468a5df8e2183732f9d06eb0340a76009d6e2f04c04e14506a83c4d43740c88
 file:
 - statement:
     call_statement:
@@ -11,9 +11,10 @@ file:
       function:
         function_name:
           function_name_identifier: test_proc
-        bracketed:
-          start_bracket: (
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     call_statement:
@@ -21,16 +22,18 @@ file:
       function:
         function_name:
           function_name_identifier: test_proc
-        bracketed:
-          start_bracket: (
-          expression:
-            function:
-              function_name:
-                function_name_identifier: pg_last_query_id
-              bracketed:
-                start_bracket: (
-                end_bracket: )
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: pg_last_query_id
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     call_statement:
@@ -38,11 +41,12 @@ file:
       function:
         function_name:
           function_name_identifier: outer_proc
-        bracketed:
-          start_bracket: (
-          expression:
-            numeric_literal: '5'
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              numeric_literal: '5'
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     call_statement:
@@ -50,14 +54,15 @@ file:
       function:
         function_name:
           function_name_identifier: test_sp1
-        bracketed:
-        - start_bracket: (
-        - expression:
-            numeric_literal: '3'
-        - comma: ','
-        - expression:
-            quoted_literal: "'book'"
-        - end_bracket: )
+        function_contents:
+          bracketed:
+          - start_bracket: (
+          - expression:
+              numeric_literal: '3'
+          - comma: ','
+          - expression:
+              quoted_literal: "'book'"
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     call_statement:
@@ -65,12 +70,13 @@ file:
       function:
         function_name:
           function_name_identifier: test_sp2
-        bracketed:
-        - start_bracket: (
-        - expression:
-            numeric_literal: '2'
-        - comma: ','
-        - expression:
-            quoted_literal: "'2019'"
-        - end_bracket: )
+        function_contents:
+          bracketed:
+          - start_bracket: (
+          - expression:
+              numeric_literal: '2'
+          - comma: ','
+          - expression:
+              quoted_literal: "'2019'"
+          - end_bracket: )
 - statement_terminator: ;

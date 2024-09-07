@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e7310eb2ae713759603a76befa050792c9ab14f15f5cf3b90c8e0872a1ab4190
+_hash: 3eb4827cdde67d7996e66af7097d63ce9923143b37ec4cc01c5df6c1bdf26097
 file:
   statement:
     select_statement:
@@ -44,12 +44,13 @@ file:
             function:
               function_name:
                 function_name_identifier: PARSE_JSON
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    column_index_identifier_segment: $1
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      column_index_identifier_segment: $1
+                  end_bracket: )
             semi_structured_expression:
               colon: ':'
               semi_structured_element: FILE_CONTENT_KEY
@@ -60,26 +61,28 @@ file:
           function:
             function_name:
               function_name_identifier: DATEADD
-            bracketed:
-            - start_bracket: (
-            - date_part: MS
-            - comma: ','
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: PARSE_JSON
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        column_index_identifier_segment: $1
-                    end_bracket: )
-                semi_structured_expression:
-                  colon: ':'
-                  semi_structured_element: EVENT_TIME
-            - expression:
-                quoted_literal: "'1970-01-01'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: MS
+              - comma: ','
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: PARSE_JSON
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            column_index_identifier_segment: $1
+                        end_bracket: )
+                  semi_structured_expression:
+                    colon: ':'
+                    semi_structured_element: EVENT_TIME
+              - expression:
+                  quoted_literal: "'1970-01-01'"
+              - end_bracket: )
           alias_expression:
             naked_identifier: EVENT_TIME
       - comma: ','
@@ -88,12 +91,13 @@ file:
             function:
               function_name:
                 function_name_identifier: parse_json
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    column_index_identifier_segment: $1
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      column_index_identifier_segment: $1
+                  end_bracket: )
             semi_structured_expression:
               colon: ':'
               semi_structured_element: METADATA$FILENAME
@@ -104,27 +108,29 @@ file:
           function:
             function_name:
               function_name_identifier: DATEADD
-            bracketed:
-            - start_bracket: (
-            - date_part: MS
-            - comma: ','
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: PARSE_JSON
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        column_index_identifier_segment: $1
-                    end_bracket: )
-                semi_structured_expression:
-                  colon: ':'
-                  semi_structured_element: METADATA$INSERTION_TIME
-            - comma: ','
-            - expression:
-                quoted_literal: "'1970-01-01'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: MS
+              - comma: ','
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: PARSE_JSON
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            column_index_identifier_segment: $1
+                        end_bracket: )
+                  semi_structured_expression:
+                    colon: ':'
+                    semi_structured_element: METADATA$INSERTION_TIME
+              - comma: ','
+              - expression:
+                  quoted_literal: "'1970-01-01'"
+              - end_bracket: )
           alias_expression:
             naked_identifier: METADATA$INSERTION_TIME
       - comma: ','
@@ -132,27 +138,29 @@ file:
           function:
             function_name:
               function_name_identifier: DATEADD
-            bracketed:
-            - start_bracket: (
-            - date_part: MS
-            - comma: ','
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: PARSE_JSON
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        column_index_identifier_segment: $1
-                    end_bracket: )
-                semi_structured_expression:
-                  colon: ':'
-                  semi_structured_element: METADATA$LAST_EVENT_INSERTION_TIME
-            - comma: ','
-            - expression:
-                quoted_literal: "'1970-01-01'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: MS
+              - comma: ','
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: PARSE_JSON
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            column_index_identifier_segment: $1
+                        end_bracket: )
+                  semi_structured_expression:
+                    colon: ':'
+                    semi_structured_element: METADATA$LAST_EVENT_INSERTION_TIME
+              - comma: ','
+              - expression:
+                  quoted_literal: "'1970-01-01'"
+              - end_bracket: )
           alias_expression:
             naked_identifier: METADATA$LAST_EVENT_INSERTION_TIME
       from_clause:

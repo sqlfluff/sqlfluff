@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cddbda0f232697ca2f96dacabb52c5c538b47bcf5ae570105ae44c682614ed3d
+_hash: e8512fc633852532c1628897f9b0a6562c2cc4951c98213db9c805f2cb4a3190
 file:
   statement:
     select_statement:
@@ -21,26 +21,28 @@ file:
           function:
             function_name:
               function_name_identifier: cast
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: "'1970-01-01'"
-              keyword: as
-              data_type:
-                primitive_type:
-                  keyword: TIMESTAMP_NTZ
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'1970-01-01'"
+                keyword: as
+                data_type:
+                  primitive_type:
+                    keyword: TIMESTAMP_NTZ
+                end_bracket: )
       - comma: ','
       - select_clause_element:
           function:
             function_name:
               function_name_identifier: cast
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: "'1970-01-01'"
-              keyword: as
-              data_type:
-                primitive_type:
-                  keyword: timestamp_ltz
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'1970-01-01'"
+                keyword: as
+                data_type:
+                  primitive_type:
+                    keyword: timestamp_ltz
+                end_bracket: )

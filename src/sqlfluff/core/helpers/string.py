@@ -26,10 +26,22 @@ def findall(substr: str, in_str: str) -> Iterator[int]:
 
 
 def split_colon_separated_string(in_str: str) -> Tuple[Tuple[str, ...], str]:
-    """Converts a colon separated string.
+    r"""Converts a colon separated string.
+
+    The final value in the string is handled separately the other others.
+    >>> split_colon_separated_string("a:b")
+    (('a',), 'b')
+    >>> split_colon_separated_string("a:b:c")
+    (('a', 'b'), 'c')
+    >>> split_colon_separated_string("a:b:c:d")
+    (('a', 'b', 'c'), 'd')
+    >>> split_colon_separated_string("a")
+    ((), 'a')
 
     NOTE: This also includes some provisions for values which may be
     Windows paths containing colons and NOT stripping those.
+    >>> split_colon_separated_string("foo:bar:C:\\Users")
+    (('foo', 'bar'), 'C:\\Users')
     """
     config_path: List[str] = []
     for element in in_str.split(":"):

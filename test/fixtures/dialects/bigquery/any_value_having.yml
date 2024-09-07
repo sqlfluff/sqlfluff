@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fa831896a2007e5458f7164a539356855167ec1b4947f32c8a281bb9290c3dc7
+_hash: 21686436bceacd29961b455eee2853198777ffa2bcd66ae140684fe538f2f7f6
 file:
   statement:
     select_statement:
@@ -13,17 +13,18 @@ file:
           function:
             function_name:
               function_name_identifier: ANY_VALUE
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: foo
-            - keyword: HAVING
-            - keyword: MIN
-            - expression:
-                column_reference:
-                  naked_identifier: bar
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: foo
+              - keyword: HAVING
+              - keyword: MIN
+              - expression:
+                  column_reference:
+                    naked_identifier: bar
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: any_value_having_min
@@ -32,17 +33,18 @@ file:
           function:
             function_name:
               function_name_identifier: ANY_VALUE
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: foo
-            - keyword: HAVING
-            - keyword: MAX
-            - expression:
-                column_reference:
-                  naked_identifier: bar
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: foo
+              - keyword: HAVING
+              - keyword: MAX
+              - expression:
+                  column_reference:
+                    naked_identifier: bar
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: any_value_having_max

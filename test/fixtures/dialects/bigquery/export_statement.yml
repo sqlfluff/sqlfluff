@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7d10b2ff48fefa01c60d89e3bb631de6f679dfe38608a25a5e339c6d7435ef1f
+_hash: 699f6373de0abca08b695879af84b448a5831452a10d726df38375d05ea5f74b
 file:
 - statement:
     export_statement:
@@ -453,14 +453,15 @@ file:
       - function:
           function_name:
             function_name_identifier: CONCAT
-          bracketed:
-          - start_bracket: (
-          - expression:
-              quoted_literal: '"gs://bucket/"'
-          - comma: ','
-          - expression:
-              quoted_literal: '"/file_*.csv"'
-          - end_bracket: )
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                quoted_literal: '"gs://bucket/"'
+            - comma: ','
+            - expression:
+                quoted_literal: '"/file_*.csv"'
+            - end_bracket: )
       - comma: ','
       - export_option: format
       - comparison_operator:

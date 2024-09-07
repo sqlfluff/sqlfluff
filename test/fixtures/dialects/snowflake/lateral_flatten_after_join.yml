@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2afc5679e2f6222a23b44a89c5bbce53d71f5869fd4b0e4f4eb791dc3bcdbd61
+_hash: 41bbbb2d28bca8d71093e00298bb62106b6db84b2dca7a5f8d5cc7e0535de692
 file:
   statement:
     select_statement:
@@ -24,43 +24,45 @@ file:
           function:
             function_name:
               function_name_identifier: iff
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: rank
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
-                  over_clause:
-                    keyword: over
-                    bracketed:
-                      start_bracket: (
-                      window_specification:
-                        partitionby_clause:
-                        - keyword: partition
-                        - keyword: by
-                        - expression:
-                            column_reference:
-                              naked_identifier: id
-                        orderby_clause:
-                        - keyword: order
-                        - keyword: by
-                        - column_reference:
-                            naked_identifier: t_id
-                        - keyword: desc
-                      end_bracket: )
-                comparison_operator:
-                  raw_comparison_operator: '='
-                numeric_literal: '1'
-            - comma: ','
-            - expression:
-                boolean_literal: 'true'
-            - comma: ','
-            - expression:
-                boolean_literal: 'false'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: rank
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+                    over_clause:
+                      keyword: over
+                      bracketed:
+                        start_bracket: (
+                        window_specification:
+                          partitionby_clause:
+                          - keyword: partition
+                          - keyword: by
+                          - expression:
+                              column_reference:
+                                naked_identifier: id
+                          orderby_clause:
+                          - keyword: order
+                          - keyword: by
+                          - column_reference:
+                              naked_identifier: t_id
+                          - keyword: desc
+                        end_bracket: )
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  boolean_literal: 'true'
+              - comma: ','
+              - expression:
+                  boolean_literal: 'false'
+              - end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: most_recent
@@ -102,13 +104,14 @@ file:
               function:
                 function_name:
                   function_name_identifier: flatten
-                bracketed:
-                  start_bracket: (
-                  snowflake_keyword_expression:
-                    parameter: input
-                    parameter_assigner: =>
-                    column_reference:
-                    - naked_identifier: b
-                    - dot: .
-                    - naked_identifier: cool_ids
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    snowflake_keyword_expression:
+                      parameter: input
+                      parameter_assigner: =>
+                      column_reference:
+                      - naked_identifier: b
+                      - dot: .
+                      - naked_identifier: cool_ids
+                    end_bracket: )

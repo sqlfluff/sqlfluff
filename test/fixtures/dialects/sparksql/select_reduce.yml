@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 93aace8b77b3e70fda02a7619b32803f9cceb0bf0e23e8af8a0c47f645eb15e8
+_hash: 8c4f4de44b0cfe1876e327b7c93c0af53a5513134de2b1a55788dfa827af7bfa
 file:
 - statement:
     select_statement:
@@ -13,43 +13,45 @@ file:
           function:
             function_name:
               function_name_identifier: reduce
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: array
-                  bracketed:
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: array
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          numeric_literal: '1'
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '2'
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '3'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - comma: ','
+              - expression:
+                - bracketed:
                   - start_bracket: (
-                  - expression:
-                      numeric_literal: '1'
+                  - column_reference:
+                      naked_identifier: acc
                   - comma: ','
-                  - expression:
-                      numeric_literal: '2'
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '3'
+                  - column_reference:
+                      naked_identifier: x
                   - end_bracket: )
-            - comma: ','
-            - expression:
-                numeric_literal: '0'
-            - comma: ','
-            - expression:
-              - bracketed:
-                - start_bracket: (
+                - binary_operator: ->
                 - column_reference:
                     naked_identifier: acc
-                - comma: ','
+                - binary_operator: +
                 - column_reference:
                     naked_identifier: x
-                - end_bracket: )
-              - binary_operator: ->
-              - column_reference:
-                  naked_identifier: acc
-              - binary_operator: +
-              - column_reference:
-                  naked_identifier: x
-            - end_bracket: )
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -59,52 +61,54 @@ file:
           function:
             function_name:
               function_name_identifier: reduce
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: array
-                  bracketed:
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: array
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          numeric_literal: '1'
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '2'
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '3'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - comma: ','
+              - expression:
+                - bracketed:
                   - start_bracket: (
-                  - expression:
-                      numeric_literal: '1'
+                  - column_reference:
+                      naked_identifier: acc
                   - comma: ','
-                  - expression:
-                      numeric_literal: '2'
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '3'
+                  - column_reference:
+                      naked_identifier: x
                   - end_bracket: )
-            - comma: ','
-            - expression:
-                numeric_literal: '0'
-            - comma: ','
-            - expression:
-              - bracketed:
-                - start_bracket: (
+                - binary_operator: ->
                 - column_reference:
                     naked_identifier: acc
-                - comma: ','
+                - binary_operator: +
                 - column_reference:
                     naked_identifier: x
-                - end_bracket: )
-              - binary_operator: ->
-              - column_reference:
-                  naked_identifier: acc
-              - binary_operator: +
-              - column_reference:
-                  naked_identifier: x
-            - comma: ','
-            - expression:
-              - column_reference:
-                  naked_identifier: acc
-              - binary_operator: ->
-              - column_reference:
-                  naked_identifier: acc
-              - binary_operator: '*'
-              - numeric_literal: '10'
-            - end_bracket: )
+              - comma: ','
+              - expression:
+                - column_reference:
+                    naked_identifier: acc
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: acc
+                - binary_operator: '*'
+                - numeric_literal: '10'
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -114,99 +118,103 @@ file:
           function:
             function_name:
               function_name_identifier: reduce
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: array
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: array
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          numeric_literal: '1'
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '2'
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '3'
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '4'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: named_struct
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          quoted_literal: "'sum'"
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '0'
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "'cnt'"
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '0'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
                   bracketed:
                   - start_bracket: (
-                  - expression:
-                      numeric_literal: '1'
+                  - column_reference:
+                      naked_identifier: acc
                   - comma: ','
-                  - expression:
-                      numeric_literal: '2'
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '3'
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '4'
+                  - column_reference:
+                      naked_identifier: x
                   - end_bracket: )
-            - comma: ','
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: named_struct
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      quoted_literal: "'sum'"
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '0'
-                  - comma: ','
-                  - expression:
-                      quoted_literal: "'cnt'"
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '0'
-                  - end_bracket: )
-            - comma: ','
-            - expression:
-                bracketed:
-                - start_bracket: (
+                  binary_operator: ->
+                  function:
+                    function_name:
+                      function_name_identifier: named_struct
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          quoted_literal: "'sum'"
+                      - comma: ','
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: acc
+                          - dot: .
+                          - naked_identifier: sum
+                        - binary_operator: +
+                        - column_reference:
+                            naked_identifier: x
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "'cnt'"
+                      - comma: ','
+                      - expression:
+                          column_reference:
+                          - naked_identifier: acc
+                          - dot: .
+                          - naked_identifier: cnt
+                          binary_operator: +
+                          numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
                 - column_reference:
                     naked_identifier: acc
-                - comma: ','
+                - binary_operator: ->
                 - column_reference:
-                    naked_identifier: x
-                - end_bracket: )
-                binary_operator: ->
-                function:
-                  function_name:
-                    function_name_identifier: named_struct
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      quoted_literal: "'sum'"
-                  - comma: ','
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: acc
-                      - dot: .
-                      - naked_identifier: sum
-                    - binary_operator: +
-                    - column_reference:
-                        naked_identifier: x
-                  - comma: ','
-                  - expression:
-                      quoted_literal: "'cnt'"
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                      - naked_identifier: acc
-                      - dot: .
-                      - naked_identifier: cnt
-                      binary_operator: +
-                      numeric_literal: '1'
-                  - end_bracket: )
-            - comma: ','
-            - expression:
-              - column_reference:
-                  naked_identifier: acc
-              - binary_operator: ->
-              - column_reference:
-                - naked_identifier: acc
-                - dot: .
-                - naked_identifier: sum
-              - binary_operator: /
-              - column_reference:
-                - naked_identifier: acc
-                - dot: .
-                - naked_identifier: cnt
-            - end_bracket: )
+                  - naked_identifier: acc
+                  - dot: .
+                  - naked_identifier: sum
+                - binary_operator: /
+                - column_reference:
+                  - naked_identifier: acc
+                  - dot: .
+                  - naked_identifier: cnt
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: avg
