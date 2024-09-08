@@ -135,18 +135,16 @@ class DbtTemplater(JinjaTemplater):
         # First check whether we need to silence the logs. If a formatter
         # is present then assume that it's not a problem
         if not self.formatter:
-            try:
-                if self.dbt_version_tuple >= (1, 8):
-                    from dbt_common.events.event_manager_client import (
-                        cleanup_event_logger,
-                    )
 
-                else:
-                    from dbt.events.functions import cleanup_event_logger
+            if self.dbt_version_tuple >= (1, 8):
+                from dbt_common.events.event_manager_client import (
+                    cleanup_event_logger,
+                )
 
-                cleanup_event_logger()
-            except ImportError:
-                pass
+            else:
+                from dbt.events.functions import cleanup_event_logger
+
+            cleanup_event_logger()
 
     @cached_property
     def dbt_config(self):
@@ -232,20 +230,7 @@ class DbtTemplater(JinjaTemplater):
         # dbt 0.20.* and onward
         from dbt.parser.manifest import ManifestLoader
 
-        old_cwd = os.getcwd()
-        try:
-            # Changing cwd temporarily as dbt is not using project_dir to
-            # read/write `target/partial_parse.msgpack`. This can be undone when
-            # https://github.com/dbt-labs/dbt-core/issues/6055 is solved.
-            # For dbt 1.4+ this isn't necessary, but it is required for 1.3
-            # and before.
-            if self.dbt_version_tuple < (1, 4):
-                os.chdir(self.project_dir)
-            _dbt_manifest = ManifestLoader.get_full_manifest(self.dbt_config)
-
-        finally:
-            if self.dbt_version_tuple < (1, 4):
-                os.chdir(old_cwd)
+        _dbt_manifest = ManifestLoader.get_full_manifest(self.dbt_config)
 
         return _dbt_manifest
 
@@ -292,13 +277,7 @@ class DbtTemplater(JinjaTemplater):
         # still be available in those versions.
 
         from dbt import flags
-
-        # From dbt 1.3 onwards, the default_profiles_dir resolver is
-        # available. Before that version we use the flags module
-        try:
-            from dbt.cli.resolvers import default_profiles_dir
-        except ImportError:
-            default_profiles_dir = None
+        from dbt.cli.resolvers import default_profiles_dir
 
         default_dir = (
             default_profiles_dir()
@@ -633,16 +612,10 @@ class DbtTemplater(JinjaTemplater):
             and not getattr(v, "compiled", False)
         )
 
-        try:
-            # These are the names in dbt-core 1.4.1+
-            # https://github.com/dbt-labs/dbt-core/pull/6539
-            if self.dbt_version_tuple >= (1, 8):
-                from dbt_common.exceptions import UndefinedMacroError
-            else:
-                from dbt.exceptions import UndefinedMacroError
-        except ImportError:
-            # These are the historic names for older dbt-core versions
-            from dbt.exceptions import UndefinedMacroException as UndefinedMacroError
+        if self.dbt_version_tuple >= (1, 8):
+            from dbt_common.exceptions import UndefinedMacroError
+        else:
+            from dbt.exceptions import UndefinedMacroError
 
         with self.connection():
             # Apply the monkeypatch.
