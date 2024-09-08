@@ -433,6 +433,11 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                         ),
                     )
                 ),
+                Sequence(
+                    Ref.keyword("AS", optional=True),
+                    OptionallyBracketed(Ref("SelectableGrammar")),
+                    optional=True,
+                ),
                 Ref("CommentClauseSegment", optional=True),
             ),
             # Create AS syntax:
