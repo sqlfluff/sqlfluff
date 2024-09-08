@@ -8423,7 +8423,7 @@ class LambdaExpressionSegment(BaseSegment):
     )
 
 
-class PasswordPolicyReferenceSegment(ObjectReferenceSegment):
+class PasswordPolicyReferenceSegment(ansi.ObjectReferenceSegment):
     """Password Policy Reference."""
 
     type = "password_policy_reference"
