@@ -43,7 +43,12 @@ from sqlfluff.dialects.dialect_bigquery_keywords import (
 )
 
 ansi_dialect = load_raw_dialect("ansi")
-bigquery_dialect = ansi_dialect.copy_as("bigquery")
+bigquery_dialect = ansi_dialect.copy_as(
+    "bigquery",
+    formatted_name="Google BigQuery",
+    docstring="""The dialect for `BigQuery <https://cloud.google.com/bigquery/>`_
+on Google Cloud Platform (GCP).""",
+)
 
 bigquery_dialect.insert_lexer_matchers(
     # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html

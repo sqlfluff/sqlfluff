@@ -34,7 +34,11 @@ from sqlfluff.dialects.dialect_databricks_keywords import (
 )
 
 sparksql_dialect = load_raw_dialect("sparksql")
-databricks_dialect = sparksql_dialect.copy_as("databricks")
+databricks_dialect = sparksql_dialect.copy_as(
+    "databricks",
+    formatted_name="Databricks",
+    docstring="The dialect for `Databricks <https://databricks.com/>`_.",
+)
 
 databricks_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 databricks_dialect.sets("unreserved_keywords").update(

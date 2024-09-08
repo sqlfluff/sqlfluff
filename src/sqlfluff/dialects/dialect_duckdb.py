@@ -31,7 +31,11 @@ from sqlfluff.dialects import dialect_postgres as postgres
 
 ansi_dialect = load_raw_dialect("ansi")
 postgres_dialect = load_raw_dialect("postgres")
-duckdb_dialect = postgres_dialect.copy_as("duckdb")
+duckdb_dialect = postgres_dialect.copy_as(
+    "duckdb",
+    formatted_name="DuckDB",
+    docstring="The dialect for `DuckDB <https://duckdb.org/>`_.",
+)
 
 duckdb_dialect.sets("reserved_keywords").update(
     [

@@ -44,7 +44,16 @@ from sqlfluff.dialects.dialect_postgres_keywords import (
 
 ansi_dialect = load_raw_dialect("ansi")
 
-postgres_dialect = ansi_dialect.copy_as("postgres")
+postgres_dialect = ansi_dialect.copy_as(
+    "postgres",
+    formatted_name="PostgreSQL",
+    docstring="""This is based around the `PostgreSQL spec`_. Many other SQL
+dialects are often based on the PostreSQL syntax. If you're running an unsupported
+dialect, then this is often the dialect to use (until someone makes a specific
+dialect).
+
+.. _`PostgreSQL spec`: https://www.postgresql.org/docs/current/reference.html""",
+)
 
 postgres_dialect.insert_lexer_matchers(
     # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html

@@ -40,7 +40,11 @@ from sqlfluff.dialects.dialect_clickhouse_keywords import (
 
 ansi_dialect = load_raw_dialect("ansi")
 
-clickhouse_dialect = ansi_dialect.copy_as("clickhouse")
+clickhouse_dialect = ansi_dialect.copy_as(
+    "clickhouse",
+    formatted_name="ClickHouse",
+    docstring="The dialect for `ClickHouse <https://clickhouse.com/>`_.",
+)
 clickhouse_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
 clickhouse_dialect.insert_lexer_matchers(

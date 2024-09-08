@@ -38,7 +38,13 @@ from sqlfluff.core.parser import (
 from sqlfluff.dialects import dialect_ansi as ansi
 
 ansi_dialect = load_raw_dialect("ansi")
-oracle_dialect = ansi_dialect.copy_as("oracle")
+oracle_dialect = ansi_dialect.copy_as(
+    "oracle",
+    formatted_name="Oracle",
+    docstring="""The dialect for `Oracle`_ SQL. Note: this does not include PL/SQL.
+
+.. _`Oracle`: https://www.oracle.com/database/technologies/appdev/sql.html""",
+)
 
 oracle_dialect.sets("unreserved_keywords").difference_update(["COMMENT"])
 oracle_dialect.sets("reserved_keywords").update(

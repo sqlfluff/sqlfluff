@@ -36,7 +36,12 @@ from sqlfluff.dialects.dialect_athena_keywords import (
 
 ansi_dialect = load_raw_dialect("ansi")
 
-athena_dialect = ansi_dialect.copy_as("athena")
+athena_dialect = ansi_dialect.copy_as(
+    "athena",
+    formatted_name="AWS Athena",
+    docstring="""The dialect for `Athena <https://aws.amazon.com/athena/>`_
+on Amazon Web Services (AWS).""",
+)
 
 athena_dialect.sets("unreserved_keywords").update(athena_unreserved_keywords)
 athena_dialect.sets("reserved_keywords").update(athena_reserved_keywords)

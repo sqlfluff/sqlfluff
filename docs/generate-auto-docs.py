@@ -1,9 +1,24 @@
-"""Generate rule documentation automatically."""
+"""Generate some documentation automatically.
+
+This script generates partial documentation sections (i.e. the content of
+`/docs/source/_partials/`) by importing SQLFluff and extracting data about
+rules and dialects.
+
+It should run before every docs generation so that those partial .rst files
+can then be correctly referenced by other sections of the docs. For example
+this file builds the file `/docs/source/_partials/rule_summaries.rst`, which
+is then inserted into `/docs/source/reference/rules.rst` using the directive
+`.. include:: ../_partials/rule_summaries.rst`.
+
+This script is referenced in the `Makefile` and the `make.bat` file to ensure
+it is run at the appropriate moment.
+"""
 
 import json
 from collections import defaultdict
 from pathlib import Path
 
+import sqlfluff
 from sqlfluff.core.plugin.host import get_plugin_manager
 
 base_path = Path(__file__).parent.absolute()
@@ -110,3 +125,31 @@ with open(base_path / "source/_partials/rule_summaries.rst", "w", encoding="utf8
             f.write("\n\n")
 
 print("Rule Docs Generation: Done")
+
+# Extract all the dialects.
+print("Dialect Docs Generation: Reading Dialects...")
+# We make a dictionary of all of them first, because we want to force the ANSI
+# one to be first.
+dialect_dict = {dialect.label: dialect for dialect in sqlfluff.list_dialects()}
+dialect_list = [dialect_dict["ansi"]] + [
+    dialect for dialect_name, dialect in dialect_dict.items() if dialect_name != "ansi"
+]
+
+# Write each of the summary files.
+print("Dialect Docs Generation: Writing Dialect Summaries...")
+with open(
+    base_path / "source/_partials/dialect_summaries.rst", "w", encoding="utf8"
+) as f:
+    f.write(autogen_header)
+    for dialect in dialect_list:
+        f.write(
+            f".. _{dialect.label}_dialect_ref:\n\n"
+            f"{dialect.name}\n{'-' * len(dialect.name)}\n\n"
+            f"**Label**: ``{dialect.label}``\n\n"
+        )
+        if dialect.label != "ansi":
+            f.write(
+                f"**Inherits from**: :ref:`{dialect.inherits_from}_dialect_ref`\n\n"
+            )
+        if dialect.docstring:
+            f.write(dialect.docstring + "\n\n")

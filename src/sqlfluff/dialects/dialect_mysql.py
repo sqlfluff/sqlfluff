@@ -41,7 +41,11 @@ from sqlfluff.dialects.dialect_mysql_keywords import (
 )
 
 ansi_dialect = load_raw_dialect("ansi")
-mysql_dialect = ansi_dialect.copy_as("mysql")
+mysql_dialect = ansi_dialect.copy_as(
+    "mysql",
+    formatted_name="MySQL",
+    docstring="The dialect for `MySQL <https://www.mysql.com/>`_.",
+)
 
 mysql_dialect.patch_lexer_matchers(
     [

@@ -33,7 +33,11 @@ from sqlfluff.dialects.dialect_trino_keywords import (
 )
 
 ansi_dialect = load_raw_dialect("ansi")
-trino_dialect = ansi_dialect.copy_as("trino")
+trino_dialect = ansi_dialect.copy_as(
+    "trino",
+    formatted_name="Trino",
+    docstring="""The dialect for `Trino <https://trino.io/docs/current/>`_.""",
+)
 
 # Set the bare functions: https://trino.io/docs/current/functions/datetime.html
 trino_dialect.sets("bare_functions").update(

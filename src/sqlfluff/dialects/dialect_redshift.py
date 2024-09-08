@@ -35,7 +35,12 @@ from sqlfluff.dialects.dialect_redshift_keywords import (
 
 postgres_dialect = load_raw_dialect("postgres")
 ansi_dialect = load_raw_dialect("ansi")
-redshift_dialect = postgres_dialect.copy_as("redshift")
+redshift_dialect = postgres_dialect.copy_as(
+    "redshift",
+    formatted_name="AWS Redshift",
+    docstring="""The dialect for `Redshift <https://aws.amazon.com/redshift/>`_
+on Amazon Web Services (AWS).""",
+)
 
 # Set Keywords
 redshift_dialect.sets("unreserved_keywords").clear()

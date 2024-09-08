@@ -26,7 +26,11 @@ from sqlfluff.dialects.dialect_mariadb_keywords import (
 
 # ansi_dialect = load_raw_dialect("ansi")
 mysql_dialect = load_raw_dialect("mysql")
-mariadb_dialect = mysql_dialect.copy_as("mariadb")
+mariadb_dialect = mysql_dialect.copy_as(
+    "mariadb",
+    formatted_name="MariaDB",
+    docstring="The dialect for `MariaDB <https://www.mariadb.org/>`_.",
+)
 mariadb_dialect.update_keywords_set_from_multiline_string(
     "unreserved_keywords", mariadb_unreserved_keywords
 )

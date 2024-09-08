@@ -24,7 +24,11 @@ from sqlfluff.dialects.dialect_materialize_keywords import (
 
 postgres_dialect = load_raw_dialect("postgres")
 
-materialize_dialect = postgres_dialect.copy_as("materialize")
+materialize_dialect = postgres_dialect.copy_as(
+    "materialize",
+    formatted_name="Materialize",
+    docstring="The dialect for `Materialize <https://materialize.com/>`_.",
+)
 materialize_dialect.update_keywords_set_from_multiline_string(
     "unreserved_keywords", materialize_unreserved_keywords
 )
