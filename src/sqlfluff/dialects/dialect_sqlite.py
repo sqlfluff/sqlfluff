@@ -40,7 +40,19 @@ ansi_dialect = load_raw_dialect("ansi")
 sqlite_dialect = ansi_dialect.copy_as(
     "sqlite",
     formatted_name="SQLite",
-    docstring="""The dialect for `SQLite <https://www.sqlite.org/>`_.""",
+    docstring="""**Default Casing**: Not specified in the docs,
+but through testing it appears that SQLite *stores* column names
+in whatever case they were defined, but is always *case-insensitive*
+when resolving those names.
+
+**Quotes**: String Literals: ``''`` (or  ``""`` if not otherwise resolved
+to an identifier), Identifiers: ``""``, ``[]`` or |back_quotes|. See the
+`SQLite Keywords Docs`_ for more details.
+    
+The dialect for `SQLite <https://www.sqlite.org/>`_.
+
+.. _`SQLite Keywords Docs`: https://sqlite.org/lang_keywords.html
+""",
 )
 
 sqlite_dialect.sets("reserved_keywords").clear()

@@ -47,7 +47,11 @@ ansi_dialect = load_raw_dialect("ansi")
 postgres_dialect = ansi_dialect.copy_as(
     "postgres",
     formatted_name="PostgreSQL",
-    docstring="""This is based around the `PostgreSQL spec`_. Many other SQL
+    docstring="""**Default Casing**: ``lowercase``
+
+**Quotes**: String Literals: ``''``, Identifiers: ``""``.
+   
+This is based around the `PostgreSQL spec`_. Many other SQL
 dialects are often based on the PostreSQL syntax. If you're running an unsupported
 dialect, then this is often the dialect to use (until someone makes a specific
 dialect).
@@ -571,7 +575,9 @@ postgres_dialect.replace(
     ),
     QuotedIdentifierSegment=OneOf(
         TypedParser("double_quote", IdentifierSegment, type="quoted_identifier"),
-        TypedParser("unicode_double_quote", LiteralSegment, type="quoted_literal"),
+        TypedParser(
+            "unicode_double_quote", IdentifierSegment, type="quoted_identifier"
+        ),
     ),
     PostFunctionGrammar=AnyNumberOf(
         Ref("WithinGroupClauseSegment"),

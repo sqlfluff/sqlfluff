@@ -36,7 +36,11 @@ ansi_dialect = load_raw_dialect("ansi")
 trino_dialect = ansi_dialect.copy_as(
     "trino",
     formatted_name="Trino",
-    docstring="""The dialect for `Trino <https://trino.io/docs/current/>`_.""",
+    docstring="""**Default Casing**: ``UPPERCASE``
+
+**Quotes**: String Literals: ``''``, Identifiers: ``""``
+    
+The dialect for `Trino <https://trino.io/docs/current/>`_.""",
 )
 
 # Set the bare functions: https://trino.io/docs/current/functions/datetime.html

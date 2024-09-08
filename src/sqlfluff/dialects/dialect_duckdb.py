@@ -34,7 +34,17 @@ postgres_dialect = load_raw_dialect("postgres")
 duckdb_dialect = postgres_dialect.copy_as(
     "duckdb",
     formatted_name="DuckDB",
-    docstring="The dialect for `DuckDB <https://duckdb.org/>`_.",
+    docstring="""**Default Casing**: DuckDB stores all identifiers in the case
+they were defined, however all identifier resolution is case-insensitive (when
+unquoted, and more unusually, *also when quoted*). See the
+`DuckDB Identifiers Documentation`_ for more details.
+
+**Quotes**: String Literals: ``''``, Identifiers: ``""`` or ``''``
+   
+The dialect for `DuckDB <https://duckdb.org/>`_.
+
+.. _`DuckDB Identifiers Documentation`: https://duckdb.org/docs/sql/dialect/keywords_and_identifiers
+""",  # noqa: E501
 )
 
 duckdb_dialect.sets("reserved_keywords").update(
