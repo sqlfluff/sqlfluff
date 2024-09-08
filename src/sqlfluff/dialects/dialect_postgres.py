@@ -52,7 +52,7 @@ dialects are often based on the PostreSQL syntax. If you're running an unsupport
 dialect, then this is often the dialect to use (until someone makes a specific
 dialect).
 
-.. _`PostgreSQL spec`: https://www.postgresql.org/docs/9.6/reference.html""",
+.. _`PostgreSQL spec`: https://www.postgresql.org/docs/current/reference.html""",
 )
 
 postgres_dialect.insert_lexer_matchers(
