@@ -82,6 +82,8 @@ class Rule_ST08(BaseRule):
                 not function_name
                 or function_name[0].raw_upper != "DISTINCT"
                 or not bracketed
+                # If the DISTINCT has a subquery, don't remove the brackets
+                or bracketed.recursive_crawl("select_statement", recurse_into=False)
             ):
                 return None
             # Using ReflowSequence here creates an unneeded space between CONCAT
