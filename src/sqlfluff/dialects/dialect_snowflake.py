@@ -352,6 +352,11 @@ snowflake_dialect.add(
         LiteralSegment,
         type="copy_on_error_option",
     ),
+    LagIntervalSegment=RegexParser(
+        r"'\d+\s+(?:SECOND|MINUTE|HOUR|DAY)S?'",
+        LiteralSegment,
+        type="lag_interval_segment",
+    ),
     DoubleQuotedUDFBody=TypedParser(
         "double_quote",
         CodeSegment,
@@ -464,6 +469,10 @@ snowflake_dialect.add(
         "NULL",
         # '' and $$$$ are allowed as alternatives to NULL.
         Ref("QuotedLiteralSegment"),
+    ),
+    TargetLagValue=OneOf(
+        Ref("LagIntervalSegment"),
+        "DOWNSTREAM",
     ),
     StartExcludeBracketSegment=StringParser(
         "{-", SymbolSegment, type="start_exclude_bracket"
@@ -4364,7 +4373,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Sequence(
             "TARGET_LAG",
             Ref("EqualsSegment"),
-            OneOf(Ref("QuotedLiteralSegment"), "DOWNSTREAM"),
+            Ref("TargetLagValue"),
             optional=True,
         ),
         Sequence(
