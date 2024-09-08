@@ -17,7 +17,49 @@ class Rule_RF06(BaseRule):
     """Unnecessary quoted identifier.
 
     This rule will fail if the quotes used to quote an identifier are (un)necessary
-    depending on the ``force_quote_identifier`` configuration.
+    depending on the ``force_quote_identifier`` configuration. This rule applies to
+    both column *references* and their *aliases*. The *default* (safe) behaviour is
+    designed not to unexpectedly corrupt SQL. That means the circumstances in which
+    quotes can be safely removed depends on the current dialect would resolve the
+    unquoted variant of the identifier (see below for examples).
+
+    Additionally this rule may be configured to a more aggressive setting by setting
+    :code:`strict` to :code:`True`, in which case quotes will be removed regardless
+    of the casing of the contained identifier. Any identifiers which contain special
+    characters, spaces or keywords will still be left quoted. This setting is more
+    appropriate for projects or teams where there is more control over the inputs
+    and outputs of queries, and where it's more viable to institute rules such
+    as enforcing that all identifiers are the default casing (and therefore meaning
+    that using quotes to change the case of identifiers is unnecessary).
+
+    .. list-table::
+       :widths: 26 26 48
+       :header-rows: 1
+
+       * - Dialect group
+         - ✅ Example where quotes are safe to remove.
+         - ⚠️ Examples where quotes are not safe to remove.
+       * - Natively :code:`UPPERCASE` dialects e.g. Snowflake, BigQuery,
+           TSQL & Oracle.
+         - Identifiers which, without quotes, would resolve to the default
+           casing of :code:`FOO` i.e. :code:`"FOO"`.
+         - Identifiers where the quotes are necessary to preserve case
+           (e.g. :code:`"Foo"` or :code:`"foo"`), or where the identifier
+           contains something invalid without the quotes such as keywords
+           or special characters e.g. :code:`"SELECT"`, :code:`"With Space"`
+           or :code:`"Special&Characters"`.
+       * - Natively :code:`lowercase` dialects e.g. Athena, DuckDB,
+           Hive & Postgres
+         - Identifiers which, without quotes, would resolve to the default
+           casing of :code:`foo` i.e. :code:`"foo"`.
+         - Identifiers where the quotes are necessary to preserve case
+           (e.g. :code:`"Foo"` or :code:`"foo"`), or where the identifier
+           contains something invalid without the quotes such as keywords
+           or special characters e.g. :code:`"SELECT"`, :code:`"With Space"`
+           or :code:`"Special&Characters"`.
+
+    This rule is closely associated with (and constrained by the same above
+    factors) as :sqlfluff:ref:`aliasing.self_alias.column` (:sqlfluff:ref:`AL09`).
 
     When ``prefer_quoted_identifiers = False`` (default behaviour), the quotes are
     unnecessary, except for reserved keywords and special characters in identifiers.
