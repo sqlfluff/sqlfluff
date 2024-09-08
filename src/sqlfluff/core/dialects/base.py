@@ -320,7 +320,7 @@ class Dialect:
                 (
                     "Grammar refers to the "
                     "{!r} keyword which was not found in the {} dialect.{}".format(
-                        keyword, self.name, keyword_tip
+                        keyword.upper(), self.name, keyword_tip
                     )
                 )
             )

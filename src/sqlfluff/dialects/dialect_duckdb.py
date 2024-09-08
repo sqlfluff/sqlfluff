@@ -642,3 +642,27 @@ class SimplifiedUnpivotExpressionSegment(BaseSegment):
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
     )
+
+
+class CreateViewStatementSegment(postgres.CreateViewStatementSegment):
+    """An `Create VIEW` statement.
+
+    https://duckdb.org/docs/sql/statements/create_view.html
+    """
+
+    type = "create_view_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        "AS",
+        OneOf(
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            Ref("ValuesClauseSegment"),
+        ),
+    )
