@@ -2069,6 +2069,9 @@ class StatementSegment(postgres.StatementSegment):
             Ref("CreateExternalFunctionStatementSegment"),
             Ref("GrantUsageDatashareStatementSegment"),
         ],
+        remove=[
+            Ref("ShowStatementSegment"),
+        ],
     )
 
 
