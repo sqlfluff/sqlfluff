@@ -68,7 +68,11 @@ ansi_dialect = Dialect(
     "ansi",
     root_segment_name="FileSegment",
     formatted_name="ANSI",
-    docstring="""This is the base dialect which holds most of the definitions of common
+    docstring="""**Default Casing**: ``UPPERCASE``
+
+**Quotes**: String Literals: ``''``, Identifiers: ``""``
+    
+This is the base dialect which holds most of the definitions of common
 SQL commands and structures. If the dialect which you're actually using
 isn't specifically implemented by SQLFluff, using this dialect is a good
 place to start.

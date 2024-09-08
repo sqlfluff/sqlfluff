@@ -46,7 +46,15 @@ ansi_dialect = load_raw_dialect("ansi")
 bigquery_dialect = ansi_dialect.copy_as(
     "bigquery",
     formatted_name="Google BigQuery",
-    docstring="""The dialect for `BigQuery <https://cloud.google.com/bigquery/>`_
+    docstring="""**Default Casing**: ``UPPERCASE``
+
+**Quotes**: String Literals: ``''``, ``""``, ``@`` or ``@@`` (with the
+quoted options, also supporting prefixes of `r`, `R`, `b` & `B`),
+Identifiers: ``""`` or |back_quotes|. Note that *unquoted* aliases are
+resolved case-insensitively but *rendered case-sensitively* in the result
+set. 
+   
+The dialect for `BigQuery <https://cloud.google.com/bigquery/>`_
 on Google Cloud Platform (GCP).""",
 )
 
