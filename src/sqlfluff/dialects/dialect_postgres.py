@@ -50,7 +50,7 @@ postgres_dialect = ansi_dialect.copy_as(
     docstring="""**Default Casing**: ``lowercase``
 
 **Quotes**: String Literals: ``''``, Identifiers: ``""``.
-   
+
 This is based around the `PostgreSQL spec`_. Many other SQL
 dialects are often based on the PostreSQL syntax. If you're running an unsupported
 dialect, then this is often the dialect to use (until someone makes a specific

@@ -43,7 +43,7 @@ athena_dialect = ansi_dialect.copy_as(
 
 **Quotes**: String Literals: ``''``, ``""`` or |back_quotes|,
 Identifiers: ``""`` or |back_quotes|
-    
+
 The dialect for `Athena <https://aws.amazon.com/athena/>`_
 on Amazon Web Services (AWS).""",
 )

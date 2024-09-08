@@ -48,7 +48,7 @@ snowflake_dialect = ansi_dialect.copy_as(
     docstring="""**Default Casing**: ``UPPERCASE``
 
 **Quotes**: String Literals: ``''``, Identifiers: ``""``
-    
+
 The dialect for
 `Snowflake <https://docs.snowflake.com/en/sql-reference.html>`_,
 which has much of its syntax inherited from :ref:`postgres_dialect_ref`.""",

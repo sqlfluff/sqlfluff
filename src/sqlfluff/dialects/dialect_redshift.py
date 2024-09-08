@@ -44,7 +44,7 @@ to be case sensitive with all identifiers using the
 the `Redshift Names & Identifiers Docs`_).
 
 **Quotes**: String Literals: ``''``, Identifiers: ``""``.
-   
+
 The dialect for `Redshift`_ on Amazon Web Services (AWS).
 
 .. _`Redshift`: https://aws.amazon.com/redshift/

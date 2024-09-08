@@ -40,7 +40,7 @@ unquoted, and more unusually, *also when quoted*). See the
 `DuckDB Identifiers Documentation`_ for more details.
 
 **Quotes**: String Literals: ``''``, Identifiers: ``""`` or ``''``
-   
+
 The dialect for `DuckDB <https://duckdb.org/>`_.
 
 .. _`DuckDB Identifiers Documentation`: https://duckdb.org/docs/sql/dialect/keywords_and_identifiers

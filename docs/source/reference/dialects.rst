@@ -36,7 +36,7 @@ current dialects available on your installation of SQLFluff.
     - Will the feature I'm adding break any *downstream* dependencies
       within dialects which inherit from this one?
 
-.. We define a shortcut to render double backticks here, which can 
+.. We define a shortcut to render double backticks here, which can
    then be referenced by individual dialects when they want to say
    how backtick quotes behave in that dialect. They would otherwise
    be interpreted as markup and so not shown as back quotes.

@@ -39,7 +39,7 @@ trino_dialect = ansi_dialect.copy_as(
     docstring="""**Default Casing**: ``UPPERCASE``
 
 **Quotes**: String Literals: ``''``, Identifiers: ``""``
-    
+
 The dialect for `Trino <https://trino.io/docs/current/>`_.""",
 )
 

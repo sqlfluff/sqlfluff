@@ -54,7 +54,7 @@ raw/regex expressions) or ``b``/``B`` (for byte strings)),
 Identifiers: ``""`` or |back_quotes|. Note that *unquoted* aliases are
 resolved case-insensitively but *rendered case-sensitively* in the result
 set. 
-   
+
 The dialect for `BigQuery <https://cloud.google.com/bigquery/>`_
 on Google Cloud Platform (GCP).""",
 )

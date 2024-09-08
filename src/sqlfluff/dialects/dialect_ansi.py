@@ -71,7 +71,7 @@ ansi_dialect = Dialect(
     docstring="""**Default Casing**: ``UPPERCASE``
 
 **Quotes**: String Literals: ``''``, Identifiers: ``""``
-    
+
 This is the base dialect which holds most of the definitions of common
 SQL commands and structures. If the dialect which you're actually using
 isn't specifically implemented by SQLFluff, using this dialect is a good

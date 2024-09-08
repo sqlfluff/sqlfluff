@@ -48,7 +48,7 @@ mysql_dialect = ansi_dialect.copy_as(
 
 **Quotes**: String Literals: ``''``, ``""`` or ``@``,
 Identifiers: |back_quotes|.
-   
+
 The dialect for `MySQL <https://www.mysql.com/>`_.""",
 )
 

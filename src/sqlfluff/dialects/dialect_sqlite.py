@@ -48,7 +48,7 @@ when resolving those names.
 **Quotes**: String Literals: ``''`` (or  ``""`` if not otherwise resolved
 to an identifier), Identifiers: ``""``, ``[]`` or |back_quotes|. See the
 `SQLite Keywords Docs`_ for more details.
-    
+
 The dialect for `SQLite <https://www.sqlite.org/>`_.
 
 .. _`SQLite Keywords Docs`: https://sqlite.org/lang_keywords.html

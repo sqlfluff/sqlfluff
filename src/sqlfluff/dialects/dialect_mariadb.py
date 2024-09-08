@@ -33,7 +33,7 @@ mariadb_dialect = mysql_dialect.copy_as(
 
 **Quotes**: String Literals: ``''``, ``""`` or ``@``,
 Identifiers: |back_quotes|.
-   
+
 The dialect for `MariaDB <https://www.mariadb.org/>`_.""",
 )
 mariadb_dialect.update_keywords_set_from_multiline_string(
