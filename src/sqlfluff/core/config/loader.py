@@ -14,8 +14,6 @@ import os.path
 from pathlib import Path
 from typing import (
     Dict,
-    Iterable,
-    List,
     Optional,
     Union,
 )
@@ -26,8 +24,7 @@ from sqlfluff.core.config.cache import (
     load_config_file_as_dict,
     load_config_string_as_dict,
 )
-from sqlfluff.core.config.removed import REMOVED_CONFIGS
-from sqlfluff.core.config.types import ConfigMappingType, ConfigRecordType
+from sqlfluff.core.config.types import ConfigMappingType
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import nested_combine
 from sqlfluff.core.helpers.file import iter_intermediate_paths
@@ -75,101 +72,9 @@ class ConfigLoader:
             global_loader = cls()
         return global_loader
 
-    @staticmethod
-    def _validate_configs(
-        configs: Iterable[ConfigRecordType], file_path: str
-    ) -> List[ConfigRecordType]:
-        """Validate config elements.
-
-        We validate in two ways:
-        1. Are these config settings removed or deprecated.
-        2. Are these config elements in the layout section _valid_.
-        """
-        config_map = {cfg.old_path: cfg for cfg in REMOVED_CONFIGS}
-        # Materialise the configs into a list to we can iterate twice.
-        new_configs = list(configs)
-        defined_keys = {k for k, _ in new_configs}
-        validated_configs = []
-        for k, v in new_configs:
-            # First validate against the removed option list.
-            if k in config_map.keys():
-                removed_option = config_map[k]
-                # Is there a mapping option?
-                if removed_option.translation_func and removed_option.new_path:
-                    # Before mutating, check we haven't _also_ set the new value.
-                    if removed_option.new_path in defined_keys:
-                        # Raise an warning.
-                        config_logger.warning(
-                            f"\nWARNING: Config file {file_path} set a deprecated "
-                            f"config value {removed_option.formatted_old_key!r} "
-                            "(which can be migrated) "
-                            f"but ALSO set the value it would be migrated to. The new "
-                            f"value ({removed_option.formatted_new_key!r}) takes "
-                            "precedence. "
-                            "Please update your configuration to remove this warning. "
-                            f"\n\n{removed_option.warning}\n\n"
-                            "See https://docs.sqlfluff.com/en/stable/perma/"
-                            "configuration.html for more details.\n"
-                        )
-                        # continue to NOT add this value in the set
-                        continue
-
-                    # Mutate and warn.
-                    v = removed_option.translation_func(v)
-                    k = removed_option.new_path
-                    # NOTE: At the stage of emitting this warning, we may not yet
-                    # have set up red logging because we haven't yet loaded the config
-                    # file. For that reason, this error message has a bit more padding.
-                    config_logger.warning(
-                        f"\nWARNING: Config file {file_path} set a deprecated config "
-                        f"value {removed_option.formatted_old_key!r}. This will be "
-                        "removed in a later release. This has been mapped to "
-                        f"{removed_option.formatted_new_key!r} set to a value of "
-                        f"`{v}` for this run. "
-                        "Please update your configuration to remove this warning. "
-                        f"\n\n{removed_option.warning}\n\n"
-                        "See https://docs.sqlfluff.com/en/stable/perma/"
-                        "configuration.html for more details.\n"
-                    )
-                else:
-                    # Raise an error.
-                    raise SQLFluffUserError(
-                        f"Config file {file_path!r} set an outdated config "
-                        f"value {removed_option.formatted_old_key!r}."
-                        f"\n\n{removed_option.warning}\n\n"
-                        "See https://docs.sqlfluff.com/en/stable/perma/"
-                        "configuration.html for more details."
-                    )
-
-            # Second validate any layout configs for validity.
-            # NOTE: For now we don't check that the "type" is a valid one
-            # to reference, or that the values are valid. For the values,
-            # these are likely to be rejected by the layout routines at
-            # runtime. The last risk area is validating that the type is
-            # a valid one.
-            if k and k[0] == "layout":
-                # Check for:
-                # - Key length
-                # - Key values
-                if (
-                    # Key length must be 4
-                    (len(k) != 4)
-                    # Second value must (currently) be "type"
-                    or (k[1] != "type")
-                    # Last key value must be one of the allowable options.
-                    or (k[3] not in ALLOWABLE_LAYOUT_CONFIG_KEYS)
-                ):
-                    raise SQLFluffUserError(
-                        f"Config file {file_path!r} set an invalid `layout` option "
-                        f"value {':'.join(k)}.\n"
-                        "See https://docs.sqlfluff.com/en/stable/perma/layout.html"
-                        "#configuring-layout for more details."
-                    )
-
-            validated_configs.append((k, v))
-        return validated_configs
-
-    def load_config_resource(self, package: str, file_name: str) -> ConfigMappingType:
+    def load_config_resource(
+        self, package: str, file_name: str, configs: Optional[ConfigMappingType] = None
+    ) -> ConfigMappingType:
         """Load a config resource.
 
         This is however more compatible with mypyc because it avoids
