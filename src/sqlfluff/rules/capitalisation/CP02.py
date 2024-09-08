@@ -108,8 +108,8 @@ class Rule_CP02(Rule_CP01):
             return None
 
         if identifiers_policy_applicable(
-            self.unquoted_identifiers_policy,
-            context.parent_stack,  # type: ignore
+            self.unquoted_identifiers_policy,  # type: ignore
+            context.parent_stack,
         ):
             return super()._eval(context=context)
         else:
