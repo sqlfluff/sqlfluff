@@ -36,7 +36,6 @@ from sqlfluff.core.parser import (
     TypedParser,
 )
 from sqlfluff.dialects import dialect_ansi as ansi
-from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.dialects.dialect_snowflake_keywords import (
     snowflake_reserved_keywords,
     snowflake_unreserved_keywords,
