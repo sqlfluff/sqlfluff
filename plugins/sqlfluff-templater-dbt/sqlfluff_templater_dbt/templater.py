@@ -146,7 +146,6 @@ class DbtTemplater(JinjaTemplater):
 
             cleanup_event_logger()
 
-
     @cached_property
     def dbt_config(self):
         """Loads the dbt config."""
