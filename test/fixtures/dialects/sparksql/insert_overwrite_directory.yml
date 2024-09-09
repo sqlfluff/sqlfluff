@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1693594c7c492caa9efe94c8fdd1a42c392020ee78aea06c6b922bf4e444652a
+_hash: b19c5c1de0e98b801765c0fc5e50a61d9540e3ce8037ee021284b4fbd6d8bf1d
 file:
 - statement:
     insert_overwrite_directory_statement:
@@ -182,4 +182,80 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: cte
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: test_table
+          end_bracket: )
+      insert_overwrite_directory_statement:
+      - keyword: INSERT
+      - keyword: OVERWRITE
+      - keyword: DIRECTORY
+      - quoted_literal: "'destination_dir/path_to'"
+      - keyword: USING
+      - data_source_format:
+          keyword: CSV
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - property_name_identifier:
+            properties_naked_identifier: sep
+        - quoted_literal: "'\\t'"
+        - comma: ','
+        - property_name_identifier:
+            properties_naked_identifier: header
+        - quoted_literal: "'true'"
+        - comma: ','
+        - property_name_identifier:
+            properties_naked_identifier: compression
+        - quoted_literal: "'none'"
+        - comma: ','
+        - property_name_identifier:
+            properties_naked_identifier: emptyValue
+        - quoted_literal: "''"
+        - end_bracket: )
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_modifier:
+              select_hint:
+                start_hint: /*+
+                hint_function:
+                  function_name:
+                    function_name_identifier: COALESCE
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '1'
+                    end_bracket: )
+                end_hint: '*/'
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: cte
 - statement_terminator: ;
