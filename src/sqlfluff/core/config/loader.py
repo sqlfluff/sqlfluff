@@ -56,6 +56,24 @@ ALLOWABLE_LAYOUT_CONFIG_KEYS = (
 )
 
 
+def _get_user_config_dir_path() -> str:
+    appname = "sqlfluff"
+    appauthor = "sqlfluff"
+
+    # On Mac OSX follow Linux XDG base dirs
+    # https://github.com/sqlfluff/sqlfluff/issues/889
+    user_config_dir_path = os.path.expanduser("~/.config/sqlfluff")
+    if appdirs.system == "darwin":
+        appdirs.system = "linux2"
+        user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
+        appdirs.system = "darwin"
+
+    if not os.path.exists(user_config_dir_path):
+        user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
+
+    return user_config_dir_path
+
+
 def load_config_file(
     file_dir: str, file_name: str, configs: Optional[ConfigMappingType] = None
 ) -> ConfigMappingType:
@@ -181,27 +199,9 @@ class ConfigLoader:
         )
         return load_config_resource(package, file_name)
 
-    @staticmethod
-    def _get_user_config_dir_path() -> str:
-        appname = "sqlfluff"
-        appauthor = "sqlfluff"
-
-        # On Mac OSX follow Linux XDG base dirs
-        # https://github.com/sqlfluff/sqlfluff/issues/889
-        user_config_dir_path = os.path.expanduser("~/.config/sqlfluff")
-        if appdirs.system == "darwin":
-            appdirs.system = "linux2"
-            user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
-            appdirs.system = "darwin"
-
-        if not os.path.exists(user_config_dir_path):
-            user_config_dir_path = appdirs.user_config_dir(appname, appauthor)
-
-        return user_config_dir_path
-
     def load_user_appdir_config(self) -> ConfigMappingType:
         """Load the config from the user's OS specific appdir config directory."""
-        user_config_dir_path = self._get_user_config_dir_path()
+        user_config_dir_path = _get_user_config_dir_path()
         if os.path.exists(user_config_dir_path):
             return load_config_at_path(user_config_dir_path)
         else:
