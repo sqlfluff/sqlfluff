@@ -18,26 +18,70 @@ class Rule_RF06(BaseRule):
     """Unnecessary quoted identifier.
 
     This rule will fail if the quotes used to quote an identifier are (un)necessary
-    depending on the ``force_quote_identifier`` configuration.
+    depending on the ``force_quote_identifier`` configuration. This rule applies to
+    both column *references* and their *aliases*. The *default* (safe) behaviour is
+    designed not to unexpectedly corrupt SQL. That means the circumstances in which
+    quotes can be safely removed depends on the current dialect would resolve the
+    unquoted variant of the identifier (see below for examples).
+
+    Additionally this rule may be configured to a more aggressive setting by setting
+    :code:`case_sensitive` to :code:`False`, in which case quotes will be removed
+    regardless of the casing of the contained identifier. Any identifiers which contain
+    special characters, spaces or keywords will still be left quoted. This setting is
+    more appropriate for projects or teams where there is more control over the inputs
+    and outputs of queries, and where it's more viable to institute rules such
+    as enforcing that all identifiers are the default casing (and therefore meaning
+    that using quotes to change the case of identifiers is unnecessary).
+
+    .. list-table::
+       :widths: 26 26 48
+       :header-rows: 1
+
+       * - Dialect group
+         - ✅ Example where quotes are safe to remove.
+         - ⚠️ Examples where quotes are not safe to remove.
+       * - Natively :code:`UPPERCASE` dialects e.g. Snowflake, BigQuery,
+           TSQL & Oracle.
+         - Identifiers which, without quotes, would resolve to the default
+           casing of :code:`FOO` i.e. :code:`"FOO"`.
+         - Identifiers where the quotes are necessary to preserve case
+           (e.g. :code:`"Foo"` or :code:`"foo"`), or where the identifier
+           contains something invalid without the quotes such as keywords
+           or special characters e.g. :code:`"SELECT"`, :code:`"With Space"`
+           or :code:`"Special&Characters"`.
+       * - Natively :code:`lowercase` dialects e.g. Athena,
+           Hive & Postgres
+         - Identifiers which, without quotes, would resolve to the default
+           casing of :code:`foo` i.e. :code:`"foo"`.
+         - Identifiers where the quotes are necessary to preserve case
+           (e.g. :code:`"Foo"` or :code:`"foo"`), or where the identifier
+           contains something invalid without the quotes such as keywords
+           or special characters e.g. :code:`"SELECT"`, :code:`"With Space"`
+           or :code:`"Special&Characters"`.
+       * - Case insensitive dialects e.g. :ref:`duckdb_dialect_ref` or
+           :ref:`sparksql_dialect_ref`
+         - Any identifiers which are valid without quotes: e.g. :code:`"FOO"`,
+           :code:`"foo"`, :code:`"Foo"`, :code:`"fOo"`, :code:`FOO` and
+           :code:`foo` would all resolve to the same object.
+         - Identifiers which contain something invalid without the quotes
+           such as keywords or special characters e.g. :code:`"SELECT"`,
+           :code:`"With Space"` or :code:`"Special&Characters"`.
+
+    This rule is closely associated with (and constrained by the same above
+    factors) as :sqlfluff:ref:`aliasing.self_alias.column` (:sqlfluff:ref:`AL09`).
 
     When ``prefer_quoted_identifiers = False`` (default behaviour), the quotes are
     unnecessary, except for reserved keywords and special characters in identifiers.
 
-    .. note::
-       This rule is disabled by default for Postgres and Snowflake because they allow
-       quotes as part of the column name. In other words, ``date`` and ``"date"`` are
-       two different columns.
-
-       It can be enabled with the ``force_enable = True`` flag.
-
     **Anti-pattern**
 
-    In this example, a valid unquoted identifier,
-    that is also not a reserved keyword, is needlessly quoted.
+    In this example, valid unquoted identifiers,
+    that are not also reserved keywords, are needlessly quoted.
 
     .. code-block:: sql
 
-        SELECT 123 as "foo"
+        SELECT "foo" as "bar";  -- For lowercase dialects like Postgres
+        SELECT "FOO" as "BAR";  -- For uppercase dialects like Snowflake
 
     **Best practice**
 
@@ -45,7 +89,18 @@ class Rule_RF06(BaseRule):
 
     .. code-block:: sql
 
-        SELECT 123 as foo
+        SELECT foo as bar;  -- For lowercase dialects like Postgres
+        SELECT FOO as BAR;  -- For uppercase dialects like Snowflake
+
+        -- Note that where the case of the quoted identifier requires
+        -- the quotes to remain, or where the identifier cannot be
+        -- unquoted because it would be invalid to do so, the quotes
+        -- may remain. For example:
+        SELECT
+            "Case_Sensitive_Identifier" as is_allowed,
+            "Identifier with spaces or speci@l characters" as this_too,
+            "SELECT" as also_reserved_words
+        FROM "My Table With Spaces"
 
     When ``prefer_quoted_identifiers = True``, the quotes are always necessary, no
     matter if the identifier is valid, a reserved keyword, or contains special
@@ -84,10 +139,9 @@ class Rule_RF06(BaseRule):
         "prefer_quoted_keywords",
         "ignore_words",
         "ignore_words_regex",
-        "force_enable",
+        "case_sensitive",
     ]
     crawl_behaviour = SegmentSeekerCrawler({"quoted_identifier", "naked_identifier"})
-    _dialects_allowing_quotes_in_column_names = ["postgres", "snowflake"]
     is_fix_compatible = True
 
     # Ignore "password_auth" type to allow quotes around passwords within
@@ -102,17 +156,7 @@ class Rule_RF06(BaseRule):
         self.prefer_quoted_keywords: bool
         self.ignore_words: str
         self.ignore_words_regex: str
-        self.force_enable: bool
-        # Some dialects allow quotes as PART OF the column name. In other words,
-        # these are two different columns:
-        # - date
-        # - "date"
-        # For safety, disable this rule by default in those dialects.
-        if (
-            context.dialect.name in self._dialects_allowing_quotes_in_column_names
-            and not self.force_enable
-        ):
-            return LintResult()
+        self.case_sensitive: bool
 
         # Ignore some segment types
         if FunctionalContext(context).parent_stack.any(sp.is_type(*self._ignore_types)):
@@ -191,40 +235,52 @@ class Rule_RF06(BaseRule):
             Type[CodeSegment], context.dialect.get_segment("IdentifierSegment")
         )
 
-        # Check if quoted_identifier_contents could be a valid naked identifier
-        # and that it is not a reserved keyword.
+        # For this to be a candidate for unquoting, it must:
+        # - Casefold to it's current exact case. i.e. already be in the default
+        #   casing of the dialect *unless case_sensitive mode is False*.
+        # - be a valid naked identifier.
+        # - not be a reserved keyword.
+        # NOTE: If the identifier parser has no casefold defined, we assume that
+        # there is no casefolding (i.e. that the dialect is case sensitive, and
+        # even when unquoted, and therefore we should never unquote).
+        # EXCEPT: if we're in a totally case insensitive dialect like DuckDB.
+        is_case_insensitive_dialect = context.dialect.name in ("duckdb", "sparksql")
         if (
-            regex.fullmatch(
-                naked_identifier_parser.template,
-                identifier_contents,
-                regex.IGNORECASE,
-            )
-            is not None
-        ) and (
-            regex.fullmatch(
-                anti_template,
-                identifier_contents,
-                regex.IGNORECASE,
-            )
-            is None
+            not is_case_insensitive_dialect
+            and self.case_sensitive
+            and naked_identifier_parser.casefold
+            and identifier_contents
+            != naked_identifier_parser.casefold(identifier_contents)
         ):
-            return LintResult(
-                context.segment,
-                fixes=[
-                    LintFix.replace(
-                        context.segment,
-                        [
-                            NakedIdentifierSegment(
-                                raw=identifier_contents,
-                                type="naked_identifier",
-                            )
-                        ],
-                    )
-                ],
-                description=f"Unnecessary quoted identifier {context.segment.raw}.",
-            )
+            return None
+        if not regex.fullmatch(
+            naked_identifier_parser.template,
+            identifier_contents,
+            regex.IGNORECASE,
+        ):
+            return None
+        if regex.fullmatch(
+            anti_template,
+            identifier_contents,
+            regex.IGNORECASE,
+        ):
+            return None
 
-        return None
+        return LintResult(
+            context.segment,
+            fixes=[
+                LintFix.replace(
+                    context.segment,
+                    [
+                        NakedIdentifierSegment(
+                            raw=identifier_contents,
+                            **naked_identifier_parser.segment_kwargs(),
+                        )
+                    ],
+                )
+            ],
+            description=f"Unnecessary quoted identifier {context.segment.raw}.",
+        )
 
     @cached_property
     def ignore_words_list(self) -> List[str]:

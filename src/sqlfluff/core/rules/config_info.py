@@ -251,6 +251,13 @@ STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
             "The style for using not equal to operator. Defaults to ``consistent``."
         ),
     },
+    "case_sensitive": {
+        "validation": [True, False],
+        "definition": (
+            "If ``False``, comparison is done case in-sensitively. "
+            "Defaults to ``True``."
+        ),
+    },
 }
 
 
