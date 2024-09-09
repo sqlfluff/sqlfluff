@@ -9,7 +9,12 @@ import appdirs
 import pytest
 
 from sqlfluff.core import FluffConfig
-from sqlfluff.core.config import ConfigLoader, load_config_file, load_config_string
+from sqlfluff.core.config import (
+    ConfigLoader,
+    load_config_at_path,
+    load_config_file,
+    load_config_string,
+)
 from sqlfluff.core.config.removed import (
     REMOVED_CONFIGS,
     validate_config_dict_for_removed,
@@ -34,8 +39,7 @@ def mock_xdg_home(monkeypatch):
 
 def test__config__load_file_dir():
     """Test loading config from a directory path."""
-    c = ConfigLoader()
-    cfg = c.load_config_at_path(
+    cfg = load_config_at_path(
         os.path.join("test", "fixtures", "config", "inheritance_a")
     )
     assert cfg == config_a
@@ -54,8 +58,7 @@ def test__config__load_from_string():
 
 def test__config__load_file_f():
     """Test loading config from a file path."""
-    c = ConfigLoader()
-    cfg = c.load_config_at_path(
+    cfg = load_config_at_path(
         os.path.join("test", "fixtures", "config", "inheritance_a", "testing.sql")
     )
     assert cfg == config_a

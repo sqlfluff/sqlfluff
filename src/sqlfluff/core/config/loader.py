@@ -1,4 +1,10 @@
-"""Module for loading config."""
+"""Config loading methods and helpers.
+
+This is designed to house the main functions which are exposed by the
+overall config module. There is some caching in this module, which
+is designed around caching the configuration loaded at *specific paths*
+rather than the individual file caching in the `file` module.
+"""
 
 from __future__ import annotations
 
@@ -15,12 +21,12 @@ from pathlib import Path
 from typing import (
     Dict,
     Optional,
-    Union,
 )
 
 import appdirs
 
 from sqlfluff.core.config.file import (
+    cache,
     load_config_file_as_dict,
     load_config_string_as_dict,
 )
@@ -103,6 +109,40 @@ def load_config_string(
     return nested_combine(configs, raw_config)
 
 
+@cache
+def load_config_at_path(path: str) -> ConfigMappingType:
+    """Load config from a given path.
+
+    This method accepts only a path string to enable efficient
+    caching of results.
+    """
+    # The potential filenames we would look for at this path.
+    # NB: later in this list overwrites earlier
+    filename_options = [
+        "setup.cfg",
+        "tox.ini",
+        "pep8.ini",
+        ".sqlfluff",
+        "pyproject.toml",
+    ]
+
+    configs: ConfigMappingType = {}
+
+    if os.path.isdir(path):
+        p = path
+    else:
+        p = os.path.dirname(path)
+
+    d = os.listdir(os.path.expanduser(p))
+    # iterate this way round to make sure things overwrite is the right direction.
+    # NOTE: The `configs` variable is passed back in at each stage.
+    for fname in filename_options:
+        if fname in d:
+            configs = load_config_file(p, fname, configs=configs)
+
+    return configs
+
+
 class ConfigLoader:
     """The class for loading config files.
 
@@ -141,43 +181,6 @@ class ConfigLoader:
         )
         return load_config_resource(package, file_name)
 
-    def load_config_at_path(self, path: Union[str, Path]) -> ConfigMappingType:
-        """Load config from a given path."""
-        # If we've been passed a Path object, resolve it.
-        if isinstance(path, Path):
-            path = str(path.resolve())
-
-        # First check the cache
-        if str(path) in self._config_cache:
-            return self._config_cache[str(path)]
-
-        # The potential filenames we would look for at this path.
-        # NB: later in this list overwrites earlier
-        filename_options = [
-            "setup.cfg",
-            "tox.ini",
-            "pep8.ini",
-            ".sqlfluff",
-            "pyproject.toml",
-        ]
-
-        configs: ConfigMappingType = {}
-
-        if os.path.isdir(path):
-            p = path
-        else:
-            p = os.path.dirname(path)
-
-        d = os.listdir(os.path.expanduser(p))
-        # iterate this way round to make sure things overwrite is the right direction
-        for fname in filename_options:
-            if fname in d:
-                configs = load_config_file(p, fname, configs=configs)
-
-        # Store in the cache
-        self._config_cache[str(path)] = configs
-        return configs
-
     @staticmethod
     def _get_user_config_dir_path() -> str:
         appname = "sqlfluff"
@@ -200,14 +203,14 @@ class ConfigLoader:
         """Load the config from the user's OS specific appdir config directory."""
         user_config_dir_path = self._get_user_config_dir_path()
         if os.path.exists(user_config_dir_path):
-            return self.load_config_at_path(user_config_dir_path)
+            return load_config_at_path(user_config_dir_path)
         else:
             return {}
 
     def load_user_config(self) -> ConfigMappingType:
         """Load the config from the user's home directory."""
         user_home_path = os.path.expanduser("~")
-        return self.load_config_at_path(user_home_path)
+        return load_config_at_path(user_home_path)
 
     def load_config_up_to_path(
         self,
@@ -237,11 +240,11 @@ class ConfigLoader:
             # here
             parent_config_paths = parent_config_paths[1:-1]
             parent_config_stack = [
-                self.load_config_at_path(p) for p in list(parent_config_paths)
+                load_config_at_path(p.resolve()) for p in list(parent_config_paths)
             ]
 
             config_paths = iter_intermediate_paths(Path(path).absolute(), Path.cwd())
-            config_stack = [self.load_config_at_path(p) for p in config_paths]
+            config_stack = [load_config_at_path(p.resolve()) for p in config_paths]
 
         if not extra_config_path:
             extra_config = {}

@@ -1,4 +1,9 @@
-"""Lower level routines for config file loading and caching."""
+"""Lower level routines for config file loading and caching.
+
+Functions in this module load config from *individual* files and
+resources. While some are cached, they are cached on the basis of
+not processing individual files more than once.
+"""
 
 import os.path
 import sys
