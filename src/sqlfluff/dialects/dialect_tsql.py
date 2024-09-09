@@ -4311,7 +4311,7 @@ class OrderByClauseSegment(BaseSegment):
 
 
 class OffsetClauseSegment(BaseSegment):
-    """OFFSET clause in as SELECT statement."""
+    """OFFSET clause as in a SELECT statement."""
 
     type = "offset_clause"
 
