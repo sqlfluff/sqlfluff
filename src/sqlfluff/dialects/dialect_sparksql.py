@@ -459,6 +459,9 @@ sparksql_dialect.replace(
         Ref("ExpressionSegment"),
         Ref("StarSegment"),
     ),
+    NonWithNonSelectableGrammar=ansi_dialect.get_grammar(
+        "NonWithNonSelectableGrammar"
+    ).copy(insert=[Ref("InsertOverwriteDirectorySegment")]),
 )
 
 sparksql_dialect.add(
