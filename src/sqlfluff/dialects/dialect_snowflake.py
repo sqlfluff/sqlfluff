@@ -470,7 +470,7 @@ snowflake_dialect.add(
         # '' and $$$$ are allowed as alternatives to NULL.
         Ref("QuotedLiteralSegment"),
     ),
-    TargetLagValue=OneOf(
+    TargetLagSegment=OneOf(
         Ref("LagIntervalSegment"),
         "DOWNSTREAM",
     ),
@@ -4373,7 +4373,7 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
         Sequence(
             "TARGET_LAG",
             Ref("EqualsSegment"),
-            Ref("TargetLagValue"),
+            Ref("TargetLagSegment"),
             optional=True,
         ),
         Sequence(
