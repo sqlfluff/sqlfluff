@@ -3591,6 +3591,21 @@ class TableConstraintUsingIndexSegment(BaseSegment):
     )
 
 
+class SetConstraintsStatementSegment(BaseSegment):
+    """`SET CONSTRAINTS` statement.
+
+    https://www.postgresql.org/docs/current/sql-set-constraints.html
+    """
+
+    type = "set_constraint_statement"
+    match_grammar = Sequence(
+        "SET",
+        "CONSTRAINTS",
+        OneOf("ALL", Delimited(Ref("ObjectReferenceSegment"))),
+        OneOf("DEFERRED", "IMMEDIATE"),
+    )
+
+
 class IndexParametersSegment(BaseSegment):
     """index_parameters.
 
@@ -4529,6 +4544,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterStatisticsStatementSegment"),
             Ref("DropStatisticsStatementSegment"),
             Ref("ShowStatementSegment"),
+            Ref("SetConstraintsStatementSegment"),
         ],
     )
 
