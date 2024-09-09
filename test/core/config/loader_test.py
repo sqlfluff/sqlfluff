@@ -15,7 +15,10 @@ from sqlfluff.core.config import (
     load_config_file,
     load_config_string,
 )
-from sqlfluff.core.config.loader import _get_user_config_dir_path
+from sqlfluff.core.config.loader import (
+    _get_user_config_dir_path,
+    _load_user_appdir_config,
+)
 from sqlfluff.core.config.removed import (
     REMOVED_CONFIGS,
     validate_config_dict_for_removed,
@@ -184,11 +187,9 @@ def test__config__load_user_appdir_config(
 
     mock_path_exists.side_effect = path_exists
 
-    c = ConfigLoader()
-
     with patch.object(appdirs, attribute="system", new="darwin"):
         resolved_path = _get_user_config_dir_path()
-        c.load_user_appdir_config()
+        _load_user_appdir_config()
     assert resolved_path == os.path.expanduser("~/Library/Application Support/sqlfluff")
 
     mock_path_exists.assert_has_calls(

@@ -161,6 +161,15 @@ def load_config_at_path(path: str) -> ConfigMappingType:
     return configs
 
 
+def _load_user_appdir_config() -> ConfigMappingType:
+    """Load the config from the user's OS specific appdir config directory."""
+    user_config_dir_path = _get_user_config_dir_path()
+    if os.path.exists(user_config_dir_path):
+        return load_config_at_path(user_config_dir_path)
+    else:
+        return {}
+
+
 class ConfigLoader:
     """The class for loading config files.
 
@@ -199,19 +208,6 @@ class ConfigLoader:
         )
         return load_config_resource(package, file_name)
 
-    def load_user_appdir_config(self) -> ConfigMappingType:
-        """Load the config from the user's OS specific appdir config directory."""
-        user_config_dir_path = _get_user_config_dir_path()
-        if os.path.exists(user_config_dir_path):
-            return load_config_at_path(user_config_dir_path)
-        else:
-            return {}
-
-    def load_user_config(self) -> ConfigMappingType:
-        """Load the config from the user's home directory."""
-        user_home_path = os.path.expanduser("~")
-        return load_config_at_path(user_home_path)
-
     def load_config_up_to_path(
         self,
         path: str,
@@ -220,9 +216,12 @@ class ConfigLoader:
     ) -> ConfigMappingType:
         """Loads a selection of config files from both the path and its parent paths."""
         user_appdir_config = (
-            self.load_user_appdir_config() if not ignore_local_config else {}
+            _load_user_appdir_config() if not ignore_local_config else {}
         )
-        user_config = self.load_user_config() if not ignore_local_config else {}
+        if ignore_local_config:
+            user_config = {}
+        else:
+            user_config = load_config_at_path(os.path.expanduser("~"))
         parent_config_stack = []
         config_stack = []
         if not ignore_local_config:
