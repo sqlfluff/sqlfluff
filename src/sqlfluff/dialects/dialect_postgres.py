@@ -2605,6 +2605,12 @@ class AlterExtensionStatementSegment(BaseSegment):
     )
 
 
+class SubscriptionReferenceSegment(ansi.ObjectReferenceSegment):
+    """A subscription reference."""
+
+    type = "subscription_reference"
+
+
 class PublicationReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to a publication."""
 
@@ -3236,6 +3242,110 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
             Bracketed("FORCE"),
             optional=True,
         ),
+    )
+
+
+class CreateSubscriptionStatementSegment(BaseSegment):
+    """A `CREATE SUBSCRIPTION` statement.
+
+    https://www.postgresql.org/docs/current/sql-createsubscription.html
+    """
+
+    type = "create_subscription"
+    match_grammar = Sequence(
+        "CREATE",
+        "SUBSCRIPTION",
+        Ref("SubscriptionReferenceSegment"),
+        "CONNECTION",
+        Ref("QuotedLiteralSegment"),
+        "PUBLICATION",
+        Delimited(Ref("PublicationReferenceSegment")),
+        Sequence(
+            "WITH",
+            Ref("DefinitionParametersSegment"),
+            optional=True,
+        ),
+    )
+
+
+class AlterSubscriptionStatementSegment(BaseSegment):
+    """An `ALTER SUBSCRIPTION` statement.
+
+    https://www.postgresql.org/docs/current/sql-altersubscription.html
+    """
+
+    type = "alter_subscription"
+    match_grammar = Sequence(
+        "ALTER",
+        "SUBSCRIPTION",
+        Ref("SubscriptionReferenceSegment"),
+        OneOf(
+            Sequence("CONNECTION", Ref("QuotedLiteralSegment")),
+            Sequence(
+                OneOf(
+                    "SET",
+                    "ADD",
+                    "DROP",
+                ),
+                "PUBLICATION",
+                Delimited(Ref("PublicationReferenceSegment")),
+                Sequence(
+                    "WITH",
+                    Ref("DefinitionParametersSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "REFRESH",
+                "PUBLICATION",
+                Sequence(
+                    "WITH",
+                    Ref("DefinitionParametersSegment"),
+                    optional=True,
+                ),
+            ),
+            "ENABLE",
+            "DISABLE",
+            Sequence(
+                "SET",
+                Ref("DefinitionParametersSegment"),
+            ),
+            Sequence(
+                "SKIP",
+                Bracketed(
+                    Ref("ParameterNameSegment"),
+                    Ref("RawEqualsSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "CURRENT_SESSION",
+                ),
+            ),
+            Sequence("RENAME", "TO", Ref("SubscriptionReferenceSegment")),
+        ),
+    )
+
+
+class DropSubscriptionStatementSegment(BaseSegment):
+    """An `DROP SUBSCRIPTION` statement.
+
+    https://www.postgresql.org/docs/current/sql-dropsubscription.html
+    """
+
+    type = "drop_subscription"
+    match_grammar = Sequence(
+        "DROP",
+        "SUBSCRIPTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SubscriptionReferenceSegment"),
+        OneOf("CASCADE", "RESTRICT", optional=True),
     )
 
 
@@ -4509,6 +4619,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateExtensionStatementSegment"),
             Ref("DropExtensionStatementSegment"),
             Ref("AlterExtensionStatementSegment"),
+            Ref("CreateSubscriptionStatementSegment"),
+            Ref("AlterSubscriptionStatementSegment"),
+            Ref("DropSubscriptionStatementSegment"),
             Ref("CreatePublicationStatementSegment"),
             Ref("AlterPublicationStatementSegment"),
             Ref("DropPublicationStatementSegment"),
