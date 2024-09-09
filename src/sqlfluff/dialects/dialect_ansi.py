@@ -739,6 +739,7 @@ ansi_dialect.add(
     ColumnsExpressionNameGrammar=Nothing(),
     # Uses grammar for LT06 support
     ColumnsExpressionGrammar=Nothing(),
+    ListComprehensionGrammar=Nothing(),
 )
 
 
@@ -2282,6 +2283,7 @@ ansi_dialect.add(
                 ),
             ),
             Ref("LocalAliasSegment"),
+            Ref("ListComprehensionGrammar"),
             terminators=[Ref("CommaSegment")],
         ),
         Ref("AccessorGrammar", optional=True),
