@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eb17e69e8ece3ab2b5aa93963e9600bdb40ff950e699568cb74561db7e339b76
+_hash: 605fa1b9e7edd1e43e68c0a1745d650c5b7982305d241b31cc166ab10a86e19d
 file:
 - batch:
     statement:
@@ -1446,3 +1446,62 @@ file:
     statement_terminator: ;
 - go_statement:
     keyword: GO
+- batch:
+    statement:
+      merge_statement:
+      - keyword: MERGE
+      - keyword: INTO
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: target
+      - keyword: USING
+      - bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                numeric_literal: '1'
+                alias_expression:
+                  keyword: AS
+                  naked_identifier: i
+          end_bracket: )
+      - alias_expression:
+          keyword: AS
+          naked_identifier: source
+      - join_on_condition:
+          keyword: 'ON'
+          expression:
+          - column_reference:
+            - naked_identifier: source
+            - dot: .
+            - naked_identifier: i
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: target
+            - dot: .
+            - naked_identifier: i
+      - merge_match:
+          merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_update_clause:
+              keyword: UPDATE
+              set_clause_list:
+                keyword: SET
+                set_clause:
+                  column_reference:
+                  - naked_identifier: target
+                  - dot: .
+                  - naked_identifier: i
+                  assignment_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    column_reference:
+                    - naked_identifier: source
+                    - dot: .
+                    - naked_identifier: i
+    statement_terminator: ;
