@@ -48,7 +48,7 @@ class Rule_RF06(BaseRule):
            contains something invalid without the quotes such as keywords
            or special characters e.g. :code:`"SELECT"`, :code:`"With Space"`
            or :code:`"Special&Characters"`.
-       * - Natively :code:`lowercase` dialects e.g. Athena, DuckDB,
+       * - Natively :code:`lowercase` dialects e.g. Athena,
            Hive & Postgres
          - Identifiers which, without quotes, would resolve to the default
            casing of :code:`foo` i.e. :code:`"foo"`.
@@ -57,6 +57,13 @@ class Rule_RF06(BaseRule):
            contains something invalid without the quotes such as keywords
            or special characters e.g. :code:`"SELECT"`, :code:`"With Space"`
            or :code:`"Special&Characters"`.
+       * - Case insensitive dialects e.g. DuckDB
+         - Any identifiers which are valid without quotes: e.g. :code:`"FOO"`,
+           :code:`"foo"`, :code:`"Foo"`, :code:`"fOo"`, :code:`FOO` and
+           :code:`foo` would all resolve to the same object.
+         - Identifiers which contain something invalid without the quotes
+           such as keywords or special characters e.g. :code:`"SELECT"`,
+           :code:`"With Space"` or :code:`"Special&Characters"`.
 
     This rule is closely associated with (and constrained by the same above
     factors) as :sqlfluff:ref:`aliasing.self_alias.column` (:sqlfluff:ref:`AL09`).
@@ -219,40 +226,51 @@ class Rule_RF06(BaseRule):
             Type[CodeSegment], context.dialect.get_segment("IdentifierSegment")
         )
 
-        # Check if quoted_identifier_contents could be a valid naked identifier
-        # and that it is not a reserved keyword.
+        # For this to be a candidate for unquoting, it must:
+        # - Casefold to it's current exact case. i.e. already be in the default
+        #   casing of the dialect *unless strict mode is set*.
+        # - be a valid naked identifier.
+        # - not be a reserved keyword.
+        # NOTE: If the identifier parser has no casefold defined, we assume that
+        # there is no casefolding (i.e. that the dialect is case sensitive, and
+        # even when unquoted, and therefore we should never unquote).
+        # EXCEPT: if we're in a totally case insensitive dialect like DuckDB.
+        is_case_insensitive_dialect = context.dialect.name in ("duckdb")
         if (
-            regex.fullmatch(
-                naked_identifier_parser.template,
-                identifier_contents,
-                regex.IGNORECASE,
-            )
-            is not None
-        ) and (
-            regex.fullmatch(
-                anti_template,
-                identifier_contents,
-                regex.IGNORECASE,
-            )
-            is None
+            not is_case_insensitive_dialect
+            and naked_identifier_parser.casefold
+            and identifier_contents
+            != naked_identifier_parser.casefold(identifier_contents)
         ):
-            return LintResult(
-                context.segment,
-                fixes=[
-                    LintFix.replace(
-                        context.segment,
-                        [
-                            NakedIdentifierSegment(
-                                raw=identifier_contents,
-                                type="naked_identifier",
-                            )
-                        ],
-                    )
-                ],
-                description=f"Unnecessary quoted identifier {context.segment.raw}.",
-            )
+            return None
+        if not regex.fullmatch(
+            naked_identifier_parser.template,
+            identifier_contents,
+            regex.IGNORECASE,
+        ):
+            return None
+        if regex.fullmatch(
+            anti_template,
+            identifier_contents,
+            regex.IGNORECASE,
+        ):
+            return None
 
-        return None
+        return LintResult(
+            context.segment,
+            fixes=[
+                LintFix.replace(
+                    context.segment,
+                    [
+                        NakedIdentifierSegment(
+                            raw=identifier_contents,
+                            **naked_identifier_parser.segment_kwargs(),
+                        )
+                    ],
+                )
+            ],
+            description=f"Unnecessary quoted identifier {context.segment.raw}.",
+        )
 
     def _init_ignore_words_list(self) -> List[str]:
         """Called first time rule is evaluated to fetch & cache the policy."""

@@ -33,7 +33,7 @@ test_fail_default_uppercase:
       dialect: snowflake
 
 test_fail_default_lowercase:
-  # Snowflake is a dialect which casefolds to lowercase
+  # Postgres is a dialect which casefolds to lowercase
   fail_str: |
     SELECT
       "column_reference",
@@ -42,10 +42,34 @@ test_fail_default_lowercase:
     FROM "schema_reference"."table_reference" AS "table_alias"
   fix_str: |
     SELECT
-      COLUMN_REFERENCE,
+      column_reference,
       foo AS column_alias,
       "Case_Sensitive_Reference"
     FROM schema_reference.table_reference AS table_alias
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_default_insensitive:
+  # DuckDB is a dialect which compares insensitively, which means
+  # as long as the identifier is *valid* without quotes, we should
+  # remove the quotes.
+  fail_str: |
+    SELECT
+      "lowercase_reference",
+      "UPPERCASE_REFERENCE",
+      foo AS "column_alias",
+      "Case_Sensitive_Reference",
+      "SELECT"
+    FROM "schema_reference"."TABLE_REFERENCE" AS "table_alias"
+  fix_str: |
+    SELECT
+      lowercase_reference,
+      UPPERCASE_REFERENCE,
+      foo AS column_alias,
+      Case_Sensitive_Reference,
+      "SELECT"
+    FROM schema_reference.TABLE_REFERENCE AS table_alias
   configs:
     core:
       dialect: duckdb
