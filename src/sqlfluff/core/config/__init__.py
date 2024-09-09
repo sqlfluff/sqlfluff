@@ -8,6 +8,7 @@ from typing import Optional
 from sqlfluff.core.config.fluffconfig import FluffConfig
 from sqlfluff.core.config.loader import (
     ConfigLoader,
+    load_config_file,
     load_config_resource,
     load_config_string,
 )
@@ -15,6 +16,7 @@ from sqlfluff.core.config.loader import (
 __all__ = (
     "FluffConfig",
     "ConfigLoader",
+    "load_config_file",
     "load_config_resource",
     "load_config_string",
     "progress_bar_configuration",

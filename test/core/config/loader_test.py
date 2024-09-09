@@ -9,7 +9,7 @@ import appdirs
 import pytest
 
 from sqlfluff.core import FluffConfig
-from sqlfluff.core.config import ConfigLoader, load_config_string
+from sqlfluff.core.config import ConfigLoader, load_config_file, load_config_string
 from sqlfluff.core.config.removed import (
     REMOVED_CONFIGS,
     validate_config_dict_for_removed,
@@ -117,8 +117,7 @@ def test__config__load_parent():
 
 def test__config__load_toml():
     """Test loading config from a pyproject.toml file."""
-    c = ConfigLoader()
-    cfg = c.load_config_file(
+    cfg = load_config_file(
         os.path.join("test", "fixtures", "config", "toml"),
         "pyproject.toml",
     )
@@ -141,8 +140,7 @@ def test__config__load_toml():
 
 def test__config__load_placeholder_cfg():
     """Test loading a sqlfluff configuration file for placeholder templater."""
-    c = ConfigLoader()
-    cfg = c.load_config_file(
+    cfg = load_config_file(
         os.path.join("test", "fixtures", "config", "placeholder"),
         ".sqlfluff-placeholder",
     )
@@ -249,8 +247,7 @@ def test__config__validate_configs_precedence_same_file():
 
 def test__config__toml_list_config():
     """Test Parsing TOML list of values."""
-    c = ConfigLoader()
-    loaded_config = c.load_config_file(
+    loaded_config = load_config_file(
         os.path.join("test", "fixtures", "config", "toml"),
         "pyproject.toml",
     )

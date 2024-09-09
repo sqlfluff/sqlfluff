@@ -50,6 +50,17 @@ ALLOWABLE_LAYOUT_CONFIG_KEYS = (
 )
 
 
+def load_config_file(
+    file_dir: str, file_name: str, configs: Optional[ConfigMappingType] = None
+) -> ConfigMappingType:
+    """Load a config file."""
+    file_path = os.path.join(file_dir, file_name)
+    raw_config = load_config_file_as_dict(file_path)
+    if not configs:
+        return raw_config
+    return nested_combine(configs, raw_config)
+
+
 def load_config_resource(package: str, file_name: str) -> ConfigMappingType:
     """Load a config resource.
 
@@ -130,16 +141,6 @@ class ConfigLoader:
         )
         return load_config_resource(package, file_name)
 
-    def load_config_file(
-        self, file_dir: str, file_name: str, configs: Optional[ConfigMappingType] = None
-    ) -> ConfigMappingType:
-        """Load a config file."""
-        file_path = os.path.join(file_dir, file_name)
-        raw_config = load_config_file_as_dict(file_path)
-        if not configs:
-            return raw_config
-        return nested_combine(configs, raw_config)
-
     def load_config_at_path(self, path: Union[str, Path]) -> ConfigMappingType:
         """Load config from a given path."""
         # If we've been passed a Path object, resolve it.
@@ -171,7 +172,7 @@ class ConfigLoader:
         # iterate this way round to make sure things overwrite is the right direction
         for fname in filename_options:
             if fname in d:
-                configs = self.load_config_file(p, fname, configs=configs)
+                configs = load_config_file(p, fname, configs=configs)
 
         # Store in the cache
         self._config_cache[str(path)] = configs
