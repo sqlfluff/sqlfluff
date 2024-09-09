@@ -119,6 +119,7 @@ duckdb_dialect.replace(
     SingleQuotedIdentifierSegment=TypedParser(
         "single_quote", IdentifierSegment, type="quoted_identifier", casefold=str.lower
     ),
+    ListComprehensionGrammar=Ref("ListComprehensionExpressionSegment"),
 )
 
 duckdb_dialect.insert_lexer_matchers(
@@ -344,6 +345,24 @@ class LambdaExpressionSegment(BaseSegment):
         ),
         Ref("LambdaArrowSegment"),
         Ref("ExpressionSegment"),
+    )
+
+
+class ListComprehensionExpressionSegment(BaseSegment):
+    """A list comprehension expression in duckdb.
+
+    https://duckdb.org/docs/sql/functions/list#list-comprehension
+    """
+
+    type = "list_comprehension"
+    match_grammar = Bracketed(
+        Ref("ExpressionSegment"),
+        "FOR",
+        Ref("ParameterNameSegment"),
+        "IN",
+        Ref("ExpressionSegment"),
+        Sequence("IF", Ref("ExpressionSegment"), optional=True),
+        bracket_type="square",
     )
 
 

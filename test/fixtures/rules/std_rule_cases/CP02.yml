@@ -31,14 +31,20 @@ test_fail_consistent_capitalisation_with_multiple_words_with_numbers:
 test_pass_consistent_capitalisation_with_leading_underscore:
   pass_str: SELECT _a, b
 
-test_fail_inconsistent_capitalisation_lower_case:
-  # Test that fixes are consistent
-  fail_str: SELECT a,   B
-  fix_str: SELECT a,   b
+test_fail_inconsistent_capitalisation_lowercase_1:
+  # Test that fixes are consistent, and that we capture
+  # table names and aliases.
+  fail_str: SELECT a, B AS C FROM FOO AS BAR
+  fix_str: SELECT a, b AS c FROM foo AS bar
 
-test_fail_inconsistent_capitalisation_2:
-  fail_str: SELECT B,   a
-  fix_str: SELECT B,   A
+test_fail_inconsistent_capitalisation_lowercase_2:
+  # Test that consistency between columns and tables still counts.
+  fail_str: SELECT a FROM FOO
+  fix_str: SELECT a FROM foo
+
+test_fail_inconsistent_capitalisation_uppercase:
+  fail_str: SELECT B, a FROM foo
+  fix_str: SELECT B, A FROM FOO
 
 # PascalCase tests are based on this comment by @alanmcruickshank:
 # https://github.com/sqlfluff/sqlfluff/issues/820#issuecomment-787050507

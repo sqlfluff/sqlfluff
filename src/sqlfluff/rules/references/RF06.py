@@ -1,5 +1,6 @@
 """Implementation of Rule RF06."""
 
+from functools import cached_property
 from typing import TYPE_CHECKING, List, Optional, Type, cast
 
 import regex
@@ -179,12 +180,7 @@ class Rule_RF06(BaseRule):
             context_policy = "quoted_identifier"
 
         # Get the ignore_words_list configuration.
-        try:
-            ignore_words_list = self.ignore_words_list
-        except AttributeError:
-            # First-time only, read the settings from configuration. This is
-            # very slow.
-            ignore_words_list = self._init_ignore_words_list()
+        ignore_words_list = self.ignore_words_list
 
         # Skip if in ignore list
         if ignore_words_list and identifier_contents.lower() in ignore_words_list:
@@ -286,14 +282,13 @@ class Rule_RF06(BaseRule):
             description=f"Unnecessary quoted identifier {context.segment.raw}.",
         )
 
-    def _init_ignore_words_list(self) -> List[str]:
-        """Called first time rule is evaluated to fetch & cache the policy."""
+    @cached_property
+    def ignore_words_list(self) -> List[str]:
+        """Words that the rule should ignore.
+
+        Cached so that it's only evaluated on the first pass.
+        """
         ignore_words_config: str = str(getattr(self, "ignore_words"))
         if ignore_words_config and ignore_words_config != "None":
-            self.ignore_words_list = self.split_comma_separated_string(
-                ignore_words_config.lower()
-            )
-        else:
-            self.ignore_words_list = []
-
-        return self.ignore_words_list
+            return self.split_comma_separated_string(ignore_words_config.lower())
+        return []
