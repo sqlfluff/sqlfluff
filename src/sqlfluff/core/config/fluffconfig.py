@@ -18,10 +18,10 @@ from typing import (
 
 import pluggy
 
-from sqlfluff.core.config.cache import validate_config_dict
 from sqlfluff.core.config.ini import coerce_value
 from sqlfluff.core.config.loader import ConfigLoader
 from sqlfluff.core.config.types import ConfigMappingType
+from sqlfluff.core.config.validate import validate_config_dict
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import (
     dict_diff,
@@ -70,7 +70,9 @@ class FluffConfig:
             overrides = {"core": overrides}
             validate_config_dict(overrides, "<provided overrides>")
         # Stash overrides so we can pass them to child configs
-        self._overrides = overrides["core"] if overrides else None
+        core_overrides = overrides["core"] if overrides else None
+        assert isinstance(core_overrides, dict) or core_overrides is None
+        self._overrides = core_overrides
 
         # Fetch a fresh plugin manager if we weren't provided with one
         self._plugin_manager = plugin_manager or get_plugin_manager()
@@ -248,7 +250,7 @@ class FluffConfig:
         path: str,
         extra_config_path: Optional[str] = None,
         ignore_local_config: bool = False,
-        overrides: Optional[Dict[str, Any]] = None,
+        overrides: Optional[ConfigMappingType] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
     ) -> FluffConfig:
         """Loads a config object given a particular path."""

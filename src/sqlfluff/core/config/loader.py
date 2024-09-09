@@ -20,7 +20,7 @@ from typing import (
 
 import appdirs
 
-from sqlfluff.core.config.cache import (
+from sqlfluff.core.config.file import (
     load_config_file_as_dict,
     load_config_string_as_dict,
 )
