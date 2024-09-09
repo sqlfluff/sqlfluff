@@ -57,7 +57,7 @@ sparksql_dialect = ansi_dialect.copy_as(
     formatted_name="Apache Spark SQL",
     docstring="""**Default Casing**: SparkSQL is case insensitive with
 both quoted and unquoted identifiers (_"delimited"_ identifiers in
-Spark terminology). See the :ref:`Spark Identifiers` docs.
+Spark terminology). See the `Spark Identifiers`_ docs.
 
 **Quotes**: String Literals: ``''`` or ``""``, Identifiers: |back_quotes|.
 
