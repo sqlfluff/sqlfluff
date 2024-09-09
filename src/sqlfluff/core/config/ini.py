@@ -43,6 +43,9 @@ def load_ini_string(cfg_content: str) -> ConfigMappingType:
     - The `configparser` reads everything as strings, but this method will
       attempt to find better types for values based on their content.
     - Path resolution isn't done here, that all happens later.
+    - Unlike most cfg file readers, SQLFluff is case-sensitive in how
+      it reads config files. This is to ensure we support the case
+      sensitivity of jinja.
     """
     # If the string is empty, no need to parse it.
     if not cfg_content:

@@ -19,7 +19,6 @@ import os
 import os.path
 from pathlib import Path
 from typing import (
-    Dict,
     Optional,
 )
 
@@ -170,27 +169,91 @@ def _load_user_appdir_config() -> ConfigMappingType:
         return {}
 
 
+def load_config_up_to_path(
+    path: str,
+    extra_config_path: Optional[str] = None,
+    ignore_local_config: bool = False,
+) -> ConfigMappingType:
+    """Loads a selection of config files from both the path and its parent paths.
+
+    We layer each of the configs on top of each other, starting with any home
+    or user configs (e.g. in appdir or home (`~`)), then any local project
+    configuration and then any explicitly specified config paths.
+    """
+    # 1) AppDir & Home config
+    if not ignore_local_config:
+        user_appdir_config = _load_user_appdir_config()
+        user_config = load_config_at_path(os.path.expanduser("~"))
+    else:
+        user_config, user_appdir_config = {}, {}
+
+    # 3) Local project config
+    parent_config_stack = []
+    config_stack = []
+    if not ignore_local_config:
+        # Finding all paths between here and the home
+        # directory. We could start at the root of the filesystem,
+        # but depending on the user's setup, this might result in
+        # permissions errors.
+        parent_config_paths = list(
+            iter_intermediate_paths(
+                Path(path).absolute(), Path(os.path.expanduser("~"))
+            )
+        )
+        # Stripping off the home directory and the current working
+        # directory, since they are both covered by other code
+        # here
+        parent_config_paths = parent_config_paths[1:-1]
+        parent_config_stack = [
+            load_config_at_path(p.resolve()) for p in list(parent_config_paths)
+        ]
+
+        config_paths = iter_intermediate_paths(Path(path).absolute(), Path.cwd())
+        config_stack = [load_config_at_path(p.resolve()) for p in config_paths]
+
+    # 4) Extra config paths
+    if not extra_config_path:
+        extra_config = {}
+    else:
+        if not os.path.exists(extra_config_path):
+            raise SQLFluffUserError(
+                f"Extra config '{extra_config_path}' does not exist."
+            )
+        extra_config = load_config_file_as_dict(extra_config_path)
+
+    return nested_combine(
+        user_appdir_config,
+        user_config,
+        *parent_config_stack,
+        *config_stack,
+        extra_config,
+    )
+
+
 class ConfigLoader:
     """The class for loading config files.
 
-    Note:
-        Unlike most cfg file readers, sqlfluff is case-sensitive in how
-        it reads config files. This is to ensure we support the case
-        sensitivity of jinja.
-
+    NOTE: Deprecated class maintained because it was in our example
+    plugin for a long while. Remove once this warning has been live for
+    an appropriate amount of time.
     """
 
-    def __init__(self) -> None:
-        # TODO: check that this cache implementation is actually useful
-        self._config_cache: Dict[str, ConfigMappingType] = {}
+    def __init__(self) -> None:  # pragma: no cover
+        config_logger.warning(
+            "ConfigLoader is deprecated, and no longer necessary. "
+            "Please update your plugin to use the config loading functions directly "
+            "to remove this message."
+        )
 
     @classmethod
-    def get_global(cls) -> ConfigLoader:
+    def get_global(cls) -> ConfigLoader:  # pragma: no cover
         """Get the singleton loader."""
-        global global_loader
-        if not global_loader:
-            global_loader = cls()
-        return global_loader
+        config_logger.warning(
+            "ConfigLoader.get_global() is deprecated, and no longer necessary. "
+            "Please update your plugin to use the config loading functions directly "
+            "to remove this message."
+        )
+        return cls()
 
     def load_config_resource(
         self, package: str, file_name: str
@@ -207,57 +270,3 @@ class ConfigLoader:
             "directly to remove this message."
         )
         return load_config_resource(package, file_name)
-
-    def load_config_up_to_path(
-        self,
-        path: str,
-        extra_config_path: Optional[str] = None,
-        ignore_local_config: bool = False,
-    ) -> ConfigMappingType:
-        """Loads a selection of config files from both the path and its parent paths."""
-        user_appdir_config = (
-            _load_user_appdir_config() if not ignore_local_config else {}
-        )
-        if ignore_local_config:
-            user_config = {}
-        else:
-            user_config = load_config_at_path(os.path.expanduser("~"))
-        parent_config_stack = []
-        config_stack = []
-        if not ignore_local_config:
-            # Finding all paths between here and the home
-            # directory. We could start at the root of the filesystem,
-            # but depending on the user's setup, this might result in
-            # permissions errors.
-            parent_config_paths = list(
-                iter_intermediate_paths(
-                    Path(path).absolute(), Path(os.path.expanduser("~"))
-                )
-            )
-            # Stripping off the home directory and the current working
-            # directory, since they are both covered by other code
-            # here
-            parent_config_paths = parent_config_paths[1:-1]
-            parent_config_stack = [
-                load_config_at_path(p.resolve()) for p in list(parent_config_paths)
-            ]
-
-            config_paths = iter_intermediate_paths(Path(path).absolute(), Path.cwd())
-            config_stack = [load_config_at_path(p.resolve()) for p in config_paths]
-
-        if not extra_config_path:
-            extra_config = {}
-        else:
-            if not os.path.exists(extra_config_path):
-                raise SQLFluffUserError(
-                    f"Extra config '{extra_config_path}' does not exist."
-                )
-            extra_config = load_config_file_as_dict(extra_config_path)
-
-        return nested_combine(
-            user_appdir_config,
-            user_config,
-            *parent_config_stack,
-            *config_stack,
-            extra_config,
-        )

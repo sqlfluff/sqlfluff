@@ -18,7 +18,9 @@ from sqlfluff.core.helpers.string import (
 )
 
 if sys.version_info >= (3, 9):
-    from functools import cache
+    # Explicitly rename so that mypy is happy re-exporting it for other
+    # modules to use.
+    from functools import cache as cache
 else:  # pragma: no cover
     from functools import lru_cache
 

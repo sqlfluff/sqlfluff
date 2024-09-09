@@ -10,10 +10,10 @@ import pytest
 
 from sqlfluff.core import FluffConfig
 from sqlfluff.core.config import (
-    ConfigLoader,
     load_config_at_path,
     load_config_file,
     load_config_string,
+    load_config_up_to_path,
 )
 from sqlfluff.core.config.loader import (
     _get_user_config_dir_path,
@@ -70,8 +70,7 @@ def test__config__load_file_f():
 
 def test__config__load_nested():
     """Test nested overwrite and order of precedence of config files."""
-    c = ConfigLoader()
-    cfg = c.load_config_up_to_path(
+    cfg = load_config_up_to_path(
         os.path.join(
             "test", "fixtures", "config", "inheritance_a", "nested", "blah.sql"
         )
@@ -105,11 +104,10 @@ def change_dir(path):
 )
 def test__config__load_parent():
     """Test that config is loaded from parent directory of current working directory."""
-    c = ConfigLoader()
     with change_dir(
         os.path.join("test", "fixtures", "config", "inheritance_a", "nested")
     ):
-        cfg = c.load_config_up_to_path("blah.sql")
+        cfg = load_config_up_to_path("blah.sql")
     assert cfg == {
         "core": {
             "dialect": "mysql",

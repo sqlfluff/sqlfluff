@@ -19,7 +19,10 @@ from typing import (
 import pluggy
 
 from sqlfluff.core.config.ini import coerce_value
-from sqlfluff.core.config.loader import ConfigLoader, load_config_string
+from sqlfluff.core.config.loader import (
+    load_config_string,
+    load_config_up_to_path,
+)
 from sqlfluff.core.config.types import ConfigMappingType
 from sqlfluff.core.config.validate import validate_config_dict
 from sqlfluff.core.errors import SQLFluffUserError
@@ -181,14 +184,13 @@ class FluffConfig:
         **kw: Any,
     ) -> FluffConfig:
         """Loads a config object just based on the root directory."""
-        loader = ConfigLoader.get_global()
-        c = loader.load_config_up_to_path(
+        configs = load_config_up_to_path(
             path=".",
             extra_config_path=extra_config_path,
             ignore_local_config=ignore_local_config,
         )
         return cls(
-            configs=c,
+            configs=configs,
             extra_config_path=extra_config_path,
             ignore_local_config=ignore_local_config,
             overrides=overrides,
@@ -249,14 +251,13 @@ class FluffConfig:
         plugin_manager: Optional[pluggy.PluginManager] = None,
     ) -> FluffConfig:
         """Loads a config object given a particular path."""
-        loader = ConfigLoader.get_global()
-        c = loader.load_config_up_to_path(
+        configs = load_config_up_to_path(
             path=path,
             extra_config_path=extra_config_path,
             ignore_local_config=ignore_local_config,
         )
         return cls(
-            configs=c,
+            configs=configs,
             extra_config_path=extra_config_path,
             ignore_local_config=ignore_local_config,
             overrides=overrides,
