@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 68ce16a57e056aec82ebeb74deef9a0081174b7392197763d91c18dc30deeeec
+_hash: 62a9e685bf7706ffaf3e2acfa8d2b6847389d3122f965b6fb30ec7bd06ac078b
 file:
 - statement:
     select_statement:
@@ -13,18 +13,19 @@ file:
           function:
             function_name:
               function_name_identifier: replace
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: some_field
-            - comma: ','
-            - expression:
-                quoted_literal: "e'\\r\\n'"
-            - comma: ','
-            - expression:
-                quoted_literal: "', '"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: some_field
+              - comma: ','
+              - expression:
+                  quoted_literal: "e'\\r\\n'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "', '"
+              - end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -41,18 +42,19 @@ file:
           function:
             function_name:
               function_name_identifier: replace
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: some_field
-            - comma: ','
-            - expression:
-                quoted_literal: "E'\\r\\n'"
-            - comma: ','
-            - expression:
-                quoted_literal: "', '"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: some_field
+              - comma: ','
+              - expression:
+                  quoted_literal: "E'\\r\\n'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "', '"
+              - end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:

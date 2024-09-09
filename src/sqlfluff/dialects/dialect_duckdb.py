@@ -18,7 +18,6 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     OptionallyBracketed,
-    ParseMode,
     Ref,
     RegexLexer,
     Sequence,
@@ -32,7 +31,11 @@ from sqlfluff.dialects import dialect_postgres as postgres
 
 ansi_dialect = load_raw_dialect("ansi")
 postgres_dialect = load_raw_dialect("postgres")
-duckdb_dialect = postgres_dialect.copy_as("duckdb")
+duckdb_dialect = postgres_dialect.copy_as(
+    "duckdb",
+    formatted_name="DuckDB",
+    docstring="The dialect for `DuckDB <https://duckdb.org/>`_.",
+)
 
 duckdb_dialect.sets("reserved_keywords").update(
     [
@@ -107,10 +110,7 @@ duckdb_dialect.replace(
     # Uses grammar for LT06 support
     ColumnsExpressionGrammar=Sequence(
         Ref("ColumnsExpressionFunctionNameSegment"),
-        Bracketed(
-            Ref("ColumnsExpressionFunctionContentsSegment"),
-            parse_mode=ParseMode.GREEDY,
-        ),
+        Ref("ColumnsExpressionFunctionContentsSegment"),
     ),
     # Matching postgres lower casefold, as it is case-insensitive
     QuotedIdentifierSegment=TypedParser(
@@ -317,11 +317,15 @@ class ColumnsExpressionFunctionContentsSegment(
     https://duckdb.org/docs/sql/expressions/star#columns-expression
     """
 
-    type = "columns_expression"
-    match_grammar = OneOf(
-        Ref("WildcardExpressionSegment"),
-        Ref("QuotedLiteralSegment"),
-        Ref("LambdaExpressionSegment"),
+    type = "function_contents"
+    match_grammar = Sequence(
+        Bracketed(
+            OneOf(
+                Ref("WildcardExpressionSegment"),
+                Ref("QuotedLiteralSegment"),
+                Ref("LambdaExpressionSegment"),
+            ),
+        ),
     )
 
 
@@ -637,4 +641,28 @@ class SimplifiedUnpivotExpressionSegment(BaseSegment):
         ),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
+    )
+
+
+class CreateViewStatementSegment(postgres.CreateViewStatementSegment):
+    """An `Create VIEW` statement.
+
+    https://duckdb.org/docs/sql/statements/create_view.html
+    """
+
+    type = "create_view_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        "AS",
+        OneOf(
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            Ref("ValuesClauseSegment"),
+        ),
     )

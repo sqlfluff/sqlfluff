@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 00bf746e10cd81ce9aef26bca92f1cc25f8ad66393903ca01b08e0b8076b72e0
+_hash: 5e3ea0cc9a9be606d4c6ce60aa42a9d7815af50d67546ab988a4b706898441de
 file:
 - statement:
     select_statement:
@@ -210,9 +210,10 @@ file:
           function:
             function_name:
               function_name_identifier: current_timezone
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -222,11 +223,12 @@ file:
           function:
             function_name:
               function_name_identifier: date
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: "'1970-01-01'"
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'1970-01-01'"
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -236,15 +238,16 @@ file:
           function:
             function_name:
               function_name_identifier: cast
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: "'1970-01-01'"
-              keyword: as
-              data_type:
-                primitive_type:
-                  keyword: date
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'1970-01-01'"
+                keyword: as
+                data_type:
+                  primitive_type:
+                    keyword: date
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -254,11 +257,12 @@ file:
           function:
             function_name:
               function_name_identifier: from_iso8601_timestamp
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: "'2019-09-07T-15:50+00'"
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'2019-09-07T-15:50+00'"
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -268,11 +272,12 @@ file:
           function:
             function_name:
               function_name_identifier: from_iso8601_date
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: "'2019-09-07T-15:50+00'"
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'2019-09-07T-15:50+00'"
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -282,11 +287,12 @@ file:
           function:
             function_name:
               function_name_identifier: from_unixtime
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '1556285138'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '1556285138'
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -312,9 +318,10 @@ file:
           function:
             function_name:
               function_name_identifier: now
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -324,11 +331,12 @@ file:
           function:
             function_name:
               function_name_identifier: to_iso8601
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: "'1970-01-01'"
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'1970-01-01'"
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -338,9 +346,10 @@ file:
           function:
             function_name:
               function_name_identifier: to_unixtime
-            bracketed:
-              start_bracket: (
-              expression:
-                bare_function: current_timestamp
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  bare_function: current_timestamp
+                end_bracket: )
 - statement_terminator: ;

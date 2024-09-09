@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b5c07fcfa9add39719d29df5f870aa2e6441447fd3ea11fa25d5dd77eac0ca9e
+_hash: 2060d6fb0af498fab949db55ac646fd8b6460cc477396196e86dea8a80182326
 file:
 - statement:
     select_statement:
@@ -32,22 +32,23 @@ file:
           function:
             function_name:
               function_name_identifier: filter
-            bracketed:
-            - start_bracket: (
-            - expression:
-                typed_array_literal:
-                  array_type:
-                    keyword: ARRAY
-                  array_literal:
-                    start_square_bracket: '['
-                    end_square_bracket: ']'
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: x
-                binary_operator: ->
-                boolean_literal: 'true'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                      start_square_bracket: '['
+                      end_square_bracket: ']'
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+                  binary_operator: ->
+                  boolean_literal: 'true'
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -57,35 +58,36 @@ file:
           function:
             function_name:
               function_name_identifier: filter
-            bracketed:
-            - start_bracket: (
-            - expression:
-                typed_array_literal:
-                  array_type:
-                    keyword: ARRAY
-                  array_literal:
-                  - start_square_bracket: '['
-                  - numeric_literal: '5'
-                  - comma: ','
-                  - numeric_literal:
-                      sign_indicator: '-'
-                      numeric_literal: '6'
-                  - comma: ','
-                  - null_literal: 'NULL'
-                  - comma: ','
-                  - numeric_literal: '7'
-                  - end_square_bracket: ']'
-            - comma: ','
-            - expression:
-              - column_reference:
-                  naked_identifier: x
-              - binary_operator: ->
-              - column_reference:
-                  naked_identifier: x
-              - comparison_operator:
-                  raw_comparison_operator: '>'
-              - numeric_literal: '0'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '5'
+                    - comma: ','
+                    - numeric_literal:
+                        sign_indicator: '-'
+                        numeric_literal: '6'
+                    - comma: ','
+                    - null_literal: 'NULL'
+                    - comma: ','
+                    - numeric_literal: '7'
+                    - end_square_bracket: ']'
+              - comma: ','
+              - expression:
+                - column_reference:
+                    naked_identifier: x
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: x
+                - comparison_operator:
+                    raw_comparison_operator: '>'
+                - numeric_literal: '0'
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -95,31 +97,32 @@ file:
           function:
             function_name:
               function_name_identifier: filter
-            bracketed:
-            - start_bracket: (
-            - expression:
-                typed_array_literal:
-                  array_type:
-                    keyword: ARRAY
-                  array_literal:
-                  - start_square_bracket: '['
-                  - numeric_literal: '5'
-                  - comma: ','
-                  - null_literal: 'NULL'
-                  - comma: ','
-                  - numeric_literal: '7'
-                  - comma: ','
-                  - null_literal: 'NULL'
-                  - end_square_bracket: ']'
-            - comma: ','
-            - expression:
-              - column_reference:
-                  naked_identifier: x
-              - binary_operator: ->
-              - column_reference:
-                  naked_identifier: x
-              - keyword: IS
-              - keyword: NOT
-              - null_literal: 'NULL'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '5'
+                    - comma: ','
+                    - null_literal: 'NULL'
+                    - comma: ','
+                    - numeric_literal: '7'
+                    - comma: ','
+                    - null_literal: 'NULL'
+                    - end_square_bracket: ']'
+              - comma: ','
+              - expression:
+                - column_reference:
+                    naked_identifier: x
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: x
+                - keyword: IS
+                - keyword: NOT
+                - null_literal: 'NULL'
+              - end_bracket: )
 - statement_terminator: ;

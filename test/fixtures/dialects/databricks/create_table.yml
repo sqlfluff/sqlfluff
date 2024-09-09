@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b9bc4adcd8b7fa5367921f9bc16a74baaf0d4009f0634f01942328f5668f3ae2
+_hash: 6e90ce7f6221b64dc8ef2b220f31d55a6e0c3db50d32386aebc581cbcfd36ec7
 file:
 - statement:
     create_table_statement:
@@ -38,16 +38,17 @@ file:
             function:
               function_name:
                 function_name_identifier: CAST
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: birth_date
-                keyword: AS
-                data_type:
-                  primitive_type:
-                    keyword: DATE
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: birth_date
+                  keyword: AS
+                  data_type:
+                    primitive_type:
+                      keyword: DATE
+                  end_bracket: )
             end_bracket: )
       - comma: ','
       - generated_column_definition:
@@ -157,9 +158,10 @@ file:
         function:
           function_name:
             function_name_identifier: current_timestamp
-          bracketed:
-            start_bracket: (
-            end_bracket: )
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
         binary_operator: '-'
         interval_expression:
           keyword: INTERVAL

@@ -19,7 +19,6 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     OptionallyBracketed,
-    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
@@ -36,7 +35,12 @@ from sqlfluff.dialects.dialect_redshift_keywords import (
 
 postgres_dialect = load_raw_dialect("postgres")
 ansi_dialect = load_raw_dialect("ansi")
-redshift_dialect = postgres_dialect.copy_as("redshift")
+redshift_dialect = postgres_dialect.copy_as(
+    "redshift",
+    formatted_name="AWS Redshift",
+    docstring="""The dialect for `Redshift <https://aws.amazon.com/redshift/>`_
+on Amazon Web Services (AWS).""",
+)
 
 # Set Keywords
 redshift_dialect.sets("unreserved_keywords").clear()
@@ -2070,6 +2074,9 @@ class StatementSegment(postgres.StatementSegment):
             Ref("CreateExternalFunctionStatementSegment"),
             Ref("GrantUsageDatashareStatementSegment"),
         ],
+        remove=[
+            Ref("ShowStatementSegment"),
+        ],
     )
 
 
@@ -2497,17 +2504,7 @@ class FunctionSegment(ansi.FunctionSegment):
             # rather than identifiers.
             Sequence(
                 Ref("DatePartFunctionNameSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("DatetimeUnitSegment"),
-                        Ref(
-                            "FunctionContentsGrammar",
-                            # The brackets might be empty for some functions...
-                            optional=True,
-                        ),
-                    ),
-                    parse_mode=ParseMode.GREEDY,
-                ),
+                Ref("DateTimeFunctionContentsSegment"),
             ),
         ),
         Sequence(
@@ -2533,24 +2530,27 @@ class FunctionSegment(ansi.FunctionSegment):
                         ),
                     ),
                 ),
-                Bracketed(
-                    Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                    ),
-                    parse_mode=ParseMode.GREEDY,
-                ),
+                Ref("FunctionContentsSegment"),
             ),
             Ref("PostFunctionGrammar", optional=True),
         ),
         Sequence(
             Ref("ConvertFunctionNameSegment"),
-            Bracketed(
-                Ref("DatatypeSegment"),
-                Ref("CommaSegment"),
-                Ref("ExpressionSegment"),
-            ),
+            Ref("ConvertFunctionContentsSegment"),
+        ),
+    )
+
+
+class ConvertFunctionContentsSegment(BaseSegment):
+    """Convert Function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref("DatatypeSegment"),
+            Ref("CommaSegment"),
+            Ref("ExpressionSegment"),
         ),
     )
 

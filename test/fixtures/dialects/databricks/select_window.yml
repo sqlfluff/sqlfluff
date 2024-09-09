@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d768ad5c3da783591609eedfc53506c49685929dbed1fddcf56c6255c760003e
+_hash: 560194282205d8b76a3142b02b950541522a1cc0e275f75556346405ddd0076b
 file:
 - statement:
     select_statement:
@@ -13,12 +13,13 @@ file:
           function:
             function_name:
               function_name_identifier: lag
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: test
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: test
+                end_bracket: )
             over_clause:
               keyword: over
               bracketed:
@@ -48,12 +49,13 @@ file:
           function:
             function_name:
               function_name_identifier: lag
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: test
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: test
+                end_bracket: )
             over_clause:
               keyword: over
               bracketed:

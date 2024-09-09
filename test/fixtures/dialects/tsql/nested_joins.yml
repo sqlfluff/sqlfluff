@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7cbf5938384c1ea604a0b07ea850f8a356d98fcbfdd4e80c991f4a0ef5e9814d
+_hash: 4a50c74940284dee3625bff8670f76ab21e7190c7110fe32c190f411e852c1a3
 file:
 - batch:
     statement:
@@ -136,17 +136,18 @@ file:
                     function:
                       function_name:
                         keyword: CAST
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                          - naked_identifier: P_1
-                          - dot: .
-                          - naked_identifier: IDEID
-                        keyword: AS
-                        data_type:
-                          data_type_identifier: varchar
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                            - naked_identifier: P_1
+                            - dot: .
+                            - naked_identifier: IDEID
+                          keyword: AS
+                          data_type:
+                            data_type_identifier: varchar
+                          end_bracket: )
             - join_clause:
               - keyword: LEFT
               - keyword: OUTER
@@ -194,34 +195,36 @@ file:
                     function:
                       function_name:
                         keyword: CAST
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                          - naked_identifier: P_2
-                          - dot: .
-                          - naked_identifier: IDEID
-                        keyword: AS
-                        data_type:
-                          data_type_identifier: varchar
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                            - naked_identifier: P_2
+                            - dot: .
+                            - naked_identifier: IDEID
+                          keyword: AS
+                          data_type:
+                            data_type_identifier: varchar
+                          end_bracket: )
             - join_on_condition:
                 keyword: 'ON'
                 expression:
                   function:
                     function_name:
                       keyword: CAST
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                        - naked_identifier: BA
-                        - dot: .
-                        - naked_identifier: IDEID
-                      keyword: AS
-                      data_type:
-                        data_type_identifier: varchar
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                          - naked_identifier: BA
+                          - dot: .
+                          - naked_identifier: IDEID
+                        keyword: AS
+                        data_type:
+                          data_type_identifier: varchar
+                        end_bracket: )
                   comparison_operator:
                     raw_comparison_operator: '='
                   column_reference:

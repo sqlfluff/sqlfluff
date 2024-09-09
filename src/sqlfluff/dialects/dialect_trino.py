@@ -33,7 +33,11 @@ from sqlfluff.dialects.dialect_trino_keywords import (
 )
 
 ansi_dialect = load_raw_dialect("ansi")
-trino_dialect = ansi_dialect.copy_as("trino")
+trino_dialect = ansi_dialect.copy_as(
+    "trino",
+    formatted_name="Trino",
+    docstring="""The dialect for `Trino <https://trino.io/docs/current/>`_.""",
+)
 
 # Set the bare functions: https://trino.io/docs/current/functions/datetime.html
 trino_dialect.sets("bare_functions").update(
@@ -61,6 +65,16 @@ trino_dialect.insert_lexer_matchers(
 
 trino_dialect.add(
     RightArrowOperator=StringParser("->", SymbolSegment, type="binary_operator"),
+    StartAngleBracketSegment=StringParser(
+        "<", SymbolSegment, type="start_angle_bracket"
+    ),
+    EndAngleBracketSegment=StringParser(">", SymbolSegment, type="end_angle_bracket"),
+)
+
+trino_dialect.bracket_sets("angle_bracket_pairs").update(
+    [
+        ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
+    ]
 )
 
 trino_dialect.patch_lexer_matchers(
@@ -258,7 +272,7 @@ class DatatypeSegment(BaseSegment):
             Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
         ),
         # Structural
-        "ARRAY",
+        Ref("ArrayTypeSegment"),
         "MAP",
         Ref("RowTypeSegment"),
         # Others
@@ -466,13 +480,34 @@ class ListaggOverflowClauseSegment(BaseSegment):
 
 
 class ArrayTypeSegment(ansi.ArrayTypeSegment):
-    """Prefix for array literals.
-
-    Trino supports "ARRAY"
-    """
+    """Prefix for array literals optionally specifying the type."""
 
     type = "array_type"
-    match_grammar = Ref.keyword("ARRAY")
+    match_grammar = Sequence(
+        "ARRAY",
+        Ref("ArrayTypeSchemaSegment", optional=True),
+    )
+
+
+class ArrayTypeSchemaSegment(ansi.ArrayTypeSegment):
+    """Data type segment of the array.
+
+    Trino supports ARRAY(DATA_TYPE) and ARRAY<DATA_TYPE>
+    """
+
+    type = "array_type_schema"
+    match_grammar = OneOf(
+        Bracketed(
+            Ref("DatatypeSegment"),
+            bracket_pairs_set="angle_bracket_pairs",
+            bracket_type="angle",
+        ),
+        Bracketed(
+            Ref("DatatypeSegment"),
+            bracket_pairs_set="bracket_pairs",
+            bracket_type="round",
+        ),
+    )
 
 
 class GroupByClauseSegment(BaseSegment):

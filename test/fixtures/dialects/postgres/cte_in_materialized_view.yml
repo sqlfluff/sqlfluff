@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6ed863caa9a7eab7e2c71c52f49b316faee0ebd9cc2f9407ba9fa7d343d2385e
+_hash: 5c0aa194f1227519d186aa8a6f2951f0c45ef05baaa4110d20fda0ca49e44285
 file:
   statement:
     create_materialized_view_statement:
@@ -36,12 +36,13 @@ file:
                   function:
                     function_name:
                       function_name_identifier: SUM
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: amount
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: amount
+                        end_bracket: )
                   alias_expression:
                     keyword: AS
                     naked_identifier: total_sales
@@ -95,12 +96,13 @@ file:
                               function:
                                 function_name:
                                   function_name_identifier: SUM
-                                bracketed:
-                                  start_bracket: (
-                                  expression:
-                                    column_reference:
-                                      naked_identifier: total_sales
-                                  end_bracket: )
+                                function_contents:
+                                  bracketed:
+                                    start_bracket: (
+                                    expression:
+                                      column_reference:
+                                        naked_identifier: total_sales
+                                    end_bracket: )
                               binary_operator: /
                               numeric_literal: '10'
                         from_clause:
@@ -127,12 +129,13 @@ file:
               function:
                 function_name:
                   function_name_identifier: SUM
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: quantity
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: quantity
+                    end_bracket: )
               alias_expression:
                 keyword: AS
                 naked_identifier: product_units
@@ -141,12 +144,13 @@ file:
               function:
                 function_name:
                   function_name_identifier: SUM
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: amount
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: amount
+                    end_bracket: )
               alias_expression:
                 keyword: AS
                 naked_identifier: product_sales

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e64a1cadd5d2d9f262332c14bd63d4c5f8d9ab0f4d1354e941725eefd4d0a91c
+_hash: b08df3ef30d97e66864145a795bf8fd7f3fe368b8a844aec6e4119d1c305fe25
 file:
 - statement:
     select_statement:
@@ -17,12 +17,13 @@ file:
           function:
             function_name:
               function_name_identifier: SUM
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: vacation_days
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: vacation_days
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -55,12 +56,13 @@ file:
           function:
             function_name:
               function_name_identifier: MAX
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: deal_size
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: deal_size
+                end_bracket: )
           alias_expression:
             keyword: AS
             quoted_identifier: '"Biggest Deal"'
@@ -89,12 +91,13 @@ file:
           function:
             function_name:
               function_name_identifier: MAX
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: deal_size
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: deal_size
+                end_bracket: )
           alias_expression:
             keyword: as
             quoted_identifier: '"Biggest Deal"'
@@ -116,12 +119,13 @@ file:
           function:
             function_name:
               function_name_identifier: MAX
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: deal_size
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: deal_size
+                end_bracket: )
           comparison_operator:
             raw_comparison_operator: '>'
           numeric_literal: '900000'
@@ -142,19 +146,21 @@ file:
           function:
             function_name:
               function_name_identifier: SUM
-            bracketed:
-              start_bracket: (
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: apply_sum
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: grant_values
-                    end_bracket: )
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: apply_sum
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: grant_values
+                        end_bracket: )
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:

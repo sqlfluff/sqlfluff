@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 96a8a90d5cb19753570b96e0b15c0390b1676bb54dd1a8c226a75f998e31ea54
+_hash: a5fdbbf6eaa08251ecd5c0f8ccd12e22cf310f3710e32772b2131433c037dfa5
 file:
 - statement:
     select_statement:
@@ -13,20 +13,21 @@ file:
           function:
             function_name:
               function_name_identifier: my_function
-            bracketed:
-            - start_bracket: (
-            - named_argument:
-                naked_identifier: arg1
-                right_arrow: =>
-                expression:
-                  numeric_literal: '3'
-            - comma: ','
-            - named_argument:
-                naked_identifier: arg2
-                right_arrow: =>
-                expression:
-                  numeric_literal: '4'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - named_argument:
+                  naked_identifier: arg1
+                  right_arrow: =>
+                  expression:
+                    numeric_literal: '3'
+              - comma: ','
+              - named_argument:
+                  naked_identifier: arg2
+                  right_arrow: =>
+                  expression:
+                    numeric_literal: '4'
+              - end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -43,17 +44,18 @@ file:
           function:
             function_name:
               function_name_identifier: my_function
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '3'
-              comma: ','
-              named_argument:
-                naked_identifier: arg2
-                right_arrow: =>
+            function_contents:
+              bracketed:
+                start_bracket: (
                 expression:
-                  numeric_literal: '4'
-              end_bracket: )
+                  numeric_literal: '3'
+                comma: ','
+                named_argument:
+                  naked_identifier: arg2
+                  right_arrow: =>
+                  expression:
+                    numeric_literal: '4'
+                end_bracket: )
       from_clause:
         keyword: from
         from_expression:
@@ -70,17 +72,18 @@ file:
           function:
             function_name:
               function_name_identifier: my_function
-            bracketed:
-              start_bracket: (
-              named_argument:
-                naked_identifier: arg1
-                right_arrow: =>
+            function_contents:
+              bracketed:
+                start_bracket: (
+                named_argument:
+                  naked_identifier: arg1
+                  right_arrow: =>
+                  expression:
+                    numeric_literal: '3'
+                comma: ','
                 expression:
-                  numeric_literal: '3'
-              comma: ','
-              expression:
-                numeric_literal: '4'
-              end_bracket: )
+                  numeric_literal: '4'
+                end_bracket: )
       from_clause:
         keyword: from
         from_expression:

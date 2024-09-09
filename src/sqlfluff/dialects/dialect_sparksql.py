@@ -52,7 +52,24 @@ from sqlfluff.dialects.dialect_sparksql_keywords import (
 
 ansi_dialect = load_raw_dialect("ansi")
 hive_dialect = load_raw_dialect("hive")
-sparksql_dialect = ansi_dialect.copy_as("sparksql")
+sparksql_dialect = ansi_dialect.copy_as(
+    "sparksql",
+    formatted_name="Apache Spark SQL",
+    docstring="""The dialect for Apache `Spark SQL`_. This includes relevant
+syntax from :ref:`hive_dialect_ref` for commands that permit Hive Format.
+Spark SQL extensions provided by the `Delta Lake`_ project are also implemented
+in this dialect.
+
+This implementation focuses on the `Ansi Compliant Mode`_ introduced in
+Spark3, instead of being Hive Compliant. The introduction of ANSI Compliance
+provides better data quality and easier migration from traditional DBMS.
+
+Versions of Spark prior to 3.x will only support the Hive dialect.
+
+.. _`Spark SQL`: https://spark.apache.org/docs/latest/sql-ref.html
+.. _`Delta Lake`: https://docs.delta.io/latest/quick-start.html#set-up-apache-spark-with-delta-lake
+.. _`Ansi Compliant Mode`: https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html""",  # noqa: E501
+)
 
 sparksql_dialect.patch_lexer_matchers(
     [
@@ -822,6 +839,15 @@ sparksql_dialect.add(
             optional=True,
         ),
     ),
+    FirstOrAfterGrammar=Sequence(
+        OneOf(
+            "FIRST",
+            Sequence(
+                "AFTER",
+                Ref("ColumnReferenceSegment"),
+            ),
+        ),
+    ),
 )
 
 # Adding Hint related grammar before comment `block_comment` and
@@ -1028,7 +1054,10 @@ class AlterDatabaseStatementSegment(BaseSegment):
         OneOf("DATABASE", "SCHEMA"),
         Ref("DatabaseReferenceSegment"),
         "SET",
-        Ref("DatabasePropertiesGrammar"),
+        OneOf(
+            Ref("DatabasePropertiesGrammar"),
+            Ref("LocationGrammar"),
+        ),
     )
 
 
@@ -1077,14 +1106,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     Delimited(
                         Sequence(
                             Ref("ColumnFieldDefinitionSegment"),
-                            OneOf(
-                                "FIRST",
-                                Sequence(
-                                    "AFTER",
-                                    Ref("ColumnReferenceSegment"),
-                                ),
-                                optional=True,
-                            ),
+                            Ref("FirstOrAfterGrammar", optional=True),
                         ),
                     ),
                 ),
@@ -1113,14 +1135,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 Ref.keyword("TYPE", optional=True),
                 Ref("DatatypeSegment", optional=True),
                 Ref("CommentGrammar", optional=True),
-                OneOf(
-                    "FIRST",
-                    Sequence(
-                        "AFTER",
-                        Ref("ColumnReferenceSegment"),
-                    ),
-                    optional=True,
-                ),
+                Ref("FirstOrAfterGrammar", optional=True),
                 Sequence(OneOf("SET", "DROP"), "NOT", "NULL", optional=True),
                 Dedent,
             ),

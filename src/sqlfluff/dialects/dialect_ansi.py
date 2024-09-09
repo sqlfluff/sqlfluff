@@ -64,7 +64,21 @@ from sqlfluff.dialects.dialect_ansi_keywords import (
     ansi_unreserved_keywords,
 )
 
-ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
+ansi_dialect = Dialect(
+    "ansi",
+    root_segment_name="FileSegment",
+    formatted_name="ANSI",
+    docstring="""This is the base dialect which holds most of the definitions of common
+SQL commands and structures. If the dialect which you're actually using
+isn't specifically implemented by SQLFluff, using this dialect is a good
+place to start.
+
+This dialect doesn't intend to be brutal in adhering to (and only to) the
+ANSI SQL spec *(mostly because ANSI charges for access to that spec)*. It aims
+to be a representation of vanilla SQL before any other project adds their
+spin to it, and so may contain a slightly wider set of functions than actually
+available in true ANSI SQL.""",
+)
 
 ansi_dialect.set_lexer_matchers(
     [
@@ -1396,6 +1410,41 @@ class FunctionNameSegment(BaseSegment):
     )
 
 
+class DateTimeFunctionContentsSegment(BaseSegment):
+    """Datetime function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Delimited(
+                Ref("DatetimeUnitSegment"),
+                Ref(
+                    "FunctionContentsGrammar",
+                    # The brackets might be empty for some functions...
+                    optional=True,
+                ),
+            ),
+        ),
+    )
+
+
+class FunctionContentsSegment(BaseSegment):
+    """Function Contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref(
+                "FunctionContentsGrammar",
+                # The brackets might be empty for some functions...
+                optional=True,
+            ),
+        ),
+    )
+
+
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
 
@@ -1408,23 +1457,8 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar: Matchable = OneOf(
         Sequence(
-            # Treat functions which take date parts separately
-            # So those functions parse date parts as DatetimeUnitSegment
-            # rather than identifiers.
-            Sequence(
-                Ref("DatePartFunctionNameSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("DatetimeUnitSegment"),
-                        Ref(
-                            "FunctionContentsGrammar",
-                            # The brackets might be empty for some functions...
-                            optional=True,
-                        ),
-                    ),
-                    parse_mode=ParseMode.GREEDY,
-                ),
-            ),
+            Ref("DatePartFunctionNameSegment"),
+            Ref("DateTimeFunctionContentsSegment"),
         ),
         Ref("ColumnsExpressionGrammar"),
         Sequence(
@@ -1437,14 +1471,7 @@ class FunctionSegment(BaseSegment):
                         Ref("ValuesClauseSegment"),
                     ),
                 ),
-                Bracketed(
-                    Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                    ),
-                    parse_mode=ParseMode.GREEDY,
-                ),
+                Ref("FunctionContentsSegment"),
             ),
             Ref("PostFunctionGrammar", optional=True),
         ),
@@ -2215,13 +2242,13 @@ ansi_dialect.add(
                     Ref("ExpressionSegment"),
                     Ref("SelectableGrammar"),
                     Delimited(
+                        Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
                         Ref(
                             "ColumnReferenceSegment"
                         ),  # WHERE (a,b,c) IN (select a,b,c FROM...)
                         Ref(
                             "FunctionSegment"
                         ),  # WHERE (a, substr(b,1,3)) IN (select c,d FROM...)
-                        Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
                         Ref("LocalAliasSegment"),  # WHERE (LOCAL.a, LOCAL.b) IN (...)
                     ),
                 ),
@@ -4283,7 +4310,7 @@ class CreateTriggerStatementSegment(BaseSegment):
             "EXECUTE",
             "PROCEDURE",
             Ref("FunctionNameIdentifierSegment"),
-            Bracketed(Ref("FunctionContentsGrammar", optional=True)),
+            Ref("FunctionContentsSegment"),
             optional=True,
         ),
     )

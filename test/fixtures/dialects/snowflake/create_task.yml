@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 840a52361e794d5324d9d7859afb34f2a8552f2f8f6038f77fe60cc7169f8316
+_hash: 5a9390d386601e8170fb44ef5557139f8a441339b6b5f600928a4ee6c503d84b
 file:
 - statement:
     create_task_statement:
@@ -212,12 +212,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: sum
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: break
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: break
+                      end_bracket: )
                   over_clause:
                     keyword: OVER
                     bracketed:
@@ -329,12 +330,13 @@ file:
                                 function:
                                   function_name:
                                     function_name_identifier: sum
-                                  bracketed:
-                                    start_bracket: (
-                                    expression:
-                                      column_reference:
-                                        naked_identifier: break
-                                    end_bracket: )
+                                  function_contents:
+                                    bracketed:
+                                      start_bracket: (
+                                      expression:
+                                        column_reference:
+                                          naked_identifier: break
+                                      end_bracket: )
                                   over_clause:
                                     keyword: OVER
                                     bracketed:
@@ -435,9 +437,10 @@ file:
               naked_identifier: sch
               dot: .
               function_name_identifier: session_agg_insert
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     create_task_statement:
@@ -463,9 +466,10 @@ file:
           function:
             function_name:
               function_name_identifier: auto_device_insert
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     create_task_statement:
@@ -512,7 +516,8 @@ file:
               naked_identifier: SCH
               dot: .
               function_name_identifier: MY_SPROC
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
 - statement_terminator: ;

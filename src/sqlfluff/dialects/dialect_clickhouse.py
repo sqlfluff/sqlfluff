@@ -40,7 +40,11 @@ from sqlfluff.dialects.dialect_clickhouse_keywords import (
 
 ansi_dialect = load_raw_dialect("ansi")
 
-clickhouse_dialect = ansi_dialect.copy_as("clickhouse")
+clickhouse_dialect = ansi_dialect.copy_as(
+    "clickhouse",
+    formatted_name="ClickHouse",
+    docstring="The dialect for `ClickHouse <https://clickhouse.com/>`_.",
+)
 clickhouse_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
 clickhouse_dialect.insert_lexer_matchers(
@@ -245,6 +249,70 @@ clickhouse_dialect.replace(
         before=Ref.keyword("WHERE"),
     )
     .copy(insert=[Ref("SettingsClauseSegment")]),
+    DateTimeLiteralGrammar=Sequence(
+        OneOf("DATE", "TIME", "TIMESTAMP"),
+        TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
+    ),
+)
+
+# Set the datetime units
+clickhouse_dialect.sets("datetime_units").clear()
+clickhouse_dialect.sets("datetime_units").update(
+    [
+        # https://github.com/ClickHouse/ClickHouse/blob/1cdccd527f0cbf5629b21d29970e28d5156003dc/src/Parsers/parseIntervalKind.cpp#L8
+        "NANOSECOND",
+        "NANOSECONDS",
+        "SQL_TSI_NANOSECOND",
+        "NS",
+        "MICROSECOND",
+        "MICROSECONDS",
+        "SQL_TSI_MICROSECOND",
+        "MCS",
+        "MILLISECOND",
+        "MILLISECONDS",
+        "SQL_TSI_MILLISECOND",
+        "MS",
+        "SECOND",
+        "SECONDS",
+        "SQL_TSI_SECOND",
+        "SS",
+        "S",
+        "MINUTE",
+        "MINUTES",
+        "SQL_TSI_MINUTE",
+        "MI",
+        "N",
+        "HOUR",
+        "HOURS",
+        "SQL_TSI_HOUR",
+        "HH",
+        "H",
+        "DAY",
+        "DAYS",
+        "SQL_TSI_DAY",
+        "DD",
+        "D",
+        "WEEK",
+        "WEEKS",
+        "SQL_TSI_WEEK",
+        "WK",
+        "WW",
+        "MONTH",
+        "MONTHS",
+        "SQL_TSI_MONTH",
+        "MM",
+        "M",
+        "QUARTER",
+        "QUARTERS",
+        "SQL_TSI_QUARTER",
+        "QQ",
+        "Q",
+        "YEAR",
+        "YEARS",
+        "SQL_TSI_YEAR",
+        "YYYY",
+        "YY",
+    ]
 )
 
 
@@ -634,16 +702,7 @@ class TableEngineFunctionSegment(BaseSegment):
                     Ref("ValuesClauseSegment"),
                 ),
             ),
-            Bracketed(
-                Ref(
-                    "FunctionContentsGrammar",
-                    # The brackets might be empty for some functions...
-                    optional=True,
-                ),
-                # Engine functions may omit brackets.
-                optional=True,
-                parse_mode=ParseMode.GREEDY,
-            ),
+            Ref("FunctionContentsSegment", optional=True),
         ),
     )
 
@@ -710,16 +769,7 @@ class DatabaseEngineFunctionSegment(BaseSegment):
                 "REPLICATED",
                 "SQLITE",
             ),
-            Bracketed(
-                Ref(
-                    "FunctionContentsGrammar",
-                    # The brackets might be empty for some functions...
-                    optional=True,
-                ),
-                # Engine functions may omit brackets.
-                optional=True,
-                parse_mode=ParseMode.GREEDY,
-            ),
+            Ref("FunctionContentsSegment", optional=True),
         ),
     )
 
@@ -1663,4 +1713,36 @@ class LimitClauseSegment(ansi.LimitClauseSegment):
             ),
         ),
         Dedent,
+    )
+
+
+class IntervalExpressionSegment(BaseSegment):
+    """An interval expression segment.
+
+    https://clickhouse.com/docs/en/sql-reference/data-types/special-data-types/interval
+    https://clickhouse.com/docs/en/sql-reference/operators#operator-interval
+    """
+
+    type = "interval_expression"
+    match_grammar: Matchable = Sequence(
+        "INTERVAL",
+        OneOf(
+            # The Numeric Version
+            Sequence(
+                Ref("NumericLiteralSegment"),
+                Ref("DatetimeUnitSegment"),
+            ),
+            # The String version
+            Ref("QuotedLiteralSegment"),
+            # Combine version
+            Sequence(
+                Ref("QuotedLiteralSegment"),
+                Ref("DatetimeUnitSegment"),
+            ),
+            # With expression as value
+            Sequence(
+                Ref("ExpressionSegment"),
+                Ref("DatetimeUnitSegment"),
+            ),
+        ),
     )

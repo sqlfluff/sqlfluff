@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 08e12e9160d43c99db40005772eb315a945b74782b70b08564e2a9c837ce4b7b
+_hash: 5da52c9b61f489951f21119b14a49acc58bf2903b00bbf3a79068df5dfe4f467
 file:
 - batch:
     statement:
@@ -889,15 +889,16 @@ file:
           function:
             function_name:
               keyword: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  quoted_identifier: '[InventoryTs]'
-              keyword: AS
-              data_type:
-                data_type_identifier: date
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    quoted_identifier: '[InventoryTs]'
+                keyword: AS
+                data_type:
+                  data_type_identifier: date
+                end_bracket: )
     statement_terminator: ;
 - go_statement:
     keyword: GO

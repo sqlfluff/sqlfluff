@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 75c92164df465af4705b75019cbed005252cff6f553ba67ca21c682c1568788b
+_hash: 181db8352e58e932811134bcd339f47df224a1da57b1cfe968932d2dd13ee07d
 file:
 - statement:
     select_statement:
@@ -89,14 +89,15 @@ file:
         - function:
             function_name:
               function_name_identifier: to_date
-            bracketed:
-            - start_bracket: (
-            - expression:
-                quoted_literal: "'01/01/1970'"
-            - comma: ','
-            - expression:
-                quoted_literal: "'dd/mm/yyyy'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'01/01/1970'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'dd/mm/yyyy'"
+              - end_bracket: )
         - binary_operator: +
         - keyword: interval
         - date_constructor_literal: "'600'"

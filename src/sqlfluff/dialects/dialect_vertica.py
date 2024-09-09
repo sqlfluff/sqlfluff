@@ -39,7 +39,12 @@ from sqlfluff.dialects.dialect_vertica_keywords import (
 )
 
 ansi_dialect = load_raw_dialect("ansi")
-vertica_dialect = ansi_dialect.copy_as("vertica")
+vertica_dialect = ansi_dialect.copy_as(
+    "vertica",
+    formatted_name="Vertica",
+    docstring="""The dialect for
+`Vertica <https://www.vertica.com/documentation/vertica/all/>`_.""",
+)
 
 vertica_dialect.insert_lexer_matchers(
     # Allow ::! operator as in
@@ -1831,17 +1836,7 @@ class FunctionSegment(ansi.FunctionSegment):
             # rather than identifiers.
             Sequence(
                 Ref("DatePartFunctionNameSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("DatetimeUnitSegment"),
-                        Ref(
-                            "FunctionContentsGrammar",
-                            # The brackets might be empty for some functions...
-                            optional=True,
-                        ),
-                    ),
-                    parse_mode=ParseMode.GREEDY,
-                ),
+                Ref("DateTimeFunctionContentsSegment"),
             ),
         ),
         Ref("ColumnsExpressionGrammar"),
@@ -1855,14 +1850,7 @@ class FunctionSegment(ansi.FunctionSegment):
                         Ref("ValuesClauseSegment"),
                     ),
                 ),
-                Bracketed(
-                    Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                    ),
-                    parse_mode=ParseMode.GREEDY,
-                ),
+                Ref("FunctionContentsSegment"),
             ),
             AnySetOf(Ref("PostFunctionGrammar")),
         ),

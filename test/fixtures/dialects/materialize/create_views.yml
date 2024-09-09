@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1f2b3a5496bca43ee44807e85f3e26db32e94392d3c66f9a81351dd0176c6a9e
+_hash: 84c87cf3d6cfb84985e7d46dcc37c3314ce9f0f4da6f0dcf1283388c1dc9604a
 file:
 - statement:
     create_materialized_view_statement:
@@ -127,14 +127,15 @@ file:
             function:
               function_name:
                 function_name_identifier: sum
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                  - naked_identifier: purchase
-                  - dot: .
-                  - naked_identifier: amount
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: purchase
+                    - dot: .
+                    - naked_identifier: amount
+                  end_bracket: )
             alias_expression:
               keyword: AS
               naked_identifier: region_sum

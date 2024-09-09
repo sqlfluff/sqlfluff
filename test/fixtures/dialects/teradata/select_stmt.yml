@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f1b89b3679dd8d827bcbf97affb0b08d1bbf6371a0ef9707b8a7eb4801e0582e
+_hash: b8d0392df2b21dfc0721c593e7a496b02928a673b9d26f72783df134fb6a513b
 file:
 - statement:
     select_statement:
@@ -13,19 +13,20 @@ file:
           function:
             function_name:
               function_name_identifier: ADD_MONTHS
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                - naked_identifier: abandono
-                - dot: .
-                - naked_identifier: FEC_CIERRE_EST
-            - comma: ','
-            - expression:
-                numeric_literal:
-                  sign_indicator: '-'
-                  numeric_literal: '12'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: abandono
+                  - dot: .
+                  - naked_identifier: FEC_CIERRE_EST
+              - comma: ','
+              - expression:
+                  numeric_literal:
+                    sign_indicator: '-'
+                    numeric_literal: '12'
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: FEC_CIERRE_EST_ULT12
@@ -34,16 +35,17 @@ file:
           function:
             function_name:
               function_name_identifier: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: "'200010'"
-              keyword: AS
-              data_type:
-                data_type_identifier: DATE
-                keyword: FORMAT
-                quoted_literal: "'YYYYMM'"
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'200010'"
+                keyword: AS
+                data_type:
+                  data_type_identifier: DATE
+                  keyword: FORMAT
+                  quoted_literal: "'YYYYMM'"
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: CAST_STATEMENT_EXAMPLE

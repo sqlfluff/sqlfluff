@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 40b364e358e1643fde75134acd974436a1bb53e904e64284bbf1a163b6490b40
+_hash: 0c11d2c99b3c6aed83d288ef2232b8c1e8885b82b289fb0bffdafa265f591f45
 file:
 - statement:
     alter_catalog_statement:
@@ -21,8 +21,130 @@ file:
     - keyword: CATALOG
     - catalog_reference:
         naked_identifier: some_cat
+    - keyword: OWNER
+    - keyword: TO
+    - naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+    alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: some_cat
     - keyword: SET
     - keyword: OWNER
     - keyword: TO
     - quoted_identifier: '`alf@melmak.et`'
+- statement_terminator: ;
+- statement:
+    alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: some_cat
+    - keyword: SET
+    - keyword: OWNER
+    - keyword: TO
+    - naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+    alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: some_cat
+    - keyword: SET
+    - keyword: TAGS
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'tag1'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'value1'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: some_cat
+    - keyword: SET
+    - keyword: TAGS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: "'tag2'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value2'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'tag3'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value3'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: some_cat
+    - keyword: UNSET
+    - keyword: TAGS
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'tag1'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: some_cat
+    - keyword: UNSET
+    - keyword: TAGS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: "'tag2'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'tag3'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: some_cat
+    - keyword: ENABLE
+    - keyword: PREDICTIVE
+    - keyword: OPTIMIZATION
+- statement_terminator: ;
+- statement:
+    alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: some_cat
+    - keyword: INHERIT
+    - keyword: PREDICTIVE
+    - keyword: OPTIMIZATION
+- statement_terminator: ;
+- statement:
+    alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: some_cat
+    - keyword: DISABLE
+    - keyword: PREDICTIVE
+    - keyword: OPTIMIZATION
 - statement_terminator: ;

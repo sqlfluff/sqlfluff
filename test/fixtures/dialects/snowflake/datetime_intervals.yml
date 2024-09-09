@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 36aac154cc29a8174068e6e2c01eaa791f94c0af65b03ae16a94ff319675d85f
+_hash: f7696effa6445f4fa1aec8a5d0ca9e14d9c7e319124db358e501ea8f8dac8a4c
 file:
 - statement:
     select_statement:
@@ -13,18 +13,19 @@ file:
           function:
             function_name:
               function_name_identifier: DATEADD
-            bracketed:
-            - start_bracket: (
-            - date_part: NANOSECONDS
-            - comma: ','
-            - expression:
-                numeric_literal:
-                  sign_indicator: '-'
-                  numeric_literal: '1'
-            - comma: ','
-            - expression:
-                quoted_literal: "'2020-01-01'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: NANOSECONDS
+              - comma: ','
+              - expression:
+                  numeric_literal:
+                    sign_indicator: '-'
+                    numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  quoted_literal: "'2020-01-01'"
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -35,11 +36,12 @@ file:
             function:
               function_name:
                 function_name_identifier: to_date
-              bracketed:
-                start_bracket: (
-                expression:
-                  quoted_literal: "'2018-04-15'"
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'2018-04-15'"
+                  end_bracket: )
             binary_operator: +
             keyword: INTERVAL
             date_constructor_literal: "'1 year'"
@@ -53,11 +55,12 @@ file:
             function:
               function_name:
                 function_name_identifier: to_time
-              bracketed:
-                start_bracket: (
-                expression:
-                  quoted_literal: "'04:15:29'"
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'04:15:29'"
+                  end_bracket: )
             binary_operator: +
             keyword: INTERVAL
             date_constructor_literal: "'3 hours, 18 minutes'"
@@ -87,11 +90,12 @@ file:
             function:
               function_name:
                 function_name_identifier: to_date
-              bracketed:
-                start_bracket: (
-                expression:
-                  quoted_literal: "'2025-01-17'"
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'2025-01-17'"
+                  end_bracket: )
             binary_operator: +
             keyword: INTERVAL
             date_constructor_literal: "'1 y, 3 q, 4 mm, 5 w, 6 d, 7 h, 9 m, 8 s,\n\
@@ -159,9 +163,10 @@ file:
           function:
             function_name:
               function_name_identifier: to_timestamp
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: "'2014-04-05 01:02:03'"
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'2014-04-05 01:02:03'"
+                end_bracket: )
 - statement_terminator: ;

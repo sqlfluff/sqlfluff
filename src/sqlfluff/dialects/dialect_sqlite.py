@@ -37,7 +37,11 @@ from sqlfluff.dialects.dialect_sqlite_keywords import (
 
 ansi_dialect = load_raw_dialect("ansi")
 
-sqlite_dialect = ansi_dialect.copy_as("sqlite")
+sqlite_dialect = ansi_dialect.copy_as(
+    "sqlite",
+    formatted_name="SQLite",
+    docstring="""The dialect for `SQLite <https://www.sqlite.org/>`_.""",
+)
 
 sqlite_dialect.sets("reserved_keywords").clear()
 sqlite_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)

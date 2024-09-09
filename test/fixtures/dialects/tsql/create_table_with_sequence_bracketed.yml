@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bd8e5b608fd5cd901c0f50ac677f1ae452f8d065fe2abcb5f38423944df59dae
+_hash: f19e2539e2149a171e7b0e6c15d7a04bfe4a3c3b6cc7ffd097f163ffab9c1823
 file:
 - batch:
     statement:
@@ -41,11 +41,12 @@ file:
                   - function:
                       function_name:
                         function_name_identifier: OBJECT_ID
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          quoted_literal: "N'[dbo].[SEQ_SCHEMA_NAME_TABLE_NAME]'"
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            quoted_literal: "N'[dbo].[SEQ_SCHEMA_NAME_TABLE_NAME]'"
+                          end_bracket: )
                   - binary_operator: AND
                   - column_reference:
                       naked_identifier: type
@@ -167,9 +168,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: GETDATE
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
         - end_bracket: )
       - statement_terminator: ;
   - statement:
@@ -207,11 +209,12 @@ file:
                   - function:
                       function_name:
                         function_name_identifier: OBJECT_ID
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          quoted_literal: "N'[dbo].[SEQ_STAGE_CBS_POPULATION_BASE]'"
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            quoted_literal: "N'[dbo].[SEQ_STAGE_CBS_POPULATION_BASE]'"
+                          end_bracket: )
                   - binary_operator: AND
                   - column_reference:
                       naked_identifier: type
@@ -437,9 +440,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: GETDATE
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
         - end_bracket: )
       - statement_terminator: ;
 - go_statement:
@@ -601,9 +605,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: GETDATE
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[DATE_RANGE_START]'

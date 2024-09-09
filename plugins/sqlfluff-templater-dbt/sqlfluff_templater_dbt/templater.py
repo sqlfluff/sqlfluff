@@ -135,18 +135,16 @@ class DbtTemplater(JinjaTemplater):
         # First check whether we need to silence the logs. If a formatter
         # is present then assume that it's not a problem
         if not self.formatter:
-            try:
-                if self.dbt_version_tuple >= (1, 8):
-                    from dbt_common.events.event_manager_client import (
-                        cleanup_event_logger,
-                    )
 
-                else:
-                    from dbt.events.functions import cleanup_event_logger
+            if self.dbt_version_tuple >= (1, 8):
+                from dbt_common.events.event_manager_client import (
+                    cleanup_event_logger,
+                )
 
-                cleanup_event_logger()
-            except ImportError:
-                pass
+            else:
+                from dbt.events.functions import cleanup_event_logger
+
+            cleanup_event_logger()
 
     @cached_property
     def dbt_config(self):
@@ -222,18 +220,6 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_manifest(self):
         """Loads the dbt manifest."""
-        from dbt.exceptions import DbtProjectError
-
-        # NOTE: The uninstalled packages error only exists from around
-        # dbt 1.4 onwards. Before that we'll just get a slightly uglier
-        # error - not a breaking issue.
-        try:
-            from dbt.exceptions import UninstalledPackagesFoundError
-
-            summary_errors = (DbtProjectError, UninstalledPackagesFoundError)
-        except ImportError:
-            summary_errors = (DbtProjectError,)
-
         # Set dbt not to run tracking. We don't load
         # a full project and so some tracking routines
         # may fail.
@@ -244,21 +230,7 @@ class DbtTemplater(JinjaTemplater):
         # dbt 0.20.* and onward
         from dbt.parser.manifest import ManifestLoader
 
-        old_cwd = os.getcwd()
-        try:
-            # Changing cwd temporarily as dbt is not using project_dir to
-            # read/write `target/partial_parse.msgpack`. This can be undone when
-            # https://github.com/dbt-labs/dbt-core/issues/6055 is solved.
-            # For dbt 1.4+ this isn't necessary, but it is required for 1.3
-            # and before.
-            if self.dbt_version_tuple < (1, 4):
-                os.chdir(self.project_dir)
-            _dbt_manifest = ManifestLoader.get_full_manifest(self.dbt_config)
-        except summary_errors as err:  # pragma: no cover
-            raise SQLFluffUserError(f"{err.__class__.__name__}: {err}")
-        finally:
-            if self.dbt_version_tuple < (1, 4):
-                os.chdir(old_cwd)
+        _dbt_manifest = ManifestLoader.get_full_manifest(self.dbt_config)
 
         return _dbt_manifest
 
@@ -305,13 +277,7 @@ class DbtTemplater(JinjaTemplater):
         # still be available in those versions.
 
         from dbt import flags
-
-        # From dbt 1.3 onwards, the default_profiles_dir resolver is
-        # available. Before that version we use the flags module
-        try:
-            from dbt.cli.resolvers import default_profiles_dir
-        except ImportError:
-            default_profiles_dir = None
+        from dbt.cli.resolvers import default_profiles_dir
 
         default_dir = (
             default_profiles_dir()
@@ -477,53 +443,46 @@ class DbtTemplater(JinjaTemplater):
         fname_absolute_path = os.path.abspath(fname) if fname != "stdin" else fname
 
         try:
-            # These are the names in dbt-core 1.4.1+
-            # https://github.com/dbt-labs/dbt-core/pull/6539
-            from dbt.exceptions import CompilationError
-
-            if self.dbt_version_tuple >= (1, 8):
-                from dbt.adapters.exceptions import FailedToConnectError
-            else:
-                from dbt.exceptions import FailedToConnectError
-        except ImportError:
-            # These are the historic names for older dbt-core versions
-            from dbt.exceptions import CompilationException as CompilationError
-            from dbt.exceptions import (
-                FailedToConnectException as FailedToConnectError,
-            )
-
-        try:
             os.chdir(self.project_dir)
             processed_result = self._unsafe_process(fname_absolute_path, in_str, config)
             # Reset the fail counter
             self._sequential_fails = 0
             return processed_result
-        except FailedToConnectError as e:
-            raise SQLTemplaterError(
-                "dbt tried to connect to the database and failed: you could use "
-                "'execute' to skip the database calls. See "
-                "https://docs.getdbt.com/reference/dbt-jinja-functions/execute/ "
-                f"Error: {e.msg}",
-                fatal=True,
-            )
-        except CompilationError as e:
-            # Increment the counter
-            self._sequential_fails += 1
-            if e.node:
-                _msg = (
-                    f"dbt compilation error on file '{e.node.original_file_path}'"
-                    f", {e.msg}"
-                )
-            else:
-                _msg = f"dbt compilation error: {e.msg}"
-            raise SQLTemplaterError(
-                _msg,
-                # It's fatal if we're over the limit
-                fatal=self._sequential_fails > self.sequential_fail_limit,
-            )
         except SQLTemplaterError:
             # Templater errors are re-raised directly to be caught by the linter.
             raise
+        except Exception as err:
+            # Check whether it's any other dbt error. They don't pickle nicely so
+            # even if we can't handle them, we should catch them so that we
+            # don't hang when in multiprocessing mode.
+            # https://github.com/sqlfluff/sqlfluff/issues/6037
+            # This would include (and likely be) cases of compilation errors.
+            if err.__class__.__module__.startswith("dbt"):
+                _detail = f"{err.__class__.__module__}.{err.__class__.__name__}: {err}"
+                # Is it a connection error?
+                # NOTE: We're comparing to the class _name_ rather than importing
+                # the object because the dbt team keep moving the exceptions, so
+                # maintaining the import references is challenging.
+                if "FailedToConnect" in err.__class__.__name__:
+                    raise SQLTemplaterError(
+                        "dbt tried to connect to the database and failed. Consider "
+                        + "running  `dbt debug` or `dbt compile` to get more "
+                        + "information from dbt. "
+                        + _detail,
+                        fatal=True,
+                    )
+                # Increment the counter
+                self._sequential_fails += 1
+                _preamble = "Error received from dbt during project compilation. "
+                # NOTE: Compilation errors will naturally include a reference
+                # to the file, so we don't need to add an additional one.
+                raise SQLTemplaterError(
+                    _preamble + _detail,
+                    # It's fatal if we're over the limit
+                    fatal=self._sequential_fails > self.sequential_fail_limit,
+                )
+            # If it's not a dbt error, just re-raise it as usual.
+            raise err
         finally:
             os.chdir(self.working_dir)
 
@@ -653,16 +612,10 @@ class DbtTemplater(JinjaTemplater):
             and not getattr(v, "compiled", False)
         )
 
-        try:
-            # These are the names in dbt-core 1.4.1+
-            # https://github.com/dbt-labs/dbt-core/pull/6539
-            if self.dbt_version_tuple >= (1, 8):
-                from dbt_common.exceptions import UndefinedMacroError
-            else:
-                from dbt.exceptions import UndefinedMacroError
-        except ImportError:
-            # These are the historic names for older dbt-core versions
-            from dbt.exceptions import UndefinedMacroException as UndefinedMacroError
+        if self.dbt_version_tuple >= (1, 8):
+            from dbt_common.exceptions import UndefinedMacroError
+        else:
+            from dbt.exceptions import UndefinedMacroError
 
         with self.connection():
             # Apply the monkeypatch.

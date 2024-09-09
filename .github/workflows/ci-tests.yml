@@ -72,18 +72,10 @@ jobs:
     name: dbt Plugin Tests
     strategy:
       matrix:
-        dbt-version: [ dbt110, dbt120, dbt130, dbt140, dbt150, dbt160, dbt170, dbt180 ]
+        dbt-version: [ dbt140, dbt150, dbt160, dbt170, dbt180 ]
         include:
           # Default to python 3.12 for dbt tests.
           - python-version: "3.12"
-          # For the two oldest dbt versions, override to python 3.9.
-          - dbt-version: dbt110
-            python-version: "3.9"
-          - dbt-version: dbt120
-            python-version: "3.9"
-          # For dbt 1.3 override to python 3.10
-          - dbt-version: dbt130
-            python-version: "3.10"
           # For dbt 1.4 - 1.6 override to python 3.11
           - dbt-version: dbt140
             python-version: "3.11"
@@ -221,6 +213,7 @@ jobs:
         name: coverage-data-winpy3.12
         path: ".coverage.*"
         if-no-files-found: ignore
+        include-hidden-files: true
 
   python-windows-dbt-tests:
     runs-on: windows-latest

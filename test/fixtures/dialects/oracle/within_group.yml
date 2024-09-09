@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4ada825227950ee63592765397f58f0d03f157219fd5fa98ffd93b963c93fe48
+_hash: 90ec46606fb4e81ec052c59b56f7c8e8a1244930361f61ec29c9e8dc58bfd564
 file:
 - statement:
     select_statement:
@@ -13,15 +13,16 @@ file:
           function:
             function_name:
               function_name_identifier: LISTAGG
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: last_name
-            - comma: ','
-            - expression:
-                quoted_literal: "'; '"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: last_name
+              - comma: ','
+              - expression:
+                  quoted_literal: "'; '"
+              - end_bracket: )
             withingroup_clause:
             - keyword: WITHIN
             - keyword: GROUP
@@ -43,12 +44,13 @@ file:
           function:
             function_name:
               function_name_identifier: MIN
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: hire_date
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: hire_date
+                end_bracket: )
           alias_expression:
             quoted_identifier: '"Earliest"'
       from_clause:
@@ -81,15 +83,16 @@ file:
           function:
             function_name:
               function_name_identifier: LISTAGG
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: last_name
-            - comma: ','
-            - expression:
-                quoted_literal: "'; '"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: last_name
+              - comma: ','
+              - expression:
+                  quoted_literal: "'; '"
+              - end_bracket: )
             withingroup_clause:
             - keyword: WITHIN
             - keyword: GROUP
@@ -135,20 +138,21 @@ file:
           function:
             function_name:
               function_name_identifier: LISTAGG
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: last_name
-            - comma: ','
-            - expression:
-                quoted_literal: "'; '"
-            - listagg_overflow_clause:
-              - keyword: 'ON'
-              - keyword: OVERFLOW
-              - keyword: TRUNCATE
-              - quoted_identifier: "'...'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: last_name
+              - comma: ','
+              - expression:
+                  quoted_literal: "'; '"
+              - listagg_overflow_clause:
+                - keyword: 'ON'
+                - keyword: OVERFLOW
+                - keyword: TRUNCATE
+                - quoted_identifier: "'...'"
+              - end_bracket: )
             withingroup_clause:
             - keyword: WITHIN
             - keyword: GROUP
@@ -206,15 +210,16 @@ file:
           function:
             function_name:
               function_name_identifier: LISTAGG
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: last_name
-            - comma: ','
-            - expression:
-                quoted_literal: "'; '"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: last_name
+              - comma: ','
+              - expression:
+                  quoted_literal: "'; '"
+              - end_bracket: )
             withingroup_clause:
             - keyword: WITHIN
             - keyword: GROUP

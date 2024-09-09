@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 40c5bb2051b0965431559f09e5a017f3bd129a4dbcb5a93df18239c8ac66ccee
+_hash: 6be2fcb3152b972241ee6da90daa5a5566fba452ab95db8bff92943a5eb545af
 file:
 - statement:
     select_statement:
@@ -17,12 +17,13 @@ file:
           function:
             function_name:
               function_name_identifier: sum
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: quantity
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: quantity
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: sum_quantity
@@ -56,12 +57,13 @@ file:
           function:
             function_name:
               function_name_identifier: sum
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: quantity
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: quantity
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: sum_quantity
@@ -93,12 +95,13 @@ file:
           function:
             function_name:
               function_name_identifier: sum
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: quantity
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: quantity
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: sum_quantity
@@ -107,12 +110,13 @@ file:
           function:
             function_name:
               function_name_identifier: max
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: quantity
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: quantity
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: max_quantity
@@ -146,13 +150,14 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              keyword: DISTINCT
-              expression:
-                column_reference:
-                  naked_identifier: city
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: city
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: count_distinct_city
@@ -179,16 +184,17 @@ file:
       - comma: ','
       - select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: sum
-          - bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: quantity
-              end_bracket: )
-          - keyword: FILTER
-          - bracketed:
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: quantity
+                end_bracket: )
+            keyword: FILTER
+            bracketed:
               start_bracket: (
               keyword: WHERE
               expression:
@@ -239,12 +245,13 @@ file:
           function:
             function_name:
               function_name_identifier: sum
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: quantity
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: quantity
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: sum_quantity
@@ -317,95 +324,13 @@ file:
           function:
             function_name:
               function_name_identifier: sum
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: quantity
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            naked_identifier: sum_quantity
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: dealer
-      groupby_clause:
-      - keyword: GROUP
-      - keyword: BY
-      - column_reference:
-          naked_identifier: city
-      - comma: ','
-      - column_reference:
-          naked_identifier: car_model
-      - grouping_sets_clause:
-        - keyword: GROUPING
-        - keyword: SETS
-        - bracketed:
-            start_bracket: (
-            grouping_expression_list:
-            - expression:
-                bracketed:
-                - start_bracket: (
-                - column_reference:
-                    naked_identifier: city
-                - comma: ','
-                - column_reference:
-                    naked_identifier: car_model
-                - end_bracket: )
-            - comma: ','
-            - expression:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: city
-                  end_bracket: )
-            - comma: ','
-            - expression:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: car_model
-                  end_bracket: )
-            - comma: ','
-            - expression:
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
-            end_bracket: )
-      orderby_clause:
-      - keyword: ORDER
-      - keyword: BY
-      - column_reference:
-          naked_identifier: city
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-            naked_identifier: city
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: car_model
-      - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: sum
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: quantity
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: quantity
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: sum_quantity
@@ -424,6 +349,90 @@ file:
       - comma: ','
       - column_reference:
           naked_identifier: car_model
+      - grouping_sets_clause:
+        - keyword: GROUPING
+        - keyword: SETS
+        - bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - expression:
+                bracketed:
+                - start_bracket: (
+                - column_reference:
+                    naked_identifier: city
+                - comma: ','
+                - column_reference:
+                    naked_identifier: car_model
+                - end_bracket: )
+            - comma: ','
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: city
+                  end_bracket: )
+            - comma: ','
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: car_model
+                  end_bracket: )
+            - comma: ','
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+            end_bracket: )
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: city
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: city
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: car_model
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sum
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: quantity
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: sum_quantity
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: dealer
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: city
+      - comma: ','
+      - column_reference:
+          naked_identifier: car_model
       - comma: ','
       - grouping_sets_clause:
         - keyword: GROUPING
@@ -484,12 +493,13 @@ file:
           function:
             function_name:
               function_name_identifier: sum
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: quantity
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: quantity
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: sum_quantity
@@ -536,12 +546,13 @@ file:
           function:
             function_name:
               function_name_identifier: sum
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: quantity
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: quantity
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: sum_quantity
@@ -580,12 +591,13 @@ file:
           function:
             function_name:
               function_name_identifier: first
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: age
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: age
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -602,14 +614,15 @@ file:
           function:
             function_name:
               function_name_identifier: first
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: age
-            - keyword: IGNORE
-            - keyword: NULLS
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: age
+              - keyword: IGNORE
+              - keyword: NULLS
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: first_age
@@ -618,12 +631,13 @@ file:
           function:
             function_name:
               function_name_identifier: last
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: id
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: last_id
@@ -632,12 +646,13 @@ file:
           function:
             function_name:
               function_name_identifier: sum
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: id
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: sum_id
@@ -665,10 +680,11 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: record_count
@@ -707,10 +723,11 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: record_count
@@ -750,10 +767,11 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: record_count
@@ -796,10 +814,11 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: record_count
@@ -842,10 +861,11 @@ file:
           function:
             function_name:
               function_name_identifier: count
-            bracketed:
-              start_bracket: (
-              star: '*'
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: record_count

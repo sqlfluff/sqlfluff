@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2dbd2c9931c3eac15da53a94cf26cc4a69da3720e2211cd2481a8d79102e2596
+_hash: ed91a7180d847c1a84f4496b29a7baed65db225254a9228e27a9fc9f69f78773
 file:
 - statement:
     create_table_statement:
@@ -31,12 +31,13 @@ file:
                 function:
                   function_name:
                     function_name_identifier: DATE
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: col
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: col
+                      end_bracket: )
               end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -67,12 +68,13 @@ file:
               - function:
                   function_name:
                     function_name_identifier: DATE
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        naked_identifier: col
-                    end_bracket: )
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: col
+                      end_bracket: )
               end_bracket: )
         end_bracket: )
 - statement_terminator: ;
@@ -101,12 +103,13 @@ file:
         - function:
             function_name:
               function_name_identifier: DATE
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  naked_identifier: col2
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col2
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:

@@ -34,7 +34,11 @@ from sqlfluff.dialects.dialect_db2_keywords import UNRESERVED_KEYWORDS
 
 ansi_dialect = load_raw_dialect("ansi")
 
-db2_dialect = ansi_dialect.copy_as("db2")
+db2_dialect = ansi_dialect.copy_as(
+    "db2",
+    formatted_name="IBM Db2",
+    docstring="The dialect for IBM `Db2 <https://www.ibm.com/analytics/db2>`_.",
+)
 db2_dialect.sets("reserved_keywords").remove("NATURAL")
 db2_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
