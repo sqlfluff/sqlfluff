@@ -6,11 +6,12 @@ This holds all the methods and classes for configuration.
 from typing import Optional
 
 from sqlfluff.core.config.fluffconfig import FluffConfig
-from sqlfluff.core.config.loader import ConfigLoader
+from sqlfluff.core.config.loader import ConfigLoader, load_config_resource
 
 __all__ = (
     "FluffConfig",
     "ConfigLoader",
+    "load_config_resource",
     "progress_bar_configuration",
 )
 

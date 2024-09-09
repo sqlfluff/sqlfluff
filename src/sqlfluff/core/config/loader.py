@@ -50,6 +50,30 @@ ALLOWABLE_LAYOUT_CONFIG_KEYS = (
 )
 
 
+def load_config_resource(package: str, file_name: str) -> ConfigMappingType:
+    """Load a config resource.
+
+    This is however more compatible with mypyc because it avoids
+    the use of the __file__ object to find the default config.
+
+    This is only tested extensively with the default config.
+
+    Paths are resolved based on `os.getcwd()`.
+
+    NOTE: This requires that the config file is built into
+    a package but should be more performant because it leverages
+    importlib.
+    https://docs.python.org/3/library/importlib.resources.html
+    """
+    config_string = files(package).joinpath(file_name).read_text()
+    # NOTE: load_config_string_as_dict is cached.
+    return load_config_string_as_dict(
+        config_string,
+        os.getcwd(),
+        logging_reference=f"<resource {package}.{file_name}>",
+    )
+
+
 class ConfigLoader:
     """The class for loading config files.
 
@@ -73,31 +97,20 @@ class ConfigLoader:
         return global_loader
 
     def load_config_resource(
-        self, package: str, file_name: str, configs: Optional[ConfigMappingType] = None
-    ) -> ConfigMappingType:
+        self, package: str, file_name: str
+    ) -> ConfigMappingType:  # pragma: no cover
         """Load a config resource.
 
-        This is however more compatible with mypyc because it avoids
-        the use of the __file__ object to find the default config.
-
-        This is only tested extensively with the default config.
-
-        Paths are resolved based on `os.getcwd()`.
-
-        NOTE: This requires that the config file is built into
-        a package but should be more performant because it leverages
-        importlib.
-        https://docs.python.org/3/library/importlib.resources.html
+        NOTE: Deprecated classmethod maintained because it was in our example
+        plugin for a long while. Remove once this warning has been live for
+        an appropriate amount of time.
         """
-        config_string = files(package).joinpath(file_name).read_text()
-        raw_config = load_config_string_as_dict(
-            config_string,
-            os.getcwd(),
-            logging_reference=f"<resource {package}.{file_name}>",
+        config_logger.warning(
+            "ConfigLoader.load_config_resource() is deprecated. Please update "
+            "your plugin to call sqlfluff.core.config.loader.load_config_resource() "
+            "directly to remove this message."
         )
-        if not configs:
-            return raw_config
-        return nested_combine(configs, raw_config)
+        return load_config_resource(package, file_name)
 
     def load_config_file(
         self, file_dir: str, file_name: str, configs: Optional[ConfigMappingType] = None
@@ -164,23 +177,6 @@ class ConfigLoader:
         self._config_cache[str(path)] = configs
         return configs
 
-    def load_extra_config(self, extra_config_path: str) -> ConfigMappingType:
-        """Load specified extra config."""
-        if not os.path.exists(extra_config_path):
-            raise SQLFluffUserError(
-                f"Extra config '{extra_config_path}' does not exist."
-            )
-
-        # First check the cache
-        if str(extra_config_path) in self._config_cache:
-            return self._config_cache[str(extra_config_path)]
-
-        configs = load_config_file_as_dict(extra_config_path)
-
-        # Store in the cache
-        self._config_cache[str(extra_config_path)] = configs
-        return configs
-
     @staticmethod
     def _get_user_config_dir_path() -> str:
         appname = "sqlfluff"
@@ -245,9 +241,16 @@ class ConfigLoader:
 
             config_paths = iter_intermediate_paths(Path(path).absolute(), Path.cwd())
             config_stack = [self.load_config_at_path(p) for p in config_paths]
-        extra_config = (
-            self.load_extra_config(extra_config_path) if extra_config_path else {}
-        )
+
+        if not extra_config_path:
+            extra_config = {}
+        else:
+            if not os.path.exists(extra_config_path):
+                raise SQLFluffUserError(
+                    f"Extra config '{extra_config_path}' does not exist."
+                )
+            extra_config = load_config_file_as_dict(extra_config_path)
+
         return nested_combine(
             user_appdir_config,
             user_config,
