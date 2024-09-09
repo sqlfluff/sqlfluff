@@ -4849,7 +4849,7 @@ class MergeStatementSegment(ansi.MergeStatementSegment):
             ),
             optional=True,
         ),
-        Ref("AliasExpressionSegment", optional=True),
+        Ref("AliasExpressionSegment", optional=True, exclude=Ref.keyword("USING")),
         Dedent,
         "USING",
         Indent,
