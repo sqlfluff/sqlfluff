@@ -55,7 +55,13 @@ hive_dialect = load_raw_dialect("hive")
 sparksql_dialect = ansi_dialect.copy_as(
     "sparksql",
     formatted_name="Apache Spark SQL",
-    docstring="""The dialect for Apache `Spark SQL`_. This includes relevant
+    docstring="""**Default Casing**: SparkSQL is case insensitive with
+both quoted and unquoted identifiers (_"delimited"_ identifiers in
+Spark terminology). See the :ref:`Spark Identifiers` docs.
+
+**Quotes**: String Literals: ``''`` or ``""``, Identifiers: |back_quotes|.
+
+The dialect for Apache `Spark SQL`_. This includes relevant
 syntax from :ref:`hive_dialect_ref` for commands that permit Hive Format.
 Spark SQL extensions provided by the `Delta Lake`_ project are also implemented
 in this dialect.
@@ -68,7 +74,8 @@ Versions of Spark prior to 3.x will only support the Hive dialect.
 
 .. _`Spark SQL`: https://spark.apache.org/docs/latest/sql-ref.html
 .. _`Delta Lake`: https://docs.delta.io/latest/quick-start.html#set-up-apache-spark-with-delta-lake
-.. _`Ansi Compliant Mode`: https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html""",  # noqa: E501
+.. _`Ansi Compliant Mode`: https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
+.. _`Spark Identifiers`: https://spark.apache.org/docs/latest/sql-ref-identifier.html""",  # noqa: E501
 )
 
 sparksql_dialect.patch_lexer_matchers(
