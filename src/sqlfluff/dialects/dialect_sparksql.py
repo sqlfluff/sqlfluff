@@ -956,6 +956,7 @@ class PrimitiveTypeSegment(BaseSegment):
         ),
         "BINARY",
         "INTERVAL",
+        "VARIANT",
     )
 
 
