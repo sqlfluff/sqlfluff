@@ -7,11 +7,11 @@ test_pass_default:
       unquoted_identifier,
       another as unquoted_alias,
       1 + 2 as expression_alias,
-      "case_sensitive_reference",
+      "case_specific_reference",
       "REFERENCE WITH SPACE",
       "I-c@nn0t-be~un-quoted",
       "SELECT",  -- Keyword as identifier
-      another as "Case_Sensitive_alias"
+      another as "Case_Specific_Alias"
     from my_schema.my_table
 
 test_fail_default_uppercase:
@@ -20,13 +20,13 @@ test_fail_default_uppercase:
     SELECT
       "COLUMN_REFERENCE",
       foo AS "COLUMN_ALIAS",
-      "Case_Sensitive_Reference"
+      "Case_Specific_Reference"
     FROM "SCHEMA_REFERENCE"."TABLE_REFERENCE" AS "TABLE_ALIAS"
   fix_str: |
     SELECT
       COLUMN_REFERENCE,
       foo AS COLUMN_ALIAS,
-      "Case_Sensitive_Reference"
+      "Case_Specific_Reference"
     FROM SCHEMA_REFERENCE.TABLE_REFERENCE AS TABLE_ALIAS
   configs:
     core:
@@ -38,13 +38,13 @@ test_fail_default_lowercase:
     SELECT
       "column_reference",
       foo AS "column_alias",
-      "Case_Sensitive_Reference"
+      "Case_Specific_Reference"
     FROM "schema_reference"."table_reference" AS "table_alias"
   fix_str: |
     SELECT
       column_reference,
       foo AS column_alias,
-      "Case_Sensitive_Reference"
+      "Case_Specific_Reference"
     FROM schema_reference.table_reference AS table_alias
   configs:
     core:
@@ -59,7 +59,7 @@ test_fail_default_insensitive:
       "lowercase_reference",
       "UPPERCASE_REFERENCE",
       foo AS "column_alias",
-      "Case_Sensitive_Reference",
+      "Case_Specific_Reference",
       "SELECT"
     FROM "schema_reference"."TABLE_REFERENCE" AS "table_alias"
   fix_str: |
@@ -67,7 +67,7 @@ test_fail_default_insensitive:
       lowercase_reference,
       UPPERCASE_REFERENCE,
       foo AS column_alias,
-      Case_Sensitive_Reference,
+      Case_Specific_Reference,
       "SELECT"
     FROM schema_reference.TABLE_REFERENCE AS table_alias
   configs:
