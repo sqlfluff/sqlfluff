@@ -24,10 +24,10 @@ class Rule_RF06(BaseRule):
     unquoted variant of the identifier (see below for examples).
 
     Additionally this rule may be configured to a more aggressive setting by setting
-    :code:`strict` to :code:`True`, in which case quotes will be removed regardless
-    of the casing of the contained identifier. Any identifiers which contain special
-    characters, spaces or keywords will still be left quoted. This setting is more
-    appropriate for projects or teams where there is more control over the inputs
+    :code:`case_sensitive` to :code:`False`, in which case quotes will be removed
+    regardless of the casing of the contained identifier. Any identifiers which contain
+    special characters, spaces or keywords will still be left quoted. This setting is
+    more appropriate for projects or teams where there is more control over the inputs
     and outputs of queries, and where it's more viable to institute rules such
     as enforcing that all identifiers are the default casing (and therefore meaning
     that using quotes to change the case of identifiers is unnecessary).
@@ -57,7 +57,8 @@ class Rule_RF06(BaseRule):
            contains something invalid without the quotes such as keywords
            or special characters e.g. :code:`"SELECT"`, :code:`"With Space"`
            or :code:`"Special&Characters"`.
-       * - Case insensitive dialects e.g. DuckDB
+       * - Case insensitive dialects e.g. :ref:`duckdb_dialect_ref` or
+           :ref:`sparksql_dialect_ref`
          - Any identifiers which are valid without quotes: e.g. :code:`"FOO"`,
            :code:`"foo"`, :code:`"Foo"`, :code:`"fOo"`, :code:`FOO` and
            :code:`foo` would all resolve to the same object.
@@ -73,12 +74,13 @@ class Rule_RF06(BaseRule):
 
     **Anti-pattern**
 
-    In this example, a valid unquoted identifier,
-    that is also not a reserved keyword, is needlessly quoted.
+    In this example, valid unquoted identifiers,
+    that are not also reserved keywords, are needlessly quoted.
 
     .. code-block:: sql
 
-        SELECT 123 as "foo"
+        SELECT "foo" as "bar";  -- For lowercase dialects like Postgres
+        SELECT "FOO" as "BAR";  -- For uppercase dialects like Snowflake
 
     **Best practice**
 
@@ -86,7 +88,18 @@ class Rule_RF06(BaseRule):
 
     .. code-block:: sql
 
-        SELECT 123 as foo
+        SELECT foo as bar;  -- For lowercase dialects like Postgres
+        SELECT FOO as BAR;  -- For uppercase dialects like Snowflake
+
+        -- Note that where the case of the quoted identifier requires
+        -- the quotes to remain, or where the identifier cannot be
+        -- unquoted because it would be invalid to do so, the quotes
+        -- may remain. For example:
+        SELECT
+            "Case_Sensitive_Identifier" as is_allowed,
+            "Identifier with spaces or speci@l characters" as this_too,
+            "SELECT" as also_reserved_words
+        FROM "My Table With Spaces"
 
     When ``prefer_quoted_identifiers = True``, the quotes are always necessary, no
     matter if the identifier is valid, a reserved keyword, or contains special
@@ -125,7 +138,7 @@ class Rule_RF06(BaseRule):
         "prefer_quoted_keywords",
         "ignore_words",
         "ignore_words_regex",
-        "force_enable",
+        "case_sensitive",
     ]
     crawl_behaviour = SegmentSeekerCrawler({"quoted_identifier", "naked_identifier"})
     is_fix_compatible = True
@@ -142,7 +155,7 @@ class Rule_RF06(BaseRule):
         self.prefer_quoted_keywords: bool
         self.ignore_words: str
         self.ignore_words_regex: str
-        self.force_enable: bool
+        self.case_sensitive: bool
 
         # Ignore some segment types
         if FunctionalContext(context).parent_stack.any(sp.is_type(*self._ignore_types)):
@@ -228,16 +241,17 @@ class Rule_RF06(BaseRule):
 
         # For this to be a candidate for unquoting, it must:
         # - Casefold to it's current exact case. i.e. already be in the default
-        #   casing of the dialect *unless strict mode is set*.
+        #   casing of the dialect *unless case_sensitive mode is False*.
         # - be a valid naked identifier.
         # - not be a reserved keyword.
         # NOTE: If the identifier parser has no casefold defined, we assume that
         # there is no casefolding (i.e. that the dialect is case sensitive, and
         # even when unquoted, and therefore we should never unquote).
         # EXCEPT: if we're in a totally case insensitive dialect like DuckDB.
-        is_case_insensitive_dialect = context.dialect.name in ("duckdb")
+        is_case_insensitive_dialect = context.dialect.name in ("duckdb", "sparksql")
         if (
             not is_case_insensitive_dialect
+            and self.case_sensitive
             and naked_identifier_parser.casefold
             and identifier_contents
             != naked_identifier_parser.casefold(identifier_contents)

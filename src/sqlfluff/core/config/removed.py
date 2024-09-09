@@ -140,4 +140,8 @@ REMOVED_CONFIGS = [
         ("core", "recurse"),
         "Removed as unused in production and unnecessary for debugging.",
     ),
+    _RemovedConfig(
+        ("rules", "references.quoting", "force_enable"),
+        "No longer used. The dialects which used to block this rule, no longer do.",
+    ),
 ]
