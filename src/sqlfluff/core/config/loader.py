@@ -74,6 +74,24 @@ def load_config_resource(package: str, file_name: str) -> ConfigMappingType:
     )
 
 
+def load_config_string(
+    config_string: str,
+    configs: Optional[ConfigMappingType] = None,
+    working_path: Optional[str] = None,
+) -> ConfigMappingType:
+    """Load a config from the string in ini format.
+
+    Paths are resolved based on the given working path or `os.getcwd()`.
+    """
+    filepath = working_path or os.getcwd()
+    raw_config = load_config_string_as_dict(
+        config_string, filepath, logging_reference="<config string>"
+    )
+    if not configs:
+        return raw_config
+    return nested_combine(configs, raw_config)
+
+
 class ConfigLoader:
     """The class for loading config files.
 
@@ -118,24 +136,6 @@ class ConfigLoader:
         """Load a config file."""
         file_path = os.path.join(file_dir, file_name)
         raw_config = load_config_file_as_dict(file_path)
-        if not configs:
-            return raw_config
-        return nested_combine(configs, raw_config)
-
-    def load_config_string(
-        self,
-        config_string: str,
-        configs: Optional[ConfigMappingType] = None,
-        working_path: Optional[str] = None,
-    ) -> ConfigMappingType:
-        """Load a config from the string in ini format.
-
-        Paths are resolved based on the given working path or `os.getcwd()`.
-        """
-        filepath = working_path or os.getcwd()
-        raw_config = load_config_string_as_dict(
-            config_string, filepath, logging_reference="<config string>"
-        )
         if not configs:
             return raw_config
         return nested_combine(configs, raw_config)

@@ -19,7 +19,7 @@ from typing import (
 import pluggy
 
 from sqlfluff.core.config.ini import coerce_value
-from sqlfluff.core.config.loader import ConfigLoader
+from sqlfluff.core.config.loader import ConfigLoader, load_config_string
 from sqlfluff.core.config.types import ConfigMappingType
 from sqlfluff.core.config.validate import validate_config_dict
 from sqlfluff.core.errors import SQLFluffUserError
@@ -205,10 +205,8 @@ class FluffConfig:
         plugin_manager: Optional[pluggy.PluginManager] = None,
     ) -> FluffConfig:
         """Loads a config object from a single config string."""
-        loader = ConfigLoader.get_global()
-        c = loader.load_config_string(config_string)
         return cls(
-            configs=c,
+            configs=load_config_string(config_string),
             extra_config_path=extra_config_path,
             ignore_local_config=ignore_local_config,
             overrides=overrides,
@@ -230,12 +228,9 @@ class FluffConfig:
         first element as the "root" config, and then later config strings
         will take precedence over any earlier values.
         """
-        loader = ConfigLoader.get_global()
         config_state: Dict[str, Any] = {}
         for config_string in config_strings:
-            config_state = loader.load_config_string(
-                config_string, configs=config_state
-            )
+            config_state = load_config_string(config_string, configs=config_state)
         return cls(
             configs=config_state,
             extra_config_path=extra_config_path,

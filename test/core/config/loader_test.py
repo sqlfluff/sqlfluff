@@ -9,9 +9,7 @@ import appdirs
 import pytest
 
 from sqlfluff.core import FluffConfig
-from sqlfluff.core.config import (
-    ConfigLoader,
-)
+from sqlfluff.core.config import ConfigLoader, load_config_string
 from sqlfluff.core.config.removed import (
     REMOVED_CONFIGS,
     validate_config_dict_for_removed,
@@ -45,13 +43,12 @@ def test__config__load_file_dir():
 
 def test__config__load_from_string():
     """Test loading config from a string."""
-    c = ConfigLoader()
     # Load a string
     with open(
         os.path.join("test", "fixtures", "config", "inheritance_a", ".sqlfluff")
     ) as f:
         config_string = f.read()
-    cfg = c.load_config_string(config_string)
+    cfg = load_config_string(config_string)
     assert cfg == config_a
 
 
