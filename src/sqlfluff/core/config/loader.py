@@ -79,9 +79,10 @@ def load_config_file(
     """Load a config file."""
     file_path = os.path.join(file_dir, file_name)
     raw_config = load_config_file_as_dict(file_path)
-    if not configs:
-        return raw_config
-    return nested_combine(configs, raw_config)
+    # We always run `nested_combine()` because it has the side effect
+    # of making a copy of the objects provided. This prevents us
+    # from editing items which also sit within the cache.
+    return nested_combine(configs or {}, raw_config)
 
 
 def load_config_resource(package: str, file_name: str) -> ConfigMappingType:
@@ -121,9 +122,10 @@ def load_config_string(
     raw_config = load_config_string_as_dict(
         config_string, filepath, logging_reference="<config string>"
     )
-    if not configs:
-        return raw_config
-    return nested_combine(configs, raw_config)
+    # We always run `nested_combine()` because it has the side effect
+    # of making a copy of the objects provided. This prevents us
+    # from editing items which also sit within the cache.
+    return nested_combine(configs or {}, raw_config)
 
 
 @cache
@@ -205,11 +207,11 @@ def load_config_up_to_path(
         # here
         parent_config_paths = parent_config_paths[1:-1]
         parent_config_stack = [
-            load_config_at_path(p.resolve()) for p in list(parent_config_paths)
+            load_config_at_path(str(p.resolve())) for p in list(parent_config_paths)
         ]
-
+        # Resolve paths to ensure caching is accurate.
         config_paths = iter_intermediate_paths(Path(path).absolute(), Path.cwd())
-        config_stack = [load_config_at_path(p.resolve()) for p in config_paths]
+        config_stack = [load_config_at_path(str(p.resolve())) for p in config_paths]
 
     # 4) Extra config paths
     if not extra_config_path:
@@ -219,7 +221,8 @@ def load_config_up_to_path(
             raise SQLFluffUserError(
                 f"Extra config '{extra_config_path}' does not exist."
             )
-        extra_config = load_config_file_as_dict(extra_config_path)
+        # Resolve the path so that the caching is accurate.
+        extra_config = load_config_file_as_dict(str(Path(extra_config_path).resolve()))
 
     return nested_combine(
         user_appdir_config,

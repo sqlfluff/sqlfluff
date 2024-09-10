@@ -83,7 +83,6 @@ class FluffConfig:
         defaults = nested_combine(*self._plugin_manager.hook.load_default_config())
         # If any existing configs are provided. Validate them:
         if configs:
-            # TODO: Test coverage?
             validate_config_dict(configs, "<provided configs>")
         self._configs = nested_combine(
             defaults, configs or {"core": {}}, overrides or {}

@@ -3,6 +3,12 @@
 Functions in this module load config from *individual* files and
 resources. While some are cached, they are cached on the basis of
 not processing individual files more than once.
+
+For the cached functions it is VERY recommended to make sure they
+are copied before any edits happen to them, as those edits may
+propagate back up into the cache. Typically the results are passed
+to `nested_combine` either immediately, or eventually after returning
+which should negate this effect.
 """
 
 import os.path
@@ -73,13 +79,13 @@ def _resolve_paths_in_config(
                 val, str
             ), f"Value for {key} in {log_filename} must be a string not {type(val)}."
             paths = split_comma_separated_string(val)
-            val = ",".join(_resolve_path(filepath, path) for path in paths)
+            config[key] = ",".join(_resolve_path(filepath, path) for path in paths)
         # It it's a single path key, resolve it.
         elif key.lower().endswith(RESOLVE_PATH_SUFFIXES):
             assert isinstance(
                 val, str
             ), f"Value for {key} in {log_filename} must be a string not {type(val)}."
-            val = _resolve_path(filepath, val)
+            config[key] = _resolve_path(filepath, val)
 
 
 @cache

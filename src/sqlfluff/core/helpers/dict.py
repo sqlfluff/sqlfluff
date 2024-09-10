@@ -1,5 +1,6 @@
 """Dict helpers, mostly used in config routines."""
 
+from copy import deepcopy
 from typing import (
     Any,
     Dict,
@@ -30,6 +31,10 @@ def nested_combine(*dicts: Dict[str, Any]) -> Dict[str, Any]:
     Returns:
         `dict`: A combined dictionary from the input dictionaries.
 
+    NOTE: This method has the added side effect of copying all
+    the dict objects within it. This effectively means that it
+    can provide a layer of isolation.
+
     A simple example:
     >>> nested_combine({"a": {"b": "c"}}, {"a": {"d": "e"}})
     {'a': {'b': 'c', 'd': 'e'}}
@@ -50,7 +55,13 @@ def nested_combine(*dicts: Dict[str, Any]) -> Dict[str, Any]:
                         "{!r}".format(k, d[k])
                     )
             else:
-                r[k] = d[k]
+                # In normal operation, these nested dicts should only contain
+                # immutable objects like strings, or contain lists or dicts
+                # which are simple to copy. We use deep copy to make sure that
+                # and dicts or lists within the value are also copied. This should
+                # also protect in future in case more exotic objects get added to
+                # the dict.
+                r[k] = deepcopy(d[k])
     return r
 
 

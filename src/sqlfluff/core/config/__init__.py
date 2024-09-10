@@ -5,6 +5,10 @@ This holds all the methods and classes for configuration.
 
 from typing import Optional
 
+from sqlfluff.core.config.file import (
+    load_config_file_as_dict,
+    load_config_string_as_dict,
+)
 from sqlfluff.core.config.fluffconfig import FluffConfig
 from sqlfluff.core.config.loader import (
     ConfigLoader,
@@ -24,7 +28,22 @@ __all__ = (
     "load_config_at_path",
     "load_config_up_to_path",
     "progress_bar_configuration",
+    "clear_config_caches",
 )
+
+
+def clear_config_caches():
+    """Clear any of the cached config methods.
+
+    This is primarily used during testing where the cache may be be rendered unreliable
+    by using moving around files while setting up tests. Some of the cached methods
+    rely on *filename* caching, and so we may break one of the assumptions of the
+    caching routines (that files aren't modified while SQLFluff is running) during
+    """
+    load_config_file_as_dict.cache_clear()
+    load_config_at_path.cache_clear()
+    load_config_string_as_dict.cache_clear()
+    pass
 
 
 class ProgressBarConfiguration:
