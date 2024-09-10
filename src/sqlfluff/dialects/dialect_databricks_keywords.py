@@ -40,5 +40,7 @@ UNRESERVED_KEYWORDS = [
     "SQL",
     "TAGS",
     "TIMESERIES",
+    "VOLUME",
+    "VOLUMES",
     "ZORDER",
 ]

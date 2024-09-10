@@ -319,6 +319,125 @@ class AlterDatabaseStatementSegment(sparksql.AlterDatabaseStatementSegment):
     )
 
 
+class VolumeReferenceSegment(ansi.ObjectReferenceSegment):
+    """Volume reference."""
+
+    type = "volume_reference"
+
+
+class AlterVolumeStatementSegment(BaseSegment):
+    """Alter Volume Statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-alter-volume.html
+    """
+
+    type = "alter_volume_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "VOLUME",
+        Ref("VolumeReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("VolumeReferenceSegment"),
+            ),
+            Ref("SetOwnerGrammar"),
+            Ref("SetTagsGrammar"),
+            Ref("UnsetTagsGrammar"),
+        ),
+    )
+
+
+class CreateVolumeStatementSegment(BaseSegment):
+    """Create Volume Statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-volume.html
+    """
+
+    type = "create_volume_statement"
+
+    match_grammar = OneOf(
+        # You can create a non-external volume without a location
+        Sequence(
+            "CREATE",
+            "VOLUME",
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("VolumeReferenceSegment"),
+            Ref("CommentGrammar", optional=True),
+        ),
+        # Or you can create an external volume that must have a location
+        Sequence(
+            "CREATE",
+            "EXTERNAL",
+            "VOLUME",
+            Ref("IfNotExistsGrammar", optional=True),
+            Ref("VolumeReferenceSegment"),
+            Ref("LocationGrammar"),
+            Ref("CommentGrammar", optional=True),
+        ),
+    )
+
+
+class DescribeVolumeStatementSegment(BaseSegment):
+    """Describe Volume Statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-describe-volume.html
+    """
+
+    type = "describe_volume_statement"
+
+    match_grammar = Sequence(
+        "DESCRIBE",
+        "VOLUME",
+        Ref("VolumeReferenceSegment"),
+    )
+
+
+class DropVolumeStatementSegment(BaseSegment):
+    """Drop Volume Statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-drop-volume.html
+    """
+
+    type = "drop_volume_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "VOLUME",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("VolumeReferenceSegment"),
+    )
+
+
+class ShowVolumesStatementSegment(BaseSegment):
+    """Show Volumes Statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-volumes.html
+    """
+
+    type = "show_volume_statement"
+
+    match_grammar = Sequence(
+        "SHOW",
+        "VOLUMES",
+        Sequence(
+            Sequence(
+                OneOf("IN", "FROM"),
+                Ref("DatabaseReferenceSegment"),
+                optional=True,
+            ),
+            Sequence(
+                Ref.keyword("LIKE", optional=True),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            optional=True,
+        ),
+    )
+
+
 class MaskStatementSegment(BaseSegment):
     """A `MASK` statement.
 
@@ -717,6 +836,11 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("CreateCatalogStatementSegment"),
             Ref("DropCatalogStatementSegment"),
             Ref("UseCatalogStatementSegment"),
+            Ref("AlterVolumeStatementSegment"),
+            Ref("CreateVolumeStatementSegment"),
+            Ref("DescribeVolumeStatementSegment"),
+            Ref("DropVolumeStatementSegment"),
+            Ref("ShowVolumesStatementSegment"),
             Ref("SetTimeZoneStatementSegment"),
             Ref("OptimizeTableStatementSegment"),
             Ref("CreateDatabricksFunctionStatementSegment"),
