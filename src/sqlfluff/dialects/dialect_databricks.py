@@ -192,6 +192,15 @@ databricks_dialect.add(
 )
 
 databricks_dialect.replace(
+    # https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-describe-volume.html
+    DescribeObjectGrammar=sparksql_dialect.get_grammar("DescribeObjectGrammar").copy(
+        insert=[
+            Sequence(
+                "VOLUME",
+                Ref("VolumeReferenceSegment"),
+            ),
+        ]
+    ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),
         Ref("NamedArgumentSegment"),
@@ -200,6 +209,110 @@ databricks_dialect.replace(
         r"[A-Z_][A-Z0-9_]*",
         IdentifierSegment,
         type="properties_naked_identifier",
+    ),
+    # https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-schemas.html
+    # Differences between this and the SparkSQL version:
+    # - Support for `FROM`|`IN` at the catalog level
+    # - `LIKE` keyword is optional
+    ShowDatabasesSchemasGrammar=Sequence(
+        # SHOW { DATABASES | SCHEMAS }
+        OneOf("DATABASES", "SCHEMAS"),
+        Sequence(
+            OneOf("FROM", "IN"),
+            Ref("DatabaseReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            Ref.keyword("LIKE", optional=True),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    ),
+    # https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-functions.html
+    # Differences between this and the SparkSQL version:
+    # - Support for `FROM`|`IN` at the schema level
+    # - `LIKE` keyword is optional
+    ShowFunctionsGrammar=Sequence(
+        # SHOW FUNCTIONS
+        OneOf("USER", "SYSTEM", "ALL", optional=True),
+        "FUNCTIONS",
+        Sequence(
+            Sequence(
+                OneOf("FROM", "IN"),
+                Ref("DatabaseReferenceSegment"),
+                optional=True,
+            ),
+            Sequence(
+                Ref.keyword("LIKE", optional=True),
+                OneOf(
+                    # qualified function from a database
+                    Sequence(
+                        Ref("DatabaseReferenceSegment"),
+                        Ref("DotSegment"),
+                        Ref("FunctionNameSegment"),
+                        allow_gaps=False,
+                    ),
+                    # non-qualified function
+                    Ref("FunctionNameSegment"),
+                    # Regex/like string
+                    Ref("QuotedLiteralSegment"),
+                ),
+                optional=True,
+            ),
+            optional=True,
+        ),
+    ),
+    # https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-tables.html
+    # Differences between this and the SparkSQL version:
+    # - `LIKE` keyword is optional
+    ShowTablesGrammar=Sequence(
+        # SHOW TABLES
+        "TABLES",
+        Sequence(
+            OneOf("FROM", "IN"),
+            Ref("DatabaseReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            Ref.keyword("LIKE", optional=True),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    ),
+    # https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-views.html
+    # Only difference between this and the SparkSQL version:
+    # - `LIKE` keyword is optional
+    ShowViewsGrammar=Sequence(
+        # SHOW VIEWS
+        "VIEWS",
+        Sequence(
+            OneOf("FROM", "IN"),
+            Ref("DatabaseReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            Ref.keyword("LIKE", optional=True),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    ),
+    # https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-volumes.html
+    ShowObjectGrammar=sparksql_dialect.get_grammar("ShowObjectGrammar").copy(
+        insert=[
+            Sequence(
+                "VOLUMES",
+                Sequence(
+                    OneOf("FROM", "IN"),
+                    Ref("DatabaseReferenceSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    Ref.keyword("LIKE", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            )
+        ],
     ),
 )
 
@@ -214,8 +327,12 @@ class CatalogReferenceSegment(ansi.ObjectReferenceSegment):
     type = "catalog_reference"
 
 
-# Data Definition Statements
-# https://docs.databricks.com/sql/language-manual/index.html#ddl-statements
+class VolumeReferenceSegment(ansi.ObjectReferenceSegment):
+    """Volume reference."""
+
+    type = "volume_reference"
+
+
 class AlterCatalogStatementSegment(BaseSegment):
     """An `ALTER CATALOG` statement.
 
@@ -319,12 +436,6 @@ class AlterDatabaseStatementSegment(sparksql.AlterDatabaseStatementSegment):
     )
 
 
-class VolumeReferenceSegment(ansi.ObjectReferenceSegment):
-    """Volume reference."""
-
-    type = "volume_reference"
-
-
 class AlterVolumeStatementSegment(BaseSegment):
     """Alter Volume Statement.
 
@@ -380,21 +491,6 @@ class CreateVolumeStatementSegment(BaseSegment):
     )
 
 
-class DescribeVolumeStatementSegment(BaseSegment):
-    """Describe Volume Statement.
-
-    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-describe-volume.html
-    """
-
-    type = "describe_volume_statement"
-
-    match_grammar = Sequence(
-        "DESCRIBE",
-        "VOLUME",
-        Ref("VolumeReferenceSegment"),
-    )
-
-
 class DropVolumeStatementSegment(BaseSegment):
     """Drop Volume Statement.
 
@@ -408,33 +504,6 @@ class DropVolumeStatementSegment(BaseSegment):
         "VOLUME",
         Ref("IfExistsGrammar", optional=True),
         Ref("VolumeReferenceSegment"),
-    )
-
-
-class ShowVolumesStatementSegment(BaseSegment):
-    """Show Volumes Statement.
-
-    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-volumes.html
-    """
-
-    type = "show_volume_statement"
-
-    match_grammar = Sequence(
-        "SHOW",
-        "VOLUMES",
-        Sequence(
-            Sequence(
-                OneOf("IN", "FROM"),
-                Ref("DatabaseReferenceSegment"),
-                optional=True,
-            ),
-            Sequence(
-                Ref.keyword("LIKE", optional=True),
-                Ref("QuotedLiteralSegment"),
-                optional=True,
-            ),
-            optional=True,
-        ),
     )
 
 
@@ -838,9 +907,7 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("UseCatalogStatementSegment"),
             Ref("AlterVolumeStatementSegment"),
             Ref("CreateVolumeStatementSegment"),
-            Ref("DescribeVolumeStatementSegment"),
             Ref("DropVolumeStatementSegment"),
-            Ref("ShowVolumesStatementSegment"),
             Ref("SetTimeZoneStatementSegment"),
             Ref("OptimizeTableStatementSegment"),
             Ref("CreateDatabricksFunctionStatementSegment"),
