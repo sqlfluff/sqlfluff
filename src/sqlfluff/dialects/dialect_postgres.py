@@ -47,7 +47,11 @@ ansi_dialect = load_raw_dialect("ansi")
 postgres_dialect = ansi_dialect.copy_as(
     "postgres",
     formatted_name="PostgreSQL",
-    docstring="""This is based around the `PostgreSQL spec`_. Many other SQL
+    docstring="""**Default Casing**: ``lowercase``
+
+**Quotes**: String Literals: ``''``, Identifiers: ``""``.
+
+This is based around the `PostgreSQL spec`_. Many other SQL
 dialects are often based on the PostreSQL syntax. If you're running an unsupported
 dialect, then this is often the dialect to use (until someone makes a specific
 dialect).
@@ -571,7 +575,9 @@ postgres_dialect.replace(
     ),
     QuotedIdentifierSegment=OneOf(
         TypedParser("double_quote", IdentifierSegment, type="quoted_identifier"),
-        TypedParser("unicode_double_quote", LiteralSegment, type="quoted_literal"),
+        TypedParser(
+            "unicode_double_quote", IdentifierSegment, type="quoted_identifier"
+        ),
     ),
     PostFunctionGrammar=AnyNumberOf(
         Ref("WithinGroupClauseSegment"),
@@ -2605,6 +2611,12 @@ class AlterExtensionStatementSegment(BaseSegment):
     )
 
 
+class SubscriptionReferenceSegment(ansi.ObjectReferenceSegment):
+    """A subscription reference."""
+
+    type = "subscription_reference"
+
+
 class PublicationReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to a publication."""
 
@@ -3239,6 +3251,110 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
     )
 
 
+class CreateSubscriptionStatementSegment(BaseSegment):
+    """A `CREATE SUBSCRIPTION` statement.
+
+    https://www.postgresql.org/docs/current/sql-createsubscription.html
+    """
+
+    type = "create_subscription"
+    match_grammar = Sequence(
+        "CREATE",
+        "SUBSCRIPTION",
+        Ref("SubscriptionReferenceSegment"),
+        "CONNECTION",
+        Ref("QuotedLiteralSegment"),
+        "PUBLICATION",
+        Delimited(Ref("PublicationReferenceSegment")),
+        Sequence(
+            "WITH",
+            Ref("DefinitionParametersSegment"),
+            optional=True,
+        ),
+    )
+
+
+class AlterSubscriptionStatementSegment(BaseSegment):
+    """An `ALTER SUBSCRIPTION` statement.
+
+    https://www.postgresql.org/docs/current/sql-altersubscription.html
+    """
+
+    type = "alter_subscription"
+    match_grammar = Sequence(
+        "ALTER",
+        "SUBSCRIPTION",
+        Ref("SubscriptionReferenceSegment"),
+        OneOf(
+            Sequence("CONNECTION", Ref("QuotedLiteralSegment")),
+            Sequence(
+                OneOf(
+                    "SET",
+                    "ADD",
+                    "DROP",
+                ),
+                "PUBLICATION",
+                Delimited(Ref("PublicationReferenceSegment")),
+                Sequence(
+                    "WITH",
+                    Ref("DefinitionParametersSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "REFRESH",
+                "PUBLICATION",
+                Sequence(
+                    "WITH",
+                    Ref("DefinitionParametersSegment"),
+                    optional=True,
+                ),
+            ),
+            "ENABLE",
+            "DISABLE",
+            Sequence(
+                "SET",
+                Ref("DefinitionParametersSegment"),
+            ),
+            Sequence(
+                "SKIP",
+                Bracketed(
+                    Ref("ParameterNameSegment"),
+                    Ref("RawEqualsSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "CURRENT_SESSION",
+                ),
+            ),
+            Sequence("RENAME", "TO", Ref("SubscriptionReferenceSegment")),
+        ),
+    )
+
+
+class DropSubscriptionStatementSegment(BaseSegment):
+    """An `DROP SUBSCRIPTION` statement.
+
+    https://www.postgresql.org/docs/current/sql-dropsubscription.html
+    """
+
+    type = "drop_subscription"
+    match_grammar = Sequence(
+        "DROP",
+        "SUBSCRIPTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SubscriptionReferenceSegment"),
+        OneOf("CASCADE", "RESTRICT", optional=True),
+    )
+
+
 class VacuumStatementSegment(BaseSegment):
     """A `VACUUM` statement.
 
@@ -3588,6 +3704,21 @@ class TableConstraintUsingIndexSegment(BaseSegment):
             Sequence("INITIALLY", "IMMEDIATE"),
             optional=True,
         ),
+    )
+
+
+class SetConstraintsStatementSegment(BaseSegment):
+    """`SET CONSTRAINTS` statement.
+
+    https://www.postgresql.org/docs/current/sql-set-constraints.html
+    """
+
+    type = "set_constraint_statement"
+    match_grammar = Sequence(
+        "SET",
+        "CONSTRAINTS",
+        OneOf("ALL", Delimited(Ref("ObjectReferenceSegment"))),
+        OneOf("DEFERRED", "IMMEDIATE"),
     )
 
 
@@ -4509,6 +4640,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateExtensionStatementSegment"),
             Ref("DropExtensionStatementSegment"),
             Ref("AlterExtensionStatementSegment"),
+            Ref("CreateSubscriptionStatementSegment"),
+            Ref("AlterSubscriptionStatementSegment"),
+            Ref("DropSubscriptionStatementSegment"),
             Ref("CreatePublicationStatementSegment"),
             Ref("AlterPublicationStatementSegment"),
             Ref("DropPublicationStatementSegment"),
@@ -4529,6 +4663,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterStatisticsStatementSegment"),
             Ref("DropStatisticsStatementSegment"),
             Ref("ShowStatementSegment"),
+            Ref("SetConstraintsStatementSegment"),
         ],
     )
 

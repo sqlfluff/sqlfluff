@@ -38,8 +38,18 @@ ansi_dialect = load_raw_dialect("ansi")
 redshift_dialect = postgres_dialect.copy_as(
     "redshift",
     formatted_name="AWS Redshift",
-    docstring="""The dialect for `Redshift <https://aws.amazon.com/redshift/>`_
-on Amazon Web Services (AWS).""",
+    docstring="""**Default Casing**: ``lowercase`` (unless configured
+to be case sensitive with all identifiers using the
+:code:`enable_case_sensitive_identifier` configuration value, see
+the `Redshift Names & Identifiers Docs`_).
+
+**Quotes**: String Literals: ``''``, Identifiers: ``""``.
+
+The dialect for `Redshift`_ on Amazon Web Services (AWS).
+
+.. _`Redshift`: https://aws.amazon.com/redshift/
+.. _`Redshift Names & Identifiers Docs`: https://spark.apache.org/docs/latest/sql-ref.html
+""",  # noqa: E501
 )
 
 # Set Keywords

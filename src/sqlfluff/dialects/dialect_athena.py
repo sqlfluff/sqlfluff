@@ -39,7 +39,12 @@ ansi_dialect = load_raw_dialect("ansi")
 athena_dialect = ansi_dialect.copy_as(
     "athena",
     formatted_name="AWS Athena",
-    docstring="""The dialect for `Athena <https://aws.amazon.com/athena/>`_
+    docstring="""**Default Casing**: ``lowercase``
+
+**Quotes**: String Literals: ``''``, ``""`` or |back_quotes|,
+Identifiers: ``""`` or |back_quotes|
+
+The dialect for `Athena <https://aws.amazon.com/athena/>`_
 on Amazon Web Services (AWS).""",
 )
 

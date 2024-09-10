@@ -4299,8 +4299,29 @@ class OrderByClauseSegment(BaseSegment):
                 ),
                 OneOf("ASC", "DESC", optional=True),
             ),
+            terminators=[Ref("OffsetClauseSegment")],
+        ),
+        Sequence(
+            Ref("OffsetClauseSegment"),
+            Ref("FetchClauseSegment", optional=True),
+            optional=True,
         ),
         Dedent,
+    )
+
+
+class OffsetClauseSegment(BaseSegment):
+    """OFFSET clause as in a SELECT statement."""
+
+    type = "offset_clause"
+
+    match_grammar = Sequence(
+        "OFFSET",
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("ExpressionSegment"),
+        ),
+        OneOf("ROW", "ROWS"),
     )
 
 
@@ -4849,7 +4870,7 @@ class MergeStatementSegment(ansi.MergeStatementSegment):
             ),
             optional=True,
         ),
-        Ref("AliasExpressionSegment", optional=True),
+        Ref("AliasExpressionSegment", optional=True, exclude=Ref.keyword("USING")),
         Dedent,
         "USING",
         Indent,
