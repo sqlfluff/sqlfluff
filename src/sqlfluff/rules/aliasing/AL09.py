@@ -20,22 +20,20 @@ class Rule_AL09(BaseRule):
     change the casing of an identifier as still allowed.
 
     .. list-table::
-       :widths: 30 40 40
+       :widths: 26 48 26
        :header-rows: 1
 
        * - Dialect group
          - ⚠️ Self-alias examples.
          - ✅ Re-casing examples.
-       * - Natively :code:`UPPERCASE` dialects e.g. Snowflake, BigQuery,
-           TSQL & Oracle.
+       * - Natively :code:`UPPERCASE` dialects e.g. Snowflake, BigQuery, TSQL & Oracle.
          - Identifiers which all resolve to the default casing of :code:`FOO`
            e.g. :code:`foo as foo`, :code:`foo as FOO`, :code:`Foo as "FOO"`
            & :code:`"FOO" as FOO`. Quoted identifiers which match exactly:
            :code:`"Foo" as "Foo"` & :code:`"foo" as "foo"`.
          - Aliases which resolve to a different case e.g.
            :code:`"foo" as foo`, :code:`"Foo" as "FOO"`
-       * - Natively :code:`lowercase` dialects e.g. Athena, DuckDB,
-           Hive & Postgres
+       * - Natively :code:`lowercase` dialects e.g. Athena, DuckDB, Hive & Postgres.
          - Identifiers which all resolve to the default casing of :code:`foo`
            e.g. :code:`foo as foo`, :code:`foo as FOO`, :code:`Foo as "foo"`
            & :code:`"foo" as foo`. Quoted identifiers which match exactly:
