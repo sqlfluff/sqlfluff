@@ -45,7 +45,11 @@ ansi_dialect = load_raw_dialect("ansi")
 snowflake_dialect = ansi_dialect.copy_as(
     "snowflake",
     formatted_name="Snowflake",
-    docstring="""The dialect for
+    docstring="""**Default Casing**: ``UPPERCASE``
+
+**Quotes**: String Literals: ``''``, Identifiers: ``""``
+
+The dialect for
 `Snowflake <https://docs.snowflake.com/en/sql-reference.html>`_,
 which has much of its syntax inherited from :ref:`postgres_dialect_ref`.""",
 )
