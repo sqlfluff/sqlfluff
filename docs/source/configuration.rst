@@ -1000,8 +1000,8 @@ Complex Python Variable Templating
 via dot notation (e.g. :code:`{foo.bar}`).  However, since we cannot create Python
 objects within configuration files, we need a workaround in order to provide
 dummy values to render templates containing these values.  The SQLFluff
-python templater will temporarily convert any template variable
-containing a "." with a dictionary lookup using the fixed context key :code:`sqlfluff`:
+python templater will interpret any variable containing a "." as a
+dictionary lookup on the *magic* fixed context key :code:`sqlfluff`.
 
 .. code-block:: sql
 
@@ -1009,7 +1009,7 @@ containing a "." with a dictionary lookup using the fixed context key :code:`sql
     SELECT * FROM {foo.bar}
 
     -- becomes this
-    SELECT * FROM {sqlfluff[foo.bar]}
+    SELECT * FROM {sqlfluff["foo.bar"]}
 
 ..which can be populated using the following configuration:
 
