@@ -268,11 +268,33 @@ class PythonTemplater(RawTemplater):
                 )
                 rendered_str = raw_str_with_dot_notation_hack.format(**live_context)
             except KeyError as err:
-                raise SQLTemplaterError(
-                    "Failure in Python templating: {}. Have you configured your "
-                    "variables? https://docs.sqlfluff.com/en/stable/"
-                    "configuration.html#templating-configuration".format(err)
-                )
+                missing_key = err.args[0]
+                if missing_key == "sqlfluff":
+                    # Give more useful error message related to dot notation hack
+                    # when user has not created the required, magic context key
+                    raise SQLTemplaterError(
+                        "Failure in Python templating: magic key 'sqlfluff' "
+                        "missing from context.  This key is required "
+                        "for template variables containing '.'. "
+                        "https://docs.sqlfluff.com/en/stable/"
+                        "configuration.html#templating-configuration"
+                    )
+                elif "." in missing_key:
+                    # Give more useful error message related to dot notation hack
+                    # for missing keys
+                    raise SQLTemplaterError(
+                        "Failure in Python templating: {} key missing from 'sqlfluff' "
+                        "dict in context. Template variables containing '.' are "
+                        "required to use the 'sqlfluff' magic fixed context key. "
+                        "https://docs.sqlfluff.com/en/stable/"
+                        "configuration.html#templating-configuration".format(err)
+                    )
+                else:
+                    raise SQLTemplaterError(
+                        "Failure in Python templating: {}. Have you configured your "
+                        "variables? https://docs.sqlfluff.com/en/stable/"
+                        "configuration.html#templating-configuration".format(err)
+                    )
             return rendered_str
 
         raw_sliced, sliced_file, new_str = self.slice_file(
