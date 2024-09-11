@@ -319,6 +319,28 @@ class AlterDatabaseStatementSegment(sparksql.AlterDatabaseStatementSegment):
     )
 
 
+class CreateDatabaseStatementSegment(sparksql.CreateDatabaseStatementSegment):
+    """A `CREATE DATABASE` statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-schema.html
+    """
+
+    match_grammar = sparksql.CreateDatabaseStatementSegment.match_grammar.copy(
+        insert=[
+            Sequence(
+                Ref.keyword("MANAGED", optional=True),
+                "LOCATION",
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+        ],
+        at=5,
+        remove=[
+            Ref("LocationGrammar", optional=True),
+        ],
+    )
+
+
 class MaskStatementSegment(BaseSegment):
     """A `MASK` statement.
 
@@ -717,6 +739,7 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("CreateCatalogStatementSegment"),
             Ref("DropCatalogStatementSegment"),
             Ref("UseCatalogStatementSegment"),
+            Ref("CreateDatabaseStatementSegment"),
             Ref("SetTimeZoneStatementSegment"),
             Ref("OptimizeTableStatementSegment"),
             Ref("CreateDatabricksFunctionStatementSegment"),
