@@ -277,7 +277,7 @@ class PythonTemplater(RawTemplater):
                         "missing from context.  This key is required "
                         "for template variables containing '.'. "
                         "https://docs.sqlfluff.com/en/stable/"
-                        "configuration.html#templating-configuration"
+                        "perma/python_templating.html"
                     )
                 elif "." in missing_key:
                     # Give more useful error message related to dot notation hack
@@ -287,13 +287,13 @@ class PythonTemplater(RawTemplater):
                         "dict in context. Template variables containing '.' are "
                         "required to use the 'sqlfluff' magic fixed context key. "
                         "https://docs.sqlfluff.com/en/stable/"
-                        "configuration.html#templating-configuration".format(err)
+                        "perma/python_templating.html".format(err)
                     )
                 else:
                     raise SQLTemplaterError(
                         "Failure in Python templating: {}. Have you configured your "
                         "variables? https://docs.sqlfluff.com/en/stable/"
-                        "configuration.html#templating-configuration".format(err)
+                        "perma/variables.html".format(err)
                     )
             return rendered_str
 
