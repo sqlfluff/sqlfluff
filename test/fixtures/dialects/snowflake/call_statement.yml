@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f91e6eab07bce733772f80cd2f1803bb3590c44416987b08609627f2e4153167
+_hash: 4516b62538fdc1c8bf70da2c627e4e376ee836ba2231b8764426fc25937ea8b2
 file:
 - statement:
     call_segment:
@@ -11,16 +11,18 @@ file:
       function:
         function_name:
           function_name_identifier: MyStoredProcedure
-        bracketed:
-          start_bracket: (
-          expression:
-            function:
-              function_name:
-                function_name_identifier: CURRENT_ROLE
-              bracketed:
-                start_bracket: (
-                end_bracket: )
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: CURRENT_ROLE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     call_segment:
@@ -28,14 +30,15 @@ file:
       function:
         function_name:
           function_name_identifier: sv_proc1
-        bracketed:
-        - start_bracket: (
-        - expression:
-            quoted_literal: "'Manitoba'"
-        - comma: ','
-        - expression:
-            numeric_literal: '127.4'
-        - end_bracket: )
+        function_contents:
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'Manitoba'"
+          - comma: ','
+          - expression:
+              numeric_literal: '127.4'
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     set_statement:
@@ -52,9 +55,10 @@ file:
       function:
         function_name:
           function_name_identifier: sv_proc2
-        bracketed:
-          start_bracket: (
-          expression:
-            variable: $Variable1
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              variable: $Variable1
+            end_bracket: )
 - statement_terminator: ;

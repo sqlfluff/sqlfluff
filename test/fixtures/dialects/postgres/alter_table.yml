@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8e47ff3c0810152cb6f3ddafb3680fabd4e7029d3de173f3fc8514a24b853b96
+_hash: 7f0a4fb364fe67f7a71ff4e420fe98e277f19103939ad5554814ebeb52c0abd2
 file:
 - statement:
     alter_table_statement:
@@ -46,9 +46,10 @@ file:
           function:
             function_name:
               function_name_identifier: now
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -217,9 +218,10 @@ file:
       - function:
           function_name:
             function_name_identifier: now
-          bracketed:
-            start_bracket: (
-            end_bracket: )
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -236,9 +238,10 @@ file:
       - function:
           function_name:
             function_name_identifier: NOW
-          bracketed:
-            start_bracket: (
-            end_bracket: )
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -327,12 +330,13 @@ file:
       - function:
           function_name:
             function_name_identifier: a_function
-          bracketed:
-            start_bracket: (
-            expression:
-              column_reference:
-                naked_identifier: a_parameter
-            end_bracket: )
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: a_parameter
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -349,11 +353,12 @@ file:
       - function:
           function_name:
             function_name_identifier: a_function
-          bracketed:
-            start_bracket: (
-            expression:
-              quoted_literal: "'a_parameter'"
-            end_bracket: )
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'a_parameter'"
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -427,9 +432,10 @@ file:
       - function:
           function_name:
             function_name_identifier: NOW
-          bracketed:
-            start_bracket: (
-            end_bracket: )
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -530,12 +536,13 @@ file:
       - function:
           function_name:
             function_name_identifier: a_function
-          bracketed:
-            start_bracket: (
-            expression:
-              column_reference:
-                naked_identifier: a_parameter
-            end_bracket: )
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: a_parameter
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -554,11 +561,12 @@ file:
       - function:
           function_name:
             function_name_identifier: a_function
-          bracketed:
-            start_bracket: (
-            expression:
-              quoted_literal: "'a_parameter'"
-            end_bracket: )
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'a_parameter'"
+              end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -707,12 +715,13 @@ file:
               function:
                 function_name:
                   function_name_identifier: char_length
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: zipcode
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: zipcode
+                    end_bracket: )
               comparison_operator:
                 raw_comparison_operator: '='
               numeric_literal: '5'
@@ -737,12 +746,13 @@ file:
               function:
                 function_name:
                   function_name_identifier: char_length
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      naked_identifier: zipcode
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: zipcode
+                    end_bracket: )
               comparison_operator:
                 raw_comparison_operator: '='
               numeric_literal: '5'
@@ -2066,16 +2076,17 @@ file:
                 function:
                   function_name:
                     function_name_identifier: myfunc
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        naked_identifier: a
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                        naked_identifier: b
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: a
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: b
+                    - end_bracket: )
               keyword: WITH
               comparison_operator:
                 raw_comparison_operator: '='
@@ -2085,16 +2096,17 @@ file:
                 function:
                   function_name:
                     function_name_identifier: myfunc_opclass
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        naked_identifier: a
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                        naked_identifier: b
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: a
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: b
+                    - end_bracket: )
                 index_element_options:
                   operator_class_reference:
                     naked_identifier: fop

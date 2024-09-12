@@ -116,3 +116,5 @@ DESCRIBE PROCEDURE area_of_circle(FLOAT);
 DESC PROCEDURE area_of_circle(FLOAT);
 
 DESCRIBE EXTERNAL VOLUME my_volume;
+
+DESC PASSWORD POLICY password_policy_prod_1;

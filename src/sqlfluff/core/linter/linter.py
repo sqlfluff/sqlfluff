@@ -1,12 +1,13 @@
 """Defines the linter class."""
 
+import fnmatch
 import logging
 import os
 import time
 from typing import (
     TYPE_CHECKING,
     Any,
-    Iterable,
+    Dict,
     Iterator,
     List,
     Optional,
@@ -17,15 +18,13 @@ from typing import (
     cast,
 )
 
-import pathspec
 import regex
 from tqdm import tqdm
 
-from sqlfluff.core.config import ConfigLoader, FluffConfig, progress_bar_configuration
+from sqlfluff.core.config import FluffConfig, progress_bar_configuration
 from sqlfluff.core.errors import (
     SQLBaseError,
     SQLFluffSkipFile,
-    SQLFluffUserError,
     SQLLexError,
     SQLLintError,
     SQLParseError,
@@ -38,6 +37,7 @@ from sqlfluff.core.linter.common import (
     RenderedFile,
     RuleTuple,
 )
+from sqlfluff.core.linter.discovery import paths_from_path
 from sqlfluff.core.linter.fix import apply_fixes, compute_anchor_edit_info
 from sqlfluff.core.linter.linted_dir import LintedDir
 from sqlfluff.core.linter.linted_file import (
@@ -57,7 +57,6 @@ if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.templaters import RawTemplater, TemplatedFile
 
 
-WalkableType = Iterable[Tuple[str, Optional[List[str]], List[str]]]
 RuleTimingsType = List[Tuple[str, str, float]]
 
 # Instantiate the linter logger
@@ -393,8 +392,12 @@ class Linter:
             formatter.dispatch_lint_header(fname, sorted(rule_pack.codes()))
 
         # Look for comment segments which might indicate lines to ignore.
-        if not config.get("disable_noqa"):
-            ignore_mask, ivs = IgnoreMask.from_tree(tree, rule_pack.reference_map)
+        disable_noqa_except: Optional[str] = config.get("disable_noqa_except")
+        if not config.get("disable_noqa") or disable_noqa_except:
+            allowed_rules_ref_map = cls.allowed_rule_ref_map(
+                rule_pack.reference_map, disable_noqa_except
+            )
+            ignore_mask, ivs = IgnoreMask.from_tree(tree, allowed_rules_ref_map)
             initial_linting_errors += ivs
         else:
             ignore_mask = None
@@ -604,44 +607,91 @@ class Linter:
         violations = parsed.violations
         time_dict = parsed.time_dict
         tree: Optional[BaseSegment] = None
-        # TODO: Eventually enable linting of more than just the first variant.
-        if parsed.parsed_variants:
-            tree = parsed.parsed_variants[0].tree
-            variant = parsed.parsed_variants[0].templated_file
-        else:
-            variant = None
+        templated_file: Optional[TemplatedFile] = None
+        t0 = time.monotonic()
 
-        if tree:
-            t0 = time.monotonic()
-            linter_logger.info("LINTING (%s)", parsed.fname)
+        # First identify the root variant. That's the first variant
+        # that successfully parsed.
+        root_variant: Optional[ParsedVariant] = None
+        for variant in parsed.parsed_variants:
+            if variant.tree:
+                root_variant = variant
+                break
+        else:
+            linter_logger.info(
+                "lint_parsed found no valid root variant for %s", parsed.fname
+            )
+
+        # If there is a root variant, handle that first.
+        if root_variant:
+            linter_logger.info("lint_parsed - linting root variant (%s)", parsed.fname)
+            assert root_variant.tree  # We just checked this.
             (
-                tree,
+                fixed_tree,
                 initial_linting_errors,
                 ignore_mask,
                 rule_timings,
             ) = cls.lint_fix_parsed(
-                tree,
+                root_variant.tree,
                 config=parsed.config,
                 rule_pack=rule_pack,
                 fix=fix,
                 fname=parsed.fname,
-                templated_file=variant,
+                templated_file=variant.templated_file,
                 formatter=formatter,
             )
-            # Update the timing dict
-            time_dict["linting"] = time.monotonic() - t0
+
+            # Set legacy variables for now
+            # TODO: Revise this
+            templated_file = variant.templated_file
+            tree = fixed_tree
 
             # We're only going to return the *initial* errors, rather
             # than any generated during the fixing cycle.
             violations += initial_linting_errors
+
+            # Attempt to lint other variants if they exist.
+            # TODO: Revise whether this is sensible...
+            for idx, alternate_variant in enumerate(parsed.parsed_variants):
+                if alternate_variant is variant or not alternate_variant.tree:
+                    continue
+                linter_logger.info("lint_parsed - linting alt variant (%s)", idx)
+                (
+                    _,  # Fixed Tree
+                    alt_linting_errors,
+                    _,  # Ignore Mask
+                    _,  # Timings
+                ) = cls.lint_fix_parsed(
+                    alternate_variant.tree,
+                    config=parsed.config,
+                    rule_pack=rule_pack,
+                    fix=fix,
+                    fname=parsed.fname,
+                    templated_file=alternate_variant.templated_file,
+                    formatter=formatter,
+                )
+                violations += alt_linting_errors
+
+        # If no root variant, we should still apply ignores to any parsing
+        # or templating fails.
         else:
-            ignore_mask = None
             rule_timings = []
-            if not parsed.config.get("disable_noqa"):
+            disable_noqa_except: Optional[str] = parsed.config.get(
+                "disable_noqa_except"
+            )
+            if parsed.config.get("disable_noqa") and not disable_noqa_except:
+                # NOTE: This path is only accessible if there is no valid `tree`
+                # which implies that there was a fatal templating fail. Even an
+                # unparsable file will still have a valid tree.
+                ignore_mask = None
+            else:
                 # Templating and/or parsing have failed. Look for "noqa"
                 # comments (the normal path for identifying these comments
                 # requires access to the parse tree, and because of the failure,
                 # we don't have a parse tree).
+                allowed_rules_ref_map = cls.allowed_rule_ref_map(
+                    rule_pack.reference_map, disable_noqa_except
+                )
                 ignore_mask, ignore_violations = IgnoreMask.from_source(
                     parsed.source_str,
                     [
@@ -649,9 +699,12 @@ class Linter:
                         for lm in parsed.config.get("dialect_obj").lexer_matchers
                         if lm.name == "inline_comment"
                     ][0],
-                    rule_pack.reference_map,
+                    allowed_rules_ref_map,
                 )
                 violations += ignore_violations
+
+        # Update the timing dict
+        time_dict["linting"] = time.monotonic() - t0
 
         # We process the ignore config here if appropriate
         for violation in violations:
@@ -665,7 +718,7 @@ class Linter:
             FileTimings(time_dict, rule_timings),
             tree,
             ignore_mask=ignore_mask,
-            templated_file=variant,
+            templated_file=templated_file,
             encoding=encoding,
         )
 
@@ -686,6 +739,27 @@ class Linter:
                 formatter.dispatch_dialect_warning(parsed.config.get("dialect"))
 
         return linted_file
+
+    @classmethod
+    def allowed_rule_ref_map(
+        cls, reference_map: Dict[str, Set[str]], disable_noqa_except: Optional[str]
+    ) -> Dict[str, Set[str]]:
+        """Generate a noqa rule reference map."""
+        # disable_noqa_except is not set, return the entire map.
+        if not disable_noqa_except:
+            return reference_map
+        output_map = reference_map
+        # Add the special rules so they can be excluded for `disable_noqa_except` usage
+        for special_rule in ["PRS", "LXR", "TMP"]:
+            output_map[special_rule] = set([special_rule])
+        # Expand glob usage of rules
+        unexpanded_rules = tuple(r.strip() for r in disable_noqa_except.split(","))
+        noqa_set = set()
+        for r in unexpanded_rules:
+            for x in fnmatch.filter(output_map.keys(), r):
+                noqa_set |= output_map.get(x, set())
+        # Return a new map with only the excluded rules
+        return {k: v.intersection(noqa_set) for k, v in output_map.items()}
 
     @classmethod
     def lint_rendered(
@@ -895,143 +969,6 @@ class Linter:
             encoding=encoding,
         )
 
-    def paths_from_path(
-        self,
-        path: str,
-        ignore_file_name: str = ".sqlfluffignore",
-        ignore_non_existent_files: bool = False,
-        ignore_files: bool = True,
-        working_path: str = os.getcwd(),
-    ) -> List[str]:
-        """Return a set of sql file paths from a potentially more ambiguous path string.
-
-        Here we also deal with the .sqlfluffignore file if present.
-
-        When a path to a file to be linted is explicitly passed
-        we look for ignore files in all directories that are parents of the file,
-        up to the current directory.
-
-        If the current directory is not a parent of the file we only
-        look for an ignore file in the direct parent of the file.
-
-        """
-        if not os.path.exists(path):
-            if ignore_non_existent_files:
-                return []
-            else:
-                raise SQLFluffUserError(
-                    f"Specified path does not exist. Check it/they exist(s): {path}."
-                )
-
-        # Files referred to exactly are also ignored if
-        # matched, but we warn the users when that happens
-        is_exact_file = os.path.isfile(path)
-
-        path_walk: WalkableType
-        if is_exact_file:
-            # When the exact file to lint is passed, we
-            # fill path_walk with an input that follows
-            # the structure of `os.walk`:
-            #   (root, directories, files)
-            dirpath = os.path.dirname(path)
-            files = [os.path.basename(path)]
-            path_walk = [(dirpath, None, files)]
-        else:
-            path_walk = list(os.walk(path))
-
-        ignore_file_paths = ConfigLoader.find_ignore_config_files(
-            path=path, working_path=working_path, ignore_file_name=ignore_file_name
-        )
-        # Add paths that could contain "ignore files"
-        # to the path_walk list
-        path_walk_ignore_file = [
-            (
-                os.path.dirname(ignore_file_path),
-                None,
-                # Only one possible file, since we only
-                # have one "ignore file name"
-                [os.path.basename(ignore_file_path)],
-            )
-            for ignore_file_path in ignore_file_paths
-        ]
-        path_walk += path_walk_ignore_file
-
-        # If it's a directory then expand the path!
-        buffer = []
-        ignores = {}
-        for dirpath, _, filenames in path_walk:
-            for fname in filenames:
-                fpath = os.path.join(dirpath, fname)
-                # Handle potential .sqlfluffignore files
-                if ignore_files and fname == ignore_file_name:
-                    with open(fpath) as fh:
-                        spec = pathspec.PathSpec.from_lines("gitwildmatch", fh)
-                        ignores[dirpath] = spec
-                    # We don't need to process the ignore file any further
-                    continue
-
-                # We won't purge files *here* because there's an edge case
-                # that the ignore file is processed after the sql file.
-
-                # Scan for remaining files
-                for ext in (
-                    self.config.get("sql_file_exts", default=".sql").lower().split(",")
-                ):
-                    # is it a sql file?
-                    if fname.lower().endswith(ext):
-                        buffer.append(fpath)
-
-        if not ignore_files:
-            return sorted(buffer)
-
-        # Check the buffer for ignore items and normalise the rest.
-        # It's a set, so we can do natural deduplication.
-        filtered_buffer = set()
-
-        for fpath in buffer:
-            abs_fpath = os.path.abspath(fpath)
-            for ignore_base, ignore_spec in ignores.items():
-                abs_ignore_base = os.path.abspath(ignore_base)
-                if abs_fpath.startswith(
-                    abs_ignore_base
-                    + (
-                        ""
-                        if os.path.dirname(abs_ignore_base) == abs_ignore_base
-                        else os.sep
-                    )
-                ) and ignore_spec.match_file(
-                    os.path.relpath(abs_fpath, abs_ignore_base)
-                ):
-                    # This file is ignored, skip it.
-                    if is_exact_file:
-                        linter_logger.warning(
-                            "Exact file path %s was given but "
-                            "it was ignored by a %s pattern in %s, "
-                            "re-run with `--disregard-sqlfluffignores` to "
-                            "skip %s"
-                            % (
-                                path,
-                                ignore_file_name,
-                                ignore_base,
-                                ignore_file_name,
-                            )
-                        )
-                    break
-            else:
-                npath = os.path.normpath(fpath)
-                # For debugging, log if we already have the file.
-                if npath in filtered_buffer:
-                    linter_logger.debug(  # pragma: no cover
-                        "Developer Warning: Path crawler attempted to "
-                        "requeue the same file twice. %s is already in "
-                        "filtered buffer.",
-                        npath,
-                    )
-                filtered_buffer.add(npath)
-
-        # Return a sorted list
-        return sorted(filtered_buffer)
-
     def lint_string_wrapped(
         self,
         string: str,
@@ -1080,13 +1017,16 @@ class Linter:
 
         expanded_paths: List[str] = []
         expanded_path_to_linted_dir = {}
+        sql_exts = self.config.get("sql_file_exts", default=".sql").lower().split(",")
+
         for path in paths:
             linted_dir = LintedDir(path, retain_files=retain_files)
             result.add(linted_dir)
-            for fname in self.paths_from_path(
+            for fname in paths_from_path(
                 path,
                 ignore_non_existent_files=ignore_non_existent_files,
                 ignore_files=ignore_files,
+                target_file_exts=sql_exts,
             ):
                 expanded_paths.append(fname)
                 expanded_path_to_linted_dir[fname] = linted_dir
@@ -1094,6 +1034,7 @@ class Linter:
         files_count = len(expanded_paths)
         if processes is None:
             processes = self.config.get("processes", default=1)
+        assert processes is not None
         # Hard set processes to 1 if only 1 file is queued.
         # The overhead will never be worth it with one file.
         if files_count == 1:
@@ -1162,7 +1103,11 @@ class Linter:
         NB: This a generator which will yield the result of each file
         within the path iteratively.
         """
-        for fname in self.paths_from_path(path):
+        sql_exts = self.config.get("sql_file_exts", default=".sql").lower().split(",")
+        for fname in paths_from_path(
+            path,
+            target_file_exts=sql_exts,
+        ):
             if self.formatter:
                 self.formatter.dispatch_path(path)
             # Load the file with the config and yield the result.

@@ -1,0 +1,81 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 77b5d16c2cddca62f5fb8d333728260a2f33be4f0e46cecfdc10d68bf5e4d542
+file:
+- statement:
+    explain_statement:
+      keyword: explain
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: explain
+      update_statement:
+        keyword: update
+        table_reference:
+          naked_identifier: tbl
+        set_clause_list:
+          keyword: set
+          set_clause:
+            column_reference:
+              naked_identifier: foo
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
+        where_clause:
+          keyword: where
+          expression:
+            column_reference:
+              naked_identifier: bar
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: explain
+      delete_statement:
+        keyword: delete
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+        where_clause:
+          keyword: where
+          expression:
+            column_reference:
+              naked_identifier: foo
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: explain
+      insert_statement:
+      - keyword: insert
+      - keyword: into
+      - table_reference:
+          naked_identifier: tbl
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: col1
+          end_bracket: )
+      - values_clause:
+          keyword: values
+          bracketed:
+            start_bracket: (
+            numeric_literal: '123'
+            end_bracket: )
+- statement_terminator: ;

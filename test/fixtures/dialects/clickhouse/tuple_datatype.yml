@@ -1,0 +1,105 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2e4a5aaa753e255388556599da5a2815dc96db426e4ef4ed480dcec274d396be
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '1'
+              - comma: ','
+              - quoted_literal: "'two'"
+              - comma: ','
+              - quoted_literal: "'2024-01-01'"
+              - end_bracket: )
+              casting_operator: '::'
+              data_type:
+                struct_type:
+                  keyword: Tuple
+                  tuple_type_schema:
+                    bracketed:
+                    - start_bracket: (
+                    - naked_identifier: id
+                    - data_type:
+                        data_type_identifier: Int64
+                    - comma: ','
+                    - naked_identifier: name
+                    - data_type:
+                        data_type_identifier: String
+                    - comma: ','
+                    - naked_identifier: created_at
+                    - data_type:
+                        data_type_identifier: Date32
+                    - end_bracket: )
+          alias_expression:
+            keyword: as
+            naked_identifier: struct
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '1'
+              - comma: ','
+              - quoted_literal: "'two'"
+              - comma: ','
+              - quoted_literal: "'2024-01-01'"
+              - end_bracket: )
+              casting_operator: '::'
+              data_type:
+                struct_type:
+                  keyword: Tuple
+                  tuple_type_schema:
+                    bracketed:
+                    - start_bracket: (
+                    - quoted_identifier: '`id`'
+                    - data_type:
+                        data_type_identifier: Int64
+                    - comma: ','
+                    - quoted_identifier: '`name`'
+                    - data_type:
+                        data_type_identifier: String
+                    - comma: ','
+                    - quoted_identifier: '`created_at`'
+                    - data_type:
+                        data_type_identifier: Date32
+                    - end_bracket: )
+          alias_expression:
+            keyword: as
+            naked_identifier: struct
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '1'
+              - comma: ','
+              - quoted_literal: "'two'"
+              - comma: ','
+              - quoted_literal: "'2024-01-01'"
+              - end_bracket: )
+              casting_operator: '::'
+              data_type:
+                quoted_identifier: '`Tuple(id Int64, name String, created_at Date32)`'
+          alias_expression:
+            keyword: as
+            naked_identifier: struct
+- statement_terminator: ;

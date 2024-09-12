@@ -8,13 +8,18 @@ It also has some extensions.
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    Anything,
     BaseSegment,
     Bracketed,
     CodeSegment,
+    Dedent,
     Delimited,
+    IdentifierSegment,
+    Indent,
     Matchable,
     OneOf,
     Ref,
+    RegexParser,
     Sequence,
     StringLexer,
     StringParser,
@@ -29,7 +34,11 @@ from sqlfluff.dialects.dialect_databricks_keywords import (
 )
 
 sparksql_dialect = load_raw_dialect("sparksql")
-databricks_dialect = sparksql_dialect.copy_as("databricks")
+databricks_dialect = sparksql_dialect.copy_as(
+    "databricks",
+    formatted_name="Databricks",
+    docstring="The dialect for `Databricks <https://databricks.com/>`_.",
+)
 
 databricks_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 databricks_dialect.sets("unreserved_keywords").update(
@@ -71,12 +80,126 @@ databricks_dialect.add(
         trim_chars=("$",),
     ),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
+    # https://docs.databricks.com/en/sql/language-manual/sql-ref-principal.html
+    PrincipalIdentifierSegment=OneOf(
+        Ref("NakedIdentifierSegment"),
+        Ref("BackQuotedIdentifierSegment"),
+    ),
+    PredictiveOptimizationGrammar=Sequence(
+        OneOf("ENABLE", "DISABLE", "INHERIT"),
+        "PREDICTIVE",
+        "OPTIMIZATION",
+    ),
+    SetOwnerGrammar=Sequence(
+        Ref.keyword("SET", optional=True),
+        "OWNER",
+        "TO",
+        Ref("PrincipalIdentifierSegment"),
+    ),
+    SetTagsGrammar=Sequence(
+        "SET",
+        "TAGS",
+        Ref("BracketedPropertyListGrammar"),
+    ),
+    UnsetTagsGrammar=Sequence(
+        "UNSET",
+        "TAGS",
+        Ref("BracketedPropertyNameListGrammar"),
+    ),
+    ColumnDefaultGrammar=Sequence(
+        "DEFAULT",
+        Ref("LiteralGrammar"),
+    ),
+    ConstraintOptionGrammar=Sequence(
+        Sequence("ENABLE", "NOVALIDATE", optional=True),
+        Sequence("NOT", "ENFORCED", optional=True),
+        Sequence("DEFERRABLE", optional=True),
+        Sequence("INITIALLY", "DEFERRED", optional=True),
+        OneOf("NORELY", "RELY", optional=True),
+    ),
+    ForeignKeyOptionGrammar=Sequence(
+        Sequence("MATCH", "FULL", optional=True),
+        Sequence("ON", "UPDATE", "NO", "ACTION", optional=True),
+        Sequence("ON", "DELETE", "NO", "ACTION", optional=True),
+    ),
+    DropConstraintGrammar=Sequence(
+        "DROP",
+        OneOf(
+            Sequence(
+                Ref("PrimaryKeyGrammar"),
+                Ref("IfExistsGrammar", optional=True),
+                OneOf(
+                    "RESTRICT",
+                    "CASCADE",
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                Ref("ForeignKeyGrammar"),
+                Ref("IfExistsGrammar", optional=True),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    )
+                ),
+            ),
+            Sequence(
+                "CONSTRAINT",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("ObjectReferenceSegment"),
+                OneOf(
+                    "RESTRICT",
+                    "CASCADE",
+                    optional=True,
+                ),
+            ),
+        ),
+    ),
+    AlterPartitionGrammar=Sequence(
+        "PARTITION",
+        Bracketed(
+            Delimited(
+                AnyNumberOf(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("SetClauseSegment"),
+                    ),
+                    min_times=1,
+                ),
+            ),
+        ),
+    ),
+    RowFilterClauseGrammar=Sequence(
+        "ROW",
+        "FILTER",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("LiteralGrammar"),
+                ),
+                optional=True,
+            ),
+        ),
+    ),
+    PropertiesBackTickedIdentifierSegment=RegexParser(
+        r"`.+`",
+        IdentifierSegment,
+        type="properties_naked_identifier",
+    ),
 )
 
 databricks_dialect.replace(
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),
         Ref("NamedArgumentSegment"),
+    ),
+    PropertiesNakedIdentifierSegment=RegexParser(
+        r"[A-Z_][A-Z0-9_]*",
+        IdentifierSegment,
+        type="properties_naked_identifier",
     ),
 )
 
@@ -104,11 +227,11 @@ class AlterCatalogStatementSegment(BaseSegment):
         "ALTER",
         "CATALOG",
         Ref("CatalogReferenceSegment"),
-        Ref.keyword("SET", optional=True),
-        Sequence(
-            "OWNER",
-            "TO",
-            Ref("SingleIdentifierGrammar"),
+        OneOf(
+            Ref("SetOwnerGrammar"),
+            Ref("SetTagsGrammar"),
+            Ref("UnsetTagsGrammar"),
+            Ref("PredictiveOptimizationGrammar"),
         ),
     )
 
@@ -173,6 +296,377 @@ class UseDatabaseStatementSegment(sparksql.UseDatabaseStatementSegment):
     )
 
 
+class AlterDatabaseStatementSegment(sparksql.AlterDatabaseStatementSegment):
+    """An `ALTER DATABASE/SCHEMA` statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-alter-schema.html
+    """
+
+    match_grammar = Sequence(
+        "ALTER",
+        OneOf("DATABASE", "SCHEMA"),
+        Ref("DatabaseReferenceSegment"),
+        OneOf(
+            Sequence(
+                "SET",
+                Ref("DatabasePropertiesGrammar"),
+            ),
+            Ref("SetOwnerGrammar"),
+            Ref("SetTagsGrammar"),
+            Ref("UnsetTagsGrammar"),
+            Ref("PredictiveOptimizationGrammar"),
+        ),
+    )
+
+
+class MaskStatementSegment(BaseSegment):
+    """A `MASK` statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-column-mask.html
+    """
+
+    type = "mask_statement"
+    match_grammar = Sequence(
+        "MASK",
+        Ref("FunctionNameSegment"),
+        Sequence(
+            "USING",
+            "COLUMNS",
+            Bracketed(
+                AnyNumberOf(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class PropertyNameSegment(sparksql.PropertyNameSegment):
+    """A property name segment. Databricks allows for back quoted segments."""
+
+    match_grammar = Sequence(
+        OneOf(
+            Delimited(
+                OneOf(
+                    Ref("PropertiesNakedIdentifierSegment"),
+                    Ref("PropertiesBackTickedIdentifierSegment"),
+                ),
+                delimiter=Ref("DotSegment"),
+                allow_gaps=False,
+            ),
+            Ref("SingleIdentifierGrammar"),
+        ),
+    )
+
+
+class TableConstraintSegment(ansi.TableConstraintSegment):
+    """A table constraint, e.g. for CREATE TABLE or ALTER TABLE.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-constraint.html
+    """
+
+    match_grammar = Sequence(
+        "CONSTRAINT",
+        OneOf(
+            Sequence(
+                Ref("ObjectReferenceSegment", optional=True),
+                Ref("PrimaryKeyGrammar"),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                        Ref.keyword("TIMESERIES", optional=True),
+                    ),
+                ),
+                Ref("ConstraintOptionGrammar", optional=True),
+            ),
+            Sequence(
+                Ref("ObjectReferenceSegment", optional=True),
+                Indent,
+                Ref("ForeignKeyGrammar"),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                ),
+                "REFERENCES",
+                Ref("TableReferenceSegment"),
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                OneOf(
+                    Ref("ForeignKeyOptionGrammar"),
+                    Ref("ConstraintOptionGrammar"),
+                    optional=True,
+                ),
+                Dedent,
+            ),
+            Sequence(
+                Ref("ObjectReferenceSegment"),
+                "CHECK",
+                Bracketed(Ref("ExpressionSegment")),
+                Ref.keyword("ENFORCED", optional=True),
+            ),
+        ),
+    )
+
+
+class AlterTableStatementSegment(sparksql.AlterTableStatementSegment):
+    """An `ALTER TABLE` statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-alter-table.html
+    """
+
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Indent,
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "ADD",
+                OneOf("COLUMNS", "COLUMN"),
+                Indent,
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ColumnFieldDefinitionSegment"),
+                            Ref("ColumnDefaultGrammar", optional=True),
+                            Ref("CommentGrammar", optional=True),
+                            Ref("FirstOrAfterGrammar", optional=True),
+                            Ref("MaskStatementSegment", optional=True),
+                        ),
+                    ),
+                ),
+                Dedent,
+            ),
+            Sequence(
+                OneOf("ALTER", "CHANGE"),
+                Ref.keyword("COLUMN", optional=True),
+                Ref("ColumnReferenceSegment"),
+                OneOf(
+                    Ref("CommentGrammar"),
+                    Ref("FirstOrAfterGrammar"),
+                    Sequence(
+                        OneOf("SET", "DROP"),
+                        "NOT",
+                        "NULL",
+                    ),
+                    Sequence(
+                        "TYPE",
+                        Ref("DatatypeSegment"),
+                    ),
+                    Sequence(
+                        "SET",
+                        Ref("ColumnDefaultGrammar"),
+                    ),
+                    Sequence(
+                        "DROP",
+                        "DEFAULT",
+                    ),
+                    Sequence(
+                        "SYNC",
+                        "IDENTITY",
+                    ),
+                    Sequence(
+                        "SET",
+                        Ref("MaskStatementSegment"),
+                    ),
+                    Sequence(
+                        "DROP",
+                        "MASK",
+                    ),
+                    Ref("SetTagsGrammar"),
+                    Ref("UnsetTagsGrammar"),
+                ),
+            ),
+            Sequence(
+                "DROP",
+                OneOf("COLUMN", "COLUMNS", optional=True),
+                Ref("IfExistsGrammar", optional=True),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                "COLUMN",
+                Ref("ColumnReferenceSegment"),
+                "TO",
+                Ref("ColumnReferenceSegment"),
+            ),
+            Sequence(
+                "ADD",
+                Ref("TableConstraintSegment"),
+            ),
+            Ref("DropConstraintGrammar"),
+            Sequence(
+                "DROP",
+                "FEATURE",
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    "TRUNCATE",
+                    "HISTORY",
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "ADD",
+                Ref("IfNotExistsGrammar", optional=True),
+                AnyNumberOf(Ref("AlterPartitionGrammar")),
+            ),
+            Sequence(
+                "DROP",
+                Ref("IfExistsGrammar", optional=True),
+                AnyNumberOf(Ref("AlterPartitionGrammar")),
+            ),
+            Sequence(
+                Ref("AlterPartitionGrammar"),
+                "SET",
+                Ref("LocationGrammar"),
+            ),
+            Sequence(
+                Ref("AlterPartitionGrammar"),
+                "RENAME",
+                "TO",
+                Ref("AlterPartitionGrammar"),
+            ),
+            Sequence(
+                "RECOVER",
+                "PARTITIONS",
+            ),
+            Sequence(
+                "SET",
+                Ref("RowFilterClauseGrammar"),
+            ),
+            Sequence(
+                "DROP",
+                "ROW",
+                "FILTER",
+            ),
+            Sequence(
+                "SET",
+                Ref("TablePropertiesGrammar"),
+            ),
+            Ref("UnsetTablePropertiesGrammar"),
+            Sequence(
+                "SET",
+                "SERDE",
+                Ref("QuotedLiteralSegment"),
+                Sequence(
+                    "WITH",
+                    "SERDEPROPERTIES",
+                    Ref("BracketedPropertyListGrammar"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "SET",
+                Ref("LocationGrammar"),
+            ),
+            Ref("SetOwnerGrammar"),
+            Sequence(
+                Sequence(
+                    "ALTER",
+                    "COLUMN",
+                    Ref("ColumnReferenceSegment"),
+                    optional=True,
+                ),
+                Ref("SetTagsGrammar"),
+            ),
+            Sequence(
+                Sequence(
+                    "ALTER",
+                    "COLUMN",
+                    Ref("ColumnReferenceSegment"),
+                    optional=True,
+                ),
+                Ref("UnsetTagsGrammar"),
+            ),
+            Ref("ClusterByClauseSegment"),
+            Ref("PredictiveOptimizationGrammar"),
+        ),
+        Dedent,
+    )
+
+
+class AlterViewStatementSegment(sparksql.AlterViewStatementSegment):
+    """An `ALTER VIEW` statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-alter-view.html
+    """
+
+    match_grammar = Sequence(
+        "ALTER",
+        Ref.keyword("MATERIALIZED", optional=True),
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                Ref("TablePropertiesGrammar"),
+            ),
+            Ref("UnsetTablePropertiesGrammar"),
+            Sequence(
+                "AS",
+                Ref("SelectStatementSegment"),
+            ),
+            Sequence(
+                "WITH",
+                "SCHEMA",
+                OneOf(
+                    "BINDING",
+                    "COMPENSATION",
+                    Sequence(
+                        Ref.keyword("TYPE", optional=True),
+                        "EVOLUTION",
+                    ),
+                ),
+            ),
+            Ref("SetOwnerGrammar"),
+            Ref("SetTagsGrammar"),
+            Ref("UnsetTagsGrammar"),
+            Sequence(
+                Indent,
+                OneOf(
+                    Sequence(
+                        OneOf("ADD", "ALTER"),
+                        "SCHEDULE",
+                        Ref.keyword("REFRESH", optional=True),
+                        "CRON",
+                        Ref("QuotedLiteralSegment"),
+                        Sequence(
+                            "AT",
+                            "TIME",
+                            "ZONE",
+                            Ref("QuotedLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        "DROP",
+                        "SCHEDULE",
+                    ),
+                ),
+                Dedent,
+            ),
+        ),
+    )
+
+
 class SetTimeZoneStatementSegment(BaseSegment):
     """A `SET TIME ZONE` statement.
 
@@ -227,6 +721,7 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("OptimizeTableStatementSegment"),
             Ref("CreateDatabricksFunctionStatementSegment"),
             Ref("FunctionParameterListGrammarWithComments"),
+            Ref("DeclareOrReplaceVariableStatementSegment"),
         ]
     )
 
@@ -335,4 +830,160 @@ class NamedArgumentSegment(BaseSegment):
         Ref("NakedIdentifierSegment"),
         Ref("RightArrowSegment"),
         Ref("ExpressionSegment"),
+    )
+
+
+class AliasExpressionSegment(sparksql.AliasExpressionSegment):
+    """A reference to an object with an `AS` clause.
+
+    The optional AS keyword allows both implicit and explicit aliasing.
+    Note also that it's possible to specify just column aliases without aliasing the
+    table as well:
+    .. code-block:: sql
+
+        SELECT * FROM VALUES (1,2) as t (a, b);
+        SELECT * FROM VALUES (1,2) as (a, b);
+        SELECT * FROM VALUES (1,2) as t;
+
+    Note that in Spark SQL, identifiers are quoted using backticks (`my_table`) rather
+    than double quotes ("my_table"). Quoted identifiers are allowed in aliases, but
+    unlike ANSI which allows single quoted identifiers ('my_table') in aliases, this is
+    not allowed in Spark and so the definition of this segment must depart from ANSI.
+    """
+
+    match_grammar = Sequence(
+        Ref.keyword("AS", optional=True),
+        OneOf(
+            # maybe table alias and column aliases
+            Sequence(
+                Ref("SingleIdentifierGrammar", optional=True),
+                Bracketed(Ref("SingleIdentifierListSegment")),
+            ),
+            # just a table alias
+            Ref("SingleIdentifierGrammar"),
+            exclude=OneOf(
+                "LATERAL",
+                Ref("JoinTypeKeywords"),
+                "WINDOW",
+                "PIVOT",
+                "KEYS",
+                "FROM",
+                "FOR",
+            ),
+        ),
+    )
+
+
+class GroupByClauseSegment(sparksql.GroupByClauseSegment):
+    """Enhance `GROUP BY` clause like in `SELECT` for `CUBE`, `ROLLUP`, and `ALL`.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-qry-select-groupby.html
+    """
+
+    match_grammar = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        OneOf(
+            "ALL",
+            Delimited(
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingSetsClauseSegment"),
+                Ref("ColumnReferenceSegment"),
+                # Can `GROUP BY 1`
+                Ref("NumericLiteralSegment"),
+                # Can `GROUP BY coalesce(col, 1)`
+                Ref("ExpressionSegment"),
+            ),
+            Sequence(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `GROUP BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can `GROUP BY coalesce(col, 1)`
+                    Ref("ExpressionSegment"),
+                ),
+                OneOf(
+                    Ref("WithCubeRollupClauseSegment"),
+                    Ref("GroupingSetsClauseSegment"),
+                ),
+            ),
+        ),
+        Dedent,
+    )
+
+
+class GeneratedColumnDefinitionSegment(sparksql.GeneratedColumnDefinitionSegment):
+    """A generated column definition, e.g. for CREATE TABLE or ALTER TABLE.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-using.html
+    """
+
+    match_grammar: Matchable = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        Ref("DatatypeSegment"),  # Column type
+        Bracketed(Anything(), optional=True),  # For types like DECIMAL(3, 2)
+        OneOf(
+            Sequence(
+                "GENERATED",
+                "ALWAYS",
+                "AS",
+                Bracketed(
+                    OneOf(
+                        Ref("FunctionSegment"),
+                        Ref("BareFunctionSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "GENERATED",
+                OneOf(
+                    "ALWAYS",
+                    Sequence("BY", "DEFAULT"),
+                ),
+                "AS",
+                "IDENTITY",
+                Bracketed(
+                    Sequence(
+                        Sequence(
+                            "START",
+                            "WITH",
+                            Ref("NumericLiteralSegment"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "INCREMENT",
+                            "BY",
+                            Ref("NumericLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+        AnyNumberOf(
+            Ref("ColumnConstraintSegment", optional=True),
+        ),
+    )
+
+
+class DeclareOrReplaceVariableStatementSegment(BaseSegment):
+    """A `DECLARE [OR REPLACE] VARIABLE` statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-declare-variable.html
+    """
+
+    type = "declare_or_replace_variable_statement"
+    match_grammar = Sequence(
+        Ref.keyword("DECLARE"),
+        Ref("OrReplaceGrammar", optional=True),
+        Ref.keyword("VARIABLE", optional=True),
+        Ref("SingleIdentifierGrammar"),  # Variable name
+        Ref("DatatypeSegment", optional=True),  # Variable type
+        Sequence(
+            OneOf("DEFAULT", Ref("EqualsSegment")),
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
     )

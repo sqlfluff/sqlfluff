@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 549e4efbfe226096e1bc994ca038c5641128fd54e090debe72634e6436c9cd99
+_hash: 36ab79417d9f942e993a88750a143beaad808c0a432e071ef77f02fdfe7b9d95
 file:
 - statement:
     create_clone_statement:
@@ -54,15 +54,16 @@ file:
             function:
               function_name:
                 function_name_identifier: TO_TIMESTAMP
-              bracketed:
-                start_bracket: (
-                expression:
-                - numeric_literal: '40'
-                - binary_operator: '*'
-                - numeric_literal: '365'
-                - binary_operator: '*'
-                - numeric_literal: '86400'
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                  - numeric_literal: '40'
+                  - binary_operator: '*'
+                  - numeric_literal: '365'
+                  - binary_operator: '*'
+                  - numeric_literal: '86400'
+                  end_bracket: )
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -84,14 +85,15 @@ file:
             function:
               function_name:
                 function_name_identifier: TO_TIMESTAMP_TZ
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  quoted_literal: "'04/05/2013 01:02:03'"
-              - comma: ','
-              - expression:
-                  quoted_literal: "'mm/dd/yyyy hh24:mi:ss'"
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'04/05/2013 01:02:03'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'mm/dd/yyyy hh24:mi:ss'"
+                - end_bracket: )
           end_bracket: )
 - statement_terminator: ;
 - statement:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 349068b86aa827ffccae2cceb5577c0a2b0806df07a4ee7ef3ad2c797de3cdbd
+_hash: a10e144284905c4683bcedb17f02ecc2afdfdafd69ac81ec1097400a26d7e633
 file:
 - statement:
     select_statement:
@@ -217,11 +217,9 @@ file:
         - keyword: ALL
         - bracketed:
           - start_bracket: (
-          - column_reference:
-              quoted_identifier: "'%an%'"
+          - quoted_literal: "'%an%'"
           - comma: ','
-          - column_reference:
-              quoted_identifier: "'%an'"
+          - quoted_literal: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -251,11 +249,9 @@ file:
         - keyword: ANY
         - bracketed:
           - start_bracket: (
-          - column_reference:
-              quoted_identifier: "'%an%'"
+          - quoted_literal: "'%an%'"
           - comma: ','
-          - column_reference:
-              quoted_identifier: "'%an'"
+          - quoted_literal: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -285,11 +281,9 @@ file:
         - keyword: SOME
         - bracketed:
           - start_bracket: (
-          - column_reference:
-              quoted_identifier: "'%an%'"
+          - quoted_literal: "'%an%'"
           - comma: ','
-          - column_reference:
-              quoted_identifier: "'%an'"
+          - quoted_literal: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -320,11 +314,9 @@ file:
         - keyword: ALL
         - bracketed:
           - start_bracket: (
-          - column_reference:
-              quoted_identifier: "'%an%'"
+          - quoted_literal: "'%an%'"
           - comma: ','
-          - column_reference:
-              quoted_identifier: "'%an'"
+          - quoted_literal: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -355,11 +347,9 @@ file:
         - keyword: ANY
         - bracketed:
           - start_bracket: (
-          - column_reference:
-              quoted_identifier: "'%an%'"
+          - quoted_literal: "'%an%'"
           - comma: ','
-          - column_reference:
-              quoted_identifier: "'%an'"
+          - quoted_literal: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -390,11 +380,9 @@ file:
         - keyword: SOME
         - bracketed:
           - start_bracket: (
-          - column_reference:
-              quoted_identifier: "'%an%'"
+          - quoted_literal: "'%an%'"
           - comma: ','
-          - column_reference:
-              quoted_identifier: "'%an'"
+          - quoted_literal: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -420,11 +408,9 @@ file:
         - keyword: ALL
         - bracketed:
           - start_bracket: (
-          - column_reference:
-              quoted_identifier: "'%oO%'"
+          - quoted_literal: "'%oO%'"
           - comma: ','
-          - column_reference:
-              quoted_identifier: "'%Go%'"
+          - quoted_literal: "'%Go%'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -450,13 +436,10 @@ file:
         - keyword: ANY
         - bracketed:
           - start_bracket: (
-          - column_reference:
-              quoted_identifier: "'%oo%'"
+          - quoted_literal: "'%oo%'"
           - comma: ','
-          - column_reference:
-              quoted_identifier: "'%IN'"
+          - quoted_literal: "'%IN'"
           - comma: ','
-          - column_reference:
-              quoted_identifier: "'fA%'"
+          - quoted_literal: "'fA%'"
           - end_bracket: )
 - statement_terminator: ;

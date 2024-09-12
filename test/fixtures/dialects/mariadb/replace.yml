@@ -1,0 +1,333 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b343d858f9614e81cf80ec421c746686ad3ce2ba4c4e22f2b4a39b3dd619e817
+file:
+- statement:
+    replace_statement:
+      keyword: REPLACE
+      table_reference:
+        naked_identifier: tbl_name
+      values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - numeric_literal: '1'
+        - comma: ','
+        - numeric_literal: '2'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    replace_statement:
+      keyword: REPLACE
+      table_reference:
+        naked_identifier: tbl_name
+      values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - keyword: DEFAULT
+        - comma: ','
+        - keyword: DEFAULT
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    replace_statement:
+      keyword: REPLACE
+      table_reference:
+        naked_identifier: tbl_name
+      values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '1'
+        - comma: ','
+        - numeric_literal: '2'
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '11'
+        - comma: ','
+        - numeric_literal: '22'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    replace_statement:
+      keyword: REPLACE
+      table_reference:
+        naked_identifier: tbl_name
+      values_clause:
+      - keyword: VALUE
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '1'
+        - comma: ','
+        - numeric_literal: '2'
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '11'
+        - comma: ','
+        - numeric_literal: '22'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    replace_statement:
+      keyword: REPLACE
+      table_reference:
+        naked_identifier: tbl_name
+      bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+      values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - numeric_literal: '1'
+        - comma: ','
+        - numeric_literal: '2'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    replace_statement:
+      keyword: REPLACE
+      table_reference:
+        naked_identifier: tbl_name
+      bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+      values_clause:
+      - keyword: VALUES
+      - keyword: ROW
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '1'
+        - comma: ','
+        - numeric_literal: '2'
+        - end_bracket: )
+      - comma: ','
+      - keyword: ROW
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '11'
+        - comma: ','
+        - numeric_literal: '22'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    replace_statement:
+    - keyword: REPLACE
+    - keyword: LOW_PRIORITY
+    - table_reference:
+        naked_identifier: tbl_name
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - numeric_literal: '1'
+        - comma: ','
+        - numeric_literal: '2'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    replace_statement:
+    - keyword: REPLACE
+    - keyword: DELAYED
+    - table_reference:
+        naked_identifier: tbl_name
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - numeric_literal: '1'
+        - comma: ','
+        - numeric_literal: '2'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    replace_statement:
+    - keyword: REPLACE
+    - keyword: LOW_PRIORITY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: tbl_name
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - numeric_literal: '1'
+        - comma: ','
+        - numeric_literal: '2'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    replace_statement:
+      keyword: REPLACE
+      table_reference:
+        naked_identifier: tbl_name
+      partition_clause:
+        keyword: PARTITION
+        bracketed:
+          start_bracket: (
+          object_reference:
+            naked_identifier: partition_name
+          end_bracket: )
+      values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - numeric_literal: '1'
+        - comma: ','
+        - numeric_literal: '2'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    replace_statement:
+      keyword: REPLACE
+      table_reference:
+        naked_identifier: tbl_name
+      set_clause_list:
+      - keyword: SET
+      - set_clause:
+          column_reference:
+            naked_identifier: col1
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+      - comma: ','
+      - set_clause:
+          column_reference:
+            naked_identifier: col2
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    replace_statement:
+    - keyword: REPLACE
+    - keyword: LOW_PRIORITY
+    - table_reference:
+        naked_identifier: tbl_name
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+          column_reference:
+            naked_identifier: col1
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+      - comma: ','
+      - set_clause:
+          column_reference:
+            naked_identifier: col2
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    replace_statement:
+    - keyword: REPLACE
+    - keyword: DELAYED
+    - table_reference:
+        naked_identifier: tbl_name
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+          column_reference:
+            naked_identifier: col1
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+      - comma: ','
+      - set_clause:
+          column_reference:
+            naked_identifier: col2
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    replace_statement:
+    - keyword: REPLACE
+    - keyword: LOW_PRIORITY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: tbl_name
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+          column_reference:
+            naked_identifier: col1
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+      - comma: ','
+      - set_clause:
+          column_reference:
+            naked_identifier: col2
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    replace_statement:
+      keyword: REPLACE
+      table_reference:
+        naked_identifier: tbl_name
+      partition_clause:
+        keyword: PARTITION
+        bracketed:
+          start_bracket: (
+          object_reference:
+            naked_identifier: partition_name
+          end_bracket: )
+      set_clause_list:
+      - keyword: SET
+      - set_clause:
+          column_reference:
+            naked_identifier: col1
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+      - comma: ','
+      - set_clause:
+          column_reference:
+            naked_identifier: col2
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    replace_statement:
+      keyword: REPLACE
+      table_reference:
+        naked_identifier: tbl_name
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table_name
+- statement_terminator: ;

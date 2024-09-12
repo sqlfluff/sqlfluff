@@ -56,3 +56,15 @@ test_fail_distinct_concat_inside_count:
     SELECT COUNT(DISTINCT(CONCAT(col1, '-', col2, '-', col3)))
   fix_str: |
     SELECT COUNT(DISTINCT CONCAT(col1, '-', col2, '-', col3))
+
+test_pass_distinct_subquery_inside_count:
+  pass_str: |
+    SELECT
+        COUNT(
+            DISTINCT(
+                SELECT ANY_VALUE(id)
+                FROM UNNEST(tag) t
+            )
+        )
+    FROM
+        dataset_name.table_name;

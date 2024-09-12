@@ -42,7 +42,7 @@ repos:
         additional_dependencies:
           [
             types-toml,
-            types-pkg_resources,
+            types-setuptools,
             types-chardet,
             types-appdirs,
             types-colorama,

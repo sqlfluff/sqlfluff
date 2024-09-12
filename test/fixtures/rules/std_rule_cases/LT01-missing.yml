@@ -49,3 +49,15 @@ test_fail_cte_newline_and_spaces_after_as:
       select 1
     )
     select * from a
+
+test_pass_cte_comment_after_as:
+  # https://github.com/sqlfluff/sqlfluff/issues/6125
+  # When handling the 'single:inline' constraint,
+  # prohibit stripping newlines after comment segments.
+  pass_str: |
+    WITH
+    a AS -- comment
+    (
+    select 1
+    )
+    select * from a

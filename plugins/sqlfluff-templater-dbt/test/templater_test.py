@@ -439,10 +439,10 @@ def test__templater_dbt_templating_absolute_path(
     [
         (
             "compiler_error.sql",
-            "dbt compilation error on file 'models/my_new_project/compiler_error.sql'"
-            ", Unexpected end of template. Jinja was looking for the following tags:"
-            " 'endfor' or 'else'. The innermost block that needs to be closed is "
-            "'for'.\n  line 5\n    {{ col }}",
+            "Compilation Error in model compiler_error "
+            "(models/my_new_project/compiler_error.sql)\n  "
+            "Unexpected end of template. Jinja was looking for the following tags: "
+            "'endfor' or 'else'.",
         ),
         (
             "unknown_ref.sql",
@@ -550,11 +550,8 @@ def test__templater_dbt_handle_database_connection_failure(
         shutil.move(target_fpath, src_fpath)
         get_adapter(dbt_templater.dbt_config).connections.release()
     # NB: Replace slashes to deal with different platform paths being returned.
-    assert (
-        excinfo.value.desc()
-        .replace("\\", "/")
-        .startswith("dbt tried to connect to the database")
-    )
+    error_message = excinfo.value.desc().replace("\\", "/")
+    assert "dbt tried to connect to the database" in error_message
 
 
 def test__project_dir_does_not_exist_error(dbt_templater):

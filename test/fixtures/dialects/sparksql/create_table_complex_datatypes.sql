@@ -13,3 +13,9 @@ CREATE TABLE table_identifier
 --Create Table with complex datatypes and quoted identifiers
 CREATE TABLE table_identifier
 ( a STRUCT<`b`: STRING, c: BOOLEAN>, `d` MAP<STRING, BOOLEAN>, e ARRAY<STRING>);
+
+
+CREATE TABLE my_table (
+    field_a STRING,
+    field_b VARIANT
+);

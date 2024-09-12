@@ -31,6 +31,7 @@ _dialect_lookup = {
     "greenplum": ("dialect_greenplum", "greenplum_dialect"),
     "hive": ("dialect_hive", "hive_dialect"),
     "materialize": ("dialect_materialize", "materialize_dialect"),
+    "mariadb": ("dialect_mariadb", "mariadb_dialect"),
     "mysql": ("dialect_mysql", "mysql_dialect"),
     "oracle": ("dialect_oracle", "oracle_dialect"),
     "postgres": ("dialect_postgres", "postgres_dialect"),
@@ -77,6 +78,7 @@ class DialectTuple(NamedTuple):
     label: str
     name: str
     inherits_from: str
+    docstring: str
 
 
 def dialect_readout() -> Iterator[DialectTuple]:
@@ -85,8 +87,9 @@ def dialect_readout() -> Iterator[DialectTuple]:
         dialect = load_raw_dialect(dialect_label)
         yield DialectTuple(
             label=dialect_label,
-            name=dialect.name,
+            name=dialect.formatted_name,
             inherits_from=dialect.inherits_from or "nothing",
+            docstring=dialect.docstring,
         )
 
 

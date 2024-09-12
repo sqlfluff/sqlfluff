@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f60e9801e15851a78f11aac0d0e84972dcbc06d48aed8a6436f24dae8ec810c9
+_hash: f2b61b1485d6f03e762eeeb23e246a6bbb3526e4240fe515275290ac489c0a45
 file:
 - batch:
     statement:
@@ -14,12 +14,13 @@ file:
             function:
               function_name:
                 function_name_identifier: DATE
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: t
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: t
+                  end_bracket: )
             alias_expression:
               keyword: AS
               naked_identifier: t_date
@@ -28,15 +29,16 @@ file:
             function:
               function_name:
                 function_name_identifier: ROUND
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    naked_identifier: b
-              - comma: ','
-              - expression:
-                  numeric_literal: '2'
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: b
+                - comma: ','
+                - expression:
+                    numeric_literal: '2'
+                - end_bracket: )
             alias_expression:
               keyword: AS
               naked_identifier: b_round
@@ -45,35 +47,38 @@ file:
             function:
               function_name:
                 keyword: LEFT
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  function:
-                    function_name:
-                      keyword: RIGHT
-                    bracketed:
-                    - start_bracket: (
-                    - expression:
-                        column_reference:
-                          naked_identifier: s
-                    - comma: ','
-                    - expression:
-                        numeric_literal: '5'
-                    - end_bracket: )
-              - comma: ','
-              - expression:
-                  function:
-                    function_name:
-                      function_name_identifier: LEN
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          naked_identifier: s
-                        binary_operator: +
-                        numeric_literal: '6'
-                      end_bracket: )
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    function:
+                      function_name:
+                        keyword: RIGHT
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                              naked_identifier: s
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '5'
+                        - end_bracket: )
+                - comma: ','
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: LEN
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: s
+                            binary_operator: +
+                            numeric_literal: '6'
+                          end_bracket: )
+                - end_bracket: )
             alias_expression:
               keyword: AS
               naked_identifier: compound
@@ -82,19 +87,20 @@ file:
             function:
               function_name:
                 function_name_identifier: DATEADD
-              bracketed:
-              - start_bracket: (
-              - date_part: month
-              - comma: ','
-              - expression:
-                  numeric_literal:
-                    sign_indicator: '-'
-                    numeric_literal: '1'
-              - comma: ','
-              - expression:
-                  column_reference:
-                    naked_identifier: column1
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - date_part: month
+                - comma: ','
+                - expression:
+                    numeric_literal:
+                      sign_indicator: '-'
+                      numeric_literal: '1'
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: column1
+                - end_bracket: )
             alias_expression:
               keyword: AS
               naked_identifier: column1_lastmonth
@@ -103,19 +109,20 @@ file:
             function:
               function_name:
                 keyword: convert
-              bracketed:
-              - start_bracket: (
-              - data_type:
-                  data_type_identifier: varchar
-              - comma: ','
-              - expression:
-                  column_reference:
-                  - naked_identifier: tbl_b
-                  - dot: .
-                  - naked_identifier: column1
-              - comma: ','
-              - numeric_literal: '23'
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - data_type:
+                    data_type_identifier: varchar
+                - comma: ','
+                - expression:
+                    column_reference:
+                    - naked_identifier: tbl_b
+                    - dot: .
+                    - naked_identifier: column1
+                - comma: ','
+                - numeric_literal: '23'
+                - end_bracket: )
             alias_expression:
               keyword: AS
               naked_identifier: column1_varchar

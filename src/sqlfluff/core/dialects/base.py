@@ -33,6 +33,8 @@ class Dialect:
         library: Optional[Dict[str, DialectElementType]] = None,
         sets: Optional[Dict[str, Set[Union[str, BracketPairTuple]]]] = None,
         inherits_from: Optional[str] = None,
+        formatted_name: Optional[str] = None,
+        docstring: Optional[str] = None,
     ) -> None:
         self._library = library or {}
         self.name = name
@@ -41,6 +43,9 @@ class Dialect:
         self._sets = sets or {}
         self.inherits_from = inherits_from
         self.root_segment_name = root_segment_name
+        # Attributes for documentation
+        self.formatted_name: str = formatted_name or name
+        self.docstring = docstring or f"The dialect for {self.formatted_name}."
 
     def __repr__(self) -> str:  # pragma: no cover
         return f"<Dialect: {self.name}>"
@@ -123,7 +128,12 @@ class Dialect:
             [n.strip().upper() for n in values.strip().split("\n")]
         )
 
-    def copy_as(self, name: str) -> "Dialect":
+    def copy_as(
+        self,
+        name: str,
+        formatted_name: Optional[str] = None,
+        docstring: Optional[str] = None,
+    ) -> "Dialect":
         """Copy this dialect and create a new one with a different name.
 
         This is the primary method for inheritance, after which, the
@@ -149,6 +159,9 @@ class Dialect:
             sets=new_sets,
             inherits_from=self.name,
             root_segment_name=self.root_segment_name,
+            # NOTE: We don't inherit the documentation fields.
+            formatted_name=formatted_name,
+            docstring=docstring,
         )
 
     def add(self, **kwargs: DialectElementType) -> None:
@@ -307,7 +320,7 @@ class Dialect:
                 (
                     "Grammar refers to the "
                     "{!r} keyword which was not found in the {} dialect.{}".format(
-                        keyword, self.name, keyword_tip
+                        keyword.upper(), self.name, keyword_tip
                     )
                 )
             )

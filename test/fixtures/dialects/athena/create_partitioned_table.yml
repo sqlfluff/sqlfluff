@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c5ce1d7c663f64372f59dfc0f2028db823240dbb4eeb85312cb99f45af4edca5
+_hash: 29727a173005e27d0f50b997ae6db7236338e55a49bdbe38f49b45aa84efa82e
 file:
 - statement:
     create_table_statement:
@@ -103,33 +103,37 @@ file:
           - function:
               function_name:
                 function_name_identifier: cast
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: l_shipdate
-                keyword: as
-                data_type:
-                  primitive_type:
-                    keyword: timestamp
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: l_shipdate
+                  keyword: as
+                  data_type:
+                    primitive_type:
+                      keyword: timestamp
+                  end_bracket: )
           - comparison_operator:
               raw_comparison_operator: <
           - function:
               function_name:
                 function_name_identifier: DATE
-              bracketed:
-                start_bracket: (
-                expression:
-                  quoted_literal: "'1992-02-01'"
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'1992-02-01'"
+                  end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        naked_identifier: ctas_iceberg
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: ctas_iceberg
     - keyword: WITH
     - bracketed:
       - start_bracket: (
@@ -169,7 +173,7 @@ file:
           raw_comparison_operator: '='
       - numeric_literal: '10'
       - comma: ','
-      - keyword: vacuum_max_snapshot_age_ms
+      - keyword: vacuum_max_snapshot_age_seconds
       - comparison_operator:
           raw_comparison_operator: '='
       - numeric_literal: '259200'
@@ -194,5 +198,7 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  naked_identifier: table1
+                - naked_identifier: db
+                - dot: .
+                - naked_identifier: table1
 - statement_terminator: ;

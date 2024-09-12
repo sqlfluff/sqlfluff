@@ -1,12 +1,24 @@
 CREATE VIEW v1 (c,d) AS
-SELECT a,b FROM t1;
+  SELECT a,b FROM t1;
 
 CREATE OR REPLACE VIEW v1 (c,d,e,f) AS
-SELECT a,b, a IN (SELECT a+2 FROM t1), a = all (SELECT a FROM t1) FROM t1;
+  SELECT a,b, a IN (SELECT a+2 FROM t1), a = all (SELECT a FROM t1) FROM t1;
 
 CREATE VIEW v2 AS SELECT a FROM t1 WITH CASCADED CHECK OPTION;
 
 CREATE VIEW v2 AS (SELECT a FROM t1) WITH CASCADED CHECK OPTION;
 
 CREATE VIEW v2 AS
-SELECT 1 UNION SELECT 2;
+  SELECT 1 UNION SELECT 2;
+
+
+
+CREATE VIEW vw_test AS
+  WITH testing_cte as (
+    SELECT
+      a
+      , b
+      FROM t1
+  )
+  SELECT a, b from testing_cte
+;

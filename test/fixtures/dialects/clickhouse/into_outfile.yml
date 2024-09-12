@@ -1,0 +1,87 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3335ef6265c9de0e79e2692512f3c5bfc83dcc2e5a3c8144427d12d2d189b034
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1'
+      into_outfile_clause:
+      - keyword: INTO
+      - keyword: OUTFILE
+      - quoted_literal: "'/tmp/test'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1'
+          alias_expression:
+            keyword: as
+            naked_identifier: test
+      into_outfile_clause:
+      - keyword: INTO
+      - keyword: OUTFILE
+      - quoted_literal: "'/tmp/test'"
+      - format_clause:
+        - keyword: FORMAT
+        - keyword: TabSeparated
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: test
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: dual
+      where_clause:
+        keyword: where
+        expression:
+          column_reference:
+            naked_identifier: test
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'1'"
+      into_outfile_clause:
+      - keyword: INTO
+      - keyword: OUTFILE
+      - quoted_literal: "'/tmp/test'"
+      - format_clause:
+        - keyword: FORMAT
+        - keyword: TabSeparated
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: test
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: dual
+      into_outfile_clause:
+      - keyword: INTO
+      - keyword: OUTFILE
+      - quoted_literal: "'/tmp/test'"
+      - format_clause:
+        - keyword: FORMAT
+        - keyword: CSV
+- statement_terminator: ;

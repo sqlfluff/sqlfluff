@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0ca0a589ad98d8a2f91b99db2f29bc962416ea5cef4eaaee8fb4d1d07bd1e7c3
+_hash: 6e33b940b5535a42e0946f8868e8651a2b76653e887f1ed4834b08c15812ece1
 file:
 - statement:
     insert_statement:
@@ -22,7 +22,7 @@ file:
       - column_reference:
           naked_identifier: t1
       - end_bracket: )
-    - values_insert_clause:
+    - values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
@@ -39,7 +39,7 @@ file:
     - keyword: INTO
     - table_reference:
         naked_identifier: t
-    - values_insert_clause:
+    - values_clause:
       - keyword: VALUES
       - bracketed:
         - start_bracket: (
@@ -65,7 +65,7 @@ file:
     - keyword: INTO
     - table_reference:
         naked_identifier: t
-    - values_insert_clause:
+    - values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
@@ -123,12 +123,13 @@ file:
             function:
               function_name:
                 function_name_identifier: max
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    naked_identifier: j
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: j
+                  end_bracket: )
         from_clause:
           keyword: FROM
           from_expression:
@@ -189,26 +190,28 @@ file:
       - column_reference:
           naked_identifier: c3
       - end_bracket: )
-    - values_insert_clause:
+    - values_clause:
         keyword: VALUES
         bracketed:
         - start_bracket: (
-        - bracketed:
-            start_bracket: (
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  column_reference:
-                    naked_identifier: x
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        naked_identifier: y
-            end_bracket: )
+        - expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      column_reference:
+                        naked_identifier: x
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: y
+              end_bracket: )
         - comma: ','
         - quoted_literal: "'val1'"
         - comma: ','
@@ -226,11 +229,12 @@ file:
         column_reference:
           naked_identifier: adate
         end_bracket: )
-    - values_insert_clause:
+    - values_clause:
         keyword: values
         bracketed:
           start_bracket: (
-          bare_function: current_timestamp
+          expression:
+            bare_function: current_timestamp
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -266,4 +270,77 @@ file:
       - keyword: WITH
       - keyword: STEP
       - numeric_literal: '4'
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: d1
+      - comma: ','
+      - column_reference:
+          naked_identifier: n1
+      - comma: ','
+      - column_reference:
+          naked_identifier: v1
+      - end_bracket: )
+    - values_clause:
+        keyword: values
+        bracketed:
+        - start_bracket: (
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: add_days
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    bare_function: current_date
+                - comma: ','
+                - expression:
+                    numeric_literal:
+                      sign_indicator: '-'
+                      numeric_literal: '1'
+                - end_bracket: )
+        - comma: ','
+        - numeric_literal: '15.0'
+        - comma: ','
+        - quoted_literal: "'myvalue'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: d1
+      - comma: ','
+      - column_reference:
+          naked_identifier: n1
+      - comma: ','
+      - column_reference:
+          naked_identifier: v1
+      - end_bracket: )
+    - values_clause:
+        keyword: values
+        bracketed:
+        - start_bracket: (
+        - expression:
+            bare_function: current_date
+            binary_operator: +
+            numeric_literal: '1'
+        - comma: ','
+        - numeric_literal: '15.0'
+        - comma: ','
+        - quoted_literal: "'myvalue'"
+        - end_bracket: )
 - statement_terminator: ;

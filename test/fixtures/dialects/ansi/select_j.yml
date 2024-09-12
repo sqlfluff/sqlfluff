@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ffec6e9074ce8a42448d7c3d36e8a74fc167e756673f39e2140078afcc746d79
+_hash: 6d0d616d431d59cdba64b181a682b7c62e757aa1530d4ff7d9abe9109b06345e
 file:
 - statement:
     select_statement:
@@ -17,54 +17,58 @@ file:
               - function:
                   function_name:
                     function_name_identifier: POW
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        naked_identifier: sd2
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '2'
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: sd2
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '2'
+                    - end_bracket: )
               - binary_operator: +
               - function:
                   function_name:
                     function_name_identifier: POW
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        naked_identifier: sd3
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '2'
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: sd3
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '2'
+                    - end_bracket: )
               - binary_operator: +
               - function:
                   function_name:
                     function_name_identifier: POW
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        naked_identifier: sd4
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '2'
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: sd4
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '2'
+                    - end_bracket: )
               - binary_operator: +
               - function:
                   function_name:
                     function_name_identifier: POW
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        naked_identifier: sd4
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '2'
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: sd4
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '2'
+                    - end_bracket: )
               end_bracket: )
           alias_expression:
             naked_identifier: w1

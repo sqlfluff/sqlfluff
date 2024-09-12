@@ -9,7 +9,7 @@ loops and placeholders.
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import List, NamedTuple, Optional, Union
+from typing import List, NamedTuple, Union
 
 import pytest
 from jinja2 import Environment, nodes
@@ -711,6 +711,8 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_f/jinja", True, False),
         # Macro loading from a folder
         ("jinja_g_macros/jinja", True, False),
+        # Excluding macros
+        ("jinja_exclude_macro_path/jinja", True, False),
         # jinja raw tag
         ("jinja_h_macros/jinja", True, False),
         ("jinja_i_raw/raw_tag", True, False),
@@ -1045,9 +1047,7 @@ class DerivedJinjaTemplater(JinjaTemplater):
         env.add_extension(DBMigrationExtension)
         return env
 
-    def _get_jinja_analyzer(
-        self, raw_str: str, env: Environment, config: Optional[FluffConfig] = None
-    ) -> JinjaAnalyzer:
+    def _get_jinja_analyzer(self, raw_str: str, env: Environment) -> JinjaAnalyzer:
         return DerivedJinjaAnalyzer(raw_str, env)
 
 
@@ -1606,6 +1606,32 @@ FROM {{ j }}{{ self.table_name() }}
                 ("block_end", slice(90, 99, None), slice(53, 53, None)),
             ],
             DerivedJinjaTemplater,
+        ),
+        (
+            # test for issue 6121: The first rendered element
+            # inside the loop is far from the start position of the loop.
+            """
+{% for i in range(2) %}{% set a = 0 %}{% set b = 0 %}{% set c = 0 %}
+SELECT 1;
+{% endfor %}
+""",
+            None,
+            [
+                ("literal", slice(0, 1, None), slice(0, 1, None)),
+                ("block_start", slice(1, 24, None), slice(1, 1, None)),
+                ("templated", slice(24, 39, None), slice(1, 1, None)),
+                ("templated", slice(39, 54, None), slice(1, 1, None)),
+                ("templated", slice(54, 69, None), slice(1, 1, None)),
+                ("literal", slice(69, 80, None), slice(1, 12, None)),
+                ("block_end", slice(80, 92, None), slice(12, 12, None)),
+                ("templated", slice(24, 39, None), slice(12, 12, None)),
+                ("templated", slice(39, 54, None), slice(12, 12, None)),
+                ("templated", slice(54, 69, None), slice(12, 12, None)),
+                ("literal", slice(69, 80, None), slice(12, 23, None)),
+                ("block_end", slice(80, 92, None), slice(23, 23, None)),
+                ("literal", slice(92, 93, None), slice(23, 24, None)),
+            ],
+            JinjaTemplater,
         ),
     ],
 )

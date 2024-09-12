@@ -61,7 +61,7 @@ version number.
 .. code-block:: text
 
     $ sqlfluff version
-    3.0.7
+    3.1.1
 
 Basic Usage
 -----------
@@ -299,6 +299,8 @@ From here, there are several more things to explore.
 * To find out more about which rules are available, see :ref:`ruleref`.
 * To find out more about configuring *SQLFluff* and what other options
   are available, see :ref:`config`.
+* Once you're ready to start using *SQLFluff* on a project or with the
+  rest of your team, check out :ref:`production-use`.
 
 One last thing to note is that *SQLFluff* is a relatively new project
 and you may find bugs or strange things while using it. If you do find

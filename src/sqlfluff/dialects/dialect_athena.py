@@ -36,7 +36,17 @@ from sqlfluff.dialects.dialect_athena_keywords import (
 
 ansi_dialect = load_raw_dialect("ansi")
 
-athena_dialect = ansi_dialect.copy_as("athena")
+athena_dialect = ansi_dialect.copy_as(
+    "athena",
+    formatted_name="AWS Athena",
+    docstring="""**Default Casing**: ``lowercase``
+
+**Quotes**: String Literals: ``''``, ``""`` or |back_quotes|,
+Identifiers: ``""`` or |back_quotes|
+
+The dialect for `Athena <https://aws.amazon.com/athena/>`_
+on Amazon Web Services (AWS).""",
+)
 
 athena_dialect.sets("unreserved_keywords").update(athena_unreserved_keywords)
 athena_dialect.sets("reserved_keywords").update(athena_reserved_keywords)
@@ -82,7 +92,6 @@ athena_dialect.add(
     BracketedPropertyListGrammar=Bracketed(Delimited(Ref("PropertyGrammar"))),
     CTASPropertyGrammar=Sequence(
         OneOf(
-            "external_location",
             "format",
             "partitioned_by",
             "bucketed_by",
@@ -90,15 +99,17 @@ athena_dialect.add(
             "write_compression",
             "orc_compression",
             "parquet_compression",
+            "compression_level",
             "field_delimiter",
-            "location",
+            "is_external",
+            "table_type",
+            "external_location",
         ),
         Ref("EqualsSegment"),
         Ref("LiteralGrammar"),
     ),
     CTASIcebergPropertyGrammar=Sequence(
         OneOf(
-            "external_location",
             "format",
             "partitioned_by",
             "bucketed_by",
@@ -106,13 +117,19 @@ athena_dialect.add(
             "write_compression",
             "orc_compression",
             "parquet_compression",
+            "compression_level",
             "field_delimiter",
-            "location",
             "is_external",
             "table_type",
+            # Iceberg-specific properties
+            "location",
             "partitioning",
-            "vacuum_max_snapshot_age_ms",
+            "vacuum_max_snapshot_age_seconds",
             "vacuum_min_snapshots_to_keep",
+            "optimize_rewrite_min_data_file_size_bytes",
+            "optimize_rewrite_max_data_file_size_bytes",
+            "optimize_rewrite_data_file_threshold",
+            "optimize_rewrite_delete_file_threshold",
         ),
         Ref("EqualsSegment"),
         Ref("LiteralGrammar"),
@@ -462,7 +479,14 @@ class CreateTableStatementSegment(BaseSegment):
                     Bracketed(
                         Delimited(
                             Sequence(
-                                Ref("ColumnDefinitionSegment"),
+                                OneOf(
+                                    # External tables expect types...
+                                    Ref("ColumnDefinitionSegment"),
+                                    # Iceberg tables don't expect types.
+                                    Ref("SingleIdentifierGrammar"),
+                                    # Iceberg tables also allow partition transforms
+                                    Ref("FunctionSegment"),
+                                ),
                                 Ref("CommentGrammar", optional=True),
                             ),
                         ),

@@ -52,7 +52,31 @@ from sqlfluff.dialects.dialect_sparksql_keywords import (
 
 ansi_dialect = load_raw_dialect("ansi")
 hive_dialect = load_raw_dialect("hive")
-sparksql_dialect = ansi_dialect.copy_as("sparksql")
+sparksql_dialect = ansi_dialect.copy_as(
+    "sparksql",
+    formatted_name="Apache Spark SQL",
+    docstring="""**Default Casing**: SparkSQL is case insensitive with
+both quoted and unquoted identifiers (_"delimited"_ identifiers in
+Spark terminology). See the `Spark Identifiers`_ docs.
+
+**Quotes**: String Literals: ``''`` or ``""``, Identifiers: |back_quotes|.
+
+The dialect for Apache `Spark SQL`_. This includes relevant
+syntax from :ref:`hive_dialect_ref` for commands that permit Hive Format.
+Spark SQL extensions provided by the `Delta Lake`_ project are also implemented
+in this dialect.
+
+This implementation focuses on the `Ansi Compliant Mode`_ introduced in
+Spark3, instead of being Hive Compliant. The introduction of ANSI Compliance
+provides better data quality and easier migration from traditional DBMS.
+
+Versions of Spark prior to 3.x will only support the Hive dialect.
+
+.. _`Spark SQL`: https://spark.apache.org/docs/latest/sql-ref.html
+.. _`Delta Lake`: https://docs.delta.io/latest/quick-start.html#set-up-apache-spark-with-delta-lake
+.. _`Ansi Compliant Mode`: https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
+.. _`Spark Identifiers`: https://spark.apache.org/docs/latest/sql-ref-identifier.html""",  # noqa: E501
+)
 
 sparksql_dialect.patch_lexer_matchers(
     [
@@ -130,6 +154,16 @@ sparksql_dialect.patch_lexer_matchers(
 
 sparksql_dialect.insert_lexer_matchers(
     [
+        RegexLexer(
+            "raw_single_quote",
+            r"[rR]'([^'\\]|\\.)*'",
+            CodeSegment,
+        ),
+        RegexLexer(
+            "raw_double_quote",
+            r'[rR]"([^"\\]|\\.)*"',
+            CodeSegment,
+        ),
         RegexLexer(
             "bytes_single_quote",
             r"X'([^'\\]|\\.)*'",
@@ -292,6 +326,7 @@ sparksql_dialect.replace(
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
+            Ref("RawQuotedLiteralSegment"),
             Ref("BytesQuotedLiteralSegment"),
         ]
     ),
@@ -431,6 +466,9 @@ sparksql_dialect.replace(
         Ref("ExpressionSegment"),
         Ref("StarSegment"),
     ),
+    NonWithNonSelectableGrammar=ansi_dialect.get_grammar(
+        "NonWithNonSelectableGrammar"
+    ).copy(insert=[Ref("InsertOverwriteDirectorySegment")]),
 )
 
 sparksql_dialect.add(
@@ -670,6 +708,18 @@ sparksql_dialect.add(
     TablePropertiesGrammar=Sequence(
         "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
     ),
+    RawQuotedLiteralSegment=OneOf(
+        TypedParser(
+            "raw_single_quote",
+            LiteralSegment,
+            type="raw_quoted_literal",
+        ),
+        TypedParser(
+            "raw_double_quote",
+            LiteralSegment,
+            type="raw_quoted_literal",
+        ),
+    ),
     BytesQuotedLiteralSegment=OneOf(
         TypedParser(
             "bytes_single_quote",
@@ -799,6 +849,15 @@ sparksql_dialect.add(
             optional=True,
         ),
     ),
+    FirstOrAfterGrammar=Sequence(
+        OneOf(
+            "FIRST",
+            Sequence(
+                "AFTER",
+                Ref("ColumnReferenceSegment"),
+            ),
+        ),
+    ),
 )
 
 # Adding Hint related grammar before comment `block_comment` and
@@ -907,6 +966,7 @@ class PrimitiveTypeSegment(BaseSegment):
         ),
         "BINARY",
         "INTERVAL",
+        "VARIANT",
     )
 
 
@@ -1005,7 +1065,10 @@ class AlterDatabaseStatementSegment(BaseSegment):
         OneOf("DATABASE", "SCHEMA"),
         Ref("DatabaseReferenceSegment"),
         "SET",
-        Ref("DatabasePropertiesGrammar"),
+        OneOf(
+            Ref("DatabasePropertiesGrammar"),
+            Ref("LocationGrammar"),
+        ),
     )
 
 
@@ -1054,14 +1117,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                     Delimited(
                         Sequence(
                             Ref("ColumnFieldDefinitionSegment"),
-                            OneOf(
-                                "FIRST",
-                                Sequence(
-                                    "AFTER",
-                                    Ref("ColumnReferenceSegment"),
-                                ),
-                                optional=True,
-                            ),
+                            Ref("FirstOrAfterGrammar", optional=True),
                         ),
                     ),
                 ),
@@ -1090,14 +1146,7 @@ class AlterTableStatementSegment(ansi.AlterTableStatementSegment):
                 Ref.keyword("TYPE", optional=True),
                 Ref("DatatypeSegment", optional=True),
                 Ref("CommentGrammar", optional=True),
-                OneOf(
-                    "FIRST",
-                    Sequence(
-                        "AFTER",
-                        Ref("ColumnReferenceSegment"),
-                    ),
-                    optional=True,
-                ),
+                Ref("FirstOrAfterGrammar", optional=True),
                 Sequence(OneOf("SET", "DROP"), "NOT", "NULL", optional=True),
                 Dedent,
             ),
@@ -1900,7 +1949,7 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
 
 
 class GroupByClauseSegment(ansi.GroupByClauseSegment):
-    """Enhance `GROUP BY` clause like in `SELECT` for 'CUBE' and 'ROLLUP`.
+    """Enhance `GROUP BY` clause like in `SELECT` for `CUBE` and `ROLLUP`.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
     """
@@ -1911,12 +1960,12 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
         Indent,
         OneOf(
             Delimited(
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingSetsClauseSegment"),
                 Ref("ColumnReferenceSegment"),
                 # Can `GROUP BY 1`
                 Ref("NumericLiteralSegment"),
                 # Can `GROUP BY coalesce(col, 1)`
-                Ref("CubeRollupClauseSegment"),
-                Ref("GroupingSetsClauseSegment"),
                 Ref("ExpressionSegment"),
             ),
             Sequence(
@@ -1928,7 +1977,8 @@ class GroupByClauseSegment(ansi.GroupByClauseSegment):
                     Ref("ExpressionSegment"),
                 ),
                 OneOf(
-                    Ref("WithCubeRollupClauseSegment"), Ref("GroupingSetsClauseSegment")
+                    Ref("WithCubeRollupClauseSegment"),
+                    Ref("GroupingSetsClauseSegment"),
                 ),
             ),
         ),

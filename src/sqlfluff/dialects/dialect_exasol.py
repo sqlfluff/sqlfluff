@@ -44,7 +44,11 @@ from sqlfluff.dialects.dialect_exasol_keywords import (
 )
 
 ansi_dialect = load_raw_dialect("ansi")
-exasol_dialect = ansi_dialect.copy_as("exasol")
+exasol_dialect = ansi_dialect.copy_as(
+    "exasol",
+    formatted_name="Exasol",
+    docstring="The dialect for `Exasol <https://www.exasol.com/>`_.",
+)
 
 # Clear ANSI Keywords and add all EXASOL keywords
 exasol_dialect.sets("unreserved_keywords").clear()
@@ -1530,33 +1534,10 @@ class InsertStatementSegment(BaseSegment):
         Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
         AnyNumberOf(
-            Ref("ValuesInsertClauseSegment"),
             Ref("ValuesRangeClauseSegment"),
             Sequence("DEFAULT", "VALUES"),
             Ref("SelectableGrammar"),
             Ref("BracketedColumnReferenceListGrammar", optional=True),
-        ),
-    )
-
-
-class ValuesInsertClauseSegment(BaseSegment):
-    """A `VALUES` clause like in `INSERT`."""
-
-    type = "values_insert_clause"
-    match_grammar = Sequence(
-        "VALUES",
-        Delimited(
-            Bracketed(
-                Delimited(
-                    Ref("LiteralGrammar"),
-                    Ref("IntervalExpressionSegment"),
-                    Ref("FunctionSegment"),
-                    Ref("BareFunctionSegment"),
-                    "DEFAULT",
-                    Ref("SelectableGrammar"),
-                ),
-                parse_mode=ParseMode.GREEDY,
-            ),
         ),
     )
 

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5127c65677a4d987ab01ccfd4bfc6a86ce2dd0f7317002ae12e04869c5812f1c
+_hash: 6c72e6d517d127d92c58841e4bd45ff35e8bf47a47c11fcc175772c5f6bcd12a
 file:
   statement:
     select_statement:
@@ -13,46 +13,49 @@ file:
           function:
             function_name:
               function_name_identifier: COALESCE
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: element_at
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                      - naked_identifier: rq
-                      - dot: .
-                      - naked_identifier: hiring_managers
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '1'
-                  - end_bracket: )
-            - comma: ','
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: element_at
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                      - naked_identifier: rq
-                      - dot: .
-                      - naked_identifier: hiring_managers
-                  - comma: ','
-                  - expression:
-                      numeric_literal: '2'
-                  - end_bracket: )
-            - comma: ','
-            - expression:
-                column_reference:
-                - naked_identifier: rq
-                - dot: .
-                - naked_identifier: creator_id
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: element_at
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                          - naked_identifier: rq
+                          - dot: .
+                          - naked_identifier: hiring_managers
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: element_at
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                          - naked_identifier: rq
+                          - dot: .
+                          - naked_identifier: hiring_managers
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '2'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: rq
+                  - dot: .
+                  - naked_identifier: creator_id
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: part1
@@ -62,17 +65,18 @@ file:
             function:
               function_name:
                 function_name_identifier: element_at
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                  - naked_identifier: pl
-                  - dot: .
-                  - naked_identifier: hiring_managers
-              - comma: ','
-              - expression:
-                  numeric_literal: '1'
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                    - naked_identifier: pl
+                    - dot: .
+                    - naked_identifier: hiring_managers
+                - comma: ','
+                - expression:
+                    numeric_literal: '1'
+                - end_bracket: )
             dot: .
             object_reference:
               naked_identifier: id
@@ -85,17 +89,18 @@ file:
             function:
               function_name:
                 function_name_identifier: element_at
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                  - naked_identifier: pl
-                  - dot: .
-                  - naked_identifier: hiring_managers
-              - comma: ','
-              - expression:
-                  numeric_literal: '2'
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                    - naked_identifier: pl
+                    - dot: .
+                    - naked_identifier: hiring_managers
+                - comma: ','
+                - expression:
+                    numeric_literal: '2'
+                - end_bracket: )
             dot: .
             object_reference:
               naked_identifier: id

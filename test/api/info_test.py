@@ -8,7 +8,22 @@ def test__api__info_dialects():
     """Basic linting of dialects."""
     dialects = sqlfluff.list_dialects()
     assert isinstance(dialects, list)
-    assert ("ansi", "ansi", "nothing") in dialects
+    # Turn it into a dict so we can look for items in there.
+    dialect_dict = {dialect.label: dialect for dialect in dialects}
+    # Check the ansi dialect works
+    assert "ansi" in dialect_dict
+    ansi = dialect_dict["ansi"]
+    assert ansi.label == "ansi"
+    assert ansi.name == "ANSI"
+    assert ansi.inherits_from == "nothing"
+    assert "This is the base dialect" in ansi.docstring
+    # Check one other works
+    assert "postgres" in dialect_dict
+    postgres = dialect_dict["postgres"]
+    assert postgres.label == "postgres"
+    assert postgres.name == "PostgreSQL"
+    assert postgres.inherits_from == "ansi"
+    assert "this is often the dialect to use" in postgres.docstring
 
 
 def test__api__info_rules():

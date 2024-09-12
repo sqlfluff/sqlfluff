@@ -77,11 +77,13 @@ class Rule_ST08(BaseRule):
             if not anchor.is_type("expression") or len(anchor.segments) != 1:
                 return None
             function_name = children.select(sp.is_type("function_name")).first()
-            bracketed = children.first(sp.is_type("bracketed"))
+            bracketed = children.first(sp.is_type("function_contents"))
             if (
                 not function_name
                 or function_name[0].raw_upper != "DISTINCT"
                 or not bracketed
+                # If the DISTINCT has a subquery, don't remove the brackets
+                or bracketed.recursive_crawl("select_statement", recurse_into=False)
             ):
                 return None
             # Using ReflowSequence here creates an unneeded space between CONCAT
@@ -104,7 +106,7 @@ class Rule_ST08(BaseRule):
                     LintFix.replace(
                         anchor,
                         (KeywordSegment("DISTINCT"), WhitespaceSegment())
-                        + self.filter_meta(bracketed[0].segments)[1:-1],
+                        + self.filter_meta(bracketed.children()[0].segments)[1:-1],
                     )
                 ],
             )

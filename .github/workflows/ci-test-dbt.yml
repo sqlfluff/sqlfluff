@@ -90,3 +90,4 @@ jobs:
         name: coverage-data-py${{ inputs.python-version }}-${{ inputs.dbt-version }}
         path: ".coverage.*"
         if-no-files-found: ignore
+        include-hidden-files: true

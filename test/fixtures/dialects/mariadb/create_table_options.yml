@@ -1,0 +1,323 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6aaec39c4f5fd57877e361ed9df99124b15b0275e8991710c063cf159f67c4a8
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: year_col
+          data_type:
+            data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          naked_identifier: some_data
+          data_type:
+            data_type_identifier: INT
+      - end_bracket: )
+    - keyword: PARTITION
+    - keyword: BY
+    - keyword: RANGE
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: year_col
+          end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - keyword: PARTITION
+      - column_reference:
+          naked_identifier: p0
+      - keyword: VALUES
+      - keyword: LESS
+      - keyword: THAN
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '1991'
+          end_bracket: )
+      - comma: ','
+      - keyword: PARTITION
+      - column_reference:
+          naked_identifier: p1
+      - keyword: VALUES
+      - keyword: LESS
+      - keyword: THAN
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '1995'
+          end_bracket: )
+      - comma: ','
+      - keyword: PARTITION
+      - column_reference:
+          naked_identifier: p2
+      - keyword: VALUES
+      - keyword: LESS
+      - keyword: THAN
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '1999'
+          end_bracket: )
+      - comma: ','
+      - keyword: PARTITION
+      - column_reference:
+          naked_identifier: p3
+      - keyword: VALUES
+      - keyword: LESS
+      - keyword: THAN
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '2002'
+          end_bracket: )
+      - comma: ','
+      - keyword: PARTITION
+      - column_reference:
+          naked_identifier: p4
+      - keyword: VALUES
+      - keyword: LESS
+      - keyword: THAN
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '2006'
+          end_bracket: )
+      - comma: ','
+      - keyword: PARTITION
+      - column_reference:
+          naked_identifier: p5
+      - keyword: VALUES
+      - keyword: LESS
+      - keyword: THAN
+      - keyword: MAXVALUE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: tbl_name
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+            data_type_identifier: INT
+        - column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+        - column_constraint_segment:
+            keyword: AUTO_INCREMENT
+      - comma: ','
+      - column_definition:
+        - naked_identifier: c
+        - keyword: DATETIME
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - table_constraint:
+          keyword: INDEX
+          bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col
+            end_bracket: )
+      - end_bracket: )
+    - parameter: ENGINE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: InnoDB
+    - parameter: AUTO_INCREMENT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1'
+    - parameter: AVG_ROW_LENGTH
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '10'
+    - keyword: DEFAULT
+    - keyword: CHARACTER
+    - keyword: SET
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: utf8_unicode_ci
+    - parameter: CHECKSUM
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1'
+    - keyword: DEFAULT
+    - parameter: COLLATE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: utf8mb4_unicode_ci
+    - parameter: COMMENT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'comment'"
+    - parameter: CONNECTION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'connection_string'"
+    - parameter: DATA_DIRECTORY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'path/to/dir'"
+    - parameter: DELAY_KEY_WRITE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '0'
+    - parameter: ENCRYPTED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: 'NO'
+    - parameter: ENCRYPTION_KEY_ID
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1234'
+    - parameter: IETF_QUOTES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: 'YES'
+    - keyword: INDEX
+    - keyword: DIRECTORY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'path/to/dir'"
+    - parameter: INSERT_METHOD
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: LAST
+    - parameter: KEY_BLOCK_SIZE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1024'
+    - parameter: MAX_ROWS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '100000'
+    - parameter: MIN_ROWS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1'
+    - parameter: PACK_KEYS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1'
+    - parameter: PAGE_CHECKSUM
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1'
+    - parameter: PAGE_COMPRESSED
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '0'
+    - parameter: PAGE_COMPRESSION_LEVEL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '9'
+    - parameter: PASSWORD
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'password'"
+    - parameter: ROW_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: DYNAMIC
+    - parameter: SEQUENCE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1'
+    - parameter: STATS_AUTO_RECALC
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1'
+    - parameter: STATS_PERSISTENT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1'
+    - parameter: STATS_SAMPLE_PAGES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '4'
+    - parameter: TABLESPACE
+    - parameter: tablespace_name
+    - parameter: TRANSACTIONAL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1'
+    - parameter: UNION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - table_reference:
+          naked_identifier: tbl1
+      - comma: ','
+      - table_reference:
+          naked_identifier: tbl2
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: SYSTEM
+    - parameter: VERSIONING
+    - keyword: PARTITION
+    - keyword: BY
+    - keyword: LINEAR
+    - keyword: HASH
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: YEAR
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: c
+                  end_bracket: )
+          end_bracket: )
+    - keyword: PARTITIONS
+    - numeric_literal: '1'
+    - parameter: SUBPARTITION
+    - parameter: BY
+    - parameter: KEY
+    - bracketed:
+      - start_bracket: (
+      - table_reference:
+          naked_identifier: id
+      - comma: ','
+      - table_reference:
+          naked_identifier: c
+      - end_bracket: )
+    - parameter: SUBPARTITIONS
+    - numeric_literal: '1'
+    - parameter: PARTITION
+    - parameter: first_name
+    - parameter: VALUES
+    - parameter: LESS
+    - parameter: THAN
+    - numeric_literal: '50'
+    - parameter: ENGINE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: InnoDB
+    - parameter: COMMENT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'comment'"
+- statement_terminator: ;

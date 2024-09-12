@@ -30,8 +30,11 @@ test_fail_unqualified_references_multi_table_statements_subquery:
         LEFT JOIN vee ON vee.a = foo.a
     )
 
-test_pass_qualified_references_multi_table_statements_subquery_mix:
-  pass_str: |
+test_fail_qualified_references_multi_table_statements_subquery_mix:
+  # This test should fail because the `c` reference _should_ be from `bar`, but
+  # if the `bar` table does not contain the `c` column, this query will produce
+  # incorrect results.
+  fail_str: |
     SELECT foo.a, vee.b
     FROM (
         SELECT c
@@ -213,6 +216,19 @@ test_pass_column_and_alias_same_name_2_mysql:
         baz
     FROM
         a LEFT JOIN b ON a.id = b.id
+  configs:
+    core:
+      dialect: mysql
+
+test_pass_variable_reference_in_where_clause_mysql:
+  pass_str: |
+    SET @someVar = 1;
+    SELECT
+        Table1.Col1,
+        Table2.Col2
+    FROM Table1
+    LEFT JOIN Table2 ON Table1.Join1 = Table2.Join1
+    WHERE Table1.FilterCol = @someVar;
   configs:
     core:
       dialect: mysql
@@ -411,3 +427,17 @@ test_pass_redshift_convert:
   configs:
     core:
       dialect: redshift
+
+test_fail_unreferenced_subquery_column:
+  # Issue 6067
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE a IN (SELECT a FROM bar)
+
+test_pass_referenced_subquery_column:
+  # Issue 6067
+  pass_str: |
+    SELECT a
+    FROM foo
+    WHERE a IN (SELECT bar.a FROM bar)

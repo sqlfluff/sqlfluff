@@ -1,0 +1,202 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ac1e31885ec99f99cc12fb2e2a01a26801f4f0fed014c59a6c75a0d381cdbb3a
+file:
+- statement:
+    with_compound_statement:
+      keyword: with
+      common_table_expression:
+        naked_identifier: toto
+        keyword: as
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                numeric_literal: '1'
+                alias_expression:
+                  keyword: as
+                  naked_identifier: id
+            - comma: ','
+            - select_clause_element:
+                quoted_literal: "'test'"
+                alias_expression:
+                  keyword: as
+                  naked_identifier: name
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: toto
+        limit_clause:
+        - keyword: LIMIT
+        - limit_clause_component:
+            numeric_literal: '1'
+        - comma: ','
+        - limit_clause_component:
+            numeric_literal: '2'
+        - keyword: by
+        - column_reference:
+            naked_identifier: id
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: with
+      common_table_expression:
+        naked_identifier: toto
+        keyword: as
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                numeric_literal: '1'
+                alias_expression:
+                  keyword: as
+                  naked_identifier: id
+            - comma: ','
+            - select_clause_element:
+                quoted_literal: "'test'"
+                alias_expression:
+                  keyword: as
+                  naked_identifier: name
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: toto
+        limit_clause:
+        - keyword: LIMIT
+        - limit_clause_component:
+            numeric_literal: '1'
+        - keyword: by
+        - column_reference:
+            naked_identifier: id
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: with
+      common_table_expression:
+        naked_identifier: toto
+        keyword: as
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                numeric_literal: '1'
+                alias_expression:
+                  keyword: as
+                  naked_identifier: id
+            - comma: ','
+            - select_clause_element:
+                quoted_literal: "'test'"
+                alias_expression:
+                  keyword: as
+                  naked_identifier: name
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: toto
+        limit_clause:
+        - keyword: LIMIT
+        - limit_clause_component:
+            numeric_literal: '2'
+        - keyword: OFFSET
+        - limit_clause_component:
+            numeric_literal: '1'
+        - keyword: by
+        - column_reference:
+            naked_identifier: id
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: with
+      common_table_expression:
+        naked_identifier: toto
+        keyword: as
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                numeric_literal: '1'
+                alias_expression:
+                  keyword: as
+                  naked_identifier: id
+            - comma: ','
+            - select_clause_element:
+                quoted_literal: "'test'"
+                alias_expression:
+                  keyword: as
+                  naked_identifier: name
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: toto
+        limit_clause:
+        - keyword: LIMIT
+        - limit_clause_component:
+            numeric_literal: '2'
+        - comma: ','
+        - limit_clause_component:
+            numeric_literal: '1'
+        - keyword: by
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: id
+          - comma: ','
+          - column_reference:
+              naked_identifier: name
+          - end_bracket: )
+- statement_terminator: ;

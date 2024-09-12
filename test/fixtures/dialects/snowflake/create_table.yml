@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 09ce4465cc81752ef2cc8eba0e1c3de1f2359fdf047a71d44494499f5fb5cc93
+_hash: 2fde3e6c20c44f9a349b44d2159a94718997c6b304d4fd4ace130a78d8c98b1a
 file:
 - statement:
     create_table_statement:
@@ -110,12 +110,13 @@ file:
     - function:
         function_name:
           function_name_identifier: LINEAR
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: amount
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: amount
+            end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -150,12 +151,13 @@ file:
     - function:
         function_name:
           function_name_identifier: LINEAR
-        bracketed:
-          start_bracket: (
-          expression:
-            column_reference:
-              naked_identifier: amount
-          end_bracket: )
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: amount
+            end_bracket: )
     - bracketed:
         start_bracket: (
         column_definition:
@@ -601,17 +603,19 @@ file:
               function:
                 function_name:
                   function_name_identifier: array_agg
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    function:
-                      function_name:
-                        function_name_identifier: object_construct
-                      bracketed:
-                        start_bracket: (
-                        star: '*'
-                        end_bracket: )
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      function:
+                        function_name:
+                          function_name_identifier: object_construct
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            star: '*'
+                            end_bracket: )
+                    end_bracket: )
           from_clause:
             keyword: from
             from_expression:
@@ -620,25 +624,27 @@ file:
                   function:
                     function_name:
                       function_name_identifier: table
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        function:
-                          function_name:
-                            function_name_identifier: infer_schema
-                          bracketed:
-                          - start_bracket: (
-                          - snowflake_keyword_expression:
-                              parameter: location
-                              parameter_assigner: =>
-                              quoted_literal: "'@mystage'"
-                          - comma: ','
-                          - snowflake_keyword_expression:
-                              parameter: file_format
-                              parameter_assigner: =>
-                              quoted_literal: "'my_parquet_format'"
-                          - end_bracket: )
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          function:
+                            function_name:
+                              function_name_identifier: infer_schema
+                            function_contents:
+                              bracketed:
+                              - start_bracket: (
+                              - snowflake_keyword_expression:
+                                  parameter: location
+                                  parameter_assigner: =>
+                                  quoted_literal: "'@mystage'"
+                              - comma: ','
+                              - snowflake_keyword_expression:
+                                  parameter: file_format
+                                  parameter_assigner: =>
+                                  quoted_literal: "'my_parquet_format'"
+                              - end_bracket: )
+                        end_bracket: )
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -700,9 +706,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: CURRENT_TIMESTAMP
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
       - comma: ','
       - column_definition:
           naked_identifier: timestamp_col3
@@ -714,11 +721,12 @@ file:
               function:
                 function_name:
                   function_name_identifier: CURRENT_TIMESTAMP
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '2'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '2'
+                    end_bracket: )
       - comma: ','
       - column_definition:
           naked_identifier: sysdate_col4
@@ -730,9 +738,10 @@ file:
               function:
                 function_name:
                   function_name_identifier: SYSDATE
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -1141,6 +1150,40 @@ file:
     - keyword: CREATE
     - keyword: OR
     - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_DOWNSTREAM_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: DOWNSTREAM
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
     - keyword: TABLE
     - keyword: IF
     - keyword: NOT
@@ -1220,5 +1263,68 @@ file:
           naked_identifier: AMOUNT
           data_type:
             data_type_identifier: NUMBER
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TEMP
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+          - constraint_properties_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+            - keyword: ENABLE
+            - keyword: ENFORCED
+            - keyword: VALIDATE
+            - keyword: RELY
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: myschema
+      - dot: .
+      - naked_identifier: mytable
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        comma: ','
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: mytable_pk
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+        - keyword: NOT
+        - keyword: ENFORCED
+        - keyword: NOVALIDATE
+        - keyword: NORELY
         end_bracket: )
 - statement_terminator: ;

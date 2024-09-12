@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5d13fc0e5461c17cc822abce14e000655fc3eb1b319d5dfcf4d669eb375b2e62
+_hash: 110682ed6417ece43633451219360808659071c4e2150ee382a95aca60168aff
 file:
 - statement:
     alter_table_statement:
@@ -67,6 +67,53 @@ file:
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
+      - column_reference:
+          naked_identifier: column_1
+      - data_type:
+          data_type_identifier: varchar
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_2
+      - data_type:
+          data_type_identifier: integer
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: column_1
+      - data_type:
+          data_type_identifier: varchar
+      - comma: ','
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: column_2
+      - data_type:
+          data_type_identifier: integer
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
       - column_reference:
           naked_identifier: column_1
       - data_type:
@@ -616,6 +663,96 @@ file:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
+    - table_reference:
+      - naked_identifier: demo_db
+      - dot: .
+      - naked_identifier: public
+    - alter_table_table_column_action:
+      - keyword: DROP
+      - keyword: column
+      - keyword: IF
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: public_name
+      - comma: ','
+      - keyword: IF
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: description_text
+      - comma: ','
+      - keyword: IF
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: type_alias
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: demo_db
+      - dot: .
+      - naked_identifier: public
+    - alter_table_table_column_action:
+      - keyword: DROP
+      - keyword: column
+      - column_reference:
+          naked_identifier: public_name
+      - comma: ','
+      - column_reference:
+          naked_identifier: description_text
+      - comma: ','
+      - column_reference:
+          naked_identifier: type_alias
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: demo_db
+      - dot: .
+      - naked_identifier: public
+    - alter_table_table_column_action:
+      - keyword: DROP
+      - column_reference:
+          naked_identifier: public_name
+      - comma: ','
+      - column_reference:
+          naked_identifier: description_text
+      - comma: ','
+      - column_reference:
+          naked_identifier: type_alias
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: demo_db
+      - dot: .
+      - naked_identifier: public
+    - alter_table_table_column_action:
+      - keyword: DROP
+      - keyword: IF
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: public_name
+      - comma: ','
+      - keyword: IF
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: description_text
+      - comma: ','
+      - keyword: IF
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: type_alias
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
@@ -693,12 +830,13 @@ file:
       - dot: .
       - naked_identifier: my_table
     - alter_table_constraint_action:
-      - keyword: add
-      - keyword: PRIMARY
-      - keyword: KEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            naked_identifier: TABLE_ID
-          end_bracket: )
+        keyword: add
+        constraint_properties_segment:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: TABLE_ID
+            end_bracket: )
 - statement_terminator: ;

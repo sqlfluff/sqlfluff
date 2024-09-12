@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b2ea3dbc494b78abe541194309260d24ae0a2a77bf63f9da74da0b73cdb74e19
+_hash: f7fb309134f715fa9db2152b58edb39c7e9945c453bfd0ec7647b0c4c5127b68
 file:
 - statement:
     select_statement:
@@ -59,15 +59,16 @@ file:
           function:
             function_name:
               function_name_identifier: sys_connect_by_path
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: title
-            - comma: ','
-            - expression:
-                quoted_literal: "' -> '"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: title
+              - comma: ','
+              - expression:
+                  quoted_literal: "' -> '"
+              - end_bracket: )
       - comma: ','
       - select_clause_element:
           column_reference:
@@ -135,15 +136,16 @@ file:
           function:
             function_name:
               function_name_identifier: sys_connect_by_path
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  naked_identifier: component_id
-            - comma: ','
-            - expression:
-                quoted_literal: "' -> '"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: component_id
+              - comma: ','
+              - expression:
+                  quoted_literal: "' -> '"
+              - end_bracket: )
           alias_expression:
             keyword: as
             naked_identifier: path
@@ -231,4 +233,68 @@ file:
       - keyword: by
       - column_reference:
           naked_identifier: employee_id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            naked_identifier: description
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: quantity
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: component_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: parent_component_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: component_type
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: components
+            alias_expression:
+              naked_identifier: c
+          connectby_clause:
+          - keyword: connect
+          - keyword: by
+          - keyword: prior
+          - column_reference:
+            - naked_identifier: c
+            - dot: .
+            - naked_identifier: parent_component_id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: c
+            - dot: .
+            - naked_identifier: component_id
+          - keyword: AND
+          - keyword: PRIOR
+          - column_reference:
+            - naked_identifier: c
+            - dot: .
+            - naked_identifier: component_type
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: c
+            - dot: .
+            - naked_identifier: component_type
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          naked_identifier: quantity
 - statement_terminator: ;

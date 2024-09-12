@@ -37,7 +37,23 @@ from sqlfluff.dialects.dialect_sqlite_keywords import (
 
 ansi_dialect = load_raw_dialect("ansi")
 
-sqlite_dialect = ansi_dialect.copy_as("sqlite")
+sqlite_dialect = ansi_dialect.copy_as(
+    "sqlite",
+    formatted_name="SQLite",
+    docstring="""**Default Casing**: Not specified in the docs,
+but through testing it appears that SQLite *stores* column names
+in whatever case they were defined, but is always *case-insensitive*
+when resolving those names.
+
+**Quotes**: String Literals: ``''`` (or  ``""`` if not otherwise resolved
+to an identifier), Identifiers: ``""``, ``[]`` or |back_quotes|. See the
+`SQLite Keywords Docs`_ for more details.
+
+The dialect for `SQLite <https://www.sqlite.org/>`_.
+
+.. _`SQLite Keywords Docs`: https://sqlite.org/lang_keywords.html
+""",
+)
 
 sqlite_dialect.sets("reserved_keywords").clear()
 sqlite_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
@@ -315,6 +331,19 @@ sqlite_dialect.replace(
             ),
         ),
         Ref("IndexColumnDefinitionSegment"),
+        # Raise Function contents
+        OneOf(
+            "IGNORE",
+            Sequence(
+                OneOf(
+                    "ABORT",
+                    "FAIL",
+                    "ROLLBACK",
+                ),
+                Ref("CommaSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
     ),
     # NOTE: This block was copy/pasted from dialect_ansi.py with these changes made:
     #  - "PRIOR" keyword removed from Expression_A_Unary_Operator_Grammar
@@ -757,6 +786,7 @@ class TableConstraintSegment(ansi.TableConstraintSegment):
                 "UNIQUE",
                 Ref("BracketedColumnReferenceListGrammar"),
                 # Later add support for index_parameters?
+                Ref("ConflictClauseSegment", optional=True),
             ),
             Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
                 Ref("PrimaryKeyGrammar"),
@@ -880,7 +910,7 @@ class CreateTriggerStatementSegment(ansi.CreateTriggerStatementSegment):
         "ON",
         Ref("TableReferenceSegment"),
         Sequence("FOR", "EACH", "ROW", optional=True),
-        Sequence("WHEN", Bracketed(Ref("ExpressionSegment")), optional=True),
+        Sequence("WHEN", OptionallyBracketed(Ref("ExpressionSegment")), optional=True),
         "BEGIN",
         Delimited(
             Ref("UpdateStatementSegment"),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 24020179e2b89bfd88feaad436dce27f0d6cc8af2fc76b3b7b55019bc9900d1c
+_hash: 4b1eb11f1d4a5ce10b9f2c1b254ed18d297c887d600ec6878234c237bb468955
 file:
 - statement:
     select_statement:
@@ -103,27 +103,28 @@ file:
         - function:
             function_name:
               function_name_identifier: lpad
-            bracketed:
-            - start_bracket: (
-            - expression:
-                cast_expression:
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      psql_variable:
-                        colon: ':'
-                        parameter: a
-                    end_bracket: )
-                  casting_operator: '::'
-                  data_type:
-                    keyword: text
-            - comma: ','
-            - expression:
-                numeric_literal: '10'
-            - comma: ','
-            - expression:
-                quoted_literal: "'0'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  cast_expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        psql_variable:
+                          colon: ':'
+                          parameter: a
+                      end_bracket: )
+                    casting_operator: '::'
+                    data_type:
+                      keyword: text
+              - comma: ','
+              - expression:
+                  numeric_literal: '10'
+              - comma: ','
+              - expression:
+                  quoted_literal: "'0'"
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -215,17 +216,18 @@ file:
         - function:
             function_name:
               function_name_identifier: lpad
-            bracketed:
-            - start_bracket: (
-            - expression:
-                psql_variable:
-                  colon: ':'
-                  quoted_literal: "'a'"
-            - comma: ','
-            - expression:
-                numeric_literal: '10'
-            - comma: ','
-            - expression:
-                quoted_literal: "'0'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  psql_variable:
+                    colon: ':'
+                    quoted_literal: "'a'"
+              - comma: ','
+              - expression:
+                  numeric_literal: '10'
+              - comma: ','
+              - expression:
+                  quoted_literal: "'0'"
+              - end_bracket: )
 - statement_terminator: ;

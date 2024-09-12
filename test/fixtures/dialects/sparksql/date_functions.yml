@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eb00bcb3a391ec6b5a86e0176ec1a17c0e5bc083151c9909b6ce5689a7844cc6
+_hash: 9bc3234a33059f5a4fb60a4ad601175c685a1cbbfe01659a736f37318273d5cc
 file:
 - statement:
     select_statement:
@@ -40,22 +40,23 @@ file:
                 function:
                   function_name:
                     function_name_identifier: DATEDIFF
-                  bracketed:
-                  - start_bracket: (
-                  - date_part: SECOND
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                      - naked_identifier: my_table
-                      - dot: .
-                      - naked_identifier: timestamp_a
-                  - comma: ','
-                  - expression:
-                      column_reference:
-                      - naked_identifier: other_table
-                      - dot: .
-                      - naked_identifier: timestamp_b
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - date_part: SECOND
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                        - naked_identifier: my_table
+                        - dot: .
+                        - naked_identifier: timestamp_a
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                        - naked_identifier: other_table
+                        - dot: .
+                        - naked_identifier: timestamp_b
+                    - end_bracket: )
                 comparison_operator:
                   raw_comparison_operator: '>'
                 numeric_literal: '1'
@@ -68,17 +69,18 @@ file:
           function:
             function_name:
               function_name_identifier: DATE_ADD
-            bracketed:
-            - start_bracket: (
-            - date_part: MICROSECOND
-            - comma: ','
-            - expression:
-                numeric_literal: '5'
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: start_dt
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: MICROSECOND
+              - comma: ','
+              - expression:
+                  numeric_literal: '5'
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: start_dt
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: date_add_micro
@@ -87,18 +89,19 @@ file:
           function:
             function_name:
               function_name_identifier: DATE_DIFF
-            bracketed:
-            - start_bracket: (
-            - date_part: MILLISECOND
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: start_dt
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: end_dt
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: MILLISECOND
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: start_dt
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: end_dt
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: datediff_milli
@@ -107,17 +110,18 @@ file:
           function:
             function_name:
               function_name_identifier: DATEADD
-            bracketed:
-            - start_bracket: (
-            - date_part: MINUTE
-            - comma: ','
-            - expression:
-                numeric_literal: '5'
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: start_dt
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: MINUTE
+              - comma: ','
+              - expression:
+                  numeric_literal: '5'
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: start_dt
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: dateadd_min
@@ -126,18 +130,19 @@ file:
           function:
             function_name:
               function_name_identifier: DATEDIFF
-            bracketed:
-            - start_bracket: (
-            - date_part: HOUR
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: start_dt
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: end_dt
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: HOUR
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: start_dt
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: end_dt
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: datediff_hr
@@ -146,17 +151,18 @@ file:
           function:
             function_name:
               function_name_identifier: TIMESTAMPADD
-            bracketed:
-            - start_bracket: (
-            - date_part: DAYOFYEAR
-            - comma: ','
-            - expression:
-                numeric_literal: '5'
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: start_dt
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: DAYOFYEAR
+              - comma: ','
+              - expression:
+                  numeric_literal: '5'
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: start_dt
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: ts_add_day_of_yr
@@ -165,18 +171,19 @@ file:
           function:
             function_name:
               function_name_identifier: TIMESTAMPDIFF
-            bracketed:
-            - start_bracket: (
-            - date_part: WEEK
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: start_dt
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: end_dt
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: WEEK
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: start_dt
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: end_dt
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: ts_diff_week
@@ -185,17 +192,18 @@ file:
           function:
             function_name:
               function_name_identifier: DATE_ADD
-            bracketed:
-            - start_bracket: (
-            - date_part: MONTH
-            - comma: ','
-            - expression:
-                numeric_literal: '5'
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: start_dt
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: MONTH
+              - comma: ','
+              - expression:
+                  numeric_literal: '5'
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: start_dt
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: date_add_month
@@ -204,17 +212,18 @@ file:
           function:
             function_name:
               function_name_identifier: DATE_ADD
-            bracketed:
-            - start_bracket: (
-            - date_part: QUARTER
-            - comma: ','
-            - expression:
-                numeric_literal: '5'
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: start_dt
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: QUARTER
+              - comma: ','
+              - expression:
+                  numeric_literal: '5'
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: start_dt
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: date_add_quarter
@@ -223,17 +232,18 @@ file:
           function:
             function_name:
               function_name_identifier: DATE_ADD
-            bracketed:
-            - start_bracket: (
-            - date_part: YEAR
-            - comma: ','
-            - expression:
-                numeric_literal: '5'
-            - comma: ','
-            - expression:
-                column_reference:
-                  naked_identifier: start_dt
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: YEAR
+              - comma: ','
+              - expression:
+                  numeric_literal: '5'
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: start_dt
+              - end_bracket: )
           alias_expression:
             keyword: AS
             naked_identifier: date_add_year
