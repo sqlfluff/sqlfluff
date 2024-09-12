@@ -40,7 +40,7 @@ dummy values to render templates containing these values.  The SQLFluff
 python templater will interpret any variable containing a "." as a
 dictionary lookup on the *magic* fixed context key :code:`sqlfluff`.
 
-.. code-block:: sql
+.. code-block::
 
     -- this SQL
     SELECT * FROM {foo.bar}
