@@ -29,6 +29,7 @@ UNRESERVED_KEYWORDS = [
     "ENFORCED",
     "EVOLUTION",
     "FEATURE",
+    "MANAGED",
     "MASK",
     "NORELY",
     "OPTIMIZATION",
