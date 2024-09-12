@@ -96,7 +96,25 @@ class Rule_AL09(BaseRule):
                         "naked_identifier"
                     ) or alias_expression.get_child("quoted_identifier")
 
-                    assert whitespace and column_identifier and alias_identifier
+                    if not (
+                        whitespace and column_identifier and alias_identifier
+                    ):  # pragma: no cover
+                        # We *should* expect all of these to be non-null, but some bug
+                        # reports suggest that that isn't always the case for some
+                        # dialects. In those cases, log a warning here, but don't
+                        # flag it as a linting issue. Hopefully this will help
+                        # better bug reports in future.
+                        self.logger.warning(
+                            "AL09 found an unexpected syntax in an alias expression. "
+                            "Unable to determine if this is a self-alias. Please "
+                            "report this as a bug on GitHub.\n\n"
+                            f"Debug details: dialect: {context.dialect.name}, "
+                            f"whitespace: {whitespace is not None}, "
+                            f"column_identifier: {column_identifier is not None}, "
+                            f"alias_identifier: {alias_identifier is not None}, "
+                            f"alias_expression: {clause_element.raw!r}."
+                        )
+                        continue
 
                     # Column self-aliased
                     if column_identifier.raw_upper == alias_identifier.raw_upper:
