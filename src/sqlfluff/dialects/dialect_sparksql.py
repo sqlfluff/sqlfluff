@@ -582,6 +582,66 @@ sparksql_dialect.add(
         "TEXT",
         "BINARYFILE",
     ),
+    DescribeObjectGrammar=OneOf(
+        Sequence(
+            OneOf("DATABASE", "SCHEMA"),
+            Ref.keyword("EXTENDED", optional=True),
+            Ref("DatabaseReferenceSegment"),
+        ),
+        Sequence(
+            "FUNCTION",
+            Ref.keyword("EXTENDED", optional=True),
+            Ref("FunctionNameSegment"),
+        ),
+        Sequence(
+            Ref.keyword("TABLE", optional=True),
+            Ref.keyword("EXTENDED", optional=True),
+            Ref("TableReferenceSegment"),
+            Ref("PartitionSpecGrammar", optional=True),
+            # can be fully qualified column after table is listed
+            # [database.][table.][column]
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                AnyNumberOf(
+                    Sequence(
+                        Ref("DotSegment"),
+                        Ref("SingleIdentifierGrammar"),
+                        allow_gaps=False,
+                    ),
+                    max_times=2,
+                    allow_gaps=False,
+                ),
+                optional=True,
+                allow_gaps=False,
+            ),
+        ),
+        Sequence(
+            Ref.keyword("QUERY", optional=True),
+            OneOf(
+                Sequence(
+                    "TABLE",
+                    Ref("TableReferenceSegment"),
+                ),
+                Sequence(
+                    "FROM",
+                    Ref("TableReferenceSegment"),
+                    "SELECT",
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                    Ref("WhereClauseSegment", optional=True),
+                    Ref("GroupByClauseSegment", optional=True),
+                    Ref("OrderByClauseSegment", optional=True),
+                    Ref("LimitClauseSegment", optional=True),
+                ),
+                Ref("StatementSegment"),
+            ),
+        ),
+        exclude=OneOf(
+            Ref.keyword("HISTORY"),
+            Ref.keyword("DETAIL"),
+        ),
+    ),
     FileFormatGrammar=OneOf(
         Ref("DataSourcesV2FileTypeGrammar"),
         "SEQUENCEFILE",
@@ -857,6 +917,118 @@ sparksql_dialect.add(
                 Ref("ColumnReferenceSegment"),
             ),
         ),
+    ),
+    ShowDatabasesSchemasGrammar=Sequence(
+        # SHOW { DATABASES | SCHEMAS }
+        OneOf("DATABASES", "SCHEMAS"),
+        Sequence(
+            "LIKE",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    ),
+    ShowFunctionsGrammar=Sequence(
+        # SHOW FUNCTIONS
+        OneOf("USER", "SYSTEM", "ALL", optional=True),
+        "FUNCTIONS",
+        OneOf(
+            # qualified function from a database
+            Sequence(
+                Ref("DatabaseReferenceSegment"),
+                Ref("DotSegment"),
+                Ref("FunctionNameSegment"),
+                allow_gaps=False,
+                optional=True,
+            ),
+            # non-qualified function
+            Ref("FunctionNameSegment", optional=True),
+            Sequence(
+                "LIKE",
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+        ),
+    ),
+    ShowTablesGrammar=Sequence(
+        # SHOW TABLES
+        "TABLES",
+        Sequence(
+            OneOf("FROM", "IN"),
+            Ref("DatabaseReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "LIKE",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    ),
+    ShowViewsGrammar=Sequence(
+        # SHOW VIEWS
+        "VIEWS",
+        Sequence(
+            OneOf("FROM", "IN"),
+            Ref("DatabaseReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "LIKE",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    ),
+    ShowObjectGrammar=OneOf(
+        # SHOW CREATE TABLE
+        Sequence(
+            "CREATE",
+            "TABLE",
+            Ref("TableExpressionSegment"),
+            Sequence(
+                "AS",
+                "SERDE",
+                optional=True,
+            ),
+        ),
+        # SHOW COLUMNS
+        Sequence(
+            "COLUMNS",
+            "IN",
+            Ref("TableExpressionSegment"),
+            Sequence(
+                "IN",
+                Ref("DatabaseReferenceSegment"),
+                optional=True,
+            ),
+        ),
+        # SHOW PARTITIONS
+        Sequence(
+            "PARTITIONS",
+            Ref("TableReferenceSegment"),
+            Ref("PartitionSpecGrammar", optional=True),
+        ),
+        # SHOW TABLE EXTENDED
+        Sequence(
+            "TABLE",
+            "EXTENDED",
+            Sequence(
+                OneOf("FROM", "IN"),
+                Ref("DatabaseReferenceSegment"),
+                optional=True,
+            ),
+            "LIKE",
+            Ref("QuotedLiteralSegment"),
+            Ref("PartitionSpecGrammar", optional=True),
+        ),
+        # SHOW TBLPROPERTIES
+        Sequence(
+            "TBLPROPERTIES",
+            Ref("TableReferenceSegment"),
+            Ref("BracketedPropertyNameListGrammar", optional=True),
+        ),
+        Ref("ShowDatabasesSchemasGrammar"),
+        Ref("ShowFunctionsGrammar"),
+        Ref("ShowTablesGrammar"),
+        Ref("ShowViewsGrammar"),
     ),
 )
 
@@ -2431,66 +2603,7 @@ class DescribeStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         OneOf("DESCRIBE", "DESC"),
-        OneOf(
-            Sequence(
-                OneOf("DATABASE", "SCHEMA"),
-                Ref.keyword("EXTENDED", optional=True),
-                Ref("DatabaseReferenceSegment"),
-            ),
-            Sequence(
-                "FUNCTION",
-                Ref.keyword("EXTENDED", optional=True),
-                Ref("FunctionNameSegment"),
-            ),
-            Sequence(
-                Ref.keyword("TABLE", optional=True),
-                Ref.keyword("EXTENDED", optional=True),
-                Ref("TableReferenceSegment"),
-                Ref("PartitionSpecGrammar", optional=True),
-                # can be fully qualified column after table is listed
-                # [database.][table.][column]
-                Sequence(
-                    Ref("SingleIdentifierGrammar"),
-                    AnyNumberOf(
-                        Sequence(
-                            Ref("DotSegment"),
-                            Ref("SingleIdentifierGrammar"),
-                            allow_gaps=False,
-                        ),
-                        max_times=2,
-                        allow_gaps=False,
-                    ),
-                    optional=True,
-                    allow_gaps=False,
-                ),
-            ),
-            Sequence(
-                Ref.keyword("QUERY", optional=True),
-                OneOf(
-                    Sequence(
-                        "TABLE",
-                        Ref("TableReferenceSegment"),
-                    ),
-                    Sequence(
-                        "FROM",
-                        Ref("TableReferenceSegment"),
-                        "SELECT",
-                        Delimited(
-                            Ref("ColumnReferenceSegment"),
-                        ),
-                        Ref("WhereClauseSegment", optional=True),
-                        Ref("GroupByClauseSegment", optional=True),
-                        Ref("OrderByClauseSegment", optional=True),
-                        Ref("LimitClauseSegment", optional=True),
-                    ),
-                    Ref("StatementSegment"),
-                ),
-            ),
-            exclude=OneOf(
-                Ref.keyword("HISTORY"),
-                Ref.keyword("DETAIL"),
-            ),
-        ),
+        Ref("DescribeObjectGrammar"),
     )
 
 
@@ -2615,114 +2728,7 @@ class ShowStatement(BaseSegment):
 
     match_grammar = Sequence(
         "SHOW",
-        OneOf(
-            # SHOW CREATE TABLE
-            Sequence(
-                "CREATE",
-                "TABLE",
-                Ref("TableExpressionSegment"),
-                Sequence(
-                    "AS",
-                    "SERDE",
-                    optional=True,
-                ),
-            ),
-            # SHOW COLUMNS
-            Sequence(
-                "COLUMNS",
-                "IN",
-                Ref("TableExpressionSegment"),
-                Sequence(
-                    "IN",
-                    Ref("DatabaseReferenceSegment"),
-                    optional=True,
-                ),
-            ),
-            # SHOW { DATABASES | SCHEMAS }
-            Sequence(
-                OneOf("DATABASES", "SCHEMAS"),
-                Sequence(
-                    "LIKE",
-                    Ref("QuotedLiteralSegment"),
-                    optional=True,
-                ),
-            ),
-            # SHOW FUNCTIONS
-            Sequence(
-                OneOf("USER", "SYSTEM", "ALL", optional=True),
-                "FUNCTIONS",
-                OneOf(
-                    # qualified function from a database
-                    Sequence(
-                        Ref("DatabaseReferenceSegment"),
-                        Ref("DotSegment"),
-                        Ref("FunctionNameSegment"),
-                        allow_gaps=False,
-                        optional=True,
-                    ),
-                    # non-qualified function
-                    Ref("FunctionNameSegment", optional=True),
-                    Sequence(
-                        "LIKE",
-                        Ref("QuotedLiteralSegment"),
-                        optional=True,
-                    ),
-                ),
-            ),
-            # SHOW PARTITIONS
-            Sequence(
-                "PARTITIONS",
-                Ref("TableReferenceSegment"),
-                Ref("PartitionSpecGrammar", optional=True),
-            ),
-            # SHOW TABLE
-            Sequence(
-                "TABLE",
-                "EXTENDED",
-                Sequence(
-                    OneOf("IN", "FROM"),
-                    Ref("DatabaseReferenceSegment"),
-                    optional=True,
-                ),
-                "LIKE",
-                Ref("QuotedLiteralSegment"),
-                Ref("PartitionSpecGrammar", optional=True),
-            ),
-            # SHOW TABLES
-            Sequence(
-                "TABLES",
-                Sequence(
-                    OneOf("FROM", "IN"),
-                    Ref("DatabaseReferenceSegment"),
-                    optional=True,
-                ),
-                Sequence(
-                    "LIKE",
-                    Ref("QuotedLiteralSegment"),
-                    optional=True,
-                ),
-            ),
-            # SHOW TBLPROPERTIES
-            Sequence(
-                "TBLPROPERTIES",
-                Ref("TableReferenceSegment"),
-                Ref("BracketedPropertyNameListGrammar", optional=True),
-            ),
-            # SHOW VIEWS
-            Sequence(
-                "VIEWS",
-                Sequence(
-                    OneOf("FROM", "IN"),
-                    Ref("DatabaseReferenceSegment"),
-                    optional=True,
-                ),
-                Sequence(
-                    "LIKE",
-                    Ref("QuotedLiteralSegment"),
-                    optional=True,
-                ),
-            ),
-        ),
+        Ref("ShowObjectGrammar"),
     )
 
 
