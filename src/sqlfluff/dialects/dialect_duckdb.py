@@ -340,6 +340,21 @@ class ColumnsExpressionFunctionContentsSegment(
     )
 
 
+class NamedArgumentSegment(postgres.NamedArgumentSegment):
+    """Named argument to a function.
+
+    Some functions may use a `walrus operator`.
+    e.g. https://duckdb.org/docs/sql/functions/struct#struct_packname--any-
+    """
+
+    type = "named_argument"
+    match_grammar = Sequence(
+        Ref("NakedIdentifierSegment"),
+        OneOf(Ref("RightArrowSegment"), Ref("WalrusOperatorSegment")),
+        Ref("ExpressionSegment"),
+    )
+
+
 class LambdaExpressionSegment(BaseSegment):
     """Lambda function used in a function or columns expression.
 
