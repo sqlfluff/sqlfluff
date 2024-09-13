@@ -39,6 +39,11 @@ def clear_config_caches():
     by using moving around files while setting up tests. Some of the cached methods
     rely on *filename* caching, and so we may break one of the assumptions of the
     caching routines (that files aren't modified while SQLFluff is running) during
+    the test suite. That means we need to clear the cache during those times to
+    get reliable results.
+
+    NOTE: You may not notice those results when running tests individually locally
+    as they may only be visible when running the whole test suite.
     """
     load_config_file_as_dict.cache_clear()
     load_config_at_path.cache_clear()
