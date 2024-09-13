@@ -21,11 +21,11 @@ def coerce_value(val: str) -> ConfigValueType:
             v = float(val)
         except ValueError:
             cleaned_val = val.strip().lower()
-            if cleaned_val in ["true"]:
+            if cleaned_val == "true":
                 v = True
-            elif cleaned_val in ["false"]:
+            elif cleaned_val == "false":
                 v = False
-            elif cleaned_val in ["none"]:
+            elif cleaned_val == "none":
                 v = None
             else:
                 v = val
