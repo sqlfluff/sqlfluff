@@ -1,0 +1,107 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c041a21ebe4a42e89816c7799a237f3351ac25f882c1c7c5c756a40e1c398835
+file:
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: my_catalog
+    - keyword: IS
+    - quoted_literal: "'This is my catalog'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: mysql_connection
+    - keyword: IS
+    - quoted_literal: "'this is a mysql connection'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: my_schema
+    - keyword: IS
+    - quoted_literal: "'This is my schema'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: my_other_schema
+    - keyword: IS
+    - quoted_literal: "'This is my other schema'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: IS
+    - quoted_literal: "'This is my table'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: IS
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SHARE
+    - object_reference:
+        naked_identifier: my_share
+    - keyword: IS
+    - quoted_literal: "'A good share'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: RECIPIENT
+    - object_reference:
+        naked_identifier: my_recipient
+    - keyword: IS
+    - quoted_literal: "'A good recipient'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: PROVIDER
+    - object_reference:
+        naked_identifier: my_provider
+    - keyword: IS
+    - quoted_literal: "'A good provider'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: VOLUME
+    - volume_reference:
+        naked_identifier: my_volume
+    - keyword: IS
+    - quoted_literal: "'Huge volume'"
+- statement_terminator: ;
