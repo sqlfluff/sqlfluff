@@ -355,7 +355,7 @@ snowflake_dialect.add(
     DynamicTableLagIntervalSegment=RegexParser(
         r"'((DOWNSTREAM)|([1-9]\d*\s+(?:SECOND|MINUTE|HOUR|DAY)S?))'",
         LiteralSegment,
-        type="lag_interval_segment",
+        type="dynamic_table_lag_interval_segment",
     ),
     DoubleQuotedUDFBody=TypedParser(
         "double_quote",

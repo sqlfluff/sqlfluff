@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2a077d52e41188f5b8cca96490a5ab69993a8880d50fa90fc6682c99be05cec9
+_hash: 46c10f7370c6d9b7f5b7ab3dd08db364056fc4f750e9529a6af6ff3a384dd8f3
 file:
 - statement:
     create_table_statement:
@@ -1007,7 +1007,7 @@ file:
     - keyword: TARGET_LAG
     - comparison_operator:
         raw_comparison_operator: '='
-    - lag_interval_segment: "'1 minute'"
+    - dynamic_table_lag_interval_segment: "'1 minute'"
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -1078,7 +1078,7 @@ file:
     - keyword: TARGET_LAG
     - comparison_operator:
         raw_comparison_operator: '='
-    - lag_interval_segment: "'1 minute'"
+    - dynamic_table_lag_interval_segment: "'1 minute'"
     - keyword: REFRESH_MODE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -1191,7 +1191,7 @@ file:
     - keyword: TARGET_LAG
     - comparison_operator:
         raw_comparison_operator: '='
-    - lag_interval_segment: "'DOWNSTREAM'"
+    - dynamic_table_lag_interval_segment: "'DOWNSTREAM'"
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -1225,7 +1225,7 @@ file:
     - keyword: TARGET_LAG
     - comparison_operator:
         raw_comparison_operator: '='
-    - lag_interval_segment: "'1 second'"
+    - dynamic_table_lag_interval_segment: "'1 second'"
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -1259,7 +1259,7 @@ file:
     - keyword: TARGET_LAG
     - comparison_operator:
         raw_comparison_operator: '='
-    - lag_interval_segment: "'5 seconds'"
+    - dynamic_table_lag_interval_segment: "'5 seconds'"
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -1293,7 +1293,7 @@ file:
     - keyword: TARGET_LAG
     - comparison_operator:
         raw_comparison_operator: '='
-    - lag_interval_segment: "'1 minute'"
+    - dynamic_table_lag_interval_segment: "'1 minute'"
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -1327,7 +1327,7 @@ file:
     - keyword: TARGET_LAG
     - comparison_operator:
         raw_comparison_operator: '='
-    - lag_interval_segment: "'5 minutes'"
+    - dynamic_table_lag_interval_segment: "'5 minutes'"
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -1361,7 +1361,7 @@ file:
     - keyword: TARGET_LAG
     - comparison_operator:
         raw_comparison_operator: '='
-    - lag_interval_segment: "'1 hour'"
+    - dynamic_table_lag_interval_segment: "'1 hour'"
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -1395,7 +1395,7 @@ file:
     - keyword: TARGET_LAG
     - comparison_operator:
         raw_comparison_operator: '='
-    - lag_interval_segment: "'5 hours'"
+    - dynamic_table_lag_interval_segment: "'5 hours'"
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -1429,7 +1429,7 @@ file:
     - keyword: TARGET_LAG
     - comparison_operator:
         raw_comparison_operator: '='
-    - lag_interval_segment: "'1 day'"
+    - dynamic_table_lag_interval_segment: "'1 day'"
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -1463,7 +1463,7 @@ file:
     - keyword: TARGET_LAG
     - comparison_operator:
         raw_comparison_operator: '='
-    - lag_interval_segment: "'5 days'"
+    - dynamic_table_lag_interval_segment: "'5 days'"
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
