@@ -353,7 +353,7 @@ snowflake_dialect.add(
         type="copy_on_error_option",
     ),
     LagIntervalSegment=RegexParser(
-        r"'\d+\s+(?:SECOND|MINUTE|HOUR|DAY)S?'",
+        r"'[1-9]\d*\s+(?:SECOND|MINUTE|HOUR|DAY)S?'",
         LiteralSegment,
         type="lag_interval_segment",
     ),
