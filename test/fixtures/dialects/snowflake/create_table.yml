@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3451058865c19cf1d5f85c176b615360d98f729d9aab86d7a281c308c97c0909
+_hash: 2a077d52e41188f5b8cca96490a5ab69993a8880d50fa90fc6682c99be05cec9
 file:
 - statement:
     create_table_statement:
@@ -1158,6 +1158,40 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - keyword: DOWNSTREAM
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_DOWNSTREAM_QUOTED_LITERAL_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - lag_interval_segment: "'DOWNSTREAM'"
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
