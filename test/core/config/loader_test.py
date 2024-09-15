@@ -10,10 +10,15 @@ import pytest
 
 from sqlfluff.core import FluffConfig
 from sqlfluff.core.config import (
-    ConfigLoader,
+    load_config_at_path,
+    load_config_file,
+    load_config_string,
+    load_config_up_to_path,
 )
-from sqlfluff.core.config.removed import REMOVED_CONFIGS
-from sqlfluff.core.errors import SQLFluffUserError
+from sqlfluff.core.config.loader import (
+    _get_user_config_dir_path,
+    _load_user_appdir_config,
+)
 
 config_a = {
     "core": {"testing_val": "foobar", "testing_int": 4, "dialect": "mysql"},
@@ -29,8 +34,7 @@ def mock_xdg_home(monkeypatch):
 
 def test__config__load_file_dir():
     """Test loading config from a directory path."""
-    c = ConfigLoader()
-    cfg = c.load_config_at_path(
+    cfg = load_config_at_path(
         os.path.join("test", "fixtures", "config", "inheritance_a")
     )
     assert cfg == config_a
@@ -38,20 +42,18 @@ def test__config__load_file_dir():
 
 def test__config__load_from_string():
     """Test loading config from a string."""
-    c = ConfigLoader()
     # Load a string
     with open(
         os.path.join("test", "fixtures", "config", "inheritance_a", ".sqlfluff")
     ) as f:
         config_string = f.read()
-    cfg = c.load_config_string(config_string)
+    cfg = load_config_string(config_string)
     assert cfg == config_a
 
 
 def test__config__load_file_f():
     """Test loading config from a file path."""
-    c = ConfigLoader()
-    cfg = c.load_config_at_path(
+    cfg = load_config_at_path(
         os.path.join("test", "fixtures", "config", "inheritance_a", "testing.sql")
     )
     assert cfg == config_a
@@ -59,8 +61,7 @@ def test__config__load_file_f():
 
 def test__config__load_nested():
     """Test nested overwrite and order of precedence of config files."""
-    c = ConfigLoader()
-    cfg = c.load_config_up_to_path(
+    cfg = load_config_up_to_path(
         os.path.join(
             "test", "fixtures", "config", "inheritance_a", "nested", "blah.sql"
         )
@@ -94,11 +95,10 @@ def change_dir(path):
 )
 def test__config__load_parent():
     """Test that config is loaded from parent directory of current working directory."""
-    c = ConfigLoader()
     with change_dir(
         os.path.join("test", "fixtures", "config", "inheritance_a", "nested")
     ):
-        cfg = c.load_config_up_to_path("blah.sql")
+        cfg = load_config_up_to_path("blah.sql")
     assert cfg == {
         "core": {
             "dialect": "mysql",
@@ -113,8 +113,7 @@ def test__config__load_parent():
 
 def test__config__load_toml():
     """Test loading config from a pyproject.toml file."""
-    c = ConfigLoader()
-    cfg = c.load_config_file(
+    cfg = load_config_file(
         os.path.join("test", "fixtures", "config", "toml"),
         "pyproject.toml",
     )
@@ -137,8 +136,7 @@ def test__config__load_toml():
 
 def test__config__load_placeholder_cfg():
     """Test loading a sqlfluff configuration file for placeholder templater."""
-    c = ConfigLoader()
-    cfg = c.load_config_file(
+    cfg = load_config_file(
         os.path.join("test", "fixtures", "config", "placeholder"),
         ".sqlfluff-placeholder",
     )
@@ -164,7 +162,9 @@ def test__config__load_user_appdir_config(
     mock_listdir, mock_path_exists, mock_xdg_home
 ):
     """Test loading config from user appdir."""
-    xdg_config_path = os.environ.get("XDG_CONFIG_HOME") + "/sqlfluff"
+    xdg_home = os.environ.get("XDG_CONFIG_HOME")
+    assert xdg_home, "XDG HOME should be set by the mock. Something has gone wrong."
+    xdg_config_path = xdg_home + "/sqlfluff"
 
     def path_exists(x):
         if x == os.path.expanduser("~/.config/sqlfluff"):
@@ -176,11 +176,9 @@ def test__config__load_user_appdir_config(
 
     mock_path_exists.side_effect = path_exists
 
-    c = ConfigLoader()
-
     with patch.object(appdirs, attribute="system", new="darwin"):
-        resolved_path = c._get_user_config_dir_path()
-        c.load_user_appdir_config()
+        resolved_path = _get_user_config_dir_path()
+        _load_user_appdir_config()
     assert resolved_path == os.path.expanduser("~/Library/Application Support/sqlfluff")
 
     mock_path_exists.assert_has_calls(
@@ -191,53 +189,9 @@ def test__config__load_user_appdir_config(
     )
 
 
-def test__config__validate_configs_direct():
-    """Test _validate_configs method of ConfigLoader directly."""
-    # Make sure there _are_ removed configs.
-    assert REMOVED_CONFIGS
-    # Make sure all raise an error if validated
-    for k in REMOVED_CONFIGS:
-        print(k)
-        if k.translation_func and k.new_path:
-            res = ConfigLoader._validate_configs([(k.old_path, "foo")], "<test>")
-            print(res)
-            # Check that it's reassigned.
-            assert not any(elem[0] == k.old_path for elem in res)
-            assert any(elem[0] == k.new_path for elem in res)
-            # Really we should check that it's output here, but logging config
-            # seems to make that hard.
-        else:
-            with pytest.raises(SQLFluffUserError) as excinfo:
-                ConfigLoader._validate_configs([(k.old_path, "foo")], "<test>")
-            assert "set an outdated config" in str(excinfo.value)
-            assert k.warning in str(excinfo.value)
-
-
-def test__config__validate_configs_precedence_same_file():
-    """Test _validate_configs method of FluffConfig where there's a conflict."""
-    # Check with a known conflicted value
-    old_key = ("rules", "LT03", "operator_new_lines")
-    new_key = ("layout", "type", "binary_operator", "line_position")
-    # Check it's still conflicted.
-    assert any(
-        k.old_path == old_key and k.new_path == new_key for k in REMOVED_CONFIGS
-    ), (
-        "This test depends on this key still being removed. Update the test to "
-        "one that is if this one isn't."
-    )
-    # Test config
-    test_config = [(new_key, "foo"), (old_key, "foo")]
-    assert len(test_config) == 2
-    res = ConfigLoader._validate_configs(test_config, "<test>")
-    assert len(res) == 1
-    # Check that the old key isn't there.
-    assert not any(k == old_key for k, _ in res)
-
-
 def test__config__toml_list_config():
     """Test Parsing TOML list of values."""
-    c = ConfigLoader()
-    loaded_config = c.load_config_file(
+    loaded_config = load_config_file(
         os.path.join("test", "fixtures", "config", "toml"),
         "pyproject.toml",
     )

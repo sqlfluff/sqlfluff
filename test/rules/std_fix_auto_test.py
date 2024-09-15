@@ -15,6 +15,7 @@ import pytest
 import yaml
 
 from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.config import clear_config_caches
 
 # Construct the tests from the filepath
 test_cases = []
@@ -114,6 +115,11 @@ def auto_fix_test(dialect, folder, caplog):
     overrides = {"dialect": dialect}
     if rules:
         overrides["rules"] = rules
+
+    # Clear config caches before loading. The way we move files around
+    # makes the filepath based caching inaccurate, which leads to unstable
+    # test cases unless we regularly clear the cache.
+    clear_config_caches()
     cfg = FluffConfig.from_root(overrides=overrides)
     lnt = Linter(config=cfg)
     res = lnt.lint_path(filepath, fix=True)
@@ -143,8 +149,10 @@ def auto_fix_test(dialect, folder, caplog):
     # Read the fixed file
     with open(filepath) as fixed_file:
         fixed_buff = fixed_file.read()
-    # Clearup once read
+    # Clear up once read
     shutil.rmtree(tempdir_path)
+    # Also clear the config cache again so it's not polluted for later tests.
+    clear_config_caches()
     # Read the comparison file
     with open(cmp_filepath) as comp_file:
         comp_buff = comp_file.read()
