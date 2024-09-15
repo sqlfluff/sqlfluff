@@ -29,6 +29,7 @@ UNRESERVED_KEYWORDS = [
     "ENFORCED",
     "EVOLUTION",
     "FEATURE",
+    "MANAGED",
     "MASK",
     "NORELY",
     "OPTIMIZATION",
@@ -40,5 +41,7 @@ UNRESERVED_KEYWORDS = [
     "SQL",
     "TAGS",
     "TIMESERIES",
+    "VOLUME",
+    "VOLUMES",
     "ZORDER",
 ]

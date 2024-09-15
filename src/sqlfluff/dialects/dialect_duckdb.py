@@ -34,7 +34,17 @@ postgres_dialect = load_raw_dialect("postgres")
 duckdb_dialect = postgres_dialect.copy_as(
     "duckdb",
     formatted_name="DuckDB",
-    docstring="The dialect for `DuckDB <https://duckdb.org/>`_.",
+    docstring="""**Default Casing**: DuckDB stores all identifiers in the case
+they were defined, however all identifier resolution is case-insensitive (when
+unquoted, and more unusually, *also when quoted*). See the
+`DuckDB Identifiers Documentation`_ for more details.
+
+**Quotes**: String Literals: ``''``, Identifiers: ``""`` or ``''``
+
+The dialect for `DuckDB <https://duckdb.org/>`_.
+
+.. _`DuckDB Identifiers Documentation`: https://duckdb.org/docs/sql/dialect/keywords_and_identifiers
+""",  # noqa: E501
 )
 
 duckdb_dialect.sets("reserved_keywords").update(
@@ -50,6 +60,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
     [
         "ANTI",
         "ASOF",
+        "MACRO",
         "POSITIONAL",
         "SEMI",
         "VIRTUAL",
@@ -327,6 +338,21 @@ class ColumnsExpressionFunctionContentsSegment(
                 Ref("LambdaExpressionSegment"),
             ),
         ),
+    )
+
+
+class NamedArgumentSegment(postgres.NamedArgumentSegment):
+    """Named argument to a function.
+
+    Some functions may use a `walrus operator`.
+    e.g. https://duckdb.org/docs/sql/functions/struct#struct_packname--any-
+    """
+
+    type = "named_argument"
+    match_grammar = Sequence(
+        Ref("NakedIdentifierSegment"),
+        OneOf(Ref("RightArrowSegment"), Ref("WalrusOperatorSegment")),
+        Ref("ExpressionSegment"),
     )
 
 
@@ -683,5 +709,26 @@ class CreateViewStatementSegment(postgres.CreateViewStatementSegment):
         OneOf(
             OptionallyBracketed(Ref("SelectableGrammar")),
             Ref("ValuesClauseSegment"),
+        ),
+    )
+
+
+class CreateFunctionStatementSegment(postgres.CreateFunctionStatementSegment):
+    """A `CREATE MACRO` or `CREATE FUNCTION` statement.
+
+    https://duckdb.org/docs/sql/statements/create_macro
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        OneOf("MACRO", "FUNCTION"),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+        "AS",
+        OneOf(
+            Sequence("TABLE", Indent, Ref("SelectableGrammar"), Dedent),
+            Ref("ExpressionSegment"),
         ),
     )

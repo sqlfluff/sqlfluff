@@ -1,104 +1,106 @@
 rule: RF06
 
-test_pass_column_reference:
+test_pass_default:
+  # NOTE: The ANSI dialect casefolds to UPPERCASE.
   pass_str: |
-    SELECT 123 AS foo;
+    select
+      unquoted_identifier,
+      another as unquoted_alias,
+      1 + 2 as expression_alias,
+      "case_specific_reference",
+      "REFERENCE WITH SPACE",
+      "I-c@nn0t-be~un-quoted",
+      "SELECT",  -- Keyword as identifier
+      another as "Case_Specific_Alias"
+    from my_schema.my_table
 
-test_fail_column_reference:
+test_fail_default_uppercase:
+  # Snowflake is a dialect which casefolds to UPPERCASE
   fail_str: |
-    SELECT 123 AS "foo";
+    SELECT
+      "COLUMN_REFERENCE",
+      foo AS "COLUMN_ALIAS",
+      "Case_Specific_Reference"
+    FROM "SCHEMA_REFERENCE"."TABLE_REFERENCE" AS "TABLE_ALIAS"
   fix_str: |
-    SELECT 123 AS foo;
+    SELECT
+      COLUMN_REFERENCE,
+      foo AS COLUMN_ALIAS,
+      "Case_Specific_Reference"
+    FROM SCHEMA_REFERENCE.TABLE_REFERENCE AS TABLE_ALIAS
+  configs:
+    core:
+      dialect: snowflake
 
-test_fail_column_reference_tsql:
+test_fail_default_lowercase:
+  # Postgres is a dialect which casefolds to lowercase
   fail_str: |
-    SELECT 123 AS [foo];
+    SELECT
+      "column_reference",
+      foo AS "column_alias",
+      "Case_Specific_Reference"
+    FROM "schema_reference"."table_reference" AS "table_alias"
   fix_str: |
-    SELECT 123 AS foo;
+    SELECT
+      column_reference,
+      foo AS column_alias,
+      "Case_Specific_Reference"
+    FROM schema_reference.table_reference AS table_alias
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_default_insensitive:
+  # DuckDB is a dialect which compares insensitively, which means
+  # as long as the identifier is *valid* without quotes, we should
+  # remove the quotes.
+  fail_str: |
+    SELECT
+      "lowercase_reference",
+      "UPPERCASE_REFERENCE",
+      foo AS "column_alias",
+      "Case_Specific_Reference",
+      "SELECT"
+    FROM "schema_reference"."TABLE_REFERENCE" AS "table_alias"
+  fix_str: |
+    SELECT
+      lowercase_reference,
+      UPPERCASE_REFERENCE,
+      foo AS column_alias,
+      Case_Specific_Reference,
+      "SELECT"
+    FROM schema_reference.TABLE_REFERENCE AS table_alias
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_reference_tsql:
+  # Tests the TSQL bracket quotes.
+  # TSQL casefolds UPPERCASE.
+  pass_str: |
+    SELECT
+        123 as [I cannot be unquoted],  -- Because spaces
+        [I-c@nn0t-be~un-quoted],  -- Because special characters
+        [SELECT]  -- Because keyword
   configs:
     core:
       dialect: tsql
 
-test_pass_table_reference:
-  pass_str: |
-    SELECT foo
-    FROM bar;
-
-test_fail_table_reference:
+test_fail_reference_tsql:
+  # Tests the TSQL bracket quotes.
+  # TSQL casefolds UPPERCASE.
   fail_str: |
-    SELECT foo
-    FROM "bar";
+    SELECT
+        [FOO] AS [BAR]
+    FROM [SCH].[TBL];
   fix_str: |
-    SELECT foo
-    FROM bar;
-
-test_fail_table_reference_tsql:
-  fail_str: |
-    SELECT foo
-    FROM [bar];
-  fix_str: |
-    SELECT foo
-    FROM bar;
+    SELECT
+        FOO AS BAR
+    FROM SCH.TBL;
   configs:
     core:
       dialect: tsql
 
-test_pass_multiple_references:
-  pass_str: |
-    SELECT foo
-    FROM bar.baz;
-
-test_fail_multiple_references:
-  fail_str: |
-    SELECT foo
-    FROM "bar"."baz";
-  fix_str: |
-    SELECT foo
-    FROM bar.baz;
-
-test_fail_multiple_references_tsql:
-  fail_str: |
-    SELECT foo
-    FROM [bar].[baz];
-  fix_str: |
-    SELECT foo
-    FROM bar.baz;
-  configs:
-    core:
-      dialect: tsql
-
-test_pass_whitespace:
-  pass_str: |
-    SELECT 123 AS "I cannot be unquoted"
-
-test_pass_whitespace_tsql:
-  pass_str: |
-    SELECT 123 AS [I cannot be unquoted]
-  configs:
-    core:
-      dialect: tsql
-
-test_pass_special_symbols:
-  pass_str: |
-    SELECT 123 AS "I-c@nn0t-be~un-quoted"
-
-test_pass_special_symbols_tsql:
-  pass_str: |
-    SELECT 123 AS [I-c@nn0t-be~un-quoted]
-  configs:
-    core:
-      dialect: tsql
-
-test_pass_reserved_keyword:
-  pass_str: |
-    SELECT 123 AS "SELECT"
-
-test_pass_reserved_keyword_tsql:
-  pass_str: |
-    SELECT 123 AS [SELECT]
-  configs:
-    core:
-      dialect: tsql
 
 test_pass_column_reference_prefer_quoted_ansi:
   pass_str: |
@@ -489,6 +491,7 @@ test_pass_ignore_if_tsql:
         prefer_quoted_identifiers: true
 
 test_fail_insert_overwrite_directory:
+  # NOTE: SparkSQL is case insensitive
   fail_str: |
     INSERT OVERWRITE DIRECTORY '/tmp/destination'
     USING PARQUET
@@ -514,14 +517,27 @@ test_pass_insert_overwrite_directory:
       dialect: sparksql
 
 test_fail_quoted_column_ansi:
+  # NOTE: ANSI is UPPERCASE
   fail_str: |
-    SELECT d."date"
+    SELECT d."DATE"
     FROM d
   fix_str: |
-    SELECT d.date
+    SELECT d.DATE
     FROM d
 
 test_fail_quoted_column_tsql:
+  # NOTE: TSQL is UPPERCASE
+  fail_str: |
+    SELECT d.[DATE]
+    FROM d
+  fix_str: |
+    SELECT d.DATE
+    FROM d
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_quoted_column_tsql_case_insensitive:
   fail_str: |
     SELECT d.[date]
     FROM d
@@ -531,6 +547,9 @@ test_fail_quoted_column_tsql:
   configs:
     core:
       dialect: tsql
+    rules:
+      references.quoting:
+        case_sensitive: false
 
 test_pass_quoted_column_snowflake:
   # The rule is disabled by default in Snowflake.
@@ -541,7 +560,7 @@ test_pass_quoted_column_snowflake:
     core:
       dialect: snowflake
 
-test_fail_quoted_column_snowflake_force_enable:
+test_fail_quoted_column_snowflake_case_insensitive:
   fail_str: |
     SELECT d."date"
     FROM d
@@ -553,30 +572,35 @@ test_fail_quoted_column_snowflake_force_enable:
       dialect: snowflake
     rules:
       references.quoting:
-        force_enable: true
+        case_sensitive: false
 
-test_pass_quoted_column_postgres:
-  # The rule is disabled by default in Postgres.
-  pass_str: |
-    SELECT d."date"
-    FROM d
-  configs:
-    core:
-      dialect: postgres
-
-test_fail_quoted_column_postgres_force_enable:
+test_fail_quoted_column_postgres_case_sensitive:
   fail_str: |
-    SELECT d."date"
+    SELECT d."foo", d."FOO"
     FROM d
   fix_str: |
-    SELECT d.date
+    SELECT d.foo, d."FOO"
     FROM d
   configs:
     core:
       dialect: postgres
     rules:
       references.quoting:
-        force_enable: true
+        case_sensitive: true
+
+test_fail_quoted_column_postgres_case_insensitive:
+  fail_str: |
+    SELECT d."foo", d."FOO"
+    FROM d
+  fix_str: |
+    SELECT d.foo, d.FOO
+    FROM d
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.quoting:
+        case_sensitive: false
 
 test_pass_prefer_quoted_keywords_athena:
   pass_str: SELECT 1 AS "metadata"
