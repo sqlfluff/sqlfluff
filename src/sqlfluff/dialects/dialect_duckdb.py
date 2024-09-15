@@ -60,6 +60,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
     [
         "ANTI",
         "ASOF",
+        "MACRO",
         "POSITIONAL",
         "SEMI",
         "VIRTUAL",
@@ -337,6 +338,21 @@ class ColumnsExpressionFunctionContentsSegment(
                 Ref("LambdaExpressionSegment"),
             ),
         ),
+    )
+
+
+class NamedArgumentSegment(postgres.NamedArgumentSegment):
+    """Named argument to a function.
+
+    Some functions may use a `walrus operator`.
+    e.g. https://duckdb.org/docs/sql/functions/struct#struct_packname--any-
+    """
+
+    type = "named_argument"
+    match_grammar = Sequence(
+        Ref("NakedIdentifierSegment"),
+        OneOf(Ref("RightArrowSegment"), Ref("WalrusOperatorSegment")),
+        Ref("ExpressionSegment"),
     )
 
 
@@ -693,5 +709,26 @@ class CreateViewStatementSegment(postgres.CreateViewStatementSegment):
         OneOf(
             OptionallyBracketed(Ref("SelectableGrammar")),
             Ref("ValuesClauseSegment"),
+        ),
+    )
+
+
+class CreateFunctionStatementSegment(postgres.CreateFunctionStatementSegment):
+    """A `CREATE MACRO` or `CREATE FUNCTION` statement.
+
+    https://duckdb.org/docs/sql/statements/create_macro
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        OneOf("MACRO", "FUNCTION"),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+        "AS",
+        OneOf(
+            Sequence("TABLE", Indent, Ref("SelectableGrammar"), Dedent),
+            Ref("ExpressionSegment"),
         ),
     )

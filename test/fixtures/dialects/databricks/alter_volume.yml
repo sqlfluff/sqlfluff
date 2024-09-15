@@ -1,0 +1,131 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 283c1e2e602131c3faecc9938bebae62abca9ec0fd1640f38e02cebfd56558e8
+file:
+- statement:
+    alter_volume_statement:
+    - keyword: ALTER
+    - keyword: VOLUME
+    - volume_reference:
+        naked_identifier: some_vol
+    - keyword: RENAME
+    - keyword: TO
+    - volume_reference:
+        naked_identifier: some_new_vol
+- statement_terminator: ;
+- statement:
+    alter_volume_statement:
+    - keyword: ALTER
+    - keyword: VOLUME
+    - volume_reference:
+        naked_identifier: some_vol
+    - keyword: OWNER
+    - keyword: TO
+    - quoted_identifier: '`alf@melmak.et`'
+- statement_terminator: ;
+- statement:
+    alter_volume_statement:
+    - keyword: ALTER
+    - keyword: VOLUME
+    - volume_reference:
+        naked_identifier: some_vol
+    - keyword: OWNER
+    - keyword: TO
+    - naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+    alter_volume_statement:
+    - keyword: ALTER
+    - keyword: VOLUME
+    - volume_reference:
+        naked_identifier: some_vol
+    - keyword: SET
+    - keyword: OWNER
+    - keyword: TO
+    - quoted_identifier: '`alf@melmak.et`'
+- statement_terminator: ;
+- statement:
+    alter_volume_statement:
+    - keyword: ALTER
+    - keyword: VOLUME
+    - volume_reference:
+        naked_identifier: some_vol
+    - keyword: SET
+    - keyword: OWNER
+    - keyword: TO
+    - naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+    alter_volume_statement:
+    - keyword: ALTER
+    - keyword: VOLUME
+    - volume_reference:
+        naked_identifier: some_vol
+    - keyword: SET
+    - keyword: TAGS
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'tag1'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'value1'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_volume_statement:
+    - keyword: ALTER
+    - keyword: VOLUME
+    - volume_reference:
+        naked_identifier: some_vol
+    - keyword: SET
+    - keyword: TAGS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: "'tag2'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value2'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'tag3'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value3'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_volume_statement:
+    - keyword: ALTER
+    - keyword: VOLUME
+    - volume_reference:
+        naked_identifier: some_vol
+    - keyword: UNSET
+    - keyword: TAGS
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'tag1'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_volume_statement:
+    - keyword: ALTER
+    - keyword: VOLUME
+    - volume_reference:
+        naked_identifier: some_vol
+    - keyword: UNSET
+    - keyword: TAGS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: "'tag2'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'tag3'"
+      - end_bracket: )
+- statement_terminator: ;
