@@ -1,0 +1,3 @@
+SELECT a::STRUCT(y INTEGER) AS b
+FROM
+    (SELECT {'x': 42} AS a);

@@ -20,6 +20,7 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     Ref,
     RegexLexer,
+    RegexParser,
     Sequence,
     StringLexer,
     StringParser,
@@ -63,6 +64,7 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "MACRO",
         "POSITIONAL",
         "SEMI",
+        "STRUCT",
         "VIRTUAL",
     ]
 )
@@ -72,6 +74,12 @@ duckdb_dialect.add(
 )
 
 duckdb_dialect.replace(
+    FunctionNameIdentifierSegment=RegexParser(
+        r"[A-Z_][A-Z0-9_$]*",
+        CodeSegment,
+        type="function_name_identifier",
+        anti_template=r"^(STRUCT)$",
+    ),
     DivideSegment=OneOf(
         StringParser("//", BinaryOperatorSegment),
         StringParser("/", BinaryOperatorSegment),
@@ -164,6 +172,37 @@ duckdb_dialect.patch_lexer_matchers(
         ),
     ]
 )
+
+
+class StructTypeSegment(ansi.StructTypeSegment):
+    """Expression to construct a STRUCT datatype."""
+
+    match_grammar = Sequence(
+        "STRUCT",
+        Ref("StructTypeSchemaSegment", optional=True),
+    )
+
+
+class StructTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a STRUCT datatype."""
+
+    type = "struct_type_schema"
+    match_grammar = Bracketed(
+        Delimited(  # Comma-separated list of field names/types
+            Sequence(
+                OneOf(
+                    # ParameterNames can look like Datatypes so can't use
+                    # Optional=True here and instead do a OneOf in order
+                    # with DataType only first, followed by both.
+                    Ref("DatatypeSegment"),
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("DatatypeSegment"),
+                    ),
+                ),
+            ),
+        ),
+    )
 
 
 class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
