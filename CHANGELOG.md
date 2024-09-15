@@ -14,6 +14,53 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
+This release brings a few minor breaking changes, both for the core project
+and for the dbt templater. For the main project:
+
+* Resolving an issue with the spacing of functions (LT01), which however
+  involved a change to how functions are parsed. If your project relies
+  on the specific parsing of functions, the bracketed arguments are now
+  wrapped in a `function_contents` object. We recommend that you examine
+  the new parsing structure using this new release in testing first.
+
+* `RF06` (`references.quoting`) is now case sensitive when removing
+  quotes which are detected as unnecessary. This rule has also been re-enabled
+  by default for Snowflake and Postgres where it had previously been disabled
+  (for the reason that in the past it hadn't been appropriately case
+  sensitive). Treatment for totally case-insensitive dialects like DuckDB
+  and SparkSQL have also been included. Please check the new documentation
+  for this rule (which is much more explicit now), for details related to
+  your dialect.
+
+* Significant changes under the hood to the handling of configuration files.
+  Most of these should now be visible to end users, but for anyone integrating
+  SQFluff into a larger project and relying on native file loading may need
+  to refactor their project for this release.
+
+* Documentation, especially for dialects, has been significantly improved.
+  Documentation for `CP02` (`capitalisation.identifiers`) has also been
+  clarified to make it's implication for references and aliases more clear.
+
+* During testing, to isolate the effect of specific rules, there's a new
+  CLI option `--disable-noqa-except` which allows all `noqa` options to
+  be ignored _except_ the ones provided in this option.
+
+For the dbt templater:
+
+* Support for dbt 1.1-1.3 has been removed. All have been in End of Life (EOL)
+  support by dbtlabs for almost two years. They are also poorly supported by
+  other projects and tools.
+
+* The dbt templater has been migrated to use `pyproject.toml`.
+
+* Handling of errors and exceptions raised within dbt has had an overhaul.
+  Users may see a slightly different presentation of errors, but the overall
+  stability should be more robust.
+
+In addition to those changes, there have been too many dialect contributions
+to mention specifically. We've also seen **six** people make their first
+contributions to the project as part of preparing for this release! 🎉🏆🎉.
+
 ## What’s Changed
 
 * Add support for managed locations to databricks dialect schemas [#6182](https://github.com/sqlfluff/sqlfluff/pull/6182) [@TheCleric](https://github.com/TheCleric)
