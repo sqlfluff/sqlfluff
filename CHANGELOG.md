@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [3.2.0] - 2024-09-12
+## [3.2.0] - 2024-09-15
 
 ## Highlights
 
@@ -35,7 +35,10 @@ and for the dbt templater. For the main project:
 * Significant changes under the hood to the handling of configuration files.
   Most of these should now be visible to end users, but for anyone integrating
   SQFluff into a larger project and relying on native file loading may need
-  to refactor their project for this release.
+  to refactor their project for this release. Most notably here, for maintainers
+  of plugins, the `ConfigLoader` class has been deprecated, and plugins should
+  instead call the config loading functions directly. See the example plugin
+  for details.
 
 * Documentation, especially for dialects, has been significantly improved.
   Documentation for `CP02` (`capitalisation.identifiers`) has also been
@@ -63,6 +66,11 @@ contributions to the project as part of preparing for this release! 🎉🏆🎉
 
 ## What’s Changed
 
+* Deprecate the `ConfigLoader` [#6177](https://github.com/sqlfluff/sqlfluff/pull/6177) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* DuckDB: Support `CREATE MACRO`/`CREATE FUNCTION` [#6194](https://github.com/sqlfluff/sqlfluff/pull/6194) [@keraion](https://github.com/keraion)
+* DuckDB: Support functions with walrus operators [#6193](https://github.com/sqlfluff/sqlfluff/pull/6193) [@keraion](https://github.com/keraion)
+* Add volume syntax support for Databricks [#6179](https://github.com/sqlfluff/sqlfluff/pull/6179) [@TheCleric](https://github.com/TheCleric)
+* Handle errors better in AL09 [#6186](https://github.com/sqlfluff/sqlfluff/pull/6186) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Add support for managed locations to databricks dialect schemas [#6182](https://github.com/sqlfluff/sqlfluff/pull/6182) [@TheCleric](https://github.com/TheCleric)
 * MYSQL: Create Table Optional AS [#6109](https://github.com/sqlfluff/sqlfluff/pull/6109) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * More dialect documentation [#6165](https://github.com/sqlfluff/sqlfluff/pull/6165) [@alanmcruickshank](https://github.com/alanmcruickshank)
@@ -114,8 +122,8 @@ contributions to the project as part of preparing for this release! 🎉🏆🎉
 * RF02: Handle subquery column qualification [#6091](https://github.com/sqlfluff/sqlfluff/pull/6091) [@keraion](https://github.com/keraion)
 * tsql: Allow leading dots in table references [#6093](https://github.com/sqlfluff/sqlfluff/pull/6093) [@keraion](https://github.com/keraion)
 
-## New Contributors
 
+## New Contributors
 * [@mvastarelli](https://github.com/mvastarelli) made their first contribution in [#6131](https://github.com/sqlfluff/sqlfluff/pull/6131)
 * [@Cynthia-Cheng](https://github.com/Cynthia-Cheng) made their first contribution in [#6123](https://github.com/sqlfluff/sqlfluff/pull/6123)
 * [@pahunter90](https://github.com/pahunter90) made their first contribution in [#6102](https://github.com/sqlfluff/sqlfluff/pull/6102)
