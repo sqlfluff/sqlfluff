@@ -18,8 +18,13 @@ from typing import (
 
 import pluggy
 
-from sqlfluff.core.config.loader import ConfigLoader, coerce_value
+from sqlfluff.core.config.ini import coerce_value
+from sqlfluff.core.config.loader import (
+    load_config_string,
+    load_config_up_to_path,
+)
 from sqlfluff.core.config.types import ConfigMappingType
+from sqlfluff.core.config.validate import validate_config_dict
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import (
     dict_diff,
@@ -65,18 +70,12 @@ class FluffConfig:
         )
         # If overrides are provided, validate them early.
         if overrides:
-            validated_override_config = records_to_nested_dict(
-                ConfigLoader._validate_configs(
-                    [
-                        (("core",) + k, v)
-                        for k, v in iter_records_from_nested_dict(overrides)
-                    ],
-                    "<provided overrides>",
-                )
-            )["core"]
-            assert isinstance(validated_override_config, dict)
-            overrides = validated_override_config
-        self._overrides = overrides  # We only store this for child configs
+            overrides = {"core": overrides}
+            validate_config_dict(overrides, "<provided overrides>")
+        # Stash overrides so we can pass them to child configs
+        core_overrides = overrides["core"] if overrides else None
+        assert isinstance(core_overrides, dict) or core_overrides is None
+        self._overrides = core_overrides
 
         # Fetch a fresh plugin manager if we weren't provided with one
         self._plugin_manager = plugin_manager or get_plugin_manager()
@@ -84,14 +83,9 @@ class FluffConfig:
         defaults = nested_combine(*self._plugin_manager.hook.load_default_config())
         # If any existing configs are provided. Validate them:
         if configs:
-            configs = records_to_nested_dict(
-                ConfigLoader._validate_configs(
-                    iter_records_from_nested_dict(configs),
-                    "<provided configs>",
-                )
-            )
+            validate_config_dict(configs, "<provided configs>")
         self._configs = nested_combine(
-            defaults, configs or {"core": {}}, {"core": overrides or {}}
+            defaults, configs or {"core": {}}, overrides or {}
         )
         # Some configs require special treatment
         self._configs["core"]["color"] = (
@@ -189,14 +183,13 @@ class FluffConfig:
         **kw: Any,
     ) -> FluffConfig:
         """Loads a config object just based on the root directory."""
-        loader = ConfigLoader.get_global()
-        c = loader.load_config_up_to_path(
+        configs = load_config_up_to_path(
             path=".",
             extra_config_path=extra_config_path,
             ignore_local_config=ignore_local_config,
         )
         return cls(
-            configs=c,
+            configs=configs,
             extra_config_path=extra_config_path,
             ignore_local_config=ignore_local_config,
             overrides=overrides,
@@ -213,10 +206,8 @@ class FluffConfig:
         plugin_manager: Optional[pluggy.PluginManager] = None,
     ) -> FluffConfig:
         """Loads a config object from a single config string."""
-        loader = ConfigLoader.get_global()
-        c = loader.load_config_string(config_string)
         return cls(
-            configs=c,
+            configs=load_config_string(config_string),
             extra_config_path=extra_config_path,
             ignore_local_config=ignore_local_config,
             overrides=overrides,
@@ -238,12 +229,9 @@ class FluffConfig:
         first element as the "root" config, and then later config strings
         will take precedence over any earlier values.
         """
-        loader = ConfigLoader.get_global()
         config_state: Dict[str, Any] = {}
         for config_string in config_strings:
-            config_state = loader.load_config_string(
-                config_string, configs=config_state
-            )
+            config_state = load_config_string(config_string, configs=config_state)
         return cls(
             configs=config_state,
             extra_config_path=extra_config_path,
@@ -258,18 +246,17 @@ class FluffConfig:
         path: str,
         extra_config_path: Optional[str] = None,
         ignore_local_config: bool = False,
-        overrides: Optional[Dict[str, Any]] = None,
+        overrides: Optional[ConfigMappingType] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
     ) -> FluffConfig:
         """Loads a config object given a particular path."""
-        loader = ConfigLoader.get_global()
-        c = loader.load_config_up_to_path(
+        configs = load_config_up_to_path(
             path=path,
             extra_config_path=extra_config_path,
             ignore_local_config=ignore_local_config,
         )
         return cls(
-            configs=c,
+            configs=configs,
             extra_config_path=extra_config_path,
             ignore_local_config=ignore_local_config,
             overrides=overrides,
@@ -464,15 +451,23 @@ class FluffConfig:
             return
         config_line = config_line[9:].strip()
         config_key, config_value = split_colon_separated_string(config_line)
-        # Validate the value
-        ConfigLoader._validate_configs([(config_key, config_value)], fname)
+        # Move to core section if appropriate
+        if len(config_key) == 1:
+            config_key = ("core",) + config_key
+        # Coerce data types
+        config_record = (config_key, coerce_value(config_value))
+        # Convert to dict & validate
+        config_dict: ConfigMappingType = records_to_nested_dict([config_record])
+        validate_config_dict(config_dict, f"inline config in {fname}")
+        config_val = list(iter_records_from_nested_dict(config_dict))[0]
+
         # Set the value
         self.set_value(config_key, config_value)
         # If the config is for dialect, initialise the dialect.
-        # NOTE: Comparison with a 1-tuple is intentional here as
-        # the first element of config_val is a tuple.
-        if config_key == ("dialect",):
-            self._initialise_dialect(config_value)
+        if config_val[0] == ("core", "dialect"):
+            dialect_value = config_val[1]
+            assert isinstance(dialect_value, str)
+            self._initialise_dialect(dialect_value)
 
     def process_raw_file_for_config(self, raw_str: str, fname: str) -> None:
         """Process a full raw file for inline config and update self."""
