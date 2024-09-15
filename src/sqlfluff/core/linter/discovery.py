@@ -6,10 +6,8 @@ into specific file references. The method also processes the
 `.sqlfluffignore` functionality in the process.
 """
 
-import configparser
 import logging
 import os
-import sys
 from pathlib import Path
 from typing import (
     Callable,
@@ -20,19 +18,16 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
+    cast,
 )
 
 import pathspec
 
+from sqlfluff.core.config.file import load_config_file_as_dict
 from sqlfluff.core.errors import (
     SQLFluffUserError,
 )
 from sqlfluff.core.helpers.file import iter_intermediate_paths
-
-if sys.version_info >= (3, 11):
-    import tomllib
-else:  # pragma: no cover
-    import toml as tomllib
 
 # Instantiate the linter logger
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
@@ -81,39 +76,33 @@ def _load_ignorefile(dirpath: str, filename: str) -> IgnoreSpecRecord:
     return dirpath, filename, spec
 
 
-def _load_pyproject(dirpath: str, filename: str) -> Optional[IgnoreSpecRecord]:
+def _load_configfile(dirpath: str, filename: str) -> Optional[IgnoreSpecRecord]:
+    """Load ignore specs from a standard config file.
+
+    This function leverages the caching used in the config module
+    to ensure that anything loaded here, can be reused later. Those
+    functions also handle the difference between toml and ini based
+    config files.
+    """
     filepath = os.path.join(dirpath, filename)
-    with open(filepath, mode="r") as file:
-        config = tomllib.loads(file.read())
-    # Get the `[tool.sqlfluff.core]` section from the toml.
-    ignore_section = config.get("tool", {}).get("sqlfluff", {}).get("core", {})
+    # Use normalised path to ensure reliable caching.
+    config_dict = load_config_file_as_dict(Path(filepath).resolve())
+    ignore_section = config_dict.get("core", {})
+    if not isinstance(ignore_section, dict):
+        return None  # pragma: no cover
     patterns = ignore_section.get("ignore_paths", [])
-    if not patterns:
+    if isinstance(patterns, str):
+        patterns = patterns.split(",")
+    elif not patterns or not isinstance(patterns, list):
         return None
-    spec = _load_specs_from_lines(patterns, filepath)
-    return dirpath, filename, spec
-
-
-def _load_sqlfluff(dirpath: str, filename: str) -> Optional[IgnoreSpecRecord]:
-    # NOTE: HACKY FOR NOW, BUT FOR DEMONSTRATION
-    # This duplicates a lot from config.py. That needs resolving.
-    config = configparser.ConfigParser(delimiters="=", interpolation=None)
-    config.optionxform = lambda option: option  # type: ignore
-    filepath = os.path.join(dirpath, filename)
-    config.read(filepath)
-    if "sqlfluff" not in config.sections():
-        return None
-    ignore_paths = config["sqlfluff"].get("ignore_paths", "")
-    if not ignore_paths:
-        return None
-    spec = _load_specs_from_lines(ignore_paths.split(","), filepath)
+    spec = _load_specs_from_lines(cast(List[str], patterns), filepath)
     return dirpath, filename, spec
 
 
 ignore_file_loaders: Dict[str, Callable[[str, str], Optional[IgnoreSpecRecord]]] = {
     ".sqlfluffignore": _load_ignorefile,
-    "pyproject.toml": _load_pyproject,
-    ".sqlfluff": _load_sqlfluff,
+    "pyproject.toml": _load_configfile,
+    ".sqlfluff": _load_configfile,
 }
 
 
