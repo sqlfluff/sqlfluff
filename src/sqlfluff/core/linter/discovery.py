@@ -18,7 +18,6 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
-    cast,
 )
 
 import pathspec
@@ -95,7 +94,7 @@ def _load_configfile(dirpath: str, filename: str) -> Optional[IgnoreSpecRecord]:
         patterns = patterns.split(",")
     elif not patterns or not isinstance(patterns, list):
         return None
-    spec = _load_specs_from_lines(cast(List[str], patterns), filepath)
+    spec = _load_specs_from_lines(patterns, filepath)
     return dirpath, filename, spec
 
 
