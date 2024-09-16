@@ -174,7 +174,7 @@ def validate_config_dict_for_removed(
     logging_reference: str,
     removed_config: NestedStringDict[_RemovedConfig] = REMOVED_CONFIG_MAP,
     root_config_ref: Optional[ConfigMappingType] = None,
-):
+) -> None:
     """Validates a config dict against removed values.
 
     Where a value can be updated or translated, it mutates the config object.
