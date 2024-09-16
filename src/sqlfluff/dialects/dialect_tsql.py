@@ -2737,7 +2737,7 @@ class SetStatementSegment(BaseSegment):
                     ),
                 ),
                 Sequence(
-                    OneOf(
+                    Delimited(
                         "DATEFIRST",
                         "DATEFORMAT",
                         "DEADLOCK_PRIORITY",

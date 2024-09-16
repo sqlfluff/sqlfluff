@@ -830,6 +830,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
         OneOf(
             Ref("WellKnownTextGeometrySegment"),
             Ref("DateTimeTypeIdentifier"),
+            Ref("StructTypeSegment"),
             Sequence(
                 OneOf(
                     # numeric types

@@ -936,6 +936,7 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("CreateDatabricksFunctionStatementSegment"),
             Ref("FunctionParameterListGrammarWithComments"),
             Ref("DeclareOrReplaceVariableStatementSegment"),
+            Ref("CommentOnStatementSegment"),
         ]
     )
 
@@ -1200,4 +1201,48 @@ class DeclareOrReplaceVariableStatementSegment(BaseSegment):
             Ref("ExpressionSegment"),
             optional=True,
         ),
+    )
+
+
+class CommentOnStatementSegment(BaseSegment):
+    """`COMMENT ON` statement.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-comment.html
+    """
+
+    type = "comment_clause"
+
+    match_grammar = Sequence(
+        "COMMENT",
+        "ON",
+        OneOf(
+            Sequence(
+                "CATALOG",
+                Ref("CatalogReferenceSegment"),
+            ),
+            Sequence(
+                OneOf("DATABASE", "SCHEMA"),
+                Ref("DatabaseReferenceSegment"),
+            ),
+            Sequence(
+                "TABLE",
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "VOLUME",
+                Ref("VolumeReferenceSegment"),
+            ),
+            # TODO: Split out individual items if they have references
+            Sequence(
+                OneOf(
+                    "CONNECTION",
+                    "PROVIDER",
+                    "RECIPIENT",
+                    "SHARE",
+                ),
+                Ref("ObjectReferenceSegment"),
+            ),
+        ),
+        "IS",
+        OneOf(Ref("QuotedLiteralSegment"), "NULL"),
     )
