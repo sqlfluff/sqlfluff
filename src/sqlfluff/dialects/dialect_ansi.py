@@ -732,6 +732,13 @@ ansi_dialect.add(
                 optional=True,
             ),
         ),
+        # Drop
+        Sequence(
+            "DROP",
+            Ref.keyword("COLUMN", optional=True),
+            Ref("IfExistsGrammar", optional=True),
+            Ref("SingleIdentifierGrammar"),
+        ),
         # Rename
         Sequence(
             "RENAME",
