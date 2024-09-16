@@ -149,9 +149,9 @@ def records_to_nested_dict(
     ... )
     {'foo': {'bar': {'baz': 'a', 'biz': 'b'}}}
     """
-    result: NestedStringDict = {}
+    result: NestedStringDict[T] = {}
     for key, val in records:
-        ref: NestedStringDict = result
+        ref: NestedStringDict[T] = result
         for step in key[:-1]:
             # If the subsection isn't there, make it.
             if step not in ref:
