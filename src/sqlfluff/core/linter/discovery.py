@@ -90,10 +90,18 @@ def _load_configfile(dirpath: str, filename: str) -> Optional[IgnoreSpecRecord]:
     if not isinstance(ignore_section, dict):
         return None  # pragma: no cover
     patterns = ignore_section.get("ignore_paths", [])
+    # If it's already a list, then we don't need to edit `patterns`,
+    # but if it's not then we either split a string into a list and
+    # then process it, or if there's nothing in the patterns list
+    # (or the pattern input is invalid by not being something other
+    # than a string or list) then we assume there's no ignore pattern
+    # to process and just return None.
     if isinstance(patterns, str):
         patterns = patterns.split(",")
     elif not patterns or not isinstance(patterns, list):
         return None
+    # By reaching here, we think there is a valid set of ignore patterns
+    # to process.
     spec = _load_specs_from_lines(patterns, filepath)
     return dirpath, filename, spec
 
