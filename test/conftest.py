@@ -129,7 +129,7 @@ def compute_parse_tree_hash(tree):
         r = tree.as_record(code_only=True, show_raw=True)
         if r:
             r_io = io.StringIO()
-            yaml.dump(r, r_io, sort_keys=False)
+            yaml.dump(r, r_io, sort_keys=False, allow_unicode=True)
             result = hashlib.blake2s(r_io.getvalue().encode("utf-8")).hexdigest()
             return result
     return None

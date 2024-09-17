@@ -662,7 +662,11 @@ def lint(
     if format == FormatType.json.value:
         file_output = json.dumps(result.as_records())
     elif format == FormatType.yaml.value:
-        file_output = yaml.dump(result.as_records(), sort_keys=False)
+        file_output = yaml.dump(
+            result.as_records(),
+            sort_keys=False,
+            allow_unicode=True,
+        )
     elif format == FormatType.none.value:
         file_output = ""
     elif format == FormatType.github_annotation.value:
@@ -1392,7 +1396,11 @@ def parse(
             # For yaml dumping always dump double quoted strings if they contain
             # tabs or newlines.
             yaml.add_representer(str, quoted_presenter)
-            file_output = yaml.dump(parsed_strings_dict, sort_keys=False)
+            file_output = yaml.dump(
+                parsed_strings_dict,
+                sort_keys=False,
+                allow_unicode=True,
+            )
         elif format == FormatType.json.value:
             file_output = json.dumps(parsed_strings_dict)
         elif format == FormatType.none.value:
