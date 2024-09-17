@@ -479,7 +479,7 @@ def test__templater_dbt_handle_exceptions(
     # as dbt throws an error if a node fails to parse while computing the DAG
     shutil.move(src_fpath, target_fpath)
     try:
-        with pytest.raises(SQLTemplaterError) as excinfo:
+        with pytest.raises((SQLTemplaterError, SQLFluffUserError)) as excinfo:
             dbt_templater.process(
                 in_str="",
                 fname=target_fpath,
@@ -492,6 +492,12 @@ def test__templater_dbt_handle_exceptions(
         get_adapter(dbt_templater.dbt_config).connections.release()
     # NB: Replace slashes to deal with different platform paths being returned.
     assert exception_msg in excinfo.value.desc().replace("\\", "/")
+    # Ensure that there's no context parent exception, because they don't pickle well.
+    # https://github.com/sqlfluff/sqlfluff/issues/6037
+    # We *should* be stripping any inherited exceptions from anything returned here.
+    # Any residual dbt exceptions are a risk for pickling errors.
+    assert not excinfo.value.__context__
+    assert not excinfo.value.__cause__
 
 
 @mock.patch("dbt.adapters.postgres.impl.PostgresAdapter.set_relations_cache")
@@ -533,9 +539,9 @@ def test__templater_dbt_handle_database_connection_failure(
         )
     )
     dbt_fluff_config_fail = deepcopy(dbt_fluff_config)
-    dbt_fluff_config_fail["templater"]["dbt"][
-        "profiles_dir"
-    ] = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml_fail"
+    dbt_fluff_config_fail["templater"]["dbt"]["profiles_dir"] = (
+        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml_fail"
+    )
     # We move the file that throws an error in and out of the project directory
     # as dbt throws an error if a node fails to parse while computing the DAG
     shutil.move(src_fpath, target_fpath)
