@@ -17,7 +17,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 This release brings a few minor breaking changes, both for the core project
 and for the dbt templater. For the main project:
 
-* Resolving an issue with the spacing of functions (LT01), which however
+* Resolving an issue with the spacing of functions (LT01), which
   involved a change to how functions are parsed. If your project relies
   on the specific parsing of functions, the bracketed arguments are now
   wrapped in a `function_contents` object. We recommend that you examine
