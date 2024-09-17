@@ -137,7 +137,13 @@ def generate_one_parse_fixture(
             file=f,
             sep="\n",
         )
-        yaml.dump(r, f, default_flow_style=False, sort_keys=False)
+        yaml.dump(
+            data=r,
+            stream=f,
+            default_flow_style=False,
+            sort_keys=False,
+            allow_unicode=True,
+        )
         return example, None
 
 
