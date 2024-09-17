@@ -81,6 +81,7 @@ def is_dbt_exception(exception: Optional[BaseException]) -> bool:
 
 
 def _extract_error_detail(exception: BaseException) -> str:
+    """Serialise an exception into a string for reuse in other messages."""
     return (
         f"{exception.__class__.__module__}.{exception.__class__.__name__}: {exception}"
     )
