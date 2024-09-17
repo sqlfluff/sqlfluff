@@ -141,12 +141,13 @@ def handle_dbt_errors(
                         err.__cause__ = None
                     raise err
             # By raising the new exception outside of the try/except clause we prevent
-            # the link between the new and old exceptions. Otherwise the old one is likely
-            # included in the __context__ attribute of the new one. Unfortunately the
-            # dbt exceptions do not pickle well, so if they were raised here then they
-            # cause all kinds of threading errors during parallel linting. Python really
-            # doesn't likely you trying to remove the __cause__ attribute of an exception
-            # so this is a mini-hack to sidestep that behaviour.
+            # the link between the new and old exceptions. Otherwise the old one is
+            # likely included in the __context__ attribute of the new one.
+            # Unfortunately the dbt exceptions do not pickle well, so if they were
+            # raised here then they cause all kinds of threading errors during parallel
+            # linting. Python really doesn't likely you trying to remove the `__cause__`
+            # attribute of an exception so this is a mini-hack to sidestep that
+            # behaviour.
 
             # Connection errors are handled more specifically (because they're fatal)
             if "FailedToConnect" in _detail:
@@ -542,11 +543,8 @@ class DbtTemplater(JinjaTemplater):
         self.profiles_dir = self._get_profiles_dir()
         fname_absolute_path = os.path.abspath(fname) if fname != "stdin" else fname
 
-        # For the unsafe process, we catch dbt exceptions here. The try/except clause
-        # looks a little unusual because we want to explicitly suppress any context
-        # being included in the exception because dbt exceptions don't pickle well.
-        # TODO: Make this into a context manager. Write better docs.
-        _detail: str = ""
+        # NOTE: dbt exceptions are caught and handled safely for pickling by the outer
+        # `handle_dbt_errors` decorator.
         try:
             os.chdir(self.project_dir)
             processed_result = self._unsafe_process(fname_absolute_path, in_str, config)
@@ -556,8 +554,8 @@ class DbtTemplater(JinjaTemplater):
         except Exception as err:
             self._sequential_fails += 1
             # If we hit the sequential fail limit, manually trigger a fatal exception.
-            # Normally we'd let the decorator do this, but it doesn't know about sequential
-            # failures.
+            # Normally we'd let the decorator do this, but it doesn't know about
+            # sequential failures.
             if self._sequential_fails > self.sequential_fail_limit:
                 raise SQLTemplaterError(
                     "Fatal number of errors during project compilation. "
