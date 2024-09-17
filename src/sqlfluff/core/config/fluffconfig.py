@@ -61,7 +61,7 @@ class FluffConfig:
         # it might only be set in nested .sqlfluff config files, so allow it
         # to be not required.
         require_dialect: bool = True,
-    ):
+    ) -> None:
         self._extra_config_path = (
             extra_config_path  # We only store this for child configs
         )
@@ -101,7 +101,7 @@ class FluffConfig:
             self._configs["core"]["templater"]
         )
 
-    def _handle_comma_separated_values(self):
+    def _handle_comma_separated_values(self) -> None:
         for in_key, out_key in [
             ("ignore", "ignore"),
             ("warnings", "warnings"),

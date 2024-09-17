@@ -32,7 +32,7 @@ __all__ = (
 )
 
 
-def clear_config_caches():
+def clear_config_caches() -> None:
     """Clear any of the cached config methods.
 
     This is primarily used during testing where the cache may be be rendered unreliable
