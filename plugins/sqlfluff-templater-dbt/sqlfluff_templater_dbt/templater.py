@@ -26,6 +26,7 @@ from typing import (
     List,
     Optional,
     Tuple,
+    TypeVar,
     Union,
 )
 
@@ -68,6 +69,65 @@ class DbtConfigArgs:
     which: Optional[str] = "compile"
     # NOTE: As of dbt 1.8, the following is required to exist.
     REQUIRE_RESOURCE_NAMES_WITHOUT_SPACES: Optional[bool] = None
+
+
+T = TypeVar("T")
+
+
+def handle_dbt_errors(func: Callable[..., T]) -> Callable[..., T]:
+    """A decorator to safely catch dbt exceptions and raise native ones.
+
+    NOTE: This looks and behaves a lot like a context manager, but it's
+    important that it is *not* a context manager so that it can effectively
+    strip the context from handled exceptions. That isn't possible (as far
+    as we've tried) within a context manager.
+
+    dbt exceptions don't pickle nicely, and python exception context tries
+    very hard to make sure that the exception context of any new exceptions
+    is preserved. This means we have to be quite deliberate in stripping any
+    dbt exceptions, not just those that are directly raised, but those which
+    are present within the `__context__` or `__cause__` attributes of any
+    SQLFluff exceptions.
+
+    This wrapper aims to do that, catching any dbt exceptions and
+    raising SQLFluff exceptions, and also making sure that any native
+    SQLFluff exceptions which are handled are also stripped of any
+    unwanted dbt exceptions so that we don't cause issues when in
+    multithreaded/multiprocess operation.
+
+    https://docs.python.org/3/library/exceptions.html#inheriting-from-built-in-exceptions
+    https://github.com/sqlfluff/sqlfluff/issues/6037
+    """
+
+    def wrapped_method(*args, **kwargs) -> T:
+        # NOTE: `_detail` also acts as a semaphore to indicate whether an exception
+        # has been raised that we should react to.
+        _detail = ""
+        try:
+            result = func(*args, **kwargs)
+            return result
+        except Exception as err:
+            if err.__class__.__module__.startswith("dbt"):
+                _detail = f"{err.__class__.__module__}.{err.__class__.__name__}: {err}"
+            else:
+                # If it's not a dbt exception, we can probably safely just re-raise it.
+                # NOTE: we should check __context__ and __cause__ here eventually.
+                raise err
+        # By raising the new exception outside of the try/except clause we prevent
+        # the link between the new and old exceptions. Otherwise the old one is likely
+        # included in the __context__ attribute of the new one. Unfortunately the
+        # dbt exceptions do not pickle well, so if they were raised here then they
+        # cause all kinds of threading errors during parallel linting. Python really
+        # doesn't likely you trying to remove the __cause__ attribute of an exception
+        # so this is a mini-hack to sidestep that behaviour.
+        raise SQLFluffUserError(
+            "dbt failed during project compilation. Consider "
+            + "running  `dbt debug` or `dbt compile` to get more "
+            + "information from dbt. "
+            + _detail
+        )
+
+    return wrapped_method
 
 
 class DbtTemplater(JinjaTemplater):
@@ -217,6 +277,7 @@ class DbtTemplater(JinjaTemplater):
         return DbtCompiler(self.dbt_config)
 
     @cached_property
+    @handle_dbt_errors
     def dbt_manifest(self):
         """Loads the dbt manifest."""
         # Set dbt not to run tracking. We don't load
@@ -229,24 +290,7 @@ class DbtTemplater(JinjaTemplater):
         # dbt 0.20.* and onward
         from dbt.parser.manifest import ManifestLoader
 
-        _detail = ""
-        try:
-            manifest = ManifestLoader.get_full_manifest(self.dbt_config)
-        except Exception as err:
-            _detail = f"{err.__class__.__module__}.{err.__class__.__name__}: {err}"
-        # By raising the new exception outside of the try/except clause we prevent
-        # the link between the new and old exceptions. Otherwise the old one is likely
-        # included in the __context__ attribute of the new one. Unfortunately the
-        # dbt exceptions do not pickle well, so if they were raised here then they
-        # cause all kinds of threading errors during parallel linting.
-        if _detail:
-            raise SQLFluffUserError(
-                "dbt failed during project compilation. Consider "
-                + "running  `dbt debug` or `dbt compile` to get more "
-                + "information from dbt. "
-                + _detail
-            )
-        return manifest
+        return ManifestLoader.get_full_manifest(self.dbt_config)
 
     @cached_property
     def dbt_selector_method(self):
