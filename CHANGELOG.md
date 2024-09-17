@@ -34,7 +34,7 @@ and for the dbt templater. For the main project:
 
 * Significant changes under the hood to the handling of configuration files.
   Most of these should now be visible to end users, but for anyone integrating
-  SQFluff into a larger project and relying on native file loading may need
+  SQLFluff into a larger project and relying on native file loading may need
   to refactor their project for this release. Most notably here, for maintainers
   of plugins, the `ConfigLoader` class has been deprecated, and plugins should
   instead call the config loading functions directly. See the example plugin
