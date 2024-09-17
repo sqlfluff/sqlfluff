@@ -26,6 +26,7 @@ from typing import (
     List,
     Optional,
     Tuple,
+    Type,
     TypeVar,
     Union,
 )
@@ -71,10 +72,26 @@ class DbtConfigArgs:
     REQUIRE_RESOURCE_NAMES_WITHOUT_SPACES: Optional[bool] = None
 
 
+def is_dbt_exception(exception: Optional[BaseException]) -> bool:
+    """Check whether this looks like a dbt exception."""
+    # None is not a dbt exception.
+    if not exception:
+        return False
+    return exception.__class__.__module__.startswith("dbt")
+
+
+def _extract_error_detail(exception: BaseException) -> str:
+    return (
+        f"{exception.__class__.__module__}.{exception.__class__.__name__}: {exception}"
+    )
+
+
 T = TypeVar("T")
 
 
-def handle_dbt_errors(func: Callable[..., T]) -> Callable[..., T]:
+def handle_dbt_errors(
+    error_class: Type[Exception], preamble: str
+) -> Callable[[Callable[..., T]], Callable[..., T]]:
     """A decorator to safely catch dbt exceptions and raise native ones.
 
     NOTE: This looks and behaves a lot like a context manager, but it's
@@ -97,37 +114,55 @@ def handle_dbt_errors(func: Callable[..., T]) -> Callable[..., T]:
 
     https://docs.python.org/3/library/exceptions.html#inheriting-from-built-in-exceptions
     https://github.com/sqlfluff/sqlfluff/issues/6037
-    """
+    """  # noqa E501
 
-    def wrapped_method(*args, **kwargs) -> T:
-        # NOTE: `_detail` also acts as a semaphore to indicate whether an exception
-        # has been raised that we should react to.
-        _detail = ""
-        try:
-            result = func(*args, **kwargs)
-            return result
-        except Exception as err:
-            if err.__class__.__module__.startswith("dbt"):
-                _detail = f"{err.__class__.__module__}.{err.__class__.__name__}: {err}"
-            else:
-                # If it's not a dbt exception, we can probably safely just re-raise it.
-                # NOTE: we should check __context__ and __cause__ here eventually.
-                raise err
-        # By raising the new exception outside of the try/except clause we prevent
-        # the link between the new and old exceptions. Otherwise the old one is likely
-        # included in the __context__ attribute of the new one. Unfortunately the
-        # dbt exceptions do not pickle well, so if they were raised here then they
-        # cause all kinds of threading errors during parallel linting. Python really
-        # doesn't likely you trying to remove the __cause__ attribute of an exception
-        # so this is a mini-hack to sidestep that behaviour.
-        raise SQLFluffUserError(
-            "dbt failed during project compilation. Consider "
-            + "running  `dbt debug` or `dbt compile` to get more "
-            + "information from dbt. "
-            + _detail
-        )
+    def decorator(func: Callable[..., T]) -> Callable[..., T]:
+        def wrapped_method(*args, **kwargs) -> T:
+            # NOTE: `_detail` also acts as a semaphore to indicate whether an exception
+            # has been raised that we should react to.
+            _detail = ""
+            try:
+                result = func(*args, **kwargs)
+                return result
+            # If we handle any other exception, check for dbt exceptions. We check using
+            # string matching rather than importing the exceptions because the dbt folks
+            # keep changing the names, and we don't really care which one it is, only
+            # whether it's a dbt exception. None of them pickle nicely.
+            except Exception as err:
+                if is_dbt_exception(err):
+                    _detail = _extract_error_detail(err)
+                else:
+                    # Any other errors are re-raised but only after stripping any
+                    # dbt context errors they may have acquired. This includes any
+                    # native SQLFluff errors.
+                    if is_dbt_exception(err.__context__):
+                        err.__context__ = None
+                    if is_dbt_exception(err.__cause__):
+                        err.__cause__ = None
+                    raise err
+            # By raising the new exception outside of the try/except clause we prevent
+            # the link between the new and old exceptions. Otherwise the old one is likely
+            # included in the __context__ attribute of the new one. Unfortunately the
+            # dbt exceptions do not pickle well, so if they were raised here then they
+            # cause all kinds of threading errors during parallel linting. Python really
+            # doesn't likely you trying to remove the __cause__ attribute of an exception
+            # so this is a mini-hack to sidestep that behaviour.
 
-    return wrapped_method
+            # Connection errors are handled more specifically (because they're fatal)
+            if "FailedToConnect" in _detail:
+                raise SQLTemplaterError(
+                    "dbt tried to connect to the database and failed. Consider "
+                    + "running  `dbt debug` or `dbt compile` to get more "
+                    + "information from dbt. "
+                    + _detail,
+                    fatal=True,
+                )
+            # Other errors will use the preamble given to the decorator.
+            raise error_class(preamble + _detail)
+
+        return wrapped_method
+
+    return decorator
 
 
 class DbtTemplater(JinjaTemplater):
@@ -277,7 +312,11 @@ class DbtTemplater(JinjaTemplater):
         return DbtCompiler(self.dbt_config)
 
     @cached_property
-    @handle_dbt_errors
+    @handle_dbt_errors(
+        SQLFluffUserError,
+        "dbt failed during project compilation. Consider  running  `dbt debug` "
+        "or `dbt compile` to get more information from dbt. ",
+    )
     def dbt_manifest(self):
         """Loads the dbt manifest."""
         # Set dbt not to run tracking. We don't load
@@ -476,6 +515,9 @@ class DbtTemplater(JinjaTemplater):
                 )
 
     @large_file_check
+    @handle_dbt_errors(
+        SQLTemplaterError, "Error received from dbt during project compilation. "
+    )
     def process(
         self,
         *,
@@ -511,50 +553,21 @@ class DbtTemplater(JinjaTemplater):
             # Reset the fail counter
             self._sequential_fails = 0
             return processed_result
-        except SQLTemplaterError as err:
-            # Templater errors are re-raised directly to be caught by the linter.
-            # Make sure to strip any context they may have picked up.
-            err.__context__ = None
-            err.__cause__ = None
-            raise err
         except Exception as err:
-            # Check whether it's any other dbt error. They don't pickle nicely so
-            # even if we can't handle them, we should catch them so that we
-            # don't hang when in multiprocessing mode.
-            # https://github.com/sqlfluff/sqlfluff/issues/6037
-            # This would include (and likely be) cases of compilation errors.
-            if err.__class__.__module__.startswith("dbt"):
-                _detail = f"{err.__class__.__module__}.{err.__class__.__name__}: {err}"
-            else:
-                # If it's not a dbt error, just re-raise it as usual.
-                raise err
-        finally:
-            os.chdir(self.working_dir)
-
-        # Raise the SQLFluff exceptions here, so that the context isn't included.
-        if _detail:
-            # Is it a connection error?
-            # NOTE: We're comparing to the class _name_ rather than importing
-            # the object because the dbt team keep moving the exceptions, so
-            # maintaining the import references is challenging.
-            if "FailedToConnect" in _detail:
+            self._sequential_fails += 1
+            # If we hit the sequential fail limit, manually trigger a fatal exception.
+            # Normally we'd let the decorator do this, but it doesn't know about sequential
+            # failures.
+            if self._sequential_fails > self.sequential_fail_limit:
                 raise SQLTemplaterError(
-                    "dbt tried to connect to the database and failed. Consider "
-                    + "running  `dbt debug` or `dbt compile` to get more "
-                    + "information from dbt. "
-                    + _detail,
+                    "Fatal number of errors during project compilation. "
+                    + _extract_error_detail(err),
+                    # It's fatal if we're over the limit
                     fatal=True,
                 )
-            # Increment the counter
-            self._sequential_fails += 1
-            _preamble = "Error received from dbt during project compilation. "
-            # NOTE: Compilation errors will naturally include a reference
-            # to the file, so we don't need to add an additional one.
-            raise SQLTemplaterError(
-                _preamble + _detail,
-                # It's fatal if we're over the limit
-                fatal=self._sequential_fails > self.sequential_fail_limit,
-            )
+            raise err
+        finally:
+            os.chdir(self.working_dir)
 
     def _find_node(self, fname, config=None):
         if not config:  # pragma: no cover
