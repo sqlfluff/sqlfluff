@@ -135,7 +135,6 @@ class DbtTemplater(JinjaTemplater):
         # First check whether we need to silence the logs. If a formatter
         # is present then assume that it's not a problem
         if not self.formatter:
-
             if self.dbt_version_tuple >= (1, 8):
                 from dbt_common.events.event_manager_client import (
                     cleanup_event_logger,
@@ -230,9 +229,24 @@ class DbtTemplater(JinjaTemplater):
         # dbt 0.20.* and onward
         from dbt.parser.manifest import ManifestLoader
 
-        _dbt_manifest = ManifestLoader.get_full_manifest(self.dbt_config)
-
-        return _dbt_manifest
+        _detail = ""
+        try:
+            manifest = ManifestLoader.get_full_manifest(self.dbt_config)
+        except Exception as err:
+            _detail = f"{err.__class__.__module__}.{err.__class__.__name__}: {err}"
+        # By raising the new exception outside of the try/except clause we prevent
+        # the link between the new and old exceptions. Otherwise the old one is likely
+        # included in the __context__ attribute of the new one. Unfortunately the
+        # dbt exceptions do not pickle well, so if they were raised here then they
+        # cause all kinds of threading errors during parallel linting.
+        if _detail:
+            raise SQLFluffUserError(
+                "dbt failed during project compilation. Consider "
+                + "running  `dbt debug` or `dbt compile` to get more "
+                + "information from dbt. "
+                + _detail
+            )
+        return manifest
 
     @cached_property
     def dbt_selector_method(self):
