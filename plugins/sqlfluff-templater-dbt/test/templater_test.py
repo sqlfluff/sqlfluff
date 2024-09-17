@@ -553,9 +553,9 @@ def test__templater_dbt_handle_database_connection_failure(
         )
     )
     dbt_fluff_config_fail = deepcopy(dbt_fluff_config)
-    dbt_fluff_config_fail["templater"]["dbt"]["profiles_dir"] = (
-        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml_fail"
-    )
+    dbt_fluff_config_fail["templater"]["dbt"][
+        "profiles_dir"
+    ] = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml_fail"
     # We move the file that throws an error in and out of the project directory
     # as dbt throws an error if a node fails to parse while computing the DAG
     shutil.move(src_fpath, target_fpath)
