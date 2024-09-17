@@ -182,7 +182,6 @@ class DbtTemplater(JinjaTemplater):
         self.project_dir = None
         self.profiles_dir = None
         self.working_dir = os.getcwd()
-        self._sequential_fails = 0
         super().__init__(**kwargs)
 
     def config_pairs(self):
@@ -550,23 +549,7 @@ class DbtTemplater(JinjaTemplater):
         # `handle_dbt_errors` decorator.
         try:
             os.chdir(self.project_dir)
-            processed_result = self._unsafe_process(fname_absolute_path, in_str, config)
-            # Reset the fail counter
-            self._sequential_fails = 0
-            return processed_result
-        except Exception as err:
-            self._sequential_fails += 1
-            # If we hit the sequential fail limit, manually trigger a fatal exception.
-            # Normally we'd let the decorator do this, but it doesn't know about
-            # sequential failures.
-            if self._sequential_fails > self.sequential_fail_limit:
-                raise SQLTemplaterError(
-                    "Fatal number of errors during project compilation. "
-                    + _extract_error_detail(err),
-                    # It's fatal if we're over the limit
-                    fatal=True,
-                )
-            raise err
+            return self._unsafe_process(fname_absolute_path, in_str, config)
         finally:
             os.chdir(self.working_dir)
 
