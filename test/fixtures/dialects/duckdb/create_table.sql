@@ -68,7 +68,7 @@ CREATE TABLE t5 (id INTEGER UNIQUE, j VARCHAR);
 CREATE TABLE t6 (
     id INTEGER PRIMARY KEY,
     t5_id INTEGER,
-    FOREIGN KEY (t5_id) REFERENCES t5(id)
+    FOREIGN KEY (t5_id) REFERENCES t5 (id)
 );
 
 -- The simplest syntax for a generated column.
@@ -84,3 +84,19 @@ CREATE TABLE t_values AS VALUES (1);
 CREATE TABLE t_dflt_int (id INTEGER DEFAULT 0);
 
 CREATE OR REPLACE TABLE t_dflt_dt (dt DATE DEFAULT CURRENT_DATE);
+
+CREATE TABLE t (
+    s STRUCT(
+        val STRING
+    )
+);
+
+CREATE TABLE t (
+    s STRUCT(
+        val STRING,
+        s1 STRUCT(
+            ival INT,
+            jval INT
+        )
+    )
+);

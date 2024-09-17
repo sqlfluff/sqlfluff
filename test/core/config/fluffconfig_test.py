@@ -245,7 +245,7 @@ def test__config__validate_configs_indirect():
         ),
         (
             # Unsupported layout config length
-            "-- sqlfluff:layout:foo\nSELECT 1"
+            "-- sqlfluff:layout:foo:bar\nSELECT 1"
         ),
         (
             # Unsupported layout config length
