@@ -138,7 +138,9 @@ def handle_dbt_errors(
                     # native SQLFluff errors.
                     if is_dbt_exception(err.__context__):
                         err.__context__ = None
-                    if is_dbt_exception(err.__cause__):
+                    if is_dbt_exception(err.__cause__):  # pragma: no cover
+                        # This one seems to be less of an issue in testing, but I'm
+                        # keeping it in for completeness.
                         err.__cause__ = None
                     raise err
             # By raising the new exception outside of the try/except clause we prevent
