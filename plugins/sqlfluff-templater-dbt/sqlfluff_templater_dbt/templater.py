@@ -456,15 +456,23 @@ class DbtTemplater(JinjaTemplater):
         self.profiles_dir = self._get_profiles_dir()
         fname_absolute_path = os.path.abspath(fname) if fname != "stdin" else fname
 
+        # For the unsafe process, we catch dbt exceptions here. The try/except clause
+        # looks a little unusual because we want to explicitly suppress any context
+        # being included in the exception because dbt exceptions don't pickle well.
+        # TODO: Make this into a context manager. Write better docs.
+        _detail: str = ""
         try:
             os.chdir(self.project_dir)
             processed_result = self._unsafe_process(fname_absolute_path, in_str, config)
             # Reset the fail counter
             self._sequential_fails = 0
             return processed_result
-        except SQLTemplaterError:
+        except SQLTemplaterError as err:
             # Templater errors are re-raised directly to be caught by the linter.
-            raise
+            # Make sure to strip any context they may have picked up.
+            err.__context__ = None
+            err.__cause__ = None
+            raise err
         except Exception as err:
             # Check whether it's any other dbt error. They don't pickle nicely so
             # even if we can't handle them, we should catch them so that we
@@ -473,32 +481,36 @@ class DbtTemplater(JinjaTemplater):
             # This would include (and likely be) cases of compilation errors.
             if err.__class__.__module__.startswith("dbt"):
                 _detail = f"{err.__class__.__module__}.{err.__class__.__name__}: {err}"
-                # Is it a connection error?
-                # NOTE: We're comparing to the class _name_ rather than importing
-                # the object because the dbt team keep moving the exceptions, so
-                # maintaining the import references is challenging.
-                if "FailedToConnect" in err.__class__.__name__:
-                    raise SQLTemplaterError(
-                        "dbt tried to connect to the database and failed. Consider "
-                        + "running  `dbt debug` or `dbt compile` to get more "
-                        + "information from dbt. "
-                        + _detail,
-                        fatal=True,
-                    )
-                # Increment the counter
-                self._sequential_fails += 1
-                _preamble = "Error received from dbt during project compilation. "
-                # NOTE: Compilation errors will naturally include a reference
-                # to the file, so we don't need to add an additional one.
-                raise SQLTemplaterError(
-                    _preamble + _detail,
-                    # It's fatal if we're over the limit
-                    fatal=self._sequential_fails > self.sequential_fail_limit,
-                )
-            # If it's not a dbt error, just re-raise it as usual.
-            raise err
+            else:
+                # If it's not a dbt error, just re-raise it as usual.
+                raise err
         finally:
             os.chdir(self.working_dir)
+
+        # Raise the SQLFluff exceptions here, so that the context isn't included.
+        if _detail:
+            # Is it a connection error?
+            # NOTE: We're comparing to the class _name_ rather than importing
+            # the object because the dbt team keep moving the exceptions, so
+            # maintaining the import references is challenging.
+            if "FailedToConnect" in _detail:
+                raise SQLTemplaterError(
+                    "dbt tried to connect to the database and failed. Consider "
+                    + "running  `dbt debug` or `dbt compile` to get more "
+                    + "information from dbt. "
+                    + _detail,
+                    fatal=True,
+                )
+            # Increment the counter
+            self._sequential_fails += 1
+            _preamble = "Error received from dbt during project compilation. "
+            # NOTE: Compilation errors will naturally include a reference
+            # to the file, so we don't need to add an additional one.
+            raise SQLTemplaterError(
+                _preamble + _detail,
+                # It's fatal if we're over the limit
+                fatal=self._sequential_fails > self.sequential_fail_limit,
+            )
 
     def _find_node(self, fname, config=None):
         if not config:  # pragma: no cover
