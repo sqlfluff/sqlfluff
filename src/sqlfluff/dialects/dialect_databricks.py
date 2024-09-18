@@ -189,6 +189,18 @@ databricks_dialect.add(
         IdentifierSegment,
         type="properties_naked_identifier",
     ),
+    LocationWithCredentialGrammar = Sequence(
+        "LOCATION",
+        Ref("QuotedLiteralSegment"),
+        Sequence(
+            "WITH",
+            Bracketed(
+              "CREDENTIAL",
+              Ref("PrincipalIdentifierSegment"),
+            ),
+            optional=True,
+        ),
+    ),
 )
 
 databricks_dialect.replace(
@@ -313,6 +325,10 @@ databricks_dialect.replace(
                 ),
             )
         ],
+    ),
+    NotNullGrammar=Sequence(
+        "NOT",
+        "NULL",
     ),
 )
 
@@ -1128,6 +1144,155 @@ class GroupByClauseSegment(sparksql.GroupByClauseSegment):
     )
 
 
+class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
+    """A column constraint, e.g. for CREATE TABLE or ALTER TABLE.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-constraint.html
+    """
+
+    match_grammar = Sequence(
+        Ref("NotNullGrammar", optional=True),
+        Sequence(
+            Sequence(
+                "CONSTRAINT",
+                Ref("ObjectReferenceSegment"),
+                optional=True,
+            ),
+            OneOf(
+                Sequence(
+                    Ref("PrimaryKeyGrammar"),
+                    Ref("ConstraintOptionGrammar", optional=True),
+                ),
+                Sequence(
+                    Ref("ForeignKeyGrammar", optional=True),
+                    "REFERENCES",
+                    Ref("TableReferenceSegment"),
+                    Ref("BracketedColumnReferenceListGrammar", optional=True),
+                    OneOf(
+                        Ref("ForeignKeyOptionGrammar"),
+                        Ref("ConstraintOptionGrammar"),
+                        optional=True,
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class CreateTableUsingStatementSegment(sparksql.CreateTableStatementSegment):
+    """
+    A `CREATE TABLE [USING]` statement.
+    
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-using.html
+    """
+
+    type = "create_table_using_statement"
+
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(
+                Sequence(
+                    "CREATE",
+                    "OR",
+                    optional=True,
+                ),
+                "REPLACE",
+                "TABLE",
+            ),
+            Sequence(
+                "CREATE",
+                Ref.keyword("EXTERNAL", optional=True),
+                "TABLE",
+                Ref("IfNotExistsGrammar", optional=True),
+            ),
+        ),
+        Ref("TableReferenceSegment"),
+        Ref("TableSpecificationSegment", optional=True),
+        Sequence(
+            "USING",
+            Ref("DataSourceSegment"),
+            optional=True,
+        ),
+        AnyNumberOf(
+            Ref("TableClausesSegment")
+        ),
+        Sequence(
+            "AS",
+            OneOf(
+                Ref("SelectStatementSegment"),
+                Ref("ValuesClauseSegment"),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class TableSpecificationSegment(BaseSegment):
+    """A table specification, e.g. for CREATE TABLE or ALTER TABLE.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-spec.html
+    """
+
+    type = "table_specification_segment"
+
+    match_grammar = Bracketed(
+        Delimited(
+            Sequence(
+                Ref("ColumnReferenceSegment"),
+                Ref("DatatypeSegment"),
+                AnyNumberOf(
+                    Ref("ColumnPropertiesSegment"),
+                ),
+            ),
+        ),
+    )
+
+
+class ColumnPropertiesSegment(BaseSegment):
+    """Properties for a column in a table specification.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-spec.html
+    """
+
+    type = "column_properties_segment"
+
+    match_grammar = OneOf(
+        Ref("NotNullGrammar"),
+        Ref("GeneratedColumnDefinitionSegment"),
+        Sequence(
+            "DEFAULT",
+            Ref("ColumnConstraintDefaultGrammar"),
+        ),
+        Ref("CommentGrammar"),
+        Ref("ColumnConstraintSegment"),
+        Ref("MaskStatementSegment"),
+    )
+
+
+class TableClausesSegment(BaseSegment):
+    """Clauses for a table specification.
+
+    https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-spec.html
+    """
+
+    type = "table_clauses_segment"
+
+    match_grammar = OneOf(
+        Ref("PartitionClauseSegment"),
+        Ref("ClusterByClauseSegment"),
+        Ref("LocationWithCredentialGrammar"),
+        Ref("OptionsGrammar"),
+        Ref("CommentGrammar"),
+        Ref("TablePropertiesGrammar"),
+        Sequence(
+            "WITH",
+            Ref("RowFilterClauseGrammar"),
+        ),
+    )
+
+
+
 class GeneratedColumnDefinitionSegment(sparksql.GeneratedColumnDefinitionSegment):
     """A generated column definition, e.g. for CREATE TABLE or ALTER TABLE.
 
@@ -1147,6 +1312,7 @@ class GeneratedColumnDefinitionSegment(sparksql.GeneratedColumnDefinitionSegment
                     OneOf(
                         Ref("FunctionSegment"),
                         Ref("BareFunctionSegment"),
+                        Ref("ExpressionSegment"),
                     ),
                 ),
             ),
@@ -1176,9 +1342,6 @@ class GeneratedColumnDefinitionSegment(sparksql.GeneratedColumnDefinitionSegment
                     optional=True,
                 ),
             ),
-        ),
-        AnyNumberOf(
-            Ref("ColumnConstraintSegment", optional=True),
         ),
     )
 
