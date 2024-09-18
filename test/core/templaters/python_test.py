@@ -540,3 +540,29 @@ def test__templater_python_dot_notation_variables(raw_str, result):
     instr = raw_str
     outstr, _ = t.process(in_str=instr, fname="test")
     assert str(outstr) == result
+
+
+@pytest.mark.parametrize(
+    "context,error_string",
+    [
+        # No additional context (i.e. no sqlfluff key)
+        (
+            {},
+            "magic key 'sqlfluff' missing from context.  This key is required "
+            "for template variables containing '.'.",
+        ),
+        # No key missing within sqlfluff dict.
+        (
+            {"sqlfluff": {"a": "b"}},
+            "'foo.bar' key missing from 'sqlfluff' dict in context. Template "
+            "variables containing '.' are required to use the 'sqlfluff' magic "
+            "fixed context key.",
+        ),
+    ],
+)
+def test__templater_python_dot_notation_fail(context, error_string):
+    """Test failures with template variables that contain a dot character (`.`)."""
+    t = PythonTemplater(override_context=context)
+    with pytest.raises(SQLTemplaterError) as excinfo:
+        outstr, _ = t.process(in_str="SELECT * FROM {foo.bar}", fname="test")
+    assert error_string in excinfo.value.desc()
