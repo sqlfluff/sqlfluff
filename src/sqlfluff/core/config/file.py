@@ -61,7 +61,7 @@ def _resolve_path(filepath: str, val: str) -> str:
 
 def _resolve_paths_in_config(
     config: ConfigMappingType, filepath: str, logging_reference: Optional[str] = None
-):
+) -> None:
     """Attempt to resolve any paths found in the config file.
 
     NOTE: This method is recursive to crawl the whole config object,

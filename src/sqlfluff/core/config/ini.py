@@ -4,7 +4,7 @@ This includes `.sqlfluff` and `tox.ini` files.
 """
 
 import configparser
-from typing import Any, List, Tuple
+from typing import List, Tuple
 
 from sqlfluff.core.config.types import ConfigMappingType, ConfigValueType
 from sqlfluff.core.helpers.dict import NestedDictRecord, records_to_nested_dict
@@ -14,8 +14,9 @@ def coerce_value(val: str) -> ConfigValueType:
     """Try to coerce to a more specific type."""
     # Try to coerce it to a more specific type,
     # otherwise just make it a string.
+    v: ConfigValueType
     try:
-        v: Any = int(val)
+        v = int(val)
     except ValueError:
         try:
             v = float(val)

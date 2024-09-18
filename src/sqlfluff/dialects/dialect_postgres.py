@@ -700,6 +700,10 @@ postgres_dialect.replace(
     UnknownLiteralSegment=StringParser(
         "UNKNOWN", LiteralKeywordSegment, type="null_literal"
     ),
+    NormalizedGrammar=Sequence(
+        OneOf("NFC", "NFD", "NFKC", "NFKD", optional=True),
+        "NORMALIZED",
+    ),
 )
 
 
@@ -830,6 +834,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
         OneOf(
             Ref("WellKnownTextGeometrySegment"),
             Ref("DateTimeTypeIdentifier"),
+            Ref("StructTypeSegment"),
             Sequence(
                 OneOf(
                     # numeric types
