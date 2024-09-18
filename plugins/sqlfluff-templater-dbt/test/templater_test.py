@@ -518,7 +518,7 @@ def test__templater_dbt_handle_exceptions(
     # be done safely then that will cause bugs.
     pickled_exception = pickle.dumps(excinfo.value)
     roundtrip_exception = pickle.loads(pickled_exception)
-    assert type(roundtrip_exception) is type(excinfo.value)
+    assert isinstance(roundtrip_exception, type(excinfo.value))
     assert str(roundtrip_exception) == str(excinfo.value)
 
 
