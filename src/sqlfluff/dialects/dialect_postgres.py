@@ -700,6 +700,10 @@ postgres_dialect.replace(
     UnknownLiteralSegment=StringParser(
         "UNKNOWN", LiteralKeywordSegment, type="null_literal"
     ),
+    NormalizedGrammar=Sequence(
+        OneOf("NFC", "NFD", "NFKC", "NFKD", optional=True),
+        "NORMALIZED",
+    ),
 )
 
 
