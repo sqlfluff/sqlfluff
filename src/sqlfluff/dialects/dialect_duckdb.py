@@ -20,6 +20,7 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     Ref,
     RegexLexer,
+    RegexParser,
     Sequence,
     StringLexer,
     StringParser,
@@ -60,8 +61,10 @@ duckdb_dialect.sets("unreserved_keywords").update(
     [
         "ANTI",
         "ASOF",
+        "MACRO",
         "POSITIONAL",
         "SEMI",
+        "STRUCT",
         "VIRTUAL",
     ]
 )
@@ -71,6 +74,12 @@ duckdb_dialect.add(
 )
 
 duckdb_dialect.replace(
+    FunctionNameIdentifierSegment=RegexParser(
+        r"[A-Z_][A-Z0-9_$]*",
+        CodeSegment,
+        type="function_name_identifier",
+        anti_template=r"^(STRUCT|UNION|ENUM)$",
+    ),
     DivideSegment=OneOf(
         StringParser("//", BinaryOperatorSegment),
         StringParser("/", BinaryOperatorSegment),
@@ -163,6 +172,37 @@ duckdb_dialect.patch_lexer_matchers(
         ),
     ]
 )
+
+
+class StructTypeSegment(ansi.StructTypeSegment):
+    """Expression to construct a STRUCT datatype."""
+
+    match_grammar = Sequence(
+        "STRUCT",
+        Ref("StructTypeSchemaSegment", optional=True),
+    )
+
+
+class StructTypeSchemaSegment(BaseSegment):
+    """Expression to construct the schema of a STRUCT datatype."""
+
+    type = "struct_type_schema"
+    match_grammar = Bracketed(
+        Delimited(  # Comma-separated list of field names/types
+            Sequence(
+                OneOf(
+                    # ParameterNames can look like Datatypes so can't use
+                    # Optional=True here and instead do a OneOf in order
+                    # with DataType only first, followed by both.
+                    Ref("DatatypeSegment"),
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("DatatypeSegment"),
+                    ),
+                ),
+            ),
+        ),
+    )
 
 
 class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
@@ -337,6 +377,21 @@ class ColumnsExpressionFunctionContentsSegment(
                 Ref("LambdaExpressionSegment"),
             ),
         ),
+    )
+
+
+class NamedArgumentSegment(postgres.NamedArgumentSegment):
+    """Named argument to a function.
+
+    Some functions may use a `walrus operator`.
+    e.g. https://duckdb.org/docs/sql/functions/struct#struct_packname--any-
+    """
+
+    type = "named_argument"
+    match_grammar = Sequence(
+        Ref("NakedIdentifierSegment"),
+        OneOf(Ref("RightArrowSegment"), Ref("WalrusOperatorSegment")),
+        Ref("ExpressionSegment"),
     )
 
 
@@ -693,5 +748,46 @@ class CreateViewStatementSegment(postgres.CreateViewStatementSegment):
         OneOf(
             OptionallyBracketed(Ref("SelectableGrammar")),
             Ref("ValuesClauseSegment"),
+        ),
+    )
+
+
+class CreateFunctionStatementSegment(postgres.CreateFunctionStatementSegment):
+    """A `CREATE MACRO` or `CREATE FUNCTION` statement.
+
+    https://duckdb.org/docs/sql/statements/create_macro
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        OneOf("MACRO", "FUNCTION"),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+        "AS",
+        OneOf(
+            Sequence("TABLE", Indent, Ref("SelectableGrammar"), Dedent),
+            Ref("ExpressionSegment"),
+        ),
+    )
+
+
+class CreateTypeStatementSegment(postgres.CreateTypeStatementSegment):
+    """A `CREATE TYPE` statement.
+
+    https://duckdb.org/docs/sql/statements/create_type.html
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        "TYPE",
+        Ref("DatatypeIdentifierSegment"),
+        "AS",
+        OneOf(
+            Ref("DatatypeIdentifierSegment"),
+            Sequence("ENUM", Bracketed(Delimited(Ref("QuotedLiteralSegment")))),
+            Ref("StructTypeSegment"),
+            Sequence("UNION", Ref("StructTypeSchemaSegment")),
         ),
     )

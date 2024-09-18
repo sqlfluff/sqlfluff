@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ca5f225dd7eee6d74cfbd3101b6d193a4297346057cbc213244cc7fea57867e4
+_hash: ec9ccc0fa7f44a937ce3cc21f7ba141415e751452c9354e7a28ee8e0d5422809
 file:
 - statement:
     create_table_statement:
@@ -704,5 +704,65 @@ file:
           keyword: DEFAULT
           expression:
             bare_function: CURRENT_DATE
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: s
+        data_type:
+          struct_type:
+            keyword: STRUCT
+            struct_type_schema:
+              bracketed:
+                start_bracket: (
+                parameter: val
+                data_type:
+                  data_type_identifier: STRING
+                end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: s
+        data_type:
+          struct_type:
+            keyword: STRUCT
+            struct_type_schema:
+              bracketed:
+              - start_bracket: (
+              - parameter: val
+              - data_type:
+                  data_type_identifier: STRING
+              - comma: ','
+              - parameter: s1
+              - data_type:
+                  struct_type:
+                    keyword: STRUCT
+                    struct_type_schema:
+                      bracketed:
+                      - start_bracket: (
+                      - parameter: ival
+                      - data_type:
+                          keyword: INT
+                      - comma: ','
+                      - parameter: jval
+                      - data_type:
+                          keyword: INT
+                      - end_bracket: )
+              - end_bracket: )
         end_bracket: )
 - statement_terminator: ;

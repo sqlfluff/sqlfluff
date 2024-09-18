@@ -1,0 +1,2 @@
+[sqlfluff]
+ignore_paths = query_d.sql,query_e.sql

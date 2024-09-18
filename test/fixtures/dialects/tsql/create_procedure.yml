@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ad3884d73a87c38b1359a67806673cf95d768ae7453a97d58411d1ddfd6fa37a
+_hash: 1e3dbbb369e77aad853148e94e4f042e480957913603cebc2117f389ec4d52d3
 file:
 - batch:
     create_procedure_statement:
@@ -714,5 +714,61 @@ file:
         - dot: .
         - quoted_identifier: '[static_method]'
 - statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: DoSomething
+    - keyword: AS
+    - procedure_statement:
+        statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              set_segment:
+              - keyword: SET
+              - keyword: NOCOUNT
+              - keyword: 'ON'
+              - statement_terminator: ;
+          - statement:
+              set_segment:
+              - keyword: SET
+              - keyword: XACT_ABORT
+              - keyword: 'ON'
+              - statement_terminator: ;
+          - keyword: END
+- go_statement:
+    keyword: GO
+- batch:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: DoSomething
+    - keyword: AS
+    - procedure_statement:
+        statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              set_segment:
+              - keyword: SET
+              - keyword: NOCOUNT
+              - comma: ','
+              - keyword: XACT_ABORT
+              - keyword: 'ON'
+              - statement_terminator: ;
+          - keyword: END
 - go_statement:
     keyword: GO

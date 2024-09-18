@@ -68,11 +68,11 @@ so to introduce some flexibility and reusability it is often [templated](https:/
 as discussed more in [our modularity documentation](https://docs.sqlfluff.com/en/stable/perma/modularity.html).
 
 **SQLFluff** supports the following templates:
+
 - [Jinja](https://jinja.palletsprojects.com/) (aka Jinja2)
 - SQL placeholders (e.g. SQLAlchemy parameters)
 - [Python format strings](https://docs.python.org/3/library/string.html#format-string-syntax)
 - [dbt](https://www.getdbt.com/) (requires plugin)
-
 
 Again, please raise issues if you wish to support more templating languages/syntaxes.
 
@@ -140,7 +140,7 @@ New releases are made monthly. For more information, visit
 # SQLFluff on Slack
 
 We have a fast-growing community
-[on Slack](https://join.slack.com/t/sqlfluff/shared_invite/zt-o1f4x0e8-pZzarAIlQmKj_6ZwD16w0g),
+[on Slack](https://join.slack.com/t/sqlfluff/shared_invite/zt-2qtu36kdt-OS4iONPbQ3aCz2DIbYJdWg),
 come and join us!
 
 # SQLFluff on Twitter
