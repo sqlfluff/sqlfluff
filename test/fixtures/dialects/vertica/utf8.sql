@@ -92,7 +92,7 @@ SELECT PREDICT_ARIMA(температура USING PARAMETERS model_name='arima_t
 
 SELECT INFER_TABLE_DDL ('/data/*.json'
     USING PARAMETERS table_name='restaurants', format='json',
-max_files=3, max_candidates=3); 
+max_files=3, max_candidates=3);
 
 SELECT INFER_TABLE_DDL ('/data/*.json'
     USING PARAMETERS table_name='εστιατόρια', format='json',
