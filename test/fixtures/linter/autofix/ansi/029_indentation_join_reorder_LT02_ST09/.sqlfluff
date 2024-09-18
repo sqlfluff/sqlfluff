@@ -1,0 +1,9 @@
+[sqlfluff:indentation]
+indent_unit = space
+tab_space_size = 2
+indented_joins = true
+indented_using_on = true
+template_blocks_indent = false
+
+[sqlfluff:templater:jinja:macros]
+snapshot_date = {% macro snapshot_date(delta_days=0, format_as="DATE") %}{% if format_as == 'DATE' %}{{ "CAST('2022-09-23' AS DATE)" }}{% else %}{{ "CAST('2022-09-23T00-00' AS TIMESTAMP)" }}{% endif %}{% endmacro %}
