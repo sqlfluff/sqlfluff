@@ -144,6 +144,7 @@ redirects = {
     "perma/why": "../why_sqlfluff.html",
     "perma/plugin_dev": "../development/plugins.html",
     "perma/variables": "../configuration/templating/index.html",
+    "perma/python_templating": "../configuration/templating/python.html",
     # Add permalinks for rule codes
     **{
         f"perma/rule/{code}": (
