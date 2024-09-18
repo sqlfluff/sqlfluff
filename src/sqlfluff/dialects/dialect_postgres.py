@@ -44,7 +44,20 @@ from sqlfluff.dialects.dialect_postgres_keywords import (
 
 ansi_dialect = load_raw_dialect("ansi")
 
-postgres_dialect = ansi_dialect.copy_as("postgres")
+postgres_dialect = ansi_dialect.copy_as(
+    "postgres",
+    formatted_name="PostgreSQL",
+    docstring="""**Default Casing**: ``lowercase``
+
+**Quotes**: String Literals: ``''``, Identifiers: ``""``.
+
+This is based around the `PostgreSQL spec`_. Many other SQL
+dialects are often based on the PostreSQL syntax. If you're running an unsupported
+dialect, then this is often the dialect to use (until someone makes a specific
+dialect).
+
+.. _`PostgreSQL spec`: https://www.postgresql.org/docs/current/reference.html""",
+)
 
 postgres_dialect.insert_lexer_matchers(
     # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
@@ -562,7 +575,9 @@ postgres_dialect.replace(
     ),
     QuotedIdentifierSegment=OneOf(
         TypedParser("double_quote", IdentifierSegment, type="quoted_identifier"),
-        TypedParser("unicode_double_quote", LiteralSegment, type="quoted_literal"),
+        TypedParser(
+            "unicode_double_quote", IdentifierSegment, type="quoted_identifier"
+        ),
     ),
     PostFunctionGrammar=AnyNumberOf(
         Ref("WithinGroupClauseSegment"),
@@ -815,6 +830,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
         OneOf(
             Ref("WellKnownTextGeometrySegment"),
             Ref("DateTimeTypeIdentifier"),
+            Ref("StructTypeSegment"),
             Sequence(
                 OneOf(
                     # numeric types
@@ -2596,6 +2612,12 @@ class AlterExtensionStatementSegment(BaseSegment):
     )
 
 
+class SubscriptionReferenceSegment(ansi.ObjectReferenceSegment):
+    """A subscription reference."""
+
+    type = "subscription_reference"
+
+
 class PublicationReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to a publication."""
 
@@ -3230,6 +3252,110 @@ class DropDatabaseStatementSegment(ansi.DropDatabaseStatementSegment):
     )
 
 
+class CreateSubscriptionStatementSegment(BaseSegment):
+    """A `CREATE SUBSCRIPTION` statement.
+
+    https://www.postgresql.org/docs/current/sql-createsubscription.html
+    """
+
+    type = "create_subscription"
+    match_grammar = Sequence(
+        "CREATE",
+        "SUBSCRIPTION",
+        Ref("SubscriptionReferenceSegment"),
+        "CONNECTION",
+        Ref("QuotedLiteralSegment"),
+        "PUBLICATION",
+        Delimited(Ref("PublicationReferenceSegment")),
+        Sequence(
+            "WITH",
+            Ref("DefinitionParametersSegment"),
+            optional=True,
+        ),
+    )
+
+
+class AlterSubscriptionStatementSegment(BaseSegment):
+    """An `ALTER SUBSCRIPTION` statement.
+
+    https://www.postgresql.org/docs/current/sql-altersubscription.html
+    """
+
+    type = "alter_subscription"
+    match_grammar = Sequence(
+        "ALTER",
+        "SUBSCRIPTION",
+        Ref("SubscriptionReferenceSegment"),
+        OneOf(
+            Sequence("CONNECTION", Ref("QuotedLiteralSegment")),
+            Sequence(
+                OneOf(
+                    "SET",
+                    "ADD",
+                    "DROP",
+                ),
+                "PUBLICATION",
+                Delimited(Ref("PublicationReferenceSegment")),
+                Sequence(
+                    "WITH",
+                    Ref("DefinitionParametersSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "REFRESH",
+                "PUBLICATION",
+                Sequence(
+                    "WITH",
+                    Ref("DefinitionParametersSegment"),
+                    optional=True,
+                ),
+            ),
+            "ENABLE",
+            "DISABLE",
+            Sequence(
+                "SET",
+                Ref("DefinitionParametersSegment"),
+            ),
+            Sequence(
+                "SKIP",
+                Bracketed(
+                    Ref("ParameterNameSegment"),
+                    Ref("RawEqualsSegment"),
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "CURRENT_SESSION",
+                ),
+            ),
+            Sequence("RENAME", "TO", Ref("SubscriptionReferenceSegment")),
+        ),
+    )
+
+
+class DropSubscriptionStatementSegment(BaseSegment):
+    """An `DROP SUBSCRIPTION` statement.
+
+    https://www.postgresql.org/docs/current/sql-dropsubscription.html
+    """
+
+    type = "drop_subscription"
+    match_grammar = Sequence(
+        "DROP",
+        "SUBSCRIPTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SubscriptionReferenceSegment"),
+        OneOf("CASCADE", "RESTRICT", optional=True),
+    )
+
+
 class VacuumStatementSegment(BaseSegment):
     """A `VACUUM` statement.
 
@@ -3579,6 +3705,21 @@ class TableConstraintUsingIndexSegment(BaseSegment):
             Sequence("INITIALLY", "IMMEDIATE"),
             optional=True,
         ),
+    )
+
+
+class SetConstraintsStatementSegment(BaseSegment):
+    """`SET CONSTRAINTS` statement.
+
+    https://www.postgresql.org/docs/current/sql-set-constraints.html
+    """
+
+    type = "set_constraint_statement"
+    match_grammar = Sequence(
+        "SET",
+        "CONSTRAINTS",
+        OneOf("ALL", Delimited(Ref("ObjectReferenceSegment"))),
+        OneOf("DEFERRED", "IMMEDIATE"),
     )
 
 
@@ -4182,18 +4323,32 @@ class CreateSequenceOptionsSegment(ansi.CreateSequenceOptionsSegment):
     match_grammar = OneOf(
         Sequence("AS", Ref("DatatypeSegment")),
         Sequence(
-            "INCREMENT", Ref.keyword("BY", optional=True), Ref("NumericLiteralSegment")
+            "INCREMENT",
+            Ref.keyword("BY", optional=True),
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("NumericLiteralSegment"),
         ),
         OneOf(
-            Sequence("MINVALUE", Ref("NumericLiteralSegment")),
+            Sequence(
+                "MINVALUE",
+                Ref("SignedSegmentGrammar", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
             Sequence("NO", "MINVALUE"),
         ),
         OneOf(
-            Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
+            Sequence(
+                "MAXVALUE",
+                Ref("SignedSegmentGrammar", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
             Sequence("NO", "MAXVALUE"),
         ),
         Sequence(
-            "START", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")
+            "START",
+            Ref.keyword("WITH", optional=True),
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("NumericLiteralSegment"),
         ),
         Sequence("CACHE", Ref("NumericLiteralSegment")),
         OneOf("CYCLE", Sequence("NO", "CYCLE")),
@@ -4228,24 +4383,41 @@ class AlterSequenceOptionsSegment(ansi.AlterSequenceOptionsSegment):
     match_grammar = OneOf(
         Sequence("AS", Ref("DatatypeSegment")),
         Sequence(
-            "INCREMENT", Ref.keyword("BY", optional=True), Ref("NumericLiteralSegment")
+            "INCREMENT",
+            Ref.keyword("BY", optional=True),
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("NumericLiteralSegment"),
         ),
         OneOf(
-            Sequence("MINVALUE", Ref("NumericLiteralSegment")),
+            Sequence(
+                "MINVALUE",
+                Ref("SignedSegmentGrammar", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
             Sequence("NO", "MINVALUE"),
         ),
         OneOf(
-            Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
+            Sequence(
+                "MAXVALUE",
+                Ref("SignedSegmentGrammar", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
             Sequence("NO", "MAXVALUE"),
         ),
         # N.B. The SEQUENCE NAME keywords are undocumented but are produced
         # by the pg_dump utility. See discussion in issue #1857.
         Sequence("SEQUENCE", "NAME", Ref("SequenceReferenceSegment")),
         Sequence(
-            "START", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")
+            "START",
+            Ref.keyword("WITH", optional=True),
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("NumericLiteralSegment"),
         ),
         Sequence(
-            "RESTART", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")
+            "RESTART",
+            Ref.keyword("WITH", optional=True),
+            Ref("SignedSegmentGrammar", optional=True),
+            Ref("NumericLiteralSegment"),
         ),
         Sequence("CACHE", Ref("NumericLiteralSegment")),
         Sequence(Ref.keyword("NO", optional=True), "CYCLE"),
@@ -4469,6 +4641,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateExtensionStatementSegment"),
             Ref("DropExtensionStatementSegment"),
             Ref("AlterExtensionStatementSegment"),
+            Ref("CreateSubscriptionStatementSegment"),
+            Ref("AlterSubscriptionStatementSegment"),
+            Ref("DropSubscriptionStatementSegment"),
             Ref("CreatePublicationStatementSegment"),
             Ref("AlterPublicationStatementSegment"),
             Ref("DropPublicationStatementSegment"),
@@ -4488,6 +4663,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateStatisticsStatementSegment"),
             Ref("AlterStatisticsStatementSegment"),
             Ref("DropStatisticsStatementSegment"),
+            Ref("ShowStatementSegment"),
+            Ref("SetConstraintsStatementSegment"),
         ],
     )
 
@@ -6086,5 +6263,27 @@ class OverlapsClauseSegment(ansi.OverlapsClauseSegment):
                 )
             ),
             Ref("ColumnReferenceSegment"),
+        ),
+    )
+
+
+class ShowStatementSegment(BaseSegment):
+    """A SHOW Statement.
+
+    As per https://www.postgresql.org/docs/16/sql-show.html
+    """
+
+    type = "show_statement"
+
+    match_grammar = Sequence(
+        "SHOW",
+        OneOf(
+            "ALL",
+            "IS_SUPERUSER",
+            "LC_COLLATE",
+            "LC_CTYPE",
+            "SERVER_ENCODING",
+            "SERVER_VERSION",
+            Ref("ParameterNameSegment"),
         ),
     )

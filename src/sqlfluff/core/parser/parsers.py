@@ -40,7 +40,7 @@ class BaseParser(Matchable):
         self._instance_types: Tuple[str, ...] = (type or raw_class.type,)
         self.optional = optional
         self._trim_chars = trim_chars
-        self._casefold = casefold
+        self.casefold = casefold
         # Generate a cache key
         self._cache_key = uuid4().hex
 
@@ -55,22 +55,26 @@ class BaseParser(Matchable):
         """Return whether this element is optional."""
         return self.optional
 
-    def _match_at(self, idx: int) -> MatchResult:
-        """Construct a MatchResult at a given index.
-
-        This is a helper function for reuse by other parsers.
-        """
+    def segment_kwargs(self) -> Dict[str, Any]:
+        """Generates the segment_kwargs package for generating a matched segment."""
         segment_kwargs: Dict[str, Any] = {}
         if self._instance_types:
             segment_kwargs["instance_types"] = self._instance_types
         if self._trim_chars:
             segment_kwargs["trim_chars"] = self._trim_chars
-        if self._casefold:
-            segment_kwargs["casefold"] = self._casefold
+        if self.casefold:
+            segment_kwargs["casefold"] = self.casefold
+        return segment_kwargs
+
+    def _match_at(self, idx: int) -> MatchResult:
+        """Construct a MatchResult at a given index.
+
+        This is a helper function for reuse by other parsers.
+        """
         return MatchResult(
             matched_slice=slice(idx, idx + 1),
             matched_class=self.raw_class,
-            segment_kwargs=segment_kwargs,
+            segment_kwargs=self.segment_kwargs(),
         )
 
 

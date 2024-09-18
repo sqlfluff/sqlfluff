@@ -15,9 +15,17 @@ class SQLFluffRule(ObjectDescription):
     .. code-block:: rst
 
         .. sqlfluff:rule:: AM01
-                        ambiguous.distinct
+                           ambiguous.distinct
 
             Write the documentation for the rule here.
+
+    To cross reference (i.e. refer to) objects defined like this
+    both the code and name reference is available:
+
+    .. code-block:: rst
+
+        :sqlfluff:ref:`CP02`
+        :sqlfluff:ref:`capitalisation.identifiers`
 
     """
 

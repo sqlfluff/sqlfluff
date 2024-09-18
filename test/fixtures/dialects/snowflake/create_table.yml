@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6562bd576fb55fb937d1d8408585603dc9355248cae754b8c655e30977b505d6
+_hash: 46c10f7370c6d9b7f5b7ab3dd08db364056fc4f750e9529a6af6ff3a384dd8f3
 file:
 - statement:
     create_table_statement:
@@ -1007,7 +1007,7 @@ file:
     - keyword: TARGET_LAG
     - comparison_operator:
         raw_comparison_operator: '='
-    - quoted_literal: "'1 minute'"
+    - dynamic_table_lag_interval_segment: "'1 minute'"
     - keyword: WAREHOUSE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -1078,7 +1078,7 @@ file:
     - keyword: TARGET_LAG
     - comparison_operator:
         raw_comparison_operator: '='
-    - quoted_literal: "'1 minute'"
+    - dynamic_table_lag_interval_segment: "'1 minute'"
     - keyword: REFRESH_MODE
     - comparison_operator:
         raw_comparison_operator: '='
@@ -1184,6 +1184,312 @@ file:
     - keyword: CREATE
     - keyword: OR
     - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_DOWNSTREAM_QUOTED_LITERAL_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - dynamic_table_lag_interval_segment: "'DOWNSTREAM'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_SINGLE_SECOND_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - dynamic_table_lag_interval_segment: "'1 second'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_MULTIPLE_SECONDS_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - dynamic_table_lag_interval_segment: "'5 seconds'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_SINGLE_MINUTE_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - dynamic_table_lag_interval_segment: "'1 minute'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_MULTIPLE_MINUTES_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - dynamic_table_lag_interval_segment: "'5 minutes'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_SINGLE_HOUR_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - dynamic_table_lag_interval_segment: "'1 hour'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_MULTIPLE_HOURS_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - dynamic_table_lag_interval_segment: "'5 hours'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_SINGLE_DAY_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - dynamic_table_lag_interval_segment: "'1 day'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: DT_WITH_MULTIPLE_DAYS_LAG
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - dynamic_table_lag_interval_segment: "'5 days'"
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
     - keyword: TABLE
     - keyword: IF
     - keyword: NOT
@@ -1263,5 +1569,68 @@ file:
           naked_identifier: AMOUNT
           data_type:
             data_type_identifier: NUMBER
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TEMP
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+          - constraint_properties_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+            - keyword: ENABLE
+            - keyword: ENFORCED
+            - keyword: VALIDATE
+            - keyword: RELY
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: myschema
+      - dot: .
+      - naked_identifier: mytable
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        comma: ','
+        constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: mytable_pk
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+        - keyword: NOT
+        - keyword: ENFORCED
+        - keyword: NOVALIDATE
+        - keyword: NORELY
         end_bracket: )
 - statement_terminator: ;

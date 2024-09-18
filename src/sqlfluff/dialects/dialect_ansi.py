@@ -64,7 +64,25 @@ from sqlfluff.dialects.dialect_ansi_keywords import (
     ansi_unreserved_keywords,
 )
 
-ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
+ansi_dialect = Dialect(
+    "ansi",
+    root_segment_name="FileSegment",
+    formatted_name="ANSI",
+    docstring="""**Default Casing**: ``UPPERCASE``
+
+**Quotes**: String Literals: ``''``, Identifiers: ``""``
+
+This is the base dialect which holds most of the definitions of common
+SQL commands and structures. If the dialect which you're actually using
+isn't specifically implemented by SQLFluff, using this dialect is a good
+place to start.
+
+This dialect doesn't intend to be brutal in adhering to (and only to) the
+ANSI SQL spec *(mostly because ANSI charges for access to that spec)*. It aims
+to be a representation of vanilla SQL before any other project adds their
+spin to it, and so may contain a slightly wider set of functions than actually
+available in true ANSI SQL.""",
+)
 
 ansi_dialect.set_lexer_matchers(
     [
@@ -725,6 +743,7 @@ ansi_dialect.add(
     ColumnsExpressionNameGrammar=Nothing(),
     # Uses grammar for LT06 support
     ColumnsExpressionGrammar=Nothing(),
+    ListComprehensionGrammar=Nothing(),
 )
 
 
@@ -2268,6 +2287,7 @@ ansi_dialect.add(
                 ),
             ),
             Ref("LocalAliasSegment"),
+            Ref("ListComprehensionGrammar"),
             terminators=[Ref("CommaSegment")],
         ),
         Ref("AccessorGrammar", optional=True),
