@@ -189,14 +189,14 @@ databricks_dialect.add(
         IdentifierSegment,
         type="properties_naked_identifier",
     ),
-    LocationWithCredentialGrammar = Sequence(
+    LocationWithCredentialGrammar=Sequence(
         "LOCATION",
         Ref("QuotedLiteralSegment"),
         Sequence(
             "WITH",
             Bracketed(
-              "CREDENTIAL",
-              Ref("PrincipalIdentifierSegment"),
+                "CREDENTIAL",
+                Ref("PrincipalIdentifierSegment"),
             ),
             optional=True,
         ),
@@ -1181,9 +1181,8 @@ class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
 
 
 class CreateTableUsingStatementSegment(sparksql.CreateTableStatementSegment):
-    """
-    A `CREATE TABLE [USING]` statement.
-    
+    """A `CREATE TABLE [USING]` statement.
+
     https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-using.html
     """
 
@@ -1214,9 +1213,7 @@ class CreateTableUsingStatementSegment(sparksql.CreateTableStatementSegment):
             Ref("DataSourceSegment"),
             optional=True,
         ),
-        AnyNumberOf(
-            Ref("TableClausesSegment")
-        ),
+        AnyNumberOf(Ref("TableClausesSegment")),
         Sequence(
             "AS",
             OneOf(
@@ -1290,7 +1287,6 @@ class TableClausesSegment(BaseSegment):
             Ref("RowFilterClauseGrammar"),
         ),
     )
-
 
 
 class GeneratedColumnDefinitionSegment(sparksql.GeneratedColumnDefinitionSegment):
