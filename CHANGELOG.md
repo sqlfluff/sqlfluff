@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [3.2.0] - 2024-09-15
+## [3.2.0] - 2024-09-18
 
 ## Highlights
 
@@ -31,6 +31,13 @@ and for the dbt templater. For the main project:
   and SparkSQL have also been included. Please check the new documentation
   for this rule (which is much more explicit now), for details related to
   your dialect.
+
+* Patterns equivalent to those from `.sqlfluffignore` can now be included
+  in `.sqlfluff` and `pyproject.toml` files.
+
+* Using the `python` templater, users now have an option to include variables
+  which include a dot in the path, like `{{ foo.bar }}` using a special
+  `sqlfluff` context variable.
 
 * Significant changes under the hood to the handling of configuration files.
   Most of these should not be visible to end users, but for anyone integrating
@@ -61,11 +68,23 @@ For the dbt templater:
   stability should be more robust.
 
 In addition to those changes, there have been too many dialect contributions
-to mention specifically. We've also seen **six** people make their first
-contributions to the project as part of preparing for this release! 🎉🏆🎉.
+and bugfixes  to mention specifically. We've also seen **six** people make their
+first contributions to the project as part of preparing for this release! 🎉🏆🎉.
 
 ## What’s Changed
 
+* Handle multi-processing dbt exceptions much better. [#6138](https://github.com/sqlfluff/sqlfluff/pull/6138) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Support variables with dot in python templater [#5872](https://github.com/sqlfluff/sqlfluff/pull/5872) [@timchurch](https://github.com/timchurch)
+* Add postgres normalization operator support [#6211](https://github.com/sqlfluff/sqlfluff/pull/6211) [@fnimick](https://github.com/fnimick)
+* Fix patch will anchor on first buffer insertion point [#6212](https://github.com/sqlfluff/sqlfluff/pull/6212) [@keraion](https://github.com/keraion)
+* Allow ignore patterns in other config files. [#6130](https://github.com/sqlfluff/sqlfluff/pull/6130) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Strict typing in `config` and `helpers`. [#6206](https://github.com/sqlfluff/sqlfluff/pull/6206) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* TSQL: Support multiple options in `SET` statement [#6205](https://github.com/sqlfluff/sqlfluff/pull/6205) [@keraion](https://github.com/keraion)
+* DuckDB: Support `CREATE TYPE` statement [#6204](https://github.com/sqlfluff/sqlfluff/pull/6204) [@keraion](https://github.com/keraion)
+* Update Slack link [#6203](https://github.com/sqlfluff/sqlfluff/pull/6203) [@greg-finley](https://github.com/greg-finley)
+* Add quoted literal checking for Snowflake TARGET_LAG in dynamic tables. [#6201](https://github.com/sqlfluff/sqlfluff/pull/6201) [@mvastarelli](https://github.com/mvastarelli)
+* Databricks: Support `COMMENT ON` statement [#6196](https://github.com/sqlfluff/sqlfluff/pull/6196) [@keraion](https://github.com/keraion)
+* DuckDB: Support `STRUCT` datatype [#6198](https://github.com/sqlfluff/sqlfluff/pull/6198) [@keraion](https://github.com/keraion)
 * Deprecate the `ConfigLoader` [#6177](https://github.com/sqlfluff/sqlfluff/pull/6177) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * DuckDB: Support `CREATE MACRO`/`CREATE FUNCTION` [#6194](https://github.com/sqlfluff/sqlfluff/pull/6194) [@keraion](https://github.com/keraion)
 * DuckDB: Support functions with walrus operators [#6193](https://github.com/sqlfluff/sqlfluff/pull/6193) [@keraion](https://github.com/keraion)
