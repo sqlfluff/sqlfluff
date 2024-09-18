@@ -83,7 +83,7 @@ def make_dialect_path(dialect, fname):
 
 def load_file(dialect, fname):
     """Load a file."""
-    with open(make_dialect_path(dialect, fname)) as f:
+    with open(make_dialect_path(dialect, fname), encoding="utf8") as f:
         raw = f.read()
     return raw
 
@@ -138,7 +138,7 @@ def compute_parse_tree_hash(tree):
 def load_yaml(fpath):
     """Load a yaml structure and process it into a tuple."""
     # Load raw file
-    with open(fpath) as f:
+    with open(fpath, encoding="utf8") as f:
         raw = f.read()
     # Parse the yaml
     obj = yaml.safe_load(raw)

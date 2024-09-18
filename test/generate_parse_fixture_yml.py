@@ -115,7 +115,7 @@ def generate_one_parse_fixture(
     _hash = compute_parse_tree_hash(tree)
     # Remove the .sql file extension
     path = _create_file_path(example)
-    with open(path, "w", newline="\n") as f:
+    with open(path, "w", newline="\n", encoding="utf8") as f:
         r: Optional[Dict[str, Optional[str]]] = None
 
         if not tree:
