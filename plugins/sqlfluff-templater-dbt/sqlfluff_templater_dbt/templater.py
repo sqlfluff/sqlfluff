@@ -119,7 +119,7 @@ def handle_dbt_errors(
 
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         def wrapped_method(*args, **kwargs) -> T:
-            # NOTE: `_detail` also acts as a semaphore to indicate whether an exception
+            # NOTE: `_detail` also acts as a flag to indicate whether an exception
             # has been raised that we should react to.
             _detail = ""
             try:

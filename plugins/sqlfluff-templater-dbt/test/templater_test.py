@@ -4,6 +4,7 @@ import glob
 import json
 import logging
 import os
+import pickle
 import shutil
 import subprocess
 from copy import deepcopy
@@ -512,6 +513,13 @@ def test__templater_dbt_handle_exceptions(
     # Any residual dbt exceptions are a risk for pickling errors.
     assert not excinfo.value.__context__
     assert not excinfo.value.__cause__
+    # We also ensure that the exception can be pickled and unpickled safely.
+    # Pickling of exceptions happens during parallel operation and so if it can't
+    # be done safely then that will cause bugs.
+    pickled_exception = pickle.dumps(excinfo.value)
+    roundtrip_exception = pickle.loads(pickled_exception)
+    assert type(roundtrip_exception) is type(excinfo.value)
+    assert str(roundtrip_exception) == str(excinfo.value)
 
 
 @mock.patch("dbt.adapters.postgres.impl.PostgresAdapter.set_relations_cache")
