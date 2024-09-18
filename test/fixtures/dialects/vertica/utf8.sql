@@ -141,7 +141,3 @@ SELECT E'πρώτο μέρος μι'
 SELECT STRING_TO_ARRAY(name USING PARAMETERS collection_delimiter=' ') FROM employee;
 
 SELECT STRING_TO_ARRAY(имя USING PARAMETERS collection_delimiter=' ') FROM сотрудники;
-
-
-
-
