@@ -1058,8 +1058,7 @@ class JinjaTemplater(PythonTemplater):
         """
         for exclude_path in exclude_macros_path:
             macro_path_abs = os.path.abspath(macro_path)
-            exclude_path_abs = os.path.abspath(exclude_path)
-            if exclude_path_abs in macro_path_abs:
+            if exclude_path in macro_path_abs:
                 templater_logger.debug("Skipping this macro file: %s", macro_path)
                 return True
         return False
