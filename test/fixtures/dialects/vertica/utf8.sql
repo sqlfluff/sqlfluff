@@ -141,3 +141,87 @@ SELECT E'πρώτο μέρος μι'
 SELECT STRING_TO_ARRAY(name USING PARAMETERS collection_delimiter=' ') FROM employee;
 
 SELECT STRING_TO_ARRAY(имя USING PARAMETERS collection_delimiter=' ') FROM сотрудники;
+
+-- ALTER SCHEMA block
+ALTER SCHEMA ms OWNER TO dbadmin CASCADE;
+
+ALTER SCHEMA επιμελητεία OWNER TO διαχειριστής CASCADE;
+
+ALTER SCHEMA логистика OWNER TO алиса CASCADE;
+
+ALTER SCHEMA s1, s2 RENAME TO s3, s4;
+
+ALTER SCHEMA εμπορικός, s2 RENAME TO продажи, s4;
+
+-- ALTER TABLE block
+ALTER TABLE public.store_orders ADD COLUMN expected_ship_date date;
+
+ALTER TABLE public.κατάστημα_παραγγελίες ADD COLUMN αναμενόμενη_ημερομηνία_αποστολής date;
+
+ALTER TABLE public.заказы_магазина ADD COLUMN ожиддаемая_дата_отгрузки date;
+
+ALTER TABLE t33 OWNER TO Alice;
+
+--! ALTER TABLE επιμελητεία OWNER TO διαχειριστής;
+
+--! ALTER TABLE заказы OWNER TO алиса;
+
+-- ARRAY block
+SELECT (ARRAY['مسؤل', 'διαχειριστής', 'логистика', 'd', 'e'])[1];
+
+-- Cast w/ whitespace
+SELECT amount_of_honey :: FLOAT
+FROM bear_inventory;
+
+SELECT ποσότητα_μελιού :: FLOAT
+FROM αρκούδα_αποθήκη;
+
+SELECT количество_мёда :: FLOAT
+FROM медвежий_склад;
+
+-- COMMENT ON block
+COMMENT ON AGGREGATE FUNCTION APPROXIMATE_MEDIAN(x FLOAT) IS 'alias of APPROXIMATE_PERCENTILE with 0.5 as its parameter';
+COMMENT ON AGGREGATE FUNCTION APPROXIMATE_MEDIAN(x FLOAT) IS 'ψευδώνυμο APPROXIMATE_PERCENTILE με 0,5 ως παράμετρό του';
+COMMENT ON AGGREGATE FUNCTION APPROXIMATE_MEDIAN(x FLOAT) IS 'псевдоним APPROXIMATE_PERCENTILE с 0,5 в качестве параметра';
+
+COMMENT ON SCHEMA public  IS 'All users can access this schema';
+COMMENT ON SCHEMA public  IS 'Όλοι οι χρήστες έχουν πρόσβαση σε αυτό το σχήμα';
+COMMENT ON SCHEMA public  IS 'Все пользователи могут получить доступ к этой схеме';
+
+-- COPY block
+-- COPY INTO test_parquet
+-- FROM 'https://myaccount.blob.core.windows.net/myblobcontainer/folder1/*.parquet'
+-- WITH (
+--     FILE_FORMAT = myFileFormat,
+--     CREDENTIAL=(IDENTITY= 'Shared Access Signature', SECRET='<Your_SAS_Token>')
+-- );
+
+-- COPY INTO продажи.продажи_на_сегодня
+-- FROM 'https://myaccount.blob.core.windows.net/myblobcontainer/folder0/*.txt'
+-- WITH (
+--     FILE_TYPE = 'CSV',
+--     CREDENTIAL = (IDENTITY = 'Managed Identity'),
+--     FIELDQUOTE = '"',
+--     FIELDTERMINATOR=','
+-- );
+
+-- CREATE PROJECTION block
+CREATE PROJECTION public.employee_dimension_super
+    AS SELECT * FROM public.employee_dimension
+    ORDER BY employee_key
+    SEGMENTED BY hash(employee_key) ALL NODES;
+
+CREATE PROJECTION εμπορικός.παραγγελίες_ανά_ημέρα
+    AS SELECT * FROM εμπορικός.παραγγελίες
+    ORDER BY employee_key
+    SEGMENTED BY hash(employee_key) ALL NODES;
+
+CREATE PROJECTION продажи.продажи_на_по_клиенту
+    AS SELECT * FROM продажи.продажи_на_сегодня
+    ORDER BY клиент
+    SEGMENTED BY hash(клиент) ALL NODES;
+
+-- CREATE SCHEMA block
+-- CREATE SCHEMA IF NOT EXISTS foo COMMENT 'test schema' MANAGEDLOCATION 'hdfs://path';
+-- CREATE SCHEMA IF NOT EXISTS εμπορικός COMMENT 'test schema' MANAGEDLOCATION 'hdfs://path';
+-- CREATE SCHEMA IF NOT EXISTS продажи COMMENT 'test schema' MANAGEDLOCATION 'hdfs://path';
