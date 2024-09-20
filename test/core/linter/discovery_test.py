@@ -38,11 +38,12 @@ def test__linter__path_from_paths__default():
 def test__linter__path_from_paths__exts():
     """Test configuration of file discovery."""
     paths = normalise_paths(
-        paths_from_path("test/fixtures/linter", target_file_exts=[".txt"])
+        paths_from_path("test/fixtures/linter", target_file_exts=[".txt", ".txt.j2"])
     )
     assert "test.fixtures.linter.passing.sql" not in paths
     assert "test.fixtures.linter.passing_cap_extension.SQL" not in paths
     assert "test.fixtures.linter.discovery_file.txt" in paths
+    assert "test.fixtures.linter.discovery_file.txt.j2" in paths
 
 
 def test__linter__path_from_paths__file():
