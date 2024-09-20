@@ -27,3 +27,6 @@ comment on column sandbox_db.Org_Descendant.Entity_Code is 'Owning entity code';
 comment on column sandbox_db.Org_Descendant.Parent_Org_Unit_Code is 'Organisational unit code';
 comment on column sandbox_db.Org_Descendant.Parent_Org_Unit_Type is 'The type of organization such as branch, region, team, call center';
 comment on column sandbox_db.Org_Descendant.Parent_Entity_Code is 'Owning entity code parent';
+
+CREATE VOLATILE MULTISET TABLE date_control (calculation_date DATE FORMAT 'yyyy-mm-dd' ) PRIMARY INDEX (calculation_date);
+CREATE MULTISET VOLATILE TABLE date_control (calculation_date DATE FORMAT 'yyyy-mm-dd' ) PRIMARY INDEX (calculation_date);

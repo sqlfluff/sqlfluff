@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3badd344b1e26c3368e9102fa001ff4302206b72fb4594f4dda4a6611a08fd32
+_hash: 59b0eb5d79df53e409dd8d590d6fe535a03a428635a518c14c138f0261656625
 file:
 - statement:
     create_table_statement:
@@ -312,4 +312,56 @@ file:
       - naked_identifier: Parent_Entity_Code
     - keyword: is
     - quoted_literal: "'Owning entity code parent'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: VOLATILE
+    - keyword: MULTISET
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: date_control
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: calculation_date
+          data_type:
+            data_type_identifier: DATE
+            keyword: FORMAT
+            quoted_literal: "'yyyy-mm-dd'"
+        end_bracket: )
+    - td_table_constraint:
+      - keyword: PRIMARY
+      - keyword: INDEX
+      - bracketed:
+          start_bracket: (
+          naked_identifier: calculation_date
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: MULTISET
+    - keyword: VOLATILE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: date_control
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: calculation_date
+          data_type:
+            data_type_identifier: DATE
+            keyword: FORMAT
+            quoted_literal: "'yyyy-mm-dd'"
+        end_bracket: )
+    - td_table_constraint:
+      - keyword: PRIMARY
+      - keyword: INDEX
+      - bracketed:
+          start_bracket: (
+          naked_identifier: calculation_date
+          end_bracket: )
 - statement_terminator: ;
