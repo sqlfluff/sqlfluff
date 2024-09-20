@@ -155,6 +155,8 @@ class LintingResult:
                     continue
                 rule_codes.update(record["timings"].keys())
 
+        rule_codes -= set(timing_fields)
+
         with open(filename, "w", newline="") as f:
             writer = csv.DictWriter(
                 # Metadata first, then step timings and then _sorted_ rule codes.
