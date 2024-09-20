@@ -640,6 +640,7 @@ snowflake_dialect.replace(
             Ref("MatchRecognizeClauseSegment"),
             Ref("ChangesClauseSegment"),
             Ref("ConnectByClauseSegment"),
+            Ref("FromAtExpressionSegment"),
             Ref("FromBeforeExpressionSegment"),
             Ref("FromPivotExpressionSegment"),
             AnyNumberOf(Ref("FromUnpivotExpressionSegment")),
@@ -1483,12 +1484,20 @@ class WithinGroupClauseSegment(BaseSegment):
 
 
 class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
-    """A table expression."""
+    """A table expression.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/from
+    """
 
     type = "from_expression_element"
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
+        OneOf(
+            Ref("FromAtExpressionSegment"),
+            Ref("FromBeforeExpressionSegment"),
+            optional=True,
+        ),
         Ref(
             "AliasExpressionSegment",
             exclude=OneOf(
