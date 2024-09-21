@@ -9,6 +9,7 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
+    Anything,
     BaseSegment,
     Bracketed,
     CodeSegment,
@@ -2080,7 +2081,7 @@ class AlterTableTableColumnActionSegment(BaseSegment):
             "ADD",
             Ref.keyword("COLUMN", optional=True),
             # @TODO: Cannot specify IF NOT EXISTS if also specifying
-            # DEFAULT, AUTOINCREMENT, IDENTITY UNIQUE, PRIMARY KEY, FOREIGN KEY
+            # DEFAULT, AUTOINCREMENT, IDENTITY UNIQUE, PRIMARY KEY, FOREIGN KEY, AS
             Ref("IfNotExistsGrammar", optional=True),
             # Handle Multiple Columns
             Delimited(
@@ -2089,9 +2090,9 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                     Ref("ColumnReferenceSegment"),
                     Ref("DatatypeSegment"),
                     OneOf(
-                        # Default
+                        # Default & AS (virtual columns)
                         Sequence(
-                            "DEFAULT",
+                            OneOf("DEFAULT", "AS"),
                             Ref("ExpressionSegment"),
                         ),
                         # Auto-increment/identity column
@@ -4413,6 +4414,17 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 Ref("ConstraintPropertiesSegment"),
                                 Ref("ColumnDefinitionSegment"),
                                 Ref("SingleIdentifierGrammar"),
+                                Sequence(
+                                    Ref("SingleIdentifierGrammar"),
+                                    Ref("DatatypeSegment"),
+                                    Bracketed(
+                                        Anything(), optional=True
+                                    ),  # For types like VARCHAR(100)
+                                    "AS",
+                                    OptionallyBracketed(
+                                        Ref("ExpressionSegment"),
+                                    ),
+                                ),
                             ),
                             Ref("CommentClauseSegment", optional=True),
                         ),
