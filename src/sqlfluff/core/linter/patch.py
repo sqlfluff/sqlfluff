@@ -215,7 +215,7 @@ def _iter_templated_patches(
             )
 
 
-def _log_hints(patch: FixPatch, templated_file: TemplatedFile):
+def _log_hints(patch: FixPatch, templated_file: TemplatedFile) -> None:
     """Log hints for debugging during patch generation."""
     max_log_length = 10
     if patch.templated_slice.start >= max_log_length:

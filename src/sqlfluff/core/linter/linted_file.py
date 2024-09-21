@@ -44,7 +44,7 @@ class FileTimings:
     # process this as we wish later.
     rule_timings: List[Tuple[str, str, float]]
 
-    def __repr__(self):  # pragma: no cover
+    def __repr__(self) -> str:  # pragma: no cover
         return "<FileTimings>"
 
     def get_rule_timing_dict(self) -> Dict[str, float]:
@@ -398,7 +398,7 @@ class LintedFile(NamedTuple):
     @staticmethod
     def _safe_create_replace_file(
         input_path: str, output_path: str, write_buff: str, encoding: str
-    ):
+    ) -> None:
         # Write to a temporary file first, so in case of encoding or other
         # issues, we don't delete or corrupt the user's existing file.
 

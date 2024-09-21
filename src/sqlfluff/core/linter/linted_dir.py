@@ -4,9 +4,9 @@ This stores the idea of a collection of linted files at a single start path
 
 """
 
-from typing import Any, Dict, List, Literal, Optional, Tuple, TypedDict, Union, overload
+from typing import Any, Dict, List, Optional, Tuple, TypedDict, Union
 
-from sqlfluff.core.errors import CheckTuple, SQLLintError
+from sqlfluff.core.errors import CheckTuple, SQLBaseError, SQLLintError
 from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES, LintedFile
 from sqlfluff.core.parser.segments.base import BaseSegment
 
@@ -132,50 +132,45 @@ class LintedDir:
         if self.retain_files:
             self.files.append(file)
 
-    @overload
-    def check_tuples(self, by_path: Literal[False]) -> List[CheckTuple]:
-        """Return a List of CheckTuples when by_path is False."""
-
-    @overload
-    def check_tuples(self, by_path: Literal[True]) -> Dict[str, List[CheckTuple]]:
-        """Return a Dict of paths and CheckTuples when by_path is True."""
-
-    @overload
-    def check_tuples(self, by_path: bool = False):
-        """Default overload method."""
-
-    def check_tuples(
-        self, by_path=False, raise_on_non_linting_violations=True
-    ) -> Union[List[CheckTuple], Dict[str, List[CheckTuple]]]:
+    def check_tuples(self, raise_on_non_linting_violations=True) -> List[CheckTuple]:
         """Compress all the tuples into one list.
 
         NB: This is a little crude, as you can't tell which
         file the violations are from. Good for testing though.
-        For more control set the `by_path` argument to true.
+        For more control use `check_tuples_by_path`.
         """
-        assert self.retain_files, "cannot `check_tuples()` without `retain_files`"
-        if by_path:
-            return {
-                file.path: file.check_tuples(
-                    raise_on_non_linting_violations=raise_on_non_linting_violations
-                )
-                for file in self.files
-            }
-        else:
-            tuple_buffer: List[CheckTuple] = []
-            for file in self.files:
-                tuple_buffer += file.check_tuples(
-                    raise_on_non_linting_violations=raise_on_non_linting_violations
-                )
-            return tuple_buffer
+        tuple_buffer: List[CheckTuple] = []
+        for file in self.files:
+            tuple_buffer += file.check_tuples(
+                raise_on_non_linting_violations=raise_on_non_linting_violations
+            )
+        return tuple_buffer
+
+    def check_tuples_by_path(
+        self, raise_on_non_linting_violations: bool = True
+    ) -> Dict[str, List[CheckTuple]]:
+        """Fetch all check_tuples from all contained `LintedDir` objects.
+
+        Returns:
+            A dict, with lists of tuples grouped by path.
+        """
+        assert (
+            self.retain_files
+        ), "cannot `check_tuples_by_path()` without `retain_files`"
+        return {
+            file.path: file.check_tuples(
+                raise_on_non_linting_violations=raise_on_non_linting_violations
+            )
+            for file in self.files
+        }
 
     def num_violations(self, **kwargs) -> int:
         """Count the number of violations in the path."""
         return sum(file.num_violations(**kwargs) for file in self.files)
 
-    def get_violations(self, **kwargs) -> list:
+    def get_violations(self, **kwargs) -> List[SQLBaseError]:
         """Return a list of violations in the path."""
-        buff: list = []
+        buff: List[SQLBaseError] = []
         for file in self.files:
             buff += file.get_violations(**kwargs)
         return buff
