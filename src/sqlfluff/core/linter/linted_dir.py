@@ -6,7 +6,12 @@ This stores the idea of a collection of linted files at a single start path
 
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Type, TypedDict, Union
 
-from sqlfluff.core.errors import CheckTuple, SQLBaseError, SQLLintError
+from sqlfluff.core.errors import (
+    CheckTuple,
+    SerializedObject,
+    SQLBaseError,
+    SQLLintError,
+)
 from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES, LintedFile
 from sqlfluff.core.parser.segments.base import BaseSegment
 
@@ -14,7 +19,7 @@ LintingRecord = TypedDict(
     "LintingRecord",
     {
         "filepath": str,
-        "violations": List[dict],
+        "violations": List[SerializedObject],
         # Things like file length
         "statistics": Dict[str, int],
         # Raw timings, in seconds, for both rules and steps
@@ -132,19 +137,22 @@ class LintedDir:
         if self.retain_files:
             self.files.append(file)
 
-    def check_tuples(self, raise_on_non_linting_violations=True) -> List[CheckTuple]:
+    def check_tuples(
+        self, raise_on_non_linting_violations: bool = True
+    ) -> List[CheckTuple]:
         """Compress all the tuples into one list.
 
         NB: This is a little crude, as you can't tell which
         file the violations are from. Good for testing though.
         For more control use `check_tuples_by_path`.
         """
-        tuple_buffer: List[CheckTuple] = []
-        for file in self.files:
-            tuple_buffer += file.check_tuples(
+        return [
+            check_tuple
+            for file in self.files
+            for check_tuple in file.check_tuples(
                 raise_on_non_linting_violations=raise_on_non_linting_violations
             )
-        return tuple_buffer
+        ]
 
     def check_tuples_by_path(
         self, raise_on_non_linting_violations: bool = True
@@ -178,10 +186,7 @@ class LintedDir:
         self, rules: Optional[Union[str, Tuple[str, ...]]] = None
     ) -> List[SQLBaseError]:
         """Return a list of violations in the path."""
-        buff: List[SQLBaseError] = []
-        for file in self.files:
-            buff += file.get_violations(rules=rules)
-        return buff
+        return [v for file in self.files for v in file.get_violations(rules=rules)]
 
     def as_records(self) -> List[LintingRecord]:
         """Return the result as a list of dictionaries.

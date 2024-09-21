@@ -25,9 +25,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.segments.base import BaseSegment
 
 
-def sum_dicts(
-    d1: Mapping[str, Union[int, float]], d2: Mapping[str, Union[int, float]]
-) -> Dict[str, Union[int, float]]:
+def sum_dicts(d1: Mapping[str, int], d2: Mapping[str, int]) -> Dict[str, int]:
     """Take the keys of two dictionaries and add their values."""
     keys = set(d1.keys()) | set(d2.keys())
     return {key: d1.get(key, 0) + d2.get(key, 0) for key in keys}
@@ -70,10 +68,7 @@ class LintingResult:
         Returns:
             A list of check tuples.
         """
-        tuple_buffer: List[CheckTuple] = []
-        for path in self.paths:
-            tuple_buffer += path.check_tuples()
-        return tuple_buffer
+        return [t for path in self.paths for t in path.check_tuples()]
 
     def check_tuples_by_path(self) -> Dict[str, List[CheckTuple]]:
         """Fetch all check_tuples from all contained `LintedDir` objects.
@@ -98,34 +93,33 @@ class LintingResult:
 
     def get_violations(
         self, rules: Optional[Union[str, Tuple[str, ...]]] = None
-    ) -> list:
+    ) -> List[SQLBaseError]:
         """Return a list of violations in the result."""
-        buff = []
-        for path in self.paths:
-            buff += path.get_violations(rules=rules)
-        return buff
+        return [v for path in self.paths for v in path.get_violations(rules=rules)]
 
-    def stats(self, fail_code: int, success_code: int) -> Dict[str, Any]:
+    def stats(
+        self, fail_code: int, success_code: int
+    ) -> Dict[str, Union[int, float, str]]:
         """Return a stats dictionary of this result."""
-        all_stats: Dict[str, Union[int, float]] = dict(
-            files=0, clean=0, unclean=0, violations=0
-        )
+        # Add up all the counts for each file.
+        # NOTE: Having a more strictly typed dict for the counts also helps with
+        # typing later in this method.
+        counts: Dict[str, int] = dict(files=0, clean=0, unclean=0, violations=0)
         for path in self.paths:
-            all_stats = sum_dicts(path.stats(), all_stats)
-        if all_stats["files"] > 0:
-            all_stats["avg per file"] = (
-                all_stats["violations"] * 1.0 / all_stats["files"]
-            )
-            all_stats["unclean rate"] = all_stats["unclean"] * 1.0 / all_stats["files"]
+            counts = sum_dicts(path.stats(), counts)
+        # Set up the overall dictionary.
+        all_stats: Dict[str, Union[int, float, str]] = {}
+        all_stats.update(counts)
+        if counts["files"] > 0:
+            all_stats["avg per file"] = counts["violations"] * 1.0 / counts["files"]
+            all_stats["unclean rate"] = counts["unclean"] * 1.0 / counts["files"]
         else:
             all_stats["avg per file"] = 0
             all_stats["unclean rate"] = 0
         all_stats["clean files"] = all_stats["clean"]
         all_stats["unclean files"] = all_stats["unclean"]
-        all_stats["exit code"] = (
-            fail_code if all_stats["violations"] > 0 else success_code
-        )
-        all_stats["status"] = "FAIL" if all_stats["violations"] > 0 else "PASS"
+        all_stats["exit code"] = fail_code if counts["violations"] > 0 else success_code
+        all_stats["status"] = "FAIL" if counts["violations"] > 0 else "PASS"
         return all_stats
 
     def timing_summary(self) -> Dict[str, Dict[str, Any]]:
