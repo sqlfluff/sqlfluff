@@ -166,12 +166,23 @@ class LintedFile(NamedTuple):
             violations += self.ignore_mask.generate_warnings_for_unused()
         return violations
 
-    def num_violations(self, **kwargs) -> int:
+    def num_violations(
+        self,
+        types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
+        filter_ignore: bool = True,
+        filter_warning: bool = True,
+        fixable: Optional[bool] = None,
+    ) -> int:
         """Count the number of violations.
 
         Optionally now with filters.
         """
-        violations = self.get_violations(**kwargs)
+        violations = self.get_violations(
+            types=types,
+            filter_ignore=filter_ignore,
+            filter_warning=filter_warning,
+            fixable=fixable,
+        )
         return len(violations)
 
     def is_clean(self) -> bool:

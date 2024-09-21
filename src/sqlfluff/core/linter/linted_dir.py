@@ -4,7 +4,7 @@ This stores the idea of a collection of linted files at a single start path
 
 """
 
-from typing import Any, Dict, List, Optional, Tuple, TypedDict, Union
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Type, TypedDict, Union
 
 from sqlfluff.core.errors import CheckTuple, SQLBaseError, SQLLintError
 from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES, LintedFile
@@ -164,9 +164,15 @@ class LintedDir:
             for file in self.files
         }
 
-    def num_violations(self, **kwargs) -> int:
+    def num_violations(
+        self,
+        types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
+        fixable: Optional[bool] = None,
+    ) -> int:
         """Count the number of violations in the path."""
-        return sum(file.num_violations(**kwargs) for file in self.files)
+        return sum(
+            file.num_violations(types=types, fixable=fixable) for file in self.files
+        )
 
     def get_violations(self, **kwargs) -> List[SQLBaseError]:
         """Return a list of violations in the path."""

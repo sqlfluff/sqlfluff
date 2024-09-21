@@ -6,16 +6,18 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
+    Iterable,
     List,
     Mapping,
     Optional,
     Set,
     Tuple,
+    Type,
     TypeVar,
     Union,
 )
 
-from sqlfluff.core.errors import CheckTuple
+from sqlfluff.core.errors import CheckTuple, SQLBaseError
 from sqlfluff.core.linter.linted_dir import LintedDir, LintingRecord
 from sqlfluff.core.timing import RuleTimingSummary, TimingSummary
 
@@ -84,9 +86,15 @@ class LintingResult:
             buff.update(path.check_tuples_by_path())
         return buff
 
-    def num_violations(self, **kwargs) -> int:
+    def num_violations(
+        self,
+        types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
+        fixable: Optional[bool] = None,
+    ) -> int:
         """Count the number of violations in the result."""
-        return sum(path.num_violations(**kwargs) for path in self.paths)
+        return sum(
+            path.num_violations(types=types, fixable=fixable) for path in self.paths
+        )
 
     def get_violations(self, **kwargs) -> list:
         """Return a list of violations in the result."""
