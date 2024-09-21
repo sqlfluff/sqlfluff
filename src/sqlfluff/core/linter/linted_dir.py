@@ -174,11 +174,13 @@ class LintedDir:
             file.num_violations(types=types, fixable=fixable) for file in self.files
         )
 
-    def get_violations(self, **kwargs) -> List[SQLBaseError]:
+    def get_violations(
+        self, rules: Optional[Union[str, Tuple[str, ...]]] = None
+    ) -> List[SQLBaseError]:
         """Return a list of violations in the path."""
         buff: List[SQLBaseError] = []
         for file in self.files:
-            buff += file.get_violations(**kwargs)
+            buff += file.get_violations(rules=rules)
         return buff
 
     def as_records(self) -> List[LintingRecord]:

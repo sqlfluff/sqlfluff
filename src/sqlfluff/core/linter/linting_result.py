@@ -96,11 +96,13 @@ class LintingResult:
             path.num_violations(types=types, fixable=fixable) for path in self.paths
         )
 
-    def get_violations(self, **kwargs) -> list:
+    def get_violations(
+        self, rules: Optional[Union[str, Tuple[str, ...]]] = None
+    ) -> list:
         """Return a list of violations in the result."""
         buff = []
         for path in self.paths:
-            buff += path.get_violations(**kwargs)
+            buff += path.get_violations(rules=rules)
         return buff
 
     def stats(self, fail_code: int, success_code: int) -> Dict[str, Any]:
