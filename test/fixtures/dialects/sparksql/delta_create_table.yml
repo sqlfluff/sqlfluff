@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 13001f4b9ffcbe0a7de4902e82ee44a10c10b5f9bf4f12df1d061dba1f3c6ac3
+_hash: 6f04097a191ea080019e0d99314117c7b60694a88ce9fcfb9f9182d10bc27a34
 file:
 - statement:
     create_table_statement:
@@ -19,49 +19,57 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: id
+          column_reference:
+            naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          naked_identifier: first_name
+          column_reference:
+            naked_identifier: first_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: middle_name
+          column_reference:
+            naked_identifier: middle_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: last_name
+          column_reference:
+            naked_identifier: last_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: gender
+          column_reference:
+            naked_identifier: gender
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: birth_date
+          column_reference:
+            naked_identifier: birth_date
           data_type:
             primitive_type:
               keyword: TIMESTAMP
       - comma: ','
       - column_definition:
-          naked_identifier: ssn
+          column_reference:
+            naked_identifier: ssn
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: salary
+          column_reference:
+            naked_identifier: salary
           data_type:
             primitive_type:
               keyword: INT
@@ -84,49 +92,57 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: id
+          column_reference:
+            naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          naked_identifier: first_name
+          column_reference:
+            naked_identifier: first_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: middle_name
+          column_reference:
+            naked_identifier: middle_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: last_name
+          column_reference:
+            naked_identifier: last_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: gender
+          column_reference:
+            naked_identifier: gender
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: birth_date
+          column_reference:
+            naked_identifier: birth_date
           data_type:
             primitive_type:
               keyword: TIMESTAMP
       - comma: ','
       - column_definition:
-          naked_identifier: ssn
+          column_reference:
+            naked_identifier: ssn
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: salary
+          column_reference:
+            naked_identifier: salary
           data_type:
             primitive_type:
               keyword: INT
@@ -149,49 +165,57 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: id
+          column_reference:
+            naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          naked_identifier: first_name
+          column_reference:
+            naked_identifier: first_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: middle_name
+          column_reference:
+            naked_identifier: middle_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: last_name
+          column_reference:
+            naked_identifier: last_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: gender
+          column_reference:
+            naked_identifier: gender
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: birth_date
+          column_reference:
+            naked_identifier: birth_date
           data_type:
             primitive_type:
               keyword: TIMESTAMP
       - comma: ','
       - column_definition:
-          naked_identifier: ssn
+          column_reference:
+            naked_identifier: ssn
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: salary
+          column_reference:
+            naked_identifier: salary
           data_type:
             primitive_type:
               keyword: INT
@@ -212,49 +236,57 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: id
+          column_reference:
+            naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          naked_identifier: first_name
+          column_reference:
+            naked_identifier: first_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: middle_name
+          column_reference:
+            naked_identifier: middle_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: last_name
+          column_reference:
+            naked_identifier: last_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: gender
+          column_reference:
+            naked_identifier: gender
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: birth_date
+          column_reference:
+            naked_identifier: birth_date
           data_type:
             primitive_type:
               keyword: TIMESTAMP
       - comma: ','
       - column_definition:
-          naked_identifier: ssn
+          column_reference:
+            naked_identifier: ssn
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: salary
+          column_reference:
+            naked_identifier: salary
           data_type:
             primitive_type:
               keyword: INT
@@ -297,37 +329,43 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: id
+          column_reference:
+            naked_identifier: id
           data_type:
             primitive_type:
               keyword: INT
       - comma: ','
       - column_definition:
-          naked_identifier: first_name
+          column_reference:
+            naked_identifier: first_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: middle_name
+          column_reference:
+            naked_identifier: middle_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: last_name
+          column_reference:
+            naked_identifier: last_name
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: gender
+          column_reference:
+            naked_identifier: gender
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: birth_date
+          column_reference:
+            naked_identifier: birth_date
           data_type:
             primitive_type:
               keyword: TIMESTAMP
@@ -359,13 +397,15 @@ file:
             end_bracket: )
       - comma: ','
       - column_definition:
-          naked_identifier: ssn
+          column_reference:
+            naked_identifier: ssn
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          naked_identifier: salary
+          column_reference:
+            naked_identifier: salary
           data_type:
             primitive_type:
               keyword: INT
