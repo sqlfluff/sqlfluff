@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 46c10f7370c6d9b7f5b7ab3dd08db364056fc4f750e9529a6af6ff3a384dd8f3
+_hash: 74de85b93e5227b9ab1271d01a558b6ca2e844a1d05659c33297c0d5e51b08a9
 file:
 - statement:
     create_table_statement:
@@ -1633,4 +1633,128 @@ file:
         - keyword: NOVALIDATE
         - keyword: NORELY
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_schema
+      - dot: .
+      - naked_identifier: some_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: is_condition_true
+          data_type:
+            data_type_identifier: BOOLEAN
+      - comma: ','
+      - column_definition:
+          naked_identifier: some_text_value
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '100'
+                end_bracket: )
+      - comma: ','
+      - naked_identifier: some_event_date_time_utc
+      - data_type:
+          data_type_identifier: VARCHAR
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: TO_TIMESTAMP
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: SUBSTR
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                              naked_identifier: some_text_value
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '5'
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '13'
+                        - end_bracket: )
+                  end_bracket: )
+          end_bracket: )
+      - comma: ','
+      - naked_identifier: some_other_event_date_time_utc
+      - data_type:
+          keyword: TIMESTAMP
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: IFF
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                      naked_identifier: is_condition_true
+                  - binary_operator: AND
+                  - function:
+                      function_name:
+                        function_name_identifier: TRY_TO_NUMBER
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: some_text_value
+                          end_bracket: )
+                  - keyword: IS
+                  - keyword: NOT
+                  - null_literal: 'NULL'
+                - comma: ','
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: TO_TIMESTAMP
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            function:
+                              function_name:
+                                function_name_identifier: SUBSTR
+                              function_contents:
+                                bracketed:
+                                - start_bracket: (
+                                - expression:
+                                    column_reference:
+                                      naked_identifier: some_text_value
+                                - comma: ','
+                                - expression:
+                                    numeric_literal: '5'
+                                - comma: ','
+                                - expression:
+                                    numeric_literal: '13'
+                                - end_bracket: )
+                          end_bracket: )
+                - comma: ','
+                - expression:
+                    quoted_literal: "'1900-01-01'"
+                - end_bracket: )
+          end_bracket: )
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'The date and time of the other event'"
+      - end_bracket: )
 - statement_terminator: ;
