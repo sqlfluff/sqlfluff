@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 05ff3402b26b4e996a656e1f3509ca5faf788cd55285c4cf978fae2a7e58fe19
+_hash: 94a5fbf4619e3ecb9e25fab9d9caed53b87ba63398bf253b89c9ac116afe4762
 file:
 - statement:
     select_statement:
@@ -1813,6 +1813,128 @@ file:
                 identifier_list:
                   naked_identifier: v
                 end_bracket: )
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: with
+      common_table_expression:
+        naked_identifier: v
+        keyword: as
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                column_reference:
+                  naked_identifier: RANGE_VALUE
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    values_range_clause:
+                    - keyword: VALUES
+                    - keyword: between
+                    - numeric_literal: '0'
+                    - keyword: and
+                    - function:
+                        function_name:
+                          function_name_identifier: days_between
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              bare_function: current_date
+                              binary_operator: '-'
+                              numeric_literal: '6'
+                          - comma: ','
+                          - expression:
+                              bare_function: current_date
+                              binary_operator: '-'
+                              numeric_literal: '1'
+                          - end_bracket: )
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: v
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: with
+      common_table_expression:
+        naked_identifier: v
+        keyword: as
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                column_reference:
+                  naked_identifier: RANGE_VALUE
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    values_range_clause:
+                    - keyword: VALUES
+                    - keyword: between
+                    - function:
+                        function_name:
+                          function_name_identifier: abs
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              numeric_literal:
+                                sign_indicator: '-'
+                                numeric_literal: '5'
+                            end_bracket: )
+                    - keyword: and
+                    - function:
+                        function_name:
+                          function_name_identifier: days_between
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              bare_function: current_date
+                              binary_operator: '-'
+                              numeric_literal: '6'
+                          - comma: ','
+                          - expression:
+                              bare_function: current_date
+                              binary_operator: '-'
+                              numeric_literal: '1'
+                          - end_bracket: )
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: v
 - statement_terminator: ;
 - statement:
     select_statement:
