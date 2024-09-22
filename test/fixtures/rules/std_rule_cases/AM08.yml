@@ -1,0 +1,45 @@
+rule: AM08
+
+test_fail_missing_clause:
+  fail_str: "SELECT foo.a, bar.b FROM foo INNER JOIN bar;\n"
+  fix_str: "SELECT foo.a, bar.b FROM foo INNER JOIN bar ON 1=1;\n"
+
+test_fail_missing_clause_lowercase_default:
+  fail_str: "SELECT foo.a, bar.b FROM foo left join bar;\n"
+  fix_str: "SELECT foo.a, bar.b FROM foo left join bar on 1=1;\n"
+
+test_fail_missing_multiple_joins:
+  fail_str: "SELECT foo.a, bar.b FROM foo left join bar on 1=2 left join baz;\n"
+  fix_str: "SELECT foo.a, bar.b FROM foo left join bar on 1=2 left join baz on 1=1;\n"
+
+test_fail_missing_multiple_joins_mixed_types:
+  fail_str: "SELECT foo.a, bar.b FROM foo left join bar on foo.x = bar.y left join baz;\n"
+  fix_str: "SELECT foo.a, bar.b FROM foo left join bar on foo.x = bar.y left join baz on 1=1;\n"
+
+test_fail_missing_multiple_joins_not_last:
+  fail_str: "SELECT foo.a, bar.b FROM foo left join bar left join baz on foo.x = bar.y;\n"
+  fix_str: "SELECT foo.a, bar.b FROM foo left join bar on 1=1 left join baz on foo.x = bar.y;\n"
+
+test_pass_inner_join_default:
+  pass_str: "SELECT foo.a, bar.b FROM foo INNER JOIN bar ON 1=1;\n"
+
+test_pass_left_join_default:
+  pass_str: "SELECT foo.a, bar.b FROM foo LEFT JOIN bar ON 1=1;\n"
+
+test_pass_right_join_default:
+  pass_str: "SELECT foo.a, bar.b FROM foo RIGHT JOIN bar ON 1=1;\n"
+
+test_pass_full_join_default:
+  pass_str: "SELECT foo.a, bar.b FROM foo FULL JOIN bar ON 1=1;\n"
+
+test_pass_left_outer_join_default:
+  pass_str: "SELECT foo.a, bar.b FROM foo LEFT OUTER JOIN bar ON 1=1;\n"
+
+test_pass_right_outer_join_default:
+  pass_str: "SELECT foo.a, bar.b FROM foo RIGHT OUTER JOIN bar ON 1=1;\n"
+
+test_pass_full_outer_join_default:
+  pass_str: "SELECT foo.a, bar.b FROM foo FULL OUTER JOIN bar ON 1=1;\n"
+
+test_pass_cross_join_default:
+  pass_str: "SELECT foo.a, bar.b FROM foo CROSS JOIN bar;\n"
