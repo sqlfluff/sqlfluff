@@ -1728,7 +1728,10 @@ class FromBeforeExpressionSegment(BaseSegment):
 
 
 class FromPivotExpressionSegment(BaseSegment):
-    """A PIVOT expression."""
+    """A PIVOT expression.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/pivot.html
+    """
 
     type = "from_pivot_expression"
     match_grammar = Sequence(
@@ -1738,7 +1741,16 @@ class FromPivotExpressionSegment(BaseSegment):
             "FOR",
             Ref("SingleIdentifierGrammar"),
             "IN",
-            Bracketed(Delimited(Ref("LiteralGrammar"))),
+            Bracketed(
+                OneOf(
+                    Delimited(Ref("LiteralGrammar")),
+                    Sequence("ANY", Ref("OrderByClauseSegment", optional=True)),
+                    Ref("SelectStatementSegment"),
+                )
+            ),
+            Sequence(
+                "DEFAULT", "ON", "NULL", Bracketed(Ref("LiteralGrammar")), optional=True
+            ),
         ),
     )
 
