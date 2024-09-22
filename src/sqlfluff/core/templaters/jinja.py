@@ -491,7 +491,9 @@ class JinjaTemplater(PythonTemplater):
             )
         return False
 
-    def get_context(self, fname=None, config=None, **kw) -> Dict:
+    def get_context(
+        self, fname: Optional[str] = None, config: Optional[FluffConfig] = None, **kw
+    ) -> Dict:
         """Get the templating context from the config.
 
         Args:
@@ -742,7 +744,11 @@ class JinjaTemplater(PythonTemplater):
             )
 
     def slice_file(
-        self, raw_str: str, render_func: Callable[[str], str], config=None, **kwargs
+        self,
+        raw_str: str,
+        render_func: Callable[[str], str],
+        config: Optional[FluffConfig] = None,
+        append_to_templated: str = "",
     ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix.
 
@@ -750,7 +756,7 @@ class JinjaTemplater(PythonTemplater):
             raw_str (str): The raw string to be sliced.
             render_func (Callable[[str], str]): The rendering function to be used.
             config (optional): Optional configuration.
-            **kwargs: Additional keyword arguments.
+            append_to_templated: Optional string to append to the template.
 
         Returns:
             Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
@@ -764,7 +770,7 @@ class JinjaTemplater(PythonTemplater):
         templater_logger.debug("    Raw String: %r", raw_str[:80])
         analyzer = self._get_jinja_analyzer(raw_str, self._get_jinja_env())
         tracer = analyzer.analyze(render_func)
-        trace = tracer.trace(append_to_templated=kwargs.pop("append_to_templated", ""))
+        trace = tracer.trace(append_to_templated=append_to_templated)
         return trace.raw_sliced, trace.sliced_file, trace.templated_str
 
     @staticmethod

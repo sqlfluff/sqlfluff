@@ -171,13 +171,14 @@ class PythonTemplater(RawTemplater):
     """
 
     name = "python"
+    config_subsection = ("context",)
 
-    def __init__(self, override_context=None, **kwargs) -> None:
+    def __init__(self, override_context: Optional[Dict[str, Any]] = None) -> None:
         self.default_context = dict(test_value="__test__")
         self.override_context = override_context or {}
 
     @staticmethod
-    def infer_type(s) -> Any:
+    def infer_type(s: Any) -> Any:
         """Infer a python type from a string and convert.
 
         Given a string value, convert it to a more specific built-in Python type
@@ -189,7 +190,9 @@ class PythonTemplater(RawTemplater):
         except (SyntaxError, ValueError):
             return s
 
-    def get_context(self, fname=None, config=None, **kw) -> Dict:
+    def get_context(
+        self, fname: Optional[str] = None, config: Optional[FluffConfig] = None
+    ) -> Dict[str, Any]:
         """Get the templating context from the config.
 
         This function retrieves the templating context from the config by
@@ -201,28 +204,13 @@ class PythonTemplater(RawTemplater):
         Args:
             fname (str, optional): The file name.
             config (dict, optional): The config dictionary.
-            **kw: Additional keyword arguments.
 
         Returns:
             dict: The templating context.
         """
-        # TODO: The config loading should be done outside the templater code. Here
-        # is a silly place.
-        if config:
-            # This is now a nested section
-            loaded_context = (
-                config.get_section((self.templater_selector, self.name, "context"))
-                or {}
-            )
-        else:
-            loaded_context = {}
-        live_context = {}
-        live_context.update(self.default_context)
-        live_context.update(loaded_context)
-        live_context.update(self.override_context)
-
+        live_context = super().get_context(fname=fname, config=config)
         # Infer types
-        for k in loaded_context:
+        for k in live_context:
             live_context[k] = self.infer_type(live_context[k])
         return live_context
 
@@ -321,7 +309,11 @@ class PythonTemplater(RawTemplater):
         )
 
     def slice_file(
-        self, raw_str: str, render_func: Callable[[str], str], config=None, **kwargs
+        self,
+        raw_str: str,
+        render_func: Callable[[str], str],
+        config: Optional[FluffConfig] = None,
+        append_to_templated: str = "",
     ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix."""
         templater_logger.info("Slicing File Template")

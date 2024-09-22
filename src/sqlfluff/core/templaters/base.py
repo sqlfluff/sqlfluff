@@ -515,16 +515,20 @@ class RawTemplater:
 
     name = "raw"
     templater_selector = "templater"
+    config_subsection: Tuple[str, ...] = ()
 
-    def __init__(self, **kwargs: Dict[str, Any]) -> None:
+    def __init__(
+        self,
+        override_context: Optional[Dict[str, Any]] = None,
+    ) -> None:
         """Placeholder init function.
 
-        Here we should load any initial config found in the root directory. The init
-        function shouldn't take any arguments at this stage as we assume that it will
-        load its own config. Maybe at this stage we might allow override parameters to
-        be passed to the linter at runtime from the cli - that would be the only time we
-        would pass arguments in here.
+        We allow override context here even though the raw templater doesn't apply
+        any templating variables. That's to enable classes which inherit from this
+        class to reuse that logic.
         """
+        self.default_context = dict(test_value="__test__")
+        self.override_context = override_context or {}
 
     def sequence_files(
         self,
@@ -607,3 +611,39 @@ class RawTemplater:
                 the string 'templater' and the name of the templater.
         """
         return [("templater", self.name)]
+
+    def get_context(
+        self, fname: Optional[str] = None, config: Optional[FluffConfig] = None
+    ) -> Dict[str, Any]:
+        """Get the templating context from the config.
+
+        This function retrieves the templating context from the config by
+        loading the config and updating the live_context dictionary with the
+        loaded_context and other predefined context dictionaries. It then goes
+        through the loaded_context dictionary returns the live_context dictionary.
+
+        Args:
+            fname (str, optional): The file name.
+            config (dict, optional): The config dictionary.
+
+        Returns:
+            dict: The templating context.
+        """
+        # TODO: The config loading should be done outside the templater code. Here
+        # is a silly place.
+        if config:
+            # This is now a nested section
+            loaded_context = (
+                config.get_section(
+                    (self.templater_selector, self.name) + self.config_subsection
+                )
+                or {}
+            )
+        else:
+            loaded_context = {}
+        live_context = {}
+        live_context.update(self.default_context)
+        live_context.update(loaded_context)
+        live_context.update(self.override_context)
+
+        return live_context

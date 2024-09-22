@@ -1,7 +1,7 @@
 """Defines the placeholder template."""
 
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import regex
 
@@ -73,26 +73,17 @@ class PlaceholderTemplater(RawTemplater):
 
     name = "placeholder"
 
-    def __init__(self, override_context=None, **kwargs):
+    def __init__(self, override_context: Optional[Dict[str, Any]] = None):
         self.default_context = dict(test_value="__test__")
         self.override_context = override_context or {}
 
     # copy of the Python templater
-    def get_context(self, config) -> Dict:
+    def get_context(
+        self, fname: Optional[str] = None, config: Optional[FluffConfig] = None
+    ) -> Dict[str, Any]:
         """Get the templating context from the config."""
-        # TODO: The config loading should be done outside the templater code. Here
-        # is a silly place.
-        if config:
-            # This is now a nested section
-            loaded_context = (
-                config.get_section((self.templater_selector, self.name)) or {}
-            )
-        else:
-            loaded_context = {}
-        live_context = {}
-        live_context.update(self.default_context)
-        live_context.update(loaded_context)
-        live_context.update(self.override_context)
+        live_context = super().get_context(fname=fname, config=config)
+
         if "param_regex" in live_context and "param_style" in live_context:
             raise ValueError(
                 "Either param_style or param_regex must be provided, not both"
@@ -146,7 +137,7 @@ class PlaceholderTemplater(RawTemplater):
             formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
-        context = self.get_context(config)
+        context = self.get_context(config=config)
         template_slices = []
         raw_slices = []
         last_pos_raw, last_pos_templated = 0, 0
