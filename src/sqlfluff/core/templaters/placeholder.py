@@ -1,11 +1,13 @@
 """Defines the placeholder template."""
 
 import logging
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import regex
 
+from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLTemplaterError
+from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.helpers.slice import offset_slice
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
@@ -118,7 +120,12 @@ class PlaceholderTemplater(RawTemplater):
 
     @large_file_check
     def process(
-        self, *, in_str: str, fname: str, config=None, formatter=None
+        self,
+        *,
+        in_str: str,
+        fname: str,
+        config: Optional[FluffConfig] = None,
+        formatter: Optional[FormatterInterface] = None,
     ) -> Tuple[TemplatedFile, List[SQLTemplaterError]]:
         """Process a string and return a TemplatedFile.
 

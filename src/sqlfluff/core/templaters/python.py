@@ -15,7 +15,9 @@ from typing import (
     Tuple,
 )
 
+from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLTemplaterError
+from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.helpers.slice import offset_slice, zero_slice
 from sqlfluff.core.helpers.string import findall
 from sqlfluff.core.templaters.base import (
@@ -226,7 +228,12 @@ class PythonTemplater(RawTemplater):
 
     @large_file_check
     def process(
-        self, *, in_str: str, fname: str, config=None, formatter=None
+        self,
+        *,
+        in_str: str,
+        fname: str,
+        config: Optional[FluffConfig] = None,
+        formatter: Optional[FormatterInterface] = None,
     ) -> Tuple[TemplatedFile, List[SQLTemplaterError]]:
         """Process a string and return a TemplatedFile.
 
@@ -460,7 +467,7 @@ class PythonTemplater(RawTemplater):
 
     @staticmethod
     def _sorted_occurrence_tuples(
-        occurrences: Dict[str, List[int]]
+        occurrences: Dict[str, List[int]],
     ) -> List[Tuple[str, int]]:
         """Sort a dict of occurrences into a sorted list of tuples."""
         return sorted(

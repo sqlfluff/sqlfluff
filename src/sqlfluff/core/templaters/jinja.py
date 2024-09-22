@@ -33,6 +33,7 @@ from jinja2.sandbox import SandboxedEnvironment
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLFluffUserError, SQLTemplaterError
+from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.helpers.slice import is_zero_slice, slice_length
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
@@ -641,7 +642,7 @@ class JinjaTemplater(PythonTemplater):
         in_str: str,
         fname: str,
         config: Optional[FluffConfig] = None,
-        formatter=None,
+        formatter: Optional[FormatterInterface] = None,
     ) -> Tuple[TemplatedFile, List[SQLTemplaterError]]:
         """Process a string and return the new string.
 
@@ -906,9 +907,9 @@ class JinjaTemplater(PythonTemplater):
                     # (here that is options[0]).
                     new_value = "True" if options[0] == branch + 1 else "False"
                     new_source = f"{{% {raw_file_slice.tag} {new_value} %}}"
-                    tracer_trace.raw_slice_info[raw_file_slice].alternate_code = (
-                        new_source
-                    )
+                    tracer_trace.raw_slice_info[
+                        raw_file_slice
+                    ].alternate_code = new_source
                     override_raw_slices.append(branch)
                     length_deltas[raw_file_slice.source_idx] = len(new_source) - len(
                         raw_file_slice.raw
@@ -974,7 +975,12 @@ class JinjaTemplater(PythonTemplater):
 
     @large_file_check
     def process_with_variants(
-        self, *, in_str: str, fname: str, config=None, formatter=None
+        self,
+        *,
+        in_str: str,
+        fname: str,
+        config: Optional[FluffConfig] = None,
+        formatter: Optional[FormatterInterface] = None,
     ) -> Iterator[Tuple[Optional[TemplatedFile], List[SQLTemplaterError]]]:
         """Process a string and return one or more variant renderings.
 

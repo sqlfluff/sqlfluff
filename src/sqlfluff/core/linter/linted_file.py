@@ -21,7 +21,7 @@ from sqlfluff.core.errors import (
     SQLParseError,
     SQLTemplaterError,
 )
-from sqlfluff.core.linter.formatter import FormatterInterface
+from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.linter.patch import FixPatch, generate_source_patches
 
 # Classes needed only for type checking

@@ -2,10 +2,22 @@
 
 import logging
 from bisect import bisect_left
-from typing import Any, Dict, Iterable, Iterator, List, NamedTuple, Optional, Tuple
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    NamedTuple,
+    Optional,
+    Tuple,
+    TypeVar,
+)
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLFluffSkipFile, SQLTemplaterError
+from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.helpers.slice import zero_slice
 
 # Instantiate the templater logger
@@ -24,7 +36,10 @@ def iter_indices_of_newlines(raw_str: str) -> Iterator[int]:
             break  # pragma: no cover TODO?
 
 
-def large_file_check(func):
+T = TypeVar("T")
+
+
+def large_file_check(func: Callable[..., T]) -> Callable[..., T]:
     """Raise an exception if the file is over a defined size.
 
     Designed to be implemented as a decorator on `.process()` methods.
@@ -34,8 +49,13 @@ def large_file_check(func):
     """
 
     def _wrapped(
-        self, *, in_str: str, fname: str, config: Optional[FluffConfig] = None, **kwargs
-    ):
+        self: Any,
+        *,
+        in_str: str,
+        fname: str,
+        config: Optional[FluffConfig] = None,
+        formatter: Optional[FormatterInterface] = None,
+    ) -> T:
         if config:
             limit = config.get("large_file_skip_char_limit")
             if limit:
@@ -51,7 +71,9 @@ def large_file_check(func):
                     "in their config by setting the 'large_file_skip_char_limit' "
                     "value, or disable by setting it to zero."
                 )
-        return func(self, in_str=in_str, fname=fname, config=config, **kwargs)
+        return func(
+            self, in_str=in_str, fname=fname, config=config, formatter=formatter
+        )
 
     return _wrapped
 
@@ -505,7 +527,10 @@ class RawTemplater:
         """
 
     def sequence_files(
-        self, fnames: List[str], config: Optional[FluffConfig] = None, formatter=None
+        self,
+        fnames: List[str],
+        config: Optional[FluffConfig] = None,
+        formatter: Optional[FormatterInterface] = None,
     ) -> Iterable[str]:
         """Given files to be processed, return a valid processing sequence."""
         # Default is to process in the original order.
@@ -518,7 +543,7 @@ class RawTemplater:
         in_str: str,
         fname: str,
         config: Optional[FluffConfig] = None,
-        formatter=None,
+        formatter: Optional[FormatterInterface] = None,
     ) -> Tuple[TemplatedFile, List[SQLTemplaterError]]:
         """Process a string and return a TemplatedFile.
 
@@ -551,7 +576,12 @@ class RawTemplater:
 
     @large_file_check
     def process_with_variants(
-        self, *, in_str: str, fname: str, config=None, formatter=None
+        self,
+        *,
+        in_str: str,
+        fname: str,
+        config: Optional[FluffConfig] = None,
+        formatter: Optional[FormatterInterface] = None,
     ) -> Iterator[Tuple[TemplatedFile, List[SQLTemplaterError]]]:
         """Extended version of `process` which returns multiple variants.
 
