@@ -16,7 +16,8 @@ import signal
 import sys
 import traceback
 from abc import ABC
-from typing import Callable, Iterator, List, Tuple
+from types import TracebackType
+from typing import Callable, Iterator, List, Optional, Tuple
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.core.errors import SQLFluffSkipFile
@@ -79,7 +80,7 @@ class BaseRunner(ABC):
         raise NotImplementedError  # pragma: no cover
 
     @classmethod
-    def _init_global(cls, config) -> None:
+    def _init_global(cls) -> None:
         """Initializes any global state.
 
         May be overridden by subclasses to apply global configuration, initialize
@@ -138,7 +139,6 @@ class ParallelRunner(BaseRunner):
         with self._create_pool(
             self.processes,
             self._init_global,
-            (self.config,),
         ) as pool:
             try:
                 for lint_result in self._map(
@@ -183,10 +183,10 @@ class ParallelRunner(BaseRunner):
             return DelayedException(e, fname=fname)
 
     @classmethod
-    def _init_global(cls, config) -> None:  # pragma: no cover
+    def _init_global(cls) -> None:  # pragma: no cover
         """For the parallel runners indicate that we're not in the main thread."""
         is_main_process.set(False)
-        super()._init_global(config)
+        super()._init_global()
 
     @classmethod
     def _create_pool(cls, *args, **kwargs):
@@ -205,8 +205,8 @@ class MultiProcessRunner(ParallelRunner):
     MAP_FUNCTION_NAME = "imap_unordered"
 
     @classmethod
-    def _init_global(cls, config) -> None:  # pragma: no cover
-        super()._init_global(config)
+    def _init_global(cls) -> None:  # pragma: no cover
+        super()._init_global()
 
         # Disable signal handling in the child processes to let the parent
         # control all KeyboardInterrupt handling (Control C). This is
@@ -229,13 +229,14 @@ class MultiThreadRunner(ParallelRunner):
 class DelayedException(Exception):
     """Multiprocessing process pool uses this to propagate exceptions."""
 
-    def __init__(self, ee, fname=None):
+    def __init__(self, ee: BaseException, fname: Optional[str] = None):
         self.ee = ee
-        __, __, self.tb = sys.exc_info()
-        self.fname = None
+        self.tb: Optional[TracebackType]
+        _, _, self.tb = sys.exc_info()
+        self.fname = fname
         super().__init__(str(ee))
 
-    def reraise(self):
+    def reraise(self) -> None:
         """Reraise the encapsulated exception."""
         raise self.ee.with_traceback(self.tb)
 
