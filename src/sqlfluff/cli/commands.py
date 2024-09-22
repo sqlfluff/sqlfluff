@@ -759,7 +759,9 @@ def lint(
     if not nofail:
         if not non_human_output:
             formatter.completion_message()
-        sys.exit(result.stats(EXIT_FAIL, EXIT_SUCCESS)["exit code"])
+        exit_code = result.stats(EXIT_FAIL, EXIT_SUCCESS)["exit code"]
+        assert isinstance(exit_code, int), "result.stats error code must be integer."
+        sys.exit(exit_code)
     else:
         sys.exit(EXIT_SUCCESS)
 
