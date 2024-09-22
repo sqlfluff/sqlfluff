@@ -18,6 +18,7 @@ from typing import (
 )
 
 from sqlfluff.core.errors import CheckTuple, SQLBaseError
+from sqlfluff.core.linter.formatter import FormatterInterface
 from sqlfluff.core.linter.linted_dir import LintedDir, LintingRecord
 from sqlfluff.core.timing import RuleTimingSummary, TimingSummary
 
@@ -193,7 +194,7 @@ class LintingResult:
         )
 
     def persist_changes(
-        self, formatter, fixed_file_suffix: str = ""
+        self, formatter: Optional[FormatterInterface], fixed_file_suffix: str = ""
     ) -> Dict[str, Union[bool, str]]:
         """Run all the fixes for all the files and return a dict."""
         return combine_dicts(

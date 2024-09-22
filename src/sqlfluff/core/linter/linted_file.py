@@ -12,7 +12,7 @@ import stat
 import tempfile
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, Dict, Iterable, List, NamedTuple, Optional, Tuple, Type, Union
+from typing import Dict, Iterable, List, NamedTuple, Optional, Tuple, Type, Union
 
 from sqlfluff.core.errors import (
     CheckTuple,
@@ -21,6 +21,7 @@ from sqlfluff.core.errors import (
     SQLParseError,
     SQLTemplaterError,
 )
+from sqlfluff.core.linter.formatter import FormatterInterface
 from sqlfluff.core.linter.patch import FixPatch, generate_source_patches
 
 # Classes needed only for type checking
@@ -380,7 +381,9 @@ class LintedFile(NamedTuple):
                 str_buff += raw_source_string[source_slice]
         return str_buff
 
-    def persist_tree(self, suffix: str = "", formatter: Any = None) -> bool:
+    def persist_tree(
+        self, suffix: str = "", formatter: Optional[FormatterInterface] = None
+    ) -> bool:
         """Persist changes to the given path."""
         if self.num_violations(fixable=True) > 0:
             write_buff, success = self.fix_string()

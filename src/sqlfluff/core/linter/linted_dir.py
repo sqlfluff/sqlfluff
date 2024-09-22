@@ -4,7 +4,7 @@ This stores the idea of a collection of linted files at a single start path
 
 """
 
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Type, TypedDict, Union
+from typing import Dict, Iterable, List, Optional, Tuple, Type, TypedDict, Union
 
 from sqlfluff.core.errors import (
     CheckTuple,
@@ -12,6 +12,7 @@ from sqlfluff.core.errors import (
     SQLBaseError,
     SQLLintError,
 )
+from sqlfluff.core.linter.formatter import FormatterInterface
 from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES, LintedFile
 from sqlfluff.core.parser.segments.base import BaseSegment
 
@@ -207,7 +208,9 @@ class LintedDir:
         }
 
     def persist_changes(
-        self, formatter: Any = None, fixed_file_suffix: str = ""
+        self,
+        formatter: Optional[FormatterInterface] = None,
+        fixed_file_suffix: str = "",
     ) -> Dict[str, Union[bool, str]]:
         """Persist changes to files in the given path.
 
