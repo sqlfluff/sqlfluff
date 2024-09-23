@@ -951,9 +951,9 @@ class JinjaTemplater(PythonTemplater):
                     # (here that is options[0]).
                     new_value = "True" if options[0] == branch + 1 else "False"
                     new_source = f"{{% {raw_file_slice.tag} {new_value} %}}"
-                    tracer_trace.raw_slice_info[
-                        raw_file_slice
-                    ].alternate_code = new_source
+                    tracer_trace.raw_slice_info[raw_file_slice].alternate_code = (
+                        new_source
+                    )
                     override_raw_slices.append(branch)
                     length_deltas[raw_file_slice.source_idx] = len(new_source) - len(
                         raw_file_slice.raw
@@ -1187,20 +1187,17 @@ class DummyUndefined(jinja2.Undefined):
         """
         return True
 
-    # We're intentionally changing the behaviour here compared to the base
-    # class of Undefined. That means we're going to silence the `assignment`
-    # mypy warnings. Operations on an undefined result in another undefined.
-    __add__ = __sub__ = __mul__ = _self_impl  # type: ignore[assignment]
-    __floordiv__ = __truediv__ = _self_impl  # type: ignore[assignment]
-    __mod__ = __pow__ = _self_impl  # type: ignore[assignment]
-    __pos__ = __neg__ = _self_impl  # type: ignore[assignment]
+    __add__ = __sub__ = __mul__ = _self_impl
+    __floordiv__ = __truediv__ = _self_impl
+    __mod__ = __pow__ = _self_impl
+    __pos__ = __neg__ = _self_impl
     __lshift__ = __rshift__ = _self_impl
-    __getitem__ = _self_impl  # type: ignore[assignment]
+    __getitem__ = _self_impl
     __invert__ = _self_impl
-    __call__ = _self_impl  # type: ignore[assignment]
+    __call__ = _self_impl
     # Boolean operations on an undefined are handled separately.
     __and__ = __or__ = __xor__ = __bool__ = _bool_impl
-    __lt__ = __le__ = __ge__ = __gt__ = _bool_impl  # type: ignore[assignment]
+    __lt__ = __le__ = __ge__ = __gt__ = _bool_impl
     __eq__ = __ne__ = _bool_impl
 
     def __hash__(self) -> int:  # pragma: no cover
