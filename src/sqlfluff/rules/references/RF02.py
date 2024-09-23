@@ -63,7 +63,13 @@ class Rule_RF02(Rule_AL04):
             )
             if parent_select_info:
                 # If we are looking at a subquery, include any table references
-                table_aliases += parent_select_info.table_aliases
+                for table_alias in parent_select_info.table_aliases:
+                    if table_alias.from_expression_element.path_to(
+                        rule_context.segment
+                    ):
+                        # Skip the subquery alias itself
+                        continue
+                    table_aliases.append(table_alias)
 
         # Do we have more than one? If so, all references should be qualified.
         if len(table_aliases) <= 1:
