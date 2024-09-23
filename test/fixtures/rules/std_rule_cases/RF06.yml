@@ -10,6 +10,7 @@ test_pass_default:
       "case_specific_reference",
       "REFERENCE WITH SPACE",
       "I-c@nn0t-be~un-quoted",
+      "1_starts_with_digit",
       "SELECT",  -- Keyword as identifier
       another as "Case_Specific_Alias"
     from my_schema.my_table
