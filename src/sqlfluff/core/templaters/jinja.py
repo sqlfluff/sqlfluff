@@ -507,15 +507,18 @@ class JinjaTemplater(PythonTemplater):
             apply_dbt_builtins = config.get_section(
                 (self.templater_selector, self.name, "apply_dbt_builtins")
             )
-            assert isinstance(
-                apply_dbt_builtins, bool
-            ), "`apply_dbt_builtins` must be True/False"
+            if apply_dbt_builtins is None:
+                apply_dbt_builtins = False
+            assert isinstance(apply_dbt_builtins, bool), (
+                f"`apply_dbt_builtins` for {self.templater_selector}.{self.name} "
+                f"must be True/False, not {apply_dbt_builtins!r}"
+            )
             return apply_dbt_builtins
         return False
 
     def get_context(
         self, fname: Optional[str] = None, config: Optional[FluffConfig] = None, **kw
-    ) -> Dict:
+    ) -> Dict[str, Any]:
         """Get the templating context from the config.
 
         Args:
@@ -575,7 +578,7 @@ class JinjaTemplater(PythonTemplater):
         return live_context
 
     def construct_render_func(
-        self, fname=None, config=None
+        self, fname: Optional[str] = None, config: Optional[FluffConfig] = None
     ) -> Tuple[Environment, dict, Callable[[str], str]]:
         """Builds and returns objects needed to create and run templates.
 
@@ -638,7 +641,7 @@ class JinjaTemplater(PythonTemplater):
 
     @staticmethod
     def _init_undefined_tracking(
-        live_context: dict,
+        live_context: Dict[str, Any],
         potentially_undefined_variables: Iterable[str],
         ignore_templating: bool = False,
     ) -> Set[str]:
@@ -798,7 +801,7 @@ class JinjaTemplater(PythonTemplater):
     @staticmethod
     def _rectify_templated_slices(
         length_deltas: Dict[int, int], sliced_template: List[TemplatedFileSlice]
-    ):
+    ) -> List[TemplatedFileSlice]:
         """This method rectifies the source slices of a variant template.
 
         :TRICKY: We want to yield variants that _look like_ they were
@@ -888,8 +891,8 @@ class JinjaTemplater(PythonTemplater):
         in_str: str,
         render_func: Callable[[str], str],
         uncovered_slices: Set[int],
-        append_to_templated="",
-    ):
+        append_to_templated: str = "",
+    ) -> Iterator[Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]]:
         """Address uncovered slices by tweaking the template to hit them.
 
         Args:
@@ -1009,7 +1012,7 @@ class JinjaTemplater(PythonTemplater):
         fname: str,
         config: Optional[FluffConfig] = None,
         formatter: Optional[FormatterInterface] = None,
-    ) -> Iterator[Tuple[Optional[TemplatedFile], List[SQLTemplaterError]]]:
+    ) -> Iterator[Tuple[TemplatedFile, List[SQLTemplaterError]]]:
         """Process a string and return one or more variant renderings.
 
         Note that the arguments are enforced as keywords
@@ -1033,9 +1036,6 @@ class JinjaTemplater(PythonTemplater):
             in_str=in_str, fname=fname, config=config, formatter=formatter
         )
         yield templated_file, violations
-
-        if not templated_file:
-            return  # pragma: no cover
 
         # Find uncovered code (if any), tweak the template to hit that code.
         # First, identify the literals which _are_ covered.
