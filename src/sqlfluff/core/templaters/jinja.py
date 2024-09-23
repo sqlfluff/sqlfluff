@@ -24,6 +24,7 @@ from typing import (
 )
 
 import jinja2.nodes
+import jinja2.parser
 from jinja2 import (
     Environment,
     FileSystemLoader,
@@ -1112,7 +1113,7 @@ class DummyUndefined(jinja2.Undefined):
     # https://jinja.palletsprojects.com/en/3.0.x/sandbox/#jinja2.sandbox.SandboxedEnvironment.is_safe_callable
     alters_data = False
 
-    def __init__(self, name) -> None:
+    def __init__(self, name: str) -> None:
         super().__init__()
         self.name = name
 
@@ -1120,7 +1121,7 @@ class DummyUndefined(jinja2.Undefined):
         return self.name.replace(".", "_")
 
     @classmethod
-    def create(cls, name) -> "DummyUndefined":
+    def create(cls, name: str) -> "DummyUndefined":
         """Factory method.
 
         When ignoring=templating is configured, use 'name' as the value for
@@ -1135,7 +1136,7 @@ class DummyUndefined(jinja2.Undefined):
         result = DummyUndefined(name)
         return result
 
-    def __getattr__(self, item):
+    def __getattr__(self, item: str) -> "DummyUndefined":
         """Intercept any calls to undefined attributes.
 
         Args:
@@ -1149,7 +1150,7 @@ class DummyUndefined(jinja2.Undefined):
     # Implement the most common magic methods. This helps avoid
     # templating errors for undefined variables.
     # https://www.tutorialsteacher.com/python/magic-methods-in-python
-    def _self_impl(self, *args, **kwargs) -> "DummyUndefined":
+    def _self_impl(self, *args: Any, **kwargs: Any) -> "DummyUndefined":
         """Return an instance of the class itself.
 
         Args:
@@ -1161,7 +1162,7 @@ class DummyUndefined(jinja2.Undefined):
         """
         return self
 
-    def _bool_impl(self, *args, **kwargs) -> bool:
+    def _bool_impl(self, *args: Any, **kwargs: Any) -> bool:
         """Return a boolean value.
 
         Args:
@@ -1207,7 +1208,7 @@ class DummyUndefined(jinja2.Undefined):
         # This is called by the "in" operator, among other things.
         return 0
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator["DummyUndefined"]:
         """Return an iterator that contains only the instance of the class itself.
 
         Returns:
@@ -1221,7 +1222,7 @@ class DBTTestExtension(Extension):
 
     tags = {"test"}
 
-    def parse(self, parser) -> jinja2.nodes.Macro:
+    def parse(self, parser: jinja2.parser.Parser) -> jinja2.nodes.Macro:
         """Parses out the contents of the test tag."""
         node = jinja2.nodes.Macro(lineno=next(parser.stream).lineno)
         test_name = parser.parse_assign_target(name_only=True).name
