@@ -2,6 +2,7 @@
 
 import copy
 import importlib
+import importlib.util
 import logging
 import os.path
 import pkgutil
