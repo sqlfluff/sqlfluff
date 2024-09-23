@@ -36,9 +36,9 @@ from sqlfluff.core import (
     dialect_selector,
 )
 from sqlfluff.core.config import progress_bar_configuration
-from sqlfluff.core.enums import Color, FormatType
 from sqlfluff.core.linter import LintingResult
 from sqlfluff.core.plugin.host import get_plugin_manager
+from sqlfluff.core.types import Color, FormatType
 
 
 class StreamHandlerTqdm(logging.StreamHandler):

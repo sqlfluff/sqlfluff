@@ -4,16 +4,16 @@ import logging
 from dataclasses import dataclass
 from typing import Callable, Dict, Optional, Tuple, Union
 
-from sqlfluff.core.config.types import (
-    ConfigMappingType,
-    ConfigValueOrListType,
-)
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import (
     NestedStringDict,
     nested_dict_get,
     nested_dict_set,
     records_to_nested_dict,
+)
+from sqlfluff.core.types import (
+    ConfigMappingType,
+    ConfigValueOrListType,
 )
 
 # Instantiate the config logger

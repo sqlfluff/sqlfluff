@@ -23,7 +23,6 @@ from sqlfluff.core.config.loader import (
     load_config_string,
     load_config_up_to_path,
 )
-from sqlfluff.core.config.types import ConfigMappingType
 from sqlfluff.core.config.validate import validate_config_dict
 from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.helpers.dict import (
@@ -37,6 +36,7 @@ from sqlfluff.core.helpers.string import (
     split_comma_separated_string,
 )
 from sqlfluff.core.plugin.host import get_plugin_manager
+from sqlfluff.core.types import ConfigMappingType
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.templaters.base import RawTemplater

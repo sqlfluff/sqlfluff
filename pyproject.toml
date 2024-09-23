@@ -189,6 +189,8 @@ layers = [
     "sqlfluff.core.parser",
     # `errors` should be a utility library, which can be referenced by the others.
     "sqlfluff.core.errors",
+    # `types` should be almost independent (but may use helpers)
+    "sqlfluff.core.types",
     # `helpers` should be independent and not reference any of the above.
     "sqlfluff.core.helpers",
 ]
