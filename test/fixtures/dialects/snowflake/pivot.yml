@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 08999c2dfbc20dda5139fbc1f40ef4518a16170975f0691dca45771711c548c3
+_hash: 56bfa91af39ff5f68aa1628e31776d244512b7fc07ca4bda598bbcb6c6abf43f
 file:
 - statement:
     select_statement:
@@ -201,4 +201,293 @@ file:
               - naked_identifier: col_c
               - end_bracket: )
             - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: quarterly_sales
+          from_pivot_expression:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: SUM
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: amount
+                    end_bracket: )
+            - keyword: FOR
+            - naked_identifier: quarter
+            - keyword: IN
+            - bracketed:
+                start_bracket: (
+                keyword: ANY
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: quarter
+                end_bracket: )
+            - end_bracket: )
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: empid
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: quarterly_sales
+          from_pivot_expression:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: SUM
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: amount
+                    end_bracket: )
+            - keyword: FOR
+            - naked_identifier: quarter
+            - keyword: IN
+            - bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_modifier:
+                      keyword: DISTINCT
+                    select_clause_element:
+                      column_reference:
+                        naked_identifier: quarter
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: ad_campaign_types_by_quarter
+                  where_clause:
+                    keyword: WHERE
+                    expression:
+                      column_reference:
+                        naked_identifier: television
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      boolean_literal: 'TRUE'
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: quarter
+                end_bracket: )
+            - end_bracket: )
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: empid
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: quarterly_sales
+          from_pivot_expression:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: SUM
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: amount
+                    end_bracket: )
+            - keyword: FOR
+            - naked_identifier: quarter
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - quoted_literal: "'2023_Q1'"
+              - comma: ','
+              - quoted_literal: "'2023_Q2'"
+              - comma: ','
+              - quoted_literal: "'2023_Q3'"
+              - comma: ','
+              - quoted_literal: "'2023_Q4'"
+              - end_bracket: )
+            - end_bracket: )
+          alias_expression:
+            keyword: AS
+            naked_identifier: p
+            bracketed:
+              start_bracket: (
+              identifier_list:
+              - naked_identifier: empid_renamed
+              - comma: ','
+              - naked_identifier: Q1
+              - comma: ','
+              - naked_identifier: Q2
+              - comma: ','
+              - naked_identifier: Q3
+              - comma: ','
+              - naked_identifier: Q4
+              end_bracket: )
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: empid_renamed
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: quarterly_sales
+          from_pivot_expression:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: SUM
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: amount
+                    end_bracket: )
+            - keyword: FOR
+            - naked_identifier: quarter
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - quoted_literal: "'2023_Q1'"
+              - comma: ','
+              - quoted_literal: "'2023_Q2'"
+              - comma: ','
+              - quoted_literal: "'2023_Q3'"
+              - comma: ','
+              - quoted_literal: "'2023_Q4'"
+              - comma: ','
+              - quoted_literal: "'2024_Q1'"
+              - end_bracket: )
+            - keyword: DEFAULT
+            - keyword: 'ON'
+            - keyword: 'NULL'
+            - bracketed:
+                start_bracket: (
+                numeric_literal: '0'
+                end_bracket: )
+            - end_bracket: )
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: empid
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: to_pivot
+          from_pivot_expression:
+            keyword: pivot
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: sum
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: val
+                    end_bracket: )
+            - keyword: for
+            - naked_identifier: col
+            - keyword: in
+            - bracketed:
+                start_bracket: (
+                keyword: any
+                orderby_clause:
+                - keyword: order
+                - keyword: by
+                - column_reference:
+                    naked_identifier: col
+                end_bracket: )
+            - end_bracket: )
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          naked_identifier: id
 - statement_terminator: ;

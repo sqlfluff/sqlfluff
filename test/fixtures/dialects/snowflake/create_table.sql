@@ -204,3 +204,11 @@ CREATE OR REPLACE TABLE myschema.mytable (
   id INTEGER NOT NULL
   , CONSTRAINT mytable_pk PRIMARY KEY (id) NOT ENFORCED NOVALIDATE NORELY
 );
+
+CREATE TABLE some_schema.some_table
+(
+  is_condition_true BOOLEAN
+  , some_text_value VARCHAR(100)
+  , some_event_date_time_utc VARCHAR AS (TO_TIMESTAMP(SUBSTR(some_text_value, 5, 13)))
+  , some_other_event_date_time_utc TIMESTAMP AS (IFF(is_condition_true AND TRY_TO_NUMBER(some_text_value) IS NOT NULL, TO_TIMESTAMP(SUBSTR(some_text_value, 5, 13)), '1900-01-01')) COMMENT 'The date and time of the other event'
+);

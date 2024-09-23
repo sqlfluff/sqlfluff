@@ -441,3 +441,8 @@ test_pass_referenced_subquery_column:
     SELECT a
     FROM foo
     WHERE a IN (SELECT bar.a FROM bar)
+
+test_pass_referenced_subquery_is_self:
+  pass_str: |
+    SELECT *
+    FROM (SELECT a FROM table)

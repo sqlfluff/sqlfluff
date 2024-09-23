@@ -3,7 +3,7 @@
 import fnmatch
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set, Tuple, cast
+from typing import Dict, List, Optional, Set, Tuple, Union, cast
 
 from sqlfluff.core.errors import SQLBaseError, SQLParseError, SQLUnusedNoQaWarning
 from sqlfluff.core.parser import BaseSegment, RawSegment, RegexLexer
@@ -56,7 +56,7 @@ class IgnoreMask:
     def __init__(self, ignores: List[NoQaDirective]):
         self._ignore_list = ignores
 
-    def __repr__(self):  # pragma: no cover
+    def __repr__(self) -> str:  # pragma: no cover
         return "<IgnoreMask>"
 
     # ### Construction class methods.
@@ -67,7 +67,7 @@ class IgnoreMask:
         line_no: int,
         line_pos: int,
         reference_map: Dict[str, Set[str]],
-    ):
+    ) -> Union[NoQaDirective, SQLParseError, None]:
         """Extract ignore mask entries from a comment string."""
         # Also trim any whitespace afterward
 
@@ -144,7 +144,7 @@ class IgnoreMask:
         cls,
         comment: RawSegment,
         reference_map: Dict[str, Set[str]],
-    ):
+    ) -> Union[NoQaDirective, SQLParseError, None]:
         """Extract ignore mask entries from a comment segment."""
         # Also trim any whitespace
         comment_content = comment.raw_trimmed().strip()
@@ -219,7 +219,7 @@ class IgnoreMask:
     @staticmethod
     def _ignore_masked_violations_single_line(
         violations: List[SQLBaseError], ignore_mask: List[NoQaDirective]
-    ):
+    ) -> List[SQLBaseError]:
         """Filter a list of violations based on this single line noqa.
 
         The "ignore" list is assumed to ONLY contain NoQaDirectives with
@@ -268,7 +268,7 @@ class IgnoreMask:
     @classmethod
     def _ignore_masked_violations_line_range(
         cls, violations: List[SQLBaseError], ignore_mask: List[NoQaDirective]
-    ):
+    ) -> List[SQLBaseError]:
         """Returns whether to ignore error for line-range directives.
 
         The "ignore" list is assumed to ONLY contain NoQaDirectives where

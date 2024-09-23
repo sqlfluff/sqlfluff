@@ -782,10 +782,10 @@ class CreateTypeStatementSegment(postgres.CreateTypeStatementSegment):
     match_grammar = Sequence(
         "CREATE",
         "TYPE",
-        Ref("DatatypeIdentifierSegment"),
+        Ref("DatatypeSegment"),
         "AS",
         OneOf(
-            Ref("DatatypeIdentifierSegment"),
+            Ref("DatatypeSegment"),
             Sequence("ENUM", Bracketed(Delimited(Ref("QuotedLiteralSegment")))),
             Ref("StructTypeSegment"),
             Sequence("UNION", Ref("StructTypeSchemaSegment")),
