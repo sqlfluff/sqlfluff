@@ -132,6 +132,8 @@ stable_version = "3.2.0"
 
 
 [tool.setuptools.package-data]
+# `default_config.cfg` is loaded by sqlfluff as part of config resolution.
+# For more details on `py.typed` see https://peps.python.org/pep-0561/
 sqlfluff = ["core/default_config.cfg", "py.typed"]
 
 
