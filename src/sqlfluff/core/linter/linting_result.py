@@ -6,21 +6,41 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
+    Iterable,
     List,
-    Literal,
+    Mapping,
     Optional,
     Set,
     Tuple,
+    Type,
+    TypeVar,
     Union,
-    overload,
 )
 
-from sqlfluff.core.errors import CheckTuple
+from sqlfluff.core.errors import CheckTuple, SQLBaseError
+from sqlfluff.core.linter.formatter import FormatterInterface
 from sqlfluff.core.linter.linted_dir import LintedDir, LintingRecord
 from sqlfluff.core.timing import RuleTimingSummary, TimingSummary
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.parser.segments.base import BaseSegment
+
+
+def sum_dicts(d1: Mapping[str, int], d2: Mapping[str, int]) -> Dict[str, int]:
+    """Take the keys of two dictionaries and add their values."""
+    keys = set(d1.keys()) | set(d2.keys())
+    return {key: d1.get(key, 0) + d2.get(key, 0) for key in keys}
+
+
+T = TypeVar("T")
+
+
+def combine_dicts(*d: Dict[str, T]) -> Dict[str, T]:
+    """Take any set of dictionaries and combine them."""
+    dict_buffer: Dict[str, T] = {}
+    for dct in d:
+        dict_buffer.update(dct)
+    return dict_buffer
 
 
 class LintingResult:
@@ -35,20 +55,6 @@ class LintingResult:
         self._start_time: float = time.monotonic()
         self.total_time: float = 0.0
 
-    @staticmethod
-    def sum_dicts(d1: Dict[str, Any], d2: Dict[str, Any]) -> Dict[str, Any]:
-        """Take the keys of two dictionaries and add them."""
-        keys = set(d1.keys()) | set(d2.keys())
-        return {key: d1.get(key, 0) + d2.get(key, 0) for key in keys}
-
-    @staticmethod
-    def combine_dicts(*d: Dict[str, Any]) -> Dict[str, Any]:
-        """Take any set of dictionaries and combine them."""
-        dict_buffer: dict = {}
-        for dct in d:
-            dict_buffer.update(dct)
-        return dict_buffer
-
     def add(self, path: LintedDir) -> None:
         """Add a new `LintedDir` to this result."""
         self.paths.append(path)
@@ -57,70 +63,64 @@ class LintingResult:
         """Stop the linting timer."""
         self.total_time = time.monotonic() - self._start_time
 
-    @overload
-    def check_tuples(self, by_path: Literal[False]) -> List[CheckTuple]:
-        """Return a List of CheckTuples when by_path is False."""
-
-    @overload
-    def check_tuples(self, by_path: Literal[True]) -> Dict[LintedDir, List[CheckTuple]]:
-        """Return a Dict of LintedDir and CheckTuples when by_path is True."""
-
-    @overload
-    def check_tuples(self, by_path: bool = False):
-        """Default overload method."""
-
-    def check_tuples(
-        self, by_path=False
-    ) -> Union[List[CheckTuple], Dict[LintedDir, List[CheckTuple]]]:
+    def check_tuples(self) -> List[CheckTuple]:
         """Fetch all check_tuples from all contained `LintedDir` objects.
 
-        Args:
-            by_path (:obj:`bool`, optional): When False, all the check_tuples
-                are aggregated into one flat list. When True, we return a `dict`
-                of paths, each with its own list of check_tuples. Defaults to False.
-
+        Returns:
+            A list of check tuples.
         """
-        if by_path:
-            buff: Dict[LintedDir, List[CheckTuple]] = {}
-            for path in self.paths:
-                buff.update(path.check_tuples(by_path=by_path))
-            return buff
-        else:
-            tuple_buffer: List[CheckTuple] = []
-            for path in self.paths:
-                tuple_buffer += path.check_tuples()
-            return tuple_buffer
+        return [t for path in self.paths for t in path.check_tuples()]
 
-    def num_violations(self, **kwargs) -> int:
-        """Count the number of violations in the result."""
-        return sum(path.num_violations(**kwargs) for path in self.paths)
+    def check_tuples_by_path(self) -> Dict[str, List[CheckTuple]]:
+        """Fetch all check_tuples from all contained `LintedDir` objects.
 
-    def get_violations(self, **kwargs) -> list:
-        """Return a list of violations in the result."""
-        buff = []
+        Returns:
+            A dict, with lists of tuples grouped by path.
+        """
+        buff: Dict[str, List[CheckTuple]] = {}
         for path in self.paths:
-            buff += path.get_violations(**kwargs)
+            buff.update(path.check_tuples_by_path())
         return buff
 
-    def stats(self, fail_code: int, success_code: int) -> Dict[str, Any]:
+    def num_violations(
+        self,
+        types: Optional[Union[Type[SQLBaseError], Iterable[Type[SQLBaseError]]]] = None,
+        fixable: Optional[bool] = None,
+    ) -> int:
+        """Count the number of violations in the result."""
+        return sum(
+            path.num_violations(types=types, fixable=fixable) for path in self.paths
+        )
+
+    def get_violations(
+        self, rules: Optional[Union[str, Tuple[str, ...]]] = None
+    ) -> List[SQLBaseError]:
+        """Return a list of violations in the result."""
+        return [v for path in self.paths for v in path.get_violations(rules=rules)]
+
+    def stats(
+        self, fail_code: int, success_code: int
+    ) -> Dict[str, Union[int, float, str]]:
         """Return a stats dictionary of this result."""
-        all_stats: Dict[str, Any] = dict(files=0, clean=0, unclean=0, violations=0)
+        # Add up all the counts for each file.
+        # NOTE: Having a more strictly typed dict for the counts also helps with
+        # typing later in this method.
+        counts: Dict[str, int] = dict(files=0, clean=0, unclean=0, violations=0)
         for path in self.paths:
-            all_stats = self.sum_dicts(path.stats(), all_stats)
-        if all_stats["files"] > 0:
-            all_stats["avg per file"] = (
-                all_stats["violations"] * 1.0 / all_stats["files"]
-            )
-            all_stats["unclean rate"] = all_stats["unclean"] * 1.0 / all_stats["files"]
+            counts = sum_dicts(path.stats(), counts)
+        # Set up the overall dictionary.
+        all_stats: Dict[str, Union[int, float, str]] = {}
+        all_stats.update(counts)
+        if counts["files"] > 0:
+            all_stats["avg per file"] = counts["violations"] * 1.0 / counts["files"]
+            all_stats["unclean rate"] = counts["unclean"] * 1.0 / counts["files"]
         else:
             all_stats["avg per file"] = 0
             all_stats["unclean rate"] = 0
         all_stats["clean files"] = all_stats["clean"]
         all_stats["unclean files"] = all_stats["unclean"]
-        all_stats["exit code"] = (
-            fail_code if all_stats["violations"] > 0 else success_code
-        )
-        all_stats["status"] = "FAIL" if all_stats["violations"] > 0 else "PASS"
+        all_stats["exit code"] = fail_code if counts["violations"] > 0 else success_code
+        all_stats["status"] = "FAIL" if counts["violations"] > 0 else "PASS"
         return all_stats
 
     def timing_summary(self) -> Dict[str, Dict[str, Any]]:
@@ -193,9 +193,11 @@ class LintingResult:
             key=lambda record: record["filepath"],
         )
 
-    def persist_changes(self, formatter, fixed_file_suffix: str = "") -> dict:
+    def persist_changes(
+        self, formatter: Optional[FormatterInterface], fixed_file_suffix: str = ""
+    ) -> Dict[str, Union[bool, str]]:
         """Run all the fixes for all the files and return a dict."""
-        return self.combine_dicts(
+        return combine_dicts(
             *(
                 path.persist_changes(
                     formatter=formatter, fixed_file_suffix=fixed_file_suffix

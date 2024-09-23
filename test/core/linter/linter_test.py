@@ -17,7 +17,8 @@ from sqlfluff.core.errors import (
     SQLParseError,
     SQLTemplaterError,
 )
-from sqlfluff.core.linter import LintingResult, runner
+from sqlfluff.core.linter import runner
+from sqlfluff.core.linter.linting_result import combine_dicts, sum_dicts
 from sqlfluff.core.linter.runner import get_runner
 from sqlfluff.utils.testing.logging import fluff_log_catcher
 
@@ -107,29 +108,26 @@ def test__linter__get_violations_filter_rules(rules, num_violations):
 
 def test__linter__linting_result__sum_dicts():
     """Test the summing of dictionaries in the linter."""
-    lr = LintingResult()
     i = {}
     a = dict(a=3, b=123, f=876.321)
     b = dict(a=19, b=321.0, g=23478)
     r = dict(a=22, b=444.0, f=876.321, g=23478)
-    assert lr.sum_dicts(a, b) == r
+    assert sum_dicts(a, b) == r
     # Check the identity too
-    assert lr.sum_dicts(r, i) == r
+    assert sum_dicts(r, i) == r
 
 
 def test__linter__linting_result__combine_dicts():
     """Test the combination of dictionaries in the linter."""
-    lr = LintingResult()
     a = dict(a=3, b=123, f=876.321)
     b = dict(h=19, i=321.0, j=23478)
     r = dict(z=22)
-    assert lr.combine_dicts(a, b, r) == dict(
+    assert combine_dicts(a, b, r) == dict(
         a=3, b=123, f=876.321, h=19, i=321.0, j=23478, z=22
     )
 
 
-@pytest.mark.parametrize("by_path,result_type", [(False, list), (True, dict)])
-def test__linter__linting_result_check_tuples_by_path(by_path, result_type):
+def test__linter__linting_result_check_tuples():
     """Test that a LintingResult can partition violations by the source files."""
     lntr = Linter()
     result = lntr.lint_paths(
@@ -138,8 +136,57 @@ def test__linter__linting_result_check_tuples_by_path(by_path, result_type):
             "test/fixtures/linter/whitespace_errors.sql",
         )
     )
-    check_tuples = result.check_tuples(by_path=by_path)
-    isinstance(check_tuples, result_type)
+    check_tuples = result.check_tuples()
+    isinstance(check_tuples, list)
+    assert check_tuples == [
+        ("LT09", 2, 1),
+        ("LT04", 4, 5),
+        ("LT02", 5, 1),
+        ("LT04", 5, 1),
+        ("LT02", 6, 1),
+        ("AL02", 6, 5),
+        ("LT01", 6, 6),
+        ("CP01", 8, 1),
+        ("LT09", 1, 1),
+        ("LT01", 2, 9),
+        ("LT01", 3, 12),
+        ("LT02", 4, 1),
+        ("CP01", 6, 10),
+    ]
+
+
+def test__linter__linting_result_check_tuples_by_path():
+    """Test that a LintingResult can partition violations by the source files."""
+    lntr = Linter()
+    result = lntr.lint_paths(
+        (
+            "test/fixtures/linter/comma_errors.sql",
+            "test/fixtures/linter/whitespace_errors.sql",
+        )
+    )
+    check_tuples = result.check_tuples_by_path()
+    isinstance(check_tuples, dict)
+    # Normalise the paths in the keys.
+    check_tuples = {k.replace("\\", "/"): v for k, v in check_tuples.items()}
+    assert check_tuples == {
+        "test/fixtures/linter/comma_errors.sql": [
+            ("LT09", 2, 1),
+            ("LT04", 4, 5),
+            ("LT02", 5, 1),
+            ("LT04", 5, 1),
+            ("LT02", 6, 1),
+            ("AL02", 6, 5),
+            ("LT01", 6, 6),
+            ("CP01", 8, 1),
+        ],
+        "test/fixtures/linter/whitespace_errors.sql": [
+            ("LT09", 1, 1),
+            ("LT01", 2, 9),
+            ("LT01", 3, 12),
+            ("LT02", 4, 1),
+            ("CP01", 6, 10),
+        ],
+    }
 
 
 @pytest.mark.parametrize(
