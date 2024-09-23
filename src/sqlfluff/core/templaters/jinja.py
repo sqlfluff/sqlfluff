@@ -581,7 +581,7 @@ class JinjaTemplater(PythonTemplater):
 
     def construct_render_func(
         self, fname: Optional[str] = None, config: Optional[FluffConfig] = None
-    ) -> Tuple[Environment, dict, Callable[[str], str]]:
+    ) -> Tuple[Environment, Dict[str, Any], Callable[[str], str]]:
         """Builds and returns objects needed to create and run templates.
 
         Args:
@@ -1176,32 +1176,23 @@ class DummyUndefined(jinja2.Undefined):
         """
         return True
 
-    __add__ = _self_impl
-    __sub__ = _self_impl
-    __mul__ = _self_impl
-    __floordiv__ = _self_impl
-    __truediv__ = _self_impl
-    __mod__ = _self_impl
-    __pow__ = _self_impl
-    __pos__ = _self_impl
-    __neg__ = _self_impl
-    __lshift__ = _self_impl
-    __rshift__ = _self_impl
-    __getitem__ = _self_impl
+    # We're intentionally changing the behaviour here compared to the base
+    # class of Undefined. That means we're going to silence the `assignment`
+    # mypy warnings. Operations on an undefined result in another undefined.
+    __add__ = __sub__ = __mul__ = _self_impl  # type: ignore[assignment]
+    __floordiv__ = __truediv__ = _self_impl  # type: ignore[assignment]
+    __mod__ = __pow__ = _self_impl  # type: ignore[assignment]
+    __pos__ = __neg__ = _self_impl  # type: ignore[assignment]
+    __lshift__ = __rshift__ = _self_impl
+    __getitem__ = _self_impl  # type: ignore[assignment]
     __invert__ = _self_impl
-    __call__ = _self_impl
-    __and__ = _bool_impl
-    __or__ = _bool_impl
-    __xor__ = _bool_impl
-    __bool__ = _bool_impl
-    __lt__ = _bool_impl
-    __le__ = _bool_impl
-    __eq__ = _bool_impl
-    __ne__ = _bool_impl
-    __ge__ = _bool_impl
-    __gt__ = _bool_impl
+    __call__ = _self_impl  # type: ignore[assignment]
+    # Boolean operations on an undefined are handled separately.
+    __and__ = __or__ = __xor__ = __bool__ = _bool_impl
+    __lt__ = __le__ = __ge__ = __gt__ = _bool_impl  # type: ignore[assignment]
+    __eq__ = __ne__ = _bool_impl
 
-    def __hash__(self) -> int:  # pragma: no cov
+    def __hash__(self) -> int:  # pragma: no cover
         """Return a constant hash value.
 
         Returns:

@@ -24,7 +24,6 @@ types-chardet
 types-appdirs
 types-colorama
 types-pyyaml
-types-Jinja2
 types-regex
 types-tqdm
 # Requests is required for the util script
