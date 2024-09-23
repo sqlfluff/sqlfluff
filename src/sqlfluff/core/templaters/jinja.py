@@ -274,7 +274,7 @@ class JinjaTemplater(PythonTemplater):
             # import_module is deprecated as of python 3.4. This follows roughly
             # the guidance of the python docs:
             # https://docs.python.org/3/library/importlib.html#approximating-importlib-import-module
-            spec = module_finder.find_spec(module_name)
+            spec = module_finder.find_spec(module_name, None)
             assert (
                 spec
             ), f"Module {module_name} failed to be found despite being listed."
