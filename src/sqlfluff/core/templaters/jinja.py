@@ -1188,17 +1188,20 @@ class DummyUndefined(jinja2.Undefined):
         """
         return True
 
-    __add__ = __sub__ = __mul__ = _self_impl
-    __floordiv__ = __truediv__ = _self_impl
-    __mod__ = __pow__ = _self_impl
-    __pos__ = __neg__ = _self_impl
+    # We're intentionally changing the behaviour here compared to the base
+    # class of Undefined. That means we're going to silence the `assignment`
+    # mypy warnings. Operations on an undefined result in another undefined.
+    __add__ = __sub__ = __mul__ = _self_impl  # type: ignore[assignment]
+    __floordiv__ = __truediv__ = _self_impl  # type: ignore[assignment]
+    __mod__ = __pow__ = _self_impl  # type: ignore[assignment]
+    __pos__ = __neg__ = _self_impl  # type: ignore[assignment]
     __lshift__ = __rshift__ = _self_impl
-    __getitem__ = _self_impl
+    __getitem__ = _self_impl  # type: ignore[assignment]
     __invert__ = _self_impl
-    __call__ = _self_impl
+    __call__ = _self_impl  # type: ignore[assignment]
     # Boolean operations on an undefined are handled separately.
     __and__ = __or__ = __xor__ = __bool__ = _bool_impl
-    __lt__ = __le__ = __ge__ = __gt__ = _bool_impl
+    __lt__ = __le__ = __ge__ = __gt__ = _bool_impl  # type: ignore[assignment]
     __eq__ = __ne__ = _bool_impl
 
     def __hash__(self) -> int:  # pragma: no cover
