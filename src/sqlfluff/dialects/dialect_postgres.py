@@ -4991,6 +4991,7 @@ class SetStatementSegment(BaseSegment):
                     Delimited(
                         Ref("LiteralGrammar"),
                         Ref("NakedIdentifierSegment"),
+                        Ref("QuotedIdentifierSegment"),
                         # https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L1810-L1815
                         Ref("OnKeywordAsIdentifierSegment"),
                     ),
