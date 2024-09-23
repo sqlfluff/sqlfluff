@@ -275,8 +275,12 @@ class JinjaTemplater(PythonTemplater):
             # the guidance of the python docs:
             # https://docs.python.org/3/library/importlib.html#approximating-importlib-import-module
             spec = module_finder.find_spec(module_name)
+            assert (
+                spec
+            ), f"Module {module_name} failed to be found despite being listed."
             module = importlib.util.module_from_spec(spec)
             sys.modules[module_name] = module
+            assert spec.loader, f"Module {module_name} missing expected loader."
             spec.loader.exec_module(module)
 
             if "." in module_name:  # nested modules have `.` in module_name
@@ -547,8 +551,9 @@ class JinjaTemplater(PythonTemplater):
             libraries = self._extract_libraries_from_config(config=config)
             live_context.update(libraries)
 
-            if libraries.get("SQLFLUFF_JINJA_FILTERS"):
-                env.filters.update(libraries.get("SQLFLUFF_JINJA_FILTERS"))
+            jinja_filters = libraries.get("SQLFLUFF_JINJA_FILTERS")
+            if jinja_filters:
+                env.filters.update(jinja_filters)
 
             if self._apply_dbt_builtins(config):
                 # This feels a bit wrong defining these here, they should probably
