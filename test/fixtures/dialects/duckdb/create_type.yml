@@ -3,13 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 64bba70a49a42bc0cff6c4071a0c97478a2f84dd80bf03db7a2afb0ea6ae6ad3
+_hash: 7773898b6d4416f6d35f1ca9f143892e4ee3abe36db1297eaa157e9521c9f3b9
 file:
 - statement:
     create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - data_type_identifier: mood
+    - data_type:
+        data_type_identifier: mood
     - keyword: AS
     - keyword: ENUM
     - bracketed:
@@ -25,27 +26,30 @@ file:
     create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - data_type_identifier: many_things
+    - data_type:
+        data_type_identifier: many_things
     - keyword: AS
-    - struct_type:
-        keyword: STRUCT
-        struct_type_schema:
-          bracketed:
-          - start_bracket: (
-          - parameter: k
-          - data_type:
-              keyword: integer
-          - comma: ','
-          - parameter: l
-          - data_type:
-              keyword: varchar
-          - end_bracket: )
+    - data_type:
+        struct_type:
+          keyword: STRUCT
+          struct_type_schema:
+            bracketed:
+            - start_bracket: (
+            - parameter: k
+            - data_type:
+                keyword: integer
+            - comma: ','
+            - parameter: l
+            - data_type:
+                keyword: varchar
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - data_type_identifier: one_thing
+    - data_type:
+        data_type_identifier: one_thing
     - keyword: AS
     - keyword: UNION
     - struct_type_schema:
@@ -64,7 +68,47 @@ file:
     create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - data_type_identifier: x_index
+    - data_type:
+        data_type_identifier: x_index
     - keyword: AS
-    - data_type_identifier: integer
+    - data_type:
+        keyword: integer
+- statement_terminator: ;
+- statement:
+    create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - data_type:
+        naked_identifier: myschema
+        dot: .
+        data_type_identifier: mytype
+    - keyword: AS
+    - data_type:
+        keyword: int
+- statement_terminator: ;
+- statement:
+    create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - data_type:
+        quoted_identifier: '"myschema"'
+        dot: .
+        data_type_identifier: mytype2
+    - keyword: AS
+    - data_type:
+        keyword: int
+- statement_terminator: ;
+- statement:
+    create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - data_type:
+        naked_identifier: myschema
+        dot: .
+        data_type_identifier: mytype3
+    - keyword: AS
+    - data_type:
+        naked_identifier: myschema
+        dot: .
+        data_type_identifier: mytype2
 - statement_terminator: ;
