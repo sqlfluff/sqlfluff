@@ -40,9 +40,10 @@ repos:
     hooks:
       - id: mypy
         additional_dependencies:
+          # NOTE: These dependencies should be the same as the `types-*` dependencies in
+          # `requirements_dev.txt`. If you update these, make sure to update those too.
           [
             types-toml,
-            types-setuptools,
             types-chardet,
             types-appdirs,
             types-colorama,

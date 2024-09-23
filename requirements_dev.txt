@@ -1,5 +1,7 @@
-# Install with -U to keep all requirements up-to-date
+# NOTE: Install with -U to keep all requirements up-to-date.
+
 # code linting and formatting
+# ---------------------------
 flake8
 flake8-docstrings
 pydocstyle!=6.2.0, !=6.2.1  # See: https://github.com/PyCQA/pydocstyle/issues/618
@@ -7,16 +9,25 @@ black>=22.1.0
 flake8-black>=0.2.4
 ruff
 import-linter
+yamllint
+
 # documentation checks
+# --------------------
 doc8
 Pygments
-# testing
+
+# python testing
+# --------------
 coverage>=6.4
 hypothesis
 pytest
 pytest-cov
 pytest-xdist
+
 # MyPy
+# ----
+# `types-*` dependencies here should be the same as in `.pre-commit-config.yaml`.
+# If you update these dependencies, make sure to update those too.
 mypy
 types-toml
 types-chardet
@@ -25,7 +36,8 @@ types-colorama
 types-pyyaml
 types-regex
 types-tqdm
-# Requests is required for the util script
+
+# util.py dependencies
+# ----
 requests
 ghapi
-yamllint
