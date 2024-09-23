@@ -507,6 +507,8 @@ class JinjaTemplater(PythonTemplater):
             apply_dbt_builtins = config.get_section(
                 (self.templater_selector, self.name, "apply_dbt_builtins")
             )
+            # If the config is totally absent for this templater, default to False,
+            # but for any other value that isn't boolean, throw an error.
             if apply_dbt_builtins is None:
                 apply_dbt_builtins = False
             assert isinstance(apply_dbt_builtins, bool), (
