@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 59b0eb5d79df53e409dd8d590d6fe535a03a428635a518c14c138f0261656625
+_hash: 49abefe3bed2c50e43327eb248530658405c819fd69dca82bec2ce7d76559f6c
 file:
 - statement:
     create_table_statement:
@@ -364,4 +364,580 @@ file:
           start_bracket: (
           naked_identifier: calculation_date
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: MULTISET
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: CONSUMOS
+    - create_table_options_statement:
+      - comma: ','
+      - keyword: 'NO'
+      - keyword: FALLBACK
+      - comma: ','
+      - keyword: 'NO'
+      - keyword: BEFORE
+      - keyword: JOURNAL
+      - comma: ','
+      - keyword: 'NO'
+      - keyword: AFTER
+      - keyword: JOURNAL
+      - comma: ','
+      - keyword: CHECKSUM
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DEFAULT
+      - comma: ','
+      - keyword: DEFAULT
+      - keyword: MERGEBLOCKRATIO
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: FIELD1
+          data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '9'
+                end_bracket: )
+        end_bracket: )
+    - td_table_constraint:
+      - keyword: PRIMARY
+      - keyword: INDEX
+      - bracketed:
+          start_bracket: (
+          naked_identifier: FIELD1
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: MULTISET
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: TABLE_2
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - column_reference:
+            naked_identifier: CHAR_FIELD
+        - data_type:
+            data_type_identifier: CHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '19'
+                end_bracket: )
+        - td_column_attribute_constraint:
+          - keyword: CHARACTER
+          - keyword: SET
+          - naked_identifier: LATIN
+        - td_column_attribute_constraint:
+          - keyword: NOT
+          - keyword: CASESPECIFIC
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: DATE_FIELD
+          data_type:
+            data_type_identifier: DATE
+            keyword: FORMAT
+            quoted_literal: "'YYYY-MM-DD'"
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: BYTE_FIELD
+          data_type:
+            data_type_identifier: BYTEINT
+          td_column_attribute_constraint:
+            keyword: COMPRESS
+            numeric_literal: '0'
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: DECIMAL_FIELD
+          data_type:
+            data_type_identifier: DECIMAL
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '15'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_bracket: )
+          td_column_attribute_constraint:
+            keyword: COMPRESS
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '50.00'
+            - comma: ','
+            - numeric_literal: '45.50'
+            - comma: ','
+            - numeric_literal: '40.00'
+            - comma: ','
+            - numeric_literal: '30.00'
+            - comma: ','
+            - numeric_literal: '27.80'
+            - comma: ','
+            - numeric_literal: '27.05'
+            - comma: ','
+            - numeric_literal: '20.00'
+            - comma: ','
+            - numeric_literal: '17.87'
+            - comma: ','
+            - numeric_literal: '17.56'
+            - comma: ','
+            - numeric_literal: '17.41'
+            - comma: ','
+            - numeric_literal: '17.26'
+            - comma: ','
+            - numeric_literal: '17.11'
+            - comma: ','
+            - numeric_literal: '16.96'
+            - comma: ','
+            - numeric_literal: '16.82'
+            - comma: ','
+            - numeric_literal: '16.68'
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: TIMESTAMP_FIELD
+          data_type:
+            data_type_identifier: TIMESTAMP
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - end_bracket: )
+    - td_table_constraint:
+      - keyword: PRIMARY
+      - keyword: INDEX
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier: CHAR_FIELD
+        - comma: ','
+        - naked_identifier: DATE_FIELD
+        - comma: ','
+        - naked_identifier: BYTE_FIELD
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: MULTISET
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: NUM_LTR_DESVINCULADOS_ADH
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - column_reference:
+            naked_identifier: DES_EVENTO
+        - data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '255'
+                end_bracket: )
+        - td_column_attribute_constraint:
+          - keyword: CHARACTER
+          - keyword: SET
+          - naked_identifier: LATIN
+        - td_column_attribute_constraint:
+          - keyword: NOT
+          - keyword: CASESPECIFIC
+        - td_column_attribute_constraint:
+            keyword: COMPRESS
+            bracketed:
+            - start_bracket: (
+            - quoted_literal: "'Cambio de bandera'"
+            - comma: ','
+            - quoted_literal: "'Cierre'"
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: IND_CONTINUA
+          data_type:
+            data_type_identifier: BYTEINT
+          td_column_attribute_constraint:
+            keyword: COMPRESS
+      - end_bracket: )
+    - td_table_constraint:
+      - keyword: PRIMARY
+      - keyword: INDEX
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier: COD_TARJETA
+        - comma: ','
+        - naked_identifier: COD_EST
+        - comma: ','
+        - naked_identifier: FEC_CIERRE_EST
+        - comma: ','
+        - naked_identifier: IND_TIPO_TARJETA
+        - end_bracket: )
+      - keyword: PARTITION
+      - keyword: BY
+      - td_partitioning_level:
+          function_name:
+            function_name_identifier: RANGE_N
+          bracketed:
+          - start_bracket: (
+          - word: FEC_OPERACION
+          - word: BETWEEN
+          - word: DATE
+          - single_quote: "'2007-01-01'"
+          - word: AND
+          - word: DATE
+          - single_quote: "'2022-01-01'"
+          - word: EACH
+          - word: INTERVAL
+          - single_quote: "'1'"
+          - word: MONTH
+          - comma: ','
+          - word: 'NO'
+          - word: RANGE
+          - word: OR
+          - word: UNKNOWN
+          - end_bracket: )
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: HOPR_TRN_TRAV_SIN_MP_I
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: IND_TIPO_TARJETA
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+      - naked_identifier: sandbox_db
+      - dot: .
+      - naked_identifier: Org_Descendant
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: Org_Unit_Code
+          data_type:
+            data_type_identifier: char
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+          td_column_attribute_constraint:
+          - keyword: character
+          - keyword: set
+          - naked_identifier: unicode
+          column_constraint_segment:
+          - keyword: not
+          - keyword: 'null'
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: Org_Unit_Type
+          data_type:
+            data_type_identifier: char
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                end_bracket: )
+          td_column_attribute_constraint:
+          - keyword: character
+          - keyword: set
+          - naked_identifier: unicode
+          column_constraint_segment:
+          - keyword: not
+          - keyword: 'null'
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: Entity_Code
+          data_type:
+            data_type_identifier: varchar
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '10'
+                end_bracket: )
+          td_column_attribute_constraint:
+            keyword: uppercase
+          column_constraint_segment:
+          - keyword: not
+          - keyword: 'null'
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: Parent_Org_Unit_Code
+          data_type:
+            data_type_identifier: char
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+          td_column_attribute_constraint:
+          - keyword: character
+          - keyword: set
+          - naked_identifier: unicode
+          column_constraint_segment:
+          - keyword: not
+          - keyword: 'null'
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: Parent_Org_Unit_Type
+          data_type:
+            data_type_identifier: char
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                end_bracket: )
+          td_column_attribute_constraint:
+          - keyword: character
+          - keyword: set
+          - naked_identifier: unicode
+          column_constraint_segment:
+          - keyword: not
+          - keyword: 'null'
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: Parent_Entity_Code
+          data_type:
+            data_type_identifier: varchar
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '10'
+                end_bracket: )
+          td_column_attribute_constraint:
+            keyword: uppercase
+          column_constraint_segment:
+          - keyword: not
+          - keyword: 'null'
+      - end_bracket: )
+    - td_table_constraint:
+      - keyword: primary
+      - keyword: index
+      - object_reference:
+          naked_identifier: Org_Descendant_NUPI
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier: Org_Unit_Code
+        - comma: ','
+        - naked_identifier: Org_Unit_Type
+        - comma: ','
+        - naked_identifier: Entity_Code
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: VOLATILE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: a
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              quoted_literal: "'A'"
+              alias_expression:
+                keyword: AS
+                naked_identifier: B
+        end_bracket: )
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: DATA
+      - keyword: 'ON'
+      - keyword: COMMIT
+      - keyword: PRESERVE
+      - keyword: ROWS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: VOLATILE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: b
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              quoted_literal: "'A'"
+              alias_expression:
+                keyword: AS
+                naked_identifier: B
+        end_bracket: )
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: DATA
+      - keyword: 'ON'
+      - keyword: COMMIT
+      - keyword: DELETE
+      - keyword: ROWS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: VOLATILE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: c
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              quoted_literal: "'A'"
+              alias_expression:
+                keyword: AS
+                naked_identifier: B
+        end_bracket: )
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: VOLATILE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: e
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              quoted_literal: "'A'"
+              alias_expression:
+                keyword: AS
+                naked_identifier: B
+        end_bracket: )
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+      - keyword: AND
+      - keyword: STATS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: VOLATILE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: f
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              quoted_literal: "'A'"
+              alias_expression:
+                keyword: AS
+                naked_identifier: B
+        end_bracket: )
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+      - keyword: AND
+      - keyword: 'NO'
+      - keyword: STATS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: VOLATILE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: g
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              quoted_literal: "'A'"
+              alias_expression:
+                keyword: AS
+                naked_identifier: B
+        end_bracket: )
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+      - keyword: AND
+      - keyword: STATISTICS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: VOLATILE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: h
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              quoted_literal: "'A'"
+              alias_expression:
+                keyword: AS
+                naked_identifier: B
+        end_bracket: )
+    - td_table_constraint:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+      - keyword: AND
+      - keyword: 'NO'
+      - keyword: STATISTICS
+      - keyword: 'ON'
+      - keyword: COMMIT
+      - keyword: PRESERVE
+      - keyword: ROWS
 - statement_terminator: ;
