@@ -613,7 +613,9 @@ class RawTemplater:
         return [("templater", self.name)]
 
     def get_context(
-        self, fname: Optional[str] = None, config: Optional[FluffConfig] = None
+        self,
+        fname: Optional[str],
+        config: Optional[FluffConfig],
     ) -> Dict[str, Any]:
         """Get the templating context from the config.
 
@@ -624,7 +626,7 @@ class RawTemplater:
 
         Args:
             fname (str, optional): The file name.
-            config (dict, optional): The config dictionary.
+            config (`FluffConfig`, optional): The config object.
 
         Returns:
             dict: The templating context.

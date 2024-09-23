@@ -191,7 +191,9 @@ class PythonTemplater(RawTemplater):
             return s
 
     def get_context(
-        self, fname: Optional[str] = None, config: Optional[FluffConfig] = None
+        self,
+        fname: Optional[str],
+        config: Optional[FluffConfig],
     ) -> Dict[str, Any]:
         """Get the templating context from the config.
 
@@ -208,7 +210,7 @@ class PythonTemplater(RawTemplater):
         Returns:
             dict: The templating context.
         """
-        live_context = super().get_context(fname=fname, config=config)
+        live_context = super().get_context(fname, config)
         # Infer types
         for k in live_context:
             live_context[k] = self.infer_type(live_context[k])
@@ -242,7 +244,7 @@ class PythonTemplater(RawTemplater):
             formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
-        live_context = self.get_context(fname=fname, config=config)
+        live_context = self.get_context(fname, config)
 
         def render_func(raw_str: str) -> str:
             """Render the string using the captured live_context.

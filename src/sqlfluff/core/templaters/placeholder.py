@@ -79,10 +79,12 @@ class PlaceholderTemplater(RawTemplater):
 
     # copy of the Python templater
     def get_context(
-        self, fname: Optional[str] = None, config: Optional[FluffConfig] = None
+        self,
+        fname: Optional[str],
+        config: Optional[FluffConfig],
     ) -> Dict[str, Any]:
         """Get the templating context from the config."""
-        live_context = super().get_context(fname=fname, config=config)
+        live_context = super().get_context(fname, config)
 
         if "param_regex" in live_context and "param_style" in live_context:
             raise ValueError(
@@ -137,7 +139,7 @@ class PlaceholderTemplater(RawTemplater):
             formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
-        context = self.get_context(config=config)
+        context = self.get_context(fname, config)
         template_slices = []
         raw_slices = []
         last_pos_raw, last_pos_templated = 0, 0

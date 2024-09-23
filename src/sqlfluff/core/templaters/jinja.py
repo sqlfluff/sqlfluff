@@ -518,22 +518,28 @@ class JinjaTemplater(PythonTemplater):
             return apply_dbt_builtins
         return False
 
-    def get_context(
-        self, fname: Optional[str] = None, config: Optional[FluffConfig] = None, **kw
+    def _get_env_context(
+        self,
+        fname: Optional[str],
+        config: Optional[FluffConfig],
+        env: Environment,
     ) -> Dict[str, Any]:
         """Get the templating context from the config.
+
+        NOTE: This closely mirrors the `get_context` method which we inherit from the
+        python templater, but extends the signature. For that reason we define a new
+        method here, which internally refers to `get_context`.
 
         Args:
             fname (str, optional): The name of the file.
             config (dict, optional): The configuration.
-            **kw: Additional keyword arguments.
+            env: The Jinja Environment.
 
         Returns:
             dict: The templating context.
         """
         # Load the context
-        env = kw.pop("env")
-        live_context = super().get_context(fname=fname, config=config)
+        live_context = self.get_context(fname, config)
         # Apply dbt builtin functions if we're allowed.
         if config:
             # first make libraries available in the context
@@ -598,7 +604,7 @@ class JinjaTemplater(PythonTemplater):
         """
         # Load the context
         env = self._get_jinja_env(config)
-        live_context = self.get_context(fname=fname, config=config, env=env)
+        live_context = self._get_env_context(fname, config, env)
 
         def render_func(in_str: str) -> str:
             """Used by JinjaTracer to instantiate templates.
