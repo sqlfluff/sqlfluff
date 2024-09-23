@@ -19,7 +19,6 @@ pytest-xdist
 # MyPy
 mypy
 types-toml
-types-setuptools
 types-chardet
 types-appdirs
 types-colorama
