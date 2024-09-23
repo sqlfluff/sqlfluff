@@ -7,7 +7,7 @@ import pluggy
 
 from sqlfluff.core.plugin import plugin_base_name
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.rules import BaseRule
 
 hookspec = pluggy.HookspecMarker(plugin_base_name)
