@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c41276f69c8c8cfe5bdaa2fecb313b81143b06d12f5db664bc7d793a3979e239
+_hash: 52066abd17c4dc07c3f07a7839d42ca031e02419c8f372e4fa53305f4a470b0f
 file:
 - statement:
     select_statement:
@@ -1880,4 +1880,442 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: сотрудники
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: ms
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: dbadmin
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: επιμελητεία
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: διαχειριστής
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: логистика
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: алиса
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - comma: ','
+    - schema_reference:
+        naked_identifier: s2
+    - keyword: RENAME
+    - keyword: TO
+    - schema_reference:
+        naked_identifier: s3
+    - comma: ','
+    - schema_reference:
+        naked_identifier: s4
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: εμπορικός
+    - comma: ','
+    - schema_reference:
+        naked_identifier: s2
+    - keyword: RENAME
+    - keyword: TO
+    - schema_reference:
+        naked_identifier: продажи
+    - comma: ','
+    - schema_reference:
+        naked_identifier: s4
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: store_orders
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: expected_ship_date
+    - data_type:
+        keyword: date
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: κατάστημα_παραγγελίες
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: αναμενόμενη_ημερομηνία_αποστολής
+    - data_type:
+        keyword: date
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: заказы_магазина
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: ожиддаемая_дата_отгрузки
+    - data_type:
+        keyword: date
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t33
+    - alter_table_action_segment:
+      - keyword: OWNER
+      - keyword: TO
+      - parameter: Alice
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                typed_array_literal:
+                  array_type:
+                    keyword: ARRAY
+                  array_literal:
+                  - start_square_bracket: '['
+                  - quoted_literal: "'مسؤل'"
+                  - comma: ','
+                  - quoted_literal: "'διαχειριστής'"
+                  - comma: ','
+                  - quoted_literal: "'логистика'"
+                  - comma: ','
+                  - quoted_literal: "'d'"
+                  - comma: ','
+                  - quoted_literal: "'e'"
+                  - end_square_bracket: ']'
+              end_bracket: )
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '1'
+              end_square_bracket: ']'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: amount_of_honey
+              casting_operator: '::'
+              data_type:
+                keyword: FLOAT
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: bear_inventory
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: ποσότητα_μελιού
+              casting_operator: '::'
+              data_type:
+                keyword: FLOAT
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: αρκούδα_αποθήκη
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: количество_мёда
+              casting_operator: '::'
+              data_type:
+                keyword: FLOAT
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: медвежий_склад
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: AGGREGATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: APPROXIMATE_MEDIAN
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            keyword: FLOAT
+          end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'alias of APPROXIMATE_PERCENTILE with 0.5 as its parameter'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: AGGREGATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: APPROXIMATE_MEDIAN
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            keyword: FLOAT
+          end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'ψευδώνυμο APPROXIMATE_PERCENTILE με 0,5 ως παράμετρό του'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: AGGREGATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: APPROXIMATE_MEDIAN
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            keyword: FLOAT
+          end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'псевдоним APPROXIMATE_PERCENTILE с 0,5 в качестве параметра'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: public
+    - keyword: IS
+    - quoted_literal: "'All users can access this schema'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: public
+    - keyword: IS
+    - quoted_literal: "'Όλοι οι χρήστες έχουν πρόσβαση σε αυτό το σχήμα'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: public
+    - keyword: IS
+    - quoted_literal: "'Все пользователи могут получить доступ к этой схеме'"
+- statement_terminator: ;
+- statement:
+    create_projection_statement:
+    - keyword: CREATE
+    - keyword: PROJECTION
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: employee_dimension_super
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: public
+                - dot: .
+                - naked_identifier: employee_dimension
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: employee_key
+    - segmentedby_clause:
+      - keyword: SEGMENTED
+      - keyword: BY
+      - function:
+          function_name:
+            function_name_identifier: hash
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: employee_key
+              end_bracket: )
+      - keyword: ALL
+      - keyword: NODES
+- statement_terminator: ;
+- statement:
+    create_projection_statement:
+    - keyword: CREATE
+    - keyword: PROJECTION
+    - table_reference:
+      - naked_identifier: εμπορικός
+      - dot: .
+      - naked_identifier: παραγγελίες_ανά_ημέρα
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: εμπορικός
+                - dot: .
+                - naked_identifier: παραγγελίες
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: employee_key
+    - segmentedby_clause:
+      - keyword: SEGMENTED
+      - keyword: BY
+      - function:
+          function_name:
+            function_name_identifier: hash
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: employee_key
+              end_bracket: )
+      - keyword: ALL
+      - keyword: NODES
+- statement_terminator: ;
+- statement:
+    create_projection_statement:
+    - keyword: CREATE
+    - keyword: PROJECTION
+    - table_reference:
+      - naked_identifier: продажи
+      - dot: .
+      - naked_identifier: продажи_на_по_клиенту
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: продажи
+                - dot: .
+                - naked_identifier: продажи_на_сегодня
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: клиент
+    - segmentedby_clause:
+      - keyword: SEGMENTED
+      - keyword: BY
+      - function:
+          function_name:
+            function_name_identifier: hash
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: клиент
+              end_bracket: )
+      - keyword: ALL
+      - keyword: NODES
 - statement_terminator: ;
