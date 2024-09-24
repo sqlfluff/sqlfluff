@@ -518,6 +518,12 @@ vertica_dialect.replace(
             casefold=str.upper,
         )
     ),
+    ParameterNameSegment=RegexParser(
+        #need to cover cases where non-ascii word is parameter like ALTER TABLE some_table TO utf8_identifier_eg_Verkäufer;
+        r"[\p{L}_][\p{L}\p{N}$_]*",
+        sqlfluff.core.parser.CodeSegment,
+        type="parameter"
+    ),
 )
 
 
