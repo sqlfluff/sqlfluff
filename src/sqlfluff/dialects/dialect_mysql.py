@@ -308,6 +308,10 @@ mysql_dialect.add(
         type="quoted_literal",
         trim_chars=('"',),
     ),
+    # MySQL allows the usage of a double quoted identifier for an alias.
+    DoubleQuotedIdentifierSegment=TypedParser(
+        "double_quote", IdentifierSegment, type="quoted_identifier"
+    ),
     AtSignLiteralSegment=TypedParser(
         "at_sign_literal",
         LiteralSegment,
@@ -347,7 +351,8 @@ class AliasExpressionSegment(BaseSegment):
         Ref.keyword("AS", optional=True),
         OneOf(
             Ref("SingleIdentifierGrammar"),
-            Ref("QuotedLiteralSegment"),
+            Ref("SingleQuotedIdentifierSegment"),
+            Ref("DoubleQuotedIdentifierSegment"),
         ),
         Dedent,
     )

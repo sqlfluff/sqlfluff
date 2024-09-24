@@ -1,0 +1,4 @@
+test-config:
+  rules:
+    - LT04
+    - ST06

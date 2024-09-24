@@ -1,6 +1,7 @@
 """Defines the templaters."""
 
 import ast
+import re
 from string import Formatter
 from typing import (
     Any,
@@ -249,15 +250,51 @@ class PythonTemplater(RawTemplater):
         live_context = self.get_context(fname=fname, config=config)
 
         def render_func(raw_str: str) -> str:
-            """Render the string using the captured live_context."""
+            """Render the string using the captured live_context.
+
+            In order to support mocking of template variables
+            containing "." characters, this function converts any
+            template variable containing "." into a dictionary lookup.
+                Example:  {foo.bar} => {sqlfluff[foo.bar]}
+            """
             try:
-                rendered_str = raw_str.format(**live_context)
-            except KeyError as err:
-                raise SQLTemplaterError(
-                    "Failure in Python templating: {}. Have you configured your "
-                    "variables? https://docs.sqlfluff.com/en/stable/"
-                    "perma/variables.html".format(err)
+                # Hack to allow template variables with dot notation (e.g. foo.bar)
+                raw_str_with_dot_notation_hack = re.sub(
+                    r"{([^:}]*\.[^:}]*)(:\S*)?}", r"{sqlfluff[\1]\2}", raw_str
                 )
+                templater_logger.debug(
+                    "    Raw String with Dot Notation Hack: %r",
+                    raw_str_with_dot_notation_hack,
+                )
+                rendered_str = raw_str_with_dot_notation_hack.format(**live_context)
+            except KeyError as err:
+                missing_key = err.args[0]
+                if missing_key == "sqlfluff":
+                    # Give more useful error message related to dot notation hack
+                    # when user has not created the required, magic context key
+                    raise SQLTemplaterError(
+                        "Failure in Python templating: magic key 'sqlfluff' "
+                        "missing from context.  This key is required "
+                        "for template variables containing '.'. "
+                        "https://docs.sqlfluff.com/en/stable/"
+                        "perma/python_templating.html"
+                    )
+                elif "." in missing_key:
+                    # Give more useful error message related to dot notation hack
+                    # for missing keys
+                    raise SQLTemplaterError(
+                        "Failure in Python templating: {} key missing from 'sqlfluff' "
+                        "dict in context. Template variables containing '.' are "
+                        "required to use the 'sqlfluff' magic fixed context key. "
+                        "https://docs.sqlfluff.com/en/stable/"
+                        "perma/python_templating.html".format(err)
+                    )
+                else:
+                    raise SQLTemplaterError(
+                        "Failure in Python templating: {}. Have you configured your "
+                        "variables? https://docs.sqlfluff.com/en/stable/"
+                        "perma/variables.html".format(err)
+                    )
             return rendered_str
 
         raw_sliced, sliced_file, new_str = self.slice_file(

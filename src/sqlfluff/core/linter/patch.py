@@ -121,6 +121,7 @@ def _iter_templated_patches(
         source_idx = segment.pos_marker.source_slice.start
         templated_idx = segment.pos_marker.templated_slice.start
         insert_buff = ""
+        first_segment_pos = None
         for seg in segments:
             # First check for insertions.
             # At this stage, everything should have a position.
@@ -131,6 +132,8 @@ def _iter_templated_patches(
                 # Add it to the insertion buffer if it has length:
                 if seg.raw:
                     insert_buff += seg.raw
+                    # We want to capture the first position where we have a point.
+                    first_segment_pos = first_segment_pos or seg.pos_marker
                     linter_logger.debug(
                         "Appending insertion buffer. %r @idx: %s",
                         insert_buff,
@@ -152,7 +155,7 @@ def _iter_templated_patches(
                 # For the start of the next segment, we need the position of the
                 # first raw, not the pos marker of the whole thing. That accounts
                 # better for loops.
-                first_segment_pos = seg.raw_segments[0].pos_marker
+                first_segment_pos = first_segment_pos or seg.pos_marker
                 yield FixPatch(
                     # Whether the source slice is zero depends on the start_diff.
                     # A non-zero start diff implies a deletion, or more likely
@@ -173,6 +176,8 @@ def _iter_templated_patches(
                     source_str="",
                 )
 
+                # Reset the first position so we can move the pointer forward.
+                first_segment_pos = None
                 insert_buff = ""
 
             # Now we deal with any changes *within* the segment itself.
@@ -210,7 +215,7 @@ def _iter_templated_patches(
             )
 
 
-def _log_hints(patch: FixPatch, templated_file: TemplatedFile):
+def _log_hints(patch: FixPatch, templated_file: TemplatedFile) -> None:
     """Log hints for debugging during patch generation."""
     max_log_length = 10
     if patch.templated_slice.start >= max_log_length:

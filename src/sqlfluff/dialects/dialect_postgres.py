@@ -412,9 +412,9 @@ postgres_dialect.replace(
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
-            # Can’t begin with $, must only contain digits, letters, underscore it $ but
-            # can’t be all digits.
-            r"([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
+            # Can’t begin with $ or digits,
+            # must only contain digits, letters, underscore or $
+            r"[A-Z_][A-Z0-9_$]*",
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
@@ -699,6 +699,10 @@ postgres_dialect.replace(
     ),
     UnknownLiteralSegment=StringParser(
         "UNKNOWN", LiteralKeywordSegment, type="null_literal"
+    ),
+    NormalizedGrammar=Sequence(
+        OneOf("NFC", "NFD", "NFKC", "NFKD", optional=True),
+        "NORMALIZED",
     ),
 )
 
@@ -4987,6 +4991,7 @@ class SetStatementSegment(BaseSegment):
                     Delimited(
                         Ref("LiteralGrammar"),
                         Ref("NakedIdentifierSegment"),
+                        Ref("QuotedIdentifierSegment"),
                         # https://github.com/postgres/postgres/blob/4380c2509d51febad34e1fac0cfaeb98aaa716c5/src/backend/parser/gram.y#L1810-L1815
                         Ref("OnKeywordAsIdentifierSegment"),
                     ),
