@@ -9,6 +9,7 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
+    Anything,
     BaseSegment,
     Bracketed,
     CodeSegment,
@@ -640,6 +641,7 @@ snowflake_dialect.replace(
             Ref("MatchRecognizeClauseSegment"),
             Ref("ChangesClauseSegment"),
             Ref("ConnectByClauseSegment"),
+            Ref("FromAtExpressionSegment"),
             Ref("FromBeforeExpressionSegment"),
             Ref("FromPivotExpressionSegment"),
             AnyNumberOf(Ref("FromUnpivotExpressionSegment")),
@@ -1483,12 +1485,20 @@ class WithinGroupClauseSegment(BaseSegment):
 
 
 class FromExpressionElementSegment(ansi.FromExpressionElementSegment):
-    """A table expression."""
+    """A table expression.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/from
+    """
 
     type = "from_expression_element"
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
+        OneOf(
+            Ref("FromAtExpressionSegment"),
+            Ref("FromBeforeExpressionSegment"),
+            optional=True,
+        ),
         Ref(
             "AliasExpressionSegment",
             exclude=OneOf(
@@ -1718,7 +1728,10 @@ class FromBeforeExpressionSegment(BaseSegment):
 
 
 class FromPivotExpressionSegment(BaseSegment):
-    """A PIVOT expression."""
+    """A PIVOT expression.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/pivot.html
+    """
 
     type = "from_pivot_expression"
     match_grammar = Sequence(
@@ -1728,7 +1741,16 @@ class FromPivotExpressionSegment(BaseSegment):
             "FOR",
             Ref("SingleIdentifierGrammar"),
             "IN",
-            Bracketed(Delimited(Ref("LiteralGrammar"))),
+            Bracketed(
+                OneOf(
+                    Delimited(Ref("LiteralGrammar")),
+                    Sequence("ANY", Ref("OrderByClauseSegment", optional=True)),
+                    Ref("SelectStatementSegment"),
+                )
+            ),
+            Sequence(
+                "DEFAULT", "ON", "NULL", Bracketed(Ref("LiteralGrammar")), optional=True
+            ),
         ),
     )
 
@@ -2071,7 +2093,7 @@ class AlterTableTableColumnActionSegment(BaseSegment):
             "ADD",
             Ref.keyword("COLUMN", optional=True),
             # @TODO: Cannot specify IF NOT EXISTS if also specifying
-            # DEFAULT, AUTOINCREMENT, IDENTITY UNIQUE, PRIMARY KEY, FOREIGN KEY
+            # DEFAULT, AUTOINCREMENT, IDENTITY UNIQUE, PRIMARY KEY, FOREIGN KEY, AS
             Ref("IfNotExistsGrammar", optional=True),
             # Handle Multiple Columns
             Delimited(
@@ -2080,9 +2102,9 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                     Ref("ColumnReferenceSegment"),
                     Ref("DatatypeSegment"),
                     OneOf(
-                        # Default
+                        # Default & AS (virtual columns)
                         Sequence(
-                            "DEFAULT",
+                            OneOf("DEFAULT", "AS"),
                             Ref("ExpressionSegment"),
                         ),
                         # Auto-increment/identity column
@@ -4404,6 +4426,17 @@ class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
                                 Ref("ConstraintPropertiesSegment"),
                                 Ref("ColumnDefinitionSegment"),
                                 Ref("SingleIdentifierGrammar"),
+                                Sequence(
+                                    Ref("SingleIdentifierGrammar"),
+                                    Ref("DatatypeSegment"),
+                                    Bracketed(
+                                        Anything(), optional=True
+                                    ),  # For types like VARCHAR(100)
+                                    "AS",
+                                    OptionallyBracketed(
+                                        Ref("ExpressionSegment"),
+                                    ),
+                                ),
                             ),
                             Ref("CommentClauseSegment", optional=True),
                         ),

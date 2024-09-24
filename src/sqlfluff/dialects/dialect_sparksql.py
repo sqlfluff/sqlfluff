@@ -863,7 +863,7 @@ sparksql_dialect.add(
                 Delimited(
                     Sequence(
                         OneOf(
-                            Ref("ColumnDefinitionSegment"),
+                            Ref("ColumnFieldDefinitionSegment"),
                             Ref("GeneratedColumnDefinitionSegment"),
                             Ref("TableConstraintSegment", optional=True),
                         ),

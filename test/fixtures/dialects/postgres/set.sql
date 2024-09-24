@@ -13,3 +13,5 @@ SET SCHEMA  'public';
 SET ROLE my_role;
 SET ROLE "my role";
 SET ROLE NONE;
+SET LOCAL search_path = schema_name;
+SET LOCAL search_path = "schema_name";
