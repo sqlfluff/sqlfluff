@@ -60,11 +60,18 @@ class Rule_AL09(BaseRule):
 
         children: Segments = FunctionalContext(context).segment.children()
 
-        for clause_element in children.select(sp.is_type("select_clause_element")):
-            clause_element_raw_segments = (
-                clause_element.get_raw_segments()
-            )  # col_a as col_a
+        # Some dialects are case insensitive when referencing columns (e.g. COL1 is
+        # the same as col1), but the case of the reference does follow through into
+        # the result set (i.e. where COL1 and col1 refer to the same column, the column
+        # label in the result set will be different). In these cases, if the alias and
+        # the column compare equal (case insensitive), but have a different case, we
+        # replace the reference with the alias to achieve a simpler but consistent
+        # result.
+        dialect_supports_ci_names_cs_result = ["tsql", "bigquery"]
 
+        ci_names_cs_result = context.dialect.name in dialect_supports_ci_names_cs_result
+
+        for clause_element in children.select(sp.is_type("select_clause_element")):
             column = clause_element.get_child("column_reference")  # `col_a`
             alias_expression = clause_element.get_child(
                 "alias_expression"
@@ -76,9 +83,7 @@ class Rule_AL09(BaseRule):
                 # If column has either a naked_identifier or quoted_identifier
                 # (not positional identifier like $n in snowflake)
                 # then continue
-                if column.get_child("naked_identifier") or column.get_child(
-                    "quoted_identifier"
-                ):
+                if column.get_child("naked_identifier", "quoted_identifier"):
                     whitespace = clause_element.get_child("whitespace")  # ` `
 
                     # If the column name is quoted then get the `quoted_identifier`,
@@ -93,8 +98,8 @@ class Rule_AL09(BaseRule):
 
                     # The alias can be the naked_identifier or the quoted_identifier
                     alias_identifier = alias_expression.get_child(
-                        "naked_identifier"
-                    ) or alias_expression.get_child("quoted_identifier")
+                        "naked_identifier", "quoted_identifier"
+                    )
 
                     if not (
                         whitespace and column_identifier and alias_identifier
@@ -117,15 +122,23 @@ class Rule_AL09(BaseRule):
                         continue
 
                     # Column self-aliased
-                    if column_identifier.raw_upper == alias_identifier.raw_upper:
+                    if (
+                        column_identifier.raw_normalized()
+                        # We casefold the alias only for relevant dialects.
+                        == alias_identifier.raw_normalized(casefold=ci_names_cs_result)
+                    ):
                         fixes: List[LintFix] = []
 
+                        if ci_names_cs_result:
+                            fixes.append(
+                                LintFix.replace(column_identifier, [alias_identifier])
+                            )
                         fixes.append(LintFix.delete(whitespace))
                         fixes.append(LintFix.delete(alias_expression))
 
                         violations.append(
                             LintResult(
-                                anchor=clause_element_raw_segments[0],
+                                anchor=clause_element,
                                 description="Column should not be self-aliased.",
                                 fixes=fixes,
                             )
