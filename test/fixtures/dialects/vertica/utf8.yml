@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 52066abd17c4dc07c3f07a7839d42ca031e02419c8f372e4fa53305f4a470b0f
+_hash: d48b7901afbfc3cd29d9c20e9c16ac2e5b173a4c3f6e0e0109f52ffb026a3235
 file:
 - statement:
     select_statement:
@@ -2008,6 +2008,28 @@ file:
       - parameter: Alice
 - statement_terminator: ;
 - statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: επιμελητεία
+    - alter_table_action_segment:
+      - keyword: OWNER
+      - keyword: TO
+      - parameter: διαχειριστής
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: заказы
+    - alter_table_action_segment:
+      - keyword: OWNER
+      - keyword: TO
+      - parameter: алиса
+- statement_terminator: ;
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -2182,6 +2204,93 @@ file:
     - quoted_literal: "'Все пользователи могут получить доступ к этой схеме'"
 - statement_terminator: ;
 - statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: customer_dimension
+    - bracketed:
+        start_bracket: (
+        copy_column_options:
+          column_reference:
+            naked_identifier: customer_since
+          copy_options_for_columns:
+            keyword: FORMAT
+            quoted_literal: "'YYYY'"
+        end_bracket: )
+    - keyword: FROM
+    - keyword: STDIN
+    - copy_options:
+        copy_options_for_columns:
+        - keyword: DELIMITER
+        - quoted_literal: "','"
+        - keyword: 'NULL'
+        - keyword: AS
+        - quoted_literal: "'null'"
+        - keyword: ENCLOSED
+        - keyword: BY
+        - quoted_literal: "'\"'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+      - naked_identifier: παραγγελίες
+      - dot: .
+      - naked_identifier: παραγγελίες_ανά_ημέρα
+    - bracketed:
+        start_bracket: (
+        copy_column_options:
+          column_reference:
+            naked_identifier: πελάτη_αφού
+          copy_options_for_columns:
+            keyword: FORMAT
+            quoted_literal: "'YYYY'"
+        end_bracket: )
+    - keyword: FROM
+    - keyword: STDIN
+    - copy_options:
+        copy_options_for_columns:
+        - keyword: DELIMITER
+        - quoted_literal: "','"
+        - keyword: 'NULL'
+        - keyword: AS
+        - quoted_literal: "'null'"
+        - keyword: ENCLOSED
+        - keyword: BY
+        - quoted_literal: "'\"'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+      - naked_identifier: заказы
+      - dot: .
+      - naked_identifier: заказы_на_день
+    - bracketed:
+        start_bracket: (
+        copy_column_options:
+          column_reference:
+            naked_identifier: клиент_с_даты
+          copy_options_for_columns:
+            keyword: FORMAT
+            quoted_literal: "'YYYY'"
+        end_bracket: )
+    - keyword: FROM
+    - keyword: STDIN
+    - copy_options:
+        copy_options_for_columns:
+        - keyword: DELIMITER
+        - quoted_literal: "','"
+        - keyword: 'NULL'
+        - keyword: AS
+        - quoted_literal: "'null'"
+        - keyword: ENCLOSED
+        - keyword: BY
+        - quoted_literal: "'\"'"
+- statement_terminator: ;
+- statement:
     create_projection_statement:
     - keyword: CREATE
     - keyword: PROJECTION
@@ -2318,4 +2427,328 @@ file:
               end_bracket: )
       - keyword: ALL
       - keyword: NODES
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s3
+    - keyword: DEFAULT
+    - schema_privileges_segment:
+      - keyword: INCLUDE
+      - keyword: SCHEMA
+      - keyword: PRIVILEGES
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: εμπορικός
+    - keyword: DEFAULT
+    - schema_privileges_segment:
+      - keyword: INCLUDE
+      - keyword: SCHEMA
+      - keyword: PRIVILEGES
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: продажи
+    - keyword: DEFAULT
+    - schema_privileges_segment:
+      - keyword: INCLUDE
+      - keyword: SCHEMA
+      - keyword: PRIVILEGES
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: логистика
+              - dot: .
+              - naked_identifier: εμπορικός
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: логистика
+              - dot: .
+              - naked_identifier: εμπορικός1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: логистика
+              - dot: .
+              - naked_identifier: εμπορικός_
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: логистика
+              - dot: .
+              - naked_identifier: s$ales$
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: логистика
+              - dot: .
+              - naked_identifier: _εμπορικός
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: логистика
+              - dot: .
+              - naked_identifier: _1234εμπορικός
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: логистика1
+              - dot: .
+              - naked_identifier: εμπορικός
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: логистика_
+              - dot: .
+              - naked_identifier: εμπορικός
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: p$ublic$
+              - dot: .
+              - naked_identifier: εμπορικός
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: _логистика
+              - dot: .
+              - naked_identifier: εμπορικός
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: _1234логистика
+              - dot: .
+              - naked_identifier: εμπορικός
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: логистика1
+              - dot: .
+              - naked_identifier: εμπορικός1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: логистика1_
+              - dot: .
+              - naked_identifier: εμπορικός1_
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: p$ublic1_$
+              - dot: .
+              - naked_identifier: s$ales1_$
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - quoted_identifier: '"12логистика"'
+              - dot: .
+              - quoted_identifier: '"12344εμπορικός"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - quoted_identifier: '"_1234логистика"'
+              - dot: .
+              - quoted_identifier: '"_1234εμπορικός"'
 - statement_terminator: ;

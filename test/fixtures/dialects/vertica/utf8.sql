@@ -162,9 +162,9 @@ ALTER TABLE public.заказы_магазина ADD COLUMN ожиддаемая
 
 ALTER TABLE t33 OWNER TO Alice;
 
---! ALTER TABLE επιμελητεία OWNER TO διαχειριστής;
+ALTER TABLE επιμελητεία OWNER TO διαχειριστής;
 
---! ALTER TABLE заказы OWNER TO алиса;
+ALTER TABLE заказы OWNER TO алиса;
 
 -- ARRAY block
 SELECT (ARRAY['مسؤل', 'διαχειριστής', 'логистика', 'd', 'e'])[1];
@@ -189,21 +189,29 @@ COMMENT ON SCHEMA public  IS 'Όλοι οι χρήστες έχουν πρόσβ
 COMMENT ON SCHEMA public  IS 'Все пользователи могут получить доступ к этой схеме';
 
 -- COPY block
--- COPY INTO test_parquet
--- FROM 'https://myaccount.blob.core.windows.net/myblobcontainer/folder1/*.parquet'
--- WITH (
---     FILE_FORMAT = myFileFormat,
---     CREDENTIAL=(IDENTITY= 'Shared Access Signature', SECRET='<Your_SAS_Token>')
--- );
+COPY public.customer_dimension (
+    customer_since FORMAT 'YYYY'
+)
+   FROM STDIN
+   DELIMITER ','
+   NULL AS 'null'
+   ENCLOSED BY '"';
 
--- COPY INTO продажи.продажи_на_сегодня
--- FROM 'https://myaccount.blob.core.windows.net/myblobcontainer/folder0/*.txt'
--- WITH (
---     FILE_TYPE = 'CSV',
---     CREDENTIAL = (IDENTITY = 'Managed Identity'),
---     FIELDQUOTE = '"',
---     FIELDTERMINATOR=','
--- );
+COPY παραγγελίες.παραγγελίες_ανά_ημέρα (
+    πελάτη_αφού FORMAT 'YYYY'
+)
+   FROM STDIN
+   DELIMITER ','
+   NULL AS 'null'
+   ENCLOSED BY '"';
+
+COPY заказы.заказы_на_день (
+    клиент_с_даты FORMAT 'YYYY'
+)
+   FROM STDIN
+   DELIMITER ','
+   NULL AS 'null'
+   ENCLOSED BY '"';
 
 -- CREATE PROJECTION block
 CREATE PROJECTION public.employee_dimension_super
@@ -222,6 +230,29 @@ CREATE PROJECTION продажи.продажи_на_по_клиенту
     SEGMENTED BY hash(клиент) ALL NODES;
 
 -- CREATE SCHEMA block
--- CREATE SCHEMA IF NOT EXISTS foo COMMENT 'test schema' MANAGEDLOCATION 'hdfs://path';
--- CREATE SCHEMA IF NOT EXISTS εμπορικός COMMENT 'test schema' MANAGEDLOCATION 'hdfs://path';
--- CREATE SCHEMA IF NOT EXISTS продажи COMMENT 'test schema' MANAGEDLOCATION 'hdfs://path';
+CREATE SCHEMA s3 DEFAULT INCLUDE SCHEMA PRIVILEGES;
+CREATE SCHEMA εμπορικός DEFAULT INCLUDE SCHEMA PRIVILEGES;
+CREATE SCHEMA продажи DEFAULT INCLUDE SCHEMA PRIVILEGES;
+
+-- unqouted identifiers
+SELECT * FROM логистика.εμπορικός;
+
+SELECT * FROM логистика.εμπορικός1;
+SELECT * FROM логистика.εμπορικός_;
+SELECT * FROM логистика.s$ales$;
+SELECT * FROM логистика._εμπορικός;
+SELECT * FROM логистика._1234εμπορικός;
+
+SELECT * FROM логистика1.εμπορικός;
+SELECT * FROM логистика_.εμπορικός;
+SELECT * FROM p$ublic$.εμπορικός;
+SELECT * FROM _логистика.εμπορικός;
+SELECT * FROM _1234логистика.εμπορικός;
+
+SELECT * FROM логистика1.εμπορικός1;
+SELECT * FROM логистика1_.εμπορικός1_;
+SELECT * FROM p$ublic1_$.s$ales1_$;
+
+-- quoted identifiers
+SELECT * FROM "12логистика"."12344εμπορικός";
+SELECT * FROM "_1234логистика"."_1234εμπορικός";
