@@ -157,7 +157,7 @@ class JinjaTemplater(PythonTemplater):
             if os.path.isfile(path_entry):
                 if exclude_paths:
                     if cls._exclude_macros(
-                        macro=path_entry, exclude_macros=exclude_paths
+                        macro_path=path_entry, exclude_macros_path=exclude_paths
                     ):
                         continue
                 # It's a file. Extract macros from it.
@@ -1044,23 +1044,21 @@ class JinjaTemplater(PythonTemplater):
             )
 
     @staticmethod
-    def _exclude_macros(macro: str, exclude_macros: List[str]) -> bool:
+    def _exclude_macros(macro_path: str, exclude_macros_path: List[str]) -> bool:
         """Determines if a macro is within the exclude macros path.
 
         These macros will be ignored and not loaded into context
 
         Args:
-            macro (str): Str of the path to the macro
-            exclude_macros (List[str]): Str of the path to the macros to exclude
+            macro_path (str): Str of the path to the macro
+            exclude_macros_path (List[str]): Str of the path to the macros to exclude
 
         Returns:
             bool: True if the macro should be excluded
         """
-        for exclude_macro in exclude_macros:
-            macro_path_abs = os.path.normpath(os.path.abspath(macro))
-            exclude_macro_path = os.path.normpath(exclude_macro)
-            if exclude_macro_path in macro_path_abs:
-                templater_logger.debug("Skipping this macro file: %s", macro_path_abs)
+        for exclude_path in exclude_macros_path:
+            if exclude_path in macro_path:
+                templater_logger.debug("Skipping this macro file: %s", macro_path)
                 return True
         return False
 
