@@ -56,7 +56,7 @@ the line _numbers_, not the character position. If you need the character
 position, you will need to run SQLFluff directly.
 
 For more information on ``diff-quality``, see the
-`documentation <https://diff-cover.readthedocs.io/en/latest/>`_. It covers topics
+`documentation <https://diff-cover.readthedocs.io/en/latest/README.html>`_. It covers topics
 such as:
 
 * Generating HTML reports
@@ -65,3 +65,7 @@ such as:
 * Configuring ``diff-quality`` to return an error code if the quality is
   too low.
 * Troubleshooting
+
+You can also find out more about ``diff-quality`` and the ``diff_cover`` package
+on the `github repository <https://github.com/Bachmann1234/diff_cover>`_ for the
+project.
