@@ -14,6 +14,7 @@ from typing import (
     Iterator,
     List,
     Optional,
+    Self,
     Set,
     Tuple,
     Union,
@@ -311,7 +312,7 @@ class JinjaTemplater(PythonTemplater):
             def __call__(self, *args: tuple, **kwargs: dict) -> str:  # pragma: no cover TODO?
                 return self.identifier
               
-            def __getattr__(self, name: str) -> Union[RelationEmulator, bool]:  # pragma: no cover TODO?
+            def __getattr__(self, name: str) -> Union[Self, bool]:  # pragma: no cover TODO?
                 if name[0:3] == "is_":
                     return True
                 return self
