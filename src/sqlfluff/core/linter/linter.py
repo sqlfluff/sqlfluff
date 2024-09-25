@@ -514,7 +514,9 @@ class Linter:
                                 config.get("dialect_obj"),
                                 crawler.code,
                                 anchor_info,
+                                fix_even_unparsable=config.get("fix_even_unparsable"),
                             )
+
                             # Check for infinite loops. We use a combination of the
                             # fixed templated file and the list of source fixes to
                             # apply.
@@ -522,7 +524,14 @@ class Linter:
                                 new_tree.raw,
                                 tuple(new_tree.source_fixes),
                             )
-                            if not _valid:
+                            # Was anything actually applied? If not, then the fixes we
+                            # had cannot be safely applied and we should stop trying.
+                            if loop_check_tuple == (tree.raw, tuple(tree.source_fixes)):
+                                linter_logger.debug(
+                                    f"Fixes for {crawler.code} could not be safely be "
+                                    "applied. Likely due to initially unparsable file."
+                                )
+                            elif not _valid:
                                 # The fixes result in an invalid file. Don't apply
                                 # the fix and skip onward. Show a warning.
                                 linter_logger.warning(

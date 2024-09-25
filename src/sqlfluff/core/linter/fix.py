@@ -118,16 +118,39 @@ def apply_fixes(
     dialect: "Dialect",
     rule_code: str,
     fixes: Dict[int, AnchorEditInfo],
+    fix_even_unparsable: bool = False,
 ) -> Tuple["BaseSegment", List["BaseSegment"], List["BaseSegment"], bool]:
     """Apply a dictionary of fixes to this segment.
 
-    Used in applying fixes if we're fixing linting errors.
-    If anything changes, this should return a new version of the segment
-    rather than mutating the original.
+    Used in to apply fixes found in linting. If a segment remains unchanged
+    then the original is returned, but if any changes are made to it, or any
+    of it's child segments, then it returns a copy rather than mutating the
+    original.
 
-    Note: We need to have fixes to apply AND this must have children. In the case
-    of raw segments, they will be replaced or removed by their parent and
-    so this function should just return self.
+    Most fixes are usually applied when this method is called on their parent
+    segment, this is because that's where we can insert or move segments relative
+    to the anchor specified in the fix. This has the implication that if the
+    method is called on a `RawSegment`, then no changes will be applied, because
+    a `RawSegment` never has child segments.
+
+    After fixing, it calls `validate_segment_with_reparse` on the segment to
+    check that the segment still parses after any changes are made. The result
+    of this is returned as a boolean in the last element of the return tuple.
+    As the function recurses, if an inner element doesn't parse after fixing,
+    then the outer segment will also be checked, and if found to parse successfully
+    then the method returns `True` as valid. This is because sometimes the fixes
+    change the structure enough that a wider reparse is necessary.
+
+    Because of this validity checking, any unparsable sections are assumed
+    unfixable (because we won't know if we're corrupting the SQL). The method
+    will therefore return early without applying any fixes if the segment it's
+    called on is unparsable (because we already know that validation check will
+    fail already).
+
+    If `fix_even_unparsable` is True, then we will still apply fixes to unparsable
+    sections, but will do so *without validation*. That means that the final
+    element of the return value will always return `True`, so that we don't interrupt
+    the validity checking of any outer (parsable) sections.
     """
     if not fixes or segment.is_raw():
         return segment, [], [], True
@@ -290,10 +313,25 @@ def apply_fixes(
             err.add_note(f" After applying fixes: {fixes_applied}.")
         raise err
 
-    # Only validate if there's a match_grammar. Otherwise we may get
-    # strange results (for example with the BracketedSegment).
-    if requires_validate and hasattr(new_seg, "match_grammar"):
-        validated = new_seg.validate_segment_with_reparse(dialect)
+    # Handle any necessary validation.
+    if requires_validate:
+        # Was it already unparsable?
+        if "unparsable" in segment.descendant_type_set | segment.class_types:
+            if fix_even_unparsable:
+                # If we're fixing even unparsable sections, there's no point trying
+                # to validate, it will always fail. We may still want to validate
+                # other sections of the file though, so we should just declare *this*
+                # part of the file to be all good.
+                validated = True
+            else:
+                # It was already unparsable, but we're being asked to validate.
+                # Don't any fixes from within this region and just return the original
+                # segment.
+                return segment, [], [], True
+        # Otherwise only validate if there's a match_grammar. Otherwise we may get
+        # strange results (for example with the BracketedSegment).
+        elif hasattr(new_seg, "match_grammar"):
+            validated = new_seg.validate_segment_with_reparse(dialect)
     else:
         validated = not requires_validate
     # Return the new segment and any non-code that needs to bubble up
