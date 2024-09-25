@@ -17,6 +17,7 @@ from typing import (
     Set,
     Tuple,
     cast,
+    Union,
 )
 
 import jinja2.nodes
@@ -300,12 +301,20 @@ class JinjaTemplater(PythonTemplater):
         class ThisEmulator:
             """A class which emulates the `this` class from dbt."""
 
-            name = "this_model"
+            identifier = "this_model"
             schema = "this_schema"
             database = "this_database"
+              
+            def __call__(self, *args: tuple, **kwargs: dict) -> str:  # pragma: no cover TODO?
+                return self.identifier
+              
+            def __getattr__(self, name: str) -> Union[ThisEmulator, bool]:  # pragma: no cover TODO?
+                if name[0:3] == "is_":
+                    return True
+                return self
 
             def __str__(self) -> str:  # pragma: no cover TODO?
-                return self.name
+                return self.identifier
 
         dbt_builtins = {
             "ref": lambda *args: args[-1],
