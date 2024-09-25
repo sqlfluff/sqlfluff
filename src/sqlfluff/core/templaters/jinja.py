@@ -298,17 +298,20 @@ class JinjaTemplater(PythonTemplater):
         # be configurable somewhere sensible. But for now they're not.
         # TODO: Come up with a better solution.
 
-        class ThisEmulator:
+        class RelationEmulator:
             """A class which emulates the `this` class from dbt."""
 
             identifier = "this_model"
             schema = "this_schema"
             database = "this_database"
               
+            def __init__(self, identifier: str = "this_model"):  # pragma: no cover TODO?
+                self.identifier = identifier
+              
             def __call__(self, *args: tuple, **kwargs: dict) -> str:  # pragma: no cover TODO?
                 return self.identifier
               
-            def __getattr__(self, name: str) -> Union[ThisEmulator, bool]:  # pragma: no cover TODO?
+            def __getattr__(self, name: str) -> Union[RelationEmulator, bool]:  # pragma: no cover TODO?
                 if name[0:3] == "is_":
                     return True
                 return self
@@ -317,10 +320,10 @@ class JinjaTemplater(PythonTemplater):
                 return self.identifier
 
         dbt_builtins = {
-            "ref": lambda *args: args[-1],
+            "ref": lambda *args: RelationEmulator(args[-1]),
             # In case of a cross project ref in dbt, model_ref is the second
             # argument. Otherwise it is the only argument.
-            "source": lambda source_name, table: f"{source_name}_{table}",
+            "source": lambda source_name, table: RelationEmulator(f"{source_name}_{table}"),
             "config": lambda **kwargs: "",
             "var": lambda variable, default="": "item",
             # `is_incremental()` renders as True, always in this case.
@@ -329,7 +332,7 @@ class JinjaTemplater(PythonTemplater):
             # We should try to find a solution to that. Perhaps forcing the file
             # to be parsed TWICE if it uses this variable.
             "is_incremental": lambda: True,
-            "this": ThisEmulator(),
+            "this": RelationEmulator(),
         }
         return dbt_builtins
 
