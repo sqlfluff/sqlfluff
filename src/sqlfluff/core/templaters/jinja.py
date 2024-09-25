@@ -305,13 +305,13 @@ class JinjaTemplater(PythonTemplater):
             identifier = "this_model"
             schema = "this_schema"
             database = "this_database"
-              
+
             def __init__(self, identifier: str = "this_model"):  # pragma: no cover TODO?
                 self.identifier = identifier
-              
+
             def __call__(self, *args: tuple, **kwargs: dict) -> str:  # pragma: no cover TODO?
                 return self.identifier
-              
+
             def __getattr__(self, name: str) -> Union[Self, bool]:  # pragma: no cover TODO?
                 if name[0:3] == "is_":
                     return True
