@@ -16,8 +16,8 @@ from typing import (
     Optional,
     Set,
     Tuple,
-    cast,
     Union,
+    cast,
 )
 
 import jinja2.nodes
