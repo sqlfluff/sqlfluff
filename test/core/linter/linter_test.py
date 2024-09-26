@@ -590,3 +590,56 @@ def test_normalise_newlines():
     in_str = "SELECT\r\n foo\n FROM \r \n\r bar;"
     out_str = "SELECT\n foo\n FROM \n \n\n bar;"
     assert out_str == Linter._normalise_newlines(in_str)
+
+
+@pytest.mark.parametrize(
+    "fix_even_unparsable",
+    [False, True],
+)
+def test_unparsable_fix_output(fix_even_unparsable):
+    """Tests functionality and logging output with unparsable sections.
+
+    NOTE: While we cover different paths, the result for this test is the
+    same for both values of `fix_even_unparsable`. We probably need a better
+    test case at some point so that we can actually see the difference.
+    """
+    # This is a query with an unparsable section (the `multiple_x` bit).
+    sql_text = """SELECT
+    a as b,
+    42,
+    `multiple_x` as c
+from cte
+"""
+    config = FluffConfig(
+        overrides={"fix_even_unparsable": fix_even_unparsable, "dialect": "ansi"}
+    )
+    linter = Linter(config=config)
+    # Attempt to fix it, capturing the logging output.
+    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
+        result = linter.lint_string(sql_text, fix=True)
+    # Assert that it parsed (i.e. we found a select_statement), but with an
+    # unparsable section in there too.
+    assert result.tree
+    assert "select_statement" in result.tree.descendant_type_set
+    assert "unparsable" in result.tree.descendant_type_set
+    # We should still find linting issues too
+    assert result.check_tuples(raise_on_non_linting_violations=False) == [
+        ("CP01", 2, 7),  # `a as b` - capitalisation of AS
+        ("AL03", 3, 5),  # 42 is an expression without an alias
+        # The unparsable section is (wrongly) detected as an indentation issue.
+        ("LT02", 4, 1),
+        ("CP01", 5, 1),  # `from` is uncapitalised
+    ]
+    # We should make sure that the warning that asks users to report a bug is
+    # NOT present. i.e. the warning which could happen in `lint_fix_parsed()`.`
+    assert "Please report this as a bug" not in caplog.text
+    # Also not the `fix not applied`. The one in `_warn_unfixable()`
+    assert "it would re-cause the same error" not in caplog.text
+    # In fact, there shouldn't be any warnings at all.
+    assert not caplog.text.strip()
+    # In both cases, the final capitalisation and the `a as b` sections should have
+    # been fixed (because they aren't in the unparsable section).
+    assert "from cte" not in result.tree.raw
+    assert "FROM cte" in result.tree.raw
+    assert "a as b" not in result.tree.raw
+    assert "a AS b" in result.tree.raw

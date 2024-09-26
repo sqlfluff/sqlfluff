@@ -499,12 +499,18 @@ class Linter:
                             cls._report_conflicting_fixes_same_anchor(message)
                             for lint_result in linting_errors:
                                 lint_result.fixes = []
-                        elif fixes == last_fixes:  # pragma: no cover
+                        elif fixes == last_fixes:
                             # If we generate the same fixes two times in a row,
                             # that means we're in a loop, and we want to stop.
                             # (Fixes should address issues, hence different
                             # and/or fewer fixes next time.)
-                            cls._warn_unfixable(crawler.code)
+                            # This is most likely because fixes could not be safely
+                            # applied last time, so we should stop gracefully.
+                            linter_logger.debug(
+                                f"Fixes generated for {crawler.code} are the same as "
+                                "the previous pass. Assuming that we cannot apply them "
+                                "safely. Passing gracefully."
+                            )
                         else:
                             # This is the happy path. We have fixes, now we want to
                             # apply them.
