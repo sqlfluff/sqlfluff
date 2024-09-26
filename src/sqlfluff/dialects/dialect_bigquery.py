@@ -46,14 +46,21 @@ ansi_dialect = load_raw_dialect("ansi")
 bigquery_dialect = ansi_dialect.copy_as(
     "bigquery",
     formatted_name="Google BigQuery",
-    docstring="""**Default Casing**: ``UPPERCASE``
+    docstring="""**Default Casing**: BigQuery resolves unquoted column
+identifiers case insensitively, and table/dataset identifiers case
+sensitively (by default, unless :code:`is_case_insensitive` is set for
+the latter). Unless specified, columns are returned in the case which
+they were defined in, which means columns can be re-cased in the result
+set without aliasing e.g. if a table is defined with
+:code:`CREATE TEMPORARY TABLE foo (col1 int, COL2 int)` then
+:code:`SELECT * FROM foo` returns :code:`col1` and :code:`COL2` in the
+result, but :code:`SELECT COL1, col2 FROM foo` returns :code:`COL1` and
+:code:`col2` in the result.
 
 **Quotes**: String Literals: ``''``, ``""``, ``@`` or ``@@`` (with the
 quoted options, also supporting variants prefixes with ``r``/``R`` (for
 raw/regex expressions) or ``b``/``B`` (for byte strings)),
-Identifiers: ``""`` or |back_quotes|. Note that *unquoted* aliases are
-resolved case-insensitively but *rendered case-sensitively* in the result
-set.
+Identifiers: ``""`` or |back_quotes|.
 
 The dialect for `BigQuery <https://cloud.google.com/bigquery/>`_
 on Google Cloud Platform (GCP).""",

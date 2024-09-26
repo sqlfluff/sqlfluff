@@ -43,7 +43,16 @@ ansi_dialect = load_raw_dialect("ansi")
 clickhouse_dialect = ansi_dialect.copy_as(
     "clickhouse",
     formatted_name="ClickHouse",
-    docstring="The dialect for `ClickHouse <https://clickhouse.com/>`_.",
+    docstring="""**Default Casing**: Clickhouse is case sensitive throughout,
+regardless of quoting. An unquoted reference to an object using the wrong
+case will raise an :code:`UNKNOWN_IDENTIFIER` error.
+
+**Quotes**: String Literals: ``''``, Identifiers: ``""`` or |back_quotes|.
+Note as above, that because identifiers are always resolved case sensitively, the
+only reason for quoting identifiers is when they contain invalid characters or
+reserved keywords.
+
+The dialect for `ClickHouse <https://clickhouse.com/>`_.""",
 )
 clickhouse_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
