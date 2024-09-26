@@ -18,24 +18,6 @@ from typing import Any, Dict
 from sqlfluff.core.plugin.host import get_plugin_manager
 
 STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
-    "tab_space_size": {
-        "validation": range(100),
-        "definition": (
-            "The number of spaces to consider equal to one tab. "
-            "Used in the fixing step of this rule."
-        ),
-    },
-    "indent_unit": {
-        "validation": ["space", "tab"],
-        "definition": "Whether to use tabs or spaces to add new indents.",
-    },
-    "hanging_indents": {
-        "validation": [True, False],
-        "definition": (
-            "Whether hanging indents will be considered when evaluating the "
-            "indentation of a file."
-        ),
-    },
     "force_enable": {
         "validation": [True, False],
         "definition": (
@@ -53,10 +35,6 @@ STANDARD_CONFIG_INFO_DICT: Dict[str, Dict[str, Any]] = {
             "precedence, it is good practice to use parentheses around everything "
             "between ``^`` and ``$``."
         ),
-    },
-    "operator_new_lines": {
-        "validation": ["before", "after"],
-        "definition": ("Should operator be placed before or after newlines?"),
     },
     "blocked_words": {
         "definition": (
