@@ -308,7 +308,7 @@ class JinjaTemplater(PythonTemplater):
 
             def __init__(
                 self, identifier: str = "this_model"
-            ): -> None  # pragma: no cover TODO?
+            ) -> None:  # pragma: no cover TODO?
                 self.identifier = identifier
 
             def __call__(
