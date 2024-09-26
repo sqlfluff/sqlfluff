@@ -306,13 +306,19 @@ class JinjaTemplater(PythonTemplater):
             schema = "this_schema"
             database = "this_database"
 
-            def __init__(self, identifier: str = "this_model"):  # pragma: no cover TODO?
+            def __init__(
+                self, identifier: str = "this_model"
+            ): -> None  # pragma: no cover TODO?
                 self.identifier = identifier
 
-            def __call__(self, *args: tuple, **kwargs: dict) -> str:  # pragma: no cover TODO?
+            def __call__(
+                self, *args: tuple, **kwargs: dict
+            ) -> str:  # pragma: no cover TODO?
                 return self.identifier
 
-            def __getattr__(self, name: str) -> Union[Self, bool]:  # pragma: no cover TODO?
+            def __getattr__(
+                self, name: str
+            ) -> Union[Self, bool]:  # pragma: no cover TODO?
                 if name[0:3] == "is_":
                     return True
                 return self
@@ -324,7 +330,9 @@ class JinjaTemplater(PythonTemplater):
             "ref": lambda *args: RelationEmulator(args[-1]),
             # In case of a cross project ref in dbt, model_ref is the second
             # argument. Otherwise it is the only argument.
-            "source": lambda source_name, table: RelationEmulator(f"{source_name}_{table}"),
+            "source": lambda source_name, table: RelationEmulator(
+                f"{source_name}_{table}"
+            ),
             "config": lambda **kwargs: "",
             "var": lambda variable, default="": "item",
             # `is_incremental()` renders as True, always in this case.
