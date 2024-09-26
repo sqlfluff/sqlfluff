@@ -1,9 +1,62 @@
 """The convention plugin bundle."""
 
-from typing import List, Type
+from typing import Any, Dict, List, Type
 
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules import BaseRule
+
+
+@hookimpl
+def get_configs_info() -> Dict[str, Any]:
+    """Get additional rule config validations and descriptions."""
+    return {
+        "preferred_not_equal_style": {
+            "validation": ["consistent", "c_style", "ansi"],
+            "definition": (
+                "The style for using not equal to operator. Defaults to ``consistent``."
+            ),
+        },
+        "select_clause_trailing_comma": {
+            "validation": ["forbid", "require"],
+            "definition": (
+                "Should trailing commas within select clauses be required or forbidden?"
+            ),
+        },
+        "prefer_count_1": {
+            "validation": [True, False],
+            "definition": ("Should count(1) be preferred over count(*) and count(0)?"),
+        },
+        "prefer_count_0": {
+            "validation": [True, False],
+            "definition": ("Should count(0) be preferred over count(*) and count(1)?"),
+        },
+        "multiline_newline": {
+            "validation": [True, False],
+            "definition": (
+                "Should semi-colons be placed on a new line after multi-line statements?"
+            ),
+        },
+        "require_final_semicolon": {
+            "validation": [True, False],
+            "definition": (
+                "Should final semi-colons be required? "
+                "(N.B. forcing trailing semi-colons is not recommended for dbt users "
+                "as it can cause issues when wrapping the query within other SQL queries)."
+            ),
+        },
+        "preferred_quoted_literal_style": {
+            "validation": ["consistent", "single_quotes", "double_quotes"],
+            "definition": (
+                "Preferred quoting style to use for the quoted literals. If set to "
+                "``consistent`` quoting style is derived from the first quoted literal"
+                "in the file."
+            ),
+        },
+        "preferred_type_casting_style": {
+            "validation": ["consistent", "shorthand", "convert", "cast"],
+            "definition": ("The expectation for using sql type casting"),
+        },
+    }
 
 
 @hookimpl

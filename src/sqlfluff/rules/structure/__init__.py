@@ -1,9 +1,27 @@
 """The structure plugin bundle."""
 
-from typing import List, Type
+from typing import Any, Dict, List, Type
 
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules import BaseRule
+
+
+@hookimpl
+def get_configs_info() -> Dict[str, Any]:
+    """Get additional rule config validations and descriptions."""
+    return {
+        "forbid_subquery_in": {
+            "validation": ["join", "from", "both"],
+            "definition": "Which clauses should be linted for subqueries?",
+        },
+        "preferred_first_table_in_join_clause": {
+            "validation": ["earlier", "later"],
+            "definition": (
+                "Which table to list first when joining two tables. "
+                "Defaults to ``earlier``."
+            ),
+        },
+    }
 
 
 @hookimpl
