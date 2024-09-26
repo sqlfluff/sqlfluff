@@ -42,8 +42,8 @@ def get_configs_info() -> Dict[str, Any]:
         "prefer_quoted_keywords": {
             "validation": [True, False],
             "definition": (
-                "If ``True``, requires every keyword used as an identifier to be quoted. "
-                "Defaults to ``False``."
+                "If ``True``, requires every keyword used as an identifier to be "
+                "quoted. Defaults to ``False``."
             ),
         },
     }

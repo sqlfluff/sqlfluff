@@ -33,7 +33,8 @@ def get_configs_info() -> Dict[str, Any]:
         "multiline_newline": {
             "validation": [True, False],
             "definition": (
-                "Should semi-colons be placed on a new line after multi-line statements?"
+                "Should semi-colons be placed on a new line after multi-line "
+                "statements?"
             ),
         },
         "require_final_semicolon": {
@@ -41,7 +42,8 @@ def get_configs_info() -> Dict[str, Any]:
             "definition": (
                 "Should final semi-colons be required? "
                 "(N.B. forcing trailing semi-colons is not recommended for dbt users "
-                "as it can cause issues when wrapping the query within other SQL queries)."
+                "as it can cause issues when wrapping the query within other SQL "
+                "queries)."
             ),
         },
         "preferred_quoted_literal_style": {
