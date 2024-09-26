@@ -14,12 +14,12 @@ from typing import (
     Iterator,
     List,
     Optional,
-    Self,
     Set,
     Tuple,
     Union,
     cast,
 )
+from typing_extensions import Self
 
 import jinja2.nodes
 from jinja2 import (
