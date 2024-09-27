@@ -1795,7 +1795,7 @@ def test_relation_emulator_magic_methods():
     dbt_builtins = JinjaTemplater._generate_dbt_builtins()
 
     # tests for 'this'
-    t = dbt_builtins['this']
+    t = dbt_builtins["this"]
     assert str(t) == "this_model"
     assert t.something is t
     assert str(t.database) == "this_database"
@@ -1820,7 +1820,7 @@ def test_relation_emulator_magic_methods():
     assert str(t.something().something) == "this_model"
 
     # tests for 'ref'
-    r = dbt_builtins['ref']('ref_model')
+    r = dbt_builtins["ref"]("ref_model")
     assert str(r) == "ref_model"
     assert r.something is r
     assert str(r.database) == "this_database"
@@ -1845,7 +1845,7 @@ def test_relation_emulator_magic_methods():
     assert str(r.something().something) == "ref_model"
 
     # tests for versioned 'ref'
-    r = dbt_builtins['ref']('ref_model', version=2)
+    r = dbt_builtins["ref"]("ref_model", version=2)
     assert str(r) == "ref_model"
     assert r.something is r
     assert str(r.database) == "this_database"
@@ -1870,7 +1870,7 @@ def test_relation_emulator_magic_methods():
     assert str(r.something().something) == "ref_model"
 
     # tests for 'ref' from project/package
-    r = dbt_builtins['ref']('package', 'ref_model')
+    r = dbt_builtins["ref"]("package", "ref_model")
     assert str(r) == "ref_model"
     assert r.something is r
     assert str(r.database) == "this_database"
@@ -1895,7 +1895,7 @@ def test_relation_emulator_magic_methods():
     assert str(r.something().something) == "ref_model"
 
     # tests for versioned 'ref' from project/package
-    r = dbt_builtins['ref']('package', 'ref_model', version=2)
+    r = dbt_builtins["ref"]("package", "ref_model", version=2)
     assert str(r) == "ref_model"
     assert r.something is r
     assert str(r.database) == "this_database"
@@ -1920,7 +1920,7 @@ def test_relation_emulator_magic_methods():
     assert str(r.something().something) == "ref_model"
 
     # tests for 'source'
-    s = dbt_builtins['source']('sourcename', 'tablename')
+    s = dbt_builtins["source"]("sourcename", "tablename")
     assert str(s) == "sourcename_tablename"
     assert s.something is s
     assert str(s.database) == "this_database"
