@@ -616,7 +616,13 @@ from cte
     linter = Linter(config=config)
     # Attempt to fix it, capturing the logging output.
     with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
-        result = linter.lint_string(sql_text, fix=True)
+        result = linter.lint_paths(
+            ("test/fixtures/linter/parse_error_2.sql",),
+            fix=True,
+            apply_fixes=True,
+            fixed_file_suffix=f"_{fix_even_unparsable}_fix",
+            fix_even_unparsable=fix_even_unparsable,
+        )
     # Assert that it parsed (i.e. we found a select_statement), but with an
     # unparsable section in there too.
     assert result.tree
@@ -643,3 +649,17 @@ from cte
     assert "FROM cte" in result.tree.raw
     assert "a as b" not in result.tree.raw
     assert "a AS b" in result.tree.raw
+    # Check whether the file was persisted. If `fix_even_unparsable` was set, then
+    # there should be a file, and it should have the fixes from above in it. If not
+    # then there should be no fixed file, as the persist will have been aborted due
+    # to the parsing issues.
+    predicted_fix_path = (
+        f"test/fixtures/linter/parse_error_2_{fix_even_unparsable}_fix.sql"
+    )
+    if fix_even_unparsable:
+        with open(predicted_fix_path, "r") as f:
+            fixed_sql = f.read()
+        assert result.tree.raw == fixed_sql
+    else:
+        with pytest.raises(FileNotFoundError):
+            open(predicted_fix_path, "r")
