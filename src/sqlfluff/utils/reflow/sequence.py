@@ -156,7 +156,7 @@ class ReflowSequence:
             # Add the block, with config info.
             elem_buff.append(
                 ReflowBlock.from_config(
-                    segments=[seg],
+                    segments=(seg,),
                     config=reflow_config,
                     depth_info=depth_map.get_depth_info(seg),
                 )
@@ -353,7 +353,7 @@ class ReflowSequence:
         # the target.
         self.depth_map.copy_depth_info(target, insertion)
         new_block = ReflowBlock.from_config(
-            segments=[insertion],
+            segments=(insertion,),
             config=self.reflow_config,
             depth_info=self.depth_map.get_depth_info(target),
         )
@@ -503,8 +503,8 @@ class ReflowSequence:
             # If filter has been set, optionally unset the returned values.
             if (
                 filter == "inline"
+                # NOTE: We test on the NEW point.
                 if (
-                    # NOTE: We test on the NEW point.
                     any(seg.is_type("newline") for seg in new_point.segments)
                     # Or if it's followed by the end of file
                     or (post and "end_of_file" in post.class_types)
@@ -591,7 +591,7 @@ class ReflowSequence:
             lint_results=indent_results,
         )
 
-    def break_long_lines(self):
+    def break_long_lines(self) -> "ReflowSequence":
         """Rebreak any remaining long lines in a sequence.
 
         This assumes that reindent() has already been applied.
