@@ -27,7 +27,6 @@ types-pyyaml
 types-Jinja2
 types-regex
 types-tqdm
-typing-extensions
 # Requests is required for the util script
 requests
 ghapi
