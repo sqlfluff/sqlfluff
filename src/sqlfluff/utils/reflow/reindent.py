@@ -233,7 +233,9 @@ class _IndentLine:
         return self.indent_points[0].closing_indent_balance
 
 
-def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceType):
+def _revise_templated_lines(
+    lines: List[_IndentLine], elements: ReflowSequenceType
+) -> None:
     """Given an initial set of individual lines. Revise templated ones.
 
     NOTE: This mutates the `lines` argument.
@@ -566,7 +568,7 @@ def _revise_templated_lines(lines: List[_IndentLine], elements: ReflowSequenceTy
 
 def _revise_comment_lines(
     lines: List[_IndentLine], elements: ReflowSequenceType, ignore_comment_lines: bool
-):
+) -> None:
     """Given an initial set of individual lines. Revise comment ones.
 
     NOTE: This mutates the `lines` argument.
@@ -594,9 +596,9 @@ def _revise_comment_lines(
                     "  Comment Only Line: %s. Anchoring to %s", comment_line_idx, idx
                 )
                 # Mutate reference lines to match this one.
-                lines[comment_line_idx].initial_indent_balance = (
-                    line.initial_indent_balance
-                )
+                lines[
+                    comment_line_idx
+                ].initial_indent_balance = line.initial_indent_balance
             # Reset the buffer
             comment_line_buffer = []
 
@@ -1556,7 +1558,7 @@ def lint_indent_points(
     return elem_buffer, results
 
 
-def _source_char_len(elements: ReflowSequenceType):
+def _source_char_len(elements: ReflowSequenceType) -> int:
     """Calculate length in the source file.
 
     NOTE: This relies heavily on the sequence already being
