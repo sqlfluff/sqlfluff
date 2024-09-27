@@ -1790,6 +1790,39 @@ def test_undefined_magic_methods():
     assert ud + ud is ud
 
 
+def test_undefined_magic_methods():
+    """Test all the magic methods defined on DummyUndefined."""
+    ud = DummyUndefined("name")
+
+    # _self_impl
+    assert ud + ud is ud
+    assert ud - ud is ud
+    assert ud / ud is ud
+    assert ud // ud is ud
+    assert ud % ud is ud
+    assert ud**ud is ud
+    assert +ud is ud
+    assert -ud is ud
+    assert ud << ud is ud
+    assert ud[ud] is ud
+    assert ~ud is ud
+    assert ud(ud) is ud
+
+    # _bool_impl
+    assert ud and ud
+    assert ud or ud
+    assert ud ^ ud
+    assert bool(ud)
+    assert ud < ud
+    assert ud <= ud
+    assert ud == ud
+    assert ud != ud
+    assert ud >= ud
+    assert ud > ud
+
+    assert ud + ud is ud
+
+
 def test_relation_emulator_magic_methods():
     """Test all the magic methods defined on RelationEmulator."""
     dbt_builtins = JinjaTemplater._generate_dbt_builtins()
@@ -1811,9 +1844,13 @@ def test_relation_emulator_magic_methods():
     assert t.is_dynamic_table is True
     assert t.is_iceberg_format is True
     assert t.is_something_new is True
-    assert t.include() == "this_model"
-    assert t.include(database=False) == "this_model"
-    assert t.some_new_method() == "this_model"
+    assert t.something() is t
+    assert t.something().something() is t
+    assert t.something().something is t
+    assert str(t.include()) == "this_model"
+    assert str(t.include(database=False)) == "this_model"
+    assert str(t.some_new_method()) == "this_model"
+    assert str(t.something().something) == "this_model"
 
     # tests for 'ref'
     r = dbt_builtins['ref']('ref_model')
@@ -1832,9 +1869,13 @@ def test_relation_emulator_magic_methods():
     assert r.is_dynamic_table is True
     assert r.is_iceberg_format is True
     assert r.is_something_new is True
-    assert r.include() == "ref_model"
-    assert r.include(database=False) == "ref_model"
-    assert r.some_new_method() == "ref_model"
+    assert r.something() is r
+    assert r.something().something() is r
+    assert r.something().something is r
+    assert str(r.include()) == "ref_model"
+    assert str(r.include(database=False)) == "ref_model"
+    assert str(r.some_new_method()) == "ref_model"
+    assert str(r.something().something) == "ref_model"
 
     # tests for versioned 'ref'
     r = dbt_builtins['ref']('ref_model', version=2)
@@ -1853,9 +1894,13 @@ def test_relation_emulator_magic_methods():
     assert r.is_dynamic_table is True
     assert r.is_iceberg_format is True
     assert r.is_something_new is True
-    assert r.include() == "ref_model"
-    assert r.include(database=False) == "ref_model"
-    assert r.some_new_method() == "ref_model"
+    assert r.something() is r
+    assert r.something().something() is r
+    assert r.something().something is r
+    assert str(r.include()) == "ref_model"
+    assert str(r.include(database=False)) == "ref_model"
+    assert str(r.some_new_method()) == "ref_model"
+    assert str(r.something().something) == "ref_model"
 
     # tests for 'ref' from project/package
     r = dbt_builtins['ref']('package', 'ref_model')
@@ -1874,9 +1919,13 @@ def test_relation_emulator_magic_methods():
     assert r.is_dynamic_table is True
     assert r.is_iceberg_format is True
     assert r.is_something_new is True
-    assert r.include() == "ref_model"
-    assert r.include(database=False) == "ref_model"
-    assert r.some_new_method() == "ref_model"
+    assert r.something() is r
+    assert r.something().something() is r
+    assert r.something().something is r
+    assert str(r.include()) == "ref_model"
+    assert str(r.include(database=False)) == "ref_model"
+    assert str(r.some_new_method()) == "ref_model"
+    assert str(r.something().something) == "ref_model"
 
     # tests for versioned 'ref' from project/package
     r = dbt_builtins['ref']('package', 'ref_model', version=2)
@@ -1895,9 +1944,13 @@ def test_relation_emulator_magic_methods():
     assert r.is_dynamic_table is True
     assert r.is_iceberg_format is True
     assert r.is_something_new is True
-    assert r.include() == "ref_model"
-    assert r.include(database=False) == "ref_model"
-    assert r.some_new_method() == "ref_model"
+    assert r.something() is r
+    assert r.something().something() is r
+    assert r.something().something is r
+    assert str(r.include()) == "ref_model"
+    assert str(r.include(database=False)) == "ref_model"
+    assert str(r.some_new_method()) == "ref_model"
+    assert str(r.something().something) == "ref_model"
 
     # tests for 'source'
     s = dbt_builtins['source']('sourcename', 'tablename')
@@ -1916,9 +1969,12 @@ def test_relation_emulator_magic_methods():
     assert s.is_dynamic_table is True
     assert s.is_iceberg_format is True
     assert s.is_something_new is True
-    assert s.include() == "sourcename_tablename"
-    assert s.include(database=False) == "sourcename_tablename"
-    assert s.some_new_method() == "sourcename_tablename"
+    assert s.something() is s
+    assert s.something().something() is s
+    assert str(s.include()) == "sourcename_tablename"
+    assert str(s.include(database=False)) == "sourcename_tablename"
+    assert str(s.some_new_method()) == "sourcename_tablename"
+    assert str(s.something().something) == "sourcename_tablename"
 
 
 @pytest.mark.parametrize(
