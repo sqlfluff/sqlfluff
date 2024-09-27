@@ -1938,6 +1938,7 @@ def test_relation_emulator_magic_methods():
     assert s.is_something_new is True
     assert s.something() is s
     assert s.something().something() is s
+    assert s.something().something is s
     assert str(s.include()) == "sourcename_tablename"
     assert str(s.include(database=False)) == "sourcename_tablename"
     assert str(s.some_new_method()) == "sourcename_tablename"
