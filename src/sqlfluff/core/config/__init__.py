@@ -18,6 +18,7 @@ from sqlfluff.core.config.loader import (
     load_config_string,
     load_config_up_to_path,
 )
+from sqlfluff.core.config.types import ConfigMappingType
 
 __all__ = (
     "FluffConfig",
@@ -29,6 +30,7 @@ __all__ = (
     "load_config_up_to_path",
     "progress_bar_configuration",
     "clear_config_caches",
+    "ConfigMappingType",
 )
 
 
