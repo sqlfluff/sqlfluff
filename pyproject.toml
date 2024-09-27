@@ -92,8 +92,6 @@ dependencies = [
     "toml; python_version < '3.11'",
     # For handling progress bars
     "tqdm",
-    # Support new typings in older versions of python
-    "typing-extensions",
 ]
 
 [project.urls]
