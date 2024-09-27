@@ -1,18 +1,20 @@
 """Surrogate class for working with RawFileSlice collections."""
 
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
 
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
 
-class RawFileSlices(tuple):
+class RawFileSlices(Tuple[RawFileSlice]):
     """Encapsulates a sequence of one or more RawFileSlice.
 
     The slices may or may not be contiguous in a file.
     Provides useful operations on a sequence of slices to simplify rule creation.
     """
 
-    def __new__(cls, *raw_slices, templated_file=None):
+    def __new__(
+        cls, *raw_slices: RawFileSlice, templated_file: Optional[TemplatedFile] = None
+    ) -> "RawFileSlices":
         """Override new operator."""
         return super(RawFileSlices, cls).__new__(cls, raw_slices)
 
