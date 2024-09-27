@@ -130,7 +130,7 @@ def get_select_statement_info(
 
 def get_aliases_from_select(
     segment: BaseSegment, dialect: Optional[Dialect] = None
-) -> Tuple[Optional[list], Optional[list]]:
+) -> Tuple[Optional[List[AliasInfo]], Optional[List[BaseSegment]]]:
     """Gets the aliases referred to in the FROM clause.
 
     Returns a tuple of two lists:
@@ -161,7 +161,9 @@ def get_aliases_from_select(
     return table_aliases, standalone_aliases
 
 
-def _has_value_table_function(table_expr, dialect) -> bool:
+def _has_value_table_function(
+    table_expr: BaseSegment, dialect: Optional[Dialect]
+) -> bool:
     if not dialect:
         # We need the dialect to get the value table function names. If
         # we don't have it, assume the clause does not have a value table
