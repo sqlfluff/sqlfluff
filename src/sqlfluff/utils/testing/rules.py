@@ -1,28 +1,45 @@
 """Testing utils for rule plugins."""
 
 from glob import glob
-from typing import List, NamedTuple, Optional, Set, Tuple
+from typing import (
+    Collection,
+    Dict,
+    List,
+    NamedTuple,
+    Optional,
+    Set,
+    Tuple,
+    Union,
+)
 
 import pytest
 import yaml
 
 from sqlfluff.core import Linter
-from sqlfluff.core.config import FluffConfig
-from sqlfluff.core.errors import SQLParseError, SQLTemplaterError
+from sqlfluff.core.config import ConfigMappingType, FluffConfig
+from sqlfluff.core.errors import (
+    SQLBaseError,
+    SQLLintError,
+    SQLParseError,
+    SQLTemplaterError,
+)
 from sqlfluff.core.rules import BaseRule, get_ruleset
+
+FixDictType = Dict[str, Union[str, int]]
+ViolationDictType = Dict[str, Union[str, int, bool, List[FixDictType]]]
 
 
 class RuleTestCase(NamedTuple):
     """Used like a dataclass by rule tests."""
 
-    rule: Optional[str] = None
+    rule: str
     desc: Optional[str] = None
     pass_str: Optional[str] = None
     fail_str: Optional[str] = None
-    violations: Optional[Set[dict]] = None
+    violations: Optional[Set[ViolationDictType]] = None
     fix_str: Optional[str] = None
-    violations_after_fix: Optional[Set[dict]] = None
-    configs: Optional[dict] = None
+    violations_after_fix: Optional[Set[ViolationDictType]] = None
+    configs: Optional[ConfigMappingType] = None
     skip: Optional[str] = None
     line_numbers: List[int] = []
 
@@ -52,7 +69,7 @@ def load_test_cases(
     return ids, test_cases
 
 
-def get_rule_from_set(code, config) -> BaseRule:
+def get_rule_from_set(code: str, config: FluffConfig) -> BaseRule:
     """Fetch a rule from the rule set."""
     for r in get_ruleset().get_rulepack(config=config).rules:
         if r.code == code:  # pragma: no cover
@@ -60,28 +77,44 @@ def get_rule_from_set(code, config) -> BaseRule:
     raise ValueError(f"{code!r} not in {get_ruleset()!r}")
 
 
-def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
+def _setup_config(
+    code: str, configs: Optional[ConfigMappingType] = None
+) -> FluffConfig:
+    """Helper function to set up config consistently for pass & fail functions."""
+    overrides: ConfigMappingType = {"rules": code}
+    _core_section = configs.get("core", {}) if configs else {}
+    if not isinstance(_core_section, dict) or "dialect" not in _core_section:
+        overrides["dialect"] = "ansi"
+    return FluffConfig(configs=configs, overrides=overrides)
+
+
+def assert_rule_fail_in_sql(
+    code: str,
+    sql: str,
+    configs: Optional[ConfigMappingType] = None,
+    line_numbers: Optional[List[int]] = None,
+) -> Tuple[str, List[SQLBaseError]]:
     """Assert that a given rule does fail on the given sql."""
     print("# Asserting Rule Fail in SQL")
     # Set up the config to only use the rule we are testing.
-    overrides = {"rules": code}
-    if configs is None or "core" not in configs or "dialect" not in configs["core"]:
-        overrides["dialect"] = "ansi"
-    cfg = FluffConfig(configs=configs, overrides=overrides)
+    cfg = _setup_config(code, configs)
     # Lint it using the current config (while in fix mode)
     linted = Linter(config=cfg).lint_string(sql, fix=True)
-    lerrs = linted.get_violations()
+    all_violations = linted.get_violations()
     print("Errors Found:")
-    for e in lerrs:
+    for e in all_violations:
         print("    " + repr(e))
         if e.desc().startswith("Unexpected exception"):
             pytest.fail(f"Linter failed with {e.desc()}")  # pragma: no cover
-    parse_errors = list(
-        filter(lambda v: isinstance(v, (SQLParseError, SQLTemplaterError)), lerrs)
-    )
+    parse_errors = [
+        v for v in all_violations if isinstance(v, (SQLParseError, SQLTemplaterError))
+    ]
     if parse_errors:
         pytest.fail(f"Found the following parse errors in test case: {parse_errors}")
-    if not any(v.rule.code == code for v in lerrs):
+    lint_errors: List[SQLLintError] = [
+        v for v in all_violations if isinstance(v, SQLLintError)
+    ]
+    if not any(v.rule.code == code for v in lint_errors):
         assert linted.tree
         print(f"Parsed File:\n{linted.tree.stringify()}")
         pytest.fail(
@@ -89,7 +122,7 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
             pytrace=False,
         )
     if line_numbers:
-        actual_line_numbers = [e.line_no for e in lerrs]
+        actual_line_numbers = [e.line_no for e in lint_errors]
         if line_numbers != actual_line_numbers:  # pragma: no cover
             pytest.fail(
                 "Expected errors on lines {}, but got errors on lines {}".format(
@@ -100,18 +133,16 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
     return fixed, linted.violations
 
 
-def assert_rule_pass_in_sql(code, sql, configs=None, msg=None):
+def assert_rule_pass_in_sql(
+    code: str,
+    sql: str,
+    configs: Optional[ConfigMappingType] = None,
+    msg: Optional[str] = None,
+) -> None:
     """Assert that a given rule doesn't fail on the given sql."""
     # Configs allows overrides if we want to use them.
     print("# Asserting Rule Pass in SQL")
-    if configs is None:
-        configs = {}
-    core = configs.setdefault("core", {})
-    core["rules"] = code
-    overrides = {}
-    if "dialect" not in configs["core"]:
-        overrides["dialect"] = "ansi"
-    cfg = FluffConfig(configs=configs, overrides=overrides)
+    cfg = _setup_config(code, configs)
     linter = Linter(config=cfg)
 
     # This section is mainly for aid in debugging.
@@ -130,10 +161,10 @@ def assert_rule_pass_in_sql(code, sql, configs=None, msg=None):
     # words, the "rendered" and "parsed" variables above are irrelevant to this
     # line of code.
     lint_result = linter.lint_string(sql, config=cfg, fname="<STR>")
-    lerrs = lint_result.violations
-    if any(v.rule.code == code for v in lerrs):
+    lint_errors = [v for v in lint_result.violations if isinstance(v, SQLLintError)]
+    if any(v.rule.code == code for v in lint_errors):
         print("Errors Found:")
-        for e in lerrs:
+        for e in lint_result.violations:
             print("    " + repr(e))
 
         if msg:
@@ -141,8 +172,18 @@ def assert_rule_pass_in_sql(code, sql, configs=None, msg=None):
         pytest.fail(f"Found {code} failures in query which should pass.", pytrace=False)
 
 
-def assert_rule_raises_violations_in_file(rule, fpath, violations, fluff_config):
-    """Assert that a given rule raises given errors in specific positions of a file."""
+def assert_rule_raises_violations_in_file(
+    rule: str, fpath: str, violations: List[Tuple[int, int]], fluff_config: FluffConfig
+) -> None:
+    """Assert that a given rule raises given errors in specific positions of a file.
+
+    Args:
+        rule (str): The rule we're looking for.
+        fpath (str): The path to the sql file to check.
+        violations (:obj:`list` of :obj:`tuple`): A list of tuples, each with the line
+            number and line position of the expected violation.
+        fluff_config (:obj:`FluffConfig`): A config object to use while linting.
+    """
     lntr = Linter(config=fluff_config)
     lnt = lntr.lint_path(fpath)
     # Reformat the test data to match the format we're expecting. We use
@@ -151,7 +192,9 @@ def assert_rule_raises_violations_in_file(rule, fpath, violations, fluff_config)
     assert set(lnt.check_tuples()) == {(rule, v[0], v[1]) for v in violations}
 
 
-def prep_violations(rule, violations):
+def prep_violations(
+    rule: str, violations: Collection[ViolationDictType]
+) -> Collection[ViolationDictType]:
     """Default to test rule if code is omitted."""
     for v in violations:
         if "code" not in v:
@@ -159,10 +202,15 @@ def prep_violations(rule, violations):
     return violations
 
 
-def assert_violations_before_fix(test_case, violations_before_fix):
+def assert_violations_before_fix(
+    test_case: RuleTestCase, violations_before_fix: List[SQLBaseError]
+) -> None:
     """Assert that the given violations are found in the given sql."""
     print("# Asserting Violations Before Fix")
     violation_info = [e.to_dict() for e in violations_before_fix]
+    assert (
+        test_case.violations
+    ), "Test case must have `violations` to call `assert_violations_before_fix()`"
     try:
         assert violation_info == prep_violations(test_case.rule, test_case.violations)
     except AssertionError:  # pragma: no cover
@@ -170,9 +218,16 @@ def assert_violations_before_fix(test_case, violations_before_fix):
         raise
 
 
-def assert_violations_after_fix(test_case):
+def assert_violations_after_fix(test_case: RuleTestCase) -> None:
     """Assert that the given violations are found in the fixed sql."""
     print("# Asserting Violations After Fix")
+    assert (
+        test_case.fix_str
+    ), "Test case must have `fix_str` to call `assert_violations_after_fix()`"
+    assert test_case.violations_after_fix, (
+        "Test case must have `violations_after_fix` to call "
+        "`assert_violations_after_fix()`"
+    )
     _, violations_after_fix = assert_rule_fail_in_sql(
         test_case.rule,
         test_case.fix_str,
@@ -189,7 +244,7 @@ def assert_violations_after_fix(test_case):
         raise
 
 
-def rules__test_helper(test_case):
+def rules__test_helper(test_case: RuleTestCase) -> None:
     """Test that a rule passes/fails on a set of test_cases.
 
     Optionally, also test the fixed string if provided in the test case.
