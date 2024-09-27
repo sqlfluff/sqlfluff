@@ -16,7 +16,7 @@ import pytest
 import yaml
 
 from sqlfluff.core import Linter
-from sqlfluff.core.config import ConfigMappingType, FluffConfig
+from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import (
     SQLBaseError,
     SQLLintError,
@@ -24,6 +24,7 @@ from sqlfluff.core.errors import (
     SQLTemplaterError,
 )
 from sqlfluff.core.rules import BaseRule, get_ruleset
+from sqlfluff.core.types import ConfigMappingType
 
 FixDictType = Dict[str, Union[str, int]]
 ViolationDictType = Dict[str, Union[str, int, bool, List[FixDictType]]]
