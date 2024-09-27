@@ -5,7 +5,7 @@ from typing import Callable, Optional, Tuple
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
 
-class RawFileSlices(Tuple[RawFileSlice]):
+class RawFileSlices(Tuple[RawFileSlice, ...]):
     """Encapsulates a sequence of one or more RawFileSlice.
 
     The slices may or may not be contiguous in a file.

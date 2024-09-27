@@ -2,7 +2,7 @@
 
 from typing import List, cast
 
-from sqlfluff.core.parser.segments import TemplateSegment
+from sqlfluff.core.parser.segments import RawSegment, TemplateSegment
 from sqlfluff.core.rules import LintResult, RuleContext
 from sqlfluff.core.rules.base import BaseRule
 from sqlfluff.core.rules.crawlers import RootOnlyCrawler
@@ -46,6 +46,7 @@ class Rule_LT05(BaseRule):
                 # of the line is a comment).
                 assert res.anchor
                 assert res.anchor.pos_marker
+                assert isinstance(res.anchor, RawSegment)
                 if res.anchor.is_type("comment"):
                     self.logger.debug(
                         "Purging result on long line starting with comment: %s",
@@ -92,6 +93,7 @@ class Rule_LT05(BaseRule):
                 # is a comment_clause.
                 assert res.anchor
                 assert res.anchor.pos_marker
+                assert isinstance(res.anchor, RawSegment)
                 raw_idx = raw_segments.index(res.anchor)
                 for seg in raw_segments[raw_idx:]:
                     if (

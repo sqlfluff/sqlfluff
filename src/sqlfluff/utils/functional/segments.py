@@ -20,7 +20,7 @@ from sqlfluff.utils.functional.raw_file_slices import RawFileSlices
 PredicateType = Callable[[BaseSegment], bool]
 
 
-class Segments(Tuple[BaseSegment]):
+class Segments(Tuple[BaseSegment, ...]):
     """Encapsulates a sequence of one or more BaseSegments.
 
     The segments may or may not be contiguous in a parse tree.
