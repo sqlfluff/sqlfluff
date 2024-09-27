@@ -603,13 +603,6 @@ def test_unparsable_fix_output(fix_even_unparsable):
     same for both values of `fix_even_unparsable`. We probably need a better
     test case at some point so that we can actually see the difference.
     """
-    # This is a query with an unparsable section (the `multiple_x` bit).
-    sql_text = """SELECT
-    a as b,
-    42,
-    `multiple_x` as c
-from cte
-"""
     config = FluffConfig(
         overrides={"fix_even_unparsable": fix_even_unparsable, "dialect": "ansi"}
     )
