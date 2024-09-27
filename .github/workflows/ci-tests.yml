@@ -50,7 +50,7 @@ jobs:
     name: Python Tests
     strategy:
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
         include:
           # Default to test without coverage tracking on older python versions.
           # This saves time, as testing without coverage tracking is faster.
@@ -58,6 +58,9 @@ jobs:
           # Override coverage to be true for most recent python version.
           - python-version: "3.12"
             coverage: true
+          # Override prerelease to true for pre-release python versions.
+          - python-version: "3.13"
+            prerelease: true
     permissions:
       contents: read
       pull-requests: write

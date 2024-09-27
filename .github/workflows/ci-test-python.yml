@@ -25,6 +25,11 @@ on:
         required: false
         type: boolean
         default: false
+      # Whether to allow pre-release python versions.
+      prerelease:
+        required: false
+        type: boolean
+        default: false
     secrets:
       gh_token:
         required: true
@@ -40,6 +45,7 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ inputs.python-version }}
+        allow-prereleases: ${{ inputs.prerelease }}
         cache: 'pip'
         cache-dependency-path: |
           setup.cfg
