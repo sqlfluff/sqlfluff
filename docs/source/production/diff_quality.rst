@@ -55,9 +55,9 @@ although the format is a little different. Note that ``diff-quality`` only lists
 the line _numbers_, not the character position. If you need the character
 position, you will need to run SQLFluff directly.
 
-For more information on ``diff-quality``, see the
-`documentation <https://diff-cover.readthedocs.io/en/latest/>`_. It covers topics
-such as:
+For more information on ``diff-quality`` and the ``diff_cover`` package, see the
+`documentation <https://github.com/Bachmann1234/diff_cover>`_ on their github
+repository. It covers topics such as:
 
 * Generating HTML reports
 * Controlling which branch to compare against (i.e. to determine new/changed
