@@ -214,7 +214,11 @@ def assert_violations_before_fix(
     try:
         assert violation_info == prep_violations(test_case.rule, test_case.violations)
     except AssertionError:  # pragma: no cover
-        print("Actual violations:\n" + yaml.dump(violation_info))
+        print(
+            "Actual violations:\n",
+            yaml.dump(violation_info, allow_unicode=True),
+            sep="",
+        )
         raise
 
 
@@ -240,7 +244,11 @@ def assert_violations_after_fix(test_case: RuleTestCase) -> None:
             test_case.rule, test_case.violations_after_fix
         )
     except AssertionError:  # pragma: no cover
-        print("Actual violations_after_fix:\n" + yaml.dump(violation_info))
+        print(
+            "Actual violations_after_fix:\n",
+            yaml.dump(violation_info, allow_unicode=True),
+            sep="",
+        )
         raise
 
 
