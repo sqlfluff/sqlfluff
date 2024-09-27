@@ -37,15 +37,3 @@ class Color(Enum):
     green = Fore.GREEN
     blue = Fore.BLUE
     light = Fore.YELLOW
-
-
-class RuleType:
-    """Interface type representing a rule.
-
-    This defines only the interface for a rule, to avoid circular imports
-    during typing. All actual rules should inherit from BaseRule.
-
-    This is a slight hack, particularly given this class defines no methods
-    and acts purely to make both strict typing and import linting happy.
-    See `sqlfluff.core.plugin.hookspecs` for more details.
-    """

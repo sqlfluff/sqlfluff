@@ -199,6 +199,10 @@ ignore_imports = [
     # Splitting it up seems overkill for now, so an allowable exception.
     "sqlfluff.core.errors -> sqlfluff.core.rules",
     "sqlfluff.core.errors -> sqlfluff.core.parser",
+    # The plugin host need the BaseRule type for type checking, because one
+    # of the hooks returns rules. It's otherwise not something we can import
+    # at this layer.
+    "sqlfluff.core.plugin.hookspecs -> sqlfluff.core.rules.base"
 ]
 
 

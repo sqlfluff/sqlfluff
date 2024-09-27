@@ -48,7 +48,6 @@ from sqlfluff.core.rules.context import RuleContext
 from sqlfluff.core.rules.crawlers import BaseCrawler
 from sqlfluff.core.rules.fix import LintFix
 from sqlfluff.core.templaters.base import TemplatedFile
-from sqlfluff.core.types import RuleType
 
 # Best solution for generic types on older python versions
 # https://github.com/python/typeshed/issues/7855
@@ -332,7 +331,7 @@ class RuleMetaclass(type):
 
         class_dict = RuleMetaclass._populate_docstring(name, class_dict)
         # Don't try and infer code and description for the base classes
-        if name not in ("BaseRule", "RuleType"):
+        if name not in ("BaseRule",):
             class_dict = RuleMetaclass._populate_code_and_description(name, class_dict)
         # Validate rule names
         rule_name = class_dict.get("name", "")
@@ -351,7 +350,7 @@ class RuleMetaclass(type):
         return super().__new__(mcs, name, bases, class_dict)  # type: ignore
 
 
-class BaseRule(RuleType, metaclass=RuleMetaclass):
+class BaseRule(metaclass=RuleMetaclass):
     """The base class for a rule.
 
     Args:

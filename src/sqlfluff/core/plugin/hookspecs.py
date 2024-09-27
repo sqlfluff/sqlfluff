@@ -1,12 +1,16 @@
 """Defines the specification to implement a plugin."""
 
 from abc import abstractmethod
-from typing import Any, Dict, List, Type
+from typing import TYPE_CHECKING, Any, Dict, List, Type
 
 import pluggy
 
 from sqlfluff.core.plugin import plugin_base_name
-from sqlfluff.core.types import RuleType
+
+if TYPE_CHECKING:
+    # NOTE: This import is against the normal import rules, but is here for strict
+    # type checking. We have an exception for this in the import linter.
+    from sqlfluff.core.rules.base import BaseRule
 
 hookspec = pluggy.HookspecMarker(plugin_base_name)
 
@@ -16,14 +20,8 @@ class PluginSpec:
 
     @hookspec
     @abstractmethod
-    def get_rules(self) -> List[Type[RuleType]]:
-        """Get plugin rules.
-
-        NOTE: While the type annotation for this method returns `Type[RuleType]`
-        all plugin implementations should instead import `sqlfluff.core.rules` and
-        return the more specific `Type[BaseRule]`. This base definition of the
-        PluginSpec cannot import that yet as it would cause a circular import.
-        """
+    def get_rules(self) -> List[Type["BaseRule"]]:
+        """Get plugin rules."""
 
     @hookspec
     @abstractmethod
