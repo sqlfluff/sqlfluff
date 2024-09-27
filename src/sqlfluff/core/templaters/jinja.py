@@ -920,9 +920,9 @@ class JinjaTemplater(PythonTemplater):
                     # (here that is options[0]).
                     new_value = "True" if options[0] == branch + 1 else "False"
                     new_source = f"{{% {raw_file_slice.tag} {new_value} %}}"
-                    tracer_trace.raw_slice_info[
-                        raw_file_slice
-                    ].alternate_code = new_source
+                    tracer_trace.raw_slice_info[raw_file_slice].alternate_code = (
+                        new_source
+                    )
                     override_raw_slices.append(branch)
                     length_deltas[raw_file_slice.source_idx] = len(new_source) - len(
                         raw_file_slice.raw
