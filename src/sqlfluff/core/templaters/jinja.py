@@ -308,8 +308,8 @@ class JinjaTemplater(PythonTemplater):
             def __init__(self, identifier: str = "this_model") -> None:
                 self.identifier = identifier
 
-            def __call__(self, *args: str, **kwargs: str) -> str:
-                return self.identifier
+            def __call__(self, *args: list, **kwargs: dict) -> "RelationEmulator":
+                return self
 
             def __getattr__(self, name: str) -> Union["RelationEmulator", bool]:
                 if name[0:3] == "is_":
