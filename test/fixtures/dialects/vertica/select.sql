@@ -84,3 +84,48 @@ SELECT DISTINCT customer_name
    FROM customer_dimension
    WHERE customer_region = 'East'
    AND customer_name ILIKE 'Amer%';
+
+/* https://docs.vertica.com/24.3.x/en/sql-reference/language-elements/identifiers/
+* Unquoted SQL identifiers must begin with one of the following:
+* * Non-Unicode letters: A–Z or a-z
+* -- /actually Vertica accepts also non-ASCII UTF-8 Unicode
+* characters here, which is not well documented/
+* * Underscore (_)
+* Subsequent characters in an identifier can be any combination of
+* the following:
+* * Non-Unicode letters: A–Z or a-z
+* * Underscore (_)
+* * Digits(0–9)
+* * Unicode letters (letters with diacriticals or not in the Latin
+* alphabet), unsupported for model names
+* * Dollar sign ($), unsupported for model names
+*
+* Vertica accepts **non-ASCII UTF-8 Unicode characters** for table
+* names, column names, and other identifiers,
+* extending the cases where upper/lower case distinctions are
+* ignored (case-folded) to all alphabets,
+* including Latin, Cyrillic, and Greek.
+*/
+-- unqouted identifiers
+SELECT * FROM public.sales;
+
+SELECT * FROM public.sales1;
+SELECT * FROM public.sales_;
+SELECT * FROM public.s$ales$;
+SELECT * FROM public._sales;
+SELECT * FROM public._1234sales;
+
+SELECT * FROM public1.sales;
+SELECT * FROM public_.sales;
+SELECT * FROM p$ublic$.sales;
+SELECT * FROM _public.sales;
+SELECT * FROM _1234public.sales;
+
+SELECT * FROM public1.sales1;
+SELECT * FROM public1_.sales1_;
+SELECT * FROM p$ublic1_$.s$ales1_$;
+
+
+-- quoted identifiers
+SELECT * FROM "12public"."12344gr";
+SELECT * FROM "_1234public"."_1234sales";
