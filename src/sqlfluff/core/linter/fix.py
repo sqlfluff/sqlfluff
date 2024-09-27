@@ -325,8 +325,8 @@ def apply_fixes(
                 validated = True
             else:
                 # It was already unparsable, but we're being asked to validate.
-                # Don't any fixes from within this region and just return the original
-                # segment.
+                # Don't any apply fixes from within this region and just return the
+                # original segment.
                 return segment, [], [], True
         # Otherwise only validate if there's a match_grammar. Otherwise we may get
         # strange results (for example with the BracketedSegment).
