@@ -183,7 +183,7 @@ class Query(Generic[T]):
     cte_name_segment: Optional[BaseSegment] = field(default=None)
     is_subquery: Optional[bool] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         # Once instantiated, set the `parent` attribute of any
         # subqueries and ctes. Some might already be set - but
         # we'll reset them anyway here.
@@ -230,7 +230,11 @@ class Query(Generic[T]):
             return None
 
     def crawl_sources(
-        self: T, segment: BaseSegment, recurse_into=True, pop=False, lookup_cte=True
+        self: T,
+        segment: BaseSegment,
+        recurse_into: bool = True,
+        pop: bool = False,
+        lookup_cte: bool = True,
     ) -> Iterator[Union[str, T]]:
         """Find SELECTs, table refs, or value table function calls in segment.
 
@@ -298,7 +302,7 @@ class Query(Generic[T]):
             yield cls.from_segment(subselect, dialect=dialect)
 
     @classmethod
-    def from_root(cls: Type[T], root_segment, dialect: Dialect) -> T:
+    def from_root(cls: Type[T], root_segment: BaseSegment, dialect: Dialect) -> T:
         """Given a root segment, find the first appropriate selectable and analyse."""
         selectable_segment = next(
             # Could be a Selectable or a MERGE
