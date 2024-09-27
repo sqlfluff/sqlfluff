@@ -320,7 +320,7 @@ class JinjaTemplater(PythonTemplater):
                 return self.identifier
 
         dbt_builtins = {
-            "ref": lambda *args: RelationEmulator(args[-1]),
+            "ref": lambda *args, **kwargs: RelationEmulator(args[-1]),
             # In case of a cross project ref in dbt, model_ref is the second
             # argument. Otherwise it is the only argument.
             "source": lambda source_name, table: RelationEmulator(
