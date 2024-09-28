@@ -39,10 +39,10 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        # Try a release candidate if the main one it's live
+        # Try a release candidate if we can't find a non rc version.
         python-version: |
-          ${{ inputs.python-version }}-rc
           ${{ inputs.python-version }}
+          ${{ inputs.python-version }}-rc
         cache: 'pip'
         cache-dependency-path: |
           setup.cfg
