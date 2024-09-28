@@ -431,3 +431,46 @@ test_fail_cte_selects_3419:
       type:
         select_clause:
           keyword_line_position: alone
+
+test_fail_all_keyword_segment:
+  # This is a bit strange, but handles for a case where the
+  # segment is all keywords.
+  fail_str: |
+    CREATE TABLE t (c1 DOUBLE PRECISION NOT NULL)
+  fix_str: |
+    CREATE TABLE t (c1
+    DOUBLE PRECISION
+    NOT NULL)
+  configs:
+    layout:
+      type:
+        data_type:
+          keyword_line_position: alone
+
+test_pass_leading_non_indent_first_segment:
+  # a window_specification doesn't have a leading keyword,
+  # this rule should have no effect on it. For now.
+  pass_str: |
+    select a, sum(b) over (named_window partition by c) as sum_b
+    from t window named_window as (partition by e)
+  configs:
+    layout:
+      type:
+        window_specification:
+          keyword_line_position: leading
+
+
+test_pass_templated_leading_from_clause:
+  pass_str: |
+    {% macro join_type(expression) %}
+      {{ expression }}
+    {% endmacro %}
+
+    SELECT a.foo, b.bar FROM baz a
+    {{ join_type("LEFT") }} JOIN tab b
+    ON a.col = b.col
+  configs:
+    layout:
+      type:
+        join_clause:
+          keyword_line_position: alone
