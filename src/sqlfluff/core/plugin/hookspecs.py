@@ -7,7 +7,7 @@ import pluggy
 
 from sqlfluff.core.plugin import plugin_base_name
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     # NOTE: This import is against the normal import rules, but is here for strict
     # type checking. We have an exception for this in the import linter.
     from sqlfluff.core.rules.base import BaseRule
