@@ -2,7 +2,7 @@
 
 import logging
 from dataclasses import dataclass
-from typing import List, Literal, Tuple, Type, cast
+from typing import List, Tuple, Type, cast
 
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.rules import LintFix, LintResult
@@ -263,6 +263,24 @@ def identify_rebreak_spans(
     return spans
 
 
+def _is_leading_with_keyword(
+    stack_index: int, element_buffer: ReflowSequenceType, idx: int, key_delta: int
+):
+    if stack_index > 1 or key_delta > 1:
+        return False
+    elif stack_index == 0:
+        return element_buffer[idx].segments and element_buffer[idx].segments[0].is_type(
+            "keyword"
+        )
+    else:
+        return (
+            element_buffer[idx].segments
+            and element_buffer[idx].segments[0].is_type("keyword")
+            and element_buffer[idx - 1].segments
+            and element_buffer[idx - 1].segments[-1].is_type("indent")
+        )
+
+
 def identify_keyword_rebreak_spans(
     element_buffer: ReflowSequenceType,
 ) -> List[_RebreakSpan]:
@@ -287,9 +305,17 @@ def identify_keyword_rebreak_spans(
             if elem.depth_info.stack_positions[key].idx > 1:
                 continue
             # If we found something at the 1st index, check that it is in fact an indent
-            if elem.depth_info.stack_positions[key].idx == 1 and not (
-                element_buffer[idx - 1].segments
-                and element_buffer[idx - 1].segments[-1].is_type("indent")
+            # print(elem.depth_info.stack_depth)
+            current_key_depth = next(
+                i
+                for i, k in enumerate(elem.depth_info.stack_positions.keys())
+                if k == key
+            )
+            if not _is_leading_with_keyword(
+                elem.depth_info.stack_positions[key].idx,
+                element_buffer,
+                idx,
+                elem.depth_info.stack_depth - current_key_depth,
             ):
                 continue
             # Can we find the end?
@@ -309,7 +335,7 @@ def identify_keyword_rebreak_spans(
                     seg.is_type("keyword", "comment") for seg in end_elem.segments
                 ):
                     # If we get here, it means the last block was the end or we hit the
-                    # end of keywords
+                    # end of keywords. This is unlikely to occur.
                     final_idx = end_idx - 2
                 elif end_elem.depth_info.stack_positions[key].type in ("end", "solo"):
                     final_idx = end_idx
@@ -340,7 +366,6 @@ def identify_keyword_rebreak_spans(
 def rebreak_sequence(
     elements: ReflowSequenceType,
     root_segment: BaseSegment,
-    rebreak_type: Literal["lines", "keywords"] = "lines",
 ) -> Tuple[ReflowSequenceType, List[LintResult]]:
     """Reflow line breaks within a sequence.
 
@@ -364,10 +389,7 @@ def rebreak_sequence(
     # side to respace them at the same time.
 
     # 1. First find appropriate spans.
-    if rebreak_type == "lines":
-        spans = identify_rebreak_spans(elem_buff, root_segment)
-    elif rebreak_type == "keywords":
-        spans = identify_keyword_rebreak_spans(elem_buff)
+    spans = identify_rebreak_spans(elem_buff, root_segment)
 
     # The spans give us the edges of operators, but for line positioning we need
     # to handle comments differently. There are two other important points:
@@ -698,7 +720,9 @@ def rebreak_keywords_sequence(
         # where we're unable to find the next newline effectively), then
         # we'll get an exception. If we do - skip that one - we won't be
         # able to effectively work with it even if we could construct it.
-        except UnboundLocalError:
+        # This would be unlikely to happen when breaking on only keywords,
+        # but was left in that unlikely event.
+        except UnboundLocalError:  # pragma: nocover
             pass
 
     # Handle each span:
