@@ -289,70 +289,6 @@ class ReflowSequence:
         )
         return cls.from_raw_segments(segments, root_segment, config=config)
 
-    @classmethod
-    def from_around_target_segments(
-        cls: Type["ReflowSequence"],
-        target_raws: List[RawSegment],
-        root_segment: BaseSegment,
-        config: FluffConfig,
-        sides: str = "both",
-    ) -> "ReflowSequence":
-        """Generate a sequence around a target.
-
-        Args:
-            target_raws (:obj:`List[RawSegment]`): The segment to center
-                around when considering the sequence to construct.
-            root_segment (:obj:`BaseSegment`): The relevant root
-                segment (usually the base :obj:`FileSegment`).
-            config (:obj:`FluffConfig`): A config object from which
-                to load the spacing behaviours of different segments.
-            sides (:obj:`str`): Limit the reflow sequence to just one
-                side of the target. Default is two sided ("both"), but
-                set to "before" or "after" to limit to either side.
-
-
-        **NOTE**: We don't just expand to the first block around the
-        target but to the first *code* element, which means we
-        may swallow several `comment` blocks in the process.
-
-        To evaluate reflow around a specific target, we need
-        need to generate a sequence which goes for the preceding
-        raw to the following raw.
-        i.e. at least: block - point - block - point - block
-        (where the central block is the target).
-        """
-        # There's probably a more efficient way than immediately
-        # materialising the raw_segments for the whole root, but
-        # it works. Optimise later.
-        all_raws = root_segment.raw_segments
-
-        assert target_raws
-        pre_idx = all_raws.index(target_raws[0])
-        post_idx = all_raws.index(target_raws[-1]) + 1
-        initial_idx = (pre_idx, post_idx)
-        if sides in ("both", "before"):
-            # Catch at least the previous segment
-            pre_idx -= 1
-            for pre_idx in range(pre_idx, -1, -1):
-                if all_raws[pre_idx].is_code:
-                    break
-        if sides in ("both", "after"):
-            for post_idx in range(post_idx, len(all_raws)):
-                if all_raws[post_idx].is_code:
-                    break
-            # Capture one more after the whitespace.
-            post_idx += 1
-        segments = all_raws[pre_idx:post_idx]
-        reflow_logger.debug(
-            "Generating ReflowSequence.from_around_target_segments(). idx: %s. "
-            "slice: %s:%s. raw: %r",
-            initial_idx,
-            pre_idx,
-            post_idx,
-            "".join(seg.raw for seg in segments),
-        )
-        return cls.from_raw_segments(segments, root_segment, config=config)
-
     def _find_element_idx_with(self, target: RawSegment) -> int:
         for idx, elem in enumerate(self.elements):
             if target in elem.segments:
@@ -624,8 +560,10 @@ class ReflowSequence:
             elem_buff, lint_results = rebreak_keywords_sequence(
                 self.elements, self.root_segment
             )
-        else:
-            raise NotImplementedError()
+        else:  # pragma: no cover
+            raise NotImplementedError(
+                f"Rebreak type of `{rebreak_type}` is not supported."
+            )
 
         return ReflowSequence(
             elements=elem_buff,
