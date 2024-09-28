@@ -63,13 +63,21 @@ class LintingResult:
         """Stop the linting timer."""
         self.total_time = time.monotonic() - self._start_time
 
-    def check_tuples(self) -> List[CheckTuple]:
+    def check_tuples(
+        self, raise_on_non_linting_violations: bool = True
+    ) -> List[CheckTuple]:
         """Fetch all check_tuples from all contained `LintedDir` objects.
 
         Returns:
             A list of check tuples.
         """
-        return [t for path in self.paths for t in path.check_tuples()]
+        return [
+            t
+            for path in self.paths
+            for t in path.check_tuples(
+                raise_on_non_linting_violations=raise_on_non_linting_violations
+            )
+        ]
 
     def check_tuples_by_path(self) -> Dict[str, List[CheckTuple]]:
         """Fetch all check_tuples from all contained `LintedDir` objects.
