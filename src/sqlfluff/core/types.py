@@ -1,6 +1,9 @@
-"""Types common to several config loaders."""
+"""Enums used by sqlfluff."""
 
+from enum import Enum
 from typing import List, Union
+
+from colorama import Fore
 
 from sqlfluff.core.helpers.dict import NestedDictRecord, NestedStringDict
 
@@ -14,3 +17,23 @@ ConfigValueType = Union[int, float, bool, None, str]
 ConfigValueOrListType = Union[ConfigValueType, List[str]]
 ConfigMappingType = NestedStringDict[ConfigValueOrListType]
 ConfigRecordType = NestedDictRecord[ConfigValueOrListType]
+
+
+class FormatType(Enum):
+    """Enums for formatting types."""
+
+    human = "human"
+    json = "json"
+    yaml = "yaml"
+    github_annotation = "github-annotation"
+    github_annotation_native = "github-annotation-native"
+    none = "none"  # An option to return _no output_.
+
+
+class Color(Enum):
+    """Colors used by `colorize` function."""
+
+    red = Fore.RED
+    green = Fore.GREEN
+    blue = Fore.BLUE
+    light = Fore.YELLOW

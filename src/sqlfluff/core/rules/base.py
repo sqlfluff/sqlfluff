@@ -330,8 +330,8 @@ class RuleMetaclass(type):
                 break
 
         class_dict = RuleMetaclass._populate_docstring(name, class_dict)
-        # Don't try and infer code and description for the base class
-        if bases:
+        # Don't try and infer code and description for the base classes
+        if name not in ("BaseRule",):
             class_dict = RuleMetaclass._populate_code_and_description(name, class_dict)
         # Validate rule names
         rule_name = class_dict.get("name", "")
