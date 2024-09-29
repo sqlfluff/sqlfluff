@@ -1,9 +1,42 @@
 """The capitalisation plugin bundle."""
 
-from typing import List, Type
+from typing import Any, Dict, List, Type
 
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules import BaseRule
+
+
+@hookimpl
+def get_configs_info() -> Dict[str, Any]:
+    """Get additional rule config validations and descriptions."""
+    return {
+        "capitalisation_policy": {
+            "validation": ["consistent", "upper", "lower", "capitalise"],
+            "definition": "The capitalisation policy to enforce.",
+        },
+        "extended_capitalisation_policy": {
+            "validation": [
+                "consistent",
+                "upper",
+                "lower",
+                "pascal",
+                "capitalise",
+                "snake",
+                "camel",
+            ],
+            "definition": (
+                "The capitalisation policy to enforce, extended with PascalCase, "
+                "snake_case, and camelCase. "
+                "This is separate from ``capitalisation_policy`` as it should not be "
+                "applied to keywords."
+                "Camel, Pascal, and Snake will never be inferred when the policy is "
+                "set to consistent. This is because snake can cause destructive "
+                "changes to the identifier, and unlinted code is too easily mistaken "
+                "for camel and pascal. If, when set to consistent, no consistent "
+                "case is found, it will default to upper."
+            ),
+        },
+    }
 
 
 @hookimpl
