@@ -19,6 +19,7 @@ from sqlfluff.core.parser import (
     Matchable,
     OneOf,
     Ref,
+    RegexLexer,
     RegexParser,
     Sequence,
     StringLexer,
@@ -60,7 +61,17 @@ databricks_dialect.insert_lexer_matchers(
     before="equals",
 )
 
+databricks_dialect.insert_lexer_matchers(
+    # Notebook Cell Delimiter:
+    # https://learn.microsoft.com/en-us/azure/databricks/notebooks/notebook-export-import#sql-1
+    [
+        RegexLexer("command", r"(\r?\n){2}-- COMMAND ----------(\r?\n)", CodeSegment),
+    ],
+    before="newline",
+)
+
 databricks_dialect.add(
+    CommandCellSegment=TypedParser("command", CodeSegment, type="statement_terminator"),
     DoubleQuotedUDFBody=TypedParser(
         "double_quote",
         CodeSegment,
@@ -204,6 +215,7 @@ databricks_dialect.add(
 )
 
 databricks_dialect.replace(
+    DelimiterGrammar=OneOf(Ref("SemicolonSegment"), Ref("CommandCellSegment")),
     # https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-describe-volume.html
     DescribeObjectGrammar=sparksql_dialect.get_grammar("DescribeObjectGrammar").copy(
         insert=[

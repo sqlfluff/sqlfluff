@@ -176,13 +176,13 @@ class DbtTemplater(JinjaTemplater):
     sequential_fail_limit = 3
     adapters = {}
 
-    def __init__(self, **kwargs):
+    def __init__(self, override_context: Optional[Dict[str, Any]] = None):
         self.sqlfluff_config = None
         self.formatter = None
         self.project_dir = None
         self.profiles_dir = None
         self.working_dir = os.getcwd()
-        super().__init__(**kwargs)
+        super().__init__(override_context=override_context)
 
     def config_pairs(self):
         """Returns info about the given templater for output by the cli."""

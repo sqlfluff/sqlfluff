@@ -12,7 +12,7 @@ from sqlfluff.core.errors import (
     SQLBaseError,
     SQLLintError,
 )
-from sqlfluff.core.linter.formatter import FormatterInterface
+from sqlfluff.core.formatter import FormatterInterface
 from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES, LintedFile
 from sqlfluff.core.parser.segments.base import BaseSegment
 

@@ -16,7 +16,7 @@ import pytest
 import yaml
 
 from sqlfluff.core import Linter
-from sqlfluff.core.config import ConfigMappingType, FluffConfig
+from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import (
     SQLBaseError,
     SQLLintError,
@@ -24,6 +24,7 @@ from sqlfluff.core.errors import (
     SQLTemplaterError,
 )
 from sqlfluff.core.rules import BaseRule, get_ruleset
+from sqlfluff.core.types import ConfigMappingType
 
 FixDictType = Dict[str, Union[str, int]]
 ViolationDictType = Dict[str, Union[str, int, bool, List[FixDictType]]]
@@ -214,7 +215,11 @@ def assert_violations_before_fix(
     try:
         assert violation_info == prep_violations(test_case.rule, test_case.violations)
     except AssertionError:  # pragma: no cover
-        print("Actual violations:\n" + yaml.dump(violation_info))
+        print(
+            "Actual violations:\n",
+            yaml.dump(violation_info, allow_unicode=True),
+            sep="",
+        )
         raise
 
 
@@ -240,7 +245,11 @@ def assert_violations_after_fix(test_case: RuleTestCase) -> None:
             test_case.rule, test_case.violations_after_fix
         )
     except AssertionError:  # pragma: no cover
-        print("Actual violations_after_fix:\n" + yaml.dump(violation_info))
+        print(
+            "Actual violations_after_fix:\n",
+            yaml.dump(violation_info, allow_unicode=True),
+            sep="",
+        )
         raise
 
 

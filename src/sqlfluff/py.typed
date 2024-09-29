@@ -1,0 +1,3 @@
+In line with PEP561 this file indicates to people using this package that
+it's contents have type annotations which can be used.
+https://peps.python.org/pep-0561/
